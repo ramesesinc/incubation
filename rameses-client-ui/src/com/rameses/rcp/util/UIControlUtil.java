@@ -61,10 +61,11 @@ public class UIControlUtil {
         if (bean == null || expression == null) return null; 
         
         ExpressionResolver er = ExpressionResolver.getInstance();
-        try { 
+        try 
+        { 
             String result = er.evalString(expression, bean); 
             if (result != null && "null".equals(result)) return null; 
-            
+                
             return result;
         } 
         catch(NullPointerException npe) {
@@ -146,5 +147,5 @@ public class UIControlUtil {
             
             actionMessage.addMessage(ac);
         }
-    }    
+    } 
 }

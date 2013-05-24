@@ -80,12 +80,12 @@ public class ExprBean extends HashMap {
         return emptyReturnValue;
     }
     
-    public Object getEmptyReturnValue() {
-        return emptyReturnValue;
-    }
-
-    public void setEmptyReturnValue(Object emptyReturnValue) {
-        this.emptyReturnValue = emptyReturnValue;
-    }
+//    public Object getEmptyReturnValue() {
+//        return emptyReturnValue;
+//    }
+//
+//    public void setEmptyReturnValue(Object emptyReturnValue) {
+//        this.emptyReturnValue = emptyReturnValue;
+//    }
     
 }

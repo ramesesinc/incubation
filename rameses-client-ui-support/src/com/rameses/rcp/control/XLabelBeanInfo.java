@@ -51,7 +51,8 @@ public class XLabelBeanInfo extends ComponentBeanInfo.Support
             new PropertyDescriptor("for", getBeanClass()),
             new PropertyDescriptor("format", getBeanClass()),
             new PropertyDescriptor("index", getBeanClass()),
-            new PropertyDescriptor("padding", getBeanClass())
+            new PropertyDescriptor("padding", getBeanClass()), 
+            new PropertyDescriptor("visibleWhen", getBeanClass(), "isVisibleWhen", "setVisibleWhen")              
         }; 
     }
     

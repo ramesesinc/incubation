@@ -52,10 +52,9 @@ public class GroovyExpressionResolver extends ExpressionResolver {
     
     
     
-    public String evalString(String expr, Object data) {
+    public String evalString(String expr, Object data) 
+    {
         ExprBean bean = new ExprBean(data);
-        bean.setEmptyReturnValue(new HashMap());
-
         Matcher matcher = pattern.matcher(expr);
         StringBuilder sb = new StringBuilder();
         int start = 0;
@@ -65,10 +64,12 @@ public class GroovyExpressionResolver extends ExpressionResolver {
             start = expr.indexOf("}", end)+1;
             String _expr = expr.substring(end+2, start-1);
             String result  = null;
-            try {
-                result = (String)evalObject(_expr, bean);
-            }
-            catch(Exception e) {;}
+            try 
+            {
+                Object oResult = evalObject(_expr, bean);
+                result = (oResult == null? "": oResult.toString()); 
+            } catch(Exception e) {;}
+            
             sb.append( result );
         }
         if(expr.length()>start) {

@@ -33,6 +33,7 @@ public class XLabel extends JLabel implements UIOutput, ActiveControl {
     private Binding binding;
     private ControlProperty property = new ControlProperty();
     private String expression;
+    private String visibleWhen;
     private Insets padding;
     private Format format;
     
@@ -64,33 +65,47 @@ public class XLabel extends JLabel implements UIOutput, ActiveControl {
         this.forceUseActiveCaption = forceUseActiveCaption;
     }
     
-    public void refresh() {
-        try {
-            Object value = null;
-            if ( !ValueUtil.isEmpty(expression) ) {
-                value = UIControlUtil.evaluateExpr(binding.getBean(), expression);
-            } else if ( !ValueUtil.isEmpty(getName()) ) {
-                value = UIControlUtil.getBeanValue(this);
-                if( value != null && format != null ) {
-                    value = format.format(value);
-                }
-            } else {
-                value = super.getText();
+    public void refresh() 
+    {
+        try 
+        {
+            String expr = getVisibleWhen();
+            if ( !ValueUtil.isEmpty(expr) ) 
+            {
+                boolean result = UIControlUtil.evaluateExprBoolean(binding.getBean(), expr);
+                setVisible(result); 
+                if (!result) return;
             }
+            
+            Object value = null;
+            if ( !ValueUtil.isEmpty(expression) )  
+                value = UIControlUtil.evaluateExpr(binding.getBean(), expression);
+
+            else if ( !ValueUtil.isEmpty(getName()) ) 
+            {
+                value = UIControlUtil.getBeanValue(this);
+                if ( value != null && format != null )
+                    value = format.format(value);
+            } 
+            
+            else 
+                value = super.getText();
             
             super.setText(( (value != null)? value+"" : ""));
             
-        } catch(Exception e) {
+        } 
+        catch(Exception e) 
+        {
             super.setText("");
             
-            if( ClientContext.getCurrentContext().isDebugMode() ) {
-                e.printStackTrace();
-            }
+            if ( ClientContext.getCurrentContext().isDebugMode() ) e.printStackTrace();
         }
     }
     
-    public void load() {
-        if ( !ValueUtil.isEmpty(labelFor) ) {
+    public void load() 
+    {
+        if ( !ValueUtil.isEmpty(labelFor) ) 
+        {
             UIControl c = binding.find(labelFor);
             if ( c == null ) return;
             if (c instanceof JComponent) {
@@ -172,14 +187,15 @@ public class XLabel extends JLabel implements UIOutput, ActiveControl {
         setExpression(text);
     }
     
-    public String getExpression() {
-        return expression;
-    }
-    
-    public void setExpression(String expression) {
+    public String getExpression() { return expression; }    
+    public void setExpression(String expression) 
+    {
         this.expression = expression;
         super.setText(expression);
     }
+    
+    public String getVisibleWhen() { return visibleWhen; } 
+    public void setVisibleWhen(String visibleWhen) { this.visibleWhen = visibleWhen;  }
     
     public void setBorder(Border border) {
         origBorder = border;
