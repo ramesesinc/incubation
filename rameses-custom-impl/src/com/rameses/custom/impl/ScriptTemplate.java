@@ -22,15 +22,24 @@ public class ScriptTemplate {
     
     private Script script;
     
-    public ScriptTemplate(String text) {
+    public ScriptTemplate(String text) 
+    {
         GroovyShell shell = new GroovyShell();
+        if ((text.startsWith("#{") && text.endsWith("}")) || (text.startsWith("${") && text.endsWith("}"))) 
+            text = text.substring(2, text.length()-1); 
+        
         script = shell.parse(text);
     }
     
-    public Object execute(Object data) {
-        Binding b = new CustomBinding(new ExprBean(data));
+    public Object execute(Object data) 
+    {
+        Binding b = null;
+        if (data instanceof ExprBean) 
+            b = new CustomBinding((ExprBean) data);
+        else 
+            b = new CustomBinding(new ExprBean(data)); 
+
         Script s = InvokerHelper.createScript( script.getClass(), b);
         return s.run();
     }
-    
 }

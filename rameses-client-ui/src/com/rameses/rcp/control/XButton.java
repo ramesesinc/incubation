@@ -57,8 +57,8 @@ public class XButton extends JButton implements UICommand, ActionListener, Activ
         
         if (!ValueUtil.isEmpty(visibleWhen)) 
         {
-            Object result = UIControlUtil.evaluateExpr(binding.getBean(), visibleWhen);
-            if ( "false".equals(result+"") ) 
+            boolean result = UIControlUtil.evaluateExprBoolean(binding.getBean(), visibleWhen);
+            if ( !result ) 
                 setVisible(false);
             else if (!isVisible()) 
                 setVisible(true);
@@ -66,8 +66,8 @@ public class XButton extends JButton implements UICommand, ActionListener, Activ
         
         if (!ValueUtil.isEmpty(disableWhen)) 
         {
-            Object result = UIControlUtil.evaluateExpr(binding.getBean(), disableWhen);
-            if ( "false".equals(result+"") ) 
+            boolean result = UIControlUtil.evaluateExprBoolean(binding.getBean(), disableWhen);
+            if ( !result ) 
                 setEnabled(true);
             else if (isEnabled()) 
                 setEnabled(false);

@@ -299,8 +299,8 @@ public class XActionBar extends JPanel implements UIComposite
             String expression = (String) btn.getClientProperty("visibleWhen");
             if (!ValueUtil.isEmpty(expression)) 
             {
-                Object result = UIControlUtil.evaluateExpr(binding.getBean(), expression);
-                btn.setVisible(!"false".equals(result+""));
+                boolean result = UIControlUtil.evaluateExprBoolean(binding.getBean(), expression);
+                btn.setVisible(result);
             } 
             else 
             {

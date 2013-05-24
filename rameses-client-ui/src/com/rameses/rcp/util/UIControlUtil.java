@@ -62,8 +62,12 @@ public class UIControlUtil {
         
         ExpressionResolver er = ExpressionResolver.getInstance();
         try { 
-            return er.evalString(expression, bean); 
-        } catch(NullPointerException npe) {
+            String result = er.evalString(expression, bean); 
+            if (result != null && "null".equals(result)) return null; 
+            
+            return result;
+        } 
+        catch(NullPointerException npe) {
             return null; 
         }
     }
