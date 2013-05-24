@@ -11,7 +11,6 @@ package com.rameses.custom.impl;
 
 import com.rameses.common.ExpressionResolver;
 import groovy.lang.MissingPropertyException;
-import groovy.util.Eval;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.util.HashMap;
@@ -31,6 +30,7 @@ public class GroovyExpressionResolver extends ExpressionResolver {
     
     private Object evalObject(String expr, ExprBean bean) throws MissingPropertyException {
         try {
+            expr = expr.replaceAll("(\\$|#)\\{","").replaceAll("\\}","");
             expr = replaceFunctions(expr);
             ScriptTemplate t = null;
             if (!expressions.containsKey(expr)) {
@@ -80,9 +80,7 @@ public class GroovyExpressionResolver extends ExpressionResolver {
     public Object eval(String expr,Object data) {
         try {
             ExprBean bean = new ExprBean(data);
-            String str = (String)evalObject(expr,bean);
-            if(str==null) return null;
-            return Eval.me(str);
+            return evalObject(expr,bean);
         } catch(Exception e) {
             throw new RuntimeException( "error in expression " + expr + " " + e.getMessage(), e);
         }
