@@ -264,9 +264,6 @@ public abstract class CRUDController
         return "_close"; 
     }
     
-    protected void onbeforeSave() {}  
-    protected void onafterSave() {} 
-    
     public void save()
     {
         try 
@@ -274,8 +271,6 @@ public abstract class CRUDController
             if (isShowConfirmOnSave()) {
                 if (!MsgBox.confirm("You are about to save this record. Continue?")) return;
             }
-            
-            onbeforeSave();
             
             if (MODE_CREATE.equals(this.mode))
                 setEntity(getService().create(getEntity())); 
@@ -286,8 +281,6 @@ public abstract class CRUDController
             String oldmode = this.mode;
             this.mode = MODE_READ; 
             this.changeLog.clear();
-
-            onafterSave();
             
             if (listModelHandler != null) 
             {
