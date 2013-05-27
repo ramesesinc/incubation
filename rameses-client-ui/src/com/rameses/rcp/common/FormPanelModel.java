@@ -36,6 +36,8 @@ public class FormPanelModel {
         }
     }
     
+    public String getCategory(String id) { return id; } 
+    
     public String getHtmlFormat() {
         if( listener != null ) {
             return listener.getHtmlFormat(false);

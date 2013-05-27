@@ -483,12 +483,15 @@ public class Binding {
         for (BindingListener bl : listeners) bl.update();
     }
     
-    public void addBindingListener(BindingListener listener) {
-        listeners.add(listener);
+    public void addBindingListener(BindingListener listener) 
+    {
+        if (listener != null && !listeners.contains(listener))
+            listeners.add(listener);
     }
     
-    public void removeListener(BindingListener listener) {
-        listeners.remove(listener);
+    public void removeListener(BindingListener listener) 
+    {
+        if (listener != null) listeners.remove(listener);
     }
     
     public boolean close() 

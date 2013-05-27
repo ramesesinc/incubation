@@ -3,6 +3,7 @@ package com.rameses.rcp.control;
 import com.rameses.common.PropertyResolver;
 import com.rameses.rcp.common.FormControl;
 import com.rameses.rcp.common.FormPanelModel;
+import com.rameses.rcp.common.PropertyChangeSupport;
 import com.rameses.rcp.common.ValidatorEvent;
 import com.rameses.rcp.constant.UIConstants;
 import com.rameses.rcp.control.border.XUnderlineBorder;
@@ -32,7 +33,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.WeakHashMap;
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JEditorPane;
@@ -65,6 +68,7 @@ public class XFormPanel extends JPanel implements UIComposite, ControlContainer,
     private Border captionBorder = new XUnderlineBorder();
     private Insets captionPadding = new Insets(0,1,0,5);
     private boolean addCaptionColon = true;
+    private boolean showCategory;
     
     private Binding binding;
     private String[] depends;
@@ -74,6 +78,7 @@ public class XFormPanel extends JPanel implements UIComposite, ControlContainer,
     private ControlProperty property = new ControlProperty();
     private ActionMessage actionMessage = new ActionMessage();
     
+    private PropertyChangeSupport propertySupport; 
     private List<UIControl> nonDynamicControls = new ArrayList();
     
     //-- internal flags
@@ -99,7 +104,9 @@ public class XFormPanel extends JPanel implements UIComposite, ControlContainer,
     private FormPanelModel.Listener  defaultListener;
     
     
-    public XFormPanel() {
+    public XFormPanel() 
+    {
+        propertySupport = new PropertyChangeSupport();
         super.setLayout(layout = new Layout());
         setPadding(new Insets(5,5,5,5));
         setOpaque(false);
@@ -109,23 +116,30 @@ public class XFormPanel extends JPanel implements UIComposite, ControlContainer,
         setCaptionForeground(UIManager.getColor("Label.foreground"));
     }
     
-    //<editor-fold defaultstate="collapsed" desc=" FormPanel implementations ">
-    public void setLayout(LayoutManager mgr) {;}
+    // <editor-fold defaultstate="collapsed" desc=" FormPanel implementations ">
     
-    protected void addImpl(Component comp, Object constraints, int index) {
+    public final void setLayout(LayoutManager mgr) {;}
+    
+    protected void addImpl(Component comp, Object constraints, int index) 
+    {
         ItemPanel p = null;
         Component control = comp;
         //check if it is a containable component
-        if ( comp instanceof ActiveControl ) {
+        if (comp instanceof ActiveControl) {
             p = new ItemPanel(this, comp);
-        } else if ( comp instanceof JScrollPane ) {
+        } 
+        else if (comp instanceof JScrollPane) 
+        {
             control = ((JScrollPane) comp).getViewport().getView();
-            if ( control instanceof ActiveControl ) {
+            if ( control instanceof ActiveControl ) 
                 p = new ItemPanel(this, control, comp);
-            }
         }
+        else if (comp instanceof FormItemPanel) {
+            super.addImpl(comp, constraints, index); 
+        } 
         
-        if ( p != null ) {
+        if (p != null) 
+        {
             if ( !loaded && control instanceof UIControl )
                 nonDynamicControls.add( (UIControl) control );
             
@@ -133,10 +147,13 @@ public class XFormPanel extends JPanel implements UIComposite, ControlContainer,
         }
     }
     
-    public void remove(Component comp) {
+    public void remove(Component comp) 
+    {
         if (comp instanceof ItemPanel) {
             super.remove(comp);
-        } else {
+        } 
+        else 
+        {
             Component c = resolveComponent(comp);
             if (c != null) super.remove(c);
         }
@@ -155,12 +172,15 @@ public class XFormPanel extends JPanel implements UIComposite, ControlContainer,
         return -1;
     }
     
-    private Component resolveComponent(Component comp) {
-        for (int i=0; i<getComponentCount(); i++) {
+    private Component resolveComponent(Component comp) 
+    {
+        for (int i=0; i<getComponentCount(); i++) 
+        {
             Component c = getComponent(i);
             if (c == comp) return c;
             
-            if (c instanceof ItemPanel) {
+            if (c instanceof ItemPanel) 
+            {
                 ItemPanel p = (ItemPanel) c;
                 if (p.getEditorComponent() == comp) return p;
                 if (p.getEditorWrapper() == comp) return p;
@@ -168,74 +188,88 @@ public class XFormPanel extends JPanel implements UIComposite, ControlContainer,
         }
         return null;
     }
-    //</editor-fold>
     
-    //<editor-fold defaultstate="collapsed" desc="  control support properties  ">
-    public List<? extends UIControl> getControls() {
-        return controls;
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc="  control support properties  ">
+    
+    public boolean isShowCategory() { return showCategory; }
+    public void setShowCategory(boolean showCategory) {
+        this.showCategory = showCategory; 
     }
     
-    public String[] getDepends()             { return depends; }
+    public List<? extends UIControl> getControls() { return controls; }
+    
+    public String[] getDepends() { return depends; }
     public void setDepends(String[] depends) { this.depends = depends; }
     
-    public int getIndex()           { return index; }
+    public int getIndex() { return index; }
     public void setIndex(int index) { this.index = index; }
     
-    public Binding getBinding()             { return binding; }
+    public Binding getBinding() { return binding; }
     public void setBinding(Binding binding) { this.binding = binding; }
     
-    public boolean isDynamic()              { return dynamic; }
+    public boolean isDynamic() { return dynamic; }
     public void setDynamic(boolean dynamic) { this.dynamic = dynamic; }
     
     public int compareTo(Object o) {
         return UIControlUtil.compare(this, o);
     }
     
-    public void validateInput() {
+    public void validateInput() 
+    {
         actionMessage.clearMessages();
         
         //do not validate if in html view
-        if( ValueUtil.isEqual(viewType, HTML_VIEW) ) return;
+        if ( ValueUtil.isEqual(viewType, HTML_VIEW) ) return;
         
-        for(UIControl c: controls) {
-            if( !(c instanceof Validatable) ) continue;
+        for (UIControl c: controls) 
+        {
+            if ( !(c instanceof Validatable) ) continue;
             
             Validatable v = (Validatable) c;
             UIControlUtil.validate(v, actionMessage);
         }
     }
     
-    public ActionMessage getActionMessage() {
-        return actionMessage;
-    }
+    public ActionMessage getActionMessage() { return actionMessage; }
     
     public void requestFocus() {
         focusFirstInput();
     }
     
-    public boolean focusFirstInput() {
+    public boolean focusFirstInput() 
+    {
         List<UIControl> allControls = new ArrayList();
         if ( !nonDynamicControls.isEmpty() )
             allControls.addAll( nonDynamicControls );
         
         allControls.addAll(controls);
         
-        try {
-            for(UIControl c: allControls) {
-                if( actionMessage.hasMessages() ) {
+        try 
+        {
+            for (UIControl c: allControls) 
+            {
+                if ( actionMessage.hasMessages() ) 
+                {
                     if( !(c instanceof Validatable) ) continue;
                     
                     Validatable v = (Validatable) c;
                     v.validateInput();
-                    if( v.getActionMessage().hasMessages() ) {
+                    if ( v.getActionMessage().hasMessages() ) 
+                    {
                         ((Component) v).requestFocus();
                         return true;
                     }
-                } else if ( c instanceof UIFocusableContainer ) {
+                } 
+                else if ( c instanceof UIFocusableContainer ) 
+                {
                     UIFocusableContainer uis = (UIFocusableContainer) c;
                     if ( uis.focusFirstInput() ) return true;
                     
-                } else if ( c instanceof UIInput ) {
+                } 
+                else if ( c instanceof UIInput ) 
+                {
                     UIInput u = (UIInput) c;
                     JComponent jc = (JComponent) c;
                     if ( u.isReadonly() || !jc.isFocusable() || !jc.isEnabled() || !jc.isShowing() )
@@ -246,7 +280,9 @@ public class XFormPanel extends JPanel implements UIComposite, ControlContainer,
                 }
             }
             
-        } catch(Exception e) {;} finally {
+        } 
+        catch(Exception e) {;} 
+        finally {
             allControls = null;
         }
         return false;
@@ -263,38 +299,49 @@ public class XFormPanel extends JPanel implements UIComposite, ControlContainer,
         }
         return null;
     }
-    //</editor-fold>
     
-    //<editor-fold defaultstate="collapsed" desc="  refresh/load  ">
-    public void refresh() {
-        if( reloaded || (viewTypeSet && !ValueUtil.isEqual(oldViewType, viewType))) {
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc="  refresh/load  ">
+    
+    public void refresh() 
+    {
+        if ( reloaded || (viewTypeSet && !ValueUtil.isEqual(oldViewType, viewType))) 
+        {
             refreshForm();
             oldViewType = viewType;
             reloaded = false;
-        } else if ( ValueUtil.isEqual(viewType, HTML_VIEW)) {
+        } 
+        else if ( ValueUtil.isEqual(viewType, HTML_VIEW)) {
             refreshHtml();
         }
     }
     
-    public void load() {
+    public void load() 
+    {
         binding.addBindingListener(new FormPanelBindingListener());
         build();
         loaded = true;
         reloaded = true;
     }
     
-    public void reload() {
+    public void reload() 
+    {
         build();
         reloaded = true;
     }
-    //</editor-fold>
     
-    //<editor-fold defaultstate="collapsed" desc="  helper method  ">
-    private void build() {
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc="  helper method  ">
+    
+    private void build() 
+    {
         if ( ValueUtil.isEmpty(getName()) ) return;
         
         //remove only dynamic controls
-        for(UIControl u: controls) {
+        for (UIControl u: controls) 
+        {
             remove((Component) u);
             //let garbage collector collect the reference
             u = null;
@@ -306,97 +353,149 @@ public class XFormPanel extends JPanel implements UIComposite, ControlContainer,
         
         List<FormControl> list = getFormControls();
         FormControlUtil fcUtil = FormControlUtil.getInstance();
-        for(FormControl fc: list) {
+        for (FormControl fc: list) 
+        {
             UIControl uic = fcUtil.getControl(fc);
             if ( uic == null ) continue;
             
             uic.setBinding(binding);
             uic.load();
             
-            if( uic instanceof Validatable && ((Validatable) uic).isRequired() )
-                property.setRequired(true);
+            if ( uic instanceof Validatable && ((Validatable) uic).isRequired() )
+                property.setRequired(true);            
+            if (uic instanceof JComponent)
+                ((JComponent) uic).putClientProperty(FormControl.class, fc); 
             
             controls.add( uic );
         }
     }
     
-    private void refreshForm() {
+    private void refreshForm() 
+    {
         //check if view is html
         boolean htmlView = HTML_VIEW.equals(viewType);
         
-        if( !htmlView && htmlPane != null ) {
+        if ( !htmlView && htmlPane != null ) 
+        {
             remove( htmlPane );
             htmlPane = null;
         }
         
-        if( htmlView ) {
+        if ( htmlView ) 
+        {
             //remove controls
-            for(UIControl u : nonDynamicControls) {
-                u.refresh();
+            for (UIControl u : nonDynamicControls) 
+            {
+                //u.refresh();
                 remove((Component)u);
             }
             dynamicControlsRemoved = true;
             
-            for(UIControl u: controls) {
-                u.refresh();
+            for (UIControl u: controls) 
+            {
+                //u.refresh();
                 remove((Component) u);
             }
             
-            if( htmlPane == null ) {
-                initHtmlPane();
-            }
-        } else {
+            if ( htmlPane == null ) initHtmlPane();
+        } 
+        else {
             super.setLayout(layout);
         }
         
         boolean empty = false;
         
         //visibility and empty text support
-        if( controls.size() == 0 && nonDynamicControls.size() == 0 && !ValueUtil.isEmpty(emptyText) ) {
+        if ( controls.size() == 0 && nonDynamicControls.size() == 0 && !ValueUtil.isEmpty(emptyText) ) {
             empty = true;
         } 
         else 
         {
-            if( !ValueUtil.isEmpty(emptyWhen) ) 
-            {
-                Object result = UIControlUtil.evaluateExpr(binding.getBean(), emptyWhen);
-                empty = !"false".equals(result+"");
-            }
+            if ( !ValueUtil.isEmpty(emptyWhen) ) 
+                empty = UIControlUtil.evaluateExprBoolean(binding.getBean(), emptyWhen);
         }
         
-        if( !empty ) {
-            if( emptyLbl != null ) {
+        if ( !empty ) 
+        {
+            if ( emptyLbl != null ) 
+            {
                 remove(emptyLbl);
                 emptyLbl = null;
             }
-            if( htmlView ) {
+            
+            if ( htmlView ) 
+            {
                 FormControlUtil fcUtil = FormControlUtil.getInstance();
                 htmlPane.setText( fcUtil.renderHtml(getAllControls(), this) );
-            } else {
+            } 
+            else 
+            {
                 //attach again the nonDynamicControls
                 //if they were removed temporarily
-                if( dynamicControlsRemoved ) {
-                    for(UIControl u : nonDynamicControls) {
+                if ( dynamicControlsRemoved ) 
+                {
+                    for (UIControl u : nonDynamicControls) 
+                    {
                         add((Component)u);
                         u.refresh();
                     }
                     dynamicControlsRemoved = false;
                 }
                 
-                for(UIControl u : controls) {
+                FormItemPanel formItemPanel = null;
+                Map<String,String> categories = new WeakHashMap(); 
+                for (UIControl u : controls) 
+                {
                     u.refresh();
-                    if( !htmlView ) {
-                        if(layout != super.getLayout()) super.setLayout(layout);
+                    if ( !htmlView ) 
+                    {
+                        if (layout != super.getLayout()) super.setLayout(layout);
                         
                         //add component if form panel is reloaded
                         //this happends if the form panel is dynamic
-                        if( reloaded ) add( (Component)u );
-                        u.refresh();
+                        if ( reloaded && u instanceof JComponent ) 
+                        {
+                            JComponent jc = (JComponent) u; 
+                            if (model != null && isShowCategory()) 
+                            { 
+                                FormControl fc = (FormControl) jc.getClientProperty(FormControl.class); 
+                                String newCategoryid = (fc == null? null: fc.getCategoryid()); 
+                                String oldCategoryid = (formItemPanel == null? null: formItemPanel.getId()); 
+                                if (formItemPanel == null || !(newCategoryid+"").equals(oldCategoryid+"")) 
+                                { 
+                                    formItemPanel = new FormItemPanel(newCategoryid); 
+                                    //formItemPanel.install();
+                                    add(formItemPanel); 
+                                }                                     
+
+                                String fiCaption = formItemPanel.getCaption();
+                                if (fiCaption == null || fiCaption.length() == 0) 
+                                { 
+                                    Object ov = null; 
+                                    try {
+                                        ov = UIControlUtil.getBeanValue(binding, newCategoryid); 
+                                    } catch(Exception ign){;} 
+
+                                    if (ov != null) ov = model.getCategory(ov.toString()); 
+                                    if (ov != null) formItemPanel.setCaption(ov.toString()); 
+                                }                            
+                            }
+                            
+                            if (formItemPanel != null) 
+                                formItemPanel.add(jc); 
+                            else 
+                                add(jc); 
+                        } 
+                        u.refresh(); 
                     }
                 }
+                categories.clear();
             }
-        } else {
-            if( htmlView ) {
+        } 
+        else 
+        {
+            if ( htmlView ) 
+            {
                 Font f = getFont();
                 
                 StringBuffer sb = new StringBuffer()
@@ -414,9 +513,13 @@ public class XFormPanel extends JPanel implements UIComposite, ControlContainer,
                 
                 htmlPane.setText( sb.toString() );
                 htmlPane.setCaretPosition(0);
-            } else {
-                if( emptyText != null ) {
-                    if( emptyLbl == null ) {
+            } 
+            else 
+            {
+                if ( emptyText != null ) 
+                {
+                    if ( emptyLbl == null ) 
+                    {
                         emptyLbl = new XLabel();
                         emptyLbl.setShowCaption(false);
                     }
@@ -429,11 +532,12 @@ public class XFormPanel extends JPanel implements UIComposite, ControlContainer,
         SwingUtilities.updateComponentTreeUI(this);
     }
     
-    private void refreshHtml() {
+    private void refreshHtml() 
+    {
         boolean empty = false;
         
         //visibility and empty text support
-        if( controls.size() == 0 && nonDynamicControls.size() == 0 && !ValueUtil.isEmpty(emptyText) ) {
+        if ( controls.size() == 0 && nonDynamicControls.size() == 0 && !ValueUtil.isEmpty(emptyText) ) {
             empty = true;
         } 
         else 
@@ -445,21 +549,25 @@ public class XFormPanel extends JPanel implements UIComposite, ControlContainer,
             }
         }
         
-        if( !empty ) {
+        if ( !empty ) 
+        {
             List<UIControl> allControls = getAllControls();
             for(UIControl c : allControls) c.refresh();
             
             FormControlUtil fcUtil = FormControlUtil.getInstance();
             htmlPane.setText( fcUtil.renderHtml(allControls, this) );
             htmlPane.setCaretPosition(0);
-        } else {
+        } 
+        else 
+        {
             Font f = getFont();
             String html = "<font face='"+f.getFamily()+"' size='"+f.getSize()+"pt'>"+(emptyText==null?"":emptyText)+"</font>";
             htmlPane.setText(html);
         }
     }
     
-    private void initHtmlPane() {
+    private void initHtmlPane() 
+    {
         XEditorPane editorPane = new XEditorPane();
         editorPane.setBinding(binding);
         super.setLayout(new BorderLayout());
@@ -467,7 +575,8 @@ public class XFormPanel extends JPanel implements UIComposite, ControlContainer,
         htmlPane = editorPane;
     }
     
-    private List getFormControls() {
+    private List getFormControls() 
+    {
         List list = new ArrayList();
         
         Object value = null;
@@ -475,33 +584,37 @@ public class XFormPanel extends JPanel implements UIComposite, ControlContainer,
             value = UIControlUtil.getBeanValue(this);
         } catch(Exception e) {;}
         
-        if (value instanceof FormPanelModel) {
-            if( model != null ) {
+        if (value instanceof FormPanelModel) 
+        {
+            if ( model != null ) 
+            {
                 model.setListener(null);
                 model = null;
             }
             
             model = (FormPanelModel) value;
-            if( defaultListener == null ) defaultListener = new ModelListener();
+            if ( defaultListener == null ) defaultListener = new ModelListener();
+            
             model.setListener(defaultListener);
             value = model.getFormControls();
-        }
+        } 
         
         if (value == null) {
             //do nothing
-        } else if (value.getClass().isArray()) {
-            for (FormControl fc: (FormControl[]) value) {
-                list.add(fc);
-            }
-        } else if (value instanceof Collection) {
-            list.addAll((Collection) value);
         }
-        
+        else if (value.getClass().isArray()) {
+            for (FormControl fc: (FormControl[]) value) list.add(fc);
+        } 
+        else if (value instanceof Collection) {
+            list.addAll((Collection) value);
+        }        
         return list;
     }
-    //</editor-fold>
     
-    //<editor-fold defaultstate="collapsed" desc="  Getters/Setters  ">
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc="  Getters/Setters  ">
+    
     public ControlProperty getControlProperty() {
         return property;
     }
@@ -688,9 +801,10 @@ public class XFormPanel extends JPanel implements UIComposite, ControlContainer,
     
     //</editor-fold>
     
-    //<editor-fold defaultstate="collapsed" desc=" Layout (Class) ">
-    private class Layout implements LayoutManager {
-        
+    // <editor-fold defaultstate="collapsed" desc=" Layout (Class) ">
+    
+    private class Layout implements LayoutManager 
+    {        
         public void addLayoutComponent(String name, Component comp) {;}
         public void removeLayoutComponent(Component comp) {;}
         
@@ -703,8 +817,10 @@ public class XFormPanel extends JPanel implements UIComposite, ControlContainer,
             return new Dimension(100, dim.height);
         }
         
-        public void layoutContainer(Container parent) {
-            synchronized (parent.getTreeLock()) {
+        public void layoutContainer(Container parent) 
+        {
+            synchronized (parent.getTreeLock()) 
+            {
                 Insets margin = parent.getInsets();
                 int x = margin.left;
                 int y = margin.top;
@@ -712,19 +828,25 @@ public class XFormPanel extends JPanel implements UIComposite, ControlContainer,
                 int h = parent.getHeight() - (margin.top + margin.bottom);
                 
                 Component[] comps = parent.getComponents();
-                for (int i=0; i<comps.length; i++) {
+                for (int i=0; i<comps.length; i++) 
+                {
                     Component c = comps[i];                    
-                    if( !c.isVisible() ) continue;
+                    if ( !c.isVisible() ) continue;
                     
                     Dimension dim = c.getPreferredSize();
                     
                     //add cellspacing
-                    if ( UIConstants.HORIZONTAL.equals(orientation) ) {
+                    if ( UIConstants.HORIZONTAL.equals(orientation) ) 
+                    {
                         if (x > 0) x += getCellspacing();
+                        
                         x += cellpadding.left;
                         c.setBounds(x, y, dim.width, dim.height);
-                    } else {
+                    } 
+                    else 
+                    {
                         if (y > 0) y += getCellspacing();
+                        
                         y += cellpadding.top;
                         c.setBounds(x, y, w, dim.height);
                     }
@@ -738,8 +860,10 @@ public class XFormPanel extends JPanel implements UIComposite, ControlContainer,
             }
         }
         
-        public Dimension getLayoutSize(Container parent) {
-            synchronized (parent.getTreeLock()) {
+        public Dimension getLayoutSize(Container parent) 
+        {
+            synchronized (parent.getTreeLock()) 
+            {
                 int w=0, h=0;
                 
                 Component[] comps = parent.getComponents();
@@ -747,26 +871,31 @@ public class XFormPanel extends JPanel implements UIComposite, ControlContainer,
                     return new Dimension(100, 100);
                 }
                 
-                for (int i=0; i<comps.length; i++) {
+                for (int i=0; i<comps.length; i++) 
+                {
                     Component c = comps[i];
-                    if( !c.isVisible() ) continue;
+                    if ( !c.isVisible() ) continue;
                     
-                    if (c instanceof ItemPanel) {
+                    if (c instanceof ItemPanel) 
+                    {
                         Dimension dim = c.getPreferredSize();
-                        if ( UIConstants.HORIZONTAL.equals(orientation) ) {
+                        if ( UIConstants.HORIZONTAL.equals(orientation) ) 
+                        {
                             if (h == 0) h = dim.height;
-                            h = Math.min(h, dim.height);
-                            
                             //add cellspacing and cellpadding
                             if (w > 0) w += getCellspacing();
+                            
+                            h = Math.min(h, dim.height);
                             w += dim.width + cellpadding.left + cellpadding.right;
                             
-                        } else {
+                        } 
+                        else 
+                        {
                             if (w == 0) w = dim.width;
-                            w = Math.min(w, dim.width);
-                            
                             //add cellspacing and cellpadding
                             if (h > 0) h += getCellspacing();
+                            
+                            w = Math.min(w, dim.width);
                             h += dim.height + cellpadding.top + cellpadding.bottom;
                         }
                     }
@@ -779,28 +908,38 @@ public class XFormPanel extends JPanel implements UIComposite, ControlContainer,
             }
         }
     }
-    //</editor-fold>
     
-    //<editor-fold defaultstate="collapsed" desc="  FormPanelBindingListener (class)  ">
-    private class FormPanelBindingListener implements BindingListener {
-        
-        public void notifyDepends(UIControl u, Binding parent) {
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc="  FormPanelBindingListener (class)  ">
+    
+    private class FormPanelBindingListener implements BindingListener 
+    {        
+        public void notifyDepends(UIControl u, Binding parent) 
+        {
             if ( ValueUtil.isEmpty(u.getName()) ) return;
             
             //if view type is HTML_VIEW do not refresh the control
             //the html renderer also refresh the items before rendering
-            if( ValueUtil.isEqual(viewType, HTML_VIEW)) {
+            if ( ValueUtil.isEqual(viewType, HTML_VIEW)) 
+            {
                 boolean shouldRefresh = false;
-                for( UIControl control : controls ) {
+                for ( UIControl control : controls ) 
+                {
                     if ( !isDependent( u.getName(), control ) ) continue;
+                    
                     shouldRefresh = true;
                 }
                 
-                if( shouldRefresh ) refreshHtml();
-            } else {
+                if ( shouldRefresh ) refreshHtml();
+            } 
+            else 
+            {
                 Set<UIControl> refreshed = new HashSet();
-                for( UIControl control : controls ) {
+                for ( UIControl control : controls ) 
+                {
                     if ( !isDependent( u.getName(), control ) ) continue;
+                    
                     _doRefresh( control, refreshed );
                 }
                 refreshed.clear();
@@ -808,7 +947,8 @@ public class XFormPanel extends JPanel implements UIComposite, ControlContainer,
             }
         }
         
-        private boolean isDependent( String parentName, UIControl child ) {
+        private boolean isDependent( String parentName, UIControl child ) 
+        {
             if ( child.getDepends() != null ) {
                 for(String s : child.getDepends()) {
                     if ( parentName.matches(s) ) return true;
@@ -817,17 +957,17 @@ public class XFormPanel extends JPanel implements UIComposite, ControlContainer,
             return false;
         }
         
-        public void refresh(String regEx) {
+        public void refresh(String regEx) 
+        {
             //if view type is HTML_VIEW do not refresh
             //the html renderer also refresh the items before rendering
-            if( ValueUtil.isEqual(viewType, HTML_VIEW)) return;
+            if ( ValueUtil.isEqual(viewType, HTML_VIEW)) return;
             
             Set<UIControl> refreshed = new HashSet();
-            for( UIControl uu : controls ) {
+            for ( UIControl uu : controls ) 
+            {
                 String name = uu.getName();
-                if ( regEx != null && name != null && !name.matches(regEx) ){
-                    continue;
-                }
+                if ( regEx != null && name != null && !name.matches(regEx) ) continue;
                 
                 _doRefresh( uu, refreshed );
             }
@@ -835,24 +975,25 @@ public class XFormPanel extends JPanel implements UIComposite, ControlContainer,
             refreshed = null;
         }
         
-        private void _doRefresh( UIControl u, Set refreshed ) {
-            if( refreshed.add(u) ) {
-                u.refresh();
-            }
+        private void _doRefresh( UIControl u, Set refreshed ) 
+        {
+            if ( refreshed.add(u) ) u.refresh();
         }
         
         public void validate(ActionMessage actionMessage, Binding parent) {}
         public void validateBean(ValidatorEvent evt) {}
         public void formCommit() {}
-        public void update() {}
-        
+        public void update() {}        
     }
-    //</editor-fold>
     
-    //<editor-fold defaultstate="collapsed" desc="  ModelListener (clas)  ">
-    private class ModelListener implements FormPanelModel.Listener {
-        
-        public void onPropertyUpdated(String name, Object value) {
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc="  ModelListener (clas)  ">
+    
+    private class ModelListener implements FormPanelModel.Listener 
+    {        
+        public void onPropertyUpdated(String name, Object value) 
+        {
             XFormPanel handle = XFormPanel.this;
             PropertyResolver res = PropertyResolver.getInstance();
             try {
@@ -860,17 +1001,19 @@ public class XFormPanel extends JPanel implements UIComposite, ControlContainer,
             } catch(Exception e){;}
         }
         
-        public String getHtmlFormat(boolean partial) {
+        public String getHtmlFormat(boolean partial) 
+        {
             FormControlUtil fcUtil = FormControlUtil.getInstance();
             return fcUtil.renderHtml(getAllControls(), XFormPanel.this, partial);
         }
         
-        public void onReload() {
+        public void onReload() 
+        {
             reload();
             refresh();
-        }
-        
+        }        
     }
-    //</editor-fold>
+    
+    // </editor-fold>
     
 }

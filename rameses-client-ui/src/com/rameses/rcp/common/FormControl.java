@@ -10,42 +10,43 @@ package com.rameses.rcp.common;
 import java.util.HashMap;
 import java.util.Map;
 
-
-public class FormControl {
-    
+public class FormControl 
+{    
     private static final long serialVersionUID = 1L;
-    private String type;
     private Map properties = new HashMap();
+    private String categoryid;
+    private String type;
     
     public FormControl() {
     }
     
     public FormControl(String type, Map props) {
+        this(type, props, null); 
+    }
+    
+    public FormControl(String type, Map props, String categoryid) 
+    {
         this.type = type;
-        properties = props;
-        if ( !props.containsKey("preferredSize")) {
-            props.put("preferredSize", "0,19");
-        }
+        this.properties = (props==null? new HashMap(): props);
+        this.categoryid = categoryid;
+        
+        if (!this.properties.containsKey("preferredSize")) 
+            this.properties.put("preferredSize", "0,19");
     }
     
-    public String getType() {
-        return type;
-    }
+    public String getType() { return type; }    
+    public void setType(String type) { this.type = type; }
     
-    public void setType(String type) {
-        this.type = type;
-    }
-    
-    public Map getProperties() {
-        return properties;
-    }
-    
+    public Map getProperties() { return properties; }    
     public void setProperties(Map properties) {
         this.properties = properties ;
     }
     
+    public String getCategoryid() { return categoryid; } 
+    public void setCategoryid(String categoryid) { this.categoryid = categoryid; }
+    
     public String toString() {
-        return "type: " + type + ", properties: " + properties;
+        return "type:" + type + ", categoryid:" + categoryid + ", properties:" + properties;
     }
     
 }

@@ -8,7 +8,6 @@
 package com.rameses.rcp.control;
 
 import com.rameses.rcp.constant.UIConstants;
-import com.rameses.rcp.control.XLabel;
 import com.rameses.rcp.support.ThemeUI;
 import com.rameses.rcp.ui.ActiveControl;
 import com.rameses.rcp.ui.ControlProperty;
@@ -222,7 +221,8 @@ public class ItemPanel extends JPanel {
     }
     //</editor-fold>
     
-    //<editor-fold defaultstate="collapsed" desc=" ItemPanelLayout (Class) ">
+    // <editor-fold defaultstate="collapsed" desc=" ItemPanelLayout (Class) ">
+    
     private class ItemPanelLayout implements LayoutManager {
         
         private Component label;
@@ -400,6 +400,6 @@ public class ItemPanel extends JPanel {
             return property.isShowCaption();
         }
     }
-    //</editor-fold>
     
+    // </editor-fold>
 }
