@@ -98,15 +98,16 @@ public class FormPanel extends JPanel implements UIComposite, ControlContainer, 
     
     private FormPanelModel model;
     private FormPanelModel.Listener  defaultListener;
-    
-    
-    public FormPanel() {
+        
+    public FormPanel() 
+    {
         super.setLayout(layout = new Layout());
         setPadding(new Insets(5,5,5,5));
         setOpaque(false);
         
-        setFont(Font.decode("Arial-plain-11"));
-        setCaptionFont(Font.decode("Arial-plain-11"));
+        Font font = super.getFont().deriveFont(Font.PLAIN);
+        setFont(font);
+        setCaptionFont(font);
         setCaptionForeground(UIManager.getColor("Label.foreground"));
     }
     

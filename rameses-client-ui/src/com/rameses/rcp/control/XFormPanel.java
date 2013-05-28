@@ -39,6 +39,7 @@ import java.util.WeakHashMap;
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JEditorPane;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
@@ -49,7 +50,7 @@ import javax.swing.border.Border;
 /**
  * @author jaycverg
  */
-public class XFormPanel extends JPanel implements UIComposite, ControlContainer, Validatable, ActiveControl, UIConstants {
+public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite, ControlContainer, Validatable, ActiveControl, UIConstants {
     
     private int cellspacing = 2;
     private Insets cellpadding = new Insets(0,0,0,0);
@@ -102,29 +103,50 @@ public class XFormPanel extends JPanel implements UIComposite, ControlContainer,
     
     private FormPanelModel model;
     private FormPanelModel.Listener  defaultListener;
-    
-    
+    private JLabel lblFont = new JLabel();
+        
     public XFormPanel() 
     {
         propertySupport = new PropertyChangeSupport();
         super.setLayout(layout = new Layout());
+        setPreferredSize(new Dimension(100,50)); 
         setPadding(new Insets(5,5,5,5));
         setOpaque(false);
         
-        setFont(Font.decode("Arial-plain-11"));
-        setCaptionFont(Font.decode("Arial-plain-11"));
+        Font font = lblFont.getFont().deriveFont(Font.PLAIN);         
+        setFont(font);
+        setCaptionFont(font);
         setCaptionForeground(UIManager.getColor("Label.foreground"));
     }
-    
+
     // <editor-fold defaultstate="collapsed" desc=" FormPanel implementations ">
     
     public final void setLayout(LayoutManager mgr) {;}
+
+    public PropertyChangeSupport getPropertySupport() { return propertySupport; } 
+    
+    private FormItemPanel getLastItem() 
+    {
+        int index = super.getComponentCount()-1;
+        if (index < 0 ) return null; 
+        
+        Component c = super.getComponent(index);
+        if (c instanceof FormItemPanel)
+            return (FormItemPanel) c; 
+        else 
+            return null;
+    }
     
     protected void addImpl(Component comp, Object constraints, int index) 
     {
+        if (comp instanceof FormItemPanel) 
+        {
+            super.addImpl(comp, constraints, index); 
+            return;
+        } 
+
         ItemPanel p = null;
-        Component control = comp;
-        //check if it is a containable component
+        Component control = comp;        
         if (comp instanceof ActiveControl) {
             p = new ItemPanel(this, comp);
         } 
@@ -134,29 +156,35 @@ public class XFormPanel extends JPanel implements UIComposite, ControlContainer,
             if ( control instanceof ActiveControl ) 
                 p = new ItemPanel(this, control, comp);
         }
-        else if (comp instanceof FormItemPanel) {
-            super.addImpl(comp, constraints, index); 
-        } 
-        
+                
         if (p != null) 
         {
             if ( !loaded && control instanceof UIControl )
                 nonDynamicControls.add( (UIControl) control );
-            
-            super.addImpl(p, constraints, index);
+
+            FormItemPanel form = getLastItem(); 
+            if (form == null) 
+                super.addImpl(p, constraints, index); 
+            else 
+                form.add(p); 
         }
     }
     
     public void remove(Component comp) 
     {
-        if (comp instanceof ItemPanel) {
-            super.remove(comp);
-        } 
-        else 
+        if (comp == null) return;
+        
+        Container parent = comp.getParent();
+        if (parent == null) return;
+        
+        if (parent == this) 
+            super.remove(comp); 
+        
+        else if (parent instanceof ItemPanel) 
         {
-            Component c = resolveComponent(comp);
-            if (c != null) super.remove(c);
-        }
+            Container ipc = parent.getParent();
+            ipc.remove(parent);             
+        } 
     }
     
     private int indexOf(Component comp) {
@@ -177,14 +205,22 @@ public class XFormPanel extends JPanel implements UIComposite, ControlContainer,
         for (int i=0; i<getComponentCount(); i++) 
         {
             Component c = getComponent(i);
-            if (c == comp) return c;
-            
-            if (c instanceof ItemPanel) 
-            {
-                ItemPanel p = (ItemPanel) c;
-                if (p.getEditorComponent() == comp) return p;
-                if (p.getEditorWrapper() == comp) return p;
-            }
+            if (c == comp) return comp;
+            if (c instanceof FormItemPanel)
+            { 
+                Component[] ficomps = ((FormItemPanel) c).getComponents(); 
+                for (int ii=0; ii<ficomps.length; ii++) 
+                {
+                    Component cc = ficomps[ii];  
+                    if (cc == comp) return cc;                 
+                    if (cc instanceof ItemPanel) 
+                    {
+                        ItemPanel ipc = (ItemPanel) cc;
+                        if (ipc.getEditorComponent() == cc) return ipc;
+                        if (ipc.getEditorWrapper() == cc) return ipc;
+                    }
+                }
+            } 
         }
         return null;
     }
@@ -196,6 +232,7 @@ public class XFormPanel extends JPanel implements UIComposite, ControlContainer,
     public boolean isShowCategory() { return showCategory; }
     public void setShowCategory(boolean showCategory) {
         this.showCategory = showCategory; 
+        propertySupport.firePropertyChange("showCategory", showCategory); 
     }
     
     public List<? extends UIControl> getControls() { return controls; }
@@ -343,7 +380,6 @@ public class XFormPanel extends JPanel implements UIComposite, ControlContainer,
         for (UIControl u: controls) 
         {
             remove((Component) u);
-            //let garbage collector collect the reference
             u = null;
         }
         
@@ -464,7 +500,7 @@ public class XFormPanel extends JPanel implements UIComposite, ControlContainer,
                                 if (formItemPanel == null || !(newCategoryid+"").equals(oldCategoryid+"")) 
                                 { 
                                     formItemPanel = new FormItemPanel(newCategoryid); 
-                                    //formItemPanel.install();
+                                    formItemPanel.setFormPanelProperty(this); 
                                     add(formItemPanel); 
                                 }                                     
 
@@ -480,11 +516,7 @@ public class XFormPanel extends JPanel implements UIComposite, ControlContainer,
                                     if (ov != null) formItemPanel.setCaption(ov.toString()); 
                                 }                            
                             }
-                            
-                            if (formItemPanel != null) 
-                                formItemPanel.add(jc); 
-                            else 
-                                add(jc); 
+                            add(jc); 
                         } 
                         u.refresh(); 
                     }
@@ -629,7 +661,10 @@ public class XFormPanel extends JPanel implements UIComposite, ControlContainer,
     public void setShowCaption(boolean show) { property.setShowCaption(show); }
     
     public int getCellspacing() { return cellspacing; }
-    public void setCellspacing(int cellspacing) { this.cellspacing = cellspacing; }
+    public void setCellspacing(int cellspacing) { 
+        this.cellspacing = cellspacing; 
+        propertySupport.firePropertyChange("cellSpacing", cellspacing); 
+    }
     
     public Border getBorder() {
         return super.getBorder(); 
@@ -690,11 +725,10 @@ public class XFormPanel extends JPanel implements UIComposite, ControlContainer,
     public void setCaptionPadding(Insets captionPadding) { this.captionPadding = captionPadding; }
     
     public Insets getCellpadding() { return cellpadding; }
-    public void setCellpadding(Insets cellpadding) {
-        if ( cellpadding != null )
-            this.cellpadding = cellpadding;
-        else
-            this.cellpadding = new Insets(0,0,0,0);
+    public void setCellpadding(Insets cellpadding) 
+    {
+        this.cellpadding = (cellpadding == null? new Insets(0,0,0,0): cellpadding);
+        propertySupport.firePropertyChange("cellPadding", this.cellpadding);         
     }
     
     public boolean isAddCaptionColon() { return addCaptionColon; }
@@ -827,35 +861,36 @@ public class XFormPanel extends JPanel implements UIComposite, ControlContainer,
                 int w = parent.getWidth() - (margin.left + margin.right);
                 int h = parent.getHeight() - (margin.top + margin.bottom);
                 
+                boolean hasVisibleComponents = false;
                 Component[] comps = parent.getComponents();
                 for (int i=0; i<comps.length; i++) 
                 {
                     Component c = comps[i];                    
-                    if ( !c.isVisible() ) continue;
+                    if (!c.isVisible()) continue;
+                    if (!(c instanceof FormItemPanel || c instanceof ItemPanel)) continue;   
                     
-                    Dimension dim = c.getPreferredSize();
-                    
-                    //add cellspacing
+                    Dimension dim = c.getPreferredSize(); 
                     if ( UIConstants.HORIZONTAL.equals(orientation) ) 
                     {
-                        if (x > 0) x += getCellspacing();
+                        if (hasVisibleComponents) x += getCellspacing(); 
                         
                         x += cellpadding.left;
                         c.setBounds(x, y, dim.width, dim.height);
+                        x += cellpadding.right + dim.width;
                     } 
                     else 
                     {
-                        if (y > 0) y += getCellspacing();
+                        if (hasVisibleComponents) 
+                        {
+                            y += getCellspacing();
+                            if (isShowCategory()) y += 10;
+                        }                         
                         
                         y += cellpadding.top;
                         c.setBounds(x, y, w, dim.height);
+                        y += cellpadding.bottom + dim.height;
                     }
-                    
-                    //increment
-                    if ( UIConstants.HORIZONTAL.equals(orientation) )
-                        x += dim.width + cellpadding.right;
-                    else
-                        y += dim.height + cellpadding.bottom;
+                    hasVisibleComponents = true;
                 }
             }
         }
@@ -865,7 +900,7 @@ public class XFormPanel extends JPanel implements UIComposite, ControlContainer,
             synchronized (parent.getTreeLock()) 
             {
                 int w=0, h=0;
-                
+                boolean hasVisibleComponents = false;
                 Component[] comps = parent.getComponents();
                 if ( Beans.isDesignTime() && comps.length == 0 ) {
                     return new Dimension(100, 100);
@@ -874,31 +909,29 @@ public class XFormPanel extends JPanel implements UIComposite, ControlContainer,
                 for (int i=0; i<comps.length; i++) 
                 {
                     Component c = comps[i];
-                    if ( !c.isVisible() ) continue;
-                    
-                    if (c instanceof ItemPanel) 
+                    if (!c.isVisible()) continue;
+                    if (!(c instanceof FormItemPanel || c instanceof ItemPanel)) continue;  
+
+                    Dimension dim = c.getPreferredSize();
+                    if ( UIConstants.HORIZONTAL.equals(orientation) ) 
                     {
-                        Dimension dim = c.getPreferredSize();
-                        if ( UIConstants.HORIZONTAL.equals(orientation) ) 
+                        if (hasVisibleComponents) w += getCellspacing(); 
+                        
+                        h = Math.max(h, dim.height + cellpadding.top + cellpadding.bottom);
+                        w += dim.width + cellpadding.left + cellpadding.right;
+                    } 
+                    else 
+                    {
+                        if (hasVisibleComponents) 
                         {
-                            if (h == 0) h = dim.height;
-                            //add cellspacing and cellpadding
-                            if (w > 0) w += getCellspacing();
-                            
-                            h = Math.min(h, dim.height);
-                            w += dim.width + cellpadding.left + cellpadding.right;
-                            
+                            h += getCellspacing();
+                            if (isShowCategory()) h += 10;
                         } 
-                        else 
-                        {
-                            if (w == 0) w = dim.width;
-                            //add cellspacing and cellpadding
-                            if (h > 0) h += getCellspacing();
-                            
-                            w = Math.min(w, dim.width);
-                            h += dim.height + cellpadding.top + cellpadding.bottom;
-                        }
+
+                        w = Math.max(w, dim.width + cellpadding.left + cellpadding.right);
+                        h += dim.height + cellpadding.top + cellpadding.bottom;
                     }
+                    hasVisibleComponents = true;
                 }
                 
                 Insets margin = parent.getInsets();
@@ -1015,5 +1048,5 @@ public class XFormPanel extends JPanel implements UIComposite, ControlContainer,
     }
     
     // </editor-fold>
-    
+
 }
