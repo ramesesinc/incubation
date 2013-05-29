@@ -19,11 +19,11 @@ import java.util.Map;
 public class ExpressionBean {
     
     private Map params = new HashMap();
-    private String expression;
+    private String statement;
     
     /** Creates a new instance of Expression */
     public ExpressionBean(String expression) {
-        this.expression = expression;
+        this.statement = expression;
     }
     
     public ExpressionBean add(String name, Object value) {
@@ -35,8 +35,8 @@ public class ExpressionBean {
         return params;
     }
     
-    public String getExpression() {
-        return expression;
+    public String getStatement() {
+        return statement;
     }
 }
 
