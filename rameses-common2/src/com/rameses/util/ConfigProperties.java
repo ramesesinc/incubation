@@ -44,9 +44,14 @@ public class ConfigProperties {
             }
             reader = new BufferedReader(new FileReader(file));
             load( reader );
-        } catch(Exception e) {
-            throw new RuntimeException(e);
-        } finally {
+        } 
+        catch(RuntimeException re) {
+            throw re;
+        } 
+        catch(Exception e) {
+            throw new RuntimeException(e.getMessage(), e);
+        } 
+        finally {
             try { reader.close(); } catch(Exception e){;}
         }
     }
@@ -165,10 +170,14 @@ public class ConfigProperties {
         try {
             fos = new FileOutputStream( file );
             fos.write( sb.toString().getBytes() );
-        } catch(Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        } finally {
+        } 
+        catch(RuntimeException re) {
+            throw re;
+        }
+        catch(Exception e) {
+            throw new RuntimeException(e.getMessage(), e);
+        } 
+        finally {
             try { fos.close(); } catch(Exception e) {;}
         }
     }

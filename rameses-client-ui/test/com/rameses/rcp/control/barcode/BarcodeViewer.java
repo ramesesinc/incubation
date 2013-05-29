@@ -7,7 +7,6 @@ import com.rameses.rcp.util.UIControlUtil;
 import com.rameses.util.ValueUtil;
 import java.awt.Graphics;
 import java.awt.Image;
-import java.net.URL;
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 
@@ -46,12 +45,15 @@ public class BarcodeViewer extends JPanel implements UIControl {
     public int compareTo(Object o) { return UIControlUtil.compare(this, o); }
     //</editor-fold>
     
-    //<editor-fold defaultstate="collapsed" desc=" helper methods">
+    // <editor-fold defaultstate="collapsed" desc=" helper methods">
+    
     public void refresh() {
     }
     
-    public void load() {
-        try {
+    public void load() 
+    {
+        try 
+        {
             Object mdl = UIControlUtil.getBeanValue(this);
             if(ValueUtil.isEmpty(mdl)) throw new Exception("No model was found.:BarcodeModel");
             if(mdl instanceof BarcodeModel)
@@ -61,11 +63,13 @@ public class BarcodeViewer extends JPanel implements UIControl {
             barcode = load.getImage();
             
             repaint();
-        }catch(Exception ex) { ex.printStackTrace(); }
+        } 
+        catch(Exception ex) { 
+            ex.printStackTrace(); 
+        }
     }
     
-    public void encodeData(String data) {
-        
-    }
-    //</editor-fold>
+    public void encodeData(String data) {}
+    
+    // </editor-fold>
 }

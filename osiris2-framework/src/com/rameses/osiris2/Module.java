@@ -94,16 +94,24 @@ public class Module {
     public InputStream getResourceAsStream( String name ) {
         try {
             return getResource(name).openStream();
+        } catch(RuntimeException re) {
+            throw re; 
         } catch(Exception ex) {
             throw new IllegalStateException(ex.getMessage(), ex);
         }
     }
     
-    public URL getResource(String name) {
-        try {
+    public URL getResource(String name) 
+    {
+        try 
+        {
             if(!name.startsWith("/")) name = "/" + name;
             return new URL( this.contextPath + name );
-        } catch(Exception ex) {
+        } 
+        catch(RuntimeException re) {
+            throw re;
+        } 
+        catch(Exception ex) {
             throw new IllegalStateException(ex.getMessage(), ex);
         }
     }

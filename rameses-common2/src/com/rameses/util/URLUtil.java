@@ -23,8 +23,10 @@ public final class URLUtil {
             String s = u.toExternalForm();
             s = s.substring( 0, s.lastIndexOf("/") );
             return  new URL( s );
+        } catch(RuntimeException re) {
+            throw re;
         } catch(Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException(e.getMessage(), e);
         }
     }
     
@@ -38,8 +40,10 @@ public final class URLUtil {
                 s = s + "/" + subDirectory;
             }
             return  new URL( s );
+        } catch(RuntimeException re) {
+            throw re;
         } catch(Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException(e.getMessage(), e);
         }
     }
     

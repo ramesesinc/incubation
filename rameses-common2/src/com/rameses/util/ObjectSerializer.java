@@ -39,10 +39,11 @@ public class ObjectSerializer {
     public void write(Object data, Writer writer) {
         try {
             stringifyMap(data, writer);
-            writer.flush();
-            
+            writer.flush();            
+        } catch(RuntimeException re) {
+            throw re;
         } catch(Exception e) {
-            throw new IllegalStateException(e);
+            throw new IllegalStateException(e.getMessage(), e);
         } finally {
             try { writer.close(); }catch(Exception e){}
         }
@@ -86,8 +87,10 @@ public class ObjectSerializer {
                 else
                     writer.write("null");
                 
+            } catch(RuntimeException re) {
+                throw re;
             } catch(Exception e) {
-                throw new IllegalStateException(e);
+                throw new IllegalStateException(e.getMessage(), e);
             }
         }
         
@@ -97,8 +100,10 @@ public class ObjectSerializer {
                 if( name!=null ) writer.write(correctKeyName(name)+":");
                 writer.write("[");
                 
+            } catch(RuntimeException re) {
+                throw re;
             } catch(Exception e) {
-                throw new IllegalStateException(e);
+                throw new IllegalStateException(e.getMessage(), e);
             }
         }
         
@@ -113,16 +118,20 @@ public class ObjectSerializer {
                     writer.write( ValueUtil.getValueAsString(value.getClass(), value) );
                 }
                 
+            } catch(RuntimeException re) {
+                throw re;
             } catch(Exception e) {
-                throw new IllegalStateException(e);
+                throw new IllegalStateException(e.getMessage(), e);
             }
         }
         
         public void endElement(String name) {
             try {
                 writer.write("]");
+            } catch(RuntimeException re) {
+                throw re;
             } catch(Exception e) {
-                throw new IllegalStateException(e);
+                throw new IllegalStateException(e.getMessage(), e);
             }
         }
         

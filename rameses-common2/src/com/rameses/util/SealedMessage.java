@@ -28,16 +28,20 @@ public class SealedMessage implements Serializable {
         try {
             this.enctype = enctype;
             object = CipherUtil.encode((Serializable)o,enctype);
+        } catch(RuntimeException re) {
+            throw re;
         } catch(Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException(e.getMessage(), e);
         }
     }
     
     public Object getMessage() {
         try {
             return CipherUtil.decode((Serializable)object, enctype);
+        } catch(RuntimeException re) {
+            throw re;
         } catch(Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException(e.getMessage(), e);
         }
     }
     

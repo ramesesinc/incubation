@@ -161,6 +161,8 @@ public final class MenuUtil {
         public void actionPerformed(ActionEvent e) {
             try {
                 InvokerUtil.invoke(invoker, null);
+            } catch(RuntimeException re) {
+                throw re;
             } catch(Exception ex) {
                 throw new IllegalStateException(ex.getMessage(), ex);
             }

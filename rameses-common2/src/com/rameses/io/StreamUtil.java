@@ -35,8 +35,10 @@ public final class StreamUtil {
                 out.append((char)i);
             }
             return  out.toString();
+        } catch(RuntimeException re) {
+            throw re; 
         } catch(Exception ex) {
-            throw new RuntimeException(ex);
+            throw new RuntimeException(ex.getMessage(), ex);
         } finally {
             try { is.close(); } catch(Exception ign){;}
         }
@@ -48,8 +50,10 @@ public final class StreamUtil {
             while( (i=is.read())!=-1) {
                 out.append((char)i);
             }
+        } catch(RuntimeException re) {
+            throw re; 
         } catch(Exception ex) {
-            throw new RuntimeException(ex);
+            throw new RuntimeException(ex.getMessage(), ex);
         } finally {
             try { is.close(); } catch(Exception ign){;}
         }
@@ -62,8 +66,10 @@ public final class StreamUtil {
                 dest.write(b);
             }
             dest.flush();
+        } catch(RuntimeException re) {
+            throw re; 
         } catch(Exception ex) {
-            throw new RuntimeException(ex);
+            throw new RuntimeException(ex.getMessage(), ex);
         } finally {
             try { src.close(); }catch(Exception ign){;}
             try { dest.close(); }catch(Exception ign){;}
@@ -82,8 +88,10 @@ public final class StreamUtil {
                 bos.write(buffer, 0, read);
             }
             bos.flush();
+        } catch(RuntimeException re) {
+            throw re; 
         } catch(Exception ex) {
-            throw new RuntimeException(ex);
+            throw new RuntimeException(ex.getMessage(), ex);
         } finally {
             try { bis.close(); }  catch(Exception ign){;}
             try { bos.close(); }  catch(Exception ign){;}
@@ -112,14 +120,16 @@ public final class StreamUtil {
             is = u.openStream();
             handler.handle( is );
         } 
-        catch(Exception ex) {
+        catch(Exception ex) 
+        {
             if( (ex instanceof FileNotFoundException) && ignoreFileNotFound ) {
                 //do nothing
             }
             else {
-                throw new RuntimeException(ex);    
+                throw new RuntimeException(ex.getMessage(), ex);    
             }    
-        } finally {
+        } 
+        finally {
             try {is.close();}catch(Exception ign){;}
         }
     }

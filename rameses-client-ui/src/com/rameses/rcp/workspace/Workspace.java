@@ -105,10 +105,12 @@ public class Workspace implements SubPlatform {
         parent.showWindow(null, new WorkspaceViewContext(title, this), props);
     }
     
-    private void load() {
-        if( loaded ) return;
+    private void load() 
+    {
+        if ( loaded ) return;
         
-        try {
+        try 
+        {
             ClientContext ctx = ClientContext.getCurrentContext();
             URLClassLoader moduleCL = (URLClassLoader) ctx.getClassLoader();
             ClassLoader subLoader = new URLClassLoader(moduleCL.getURLs(), moduleCL.getParent());
@@ -118,8 +120,12 @@ public class Workspace implements SubPlatform {
             appLoader.load(subLoader, virtualEnv, this);
             
             loaded = true;
-        } catch(Exception e) {
-            throw new RuntimeException(e);
+        }
+        catch(RuntimeException re) {
+            throw re; 
+        }
+        catch(Exception e) {
+            throw new RuntimeException(e.getMessage(), e);
         }
     }
     

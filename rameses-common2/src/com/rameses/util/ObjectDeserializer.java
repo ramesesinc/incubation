@@ -106,9 +106,11 @@ public class ObjectDeserializer
                 return root.getObject();
                 
             } 
+            catch (RuntimeException re) {
+                throw re;
+            }
             catch (Exception ex) {
-                ex.printStackTrace();
-                throw new RuntimeException(ex);
+                throw new RuntimeException(ex.getMessage(), ex);
             }
         }
         

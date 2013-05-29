@@ -499,7 +499,10 @@ public class XLookupField extends IconedTextField implements UIFocusableContaine
                 if (method != null) 
                     method.invoke(handler, new Object[]{item}); 
             }
-            catch(Exception ex) {
+            catch (RuntimeException re) {
+                throw re;
+            }
+            catch (Exception ex) {
                 throw new IllegalStateException(ex.getMessage(), ex); 
             }
         }        

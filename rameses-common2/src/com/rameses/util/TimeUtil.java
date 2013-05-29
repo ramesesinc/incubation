@@ -51,8 +51,10 @@ public final class TimeUtil {
             if( d.after(dto )) return false;
             return true;
             
+        } catch(RuntimeException re) {
+            throw re;
         } catch(Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException(e.getMessage(), e);
         }
     }
     

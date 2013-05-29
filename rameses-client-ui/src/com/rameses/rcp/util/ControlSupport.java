@@ -49,14 +49,18 @@ public final class ControlSupport {
         }
     }
     
-    public static Object invoke(Object bean, String action, Object[] params  ) {
+    public static Object invoke(Object bean, String action, Object[] params  ) 
+    {
         ClientContext ctx = ClientContext.getCurrentContext();
         //fire actions
-        if( action !=null && action.trim().length()>0) {
+        if ( action != null && action.trim().length() > 0) 
+        {
             try {
                 return MethodResolver.getInstance().invoke(bean,action,null,params);
+            } catch (RuntimeException re) {
+                throw re;
             } catch(Exception ex) {
-                throw new IllegalStateException(ex);
+                throw new IllegalStateException(ex.getMessage(), ex);
             }
         }
         return null;

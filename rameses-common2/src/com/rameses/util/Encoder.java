@@ -61,6 +61,8 @@ public abstract class Encoder {
                 md.update(value.getBytes());
                 byte[] hash =  md.digest();
                 return toHexString(hash);
+            } catch(RuntimeException re) {
+                throw re; 
             } catch(Exception e) {
                 throw new IllegalStateException(e.getMessage(), e);
             }
@@ -92,6 +94,8 @@ public abstract class Encoder {
                 md.update(value.getBytes());
                 byte[] hash =  md.digest();
                 return toHexString(hash);
+            } catch(RuntimeException re) {
+                throw re; 
             } catch(Exception e) {
                 throw new IllegalStateException(e.getMessage(), e);
             }
@@ -110,8 +114,12 @@ public abstract class Encoder {
                 mac.init(skey);
                 byte[] hash = mac.doFinal(v.getBytes());
                 return toHexString(hash);
-            } catch(Exception e){
-                throw new RuntimeException(e);
+            } 
+            catch(RuntimeException re) {
+                throw re; 
+            }
+            catch(Exception e){
+                throw new RuntimeException(e.getMessage(), e);
             }
         }
         

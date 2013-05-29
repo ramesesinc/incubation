@@ -39,19 +39,25 @@ public class PageFlowInstance {
     
 
     
-    private AbstractNode signalNode(AbstractNode prevNode, String n ){
-        try {
+    private AbstractNode signalNode(AbstractNode prevNode, String n )
+    {
+        try 
+        {
             Object data = workunit.getController();
             Transition t = findTransition(prevNode, n, data);
             fireTransitionAction(t);
             AbstractNode tempNode = findNode(t.getTo());
             fireNodeAction(tempNode);
-            if( tempNode instanceof ProcessNode ) {
+            if ( tempNode instanceof ProcessNode ) {
                 return signalNode( tempNode, null );
             } else {
                 return tempNode;
             }
-        } catch(Exception ex) {
+        }
+        catch(RuntimeException re) {
+            throw re;
+        }
+        catch(Exception ex) {
             throw new IllegalStateException(ex.getMessage(), ex);
         }
     }

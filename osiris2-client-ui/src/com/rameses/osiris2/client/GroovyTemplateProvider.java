@@ -48,8 +48,12 @@ public class GroovyTemplateProvider extends TemplateProvider {
             if( !cache.containsKey(name))
                 throw new Exception("Name " + name + " not found");
             return cache.get(name);
-        } catch(Exception e) {
-            throw new RuntimeException(e);
+        } 
+        catch(RuntimeException re) {
+            throw re;
+        } 
+        catch(Exception e) {
+            throw new RuntimeException(e.getMessage(), e);
         }
     }
     
@@ -77,8 +81,10 @@ public class GroovyTemplateProvider extends TemplateProvider {
             Object result = getResult(templateName, data, source);
             oos = new ObjectOutputStream(out);
             oos.writeObject( result );
+        } catch(RuntimeException re) {
+            throw re;
         } catch(Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException(e.getMessage(), e);
         } finally {
             try {oos.close();}catch(Exception ign){;}
         }

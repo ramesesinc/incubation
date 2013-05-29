@@ -173,30 +173,43 @@ public class WorkUnit implements Serializable {
         this.codeSource = codeSource;
     }
     
-    public Object getCodeInstance() {
+    public Object getCodeInstance() 
+    {
         CodeProvider provider = module.getAppContext().getCodeProvider();
-        if ( codeSource != null && codeSource.trim().length() > 0 ) {
-            try {
+        if ( codeSource != null && codeSource.trim().length() > 0 ) 
+        {
+            try 
+            {
                 if(sourceClass==null) {
                     sourceClass = provider.createClass(codeSource);
                 }
                 if(sourceClass != null) {
                     return provider.createObject(sourceClass);
                 }
-            } catch(Exception ex) {
+            }
+            catch(RuntimeException re) {
+                throw re;
+            }
+            catch(Exception ex) {
                 throw new RuntimeException(ex.getMessage(), ex);
             }
         }
         
-        if ( className != null ) {
-            try {
+        if ( className != null ) 
+        {
+            try 
+            {
                 if ( sourceClass == null ) {
                     sourceClass = provider.loadClass(className);
                 }
                 if(sourceClass != null) {
                     return provider.createObject(sourceClass);
                 }
-            } catch(Exception e) {
+            } 
+            catch(RuntimeException re) {
+                throw re;
+            }            
+            catch(Exception e) {
                 throw new RuntimeException(e.getMessage(), e);
             }
         }

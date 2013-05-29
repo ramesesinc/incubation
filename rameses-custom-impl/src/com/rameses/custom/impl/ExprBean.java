@@ -51,8 +51,10 @@ public class ExprBean extends HashMap {
                 if( !success )
                     throw new Exception("error set field ->" + key );
                 return value;
+            } catch(RuntimeException re) {
+                throw re;
             } catch(Exception e) {
-                throw new RuntimeException(e);
+                throw new RuntimeException(e.getMessage(), e);
             }
         }
         else {
