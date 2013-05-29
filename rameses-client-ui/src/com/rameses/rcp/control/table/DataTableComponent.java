@@ -21,6 +21,7 @@ import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.*;
+import java.beans.Beans;
 import java.util.*;
 import javax.swing.InputVerifier;
 import javax.swing.JCheckBox;
@@ -136,7 +137,15 @@ public class DataTableComponent extends JTable implements ListModelListener, Tab
     
     // <editor-fold defaultstate="collapsed" desc="  Getters/Setters  ">
     
-    public void setListModel(AbstractListModel listModel) {
+    public void setListModel(AbstractListModel listModel) 
+    {
+        if (Beans.isDesignTime())
+        {
+            Column[] columns = (listModel == null? null: listModel.getColumns());
+            setModel(new DataTableModelDesignTime(columns)); 
+            return; 
+        }
+        
         this.listModel = listModel;
         listModel.setListener(this);
         tableModel.setListModel(listModel);
@@ -204,14 +213,14 @@ public class DataTableComponent extends JTable implements ListModelListener, Tab
         for ( int i=0; i<length; i++ ) 
         {
             Column col = tableModel.getColumn(i);
-            TableCellRenderer cellRenderer = TableUtil.getCellRenderer(col.getType());
+            TableCellRenderer cellRenderer = TableUtil.getCellRenderer(col);
             TableColumn tableCol = getColumnModel().getColumn(i);
             tableCol.setCellRenderer(cellRenderer);
             applyColumnProperties(tableCol, col);
             
-//            if ( !ValueUtil.isEmpty(col.getEditableWhen()) ) {
-//                col.setEditable(true);
-//            }
+            if ( !ValueUtil.isEmpty(col.getEditableWhen()) ) 
+                col.setEditable(true);
+            
             if ( !col.isEditable() ) continue;
             if ( editors.containsKey(i) ) continue;
             
@@ -226,6 +235,7 @@ public class DataTableComponent extends JTable implements ListModelListener, Tab
             editor.putClientProperty(Validatable.class, new TableColumnValidator(itemBinding, col));
             editor.putClientProperty(UIInputUtil.Support.class, new EditorInputSupport());             
             editor.putClientProperty(JTable.class, true); 
+            editor.putClientProperty(Binding.class, getBinding()); 
             editor.setBounds(-10, -10, 10, 10);
             editor.setName(col.getName());
             editor.setVisible(false);

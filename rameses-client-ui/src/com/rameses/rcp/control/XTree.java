@@ -10,6 +10,7 @@ package com.rameses.rcp.control;
 import com.rameses.rcp.common.Node;
 import com.rameses.rcp.common.NodeFilter;
 import com.rameses.rcp.common.NodeListener;
+import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.common.TreeNodeModel;
 import com.rameses.rcp.common.TreeNodeModelListener;
 import com.rameses.rcp.framework.Binding;
@@ -207,6 +208,9 @@ public class XTree extends JTree implements UIControl, TreeSelectionListener, Tr
                 doCollectNodeList(child, filter, nodes);
             }
         }
+    }
+
+    public void setPropertyInfo(PropertySupport.PropertyInfo info) {
     }
     
     

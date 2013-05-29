@@ -10,6 +10,7 @@
 package com.rameses.rcp.control.table;
 
 import com.rameses.rcp.common.Column;
+import com.rameses.rcp.common.DecimalColumnHandler;
 import java.math.BigDecimal;
 
 /**
@@ -33,8 +34,14 @@ public class DecimalCellRenderer extends AbstractNumberCellRenderer
             } catch(Exception e) {}
         }
         
-        if (num == null) return null;
+        if (num == null) return null;   
         
-        return formatValue(num, c.getFormat(), "#,##0.00");
+        String format = null;
+        if (c.getTypeHandler() instanceof DecimalColumnHandler) 
+            format = ((DecimalColumnHandler) c.getTypeHandler()).getFormat(); 
+        
+        if (format == null || format.length() == 0) return num.toString();
+                
+        return formatValue(num, format, "#,##0.00");
     }
 }

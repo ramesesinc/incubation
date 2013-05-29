@@ -1,5 +1,6 @@
 package com.rameses.rcp.ui;
 
+import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.framework.*;
 
 /**
@@ -40,5 +41,13 @@ public interface UIControl extends Comparable
     void load();
     
     
+    
+    /*
+     *  added the following methods below to be part of the standard property 
+     *  of the UIControl object
+     */
     Object getClientProperty(Object name); 
+    void putClientProperty(Object name, Object value);
+    
+    void setPropertyInfo(PropertySupport.PropertyInfo info); 
 }

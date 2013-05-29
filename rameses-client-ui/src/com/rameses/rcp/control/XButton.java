@@ -1,5 +1,6 @@
 package com.rameses.rcp.control;
 
+import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.ui.ActiveControl;
 import com.rameses.rcp.ui.ControlProperty;
 import com.rameses.rcp.util.UICommandUtil;
@@ -172,6 +173,8 @@ public class XButton extends JButton implements UICommand, ActionListener, Activ
     public String getDisableWhen() { return disableWhen; }
     public void setDisableWhen(String disableWhen) { this.disableWhen = disableWhen; }
     
-    //</editor-fold>
+    public void setPropertyInfo(PropertySupport.PropertyInfo info) {}    
+    
+    // </editor-fold>
     
 }

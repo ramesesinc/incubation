@@ -83,7 +83,19 @@ public class UIControlUtil {
         } catch(NullPointerException npe) {
             return false; 
         }
-    }    
+    } 
+    
+    public static Object evaluate(Object bean, String expression) 
+    {
+        if (bean == null || expression == null) return null; 
+        
+        ExpressionResolver er = ExpressionResolver.getInstance();
+        try { 
+            return er.eval(expression, bean);
+        } catch(NullPointerException npe) {
+            return null; 
+        }
+    }       
     
     public static int compare(UIControl control, Object control2) 
     {

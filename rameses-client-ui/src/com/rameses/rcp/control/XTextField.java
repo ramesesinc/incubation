@@ -1,5 +1,6 @@
 package com.rameses.rcp.control;
 
+import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.constant.TextCase;
 import com.rameses.rcp.constant.TrimSpaceOption;
 import com.rameses.rcp.control.text.DefaultTextField;
@@ -192,7 +193,7 @@ public class XTextField extends DefaultTextField implements UIInput, Validatable
     }
     //</editor-fold>
     
-    //<editor-fold defaultstate="collapsed" desc="  Getters/Setters  ">
+    // <editor-fold defaultstate="collapsed" desc="  Getters/Setters  ">
     
     public void setName(String name) 
     {
@@ -426,6 +427,9 @@ public class XTextField extends DefaultTextField implements UIInput, Validatable
     public boolean isSecured() {
         return securityPattern != null && securityPattern.length() > 0 && securityChar != null && securityChar.length() > 0;
     }
+    
+    public void setPropertyInfo(PropertySupport.PropertyInfo info) {
+    }    
     
     // </editor-fold>
    

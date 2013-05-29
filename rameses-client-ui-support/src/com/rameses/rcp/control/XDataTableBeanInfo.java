@@ -10,6 +10,7 @@
 package com.rameses.rcp.control;
 
 import com.rameses.beaninfo.ComponentBeanInfo;
+import com.rameses.beaninfo.editor.ColumnPropertyEditor;
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
 
@@ -33,7 +34,9 @@ public class XDataTableBeanInfo extends ComponentBeanInfo.Support
         return new PropertyDescriptor[] {
             new PropertyDescriptor("border", getBeanClass()),
             new PropertyDescriptor("autoResize", getBeanClass(), "isAutoResize", "setAutoResize"),
-            new PropertyDescriptor("columns", getBeanClass()),
+            
+            installEditor(new PropertyDescriptor("columns", getBeanClass()), ColumnPropertyEditor.class), 
+            
             new PropertyDescriptor("depends", getBeanClass()),
             new PropertyDescriptor("dynamic", getBeanClass(), "isDynamic", "setDynamic"),
             new PropertyDescriptor("errorBackground", getBeanClass()),

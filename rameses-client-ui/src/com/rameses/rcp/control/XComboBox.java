@@ -8,6 +8,7 @@
 package com.rameses.rcp.control;
 
 import com.rameses.common.PropertyResolver;
+import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.framework.ClientContext;
 import com.rameses.rcp.support.ComboBoxEditorSupport;
@@ -30,7 +31,6 @@ import java.awt.event.KeyEvent;
 import java.beans.Beans;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Map;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.InputVerifier;
 import javax.swing.JComboBox;
@@ -500,7 +500,21 @@ public class XComboBox extends JComboBox implements UIInput, ItemListener, Valid
     public void setItemsObject(Object itemsObject) {
         this.itemsObject = itemsObject;
     }
-    //</editor-fold>
+
+    public void setPropertyInfo(PropertySupport.PropertyInfo info) 
+    {
+        if (!(info instanceof PropertySupport.ComboBoxPropertyInfo)) return;
+        
+        PropertySupport.ComboBoxPropertyInfo cbo = (PropertySupport.ComboBoxPropertyInfo) info;
+        setExpression(cbo.getExpression());
+        setItemKey(cbo.getItemKey());
+        if (cbo.getItems() instanceof String) 
+            setItems(cbo.getItems().toString()); 
+        else 
+            setItemsObject(cbo.getItems()); 
+    }
+    
+    // </editor-fold>
     
     //<editor-fold defaultstate="collapsed" desc="  ComboItem (class)  ">
     public class ComboItem {

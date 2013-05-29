@@ -13,28 +13,29 @@ package com.rameses.rcp.common;
  *
  * @author wflores
  */
-public class LookupColumnHandler extends ColumnHandler
+public class LookupColumnHandler extends Column.TypeHandler implements PropertySupport.LookupPropertyInfo
 {   
+    private Object handler;
+    private String expression;
+    
     public LookupColumnHandler(){
     } 
     
     public LookupColumnHandler(String expression, Object handler) 
     {
-        setExpression(expression);
-        setHandler(handler);
+        this.expression = expression;
+        this.handler = handler;
     }
     
-    public String getExpression() { 
-        return (String) get("expression"); 
-    }
+    public String getType() { return "lookup"; }
+    
+    public String getExpression() { return expression; }
     public void setExpression(String expression) {
-        put("expression", expression); 
+        this.expression = expression;
     }
 
-    public Object getHandler() { 
-        return get("handler"); 
-    }
+    public Object getHandler() { return handler; }
     public void setHandler(Object handler) {
-        put("handler", handler); 
+        this.handler = handler;
     }
 }

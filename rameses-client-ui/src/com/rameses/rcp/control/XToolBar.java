@@ -1,6 +1,7 @@
 package com.rameses.rcp.control;
 
 import com.rameses.rcp.common.Action;
+import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.ui.UIControl;
 import com.rameses.rcp.util.UIControlUtil;
@@ -111,6 +112,9 @@ public class XToolBar extends JPanel implements UIControl{
             ib.load();
         }
         SwingUtilities.updateComponentTreeUI(this);
+    }
+
+    public void setPropertyInfo(PropertySupport.PropertyInfo info) {
     }
     
     private class XToolBarBorder extends AbstractBorder {

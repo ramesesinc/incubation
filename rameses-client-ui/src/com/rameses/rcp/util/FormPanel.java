@@ -4,6 +4,7 @@ import com.rameses.common.ExpressionResolver;
 import com.rameses.common.PropertyResolver;
 import com.rameses.rcp.common.FormControl;
 import com.rameses.rcp.common.FormPanelModel;
+import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.common.ValidatorEvent;
 import com.rameses.rcp.constant.UIConstants;
 import com.rameses.rcp.control.XEditorPane;
@@ -672,6 +673,9 @@ public class FormPanel extends JPanel implements UIComposite, ControlContainer, 
     
     public void setEmptyWhen(String emptyWhen) {
         this.emptyWhen = emptyWhen;
+    }
+
+    public void setPropertyInfo(PropertySupport.PropertyInfo info) {
     }
     
     //</editor-fold>

@@ -7,6 +7,7 @@
 
 package com.rameses.rcp.control;
 
+import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.framework.ClientContext;
 import com.rameses.rcp.support.ThemeUI;
@@ -87,7 +88,8 @@ public class XRadio extends JRadioButton implements UIInput, ItemListener, Activ
         }
     }
     
-    //<editor-fold defaultstate="collapsed" desc="  Getters/Setters  ">
+    // <editor-fold defaultstate="collapsed" desc="  Getters/Setters  ">
+    
     public void setValue(Object value) {
         if ( value != null && value.equals(optionValue) ) {
             setSelected(true);
@@ -209,6 +211,10 @@ public class XRadio extends JRadioButton implements UIInput, ItemListener, Activ
     public boolean isImmediate() {
         return true;
     }
-    //</editor-fold>
+    
+    public void setPropertyInfo(PropertySupport.PropertyInfo info) {
+    }
+    
+    // </editor-fold>
     
 }

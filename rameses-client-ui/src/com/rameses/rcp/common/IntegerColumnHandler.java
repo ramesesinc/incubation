@@ -13,61 +13,40 @@ package com.rameses.rcp.common;
  *
  * @author wflores
  */
-public class IntegerColumnHandler extends ColumnHandler
+public class IntegerColumnHandler extends Column.TypeHandler implements PropertySupport.IntegerPropertyInfo
 {   
+    private String format;
+    private int minValue;
+    private int maxValue;
+    
     public IntegerColumnHandler(){
+        this(null);
     } 
     
-    public IntegerColumnHandler(String format) 
-    {
-        setFormat(format);
+    public IntegerColumnHandler(String format) {
+        this(format, -1, -1); 
     }
     
-    public String getFormat() { 
-        return (String) get("format"); 
+    public IntegerColumnHandler(String format, int minValue, int maxValue) {
+        this.format = format;
+        this.minValue = minValue;
+        this.maxValue = maxValue;
     }
+    
+    public String getType() { return "integer"; }
+        
+    public String getFormat() { return format; }
     public void setFormat(String format) {
-        put("format", format); 
+        this.format = format;
     }
 
-    public boolean isUsePrimitiveValue() { 
-        return "true".equals(get("usePrimitiveValue")+""); 
-    }
-    public void setUsePrimitiveValue(boolean usePrimitiveValue) {
-        put("usePrimitiveValue", usePrimitiveValue); 
+    public int getMinValue() { return minValue; }
+    public void setMinValue(int minValue) { 
+        this.minValue = minValue;
     }
     
-    public int getMinValue() {
-        try 
-        {
-            Object value = get("minValue");
-            if (value instanceof Integer)
-                return ((Integer) value).intValue(); 
-            else 
-                return Integer.parseInt(get("minValue")+"");
-        } 
-        catch(Exception ex) {
-            return 0;
-        }
-    }
-    public void setMinValue(int minValue) {
-        put("minValue", minValue);
-    }
-    
-    public int getMaxValue() {
-        try 
-        {
-            Object value = get("maxValue");
-            if (value instanceof Integer)
-                return ((Integer) value).intValue(); 
-            else 
-                return Integer.parseInt(get("maxValue")+"");
-        } 
-        catch(Exception ex) {
-            return 0;
-        }
-    }    
-    public void setMaxValue(int maxValue) {
-        put("maxValue", maxValue);
-    }    
+    public int getMaxValue() { return maxValue; } 
+    public void setMaxValue(int maxValue) { 
+        this.maxValue = maxValue;
+    } 
 }
