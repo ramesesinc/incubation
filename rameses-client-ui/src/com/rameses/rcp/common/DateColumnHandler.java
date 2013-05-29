@@ -13,37 +13,37 @@ package com.rameses.rcp.common;
  *
  * @author wflores
  */
-public class DateColumnHandler extends ColumnHandler
+public class DateColumnHandler extends Column.TypeHandler implements PropertySupport.DatePropertyInfo 
 {   
+    private String inputFormat;
+    private String outputFormat;
+    private String valueFormat;
+    
     public DateColumnHandler(){
     } 
     
     public DateColumnHandler(String inputFormat, String outputFormat, String valueFormat) 
     {
-        setInputFormat(inputFormat);
-        setOutputFormat(outputFormat);
-        setValueFormat(valueFormat); 
+        this.inputFormat = inputFormat;
+        this.outputFormat = outputFormat;
+        this.valueFormat = valueFormat;
     }
     
-    public String getInputFormat() { 
-        return (String) get("inputFormat"); 
-    }
+    public String getType() { return "date"; }
+    
+    public String getInputFormat() { return inputFormat; }
     public void setInputFormat(String inputFormat) {
-        put("inputFormat", inputFormat); 
+        this.inputFormat = inputFormat;
     }
 
-    public String getOutputFormat() { 
-        return (String) get("outputFormat"); 
-    }
+    public String getOutputFormat() { return outputFormat; }
     public void setOutputFormat(String outputFormat) {
-        put("outputFormat", outputFormat); 
+        this.outputFormat = outputFormat; 
     }
 
-    public String getValueFormat() { 
-        return (String) get("valueFormat"); 
-    }
+    public String getValueFormat() { return valueFormat; }
     public void setValueFormat(String valueFormat) { 
-        put("valueFormat", valueFormat); 
+        this.valueFormat = valueFormat;
     }
     
 }

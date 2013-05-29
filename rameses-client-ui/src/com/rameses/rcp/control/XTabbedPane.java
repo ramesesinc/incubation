@@ -8,6 +8,7 @@
 package Templates.Classes;
 
 import com.rameses.rcp.common.Opener;
+import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.control.XSubFormPanel;
 import com.rameses.rcp.control.tabbedpane.LoadingPanel;
 import com.rameses.rcp.framework.Binding;
@@ -140,7 +141,8 @@ public class XTabbedPane extends JTabbedPane implements UIControl
     }
     
     
-    //<editor-fold defaultstate="collapsed" desc="  Getters/Setters  ">
+    // <editor-fold defaultstate="collapsed" desc="  Getters/Setters  ">
+    
     public String[] getDepends() { return depends; }
     public void setDepends(String[] depends) { this.depends = depends; }
     
@@ -152,7 +154,11 @@ public class XTabbedPane extends JTabbedPane implements UIControl
     
     public boolean isDynamic() { return dynamic; }
     public void setDynamic(boolean dynamic) { this.dynamic = dynamic; }
-    //</editor-fold>
+    
+    public void setPropertyInfo(PropertySupport.PropertyInfo info) {
+    }
+    
+    // </editor-fold>
     
     //<editor-fold defaultstate="collapsed" desc="  BindingRunnable  ">
     private class BindingRunnable implements Runnable {
@@ -186,6 +192,5 @@ public class XTabbedPane extends JTabbedPane implements UIControl
     
     public void setNameAutoLookupAsOpener(boolean nameAutoLookupAsOpener) {
         this.nameAutoLookupAsOpener = nameAutoLookupAsOpener;
-    }
-    
+    }    
 }

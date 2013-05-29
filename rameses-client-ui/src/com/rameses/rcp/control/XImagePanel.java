@@ -1,5 +1,6 @@
 package com.rameses.rcp.control;
 
+import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.framework.ClientContext;
 import com.rameses.rcp.ui.UIControl;
@@ -40,7 +41,8 @@ public class XImagePanel extends JPanel implements UIControl
         dynamic = true; 
     } 
     
-    //<editor-fold defaultstate="collapsed" desc="  setter(s)/getter(s)  ">
+    // <editor-fold defaultstate="collapsed" desc="  setter(s)/getter(s)  ">
+    
     public Border getBorder() { return innerBorder; } 
     public void setBorder(Border border) 
     {
@@ -109,7 +111,11 @@ public class XImagePanel extends JPanel implements UIControl
             imageIcon = null; 
         } 
     }
-    //</editor-fold>
+    
+    public void setPropertyInfo(PropertySupport.PropertyInfo info) {
+    }
+    
+    // </editor-fold>
     
     private URL getImageResource(String path) 
     {

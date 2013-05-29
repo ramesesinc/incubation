@@ -27,7 +27,7 @@ import javax.swing.SwingConstants;
  *
  * @author wflores
  */
-public class StringCellRenderer extends AbstractCellRenderer 
+public class TextCellRenderer extends AbstractCellRenderer 
 {    
     protected TableControl tableControl;
     protected JTable table;    
@@ -37,7 +37,7 @@ public class StringCellRenderer extends AbstractCellRenderer
     
     private JLabel label;
     
-    public StringCellRenderer() 
+    public TextCellRenderer() 
     {
         label = new JLabel();
         label.setVerticalAlignment(SwingConstants.CENTER);

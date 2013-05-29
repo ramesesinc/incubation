@@ -1,5 +1,6 @@
 package com.rameses.rcp.control;
 
+import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.ui.ActiveControl;
 import com.rameses.rcp.util.ControlSupport;
@@ -230,9 +231,9 @@ public class XSubFormPanel extends JPanel implements UISubControl, ActiveControl
     public Object getHandlerObject() {
         return handlerObj;
     }
+       
+    // <editor-fold defaultstate="collapsed" desc="  Getters/Setters  ">
     
-    
-    //<editor-fold defaultstate="collapsed" desc="  Getters/Setters  ">
     public Dimension getPreferredSize() {
         if ( getComponentCount() > 0 ) {
             return getComponent(0).getPreferredSize();
@@ -348,10 +349,14 @@ public class XSubFormPanel extends JPanel implements UISubControl, ActiveControl
     public ControlProperty getControlProperty() {
         return property;
     }
-    //</editor-fold>
+
+    public void setPropertyInfo(PropertySupport.PropertyInfo info) {
+    }
     
+    // </editor-fold>
+        
+    // <editor-fold defaultstate="collapsed" desc="  SubFormContext (class)  ">
     
-    //<editor-fold defaultstate="collapsed" desc="  SubFormContext (class)  ">
     protected class SubFormContext extends UIControllerPanel {
         
         SubFormContext(UIControllerContext controller) {
@@ -369,6 +374,6 @@ public class XSubFormPanel extends JPanel implements UISubControl, ActiveControl
         }
         
     }
-    //</editor-fold>
     
+    // </editor-fold>     
 }

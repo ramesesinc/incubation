@@ -7,6 +7,7 @@
 package com.rameses.rcp.control;
 
 import com.rameses.rcp.common.Node;
+import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.common.TreeNodeModel;
 import com.rameses.rcp.constant.UIConstants;
 import com.rameses.rcp.control.menu.MenuItemProxy;
@@ -106,7 +107,8 @@ public class XContextMenu extends JPanel implements UIControl, EventListener {
         popupMenu.show(source, p.x, p.y);
     }
     
-    //<editor-fold defaultstate="collapsed" desc="  Getters/Setters  ">
+    // <editor-fold defaultstate="collapsed" desc="  Getters/Setters  ">
+    
     public String[] getDepends() {
         return depends;
     }
@@ -170,6 +172,10 @@ public class XContextMenu extends JPanel implements UIControl, EventListener {
     public void setMenuPosition(String menuPosition) {
         this.menuPosition = menuPosition;
     }
-    //</editor-fold>
+    
+    public void setPropertyInfo(PropertySupport.PropertyInfo info) {
+    }
+    
+    // </editor-fold>
     
 }

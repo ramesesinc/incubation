@@ -1,6 +1,7 @@
 package com.rameses.rcp.control;
 
 import com.rameses.rcp.common.Action;
+import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.ui.UIControl;
 import com.rameses.rcp.util.UIControlUtil;
@@ -190,7 +191,8 @@ public class XIconPanel extends JPanel implements UIControl {
     }
     //</editor-fold>
     
-    //<editor-fold defaultstate="collapsed" desc="setter/getter">
+    // <editor-fold defaultstate="collapsed" desc="setter/getter">
+    
     public String[] getDepends() { return depends; }
     public void setDepends(String[] depends) { this.depends = depends; }
     
@@ -210,7 +212,11 @@ public class XIconPanel extends JPanel implements UIControl {
     public void setCaptionOrientation(String captionOrientation) { this.captionOrientation = captionOrientation; }
     
     public int compareTo(Object o) { return UIControlUtil.compare(this, o); }
-    //</editor-fold>
+
+    public void setPropertyInfo(PropertySupport.PropertyInfo info) {
+    }
+    
+    // </editor-fold>
     
     //<editor-fold defaultstate="collapsed" desc="IconCanvas(JPanel)">
     private class IconCanvas extends JPanel {

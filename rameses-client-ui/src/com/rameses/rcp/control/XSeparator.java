@@ -7,6 +7,7 @@
 
 package com.rameses.rcp.control;
 
+import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.constant.UIConstants;
 import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.ui.ActiveControl;
@@ -104,7 +105,8 @@ public class XSeparator extends JComponent implements UIControl, ActiveControl, 
         return UIControlUtil.compare(this, o);
     }
     
-    //<editor-fold defaultstate="collapsed" desc="  Getters/Setters  ">
+    // <editor-fold defaultstate="collapsed" desc="  Getters/Setters  ">
+    
     public ControlProperty getControlProperty() {
         return property;
     }
@@ -199,6 +201,10 @@ public class XSeparator extends JComponent implements UIControl, ActiveControl, 
     public void setLineShadow(Color lineShadow) {
         this.lineShadow = lineShadow;
     }
-    //</editor-fold>
+    
+    public void setPropertyInfo(PropertySupport.PropertyInfo info) {
+    }
+    
+    // </editor-fold>
     
 }

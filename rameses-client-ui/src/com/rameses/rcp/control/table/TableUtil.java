@@ -9,8 +9,16 @@ package com.rameses.rcp.control.table;
 
 import com.rameses.common.ExpressionResolver;
 import com.rameses.rcp.common.AbstractListModel;
+import com.rameses.rcp.common.CheckBoxColumnHandler;
 import com.rameses.rcp.common.Column;
+import com.rameses.rcp.common.ComboBoxColumnHandler;
+import com.rameses.rcp.common.DateColumnHandler;
+import com.rameses.rcp.common.DecimalColumnHandler;
+import com.rameses.rcp.common.DoubleColumnHandler;
+import com.rameses.rcp.common.IntegerColumnHandler;
+import com.rameses.rcp.common.LookupColumnHandler;
 import com.rameses.rcp.common.StyleRule;
+import com.rameses.rcp.common.TextColumnHandler;
 import com.rameses.rcp.control.AbstractIconedTextField;
 import com.rameses.rcp.control.XActionTextField;
 import com.rameses.rcp.control.XCheckBox;
@@ -23,6 +31,7 @@ import com.rameses.rcp.control.XNumberField;
 import com.rameses.rcp.control.XTextField;
 import com.rameses.rcp.framework.ClientContext;
 import com.rameses.rcp.support.ColorUtil;
+import com.rameses.rcp.ui.UIControl;
 import com.rameses.rcp.ui.Validatable;
 import com.rameses.rcp.util.ControlSupport;
 import com.rameses.rcp.util.UIControlUtil;
@@ -78,14 +87,16 @@ public final class TableUtil
     
     private static Map<String, Class<? extends JComponent>> editors = new HashMap();
     private static Map<String, Class> numClass = new HashMap();
-    private static Map<String, TableCellRenderer> renderers = new HashMap();
+    private static Map<Object, TableCellRenderer> renderers = new HashMap();
     private static TableCellRenderer headerRenderer = new TableHeaderRenderer();
     
-    //<editor-fold defaultstate="collapsed" desc="  static initializer  ">
+    // <editor-fold defaultstate="collapsed" desc="  static initializer  ">
     
-    static {
+    static 
+    {
         //map of editors
         editors.put("string", XTextField.class);
+        editors.put("text", XTextField.class);
         editors.put("boolean", XCheckBox.class);
         editors.put("checkbox", XCheckBox.class);
         editors.put("combo", XComboBox.class);
@@ -94,22 +105,26 @@ public final class TableUtil
         editors.put("decimal", XDecimalField.class);
         editors.put("integer", XIntegerField.class);        
         editors.put("lookup", XLookupField.class);
-        editors.put("actiontext", XActionTextField.class);
         
         //map of renderers
-        TableCellRenderer renderer = new StringRenderer();
-        renderers.put("string", renderer);
-        renderers.put("integer", new IntegerRenderer());
-        renderers.put("decimal", new DecimalRenderer());
+        renderers.put("string", new StringRenderer());
+        renderers.put("boolean", new BooleanRenderer());
+        renderers.put("checkbox", new BooleanRenderer());  
+        renderers.put("combo", new StringRenderer());
+        renderers.put("date", new StringRenderer());        
         renderers.put("double", new DecimalRenderer());
-        renderers.put("date", renderer);
-        renderers.put("combo", renderer);
-        renderers.put("lookup", renderer);
-        renderers.put("actiontext", renderer);
+        renderers.put("decimal", new DecimalRenderer());
+        renderers.put("integer", new IntegerRenderer());        
+        renderers.put("lookup", new StringRenderer());
         
-        renderer = new BooleanRenderer();
-        renderers.put("boolean", renderer);
-        renderers.put("checkbox", renderer);
+        renderers.put(TextColumnHandler.class, new TextCellRenderer());
+        renderers.put(CheckBoxColumnHandler.class, new CheckBoxCellRenderer());
+        renderers.put(ComboBoxColumnHandler.class, new ComboBoxCellRenderer());
+        renderers.put(DateColumnHandler.class, new DateCellRenderer());        
+        renderers.put(DoubleColumnHandler.class, new DecimalCellRenderer());
+        renderers.put(DecimalColumnHandler.class, new DecimalCellRenderer());
+        renderers.put(IntegerColumnHandler.class, new IntegerCellRenderer());        
+        renderers.put(LookupColumnHandler.class, new LookupCellRenderer());
         
         //number class types
         numClass.put("decimal", BigDecimal.class);
@@ -117,24 +132,34 @@ public final class TableUtil
         numClass.put("double", Double.class);
     }
     
-    //</editor-fold>    
-    
-    
-    public static JComponent createCellEditor(Column col) {
-        String type = col.getType()+"";
+    // </editor-fold>    
+        
+    public static JComponent createCellEditor(Column oColumn) 
+    {
+        Class editorClass = null; 
+        if (oColumn.getTypeHandler() == null) 
+            editorClass = editors.get(oColumn.getType()); 
+        else 
+            editorClass = editors.get(oColumn.getTypeHandler().getType()); 
+        
         JComponent editor = null;
-        try {
-            editor = editors.get(type).newInstance();
-            customize(editor, col);
-            
-        } catch (Exception ex) {
+        try 
+        { 
+            editor = (JComponent) editorClass.newInstance();
+            customize(editor, oColumn);            
+        } 
+        catch (Exception ex) {
             ex.printStackTrace();
         }
         return editor;
     }
     
-    public static TableCellRenderer getCellRenderer(String type) {
-        return renderers.get(type);
+    public static TableCellRenderer getCellRenderer(Column oColumn) 
+    {
+        if (oColumn.getTypeHandler() == null) 
+            return renderers.get(oColumn.getType()); 
+        else 
+            return renderers.get(oColumn.getTypeHandler().getClass()); 
     }
     
     public static TableCellRenderer getHeaderRenderer() {
@@ -158,8 +183,10 @@ public final class TableUtil
     }
     
     
-    //<editor-fold defaultstate="collapsed" desc="  editor customizer method  ">
-    private static void customize(JComponent editor, Column col) {
+    // <editor-fold defaultstate="collapsed" desc="  editor customizer method  "> 
+    
+    private static void customize(JComponent editor, Column col) 
+    {
         //add JTable flag to notify that editor is in a JTable component
         editor.putClientProperty(JTable.class, true);
         
@@ -174,24 +201,32 @@ public final class TableUtil
             v.setRequired( col.isRequired() );
             v.setCaption( col.getCaption() );
         }
-        
-        String type = col.getType()+"";
-        if ( editor instanceof XCheckBox ) {
+
+        String type = col.getType()+"";        
+        Column.TypeHandler typeHandler = col.getTypeHandler();
+        if ( editor instanceof UIControl ) 
+            ((UIControl) editor).setPropertyInfo(typeHandler); 
+
+        else if ( editor instanceof XCheckBox ) 
+        {
             XCheckBox xcb = (XCheckBox) editor;
             xcb.setHorizontalAlignment(SwingConstants.CENTER);
             xcb.setBorderPainted(true);
-            
             if( col.getCheckValue() != null )  xcb.setCheckValue( col.getCheckValue() );
             if( col.getUncheckValue() != null )xcb.setUncheckValue( col.getUncheckValue() );
             
-        } else if ( editor instanceof XNumberField ) {
+        } 
+        else if ( editor instanceof XNumberField ) 
+        {
             XNumberField xnf = (XNumberField) editor;
             xnf.setFieldType(numClass.get(type));
             if ( !ValueUtil.isEmpty(col.getFormat()) ) {
                 xnf.setPattern( col.getFormat() );
             }
             
-        } else if ( editor instanceof XLookupField ) {
+        } 
+        else if ( editor instanceof XLookupField ) 
+        {
             XLookupField xlf = (XLookupField) editor;
             if( col.getHandler() instanceof String )
                 xlf.setHandler( (String) col.getHandler() );
@@ -201,46 +236,17 @@ public final class TableUtil
             if( col.getExpression() != null )
                 xlf.setExpression( col.getExpression() );
             
-            xlf.setTransferFocusOnSelect(false);
-            
-        } else if ( editor instanceof XDateField ) {
+            xlf.setTransferFocusOnSelect(false);            
+        } 
+        else if ( editor instanceof XDateField ) 
+        {
             XDateField xdf = (XDateField) editor;
             xdf.setHorizontalAlignment(SwingConstants.CENTER);
             if ( !ValueUtil.isEmpty(col.getFormat()) ) {
                 xdf.setInputFormat( col.getFormat() );
                 xdf.setOutputFormat( col.getFormat() );
             }
-        } else if ( editor instanceof XActionTextField ) {
-            XActionTextField atf = (XActionTextField) editor;
-            
-            //remove all action listeners, we wil fire them using ctrl+ENTER
-            final List<ActionListener> listeners = new ArrayList();
-            for(ActionListener l : atf.getActionListeners()) {
-                listeners.add( l );
-                atf.removeActionListener(l);
-            }
-            if( listeners.size() > 0 ) {
-                atf.registerKeyboardAction(new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        for(ActionListener l : listeners) l.actionPerformed(e);
-                    }
-                }, KeyStroke.getKeyStroke("ctrl ENTER"), JComponent.WHEN_FOCUSED);
-            }
-            
-            if( col.getAction() instanceof String )
-                atf.setActionName( col.getAction()+"" );
-//            else
-//                atf.setActionObject( col.getAction() );
-            
-            //set default icon
-            atf.setIcon(new DefaultActionTextIcon());
-        }
-        
-        if( editor instanceof AbstractIconedTextField ) {
-            AbstractIconedTextField aitf = (AbstractIconedTextField) editor;
-            if( col.getIcon() != null ) aitf.setIcon( col.getIcon() );
-            if( col.getIconOrientation() != null ) aitf.setOrientation( col.getIconOrientation() );
-        }        
+        } 
         
         editor.setBackground(FOCUS_BG);
         Font font = (Font) UIManager.get("Table.font");

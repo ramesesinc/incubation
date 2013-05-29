@@ -9,6 +9,7 @@ package com.rameses.rcp.control;
 
 import com.rameses.common.ExpressionResolver;
 import com.rameses.rcp.common.Action;
+import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.control.border.BorderProxy;
 import com.rameses.rcp.control.border.XToolbarBorder;
 import com.rameses.rcp.framework.ActionProvider;
@@ -322,7 +323,7 @@ public class XActionBar extends JPanel implements UIComposite
     
     // </editor-fold>
     
-    //<editor-fold defaultstate="collapsed" desc="  Getters/Setters  ">
+    // <editor-fold defaultstate="collapsed" desc="  Getters/Setters  ">
     
     public String getTextAlignment() { return this.textAlignment; } 
     public void setTextAlignment(String textAlignment) {
@@ -464,6 +465,9 @@ public class XActionBar extends JPanel implements UIComposite
     
     public boolean isButtonAsHyperlink()                        { return buttonAsHyperlink; }
     public void setButtonAsHyperlink(boolean buttonAsHyperlink) { this.buttonAsHyperlink = buttonAsHyperlink; }
+
+    public void setPropertyInfo(PropertySupport.PropertyInfo info) {
+    }
     
     // </editor-fold>
     

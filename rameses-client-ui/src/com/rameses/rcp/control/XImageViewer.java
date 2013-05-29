@@ -1,5 +1,6 @@
 package com.rameses.rcp.control;
 
+import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.ui.UIControl;
 import com.rameses.rcp.util.UIControlUtil;
@@ -213,9 +214,9 @@ public class XImageViewer extends JPanel implements UIControl {
         }
     }
     //</editor-fold>
+        
+    // <editor-fold defaultstate="collapsed" desc="  Getters/Setters  ">
     
-    
-    //<editor-fold defaultstate="collapsed" desc="  Getters/Setters  ">
     public String[] getDepends() {
         return depends;
     }
@@ -287,9 +288,12 @@ public class XImageViewer extends JPanel implements UIControl {
         super.setBackground(bg);
         if( canvas != null ) canvas.setBackground(bg);
     }
-    //</editor-fold>
+
+    public void setPropertyInfo(PropertySupport.PropertyInfo info) {
+    }
     
-    
+    // </editor-fold>
+        
     //<editor-fold defaultstate="collapsed" desc="  ImageCanvas (class)  ">
     private class ImageCanvas extends JPanel {
         

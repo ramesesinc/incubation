@@ -9,39 +9,41 @@
 
 package com.rameses.rcp.common;
 
-import java.math.BigDecimal;
-
 /**
  *
  * @author wflores
  */
-public class CheckBoxColumnHandler extends ColumnHandler
-{   
-    private Class valueType = Boolean.class;
+public class CheckBoxColumnHandler extends Column.TypeHandler implements PropertySupport.CheckBoxPropertyInfo 
+{
+    private Class valueType;
     private Object checkValue;
     private Object uncheckValue;
     
     public CheckBoxColumnHandler(){
+        this(Boolean.class, true, false);
     } 
     
-    public CheckBoxColumnHandler(String format) 
+    public CheckBoxColumnHandler(Class valueType, Object checkValue, Object uncheckValue) 
     {
-        setCheckValue(true);
-        setUncheckValue(false);
-    }
-    
-    public Class getValueType() { return valueType; }
-    public void setValueType(Class valueType) {
         this.valueType = valueType;
+        this.checkValue = checkValue;
+        this.uncheckValue = uncheckValue;
+    }
+
+    public String getType() { return "checkbox"; }
+    
+    public Class getValueType() { return valueType; }    
+    public void setValueType(Class valueType) { 
+        this.valueType = valueType; 
     }
     
     public Object getCheckValue() { return checkValue; }
     public void setCheckValue(Object checkValue) {
-        this.checkValue = checkValue; 
+        this.checkValue = checkValue;
     }
 
     public Object getUncheckValue() { return uncheckValue; }
     public void setUncheckValue(Object uncheckValue) {
-        this.uncheckValue = uncheckValue;
+        this.uncheckValue = uncheckValue; 
     }
 }

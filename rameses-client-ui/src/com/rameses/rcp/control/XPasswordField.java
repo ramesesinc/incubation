@@ -1,5 +1,6 @@
 package com.rameses.rcp.control;
 
+import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.framework.ClientContext;
 import com.rameses.rcp.support.TextEditorSupport;
@@ -143,7 +144,8 @@ public class XPasswordField extends JPasswordField implements UIInput, Validatab
         }
     }
     
-    //<editor-fold defaultstate="collapsed" desc="  Getters/Setters  ">
+    // <editor-fold defaultstate="collapsed" desc="  Getters/Setters  ">
+    
     public Object getValue() {
         if( Beans.isDesignTime())
             return "";
@@ -324,9 +326,12 @@ public class XPasswordField extends JPasswordField implements UIInput, Validatab
         this.hint = hint;
         showHint = !ValueUtil.isEmpty(hint);
     }
-    //</editor-fold>
+
+    public void setPropertyInfo(PropertySupport.PropertyInfo info) {
+    }
     
-    
+    // </editor-fold>
+        
     //<editor-fold defaultstate="collapsed" desc="  KeyListenerSupport (class)  ">
     private class KeyListenerSupport implements KeyListener{
         public void keyTyped(KeyEvent e) {

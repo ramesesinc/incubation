@@ -7,6 +7,7 @@
 package com.rameses.rcp.control;
 
 import com.rameses.rcp.common.Node;
+import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.common.TreeNodeModel;
 import com.rameses.rcp.control.menu.MenuProxy;
 import com.rameses.rcp.framework.Binding;
@@ -119,4 +120,7 @@ public class XMenu extends JPanel implements UIControl {
     public void setHandler(String handler) {
         this.handler = handler;
     }    
+
+    public void setPropertyInfo(PropertySupport.PropertyInfo info) {
+    }
 }

@@ -7,6 +7,7 @@
 
 package com.rameses.rcp.control;
 
+import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.support.ThemeUI;
 import com.rameses.rcp.ui.ControlContainer;
@@ -240,6 +241,7 @@ public class XPanel extends JPanel implements UIControl, ControlContainer {
     public void setEmptyTextHAlignment(int alignment) {
         label.setHorizontalAlignment(alignment);
     }
-    
-    
+
+    public void setPropertyInfo(PropertySupport.PropertyInfo info) {
+    }
 }

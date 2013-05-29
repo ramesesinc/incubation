@@ -10,6 +10,7 @@ package com.rameses.rcp.control;
 import com.rameses.common.PropertyResolver;
 import com.rameses.rcp.common.ListItem;
 import com.rameses.rcp.common.MsgBox;
+import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.control.treetable.TreeTableComponent;
 import com.rameses.rcp.control.treetable.TreeTableListener;
 import com.rameses.rcp.control.treetable.TreeTableUtil;
@@ -328,6 +329,9 @@ public class XTreeTable extends JPanel implements UIOutput, TreeTableListener, F
     
     public String getVarStatus()            { return table.getVarStatus(); }
     public void setVarStatus(String status) { table.setVarStatus(status); }
+
+    public void setPropertyInfo(PropertySupport.PropertyInfo info) {
+    }
     
     //</editor-fold>
     

@@ -29,6 +29,8 @@ import javax.swing.table.TableCellRenderer;
  */
 public abstract class AbstractCellRenderer implements TableCellRenderer 
 {
+    protected Column column;
+    
     private Insets CELL_MARGIN = TableUtil.CELL_MARGIN; 
     private Color FOCUS_BG = TableUtil.FOCUS_BG;
     
@@ -36,11 +38,11 @@ public abstract class AbstractCellRenderer implements TableCellRenderer
     
     public abstract void refresh(JTable table, Object value, boolean selected, boolean focus, int row, int column);
     
-    public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) 
+    public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int rowIndex, int colIndex) 
     {
         TableControl xtable = (TableControl) table;
         TableControlModel xmodel = (TableControlModel) xtable.getModel();
-        JComponent comp = getComponent(table, row, column);
+        JComponent comp = getComponent(table, rowIndex, colIndex);
         comp.setBorder(BorderFactory.createEmptyBorder(CELL_MARGIN.top, CELL_MARGIN.left, CELL_MARGIN.bottom, CELL_MARGIN.right));
         comp.setFont(table.getFont());
         
@@ -60,7 +62,7 @@ public abstract class AbstractCellRenderer implements TableCellRenderer
             comp.setForeground(table.getForeground());
             comp.setOpaque(false);
             
-            if ( (row % 2 == 0) ) 
+            if ( (rowIndex % 2 == 0) ) 
             {
                 if ( xtable.getEvenBackground() != null ) 
                 {
@@ -87,7 +89,7 @@ public abstract class AbstractCellRenderer implements TableCellRenderer
         
         AbstractListModel lm = xtable.getListModel();
         ExpressionResolver exprRes = ExpressionResolver.getInstance();
-        Column colModel = xmodel.getColumn(column);
+        column = xmodel.getColumn(colIndex);
         
 //            try {
 //                StyleRule[] styles = xtable.getBinding().getStyleRules();
@@ -112,7 +114,7 @@ public abstract class AbstractCellRenderer implements TableCellRenderer
 //            } catch(Exception e){;}
         
         
-        String errmsg = lm.getErrorMessage(row);
+        String errmsg = lm.getErrorMessage(rowIndex);
         if (errmsg != null) 
         {
             if (!hasFocus) 
@@ -142,7 +144,7 @@ public abstract class AbstractCellRenderer implements TableCellRenderer
         }
         comp.setBorder(BorderFactory.createCompoundBorder(border, inner));
         
-        refresh(table, value, isSelected, hasFocus, row, column);
+        refresh(table, value, isSelected, hasFocus, rowIndex, colIndex);
         return comp;        
     }
 }

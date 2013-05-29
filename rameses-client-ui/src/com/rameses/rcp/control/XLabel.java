@@ -1,5 +1,6 @@
 package com.rameses.rcp.control;
 
+import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.framework.ClientContext;
 import com.rameses.rcp.support.ThemeUI;
@@ -159,7 +160,7 @@ public class XLabel extends JLabel implements UIOutput, ActiveControl {
         }
     }
     
-    //<editor-fold defaultstate="collapsed" desc="  Getters/Setters  ">
+    // <editor-fold defaultstate="collapsed" desc="  Getters/Setters  ">
     
     public String getName() {
         return super.getName(); 
@@ -353,7 +354,11 @@ public class XLabel extends JLabel implements UIOutput, ActiveControl {
     public void setFormat(Format format) {
         this.format = format;
     }
-    //</editor-fold>
+
+    public void setPropertyInfo(PropertySupport.PropertyInfo info) {
+    }
+    
+    // </editor-fold>
     
     
     //<editor-fold defaultstate="collapsed" desc="  ActiveControlSupport (class)  ">

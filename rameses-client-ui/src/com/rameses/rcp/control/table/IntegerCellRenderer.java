@@ -10,6 +10,7 @@
 package com.rameses.rcp.control.table;
 
 import com.rameses.rcp.common.Column;
+import com.rameses.rcp.common.IntegerColumnHandler;
 
 /**
  *
@@ -34,7 +35,12 @@ public class IntegerCellRenderer extends AbstractNumberCellRenderer
         }
         
         if (num == null) return null;
-        if (c.getFormat() == null) return num.toString();
+        
+        String format = null; 
+        if (c.getTypeHandler() instanceof IntegerColumnHandler) 
+            format = ((IntegerColumnHandler) c.getTypeHandler()).getFormat();
+        
+        if (format == null || format.length() == 0) return num.toString();
         
         return formatValue(num, c.getFormat(), "0");
     }

@@ -10,33 +10,35 @@
 package com.rameses.rcp.control.table;
 
 import com.rameses.common.ExpressionResolver;
-import java.util.Map;
+import com.rameses.rcp.common.LookupColumnHandler;
 
 /**
  *
  * @author wflores
  */
-public class LookupCellRenderer extends StringCellRenderer
+public class LookupCellRenderer extends TextCellRenderer
 {
     
     protected Object resolveValue(Object value) 
     {
-        Object cellValue = value;        
-        if (column.getExpression() != null) 
+        Object cellValue = value; 
+        if (column.getTypeHandler() instanceof LookupColumnHandler) 
         {
-            ExpressionResolver er = ExpressionResolver.getInstance();
-            try 
+            LookupColumnHandler lkp = (LookupColumnHandler) column.getTypeHandler(); 
+            if (lkp.getExpression() != null) 
             {
-                Object bean = cellValue;
-                if (table.getModel() instanceof DataTableModel)
-                    bean = ((DataTableModel) table.getModel()).getItem(rowIndex);
-                
-                cellValue = er.eval(column.getExpression(), (Map) bean);
-            } 
-            catch(Exception e) {
-                //e.printStackTrace();
+                ExpressionResolver er = ExpressionResolver.getInstance();
+                try 
+                {
+                    Object bean = cellValue;
+                    if (table.getModel() instanceof DataTableModel)
+                        bean = ((DataTableModel) table.getModel()).getItem(rowIndex);
+
+                    cellValue = er.evalString(lkp.getExpression(), bean);
+                } 
+                catch(Exception e) {}
             }
-        } 
+        }
         return cellValue; 
     }
 
