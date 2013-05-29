@@ -15,7 +15,7 @@ import java.math.BigDecimal;
  *
  * @author Elmo
  */
-public class Fact {
+public class CustomFact {
     
     private String name;
     private String value;
@@ -23,7 +23,7 @@ public class Fact {
     private BigDecimal decimalValue;
     private String tag;
 
-    public Fact(String name) {
+    public CustomFact(String name) {
         this.name = name;
     }
     
