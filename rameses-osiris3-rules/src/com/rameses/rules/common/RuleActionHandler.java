@@ -15,6 +15,6 @@ package com.rameses.rules.common;
  */
 public interface RuleActionHandler {
     
-    void execute(Object context, Object params);
+    void execute(Object params, Object context);
     
 }

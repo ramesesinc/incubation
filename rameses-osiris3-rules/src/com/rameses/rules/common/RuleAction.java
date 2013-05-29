@@ -18,16 +18,7 @@ public class RuleAction implements Serializable {
     public static final String GLOBAL_NAME = "action";
     
     private Map<String, RuleActionHandler> commands = new Hashtable();
-    private Object context;
     private String name = "action";
-    
-    public void setContext(Object context) {
-        this.context = context;
-    }
-    
-    public Object getContext() {
-        return context;
-    }
     
     public RuleAction() {
     }
@@ -36,11 +27,20 @@ public class RuleAction implements Serializable {
         commands.put(name, handler);
     }
     
+    public void execute( String action, Object params, Object ruleHandle ) {
+        RuleActionHandler handler = commands.get(action);
+        if(handler!=null) {
+            handler.execute( params, ruleHandle );
+        } 
+        else {
+            System.out.println("No command found for "+action +". No action executed");
+        }
+    }
     
     public void execute( String action, Object params ) {
         RuleActionHandler handler = commands.get(action);
         if(handler!=null) {
-            handler.execute( context, params );
+            handler.execute( params, null );
         } 
         else {
             System.out.println("No command found for "+action +". No action executed");
