@@ -38,6 +38,8 @@ import java.beans.Beans;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.InputVerifier;
 import javax.swing.JComponent;
 
@@ -49,7 +51,8 @@ public class XLookupField extends IconedTextField implements UIFocusableContaine
 {
     protected ControlProperty property = new ControlProperty();
     protected ActionMessage actionMessage = new ActionMessage();
-    
+
+    private Logger logger = Logger.getLogger(getClass().getName()); 
     private LookupHandlerProxy lookupHandlerProxy = new LookupHandlerProxy();
     private LookupInputSupport inputSupport = new LookupInputSupport();
     private TrimSpaceOption trimSpaceOption = TrimSpaceOption.ALL;
@@ -158,16 +161,22 @@ public class XLookupField extends IconedTextField implements UIFocusableContaine
     
     public void setPropertyInfo(PropertySupport.PropertyInfo info) 
     {
+        if (ClientContext.getCurrentContext().isDebugMode()) 
+            logger.log(Level.INFO, "info="+info);
+        
         if (!(info instanceof PropertySupport.LookupPropertyInfo)) return; 
 
         PropertySupport.LookupPropertyInfo lkp = (PropertySupport.LookupPropertyInfo) info; 
+        if (ClientContext.getCurrentContext().isDebugMode()) 
+            logger.log(Level.INFO, "handler="+lkp.getHandler() + ", expression=" + lkp.getExpression());
+        
         if (lkp.getHandler() instanceof String)
             setHandler(lkp.getHandler().toString()); 
         else 
             setHandlerObject(lkp.getHandler()); 
         
         setExpression(lkp.getExpression()); 
-    }    
+    } 
    
     // </editor-fold> 
     
@@ -341,6 +350,18 @@ public class XLookupField extends IconedTextField implements UIFocusableContaine
             loadHandler();
             loaded = true;
             
+            if (ClientContext.getCurrentContext().isDebugMode()) 
+            {
+                logger.log(Level.INFO, "lookupHandlerProxy=" + lookupHandlerProxy);
+                logger.log(Level.INFO, "lookupHandlerProxy.getModel=" + lookupHandlerProxy.getModel());
+            }
+            
+            if (lookupHandlerProxy.getModel() == null)
+            {
+                MsgBox.alert("No available lookup model found. Please check.");
+                return;
+            }
+                
             lookupHandlerProxy.getModel().setSelector(this);            
             boolean show = lookupHandlerProxy.getModel().show( getText() );            
             if ( show ) 
@@ -392,11 +413,18 @@ public class XLookupField extends IconedTextField implements UIFocusableContaine
     
     private void loadHandler()
     {
+        if (ClientContext.getCurrentContext().isDebugMode()) 
+            logger.log(Level.INFO, "handler="+handler + ", handlerObject=" + handlerObject);
+        
         Object o = null;
         if ( !ValueUtil.isEmpty(handler) ) 
         {
             if ( handler.matches(".+:.+") ) //handler is a module:workunit name
+            {
                 o = LookupOpenerSupport.lookupOpener(handler, new HashMap()); 
+                if (ClientContext.getCurrentContext().isDebugMode()) 
+                    logger.log(Level.INFO, "handler match to invoker type, result="+o);
+            }
             else 
             {
                 //check if there is a binding object passed by the JTable
@@ -404,11 +432,16 @@ public class XLookupField extends IconedTextField implements UIFocusableContaine
                 if (tableBinding == null) tableBinding = getBinding(); 
                 
                 o = UIControlUtil.getBeanValue(tableBinding, handler);
+                if (ClientContext.getCurrentContext().isDebugMode()) 
+                    logger.log(Level.INFO, "getBeanValue: handler="+handler+", bean="+tableBinding.getBean() + ", result="+o);
             }
         } 
         else if ( handlerObject != null ) { 
             o = handlerObject;
         } 
+
+        if (ClientContext.getCurrentContext().isDebugMode()) 
+            logger.log(Level.INFO, "evaluated handler object: "+o);
         
         if (o == null) return;
         

@@ -19,8 +19,6 @@ import com.rameses.rcp.common.IntegerColumnHandler;
 import com.rameses.rcp.common.LookupColumnHandler;
 import com.rameses.rcp.common.StyleRule;
 import com.rameses.rcp.common.TextColumnHandler;
-import com.rameses.rcp.control.AbstractIconedTextField;
-import com.rameses.rcp.control.XActionTextField;
 import com.rameses.rcp.control.XCheckBox;
 import com.rameses.rcp.control.XComboBox;
 import com.rameses.rcp.control.XDateField;
@@ -43,18 +41,14 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Insets;
 import java.awt.Rectangle;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.FocusListener;
 import java.math.BigDecimal;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
@@ -65,7 +59,6 @@ import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
-import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
@@ -204,7 +197,7 @@ public final class TableUtil
 
         String type = col.getType()+"";        
         Column.TypeHandler typeHandler = col.getTypeHandler();
-        if ( editor instanceof UIControl ) 
+        if ( editor instanceof UIControl && typeHandler != null) 
             ((UIControl) editor).setPropertyInfo(typeHandler); 
 
         else if ( editor instanceof XCheckBox ) 
