@@ -7,19 +7,18 @@
 
 package com.rameses.rcp.control;
 
-import com.rameses.common.PropertyResolver;
-import com.rameses.rcp.common.AbstractListModel;
+import com.rameses.rcp.common.AbstractListDataProvider;
 import com.rameses.rcp.common.BasicListModel;
 import com.rameses.rcp.common.Column;
 import com.rameses.rcp.common.ListItem;
 import com.rameses.rcp.common.MsgBox;
+import com.rameses.rcp.common.PropertyChangeHandler;
 import com.rameses.rcp.common.PropertySupport;
+import com.rameses.rcp.common.TableModelHandler;
 import com.rameses.rcp.control.table.DataTableComponent;
-import com.rameses.rcp.control.table.TableDelayedActionMgr;
 import com.rameses.rcp.control.table.ListScrollBar;
 import com.rameses.rcp.control.table.RowHeaderView;
 import com.rameses.rcp.control.table.TableBorder;
-import com.rameses.rcp.control.table.TableListener;
 import com.rameses.rcp.control.table.TableUtil;
 import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.framework.ClientContext;
@@ -33,42 +32,46 @@ import java.util.ArrayList;
 import java.util.Map;
 import javax.swing.*;
 
-public class XDataTable extends JPanel implements UIInput, TableListener, Validatable, FocusListener 
+public class XDataTable extends JPanel implements UIInput, Validatable, FocusListener 
 {    
-    private DataTableComponent table;
+    private DataTableComponentImpl table;
     private ListScrollBar scrollBar;
     private RowHeaderView rowHeaderView;
     private JScrollPane scrollPane;
-
+    
+    private PropertyChangeHandlerImpl propertyHandler;    
+    private AbstractListDataProvider dataProvider;
+    private TableModelHandler tableModelHandler;    
+    
     private ActionMessage actionMessage = new ActionMessage();    
-    private AbstractListModel listModel;
+    private Binding binding;    
     private Column[] columns; 
-    private String columnsAsString;
-    private String items;
     private String[] depends;
-    private Binding binding;
+    private String items;    
     private String handler;
     private String caption;
+    private int index;    
     private boolean dynamic;
     private boolean showRowHeader;
     private boolean immediate;
-    private int index;
     
     private ListItem currentItem;    
-    private TableDelayedActionMgr actionMgr;
-    private BeanUpdateAction rowChangeAction;
+    private RowChangeNotifier rowChangeNotifier; 
+    private ListModelLoader loader;
         
     public XDataTable() 
     {
         init();
+        
         if ( !Beans.isDesignTime() ) 
         {
-            rowChangeAction = new BeanUpdateAction();
-            actionMgr = new TableDelayedActionMgr( rowChangeAction );
+            rowChangeNotifier = new RowChangeNotifier(); 
+            loader = new ListModelLoader();
         }
     }
     
-    //-- channel events to TableComponent
+    // <editor-fold defaultstate="collapsed" desc=" setup handlers ">
+    
     public void addMouseListener(MouseListener l) {
         table.addMouseListener(l);
     }
@@ -85,12 +88,16 @@ public class XDataTable extends JPanel implements UIInput, TableListener, Valida
         table.removeKeyListener(l);
     }
     
-    
+    // </editor-fold>
+        
     // <editor-fold defaultstate="collapsed" desc="  initialize table  ">
     
     private void init() 
     {
-        table = new DataTableComponent();
+        propertyHandler = new PropertyChangeHandlerImpl();     
+        tableModelHandler = new TableModelHandlerImpl();
+        
+        table = new DataTableComponentImpl();
         scrollBar = new ListScrollBar();
         
         //--create and decorate scrollpane for the JTable
@@ -99,30 +106,22 @@ public class XDataTable extends JPanel implements UIInput, TableListener, Valida
         //--additional customization for the JScrollPane 
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
         scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        scrollPane.setBorder(BorderFactory.createEmptyBorder());
-        
+        scrollPane.setBorder(BorderFactory.createEmptyBorder());        
+                
         //--attach mouse wheel listener to table
         table.addMouseWheelListener(new MouseWheelListener() {
-            public void mouseWheelMoved(MouseWheelEvent e) {
-                if( table.isProcessing() ) return;
+            public void mouseWheelMoved(MouseWheelEvent e) 
+            {
+                if (dataProvider.isProcessing()) return;
+                if (table.isProcessingRequest()) return;
                 
                 int rotation = e.getWheelRotation();
-                if ( rotation == 0 ) return;
+                if (rotation == 0) return;
                 
-                if ( rotation < 0 )
-                    listModel.moveBackRecord();
+                if (rotation < 0)
+                    dataProvider.moveBackRecord();
                 else
-                    listModel.moveNextRecord();
-            }
-        });
-        
-        //--attach property change listener
-        table.addPropertyChangeListener(new PropertyChangeListener() {
-            public void propertyChange(PropertyChangeEvent evt) {
-                String propname = evt.getPropertyName();
-                if( "busy".equals(propname) ) {
-                    scrollBar.setEnabled(!(Boolean)evt.getNewValue());
-                }
+                    dataProvider.moveNextRecord(true);
             }
         });
         
@@ -177,89 +176,72 @@ public class XDataTable extends JPanel implements UIInput, TableListener, Valida
     
     // </editor-fold>
     
-    //<editor-fold defaultstate="collapsed" desc="  UIInput properties  ">
+    // <editor-fold defaultstate="collapsed" desc="  UIInput properties  ">
     
-    public String[] getDepends() {
-        return depends;
-    }
+    public String[] getDepends() { return depends; }    
+    public void setDepends(String[] depends) { this.depends = depends; }
     
-    public void setDepends(String[] depends) {
-        this.depends = depends;
-    }
-    
-    public int getIndex() {
-        return index;
-    }
-    
-    public void setIndex(int index) {
-        this.index = index;
-    }
-    
-    public void setBinding(Binding binding) {
-        this.binding = binding;
-    }
-    
-    public Binding getBinding() {
-        return binding;
-    }
-    
+    public int getIndex() { return index; }    
+    public void setIndex(int index) { this.index = index; }
+
+    public Binding getBinding() { return binding; }    
+    public void setBinding(Binding binding) { this.binding = binding; }
     
     private boolean refreshed;
     
-    public void refresh() {
-        if ( listModel != null ) {
-            if( !refreshed || dynamic )
-                listModel.load();
-            else
-                listModel.refresh();
-        }
-        
+    public void refresh() 
+    {
+        if ( dataProvider != null ) 
+        {
+            if ( !refreshed || dynamic ) 
+                EventQueue.invokeLater(loader.load()); 
+            else  
+                EventQueue.invokeLater(loader.refresh());  
+        } 
         refreshed = true;
     }
     
     public void load() 
     {
-        refreshed = false;        
-        
-        if (handler != null) 
+        refreshed = false;
+        AbstractListDataProvider newProvider = null;
+        if ( handler != null ) 
         {
             Object oHandler = UIControlUtil.getBeanValue(this, handler);
-            if (oHandler instanceof AbstractListModel) 
-                listModel = (AbstractListModel) oHandler; 
-        } 
+            if ( oHandler instanceof AbstractListDataProvider ) 
+                newProvider = (AbstractListDataProvider) oHandler;  
+        }
         
-        if (listModel == null && getItems() != null) 
-            listModel = new ListModelWrapper(); 
+        if (newProvider == null && getItems() != null) 
+            newProvider = new ListModelWrapper(getItems()); 
         
-        if (listModel != null) 
+        if (newProvider != null)
         {
-            if (getColumns() != null) 
-                listModel.setColumns(getColumns());
-
-            table.setListener(this);
+            if (getColumns() != null) newProvider.setColumns(getColumns());
+            
+            dataProvider = newProvider;
             table.setBinding(binding);
-            table.setListModel(listModel);
-            scrollBar.setListModel(listModel);
+            table.setDataProvider(dataProvider);
+            scrollBar.setDataProvider(dataProvider); 
 
-            if (rowHeaderView != null) 
-                rowHeaderView.setRowCount(listModel.getRows()); 
-        } 
+            if ( rowHeaderView != null )
+                rowHeaderView.setRowCount( dataProvider.getRows() );
+        }
     }
     
-    public Object getValue() {
+    public Object getValue() 
+    {
         if ( Beans.isDesignTime() ) return null;
         
-        if( listModel == null || listModel.getSelectedItem() == null )
-            return null;
-        
-        return listModel.getSelectedItem().getItem();
-    }
+        if ( dataProvider == null || dataProvider.getSelectedItem() == null ) 
+            return null; 
+        else 
+            return dataProvider.getSelectedItem().getItem(); 
+    } 
     
     public void setValue(Object value) {}
     
-    public boolean isNullWhenEmpty() {
-        return true;
-    }
+    public boolean isNullWhenEmpty() { return true; }
     
     public int compareTo(Object o) {
         return UIControlUtil.compare(this, o);
@@ -267,80 +249,18 @@ public class XDataTable extends JPanel implements UIInput, TableListener, Valida
      
     // </editor-fold>
     
-    //<editor-fold defaultstate="collapsed" desc="  table listener methods  ">
+    // <editor-fold defaultstate="collapsed" desc="  table listener methods  ">
     
-    public void refreshList() {
-        scrollBar.adjustValues();
-        rowChanged();
-    }
-    
-    public void openItem() {
-        ListItem selectedItem = listModel.getSelectedItem();
-        if( selectedItem!=null && selectedItem.getItem()!=null) {
-            try {
-                Object outcome = listModel.openSelectedItem();
-                if ( outcome == null ) return;
-                
-                binding.fireNavigation(outcome);
-                
-            } catch(Exception ex){
-                MsgBox.err(new IllegalStateException(ex));
-            }
-        }
-    }
-
-    public void onchangedItem(int rowIndex) 
+    public void cancelRowEdit() 
     {
-        ListItem item = listModel.getListItem(rowIndex); 
-        if ( item != null )
-        {
-            currentItem = item.clone();
-            rowChangeAction.execute();
-        } 
-        else {
-            currentItem = null;
-        }         
+        if ( rowHeaderView != null ) rowHeaderView.clearEditing();
     }
-   
-    
-    public void rowChanged() 
+        
+    protected void log(String msg) 
     {
-        ClientContext ctx = ClientContext.getCurrentContext();
-        PropertyResolver resolver = PropertyResolver.getInstance();
-        ListItem item = listModel.getSelectedItem();
-        
-        Object oldValue = (currentItem != null? currentItem.getItem() : null);
-        Object newValue = (item!=null? item.getItem() : null);
-        
-        //keep the actual state at this time
-        if( item != null )
-            currentItem = item.clone();
-        else
-            currentItem = null;
-        
-        if( oldValue != newValue ) {
-            if( actionMgr != null ) {
-                if( immediate )
-                    rowChangeAction.execute();
-                else
-                    actionMgr.start();
-            }
-        }
-
-        if ( rowHeaderView != null )
-            rowHeaderView.clearEditing();
+        String name = getClass().getSimpleName(); 
+        System.out.println("["+name+"] " + msg);
     }
-    
-    public void editCellAt(int rowIndex, int colIndex) {
-        if ( rowHeaderView != null )
-            rowHeaderView.editRow(rowIndex);
-    }
-    
-    public void cancelRowEdit() {
-        if ( rowHeaderView != null )
-            rowHeaderView.clearEditing();
-    }
-    
     
     //</editor-fold>
     
@@ -349,37 +269,32 @@ public class XDataTable extends JPanel implements UIInput, TableListener, Valida
     public boolean isRequired() { return table.isRequired(); }    
     public void setRequired(boolean required) {}
     
-    public void validateInput() {
-        String errmsg = listModel.getErrorMessages();
+    public void validateInput() 
+    {
+        String errmsg = dataProvider.getMessageSupport().getErrorMessages(); 
         actionMessage.clearMessages();
-        if ( errmsg != null ) {
+        if ( errmsg != null ) 
+        {
             StringBuffer buffer = new StringBuffer(errmsg);
-            if( !ValueUtil.isEmpty(caption) ) {
-                buffer.insert(0, caption + " (\n")
-                .append("\n)");
+            if ( !ValueUtil.isEmpty(caption) ) {
+                buffer.insert(0, caption + " (\n").append("\n)");
             }
             actionMessage.addMessage(null, buffer.toString(), null);
         }
     }
     
-    public ActionMessage getActionMessage() {
-        return actionMessage;
-    }
+    public ActionMessage getActionMessage() { return actionMessage; }
 
     public boolean isReadonly() { return table.isReadonly(); }    
-    public void setReadonly(boolean readonly) { 
-        table.setReadonly(readonly);
-    }
+    public void setReadonly(boolean readonly) { table.setReadonly(readonly); }
         
     public String getCaption() { return this.caption; }    
-    public void setCaption(String caption) {
-        this.caption = caption;
-    }
+    public void setCaption(String caption) { this.caption = caption; }
     
-    public String getName() { return super.getName(); }    
     public void setName(String name) 
     {
         super.setName(name);
+        
         if ( table != null ) table.setName(name);
     }
     
@@ -393,9 +308,9 @@ public class XDataTable extends JPanel implements UIInput, TableListener, Valida
         {
             try 
             {
-                ListModelWrapper lm = new ListModelWrapper();
+                ListModelWrapper lm = new ListModelWrapper(null);
                 lm.setColumns(columns);
-                table.setListModel(lm);
+                table.setDataProvider(lm);
             }
             catch(Exception ex) {
                 MsgBox.err(ex); 
@@ -511,17 +426,19 @@ public class XDataTable extends JPanel implements UIInput, TableListener, Valida
     
     private class ScrollBarPanel extends JPanel 
     {
-        
         ScrollBarPanel(JScrollBar scrollBar) 
         {
             Dimension ps = scrollBar.getPreferredSize();
             setPreferredSize(ps);
             setLayout(new BorderLayout());
             
-            scrollBar.addPropertyChangeListener(new PropertyChangeListener() {
-                public void propertyChange(PropertyChangeEvent evt) {
+            scrollBar.addPropertyChangeListener(new PropertyChangeListener() 
+            {
+                public void propertyChange(PropertyChangeEvent evt) 
+                {
                     String propName = evt.getPropertyName();
-                    if ( "visible".equals(propName) ) {
+                    if ( "visible".equals(propName) ) 
+                    {
                         Boolean visible = (Boolean) evt.getNewValue();;
                         setVisible(visible.booleanValue());
                     }
@@ -531,70 +448,26 @@ public class XDataTable extends JPanel implements UIInput, TableListener, Valida
             setVisible( scrollBar.isVisible() );
             add(TableUtil.getTableCornerComponent(getGridColor()), BorderLayout.NORTH);
             add(scrollBar, BorderLayout.CENTER);
-        }
-        
+        }        
     }
     
     // </editor-fold>
-    
-    // <editor-fold defaultstate="collapsed" desc="  BeanUpdateAction (class)  ">
-    
-    private class BeanUpdateAction implements TableDelayedActionMgr.Action 
-    {        
-        public void execute() 
-        {
-            ClientContext ctx = ClientContext.getCurrentContext();
-            try 
-            {
-                PropertyResolver resolver = PropertyResolver.getInstance();
-                String name = getName();
-                
-                if ( !ValueUtil.isEmpty(name) ) 
-                {
-                    Object value = null;
-                    if( currentItem != null ) value = currentItem.getItem();
-
-                    resolver.setProperty(binding.getBean(), name, value);
-                    binding.notifyDepends(XDataTable.this);
-                }
-
-                String varStatus = table.getVarStatus();
-                if ( !ValueUtil.isEmpty(varStatus) ) 
-                {
-                    try {
-                        resolver.setProperty(binding.getBean(), varStatus, currentItem);
-                    } 
-                    catch(Exception e){
-                        if( ctx.isDebugMode() ) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-            }
-            catch(Exception e)
-            {
-                if( ctx.isDebugMode() ) {
-                    e.printStackTrace();
-                }
-            }
-        }
         
-    }
-    
-    // </editor-fold>
-    
     // <editor-fold defaultstate="collapsed" desc="  ListModelWrapper (class)  ">
     
     private class ListModelWrapper extends BasicListModel 
     {
         private java.util.List userDefinedList;
+        private String name;
+        
+        ListModelWrapper(String name) { this.name = name; } 
 
         public java.util.List fetchList(Map params) 
         {
             if (Beans.isDesignTime()) return null;
             
-            if (userDefinedList == null)
-                userDefinedList = (java.util.List) UIControlUtil.getBeanValue(binding, XDataTable.this.getItems()); 
+            if (userDefinedList == null && name != null)
+                userDefinedList = (java.util.List) UIControlUtil.getBeanValue(binding, name); 
             
             if (userDefinedList == null)
                 return new ArrayList();
@@ -604,5 +477,249 @@ public class XDataTable extends JPanel implements UIInput, TableListener, Valida
     }
     
     // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc="  RowChangeNotifier (Class)  ">
+
+    private class RowChangeNotifier 
+    {
+        void execute() 
+        {
+            updateBean(); 
+            notifyDepends(); 
+        }
+               
+        void updateBean() 
+        {
+            try
+            {
+                String name = getName();                
+                if ( !ValueUtil.isEmpty(name) ) 
+                {
+                    Object value = null;
+                    if ( currentItem != null ) value = currentItem.getItem();
+
+                    UIControlUtil.setBeanValue(binding, name, value);
+                }
+
+                String varStatus = table.getVarStatus();
+                if ( !ValueUtil.isEmpty(varStatus) ) 
+                    UIControlUtil.setBeanValue(binding, varStatus, currentItem);
+            } 
+            catch (Exception ex) 
+            {
+                if (ClientContext.getCurrentContext().isDebugMode()) 
+                    ex.printStackTrace(); 
+            }
+        }
+        
+        void notifyDepends() 
+        {
+            if ( !ValueUtil.isEmpty(getName()) ) 
+            {
+                if (immediate)
+                    binding.notifyDepends(XDataTable.this); 
+                
+                else 
+                {
+                    Thread thread = new Thread(new Runnable() {
+                        public void run() { 
+                            notifyDependsAsync(table.getSelectedRow());
+                        }
+                    });
+                    thread.start(); 
+                }
+            } 
+        }
+        
+        synchronized void notifyDependsAsync(int selectedRow) 
+        {
+            try { Thread.sleep(200); } catch(Exception ex) {;}             
+            try 
+            {
+                if (selectedRow == table.getSelectedRow()) { 
+                    binding.notifyDepends(XDataTable.this); 
+                } 
+            } 
+            catch(Exception ex) {;} 
+        }
+    }
+           
+    // </editor-fold>     
+    
+    // <editor-fold defaultstate="collapsed" desc="  ListModelLoader (Class)  ">
+
+    private class ListModelLoader implements Runnable 
+    {
+        private Object LOCK = new Object();        
+        private boolean refreshOnly;
+        private boolean processing;
+                
+        Runnable load() 
+        {
+            refreshOnly = false; 
+            return this; 
+        }
+        
+        Runnable refresh() 
+        {
+            refreshOnly = true; 
+            return this; 
+        } 
+        
+        public void run()
+        {
+            synchronized(LOCK) 
+            {
+                try 
+                {
+                    if (refreshOnly)
+                        dataProvider.refresh();
+                    
+                    else 
+                    {
+                        dataProvider.load();
+                        table.onrowChanged(); 
+                    }
+                }
+                catch(Exception ex) {
+                    showError(ex); 
+                }
+            }
+        } 
+        
+        void showError(final Exception error) {
+            EventQueue.invokeLater(new Runnable() {
+                public void run() {
+                    MsgBox.err(error); 
+                }
+            });
+        }
+    }
+           
+    // </editor-fold>     
+    
+    // <editor-fold defaultstate="collapsed" desc="  DataTableComponentImpl (Class)  ">
+    
+    private class DataTableComponentImpl extends DataTableComponent 
+    {
+        XDataTable root = XDataTable.this;
+
+        protected void uninstall(AbstractListDataProvider dataProvider) 
+        {
+            dataProvider.removeHandler(root.propertyHandler);
+            dataProvider.removeHandler(root.tableModelHandler); 
+        }
+        
+        protected void install(AbstractListDataProvider dataProvider) 
+        {
+            dataProvider.addHandler(root.propertyHandler);
+            dataProvider.addHandler(root.tableModelHandler);             
+        }
+        
+        protected void onrowChanged() 
+        { 
+            ListItem selectedItem = dataProvider.getSelectedItem();
+
+            Object oldValue = (currentItem == null? null: currentItem.getItem());
+            Object newValue = (selectedItem == null? null: selectedItem.getItem());            
+            
+            currentItem = null; 
+            if (selectedItem != null) 
+                currentItem = selectedItem.clone(); 
+            if (oldValue != newValue && rowChangeNotifier != null) 
+                rowChangeNotifier.execute(); 
+            if (rowHeaderView != null) 
+                rowHeaderView.clearEditing();
+            
+            try { 
+                root.scrollBar.adjustValues(); 
+            } catch(Exception ex) {;} 
+        } 
+        
+        protected void onopenItem() 
+        { 
+            try 
+            {
+                ListItem selectedItem = dataProvider.getSelectedItem();
+                if (selectedItem != null && selectedItem.getItem() != null) 
+                {
+                    Object outcome = dataProvider.openSelectedItem();
+                    if (outcome == null) return; 
+
+                    binding.fireNavigation(outcome); 
+                }
+            } 
+            catch(Exception ex) {
+                MsgBox.err(ex); 
+            } 
+        } 
+
+        protected void onchangedItem(ListItem li) 
+        {
+            currentItem = null;
+            if (li != null) currentItem = li.clone(); 
+            if (rowChangeNotifier != null) rowChangeNotifier.execute(); 
+        }
+
+        protected void oneditCellAt(int rowIndex, int colIndex) 
+        {
+            if (root.rowHeaderView != null) root.rowHeaderView.editRow(rowIndex);
+        } 
+    } 
+    
+    // </editor-fold>    
+    
+    // <editor-fold defaultstate="collapsed" desc="  PropertyChangeHandlerImpl (class)  ">    
+    
+    private class PropertyChangeHandlerImpl implements PropertyChangeHandler 
+    {
+        XDataTable root = XDataTable.this; 
+        
+        public void firePropertyChange(String name, int value) {
+        }
+
+        public void firePropertyChange(String name, boolean value) 
+        {
+            if ("loading".equals(name)) {
+                root.scrollBar.setEnabled(!value); 
+            }             
+        }
+
+        public void firePropertyChange(String name, String value) {
+        }
+
+        public void firePropertyChange(String name, Object value) 
+        {
+            if ("selectedItemChanged".equals(name)) 
+            {
+                try { 
+                    root.scrollBar.adjustValues(); 
+                } catch(Exception ex) {;}                
+            }
+        }         
+    }
+    
+    // </editor-fold>     
+    
+    // <editor-fold defaultstate="collapsed" desc="  TableModelHandlerImpl (class)  ">    
+    
+    private class TableModelHandlerImpl implements TableModelHandler 
+    {
+        XDataTable root = XDataTable.this; 
+
+        public void fireTableCellUpdated(int row, int column) {}
+
+        public void fireTableDataChanged() { 
+            root.scrollBar.adjustValues(); 
+        }
+
+        public void fireTableRowsDeleted(int firstRow, int lastRow) {}
+        public void fireTableRowsInserted(int firstRow, int lastRow) {}
+        public void fireTableRowsUpdated(int firstRow, int lastRow) {}
+        public void fireTableStructureChanged() {}
+        public void fireTableRowSelected(int row, boolean focusOnItemDataOnly) {}
+    }
+    
+    // </editor-fold>         
     
 }

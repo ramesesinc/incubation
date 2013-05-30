@@ -6,16 +6,17 @@
 
 package com.rameses.rcp.common;
 
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ListItem implements Cloneable 
 {
-    public static int STATE_EMPTY = 0;
-    public static int STATE_SYNC  = 1;
-    public static int STATE_DRAFT = 2;
-    public static int STATE_EDIT  = 3;
+    public final static int STATE_EMPTY = 0;
+    public final static int STATE_SYNC  = 1;
+    public final static int STATE_DRAFT = 2;
+    public final static int STATE_EDIT  = 3;
     
-    private AbstractListModel parent;
+    private HandlerSupport handlerSupport;
     private boolean selected; 
     private Object item;
     
@@ -27,6 +28,14 @@ public class ListItem implements Cloneable
     private Object root;
     
     public ListItem() {
+        handlerSupport = new HandlerSupport(); 
+    }
+    
+    public void removeHandler(ListItem.Handler handler) {
+        handlerSupport.remove(handler); 
+    }
+    public void addHandler(ListItem.Handler handler) {
+        handlerSupport.add(handler); 
     }
     
     public ListItem clone() 
@@ -34,7 +43,6 @@ public class ListItem implements Cloneable
         ListItem item = new ListItem();
         item.item = this.item;
         item.state = this.state;
-        item.parent = this.parent;
         item.index = this.index;
         item.rownum = this.rownum;
         item.selected = this.selected;
@@ -46,84 +54,46 @@ public class ListItem implements Cloneable
         return obj != null && this.hashCode() == obj.hashCode();
     }
     
-    public int hashCode() {
-        return this.getClass().getName().hashCode() + (parent != null? parent.hashCode():0) + rownum;
-    }
-    
-    public final boolean isRangeAllowedForEditing() 
-    {
-        if (parent.getDataList() == null) return false; 
-        
-        int size = parent.getDataList().size(); 
-        if (size == index) 
-            return true;  
-        else 
-            return (index >= 0 && index < size); 
-    }
-    
-    public final boolean isDraftItem() { 
-        return (getState() == STATE_DRAFT); 
+    public int hashCode() { 
+        return this.getClass().getName().hashCode() + handlerSupport.getClass().getName().hashCode() + rownum; 
     } 
     
-    public final Object createDraftItem() 
-    {
-        item = parent.createItem();
-        if (item == null) item = new HashMap();
-        
-        state = STATE_DRAFT; 
-        return item; 
-    }
-    
-    public final void removeDraftItem() 
-    {
-        if (isDraftItem()) item = null; 
-        
-        state = STATE_EMPTY;
-    }
-    
-    public final void commitDraftItem() 
-    {
-        if (!isDraftItem()) return;
-        
-        parent.commit(this);
-        state = STATE_SYNC; 
-    }
-        
-    
-    //this method is called only by the AbstractListModel ONLY.
+    //this method is called only by the AbstractListDataProvider ONLY.
     //during reload
     public final void loadItem(Object item) {
         this.item = item;
     } 
     
-    public final Object getItem() {
-        return item;
-    }
+    public final void loadItem(Object item, int state) 
+    { 
+        setState(state); 
+        this.item = item;
+        this.state = state;
+    }     
     
-    public final void setItem(Object newitem) 
+    public final Object getItem() { return item; }    
+    public final void setItem(Object newItem) 
     {
-        if (item == null && newitem == null) return;
-        if (item != null && item.equals(newitem)) return;
+        if (item == null && newItem == null) return;
+        if (item != null && item.equals(newItem)) return;
         
         try 
         {
             //fire only replace if the previous item is not null.
-            parent.replaceSelectedItem( index, item, newitem );
-            this.item = newitem;
+            handlerSupport.replaceSelectedItem(this, newItem);
+            this.item = newItem;             
             this.state = STATE_SYNC; 
+            handlerSupport.refreshItemUpdated(this); 
         } 
         catch(Exception e) {
             MsgBox.err(e);
         }
     }
         
-    public AbstractListModel getParent() { return parent; }    
-    public void setParent(AbstractListModel parent) {
-        this.parent = parent;
-    }
-    
     public int getState() { return state; }    
-    public void setState(int state) {
+    public void setState(int state) 
+    {
+        stateCheck(state); 
         this.state = state;
     }
     
@@ -140,11 +110,8 @@ public class ListItem implements Cloneable
     public boolean isSelected() { return selected; }    
     public void setSelected(boolean selected) 
     {
-        if ( item != null) 
-        {
-            this.selected = selected;
-            parent.checkItem(this.item, selected);
-        }
+        this.selected = (item == null)? false: selected;
+        handlerSupport.setSelected(this, this.selected); 
     }
         
     public final Object getRoot() { return root; }    
@@ -152,4 +119,84 @@ public class ListItem implements Cloneable
         this.root = root;
     }
 
+    protected void finalize() throws Throwable 
+    {
+        handlerSupport.removeAll(); 
+        item = null;
+    }
+    
+    private void stateCheck(int state) 
+    {
+        switch (state) 
+        {
+            case STATE_DRAFT: break;
+            case STATE_EDIT: break;
+            case STATE_EMPTY: break;
+            case STATE_SYNC: break;
+            default: throw new IllegalStateException("Invalid state value for ListItem");
+        }
+    }
+    
+    
+    // <editor-fold defaultstate="collapsed" desc=" HandlerSupport (class) "> 
+    
+    private class HandlerSupport implements Handler, Cloneable  
+    {
+        private List<ListItem.Handler> handlers = new ArrayList<ListItem.Handler>(); 
+
+        void removeAll() {
+            handlers.clear();
+        }
+        
+        void remove(ListItem.Handler handler) {
+            if (handler != null) handlers.remove(handler); 
+        }
+
+        void add(ListItem.Handler handler) 
+        {
+            if (handler != null && !handlers.contains(handler)) 
+                handlers.add(handler); 
+        }
+
+        public HandlerSupport clone() 
+        {
+            ListItem.HandlerSupport hs = new ListItem.HandlerSupport();
+            for (ListItem.Handler handler : handlers) {
+                hs.handlers.add(handler); 
+            } 
+            return hs; 
+        }
+        
+        public void setSelected(ListItem li, boolean selected) { 
+            for (ListItem.Handler handler : handlers) {
+                handler.setSelected(li, selected); 
+            }
+        }
+
+        public void replaceSelectedItem(ListItem li, Object data) {
+            for (ListItem.Handler handler : handlers) {
+                handler.replaceSelectedItem(li, data); 
+            }   
+        }
+
+        public void refreshItemUpdated(ListItem li) {
+            for (ListItem.Handler handler : handlers) {
+                handler.refreshItemUpdated(li); 
+            }              
+        }
+    }
+    
+    // </editor-fold>    
+    
+    // <editor-fold defaultstate="collapsed" desc=" Handler (class) "> 
+    
+    public static interface Handler 
+    {
+        void setSelected(ListItem li, boolean selected); 
+        void replaceSelectedItem(ListItem li, Object newData);
+        
+        void refreshItemUpdated(ListItem li); 
+    }
+    
+    // </editor-fold>
 }

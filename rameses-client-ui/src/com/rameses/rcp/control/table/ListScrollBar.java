@@ -1,6 +1,7 @@
 package com.rameses.rcp.control.table;
 
-import com.rameses.rcp.common.AbstractListModel;
+import com.rameses.rcp.common.AbstractListDataProvider;
+import com.rameses.rcp.common.MsgBox;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
 import java.awt.event.MouseWheelEvent;
@@ -8,61 +9,76 @@ import java.awt.event.MouseWheelListener;
 import javax.swing.JScrollBar;
 
 
-public class ListScrollBar extends JScrollBar implements AdjustmentListener {
-    
-    private AbstractListModel listModel;
+public class ListScrollBar extends JScrollBar implements AdjustmentListener 
+{
+    private AbstractListDataProvider dataProvider;
     private boolean visibleAlways;
-    
-    
-    public ListScrollBar() {
+        
+    public ListScrollBar() 
+    {
         super.setVisibleAmount(0);
         super.setMinimum(0);
         super.setMaximum(0);
         super.setVisible(visibleAlways);
         
-        addMouseWheelListener(new MouseWheelListener() {
-            public void mouseWheelMoved(MouseWheelEvent e) {
+        addMouseWheelListener(new MouseWheelListener() 
+        {
+            public void mouseWheelMoved(MouseWheelEvent e) 
+            {
                 int rotation = e.getWheelRotation();
-                if ( rotation == 0 ) return;
+                if (rotation == 0) return;
+                if (dataProvider == null) return;
                 
                 if ( rotation < 0 )
-                    listModel.moveBackRecord();
+                    dataProvider.moveBackRecord();
                 else
-                    listModel.moveNextRecord();
+                    dataProvider.moveNextRecord(true);
             }
         });
     }
     
-    public void setListModel(AbstractListModel model) {
-        this.listModel = model;
+    public void setDataProvider(AbstractListDataProvider dataProvider) {
+        this.dataProvider = dataProvider; 
     }
     
-    public void adjustValues() {
-        int rowCount = listModel.getRowCount();
-        //int max = rowCount-listModel.getRows()+1;
-        
+    public void adjustValues() 
+    {
         super.removeAdjustmentListener(this);
-        super.setValue(listModel.getTopRow());
-        super.setMaximum(listModel.getMaxRows());
+        super.setValue(dataProvider.getTopRow());
+        super.setMaximum(dataProvider.getMaxRows());
         super.setMinimum(0);
         super.setVisibleAmount(0);
         
-        if( !visibleAlways ) 
+        if ( !visibleAlways ) 
         {
-            if(rowCount>listModel.getRows()-1) {
+            int rowCount = dataProvider.getRowCount();            
+            int rows = dataProvider.getRows();
+            if (rows == -1) rows = rowCount;
+            
+            if (rowCount > rows) 
+            {
                 super.setVisible(true);
                 super.firePropertyChange("visible", false, true);
-            } else {
+            } 
+            else 
+            {
                 super.setVisible(false);
                 super.firePropertyChange("visible", true, false);
             }
-        }
-        
+        }         
         super.addAdjustmentListener(this);
     }
     
-    public void adjustmentValueChanged(AdjustmentEvent e) {
-        listModel.setTopRow(e.getValue());
+    public void adjustmentValueChanged(AdjustmentEvent e) 
+    {
+        try 
+        {
+            dataProvider.setTopRow(e.getValue());
+            dataProvider.refresh();
+        } 
+        catch(Exception ex) {
+            MsgBox.err(ex); 
+        }
     }
 
     public boolean isVisibleAlways() {

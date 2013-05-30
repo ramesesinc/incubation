@@ -8,6 +8,7 @@
 package com.rameses.rcp.control.treetable;
 
 import com.rameses.common.ExpressionResolver;
+import com.rameses.rcp.common.AbstractListDataProvider;
 import com.rameses.rcp.common.Column;
 import com.rameses.rcp.common.ListItem;
 import com.rameses.rcp.common.TreeTableModel;
@@ -143,7 +144,7 @@ public final class TreeTableUtil {
             TreeTableModel model = xtable.getListModel();
             ClientContext clientCtx = ClientContext.getCurrentContext();
             ExpressionResolver exprRes = ExpressionResolver.getInstance();
-            ListItem listItem = model.getItemList().get(row);
+            ListItem listItem = model.getListItem(row);
             
             StyleRule[] styles = xtable.getBinding().getStyleRules();
             if( styles != null && styles.length > 0) {
@@ -368,17 +369,18 @@ public final class TreeTableUtil {
             empty = new JLabel("");
         }
         
-        public JComponent getComponent(JTable table, int row, int column) {
-            TreeTableModel alm = ((TreeTableComponent) table).getListModel();
-            if ( alm.getItemList().get(row).getItem() == null )
-                return empty;
+        public JComponent getComponent(JTable table, int rowIndex, int colIndex) 
+        {
+            AbstractListDataProvider ldp = ((TreeTableComponent) table).getDataProvider();
+            if (ldp.getListItemData(rowIndex) == null ) return empty;
             
             return component;
         }
         
-        public void refresh(JTable table, Object value, boolean selected, boolean focus, int row, int column) {
-            TreeTableModel alm = ((TreeTableComponent) table).getListModel();
-            if ( alm.getItemList().get(row).getItem() == null ) return;
+        public void refresh(JTable table, Object value, boolean selected, boolean focus, int rowIndex, int colIndex) 
+        {
+            AbstractListDataProvider ldp = ((TreeTableComponent) table).getDataProvider();
+            if ( ldp.getListItemData(rowIndex) == null ) return;
             
             component.setSelected("true".equals(value+""));
         }

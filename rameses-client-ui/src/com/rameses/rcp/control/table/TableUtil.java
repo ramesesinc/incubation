@@ -8,6 +8,7 @@
 package com.rameses.rcp.control.table;
 
 import com.rameses.common.ExpressionResolver;
+import com.rameses.rcp.common.AbstractListDataProvider;
 import com.rameses.rcp.common.AbstractListModel;
 import com.rameses.rcp.common.CheckBoxColumnHandler;
 import com.rameses.rcp.common.Column;
@@ -354,7 +355,7 @@ public final class TableUtil
                 }
             }
             
-            AbstractListModel lm = xtable.getListModel();
+            AbstractListDataProvider lm = xtable.getDataProvider();
             ClientContext clientCtx = ClientContext.getCurrentContext();
             ExpressionResolver exprRes = ExpressionResolver.getInstance();
             Column colModel = xmodel.getColumn(column);
@@ -382,7 +383,7 @@ public final class TableUtil
 //            } catch(Exception e){;}
             
             
-            String errmsg = lm.getErrorMessage(row);
+            String errmsg = lm.getMessageSupport().getErrorMessage(row);
             if (errmsg != null) 
             {
                 if (!hasFocus) 
@@ -573,18 +574,18 @@ public final class TableUtil
             empty = new JLabel("");
         }
         
-        public JComponent getComponent(JTable table, int row, int column) 
+        public JComponent getComponent(JTable table, int rowIndex, int colIndex) 
         {
-            AbstractListModel alm = ((TableControl) table).getListModel();
-            if (alm.getItemList().get(row).getItem() == null) return empty;
+            AbstractListDataProvider ldp = ((TableControl) table).getDataProvider();
+            if (ldp.getListItemData(rowIndex) == null) return empty;
             
             return component;
         }
         
-        public void refresh(JTable table, Object value, boolean selected, boolean focus, int row, int column) 
+        public void refresh(JTable table, Object value, boolean selected, boolean focus, int rowIndex, int colIndex) 
         {
-            AbstractListModel alm = ((TableControl) table).getListModel();
-            if (alm.getItemList().get(row).getItem() == null) return;
+            AbstractListDataProvider ldp = ((TableControl) table).getDataProvider();
+            if (ldp.getListItemData(rowIndex) == null) return;
             
             component.setSelected(resolveValue(value));
         }

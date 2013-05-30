@@ -7,7 +7,6 @@
 
 package com.rameses.rcp.control.treetable;
 
-import com.rameses.rcp.common.AbstractListDataProvider;
 import com.rameses.rcp.common.AbstractListModel;
 import com.rameses.rcp.common.Column;
 import com.rameses.rcp.common.ListItem;
@@ -21,36 +20,34 @@ import java.util.List;
 import java.util.Map;
 import javax.swing.table.AbstractTableModel;
 
-public class TreeTableComponentModel extends AbstractTableModel implements TableControlModel 
-{    
-    private AbstractListDataProvider dataProvider;
+public class TreeTableComponentModel extends AbstractTableModel implements TableControlModel {
+    
+    private AbstractListModel listModel;
     private List<Column> columnList = new ArrayList();
     private String varStatus;
     
-    public TreeTableComponentModel(AbstractListDataProvider dataProvider) 
-    {
-        this.dataProvider = dataProvider;
+    public TreeTableComponentModel(AbstractListModel model) {
+        listModel = model;
         columnList.clear();
+        if ( listModel == null ) return;
+        
         indexColumns();
     }
     
-    private void indexColumns() 
-    {
-        if (dataProvider == null ) return;
-        
-        for ( Column col : dataProvider.getColumns() ) {
+    private void indexColumns() {
+        for ( Column col : listModel.getColumns() ) {
             if ( col.isVisible() ) {
                 columnList.add(col);
             }
         }
     }
 
-    public AbstractListDataProvider getDataProvider() {
-        return dataProvider;
+    public AbstractListModel getListModel() {
+        return listModel;
     }
     
     public int getRowCount() {
-        return this.dataProvider.getRowCount();
+        return listModel.getItemList().size();
     }
     
     public Column getColumn(int index) {
@@ -66,10 +63,10 @@ public class TreeTableComponentModel extends AbstractTableModel implements Table
     
     public Object getValueAt(int rowIndex, int columnIndex) 
     {
-        PropertyResolver resolver = PropertyResolver.getInstance();
-        try 
-        {
-            ListItem item = this.dataProvider.getListItem(rowIndex);
+        ClientContext ctx = ClientContext.getCurrentContext();
+        try {
+            PropertyResolver resolver = PropertyResolver.getInstance();
+            ListItem item = listModel.getItemList().get(rowIndex);
             if ( item != null ) {
                 String name = columnList.get(columnIndex).getName();
                 if( !ValueUtil.isEmpty(name) ) {
@@ -85,10 +82,10 @@ public class TreeTableComponentModel extends AbstractTableModel implements Table
                 return item.getItem();
             }
         }
-        catch (Exception e) 
-        {
-            if (ClientContext.getCurrentContext().isDebugMode())  
+        catch(Exception e) {
+            if(ctx.isDebugMode()) {
                 e.printStackTrace();
+            }
         }
         return null;
     }

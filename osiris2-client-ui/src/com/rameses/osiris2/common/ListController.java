@@ -5,7 +5,6 @@ import com.rameses.osiris2.client.InvokerProxy;
 import com.rameses.osiris2.client.InvokerUtil;
 import com.rameses.rcp.common.Action;
 import com.rameses.rcp.common.ListItem;
-import com.rameses.rcp.common.ListModelListener;
 import com.rameses.rcp.common.Opener;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -172,9 +171,10 @@ public abstract class ListController extends BasicListController implements List
         
         int idx = -1; 
         try { 
-            idx = items.indexOf(getSelectedItem()); 
+            idx = getListItems().indexOf(getSelectedItem()); 
         } catch(Exception ign) {;} 
         
+        List dataList = getDataList();
         if (idx >= 0 && idx < dataList.size()) { 
             dataList.add(idx, data); 
         } 
@@ -183,7 +183,7 @@ public abstract class ListController extends BasicListController implements List
             idx = dataList.size()-1;
         }
         
-        reload(false); 
+        refresh(); 
         setSelectedItem(idx); 
     }
     
@@ -193,24 +193,25 @@ public abstract class ListController extends BasicListController implements List
         if (item == null) return;
         if (data != null) 
         {
-            item.loadItem(data);
+            List dataList = getDataList();
             if (item.getIndex() >= 0 && item.getIndex() < dataList.size()) 
+            {
                 dataList.set(item.getIndex(), data); 
+                item.loadItem(data);
+                refreshSelectedItem(); 
+            } 
         }
-        
-        ListModelListener lml = getListener(); 
-        if (lml != null) lml.refreshItemUpdated(item.getIndex()); 
     }
 
     public void handleRemove(Object data) 
     {
         if (getSelectedEntity() == null) return;
         
-        int idx = items.indexOf(getSelectedItem()); 
+        int idx = getListItems().indexOf(getSelectedItem()); 
         if (idx >= 0) 
         {
-            dataList.remove(idx); 
-            reload(false); 
+            getDataList().remove(idx); 
+            refresh();
         }
     }
     

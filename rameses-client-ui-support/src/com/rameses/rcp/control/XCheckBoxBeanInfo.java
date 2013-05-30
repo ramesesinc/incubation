@@ -31,7 +31,9 @@ public class XCheckBoxBeanInfo extends ComponentBeanInfo.Support
     protected PropertyDescriptor[] createPropertyDescriptors() throws IntrospectionException 
     {
         return new PropertyDescriptor[] {
-            new PropertyDescriptor("text", getBeanClass()),            
+            new PropertyDescriptor("text", getBeanClass()),
+            new PropertyDescriptor("border", getBeanClass()),
+            new PropertyDescriptor("margin", getBeanClass()),
             
             new PropertyDescriptor("caption", getBeanClass()),
             new PropertyDescriptor("captionFont", getBeanClass()),

@@ -9,7 +9,7 @@
 
 package com.rameses.rcp.control.lookup;
 
-import com.rameses.rcp.common.AbstractListModel;
+import com.rameses.rcp.common.AbstractListDataProvider;
 import com.rameses.rcp.common.Column;
 import com.rameses.rcp.common.LookupFieldModel;
 import com.rameses.rcp.common.LookupModel;
@@ -29,7 +29,7 @@ public class DefaultLookupCodeBean extends LookupModel
         this.fieldModel = fieldModel;
     }
 
-    public final AbstractListModel getListHandler() { return this; } 
+    public final AbstractListDataProvider getListHandler() { return this; } 
     
     public Object getSelectedEntity() { return this.selectedEntity; } 
     public void setSelectedEntity(Object selectedEntity) {  

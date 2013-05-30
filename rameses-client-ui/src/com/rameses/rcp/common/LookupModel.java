@@ -13,12 +13,10 @@ import java.util.Map;
  */
 public class LookupModel extends ScrollListModel 
 {    
+    private List DEFAULT_LIST = new ArrayList(); 
     private Map properties = new HashMap(); 
     private LookupSelector selector;
-    
-    
-    // <editor-fold defaultstate="collapsed" desc="  Getters/Setters  ">
-    
+        
     public Map getProperties() { return properties; } 
     
     public LookupSelector getSelector() { return selector; }    
@@ -31,19 +29,11 @@ public class LookupModel extends ScrollListModel
         else
             return getSelectedItem().getItem(); 
     }    
-    
-    // </editor-fold>
-    
-    // <editor-fold defaultstate="collapsed" desc="  Options ">
-    
+        
     public boolean selectSingleResult() { return false; }    
     public boolean errorOnEmpty() { return false; }    
     
-    // </editor-fold>
-    
-    public List fetchList(Map params) {
-        return new ArrayList(); 
-    } 
+    public List fetchList(Map params) { return DEFAULT_LIST; } 
         
     //default implementation for select and cancel
     public String select() 
@@ -89,14 +79,10 @@ public class LookupModel extends ScrollListModel
         }
     }
     
-    //for the screen
-    public LookupModel getHandler() {
-        return this;
-    }
-    
-    public void destroy() 
-    {
+    protected void onfinalize() throws Throwable {
         selector = null;
-        super.destroy();
-    }    
+    }
+
+    public void moveLastPage() {
+    }   
 }

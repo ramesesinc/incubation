@@ -16,6 +16,8 @@ import java.awt.event.ItemListener;
 import java.beans.Beans;
 import java.util.EventObject;
 import javax.swing.JCheckBox;
+import javax.swing.JTable;
+import javax.swing.SwingConstants;
 
 /**
  *
@@ -23,6 +25,7 @@ import javax.swing.JCheckBox;
  */
 public class XCheckBox extends JCheckBox implements UIInput, ActiveControl 
 {
+    private ItemListenerImpl itemHandler = new ItemListenerImpl(); 
     private ControlProperty property = new ControlProperty();   
     private Binding binding;
     private String[] depends;
@@ -45,12 +48,20 @@ public class XCheckBox extends JCheckBox implements UIInput, ActiveControl
     {
         try 
         {
+            //disable the item handler to prevent cyclic updating of values
+            itemHandler.enabled = false; 
+            
+            //check if this component is owned by the JTable
+            if ("true".equals(getClientProperty(JTable.class)+"")) 
+                setHorizontalAlignment(SwingConstants.CENTER); 
+            
             resolveValues();
             
-            if( !isReadonly() && !isFocusable() ) setReadonly(false);
+            if ( !isReadonly() && !isFocusable() ) setReadonly(false);
             
             Object value = UIControlUtil.getBeanValue(this);
-            setValue(value);
+            boolean selected = resolveValue(value); 
+            setSelected(selected);
         } 
         catch(Exception e) 
         {
@@ -58,16 +69,23 @@ public class XCheckBox extends JCheckBox implements UIInput, ActiveControl
             setFocusable(false);
             setEnabled(false);
             
-            if ( ClientContext.getCurrentContext().isDebugMode() ) { 
+            if (ClientContext.getCurrentContext().isDebugMode())
                 e.printStackTrace();
-            } 
+        } 
+        finally 
+        {
+            //enable the item handler
+            itemHandler.enabled = true;             
         }
     }
     
     public void load() 
     {
-        resolveValues();         
-        addItemListener(new ItemListenerImpl());
+        resolveValues();   
+        removeItemListener(itemHandler); 
+        
+        itemHandler.enabled = true;        
+        addItemListener(itemHandler);
     }
     
     public int compareTo(Object o) {
@@ -140,88 +158,66 @@ public class XCheckBox extends JCheckBox implements UIInput, ActiveControl
     
     public String getCaption() {
         return property.getCaption();
-    }
-    
+    }    
     public void setCaption(String caption) {
         property.setCaption(caption);
     }
     
     public char getCaptionMnemonic() {
         return property.getCaptionMnemonic();
-    }
-    
+    }    
     public void setCaptionMnemonic(char c) {
         property.setCaptionMnemonic(c);
     }
     
     public int getCaptionWidth() {
         return property.getCaptionWidth();
-    }
-    
+    }    
     public void setCaptionWidth(int width) {
         property.setCaptionWidth(width);
     }
     
     public boolean isShowCaption() {
         return property.isShowCaption();
-    }
-    
+    }    
     public void setShowCaption(boolean showCaption) {
         property.setShowCaption(showCaption);
     }
     
     public Font getCaptionFont() {
         return property.getCaptionFont();
-    }
-    
+    }    
     public void setCaptionFont(Font f) {
         property.setCaptionFont(f);
     }
     
     public Insets getCellPadding() {
         return property.getCellPadding();
-    }
-    
+    }    
     public void setCellPadding(Insets padding) {
         property.setCellPadding(padding);
     }
     
-    public boolean isNullWhenEmpty() {
-        return false;
-    }
+    public boolean isNullWhenEmpty() { return false; }
     
-    public String[] getDepends() {
-        return this.depends;
-    }
-    
+    public String[] getDepends() { return this.depends; }    
     public void setDepends(String[] depends) {
         this.depends = depends;
     }
     
-    public int getIndex() {
-        return index;
-    }
+    public int getIndex() { return index; }    
+    public void setIndex(int index) { this.index = index; }
     
-    public void setIndex(int index) {
-        this.index = index;
-    }
-    
+    public Binding getBinding() { return binding; }    
     public void setBinding(Binding binding) {
         this.binding = binding;
-    }
-    
-    public Binding getBinding() {
-        return binding;
     }
     
     public ControlProperty getControlProperty() {
         return property;
     }
     
-    public Object getCheckValue() {
-        return checkValue;
-    }
-    
+    public Object getCheckValue() { return checkValue; }    
     public void setCheckValue(Object checkValue) {
         if ( !Beans.isDesignTime() && isExpression(checkValue) ) {
             checkValue = UIControlUtil.evaluateExpr(binding.getBean(), checkValue+"");
@@ -229,10 +225,7 @@ public class XCheckBox extends JCheckBox implements UIInput, ActiveControl
         this.checkValue = checkValue;
     }
     
-    public Object getUncheckValue() {
-        return uncheckValue;
-    }
-    
+    public Object getUncheckValue() { return uncheckValue; }    
     public void setUncheckValue(Object uncheckValue) 
     {
         if ( !Beans.isDesignTime() && isExpression(uncheckValue) ) {
@@ -251,7 +244,8 @@ public class XCheckBox extends JCheckBox implements UIInput, ActiveControl
         else return false; 
     }
     
-    public void setReadonly(boolean readonly) {
+    public void setReadonly(boolean readonly) 
+    {
         this.readonly = readonly;
         setEnabled(!readonly);
         setFocusable(!readonly);
@@ -285,31 +279,27 @@ public class XCheckBox extends JCheckBox implements UIInput, ActiveControl
     
     private class ItemListenerImpl implements ItemListener
     {
-        private boolean inited;
+        boolean enabled = true;
         private boolean processing;
         
         public void itemStateChanged(ItemEvent e) 
         {
+            //if component is currently not enabled, exit right away
+            if (!isEnabled()) return;
+            //check internal flags if passed
+            if (!enabled) return;
+            if (processing) return;
+            
             try 
             {
-                if (processing) return;
-                
                 processing = true;
-                Object value = UIControlUtil.getBeanValue(XCheckBox.this); //check if name is not null
-                if (!inited) 
-                {
-                    setSelected(!resolveValue(value)); 
-                    processing = true;
-                    inited = true; 
-                }
-
-                UIInputUtil.updateBeanValue(XCheckBox.this);
+                UIInputUtil.updateBeanValue(XCheckBox.this); 
             } 
             catch(Exception ex) {;} 
             finally {  
                 processing = false; 
             }
-        }        
+        } 
     }
     
     // </editor-fold> 

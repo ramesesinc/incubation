@@ -74,10 +74,7 @@
                               <EmptySpace max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="0" attributes="0">
                                   <Group type="102" attributes="0">
-                                      <Group type="103" groupAlignment="0" attributes="0">
-                                          <Component id="xTreeTable1" min="0" pref="0" max="32767" attributes="1"/>
-                                          <Component id="xTable1" alignment="0" min="-2" pref="130" max="-2" attributes="1"/>
-                                      </Group>
+                                      <Component id="xTreeTable1" min="0" pref="0" max="32767" attributes="1"/>
                                       <EmptySpace max="-2" attributes="0"/>
                                       <Group type="103" groupAlignment="1" attributes="0">
                                           <Component id="jScrollPane2" min="-2" pref="79" max="-2" attributes="0"/>
@@ -167,7 +164,6 @@
                   <Component id="xStyleRule1" min="-2" max="-2" attributes="0"/>
                   <Component id="xSubControl1" min="-2" max="-2" attributes="0"/>
                   <Component id="xSubFormPanel1" min="-2" max="-2" attributes="0"/>
-                  <Component id="xTable1" alignment="0" pref="39" max="32767" attributes="1"/>
               </Group>
               <EmptySpace min="-2" pref="19" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
@@ -186,7 +182,7 @@
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Component id="xIntegerField1" min="-2" max="-2" attributes="0"/>
-              <EmptySpace pref="61" max="32767" attributes="0"/>
+              <EmptySpace pref="77" max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -352,8 +348,6 @@
         </DimensionLayout>
       </Layout>
     </Container>
-    <Component class="com.rameses.rcp.control.XTable" name="xTable1">
-    </Component>
     <Container class="javax.swing.JScrollPane" name="jScrollPane2">
       <AuxValues>
         <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>

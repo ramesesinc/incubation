@@ -25,8 +25,8 @@ import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
-public class TreeTableComponent extends JTable implements ListModelListener, TableControl 
-{
+public class TreeTableComponent extends JTable implements ListModelListener, TableControl {
+    
     private static final String COLUMN_POINT = "COLUMN_POINT";
     
     private TreeTableComponentModel tableModel;
@@ -76,11 +76,10 @@ public class TreeTableComponent extends JTable implements ListModelListener, Tab
     }
     //</editor-fold>
     
-    // <editor-fold defaultstate="collapsed" desc="  Getters/Setters  ">
-    
-    public void setListModel(TreeTableModel listModel) 
-    {
+    //<editor-fold defaultstate="collapsed" desc="  Getters/Setters  ">
+    public void setListModel(TreeTableModel listModel) {
         this.listModel = listModel;
+        listModel.setListener(this);
         tableModel = new TreeTableComponentModel(listModel);
         setModel(tableModel);
         buildColumns();
@@ -178,17 +177,17 @@ public class TreeTableComponent extends JTable implements ListModelListener, Tab
     }
     
     public Object getSelectedValue() {
-        if (!multiselect) 
+        if( !multiselect ) {
             return listModel.getSelectedItem().getItem();
-
-        int[] rows = getSelectedRows();
-        List list = new ArrayList(rows.length);
-        for (int r : rows) 
-        {
-            Object item = listModel.getListItem(r).getItem();
-            if (item != null) list.add( item );
+        } else {
+            int[] rows = getSelectedRows();
+            List list = new ArrayList(rows.length);
+            for(int r : rows) {
+                Object item = listModel.getItemList().get(r).getItem();
+                if( item != null ) list.add( item );
+            }
+            return list;
         }
-        return list;
     }
     
     protected void processMouseEvent(MouseEvent me) {
@@ -273,10 +272,6 @@ public class TreeTableComponent extends JTable implements ListModelListener, Tab
     public void changeSelection(int rowIndex, int columnIndex, boolean toggle, boolean extend) {
         listModel.setSelectedColumnIndex(columnIndex);
         super.changeSelection(rowIndex, columnIndex, toggle, extend);
-    }
-
-    public AbstractListDataProvider getDataProvider() {
-        return null; 
     }
     
     
