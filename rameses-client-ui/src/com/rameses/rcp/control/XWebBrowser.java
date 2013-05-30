@@ -8,6 +8,7 @@
 package com.rameses.rcp.control;
 
 import com.rameses.rcp.common.MsgBox;
+import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.common.WebBrowserModel;
 import com.rameses.rcp.control.webbrowser.WebEditorKit;
 import com.rameses.rcp.framework.Binding;
@@ -160,7 +161,8 @@ public class XWebBrowser extends JEditorPane implements UIControl {
         return UIControlUtil.compare(this, o);
     }
     
-    //<editor-fold defaultstate="collapsed" desc="  Getters/Setters  ">
+    // <editor-fold defaultstate="collapsed" desc="  Getters/Setters  ">
+    
     public void setName(String name) {
         super.setName(name);
         if ( Beans.isDesignTime() ) {
@@ -178,6 +180,10 @@ public class XWebBrowser extends JEditorPane implements UIControl {
     
     public void setBinding(Binding binding) { this.binding = binding; }
     public Binding getBinding() { return binding; }
-    //</editor-fold>
+    
+    public void setPropertyInfo(PropertySupport.PropertyInfo info) {
+    }
+    
+    // </editor-fold>
     
 }

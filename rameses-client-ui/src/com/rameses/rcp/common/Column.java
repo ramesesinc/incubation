@@ -5,33 +5,35 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-
-public class Column implements Serializable {
-    
+public class Column implements Serializable 
+{    
     private static final long serialVersionUID = 1L;
     
     private String name;
     private String caption;
-    private String type = "string";
+    private Column.TypeHandler typeHandler;
+    
+    private int width = 100;
+    private int minWidth;
+    private int maxWidth;
+    private boolean required;
+    private boolean resizable = true;
+    private boolean nullWhenEmpty = true;
+    private boolean editable;
+    private String editableWhen;
+    
+    private String type = "string";    
     private Object handler;
     
     //for combo box support
     private Object items;
     
     private String fieldname;
-    private int width;
-    private int minWidth;
-    private int maxWidth;
-    private boolean resizable = true;
-    private boolean editable;
-    private String editableWhen;
     private boolean visible = true;
     private int rowheight;
     private boolean primary;
     private boolean htmlDisplay;
     private String format;
-    private boolean required;
-    private boolean nullWhenEmpty = true;
     private Class fieldType;
     
     //alignment support
@@ -68,9 +70,35 @@ public class Column implements Serializable {
     public Column() {
     }
     
-    public Column(String name, String caption){
+    public Column(String name, String caption) {
+        this(name, caption, (Column.TypeHandler) null); 
+    }
+
+    public Column(String name, String caption, Column.TypeHandler typeHandler)
+    {
         this.name = name;
         this.caption = caption;
+        this.typeHandler = typeHandler; 
+    }
+    
+    public Column
+    (
+        String name, String caption, int width, int minWidth, int maxWidth, 
+        boolean required, boolean resizable, boolean nullWhenEmpty, boolean editable, 
+        String editableWhen, Column.TypeHandler typeHandler
+    )
+    {
+        this.name = name;
+        this.caption = caption;
+        this.width = width;
+        this.minWidth = minWidth;
+        this.maxWidth = maxWidth;
+        this.required = required;
+        this.resizable = resizable;
+        this.nullWhenEmpty = nullWhenEmpty;
+        this.editable = editable;
+        this.editableWhen = editableWhen; 
+        this.typeHandler = typeHandler; 
     }
     
     public Column( String name, String caption, String type, Map props ) {
@@ -135,6 +163,11 @@ public class Column implements Serializable {
     
     // <editor-fold defaultstate="collapsed" desc=" Getters/Setters ">
         
+    public Column.TypeHandler getTypeHandler() { return typeHandler; } 
+    public void setTypeHandler(Column.TypeHandler typeHandler) { 
+        this.typeHandler = typeHandler; 
+    } 
+    
     public String getName() { return name; }    
     public void setName(String name) {
         this.name = name;
@@ -338,6 +371,23 @@ public class Column implements Serializable {
             System.out.println("Unable to set property value on '"+name+"' on Column object");
             return this; 
         }
-    }
+    } 
+    
+    // <editor-fold defaultstate="collapsed" desc=" TypeHandler (class) ">
+    
+    public static abstract class TypeHandler extends HashMap implements PropertySupport.PropertyInfo 
+    {    
+        private static final long serialVersionUID = 1L; 
+        
+        public abstract String getType(); 
 
+        public boolean equals(Object o) 
+        {
+            if (super.equals(o)) return true;
+            
+            return (getType() == o);
+        }    
+    }
+    
+    // </editor-fold>
 }

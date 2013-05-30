@@ -1,12 +1,11 @@
-import java.beans.IntrospectionException;
+
+import com.rameses.beaninfo.editor.table.ColumnEditorPage;
+import com.rameses.rcp.common.TextColumnHandler;
+import com.rameses.rcp.swingx.ComboItem;
 import javax.swing.JDialog;
-import javax.swing.JTextField;
+import javax.swing.UIManager;
 import junit.framework.*;
-import org.openide.explorer.propertysheet.PropertySheet;
-import org.openide.nodes.BeanNode;
-import org.openide.nodes.Node;
-import org.openide.nodes.Node.Property;
-import org.openide.nodes.Node.PropertySet;
+
 
 /*
  * Test1.java
@@ -22,29 +21,23 @@ public class Test1 extends TestCase {
         super(testName);
     }
     
-    public void testHello() throws IntrospectionException {
-        PropertySheet ps = new PropertySheet();
-        
-        BeanNode n = new BeanNode(new JTextField());
-        n.setDisplayName("font");
-        ps.setNodes(new Node[]{ n });
-        
+    public void test1() throws Exception 
+    {
+        UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName()); 
         JDialog d = new JDialog();
-        d.add(ps);
-        d.pack();
+        d.setTitle("Test");
         d.setModal(true);
-        d.setVisible(true);
+        d.setContentPane(new ColumnEditorPage());
+        d.pack();
+        d.setVisible(true); 
+    }
+    
+    public void xtest2() throws Exception 
+    {
+        Object o1 = new ComboItem("text");
+        Object o2 = new TextColumnHandler();
         
-        PropertySet[] pss = n.getPropertySets();
-        for(PropertySet p : pss) {
-            for(Property pp : p.getProperties()) {
-                try {
-                    if ( !pp.isDefaultValue() )
-                        System.out.println( pp.getName()  );
-                    
-                } catch (Exception ex) {}
-            }
-        }
+        System.out.println( o1.equals(o2) );
     }
     
 }

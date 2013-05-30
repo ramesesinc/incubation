@@ -11,6 +11,7 @@ import com.rameses.common.PropertyResolver;
 import com.rameses.rcp.common.AbstractListModel;
 import com.rameses.rcp.common.ListItem;
 import com.rameses.rcp.common.MsgBox;
+import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.control.table.TableDelayedActionMgr;
 import com.rameses.rcp.control.table.TableUtil;
 import com.rameses.rcp.framework.Binding;
@@ -314,7 +315,8 @@ public class XTable extends JPanel implements UIInput, TableListener, Validatabl
     }
     //</editor-fold>
     
-    //<editor-fold defaultstate="collapsed" desc="  Getters/Setters  ">
+    // <editor-fold defaultstate="collapsed" desc="  Getters/Setters  ">
+    
     public void setName(String name) {
         super.setName(name);
         if ( table != null ) table.setName(name);
@@ -397,10 +399,12 @@ public class XTable extends JPanel implements UIInput, TableListener, Validatabl
     
     public int getRowHeight()       { return table.getRowHeight(); }
     public void setRowHeight(int h) { table.setRowHeight(h); }
+
+    public void setPropertyInfo(PropertySupport.PropertyInfo info) {
+    }
     
-    //</editor-fold>
-    
-    
+    // </editor-fold>
+        
     //<editor-fold defaultstate="collapsed" desc="  ScrollBarPanel (class)  ">
     private class ScrollBarPanel extends JPanel {
         

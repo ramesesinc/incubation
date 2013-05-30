@@ -1,5 +1,7 @@
 package com.rameses.rcp.control;
 
+import com.rameses.rcp.common.PropertySupport;
+import com.rameses.rcp.common.PropertySupport.PropertyInfo;
 import com.rameses.rcp.control.date.DatePickerModel;
 import com.rameses.rcp.framework.ClientContext;
 import com.rameses.rcp.ui.ControlProperty;
@@ -22,8 +24,8 @@ import javax.swing.ImageIcon;
  * @author Windhel
  */
 
-public class XDateField extends AbstractIconedTextField {
-    
+public class XDateField extends AbstractIconedTextField 
+{    
     private SimpleDateFormat inputFormatter;
     private SimpleDateFormat outputFormatter;
     private SimpleDateFormat valueFormatter;
@@ -39,7 +41,8 @@ public class XDateField extends AbstractIconedTextField {
     private boolean useDatePickerModel = false;
     private DatePickerModel dpm;
     
-    public XDateField() {
+    public XDateField() 
+    {
         setOutputFormat("yyyy-MM-dd");
         setInputFormat("yyyy-MM-dd");
         setValueFormat("yyyy-MM-dd");
@@ -50,7 +53,8 @@ public class XDateField extends AbstractIconedTextField {
     }
     
     
-    //<editor-fold defaultstate="collapsed" desc="  Getter / Setter  ">
+    // <editor-fold defaultstate="collapsed" desc="  Getter / Setter  ">
+    
     public Object getValue() {
         if(Beans.isDesignTime())
             return "";
@@ -159,8 +163,18 @@ public class XDateField extends AbstractIconedTextField {
         else
             setIcon((ImageIcon)null);
     }
+
+    public void setPropertyInfo(PropertyInfo info) 
+    {
+        if (!(info instanceof PropertySupport.DatePropertyInfo)) return;
+        
+        PropertySupport.DatePropertyInfo dt = (PropertySupport.DatePropertyInfo) info;
+        setInputFormat(dt.getInputFormat()); 
+        setOutputFormat(dt.getOutputFormat());
+        setValueFormat(dt.getValueFormat()); 
+    }
     
-    //</editor-fold>
+    // </editor-fold>
     
     public void refresh() {
         try {
@@ -244,8 +258,7 @@ public class XDateField extends AbstractIconedTextField {
             dpm.showCalendar();
         }
     }
-    
-    
+        
     //<editor-fold defaultstate="collapsed" desc="  DateFieldSupport (class)  ">
     private class DateFieldSupport implements FocusListener, KeyListener {
         

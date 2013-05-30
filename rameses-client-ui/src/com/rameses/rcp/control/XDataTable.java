@@ -13,6 +13,7 @@ import com.rameses.rcp.common.BasicListModel;
 import com.rameses.rcp.common.Column;
 import com.rameses.rcp.common.ListItem;
 import com.rameses.rcp.common.MsgBox;
+import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.control.table.DataTableComponent;
 import com.rameses.rcp.control.table.TableDelayedActionMgr;
 import com.rameses.rcp.control.table.ListScrollBar;
@@ -42,6 +43,7 @@ public class XDataTable extends JPanel implements UIInput, TableListener, Valida
     private ActionMessage actionMessage = new ActionMessage();    
     private AbstractListModel listModel;
     private Column[] columns; 
+    private String columnsAsString;
     private String items;
     private String[] depends;
     private Binding binding;
@@ -384,7 +386,22 @@ public class XDataTable extends JPanel implements UIInput, TableListener, Valida
     public void setLayout(LayoutManager mgr) {;}
     
     public Column[] getColumns() { return columns; }
-    public void setColumns(Column[] columns) { this.columns = columns; }
+    public void setColumns(Column[] columns) 
+    { 
+        this.columns = columns; 
+        if (Beans.isDesignTime()) 
+        {
+            try 
+            {
+                ListModelWrapper lm = new ListModelWrapper();
+                lm.setColumns(columns);
+                table.setListModel(lm);
+            }
+            catch(Exception ex) {
+                MsgBox.err(ex); 
+            }
+        }
+    }
     
     public String getItems() { return items; } 
     public void setItems(String items) { this.items = items; }
@@ -484,6 +501,9 @@ public class XDataTable extends JPanel implements UIInput, TableListener, Valida
     public void setScrollbarAlwaysVisible(boolean scrollbarAlwaysVisible) {
         scrollBar.setVisibleAlways(scrollbarAlwaysVisible);
     }
+
+    public void setPropertyInfo(PropertySupport.PropertyInfo info) {
+    }
     
     // </editor-fold>
     
@@ -571,6 +591,8 @@ public class XDataTable extends JPanel implements UIInput, TableListener, Valida
 
         public java.util.List fetchList(Map params) 
         {
+            if (Beans.isDesignTime()) return null;
+            
             if (userDefinedList == null)
                 userDefinedList = (java.util.List) UIControlUtil.getBeanValue(binding, XDataTable.this.getItems()); 
             

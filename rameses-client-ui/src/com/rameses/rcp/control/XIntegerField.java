@@ -1,5 +1,6 @@
 package com.rameses.rcp.control;
 
+import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.control.text.AbstractNumberDocument;
 import com.rameses.rcp.control.text.AbstractNumberField;
 import com.rameses.rcp.framework.Binding;
@@ -106,6 +107,16 @@ public class XIntegerField extends AbstractNumberField implements UIInput, Valid
     
     public String getPattern() { return model.getFormat(); }     
     public void setPattern(String pattern) { model.setFormat(pattern); } 
+    
+    public void setPropertyInfo(PropertySupport.PropertyInfo info) 
+    {
+        if (!(info instanceof PropertySupport.IntegerPropertyInfo)) return;
+        
+        PropertySupport.IntegerPropertyInfo pif = (PropertySupport.IntegerPropertyInfo) info;
+        setPattern(pif.getFormat()); 
+        setMinValue(pif.getMinValue());
+        setMaxValue(pif.getMaxValue()); 
+    }    
     
     // </editor-fold>     
     
@@ -281,4 +292,5 @@ public class XIntegerField extends AbstractNumberField implements UIInput, Valid
     public ControlProperty getControlProperty() { return property; }
     
     // </editor-fold>    
+
 }

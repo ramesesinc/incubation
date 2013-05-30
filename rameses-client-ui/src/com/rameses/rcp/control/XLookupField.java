@@ -8,6 +8,7 @@ import com.rameses.rcp.common.LookupOpenerSupport;
 import com.rameses.rcp.common.LookupSelector;
 import com.rameses.rcp.common.MsgBox;
 import com.rameses.rcp.common.Opener;
+import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.constant.TextCase;
 import com.rameses.rcp.constant.TrimSpaceOption;
 import com.rameses.rcp.control.text.IconedTextField;
@@ -154,6 +155,19 @@ public class XLookupField extends IconedTextField implements UIFocusableContaine
         }
         return inputSupport;
     }     
+    
+    public void setPropertyInfo(PropertySupport.PropertyInfo info) 
+    {
+        if (!(info instanceof PropertySupport.LookupPropertyInfo)) return; 
+
+        PropertySupport.LookupPropertyInfo lkp = (PropertySupport.LookupPropertyInfo) info; 
+        if (lkp.getHandler() instanceof String)
+            setHandler(lkp.getHandler().toString()); 
+        else 
+            setHandlerObject(lkp.getHandler()); 
+        
+        setExpression(lkp.getExpression()); 
+    }    
    
     // </editor-fold> 
     
@@ -383,8 +397,14 @@ public class XLookupField extends IconedTextField implements UIFocusableContaine
         {
             if ( handler.matches(".+:.+") ) //handler is a module:workunit name
                 o = LookupOpenerSupport.lookupOpener(handler, new HashMap()); 
-            else
-                o = UIControlUtil.getBeanValue(this, handler);
+            else 
+            {
+                //check if there is a binding object passed by the JTable
+                Binding tableBinding = (Binding) getClientProperty(Binding.class); 
+                if (tableBinding == null) tableBinding = getBinding(); 
+                
+                o = UIControlUtil.getBeanValue(tableBinding, handler);
+            }
         } 
         else if ( handlerObject != null ) { 
             o = handlerObject;

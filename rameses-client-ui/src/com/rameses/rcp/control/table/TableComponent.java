@@ -175,7 +175,7 @@ public class TableComponent extends JTable implements ListModelListener, TableCo
         
         for ( int i=0; i<length; i++ ) {
             Column col = tableModel.getColumn(i);
-            TableCellRenderer cellRenderer = TableUtil.getCellRenderer(col.getType());
+            TableCellRenderer cellRenderer = TableUtil.getCellRenderer(col);
             TableColumn tableCol = getColumnModel().getColumn(i);
             tableCol.setCellRenderer(cellRenderer);
             applyColumnProperties(tableCol, col);

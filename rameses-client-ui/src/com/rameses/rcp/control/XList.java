@@ -9,6 +9,7 @@ package com.rameses.rcp.control;
 
 import com.rameses.common.MethodResolver;
 import com.rameses.common.PropertyResolver;
+import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.framework.ClientContext;
 import com.rameses.rcp.ui.UIControl;
@@ -216,7 +217,8 @@ public class XList extends JList implements UIControl, ListSelectionListener {
     }
     
     
-    //<editor-fold defaultstate="collapsed" desc="  Getters/Setters  ">
+    // <editor-fold defaultstate="collapsed" desc="  Getters/Setters  ">
+    
     public String[] getDepends() {
         return depends;
     }
@@ -308,8 +310,11 @@ public class XList extends JList implements UIControl, ListSelectionListener {
     public void setOpenAction(String openAction) {
         this.openAction = openAction;
     }
-    //</editor-fold>
 
+    public void setPropertyInfo(PropertySupport.PropertyInfo info) {
+    }
+    
+    // </editor-fold>
     
     //<editor-fold defaultstate="collapsed" desc="  DefaultCellRenderer (class)  ">
     private class DefaultCellRenderer implements ListCellRenderer {

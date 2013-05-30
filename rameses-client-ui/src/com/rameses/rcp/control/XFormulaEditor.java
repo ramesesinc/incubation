@@ -7,6 +7,7 @@
 package com.rameses.rcp.control;
 
 import com.rameses.rcp.common.FormulaEditorModel;
+import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.constant.TrimSpaceOption;
 import com.rameses.rcp.control.editor.FormulaDocument;
 import com.rameses.rcp.framework.Binding;
@@ -138,7 +139,8 @@ public class XFormulaEditor extends JTextPane implements UIInput {
         return UIControlUtil.compare(this, o);
     }
     
-    //<editor-fold defaultstate="collapsed" desc="  Getters/Setters  ">
+    // <editor-fold defaultstate="collapsed" desc="  Getters/Setters  ">
+    
     public void setName(String name) {
         super.setName(name);
         setText(name);
@@ -252,6 +254,10 @@ public class XFormulaEditor extends JTextPane implements UIInput {
     public void setHandler(String handler) {
         this.handler = handler;
     }
-    //</editor-fold>
+    
+    public void setPropertyInfo(PropertySupport.PropertyInfo info) {
+    }
+    
+    // </editor-fold>
     
 }

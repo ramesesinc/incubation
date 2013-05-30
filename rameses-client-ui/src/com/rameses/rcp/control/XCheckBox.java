@@ -1,5 +1,6 @@
 package com.rameses.rcp.control;
 
+import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.framework.ClientContext;
 import com.rameses.rcp.support.ThemeUI;
@@ -32,7 +33,7 @@ public class XCheckBox extends JCheckBox implements UIInput, ActiveControl
     private Class valueType = Boolean.class; 
     private Object uncheckValue = false;    
     private Object checkValue = true;
-        
+    
     public XCheckBox() 
     {
         //default font
@@ -266,6 +267,16 @@ public class XCheckBox extends JCheckBox implements UIInput, ActiveControl
     
     public boolean isImmediate() {
         return true;
+    }
+
+    public void setPropertyInfo(PropertySupport.PropertyInfo info) 
+    {
+        if (!(info instanceof PropertySupport.CheckBoxPropertyInfo)) return;
+        
+        PropertySupport.CheckBoxPropertyInfo chk = (PropertySupport.CheckBoxPropertyInfo) info;
+        this.valueType = chk.getValueType();
+        this.checkValue = chk.getCheckValue();
+        this.uncheckValue = chk.getUncheckValue(); 
     }
     
     // </editor-fold>

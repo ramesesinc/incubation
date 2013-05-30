@@ -10,6 +10,7 @@
 package com.rameses.rcp.control.table;
 
 import com.rameses.rcp.common.AbstractListModel;
+import com.rameses.rcp.common.CheckBoxColumnHandler;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -50,8 +51,14 @@ public class CheckBoxCellRenderer extends AbstractCellRenderer
     
     private boolean resolveValue(Object value) 
     {
-        boolean selected = false;
-        if (value == null) { /* do nothing */ } else if ("true".equals(value+"")) selected = true;
+        boolean selected = false;        
+        Object checkValue = null;
+        if (column.getTypeHandler() instanceof CheckBoxColumnHandler)
+            checkValue = ((CheckBoxColumnHandler) column.getTypeHandler()).getCheckValue();
+        
+        if (value == null) selected = false;
+        else if (value.equals(checkValue+"")) selected = true;
+        else if ("true".equals(value+"")) selected = true;
         else if ("yes".equals(value+"")) selected = true;
         else if ("t".equals(value+"")) selected = true;
         else if ("y".equals(value+"")) selected = true;

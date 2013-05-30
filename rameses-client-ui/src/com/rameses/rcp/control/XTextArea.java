@@ -1,5 +1,6 @@
 package com.rameses.rcp.control;
 
+import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.constant.TextCase;
 import com.rameses.rcp.constant.TrimSpaceOption;
 import com.rameses.rcp.framework.Binding;
@@ -273,6 +274,9 @@ public class XTextArea extends JTextArea implements UIInput, Validatable, Active
     public void setHint(String hint) {
         this.hint = hint;
         showHint = !ValueUtil.isEmpty(hint);
+    }
+
+    public void setPropertyInfo(PropertySupport.PropertyInfo info) {
     }
     
 }

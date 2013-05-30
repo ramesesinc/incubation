@@ -7,6 +7,7 @@
 
 package com.rameses.rcp.control;
 
+import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.common.StyleRule;
 import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.framework.ClientContext;
@@ -148,6 +149,9 @@ public class XStyleRule extends JPanel implements UIControl {
     
     public void setStyleRules(StyleRule[] styleRules) {
         this.styleRules = styleRules;
+    }
+
+    public void setPropertyInfo(PropertySupport.PropertyInfo info) {
     }
     
 }

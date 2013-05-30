@@ -1,5 +1,6 @@
 package com.rameses.rcp.control;
 
+import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.control.text.AbstractNumberDocument;
 import com.rameses.rcp.control.text.AbstractNumberField;
 import com.rameses.rcp.framework.Binding;
@@ -108,6 +109,17 @@ public class XDecimalField extends AbstractNumberField implements UIInput, Valid
     
     public String getPattern() { return model.getFormat(); }     
     public void setPattern(String pattern) { model.setFormat(pattern); } 
+    
+    public void setPropertyInfo(PropertySupport.PropertyInfo info) 
+    {
+        if (!(info instanceof PropertySupport.DecimalPropertyInfo)) return;
+        
+        PropertySupport.DecimalPropertyInfo dec = (PropertySupport.DecimalPropertyInfo) info; 
+        setPattern(dec.getFormat()); 
+        setMinValue(dec.getMinValue());
+        setMaxValue(dec.getMaxValue());
+        setUsePrimitiveValue(dec.isUsePrimitiveValue()); 
+    }    
     
     // </editor-fold>     
     
@@ -287,5 +299,5 @@ public class XDecimalField extends AbstractNumberField implements UIInput, Valid
     public ControlProperty getControlProperty() { return property; }
     
     // </editor-fold>
-    
+   
 }

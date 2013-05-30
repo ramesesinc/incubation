@@ -9,6 +9,7 @@ package com.rameses.rcp.control;
 
 import com.rameses.rcp.common.ProgressListener;
 import com.rameses.rcp.common.ProgressModel;
+import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.framework.ClientContext;
 import com.rameses.rcp.framework.NavigatablePanel;
@@ -98,9 +99,9 @@ public class XProgressBar extends JProgressBar implements UIControl, ProgressLis
             throw new IllegalStateException("XProgressBar::fireAction", e);
         }
     }
+        
+    // <editor-fold defaultstate="collapsed" desc="  Getters/Setters  ">
     
-    
-    //<editor-fold defaultstate="collapsed" desc="  Getters/Setters  ">
     public String[] getDepends() {
         return depends;
     }
@@ -132,6 +133,10 @@ public class XProgressBar extends JProgressBar implements UIControl, ProgressLis
     public void setOnComplete(String onComplete) {
         this.onComplete = onComplete;
     }
-    //</editor-fold>
+    
+    public void setPropertyInfo(PropertySupport.PropertyInfo info) {
+    }
+    
+    // </editor-fold>
     
 }

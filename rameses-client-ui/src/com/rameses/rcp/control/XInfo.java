@@ -1,6 +1,7 @@
 package com.rameses.rcp.control;
 
 import com.rameses.rcp.common.MsgBox;
+import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.ui.UIControl;
 import java.awt.event.ActionEvent;
@@ -48,5 +49,8 @@ public class XInfo extends JButton implements UIControl, ActionListener
 
     public int compareTo(Object o) {
         return 0;
+    }
+
+    public void setPropertyInfo(PropertySupport.PropertyInfo info) {
     }
 }

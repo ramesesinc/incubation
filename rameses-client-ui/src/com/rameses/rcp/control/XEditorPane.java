@@ -8,6 +8,7 @@
 package com.rameses.rcp.control;
 
 import com.rameses.rcp.common.MsgBox;
+import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.framework.ClientContext;
 import com.rameses.rcp.ui.ActiveControl;
@@ -130,7 +131,8 @@ public class XEditorPane extends JEditorPane implements UIInput, ActiveControl {
         return UIControlUtil.compare(this, o);
     }
     
-    //<editor-fold defaultstate="collapsed" desc="  Getters/Setters  ">
+    // <editor-fold defaultstate="collapsed" desc="  Getters/Setters  ">
+    
     public void setName(String name) {
         super.setName(name);
         if ( Beans.isDesignTime() ) {
@@ -249,5 +251,10 @@ public class XEditorPane extends JEditorPane implements UIInput, ActiveControl {
     public void setBaseUrl(String baseUrl) {
         this.baseUrl = baseUrl;
     }
-    //</editor-fold>
+    
+    public void setPropertyInfo(PropertySupport.PropertyInfo info) {
+    }  
+    
+    // </editor-fold>
+
 }
