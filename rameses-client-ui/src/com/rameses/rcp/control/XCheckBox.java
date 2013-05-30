@@ -53,7 +53,10 @@ public class XCheckBox extends JCheckBox implements UIInput, ActiveControl
             
             //check if this component is owned by the JTable
             if ("true".equals(getClientProperty(JTable.class)+"")) 
+            {
                 setHorizontalAlignment(SwingConstants.CENTER); 
+                setBorderPainted(true); 
+            }
             
             resolveValues();
             
