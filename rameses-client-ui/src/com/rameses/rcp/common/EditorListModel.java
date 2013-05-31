@@ -22,15 +22,18 @@ public class EditorListModel extends AbstractListDataProvider
 {
     private List DEFAULT_LIST = new ArrayList();
     
-    public List fetchList(Map params) { 
-        return DEFAULT_LIST; 
-    }
+    public List fetchList(Map params) { return DEFAULT_LIST; }    
+    public Object createItem() { return new HashMap(); } 
     
-    public Object createItem() { 
-        return new HashMap(); 
-    } 
+    /*
+     *  Needs to be implemented. This method is invoked when: 
+     *  1) The ListItem is in a DRAFT state and about to be added in the list 
+     *  2) The ListItem is in an EDIT state and about to changed item selection 
+     */
+    public void validate(ListItem li) {}
     
-    protected void validate(ListItem li) {}
+    
+    
     
     public boolean isAllowedForEditing(ListItem li) 
     {

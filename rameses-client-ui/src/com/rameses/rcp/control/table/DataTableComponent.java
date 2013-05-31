@@ -791,19 +791,21 @@ public class DataTableComponent extends JTable implements TableControl
     
     private boolean validateRow(int rowIndex) 
     {
+        //exit right away if no editor model specified 
+        if (editorModel == null) return true;
+        
         ActionMessage ac = new ActionMessage();
         itemBinding.validate(ac);
-        if ( ac.hasMessages() ) {
+        if ( ac.hasMessages() )
             dataProvider.getMessageSupport().addErrorMessage(rowIndex, ac.toString());
-        } else {
+        else 
             dataProvider.getMessageSupport().removeErrorMessage(rowIndex);
-        }
         
         if ( ac.hasMessages() ) return false;
         
         try 
         {
-            //dataProvider.validate( tableModel.getListItem(rowIndex) );
+            editorModel.validate( dataProvider.getListItem(rowIndex) );
             dataProvider.getMessageSupport().removeErrorMessage(rowIndex);
         } 
         catch (Exception e ) 
