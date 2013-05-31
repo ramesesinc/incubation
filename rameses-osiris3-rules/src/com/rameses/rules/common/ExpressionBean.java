@@ -22,8 +22,11 @@ public class ExpressionBean {
     private String statement;
     
     /** Creates a new instance of Expression */
-    public ExpressionBean(String expression) {
-        this.statement = expression;
+    public ExpressionBean(String stmt) {
+        this.statement = stmt;
+    }
+    
+    public ExpressionBean() {
     }
     
     public ExpressionBean add(String name, Object value) {
@@ -37,6 +40,10 @@ public class ExpressionBean {
     
     public String getStatement() {
         return statement;
+    }
+
+    public void setStatement(String statement) {
+        this.statement = statement;
     }
 }
 
