@@ -224,17 +224,24 @@ public final class ChangeLog {
         return list;
     }
     
-    public void scan( ChangeLogHandler handler ) {
-        try {
+    public void scan( ChangeLogHandler handler ) 
+    {
+        try 
+        {
             handler.start();
             for(ChangeHist ch: buildHistory()) {
                 ch.scan( handler );
             }
             handler.end();
-        } catch(StopScanningException ce) {
+        } 
+        catch(StopScanningException ce) {
             //do nothing
-        } catch(Exception e) {
-            throw new IllegalStateException(e);
+        }
+        catch(RuntimeException re) {
+            throw re;
+        }
+        catch(Exception e) {
+            throw new IllegalStateException(e.getMessage(), e);
         }
     }
     

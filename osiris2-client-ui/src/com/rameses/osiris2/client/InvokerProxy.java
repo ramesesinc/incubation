@@ -75,9 +75,12 @@ public class InvokerProxy  {
                 Class clz = services.get(name);
                 return Proxy.newProxyInstance( classLoader, new Class[]{clz}, new ServiceProxyInvocationHandler(sp)  );
             }
-        } catch(Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException(e.getMessage());
+        } 
+        catch(RuntimeException re) {
+            throw re;
+        }
+        catch(Exception e) {
+            throw new RuntimeException(e.getMessage(), e);
         }
     }
 }

@@ -114,8 +114,10 @@ public abstract class TemplateProvider implements Serializable {
                     is = (new URL( name )).openStream();
                 }
                 return is;
+            } catch(RuntimeException re) {
+                throw re;
             } catch(Exception e) {
-                throw new RuntimeException(e);
+                throw new RuntimeException(e.getMessage(), e);
             }
         }
     }

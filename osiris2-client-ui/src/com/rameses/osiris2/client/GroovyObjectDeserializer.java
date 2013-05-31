@@ -39,6 +39,8 @@ public class GroovyObjectDeserializer {
         try {
             gs = new GroovyShell();
             return gs.evaluate(data);
+        } catch(RuntimeException re) {
+            throw re;
         } catch(Exception e) {
             throw new IllegalStateException("Data deserialization error", e);
         } finally {
@@ -52,6 +54,8 @@ public class GroovyObjectDeserializer {
         try {
             gs = new GroovyShell();
             return gs.evaluate(data);
+        } catch(RuntimeException re) {
+            throw re;
         } catch(Exception e) {
             throw new IllegalStateException("Data deserialization error", e);
         } finally {

@@ -80,6 +80,9 @@ public final class ScriptProvider {
             ClassDefUtil.getInstance().injectFields(obj, fieldHandler);
             return obj;
         }
+        catch(RuntimeException re) {
+            throw re;
+        }
         catch(Exception e) {
             throw new RuntimeException(e.getMessage(), e);
         }

@@ -85,7 +85,8 @@ public class XProgressBar extends JProgressBar implements UIControl, ProgressLis
     private void fireAction() {
         if ( ValueUtil.isEmpty(onComplete) ) return;
         
-        try {
+        try 
+        {
             ClientContext ctx = ClientContext.getCurrentContext();
             MethodResolver mr = MethodResolver.getInstance();
             Object outcome = mr.invoke(binding.getBean(), onComplete, null, null);
@@ -93,9 +94,12 @@ public class XProgressBar extends JProgressBar implements UIControl, ProgressLis
             NavigationHandler nh = ctx.getNavigationHandler();
             NavigatablePanel panel = UIControlUtil.getParentPanel(this, null);
             
-            nh.navigate(panel, this, outcome);
-            
-        } catch(Exception e) {
+            nh.navigate(panel, this, outcome);            
+        }
+        catch(RuntimeException re) {
+            throw re;
+        }
+        catch(Exception e) {
             throw new IllegalStateException("XProgressBar::fireAction", e);
         }
     }

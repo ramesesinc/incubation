@@ -75,17 +75,20 @@ public class UIControllerContext {
         indexViews();
     }
     
-    //<editor-fold defaultstate="collapsed" desc="  utility methods  ">
+    // <editor-fold defaultstate="collapsed" desc="  utility methods  ">
+    
     private void indexViews() {
         for (View v: controller.getViews()) {
             viewSource.put(v.getName(), v);
         }
     }
     
-    private UIViewPanel buildViewPanel(View view) {
+    private UIViewPanel buildViewPanel(View view) 
+    {
         ClassLoader loader = ClientContext.getCurrentContext().getClassLoader();
         UIViewPanel viewPanel = null;
-        try {
+        try 
+        {
             JComponent panel = (JComponent) loader.loadClass(view.getTemplate()).newInstance();
             if ( panel instanceof UIViewPanel )
                 throw new Exception("Template " + view.getTemplate() + " should not be an instance of UIViewPanel.");
@@ -94,15 +97,16 @@ public class UIControllerContext {
             Binding binding = viewPanel.getBinding();
             
             JComponent pagePanel = initPagePanel(panel, binding);
-            if( pagePanel != null ) {
-                viewPanel.add(pagePanel);
-            }
+            if ( pagePanel != null ) viewPanel.add(pagePanel);
             
             binding.init();
             binding.setController(controller);
-            
-        } catch(Exception e) {
-            throw new IllegalStateException(e);
+        }
+        catch(RuntimeException re) {
+            throw re;
+        }
+        catch(Exception e) {
+            throw new IllegalStateException(e.getMessage(), e);
         }
         
         return viewPanel;
@@ -202,6 +206,7 @@ public class UIControllerContext {
         
         return new ArrayList();
     }
-    //</editor-fold>
+    
+    // </editor-fold>
     
 }

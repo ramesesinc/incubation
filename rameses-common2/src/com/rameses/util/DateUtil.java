@@ -112,8 +112,10 @@ public final class DateUtil {
         Date specifiedTime;
         try {
             specifiedTime = sdf.parse(time);
+        } catch(RuntimeException re) {
+            throw re;
         } catch(Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException(e.getMessage(), e);
         }
         // switch timezone
         if (destTZ != null)

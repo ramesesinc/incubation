@@ -35,8 +35,12 @@ public abstract class ExpressionResolver {
                     });
                 }
                 functions = _xfunc;
-            } catch(Exception e) {
-                throw new RuntimeException(e);
+            }
+            catch(RuntimeException re) {
+                throw re;
+            }
+            catch(Exception e) {
+                throw new RuntimeException(e.getMessage(), e);
             }
         }
         String f = functions.get(key);

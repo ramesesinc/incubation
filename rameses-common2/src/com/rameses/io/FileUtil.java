@@ -37,8 +37,10 @@ public final class FileUtil {
             fis = new FileInputStream(f);
             ois = new ObjectInputStream(fis);
             return ois.readObject();
+        } catch(RuntimeException re) {
+            throw re; 
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException(e.getMessage(), e);
         } finally {
             try { fis.close(); } catch (Exception e) {;}
             try { ois.close(); } catch (Exception e) {;}
@@ -59,8 +61,10 @@ public final class FileUtil {
             oos = new ObjectOutputStream(fos);
             oos.writeObject( o );
             oos.flush();
+        } catch(RuntimeException re) {
+            throw re; 
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException(e.getMessage(), e);
         } finally {
             try { fos.close(); } catch (Exception e) {;}
             try { oos.close(); } catch (Exception e) {;}
@@ -80,8 +84,10 @@ public final class FileUtil {
             fos = new FileOutputStream(f);
             fos.write( bytes );
             fos.flush();
+        } catch(RuntimeException re) {
+            throw re; 
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException(e.getMessage(), e);
         } finally {
             try { fos.close(); } catch (Exception e) {;}
             try { oos.close(); } catch (Exception e) {;}

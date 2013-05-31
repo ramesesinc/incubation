@@ -44,14 +44,20 @@ public class ModuleParser implements URLFilter {
         this.loader = loader;
     }
     
-    public void parse(Module module) {
+    public void parse(Module module) 
+    {
         this.module = module;
         this.appContext = module.getAppContext();
-        try {
+        try 
+        {
             URL url = new URL(module.getContextPath() + "/workunits");
             URLDirectory u = new URLDirectory(url);
             u.list( this, loader );
-        } catch(Exception ex) {
+        } 
+        catch(RuntimeException re) {
+            throw re;
+        }
+        catch(Exception ex) {
             throw new IllegalStateException(ex.getMessage(), ex);
         }
     }

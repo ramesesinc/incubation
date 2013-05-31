@@ -27,17 +27,25 @@ public class GroovyControllerProvider implements CodeProvider {
     public Class createClass(String source) {
         try {
             return loader.parseClass( new ByteArrayInputStream(source.getBytes()) );
+        } catch(RuntimeException re) {
+            throw re;
         } catch(Exception ex) {
             throw new RuntimeException(ex.getMessage(), ex);
         }
     }
     
-    public Object createObject(Class clazz) {
-        try {
+    public Object createObject(Class clazz) 
+    {
+        try 
+        {
             Object retVal = clazz.newInstance();
             ClassDefUtil.getInstance().injectFields(retVal, fieldHandler);
             return retVal;
-        } catch(Exception ex) {
+        } 
+        catch(RuntimeException re) {
+            throw re;
+        } 
+        catch(Exception ex) {
             throw new RuntimeException(ex.getMessage(), ex);
         }
     }
@@ -45,6 +53,8 @@ public class GroovyControllerProvider implements CodeProvider {
     public Class loadClass(String className) {
         try {
             return loader.loadClass(className);
+        } catch(RuntimeException re) {
+            throw re;
         } catch (Exception ex) {
             throw new RuntimeException(ex.getMessage(), ex);
         }

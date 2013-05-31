@@ -76,12 +76,16 @@ public class URLDirectory {
                 }
             }
             return (URL[])list.toArray(new URL[]{});
-        } catch(Exception ex) {
+        }
+        catch(RuntimeException re) {
+            throw re;
+        }
+        catch(Exception ex) 
+        {
             System.out.println("URL DIRECTORY ERROR " + ex.getMessage());
-            throw new RuntimeException(ex);
+            throw new RuntimeException(ex.getMessage(), ex);
         }
     }
-    
     
     public static interface URLFilter {
         boolean accept(URL u, String filter);

@@ -88,8 +88,10 @@ public abstract class AbstractNumberDocument extends PlainDocument
                 this.stringValue = (num == null? null: num.toString()); 
                 this.value = num;                
             }
-            catch(Exception ex) 
-            {
+            catch(RuntimeException re) {
+                throw re;
+            }
+            catch(Exception ex) {
                 throw new RuntimeException(ex.getMessage(), ex);
             }
         }

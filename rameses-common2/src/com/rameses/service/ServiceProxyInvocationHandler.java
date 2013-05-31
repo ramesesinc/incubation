@@ -57,12 +57,16 @@ public class ServiceProxyInvocationHandler implements InvocationHandler{
                     return this.proxy.invoke( method.getName(), args );
                 }
             }
-        } catch(Throwable t) {
+        } 
+        catch(Throwable t) 
+        {
             t.printStackTrace();
-            if(t instanceof AppException)
+            if (t instanceof AppException)
                 throw t;
+            else if (t instanceof RuntimeException) 
+                throw (RuntimeException) t;
             else
-                throw new RuntimeException(t.getMessage(),t);
+                throw new RuntimeException(t.getMessage(), t);
         }
     }
     
