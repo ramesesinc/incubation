@@ -40,14 +40,15 @@ public final class ParserUtil {
                 else if( clz.equals(Boolean.class)  ) {
                     val = Boolean.valueOf(value);
                 }
-                /*
+                else if( clz == Integer.TYPE ) {
+                    val = Integer.parseInt(value+"") ;
+                }
                 else if( clz == Double.TYPE ) {
                     val = Double.parseDouble(value+"") ;
                 }
                 else if( clz == Boolean.TYPE ) {
                     val = Boolean.parseBoolean(value+"") ;
                 }
-                 */
                 resolver.setProperty(o,name,val);
                 
                 //very impt! do not remove. this is used by schema parser complex field.
@@ -84,7 +85,6 @@ public final class ParserUtil {
                 } else if( clz.equals(Boolean.class) ) {
                     val = Boolean.valueOf(value);
                 }
-                /*
                 else if( clz == Integer.TYPE ) {
                     val = Integer.parseInt(value+"") ;
                 }
@@ -94,7 +94,6 @@ public final class ParserUtil {
                 else if( clz == Boolean.TYPE ) {
                     val = Boolean.parseBoolean(value+"") ;
                 }
-                 */
                 resolver.setProperty(o,name,val);
             } 
             catch (Exception ex) {

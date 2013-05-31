@@ -60,7 +60,8 @@ public class RuleService extends ContextService {
         }
     }
     
-    public void start() throws Exception {
+    //this should be called by the RuleLoader scheduler
+    public void loadRules() throws Exception {
         //load all rule contexts...
         Set<String> set = new HashSet();
         if(context instanceof AppContext) {
@@ -78,6 +79,10 @@ public class RuleService extends ContextService {
                 System.out.println("error loading rule "+s + e.getMessage());
             }
         }
+    }
+    
+    public void start() throws Exception {
+        
     }
     
     
