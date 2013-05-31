@@ -21,7 +21,7 @@ public class Lookup {
     private String value;
     private int intValue;
     private BigDecimal decimalValue;
-    private Handler handler;
+    private CallbackHandler handler;
     
     public Lookup(String name) {
         this.name = name;
@@ -59,16 +59,13 @@ public class Lookup {
         this.decimalValue = decimalValue;
     }
 
-    public static interface Handler {
-        void handle( Object value );
-    }
-
-    public Handler getHandler() {
+    public CallbackHandler getHandler() {
         return handler;
     }
 
-    public void setHandler(Handler handler) {
+    public void setHandler(CallbackHandler handler) {
         this.handler = handler;
     }
+
     
 }
