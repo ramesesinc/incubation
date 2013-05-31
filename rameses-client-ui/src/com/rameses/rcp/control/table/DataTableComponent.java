@@ -11,6 +11,7 @@ import com.rameses.common.ExpressionResolver;
 import com.rameses.rcp.common.*;
 import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.framework.ChangeLog;
+import com.rameses.rcp.framework.ClientContext;
 import com.rameses.rcp.ui.*;
 import com.rameses.rcp.util.ActionMessage;
 import com.rameses.rcp.util.UIControlUtil;
@@ -717,7 +718,10 @@ public class DataTableComponent extends JTable implements ListModelListener, Tab
         } 
         catch (Exception e ) 
         {
-            String msg = getMessage(e);
+            if (ClientContext.getCurrentContext().isDebugMode()) 
+                e.printStackTrace(); 
+                
+            String msg = getMessage(e)+"";
             listModel.addErrorMessage(rowIndex, msg);
             return false;
         }        
