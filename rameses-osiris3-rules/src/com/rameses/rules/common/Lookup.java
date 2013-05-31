@@ -15,7 +15,7 @@ import java.math.BigDecimal;
  *
  * @author Elmo
  */
-public class LookupEntry {
+public class Lookup {
     
     private String name;
     private String value;
@@ -23,7 +23,7 @@ public class LookupEntry {
     private BigDecimal decimalValue;
     private Handler handler;
     
-    public LookupEntry(String name) {
+    public Lookup(String name) {
         this.name = name;
     }
     
