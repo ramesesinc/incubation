@@ -9,7 +9,9 @@
 
 package com.rameses.osiris3.templates;
 
+import com.rameses.osiris3.core.AppContext;
 import com.rameses.osiris3.core.ContextResource;
+import com.rameses.osiris3.core.SharedContext;
 import com.rameses.util.Service;
 import java.io.InputStream;
 import java.util.Collections;
@@ -48,8 +50,14 @@ public class TemplateContextResource extends ContextResource {
                 throw new Exception("There is no template builder for  " + ext);
             
             is = context.getClassLoader().getResourceAsStream( "templates/" + key );
+            if(is==null) {
+                if(context instanceof AppContext)  {
+                    SharedContext sharedCtx = ((AppContext)context).getSharedContext();
+                    is = sharedCtx.getClassLoader().getResourceAsStream("templates/" + key );
+                }
+            }    
             if(is==null)
-                throw new Exception("Template " + key + "not found in templates");
+                throw new Exception("Template " + key + " not found in templates");
             return tb.build( is );
             
         } catch(Exception ex) {
