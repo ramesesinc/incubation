@@ -271,6 +271,13 @@ public class XDataTable extends JPanel implements UIInput, Validatable, FocusLis
     
     // <editor-fold defaultstate="collapsed" desc="  Getters/Setters  ">
     
+    public String getVarName() {
+        return (table == null? null: table.getVarName()); 
+    }
+    public void setVarName(String varName) {
+        table.setVarName(varName); 
+    }
+    
     public boolean isRequired() { return table.isRequired(); }    
     public void setRequired(boolean required) {}
     

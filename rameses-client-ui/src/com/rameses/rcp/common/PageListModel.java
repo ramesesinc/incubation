@@ -23,6 +23,9 @@ public abstract class PageListModel extends AbstractListDataProvider implements 
         super.load();
     }
 
+    public void reload() { 
+        super.refresh(true);  
+    }
     
     public String getSearchtext() {  return searchtext; }     
     public void setSearchtext(String searchtext) 

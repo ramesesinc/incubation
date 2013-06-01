@@ -30,9 +30,12 @@ public class ComboBoxCellRenderer extends TextCellRenderer
                 try 
                 {
                     Object bean = cellValue;
-                    if (table.getModel() instanceof DataTableModel)
+                    if (table.getModel() instanceof DataTableModel) 
                         bean = ((DataTableModel) table.getModel()).getItem(rowIndex);
 
+                    if (table instanceof DataTableComponent) 
+                        bean = ((DataTableComponent) table).createExpressionBean(bean); 
+                    
                     cellValue = er.evalString(cbo.getExpression(), bean);
                 } 
                 catch(Exception e) {}

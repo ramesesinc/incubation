@@ -30,8 +30,22 @@ public class EditorListModel extends AbstractListDataProvider
      *  1) The ListItem is in a DRAFT state and about to be added in the list 
      *  2) The ListItem is in an EDIT state and about to changed item selection 
      */
-    public void validate(ListItem li) {}
+    protected void validate(ListItem li) {}
     
+    /*
+     *  Method is invoked before adding it to the data list
+     */
+    protected void onAddItem(Object item) {}
+    
+    /*
+     *  Method is invoked before item selection changed
+     */
+    protected void onCommitItem(Object item) {}
+    
+    /*
+     *  Method is invoked after the value has set to data bean
+     */
+    protected void onColumnUpdate(Object item, String columnName) {}
     
     
     
@@ -75,6 +89,7 @@ public class EditorListModel extends AbstractListDataProvider
         if (!isTemporaryItem(li)) return;
         
         validate(li);
+        onAddItem(li.getItem()); 
         
         int dataIndex = getDataList().indexOf(li.getItem());
         if (dataIndex < 0)
@@ -90,4 +105,29 @@ public class EditorListModel extends AbstractListDataProvider
         int index = li.getIndex();
         return (index+1 == getListItems().size()); 
     }     
+
+    
+    /*
+     *  events
+     */
+    public void fireColumnUpdate(ListItem li) 
+    {    
+        if (li == null) return;
+        
+        onColumnUpdate(li.getItem(), getSelectedColumn()); 
+    }
+
+    public void fireCommitItem(ListItem li) 
+    {
+        if (li == null) return;
+        
+        onCommitItem(li.getItem());         
+    }
+
+    public void fireValidateItem(ListItem li) 
+    {
+        if (li == null) return;
+        
+        validate(li); 
+    }
 }

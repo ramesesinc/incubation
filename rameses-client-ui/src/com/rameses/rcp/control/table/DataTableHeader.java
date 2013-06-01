@@ -47,9 +47,9 @@ public class DataTableHeader extends JTableHeader
         
         Rectangle compClip = new Rectangle();
         TableColumnModel tcm = getColumnModel();
-        for (int i=0; i<tcm.getColumnCount(); i++) {
+        for (int i=0; i<tcm.getColumnCount(); i++) 
+        {
             Rectangle rect = getHeaderRect(i);
-            System.out.println(rect);
             compClip.x = rect.x + rect.width;
             compClip.y = rect.y;
             compClip.width = rect.x + rect.width;
@@ -114,7 +114,6 @@ public class DataTableHeader extends JTableHeader
             Color color = table.getGridColor();
             if (color == null) return;
                     
-            System.out.println("CustomBorder.paint: color=" + color);
             Color oldColor = g.getColor();
             g.setColor(color);
             g.drawRect(-1, -1, w, h); 
@@ -175,7 +174,6 @@ public class DataTableHeader extends JTableHeader
             
             if (preferredColor == null) return;
             
-            System.out.println("CornerBorder.paint: preferredColor="+ preferredColor);
             Color oldColor = g.getColor();
             g.setColor(preferredColor);
             if (JScrollPane.UPPER_LEFT_CORNER.equals(cornerType)) 
