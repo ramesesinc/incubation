@@ -37,7 +37,6 @@ import com.rameses.rcp.util.UIControlUtil;
 import com.rameses.util.ValueUtil;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Insets;
@@ -170,10 +169,13 @@ public final class TableUtil
     
     public static synchronized void customize(JScrollPane scrollPane, JTable table) 
     {
-        JLabel corner = new JLabel();
-        corner.setBorder(new TableHeaderBorder());
-        corner.setPreferredSize(new Dimension(23,23));  
-        scrollPane.setCorner(JScrollPane.UPPER_RIGHT_CORNER, (JComponent) headerRenderer);
+//        JLabel corner = new JLabel();
+//        corner.setBorder(new TableHeaderBorder());
+//        corner.setPreferredSize(new Dimension(23,23));  
+        
+        JComponent corner = new DataTableHeader.CornerBorder(table, JScrollPane.UPPER_RIGHT_CORNER).createComponent();
+        scrollPane.setCorner(JScrollPane.UPPER_RIGHT_CORNER, corner);
+        //scrollPane.setCorner(JScrollPane.UPPER_RIGHT_CORNER, (JComponent) headerRenderer);
     }
     
     

@@ -39,6 +39,7 @@ import javax.swing.JLabel;
 import javax.swing.JRootPane;
 import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.TableModelEvent;
 
 public class DataTableComponent extends JTable implements TableControl 
 {    
@@ -96,9 +97,9 @@ public class DataTableComponent extends JTable implements TableControl
         propertyHandler = new PropertyChangeHandlerImpl(); 
         tableModelHandler = new TableModelHandlerImpl();
         tableModel = new DataTableModel();
-        
+
+        setTableHeader(new DataTableHeader(this));
         getTableHeader().setReorderingAllowed(false);
-        getTableHeader().setDefaultRenderer(TableUtil.getHeaderRenderer());
         addKeyListener(new TableKeyAdapter());       
         
         int cond = super.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT;
@@ -374,6 +375,11 @@ public class DataTableComponent extends JTable implements TableControl
     public void setTableHeader(JTableHeader tableHeader) 
     {
         super.setTableHeader(tableHeader);
+        
+        tableHeader = getTableHeader(); 
+        if (tableHeader == null) return;
+        
+        tableHeader.setDefaultRenderer(TableUtil.getHeaderRenderer());
         tableHeader.addMouseMotionListener(new MouseMotionAdapter() {
             public void mouseDragged(MouseEvent me) 
             {
@@ -526,6 +532,14 @@ public class DataTableComponent extends JTable implements TableControl
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc="  row movements/actions support  ">
+        
+    public void tableChanged(TableModelEvent e) 
+    {
+        if (getSelectedRow() >= getRowCount()) 
+            setRowSelectionInterval(0, 0); 
+
+        super.tableChanged(e); 
+    }        
         
     protected void onrowChanged() {}     
     private void rowSelectionChanged(int index) 

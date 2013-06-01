@@ -16,6 +16,7 @@ import com.rameses.rcp.common.PropertyChangeHandler;
 import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.common.TableModelHandler;
 import com.rameses.rcp.control.table.DataTableComponent;
+import com.rameses.rcp.control.table.DataTableHeader;
 import com.rameses.rcp.control.table.ListScrollBar;
 import com.rameses.rcp.control.table.RowHeaderView;
 import com.rameses.rcp.control.table.TableBorder;
@@ -225,7 +226,11 @@ public class XDataTable extends JPanel implements UIInput, Validatable, FocusLis
             scrollBar.setDataProvider(dataProvider); 
 
             if ( rowHeaderView != null )
+            {
+                table.getModel().removeTableModelListener(rowHeaderView); 
                 rowHeaderView.setRowCount( dataProvider.getRows() );
+                table.getModel().addTableModelListener(rowHeaderView);
+            }
         }
     }
     
@@ -375,8 +380,8 @@ public class XDataTable extends JPanel implements UIInput, Validatable, FocusLis
         
         if ( showRowHeader ) 
         {
-            Color gridColor = getGridColor();
-            scrollPane.setCorner(JScrollPane.UPPER_LEFT_CORNER, TableUtil.getTableCornerComponent(gridColor));
+            JComponent leftCorner = new DataTableHeader.CornerBorder(table, JScrollPane.UPPER_LEFT_CORNER).createComponent();
+            scrollPane.setCorner(JScrollPane.UPPER_LEFT_CORNER, leftCorner); 
             scrollPane.setRowHeaderView( (rowHeaderView = new RowHeaderView(table)) );
             rowHeaderView.setRowCount( table.getRowCount() );
         } 

@@ -226,6 +226,7 @@ public abstract class AbstractListDataProvider
         if (index >= 0 && index < itemList.size()) 
         {
             itemList.remove(index); 
+            rebuildIndexes();
             tableModelSupport.fireTableRowsDeleted(index, index); 
         }
     }
@@ -441,6 +442,13 @@ public abstract class AbstractListDataProvider
                 li.setState(ListItem.STATE_EMPTY);
                 li.setSelected(false);
             }
+        }
+    } 
+    
+    public final void rebuildIndexes() 
+    {
+        for (int i=0; i<itemList.size(); i++) {
+            itemList.get(i).setIndex(i); 
         }
     } 
     
