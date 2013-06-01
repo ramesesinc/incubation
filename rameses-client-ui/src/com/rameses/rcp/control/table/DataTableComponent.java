@@ -17,6 +17,7 @@ import com.rameses.rcp.util.UIControlUtil;
 import com.rameses.rcp.util.UIInputUtil;
 import com.rameses.util.ValueUtil;
 import java.awt.Color;
+import java.awt.EventQueue;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -598,17 +599,25 @@ public class DataTableComponent extends JTable implements TableControl
     public final void removeItem() 
     {
         if (isReadonly()) return;
+        if (editorModel == null) return;
         
         int rowIndex = getSelectedRow();
         if (rowIndex < 0) return;        
         //if the ListModel has error messages
         //allow editing only to the row that caused the error
-        if (dataProvider.getMessageSupport().hasErrorMessages() && 
-            dataProvider.getMessageSupport().getErrorMessage(rowIndex) == null) 
+        if (editorModel.getMessageSupport().hasErrorMessages() && 
+            editorModel.getMessageSupport().getErrorMessage(rowIndex) == null) 
             return;
         
-        dataProvider.setSelectedItem(rowIndex); 
-        dataProvider.removeSelectedItem(); 
+        try 
+        {
+            editorModel.setSelectedItem(rowIndex); 
+            editorModel.fireRemoveItem(editorModel.getListItem(rowIndex)); 
+        }
+        catch(Exception ex) 
+        {
+            MsgBox.err(ex); 
+        }
     } 
     
     public Object createExpressionBean(Object itemBean) 
@@ -1130,7 +1139,14 @@ public class DataTableComponent extends JTable implements TableControl
                     break;
                     
                 case KeyEvent.VK_DELETE:
-                    removeItem();                     
+                    removeItem();       
+                    EventQueue.invokeLater(new Runnable() {
+                        public void run() 
+                        {
+                            requestFocusInWindow(); 
+                            grabFocus();
+                        }
+                    });
                     break;
                     
                 case KeyEvent.VK_ENTER:

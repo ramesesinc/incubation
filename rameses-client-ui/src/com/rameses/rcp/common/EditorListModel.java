@@ -24,7 +24,7 @@ public class EditorListModel extends AbstractListDataProvider
     
     public List fetchList(Map params) { return DEFAULT_LIST; }    
     public Object createItem() { return new HashMap(); } 
-    
+        
     /*
      *  Needs to be implemented. This method is invoked when: 
      *  1) The ListItem is in a DRAFT state and about to be added in the list 
@@ -36,6 +36,8 @@ public class EditorListModel extends AbstractListDataProvider
      *  Method is invoked before adding it to the data list
      */
     protected void onAddItem(Object item) {}
+    
+    protected boolean onRemoveItem(Object item) { return false; }    
     
     /*
      *  Method is invoked before item selection changed
@@ -129,5 +131,37 @@ public class EditorListModel extends AbstractListDataProvider
         if (li == null) return;
         
         validate(li); 
+    }
+
+    public void fireRemoveItem(ListItem li) 
+    {
+        if (li == null) return;
+        if (li.getState() == ListItem.STATE_EMPTY) return;
+                
+        int index = li.getIndex();
+        getMessageSupport().removeErrorMessage(index); 
+                
+        if (li.getState() == ListItem.STATE_DRAFT) 
+        {
+            if (getListItem(index+1) == null)
+            {
+                li.loadItem(null, ListItem.STATE_EMPTY); 
+                tableModelSupport.fireTableRowsUpdated(index, index); 
+            }
+            else 
+            {
+                getDataList().remove(index); 
+                getListItems().remove(index); 
+                tableModelSupport.fireTableRowsDeleted(index, index); 
+            }
+        }
+        else 
+        {
+            if (!onRemoveItem(li.getItem())) return;
+
+            int itemIndex = getListItems().indexOf(li); 
+            int dataIndex = getDataList().indexOf(li.getItem());             
+            if (dataIndex < 0 && itemIndex == index) refresh(false); 
+        }
     }
 }

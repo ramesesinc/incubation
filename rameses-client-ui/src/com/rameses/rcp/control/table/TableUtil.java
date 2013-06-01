@@ -9,7 +9,6 @@ package com.rameses.rcp.control.table;
 
 import com.rameses.common.ExpressionResolver;
 import com.rameses.rcp.common.AbstractListDataProvider;
-import com.rameses.rcp.common.AbstractListModel;
 import com.rameses.rcp.common.CheckBoxColumnHandler;
 import com.rameses.rcp.common.Column;
 import com.rameses.rcp.common.ComboBoxColumnHandler;
@@ -473,6 +472,9 @@ public final class TableUtil
                     Object bean = columnValue;
                     if (table.getModel() instanceof DataTableModel)
                         bean = ((DataTableModel) table.getModel()).getItem(row); 
+                    
+                    if (table instanceof DataTableComponent) 
+                        bean = ((DataTableComponent) table).createExpressionBean(bean); 
                     
                     columnValue = UIControlUtil.evaluateExpr(bean, c.getExpression()); 
                 } 
