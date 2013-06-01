@@ -40,6 +40,7 @@ import javax.swing.JLabel;
 import javax.swing.JRootPane;
 import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.TableModelEvent;
 
 public class DataTableComponent extends JTable implements ListModelListener, TableControl 
 {    
@@ -89,10 +90,10 @@ public class DataTableComponent extends JTable implements ListModelListener, Tab
         super.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         
         tableModel = new DataTableModel();
+        setTableHeader(new DataTableHeader(this));
         getTableHeader().setReorderingAllowed(false);
-        getTableHeader().setDefaultRenderer(TableUtil.getHeaderRenderer());
-        addKeyListener(new TableKeyAdapter());
         
+        addKeyListener(new TableKeyAdapter());        
         addComponentListener(new ComponentAdapter() {
             public void componentResized(ComponentEvent e) {
                 hideEditor(false);
@@ -307,9 +308,14 @@ public class DataTableComponent extends JTable implements ListModelListener, Tab
         }
     }
     
-    public void setTableHeader(JTableHeader tableHeader) {
+    public void setTableHeader(JTableHeader tableHeader) 
+    {
         super.setTableHeader(tableHeader);
-        tableHeader.addMouseMotionListener(new MouseMotionAdapter() {
+        JTableHeader tblHeader = getTableHeader(); 
+        if (tblHeader == null) return;
+        
+        tblHeader.setDefaultRenderer(TableUtil.getHeaderRenderer());
+        tblHeader.addMouseMotionListener(new MouseMotionAdapter() {
             public void mouseDragged(MouseEvent e) {
                 hideEditor(false);
             }
@@ -371,9 +377,7 @@ public class DataTableComponent extends JTable implements ListModelListener, Tab
                         return;
                     }
 
-                    if (item.getState() == ListItem.STATE_DRAFT)
-                        tableModel.commit(item);
-                        
+                    tableModel.commit(item);                        
                     editingRow = -1;
                 } 
                 catch(Exception ex) 
@@ -400,7 +404,16 @@ public class DataTableComponent extends JTable implements ListModelListener, Tab
     
     // </editor-fold>
     
-    //<editor-fold defaultstate="collapsed" desc="  list model listener methods  ">
+    // <editor-fold defaultstate="collapsed" desc="  list model listener methods  ">
+    
+    public void tableChanged(TableModelEvent e) 
+    {
+        if (getSelectedRow() >= getRowCount()) 
+            setRowSelectionInterval(0, 0); 
+
+        super.tableChanged(e); 
+    }
+
     public void refreshList() {
         if ( editingMode ) hideEditor(false);
         if ( !rowCommited ) {
@@ -448,7 +461,8 @@ public class DataTableComponent extends JTable implements ListModelListener, Tab
         tableListener.rowChanged();
     }
     
-    public void rebuildColumns() {
+    public void rebuildColumns() 
+    {
         tableModel = new DataTableModel();
         tableModel.setListModel(listModel);
         setModel(tableModel);
@@ -472,7 +486,8 @@ public class DataTableComponent extends JTable implements ListModelListener, Tab
             repaint();
         }
     }
-    //</editor-fold>
+    
+    // </editor-fold>
     
     //<editor-fold defaultstate="collapsed" desc="  row movements/actions support  ">
     public void movePrevRecord() {

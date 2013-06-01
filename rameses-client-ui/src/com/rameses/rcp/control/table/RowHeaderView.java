@@ -7,6 +7,7 @@
 
 package com.rameses.rcp.control.table;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -15,30 +16,33 @@ import java.awt.LayoutManager;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JTable;
-import javax.swing.SwingUtilities;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 
 
-public class RowHeaderView extends JPanel {
-    
+public class RowHeaderView extends JPanel implements TableModelListener
+{
     private int rowCount;
     private int currentRow = -1;
     private JTable table;
     
-    public RowHeaderView(JTable table) {
+    public RowHeaderView(JTable table) 
+    {
         this.table = table;
         setLayout(new RowHeaderLayout());
     }
     
-    public void setRowCount(int rowCount) {
+    public void setRowCount(int rowCount) 
+    {
         if ( this.rowCount == rowCount ) return;
+        
         this.rowCount = rowCount;
         
         removeAll();
         JComponent label = null;
         for (int i = 0; i < rowCount; ++i) {
-            add(new RowHeader(table.getGridColor()));
+            add(new RowHeader(table));
         }
-        SwingUtilities.updateComponentTreeUI(this);
     }
     
     public void clearEditing() {
@@ -57,10 +61,17 @@ public class RowHeaderView extends JPanel {
         rh.edit(true);
         currentRow = row;
     }
+
+    public void tableChanged(TableModelEvent e) 
+    {
+        setRowCount(table.getRowCount());
+        repaint();
+    }
     
-    //<editor-fold defaultstate="collapsed" desc="  RowHeaderLayout (Class) ">
-    private class RowHeaderLayout implements LayoutManager {
-        
+    // <editor-fold defaultstate="collapsed" desc="  RowHeaderLayout (Class) ">
+    
+    private class RowHeaderLayout implements LayoutManager 
+    {        
         public void addLayoutComponent(String name, Component comp) {;}
         public void removeLayoutComponent(Component comp) {;}
         
@@ -111,6 +122,6 @@ public class RowHeaderView extends JPanel {
             }
         }
     }
-    //</editor-fold>
-
+    
+    // </editor-fold>
 }

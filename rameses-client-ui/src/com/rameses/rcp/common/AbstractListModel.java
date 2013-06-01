@@ -266,31 +266,36 @@ public abstract class AbstractListModel implements Runnable
     
     // <editor-fold defaultstate="collapsed" desc=" Called by the DataTableModel "> 
  
-    public final void commit(ListItem item) 
+    public final void commit(ListItem oListItem) 
     {
-        if (!(item.getState() == ListItem.STATE_DRAFT)) 
-            throw new IllegalStateException("Unable to commit item. The ListItem state must be STATE_DRAFT");
+        if (dataList == null) throw new NullPointerException("dataList is not initialized"); 
         
-        if (dataList == null) 
-            throw new NullPointerException("dataList is not initialized"); 
+        int state = oListItem.getState();
+        if (!(state == ListItem.STATE_DRAFT || state == ListItem.STATE_EDIT)) 
+            throw new IllegalStateException("Unable to commit item. The ListItem must be in STATE_DRAFT or STATE_EDIT");
 
-        Object o = item.getItem(); 
-        validate(item); 
-        onAddItem(o); 
+        validate(oListItem); 
 
-        int index = item.getIndex();        
-        int size = dataList.size();
-        if (size == index) { 
-            dataList.add(o); 
-        } 
-        else if (index >= 0 && index < size) {
-            dataList.set(index, o); 
-        } 
-        else { 
-            return; 
+        Object oItem = oListItem.getItem(); 
+        if (state == ListItem.STATE_DRAFT) 
+        {
+            onAddItem(oItem);
+            
+            int index = oListItem.getIndex();        
+            int size = dataList.size();
+            if (size == index) { 
+                dataList.add(oItem); 
+            } 
+            else if (index >= 0 && index < size) {
+                dataList.set(index, oItem); 
+            } 
+            else { 
+                return; 
+            } 
         } 
         
-        item.setState(ListItem.STATE_SYNC);         
+        onCommitItem(oItem);        
+        oListItem.setState(ListItem.STATE_SYNC);         
     } 
     
     // </editor-fold> 
@@ -338,7 +343,12 @@ public abstract class AbstractListModel implements Runnable
         return false; 
     }
     
-    
+    public final void rebuildIndexes() 
+    {
+        for (int i=0; i<items.size(); i++) {
+            items.get(i).setIndex(i); 
+        }
+    }    
     
     /**
      * This method is called to build the ListItem objects based on
@@ -488,34 +498,21 @@ public abstract class AbstractListModel implements Runnable
     }
     
     //call back methods need to be supplied by the client.
-    public Object onOpenItem( Object o, String columnName ) {
-        //do nothing
-        return null;
-    }
+    public Object onOpenItem( Object o, String columnName ) { return null; } 
     
-    public void onAddItem(Object o) {
-        //do nothing
-    }
+    public void onCommitItem(Object o) {}
+    
+    public void onAddItem(Object o) {}
+    
+    public void onColumnUpdate(Object o, String colName) {}    
     
     /**
      * this method had been deprecated in favor of #onColumnUpdate
      */
     @Deprecated
-    public void onUpdateItem(Object o) {
-        //do nothing.
-    }
-    
-    public void onColumnUpdate(Object o, String colName) {
-        //do nothing.
-    }
-    
-    public void onRemoveItem(Object o) {
-        //throw new IllegalStateException("Error remove item. onRemoveItem(Object item) must be implemented.");
-    }
-    
-    public void onReplaceItem( Object oldValue, Object o ) {
-        //throw new IllegalStateException("Error ListItem.setItem. onReplaceItem(Object oldItem,Object newItem) must be implemented.");
-    }
+    public void onUpdateItem(Object o) {}    
+    public void onRemoveItem(Object o) {}
+    public void onReplaceItem( Object oldValue, Object o ) {}
     
     /**
      * called on before the fetch is executed
@@ -574,9 +571,7 @@ public abstract class AbstractListModel implements Runnable
     
     
     //overridable. throw exception if there is validation error
-    public void validate(ListItem item) {
-        
-    }
+    public void validate(ListItem item) {}
     
     public List getDataList() {
         return dataList;
@@ -674,6 +669,7 @@ public abstract class AbstractListModel implements Runnable
         }
         return primaryColumn;
     }
+
  
     
     public static enum FetchMode

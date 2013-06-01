@@ -171,17 +171,25 @@ public abstract class BasicListModel extends AbstractListModel
 
     public boolean removeListItemAt(int rowIndex) 
     {
-        ListItem liA = getListItem(rowIndex); 
-        if (liA == null) return false;
+        if (rowIndex >= 0 && rowIndex < getItemList().size() ) 
+        {
+            getItemList().remove(rowIndex); 
+            rebuildIndexes(); 
+            return true; 
+        }
+        return false; 
         
-        ListItem liB = getListItem(rowIndex+1); 
-        if (liB == null) return false; 
-        
-        items.remove(liA); 
-        //if (tableModel != null) 
-            //tableModel.fireTableRowsDeleted(rowIndex, rowIndex);
-        
-        return true; 
+//        ListItem liA = getListItem(rowIndex); 
+//        if (liA == null) return false;
+//        
+//        ListItem liB = getListItem(rowIndex+1); 
+//        if (liB == null) return false; 
+//        
+//        items.remove(liA); 
+//        //if (tableModel != null) 
+//            //tableModel.fireTableRowsDeleted(rowIndex, rowIndex);
+//        
+//        return true; 
     }
     
 }

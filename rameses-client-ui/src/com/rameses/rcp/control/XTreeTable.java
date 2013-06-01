@@ -411,7 +411,7 @@ public class XTreeTable extends JPanel implements UIOutput, TreeTableListener, F
             removeAll();
             JComponent label = null;
             for (int i = 0; i < rowCount; ++i) {
-                add(new RowHeader(table.getGridColor()));
+                add(new RowHeader(table));
             }
             SwingUtilities.updateComponentTreeUI(this);
         }

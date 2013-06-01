@@ -61,8 +61,10 @@ public class DataTableModel extends AbstractTableModel implements TableControlMo
     }
     
     
-    public int getRowCount() {
-        return listModel.getItemList().size();
+    public int getRowCount() 
+    {
+        int size = listModel.getItemList().size();
+        return size;
     }
     
     public Column getColumn(int index) 
@@ -178,18 +180,35 @@ public class DataTableModel extends AbstractTableModel implements TableControlMo
         
         int rowIndex = li.getIndex(); 
         listModel.removeErrorMessage(rowIndex); 
-
         
-        
-        if (listModel.removeListItemAt(rowIndex)) 
+        if (rowIndex < getRowCount()) 
         {
-            if (getListItem(rowIndex) != null) 
+            if (listModel.removeListItemAt(rowIndex))  
+            {
+                listModel.rebuildIndexes(); 
+                fireTableRowsDeleted(rowIndex, rowIndex); 
+            }
+            else
                 fireTableRowsUpdated(rowIndex, rowIndex); 
         }
         else 
         {
-            listModel.replaceListItem(li); 
+            li.loadItem(null);
+            li.setState(ListItem.STATE_EMPTY); 
             fireTableRowsUpdated(rowIndex, rowIndex); 
         }
+        
+//        if (listModel.removeListItemAt(rowIndex)) 
+//        {
+//            if (rowIndex+1 == getRowCount())
+//            
+//            if (getListItem(rowIndex) != null) 
+//                fireTableRowsUpdated(rowIndex, getRowCount()-1); 
+//        }
+//        else 
+//        {
+//            listModel.replaceListItem(li); 
+//            fireTableRowsUpdated(rowIndex, rowIndex); 
+//        }
     }
 }

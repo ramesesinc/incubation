@@ -15,6 +15,7 @@ import com.rameses.rcp.common.ListItem;
 import com.rameses.rcp.common.MsgBox;
 import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.control.table.DataTableComponent;
+import com.rameses.rcp.control.table.DataTableHeader;
 import com.rameses.rcp.control.table.TableDelayedActionMgr;
 import com.rameses.rcp.control.table.ListScrollBar;
 import com.rameses.rcp.control.table.RowHeaderView;
@@ -240,9 +241,12 @@ public class XDataTable extends JPanel implements UIInput, TableListener, Valida
             table.setBinding(binding);
             table.setListModel(listModel);
             scrollBar.setListModel(listModel);
-
             if (rowHeaderView != null) 
+            {
+                table.getModel().removeTableModelListener(rowHeaderView);                
                 rowHeaderView.setRowCount(listModel.getRows()); 
+                table.getModel().addTableModelListener(rowHeaderView);
+            }
         } 
     }
     
@@ -460,8 +464,8 @@ public class XDataTable extends JPanel implements UIInput, TableListener, Valida
         
         if ( showRowHeader ) 
         {
-            Color gridColor = getGridColor();
-            scrollPane.setCorner(JScrollPane.UPPER_LEFT_CORNER, TableUtil.getTableCornerComponent(gridColor));
+            JComponent leftCorner = new DataTableHeader.CornerBorder(table, JScrollPane.UPPER_LEFT_CORNER).createComponent();
+            scrollPane.setCorner(JScrollPane.UPPER_LEFT_CORNER, leftCorner); 
             scrollPane.setRowHeaderView( (rowHeaderView = new RowHeaderView(table)) );
             rowHeaderView.setRowCount( table.getRowCount() );
         } 
