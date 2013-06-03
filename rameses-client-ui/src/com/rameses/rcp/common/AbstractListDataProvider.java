@@ -127,8 +127,8 @@ public abstract class AbstractListDataProvider
     protected void onafterFetchList(List resultList) {}
 
     public int getTopRow() { return 0; }
-    public void setTopRow(int topRow) {}
-        
+    public void setTopRow(int topRow) {}  
+            
     public int getMaxRows() { return getRowCount(); }     
     public int getRowCount() { return fetchedRows; }
     public int getRows() { return -1; }
@@ -180,7 +180,7 @@ public abstract class AbstractListDataProvider
             selectedItem = null; 
         
         onselectedItemChanged(selectedItem); 
-        propertySupport.firePropertyChange("selectedItemChanged", selectedItem); 
+        fireSelectedItemChanged();  
     } 
     
     protected Object onOpenItem(Object item, String columnName) { return null; }
@@ -333,6 +333,18 @@ public abstract class AbstractListDataProvider
     protected void onreplaceSelectedItem(Object oldItem, Object newItem) {}
     
     
+    /*
+     *  notify events
+     */
+    public void fireSelectedItemChanged() { 
+        propertySupport.firePropertyChange("selectedItemChanged", selectedItem); 
+    }
+    
+    public void fireFocusSelectedItem() {
+        propertySupport.firePropertyChange("focusSelectedItem", selectedItem); 
+    } 
+    
+    
     // <editor-fold defaultstate="collapsed" desc=" ListItem helper methods "> 
     
     protected ListItem createCustomListItem() {
@@ -468,7 +480,7 @@ public abstract class AbstractListDataProvider
     }    
     
     protected void refreshSelectedItem() { 
-        propertySupport.firePropertyChange("focusSelectedItem", selectedItem); 
+        fireFocusSelectedItem(); 
     } 
     
     // </editor-fold>

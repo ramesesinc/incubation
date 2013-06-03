@@ -458,7 +458,6 @@ public class XDataTable extends JPanel implements UIInput, Validatable, FocusLis
             });
             
             setVisible( scrollBar.isVisible() );
-            add(TableUtil.getTableCornerComponent(getGridColor()), BorderLayout.NORTH);
             add(scrollBar, BorderLayout.CENTER);
         }        
     }

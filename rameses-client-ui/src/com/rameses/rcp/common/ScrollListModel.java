@@ -68,6 +68,7 @@ public abstract class ScrollListModel extends AbstractListDataProvider implement
     {
         ListItem selItem = getSelectedItem();
         int selIndex = (selItem == null? 0: selItem.getIndex());
+        int selRownum = (selItem == null? 0: selItem.getRownum());
         
         if (getDataList() == null || forceLoad) 
         {
@@ -117,8 +118,11 @@ public abstract class ScrollListModel extends AbstractListDataProvider implement
         else //if (isLastItem(selItem))
         {
             int baseIndex = ((toprow-minlimit)-getRows())+1; 
-            if (selIndex == 0) baseIndex = (toprow-minlimit);
+            if (selIndex == 0) baseIndex = (toprow-minlimit);            
             
+            baseIndex = (toprow - Math.max(selIndex, 0)) - minlimit; 
+            if (baseIndex < 0) baseIndex = 0;
+
             List sublist = subList(getDataList(), baseIndex, getRows()); 
             fillListItems(sublist, minlimit+baseIndex);  
         }
@@ -157,26 +161,15 @@ public abstract class ScrollListModel extends AbstractListDataProvider implement
         if (getMessageSupport().hasErrorMessages()) return;
         if (getSelectedItem() == null) return; 
                 
-        int idx = getListItems().indexOf(getSelectedItem()); 
-        if (idx >= 0 && idx+1 < getListItems().size()) 
+        int newToprow = getSelectedItem().getRownum()+1;
+        if (isTopRowVisible(newToprow))
         {
-            setSelectedItem(idx+1);
-            refreshSelectedItem(); 
-        }  
-        else 
-        {
-            ListItem selItem = getSelectedItem();
-            int newToprow = selItem.getRownum()+1;
-            if (newToprow < (minlimit+preferredRows) && newToprow <= (minlimit+fetchedRows)) 
-            {
-                toprow = newToprow; 
-                refresh();
-            } 
-            else if (hasMoreRecords) 
-            {
-                toprow = newToprow; 
-                refresh(true); 
-            }
+            ListItem li = getListItemByRownum(newToprow); 
+            setSelectedItem(li.getIndex()); 
+            fireFocusSelectedItem(); 
+        } 
+        else {  
+            moveTopRowUp(newToprow); 
         }
     }
     
@@ -186,24 +179,16 @@ public abstract class ScrollListModel extends AbstractListDataProvider implement
         if (getMessageSupport().hasErrorMessages()) return;
         if (getSelectedItem() == null) return; 
         
-        int idx = getListItems().indexOf(getSelectedItem())-1; 
-        if (idx >= 0 && idx < getListItems().size()) 
+        int newToprow = getSelectedItem().getRownum()-1;
+        if (isTopRowVisible(newToprow))
         {
-            setSelectedItem(idx);
-            refreshSelectedItem(); 
-        }  
-        else 
-        {
-            ListItem selItem = getSelectedItem();
-            int newToprow = selItem.getRownum()-1;
-            if (newToprow < 0) return;
-            
-            toprow = newToprow;
-            if (newToprow >= minlimit) 
-                refresh();
-            else 
-                refresh(true); 
-        } 
+            ListItem li = getListItemByRownum(newToprow); 
+            setSelectedItem(li.getIndex()); 
+            fireFocusSelectedItem(); 
+        }         
+        else { 
+            moveTopRowDown(newToprow); 
+        }
     } 
     
     public void moveNextPage() 
@@ -211,22 +196,18 @@ public abstract class ScrollListModel extends AbstractListDataProvider implement
         //do not scroll when there are error in validation
         if (getMessageSupport().hasErrorMessages()) return;
         if (getSelectedItem() == null) return; 
+        if (isLastPage()) return;
         
         int newToprow = toprow + getRows();
-        if (newToprow < (minlimit+preferredRows)) 
+        if (newToprow >= (minlimit+preferredRows) && fetchedRows > preferredRows) 
         {
-            refresh();
-        }
-        else 
+            this.toprow = newToprow;
+            refresh(true);
+        } 
+        else  
         {
-            
-        }
-        
-        if (!isLastPage()) 
-        {
-            toprow = toprow+getRows();
-            refresh();
-            //refreshSelectedItem();
+            this.toprow = newToprow;
+            refresh();            
         }
     }
     
@@ -234,13 +215,16 @@ public abstract class ScrollListModel extends AbstractListDataProvider implement
     {
         //do not scroll when there are error in validation
         if (getMessageSupport().hasErrorMessages()) return;
+        if (getSelectedItem() == null) return; 
         
-        if (toprow-getRows() >= 0) 
-        {
-            toprow = toprow-getRows();
+        int newToprow = toprow - getRows();
+        if (newToprow < 0) newToprow = 0;
+        
+        this.toprow = newToprow;
+        if (newToprow < minlimit && minlimit > 0)  
+            refresh(true);
+        else 
             refresh();
-            //refreshSelectedItem();
-        }
     }
     
     public void moveFirstPage() 
@@ -262,18 +246,56 @@ public abstract class ScrollListModel extends AbstractListDataProvider implement
     public int getTopRow() { return toprow; }    
     public void setTopRow( int toprow ) 
     {
-        System.out.println("setTopRow: " + toprow);
         //do not scroll when there are error in validation
         if (getMessageSupport().hasErrorMessages()) return;
         
         //if the toprow is current do not proceed.
         if (this.toprow == toprow) return;
-        if (toprow <= getMaxRows()) 
+        if (isTopRowVisible(toprow))
         {
-            this.toprow = toprow; 
-            refresh(); 
+            ListItem li = getListItemByRownum(toprow); 
+            setSelectedItem(li.getIndex()); 
+            fireFocusSelectedItem(); 
+        }
+        else if (toprow > this.toprow) {
+            moveTopRowUp(toprow);
+        }
+        else if (toprow < this.toprow) {
+            moveTopRowDown(toprow);
         }
     }
+    
+    private void moveTopRowUp(int newToprow) 
+    {
+        int xlimit = (minlimit + preferredRows);
+        if (newToprow >= xlimit && fetchedRows > preferredRows) 
+        {
+            this.toprow = newToprow;
+            refresh(true);
+        }
+        else if (newToprow <= (minlimit + fetchedRows))
+        {
+            this.toprow = newToprow; 
+            refresh();
+        }
+    }
+    
+    private void moveTopRowDown(int newToprow) 
+    {
+        this.toprow = Math.max(newToprow, 0);        
+        if (newToprow < minlimit && minlimit > 0) 
+            refresh(true);
+        else 
+            refresh();
+    }   
+    
+    private int getPageViewIndex(int toprow) 
+    {
+        int index = toprow / getRows(); 
+        int rem = toprow % getRows(); 
+        return (rem > 0? index+1: index); 
+    }
+    
 
     protected void onselectedItemChanged(ListItem li) { 
         this.toprow = (li == null? 0: li.getRownum());  
@@ -316,4 +338,15 @@ public abstract class ScrollListModel extends AbstractListDataProvider implement
     
     public int getMaxRows() { return maxRows; }    
     public int getPageCount() { return pageCount; }
+    
+    private boolean isTopRowVisible(int toprow) 
+    {
+        ListItem firstLI = getFirstItem(); 
+        if (firstLI == null) return false;
+        
+        ListItem lastLI = getLastItem(); 
+        if (lastLI == null) return false;
+        
+        return (toprow >= firstLI.getRownum() && toprow <= lastLI.getRownum()); 
+    }
 }

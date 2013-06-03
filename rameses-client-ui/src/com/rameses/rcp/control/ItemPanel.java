@@ -62,7 +62,8 @@ public class ItemPanel extends JPanel {
     }
     
     //<editor-fold defaultstate="collapsed" desc="  initComponents  ">
-    private void initComponents(XFormPanel parent, Component editor, Component container) {
+    private void initComponents(XFormPanel parent, Component editor, Component container) 
+    {
         this.formPanel = parent;
         this.editor = editor;
         this.editorWrapper = container;

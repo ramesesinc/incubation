@@ -71,12 +71,9 @@ public class ListScrollBar extends JScrollBar implements AdjustmentListener
     
     public void adjustmentValueChanged(AdjustmentEvent e) 
     {
-        try 
-        {
+        try {
             dataProvider.setTopRow(e.getValue());
-            dataProvider.refresh();
-        } 
-        catch(Exception ex) {
+        } catch(Exception ex) {
             MsgBox.err(ex); 
         }
     }

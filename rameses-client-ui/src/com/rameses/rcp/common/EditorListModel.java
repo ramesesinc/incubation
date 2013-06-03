@@ -92,13 +92,6 @@ public class EditorListModel extends AbstractListDataProvider
         
         validate(li);
         onAddItem(li.getItem()); 
-        
-        int dataIndex = getDataList().indexOf(li.getItem());
-        if (dataIndex < 0)
-            getDataList().add(li.getItem()); 
-        else    
-            getDataList().set(dataIndex, li.getItem()); 
-        
         li.setState(ListItem.STATE_SYNC); 
     }
     

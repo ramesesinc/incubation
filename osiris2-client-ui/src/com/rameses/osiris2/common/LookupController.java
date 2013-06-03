@@ -71,11 +71,13 @@ public abstract class LookupController extends LookupModel
     public List getFormActions() { 
         return new ArrayList(); 
     } 
+
+    public int getRows() { return 10; }
     
     public List getNavActions() { 
         return new ArrayList(); 
     }
-    
+       
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" Options ">  
