@@ -5,8 +5,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public abstract class ScrollListModel extends AbstractListModel 
+public abstract class ScrollListModel extends AbstractListDataProvider implements ListPageModel 
 {
+    public final static int PAGE_FIRST         = 0;
+    public final static int PAGE_BACK          = 1;
+    public final static int PAGE_NEXT          = 2;
+    public final static int PAGE_LAST          = 3;
+    public final static int PAGE_BACK_RECORD   = 4;
+    public final static int PAGE_NEXT_RECORD   = 5;    
+    
     protected int pageIndex = 1;
     protected int pageCount = 1;
     
@@ -20,31 +27,23 @@ public abstract class ScrollListModel extends AbstractListModel
     protected String searchtext;
     
     private Map query = new HashMap(); 
-    
-    /**
-     * forceLoad is used to force the loading without emptying the dataList
-     */
-    protected boolean forceLoad;
-    
-    public ScrollListModel() {}
-    
-    
-    // <editor-fold defaultstate="collapsed" desc="  Getters/Setters  ">    
+    private boolean hasMoreRecords;
+    private int preferredRows;
+    private int fetchedRows;
+    private int pageMode = PAGE_FIRST;
     
     public Map getQuery() { return query; } 
     
-    public String getSearchtext() { return searchtext; }    
+    public String getSearchtext() {  return searchtext; }     
     public void setSearchtext(String searchtext) 
     { 
         this.searchtext = searchtext; 
-        
-        Map q = getQuery();
-        if (q != null) q.put("searchtext", searchtext); 
+        getQuery().put("searchtext", searchtext); 
     }    
     
-    // </editor-fold>
-    
-    
+    public Object createItem() { 
+        return new HashMap(); 
+    }     
     
     public void load() 
     {
@@ -57,101 +56,91 @@ public abstract class ScrollListModel extends AbstractListModel
         super.load();
     }
     
-    protected void fetch() 
+    public int getRows() { return 10; }    
+    
+    protected void onbeforeFetchList(Map params) 
     {
-        if( dataList ==null || toprow < minlimit || toprow+getRows() > maxlimit || forceLoad ) 
+        Map qry = getQuery();
+        if (qry != null) params.putAll(qry); 
+    }
+        
+    protected void fetch(boolean forceLoad) 
+    {
+        ListItem selItem = getSelectedItem();
+        int selIndex = (selItem == null? 0: selItem.getIndex());
+        
+        if (getDataList() == null || forceLoad) 
         {
+            preferredRows = getRows() * 3;            
             minlimit = toprow - getRows();
             if (minlimit < 0) minlimit = 0;
             
-            //add extra row to see if this is last page.
-            int fetchRows = (getRows() * 3) + 1;
+            Map params = new HashMap();
+            onbeforeFetchList(params);
             
-            Map m = getQuery();
-            if (m == null) m = new HashMap();
-            if (m.get("searchtext") == null)
-                m.put("searchtext", getSearchtext()); 
+            params.put("_toprow", toprow);
+            params.put("_start", minlimit);
+            params.put("_rowsize", preferredRows+1);
+            params.put("_limit", preferredRows+1);
             
-            m.put("_toprow", toprow );
-            m.put("_start", minlimit );
-            m.put("_rowsize", fetchRows );
-            m.put("_limit", fetchRows );
-            dataList = fetchList(m);
+            List resultList = fetchList(params);
+            if (resultList == null) resultList = new ArrayList();
             
-            boolean lastPage = true;
-            
-            if ( dataList.size() >= fetchRows ) 
+            onafterFetchList(resultList); 
+            fetchedRows = resultList.size(); 
+            hasMoreRecords = false; 
+            if (resultList.size() > preferredRows) 
             {
-                lastPage = false;
-                dataList.remove(dataList.size()-1);
-            }
+                hasMoreRecords = true;                
+                resultList.remove(resultList.size()-1); 
+            } 
             
-            //calculate the maximum number of rows first.
-            int tmpMaxRows = minlimit + dataList.size()-1;
+            setDataList(resultList); 
+            
+            // calculate the maximum number of rows first.
+            int tmpMaxRows = minlimit + resultList.size()-1;
             if (isAllocNewRow()) tmpMaxRows = tmpMaxRows + 1;
-            if ( tmpMaxRows > maxRows ) maxRows = tmpMaxRows;
+            if (tmpMaxRows > maxRows) maxRows = tmpMaxRows;
             
             //calculate the maximum limit to trigger next fetch.
             maxlimit = toprow + (getRows()*2)-1;
             if (maxlimit > maxRows) maxlimit = maxRows;
             
             //determine total page count. add extra page if not yet last page.
-            pageCount = ((maxRows+1)/getRows()) + ( ((maxRows+1)%getRows())>0?1:0 );
+            pageCount = ((maxRows+1)/getRows()) + ( ((maxRows+1)%getRows())>0?1:0 ); 
         }
-        
-        //reset the paging info
-        if (selectedItem!=null) 
-        {
-            //pageIndex = (selectedItem.getRownum()/ getRows())+1;
-            pageIndex = (toprow / getRows())+1;
+
+        pageIndex = (toprow/getRows())+1; 
+        if (toprow==0 && minlimit==0) {
+            fillListItems(getDataList(), minlimit);  
         } 
-        else 
+        else //if (isLastItem(selItem))
         {
-            pageIndex = 1;
-            setSelectedItem(0);
-        }
-        
-        //reset the force load.
-        List subList = null;
-        if ( dataList.size() > 0 ) 
-        {
-            int start = toprow - minlimit;
-            int tail = start + getRows();
-            if ( tail > dataList.size() ) tail = dataList.size();
+            int baseIndex = ((toprow-minlimit)-getRows())+1; 
+            if (selIndex == 0) baseIndex = (toprow-minlimit);
             
-            subList = dataList.subList(start, tail);
-        } 
-        else {
-            subList = new ArrayList();
+            List sublist = subList(getDataList(), baseIndex, getRows()); 
+            fillListItems(sublist, minlimit+baseIndex);  
         }
         
-        fillListItems(subList,toprow);
-        forceLoad = false;
-    }
+        if (selItem != null) setSelectedItem(selIndex);
+        if (selItem == null) setSelectedItem(0); 
+    } 
     
-    public void addItem(Object item) 
+    private List subList(List source, int start, int length) 
     {
-        if ( item instanceof ListItem )
-            throw new IllegalStateException("Unable to add item to the list. The item object must be an instanceof ListItem");
+        List list = new ArrayList();
+        if (source == null || source.isEmpty()) return list;
         
-        onAddItem(item);
-        forceLoad = true;
-        refresh();
+        for (int i=start, len=start+length; i<len; i++) 
+        {
+            try { 
+                list.add(source.get(i));
+            } catch(Exception ex) {;} 
+        } 
+        return list;
     }
-        
-    public void removeItem(Object item) 
-    {
-        if ( item instanceof ListItem )
-            throw new IllegalStateException("Unable to remove item from the list. The item object must be an instanceof ListItem");
-        
-        onRemoveItem( item );
-        forceLoad = true;
-        refresh();
-        if (getSelectedItem().getIndex() > 0 && getSelectedItem().getState()==0) 
-            setSelectedItem( items.get(getSelectedItem().getIndex()-1) );
-    }
-    
-    
+
     
     /**
      * for moveNextPage,moveBackPage we need to force the loading.
@@ -159,65 +148,108 @@ public abstract class ScrollListModel extends AbstractListModel
      * if maxRows < 0 meaning the maxRows was not determined.
      */
     public void moveNextRecord() {
+        moveNextRecord(true); 
+    }
+    
+    public void moveNextRecord(boolean includesEmptyItem) 
+    {
         //do not scroll when there are error in validation
-        if( super.hasErrorMessages() ) return;
-        
-        //do not do anything if list size is the same and there is no createItem.
-        if( dataList!=null && dataList.size()==getRows() && !isAllocNewRow() ) {
-            return;
-        }
-        
-        if(maxRows <0 || toprow < maxRows) {
-            toprow++;
-            refresh();
-            refreshSelectedItem();
+        if (getMessageSupport().hasErrorMessages()) return;
+        if (getSelectedItem() == null) return; 
+                
+        int idx = getListItems().indexOf(getSelectedItem()); 
+        if (idx >= 0 && idx+1 < getListItems().size()) 
+        {
+            setSelectedItem(idx+1);
+            refreshSelectedItem(); 
+        }  
+        else 
+        {
+            ListItem selItem = getSelectedItem();
+            int newToprow = selItem.getRownum()+1;
+            if (newToprow < (minlimit+preferredRows) && newToprow <= (minlimit+fetchedRows)) 
+            {
+                toprow = newToprow; 
+                refresh();
+            } 
+            else if (hasMoreRecords) 
+            {
+                toprow = newToprow; 
+                refresh(true); 
+            }
         }
     }
     
-    public void moveBackRecord() {
+    public void moveBackRecord() 
+    {
         //do not scroll when there are error in validation
-        if( super.hasErrorMessages() ) return;
+        if (getMessageSupport().hasErrorMessages()) return;
+        if (getSelectedItem() == null) return; 
         
-        if(toprow-1>=0) {
-            toprow--;
-            refresh();
-            refreshSelectedItem();
-        }
-    }
+        int idx = getListItems().indexOf(getSelectedItem())-1; 
+        if (idx >= 0 && idx < getListItems().size()) 
+        {
+            setSelectedItem(idx);
+            refreshSelectedItem(); 
+        }  
+        else 
+        {
+            ListItem selItem = getSelectedItem();
+            int newToprow = selItem.getRownum()-1;
+            if (newToprow < 0) return;
+            
+            toprow = newToprow;
+            if (newToprow >= minlimit) 
+                refresh();
+            else 
+                refresh(true); 
+        } 
+    } 
     
-    public void moveNextPage() {
+    public void moveNextPage() 
+    { 
         //do not scroll when there are error in validation
-        if( super.hasErrorMessages() ) return;
+        if (getMessageSupport().hasErrorMessages()) return;
+        if (getSelectedItem() == null) return; 
         
-        if(!isLastPage()) {
+        int newToprow = toprow + getRows();
+        if (newToprow < (minlimit+preferredRows)) 
+        {
+            refresh();
+        }
+        else 
+        {
+            
+        }
+        
+        if (!isLastPage()) 
+        {
             toprow = toprow+getRows();
-            forceLoad = true;
             refresh();
-            refreshSelectedItem();
+            //refreshSelectedItem();
         }
     }
     
-    public void moveBackPage() {
+    public void moveBackPage() 
+    {
         //do not scroll when there are error in validation
-        if( super.hasErrorMessages() ) return;
+        if (getMessageSupport().hasErrorMessages()) return;
         
-        if(toprow-getRows() >= 0 ) {
+        if (toprow-getRows() >= 0) 
+        {
             toprow = toprow-getRows();
-            forceLoad = true;
             refresh();
-            refreshSelectedItem();
+            //refreshSelectedItem();
         }
     }
     
-    public void moveFirstPage() {
+    public void moveFirstPage() 
+    {
         //do not scroll when there are error in validation
-        if( super.hasErrorMessages() ) return;
+        if (getMessageSupport().hasErrorMessages()) return;
         
         toprow = 0;
-        selectedItem = null;
-        forceLoad = true;
         refresh();
-        refreshSelectedItem();
     }
     
     /**
@@ -227,36 +259,36 @@ public abstract class ScrollListModel extends AbstractListModel
      * do nothing. toprow is possible only if
      * it it does not exceed getRowCount() - getRows()
      */
-    public void setTopRow( int t ) {
+    public int getTopRow() { return toprow; }    
+    public void setTopRow( int toprow ) 
+    {
+        System.out.println("setTopRow: " + toprow);
         //do not scroll when there are error in validation
-        if( super.hasErrorMessages() ) return;
+        if (getMessageSupport().hasErrorMessages()) return;
         
         //if the toprow is current do not proceed.
-        if( t == toprow)
-            return;
-        if( t <= getMaxRows()  ) {
-            toprow = t;
-            forceLoad = true;
-            refresh();
+        if (this.toprow == toprow) return;
+        if (toprow <= getMaxRows()) 
+        {
+            this.toprow = toprow; 
+            refresh(); 
         }
     }
-    
-    public int getTopRow() {
-        return toprow;
-    }
-    
+
+    protected void onselectedItemChanged(ListItem li) { 
+        this.toprow = (li == null? 0: li.getRownum());  
+    } 
+      
     public final void doSearch() {
         load();
     }
     
-    public int getPageIndex() {
-        return pageIndex;
-    }
+    public int getPageIndex() { return pageIndex; }
     
-    public int getRowCount() {
-        if(isAllocNewRow()) {
-            return maxRows - 1;
-        }
+    public int getRowCount() 
+    {
+        if (isAllocNewRow()) return maxRows - 1;
+
         return maxRows;
     }
     
@@ -270,23 +302,18 @@ public abstract class ScrollListModel extends AbstractListModel
      * list.
      */
     private Boolean allocNewRow;
-    protected boolean isAllocNewRow() {
-        if(allocNewRow==null) {
-            if(createItem()!=null) {
-                allocNewRow = new Boolean(true);
-            } else {
-                allocNewRow = new Boolean(false);
-            }
-        }
+    protected boolean isAllocNewRow() 
+    {
+        if (allocNewRow == null) 
+        {
+            if (createItem() != null) 
+                allocNewRow = new Boolean(true); 
+            else 
+                allocNewRow = new Boolean(false); 
+        } 
         return allocNewRow.booleanValue();
     }
     
-    public int getMaxRows() {
-        return maxRows;
-    }
-    
-    public int getPageCount() {
-        return pageCount;
-    }
-    
+    public int getMaxRows() { return maxRows; }    
+    public int getPageCount() { return pageCount; }
 }

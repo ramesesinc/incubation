@@ -33,6 +33,9 @@ public class LookupCellRenderer extends TextCellRenderer
                     Object bean = cellValue;
                     if (table.getModel() instanceof DataTableModel)
                         bean = ((DataTableModel) table.getModel()).getItem(rowIndex);
+                    
+                    if (table instanceof DataTableComponent) 
+                        bean = ((DataTableComponent) table).createExpressionBean(bean); 
 
                     cellValue = er.evalString(lkp.getExpression(), bean);
                 } 

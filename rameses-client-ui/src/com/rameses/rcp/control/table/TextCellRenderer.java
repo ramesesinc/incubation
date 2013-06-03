@@ -9,15 +9,9 @@
 
 package com.rameses.rcp.control.table;
 
-import com.rameses.common.ExpressionResolver;
 import com.rameses.rcp.common.Column;
-import com.rameses.rcp.framework.ClientContext;
-import java.math.BigDecimal;
-import java.sql.Time;
-import java.sql.Timestamp;
+import com.rameses.rcp.constant.TextCase;
 import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JTable;
@@ -59,7 +53,12 @@ public class TextCellRenderer extends AbstractCellRenderer
         this.colIndex = colIndex; 
         this.table = table; 
         
-        Object columnValue = resolveValue(value);        
+        Object columnValue = resolveValue(value); 
+        TextCase textCase = column.getTextCase();
+        if (textCase != null && columnValue != null) 
+            label.setText(textCase.convert(columnValue.toString())); 
+        
+        
         /*
         if ( "date".equals(type) || columnValue instanceof Date || columnValue instanceof Time || columnValue instanceof Timestamp ) 
         {            

@@ -10,17 +10,19 @@ package com.rameses.rcp.control.table;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
-import javax.swing.BorderFactory;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.SwingConstants;
 
-
-public class RowHeader extends TableHeaderRenderer {
+public class RowHeader extends TableHeaderRenderer 
+{    
+    private JTable table;
     
-    private Color borderColor;
-    
-    public RowHeader(Color borderColor) {
-        this.borderColor = borderColor;
-        setBorder(BorderFactory.createLineBorder(borderColor));
+    public RowHeader(JTable table) 
+    {
+        this.table = table;
+        setBorder(new DataTableHeader.CornerBorder(table, JScrollPane.UPPER_LEFT_CORNER)); 
+        //setBorder(BorderFactory.createLineBorder(borderColor));
         setPreferredSize(new Dimension(23,23));
         setHorizontalAlignment(SwingConstants.CENTER);
         setVerticalAlignment(SwingConstants.CENTER);

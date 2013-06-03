@@ -9,7 +9,6 @@ package com.rameses.rcp.common;
 
 import com.rameses.rcp.control.treetable.ItemStatus;
 import com.rameses.common.PropertyResolver;
-import com.rameses.rcp.framework.ClientContext;
 import com.rameses.util.CacheMap;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,13 +16,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 
-public abstract class TreeTableModel extends SubListModel {
-    
+public abstract class TreeTableModel extends SubListModel 
+{    
+    private PropertyResolver resolver = PropertyResolver.getInstance(); 
     private Map<Object, ItemStatus> statusIndex = new WeakHashMap();
     private int indentWidth = 10;
     private int selectedColumnIndex = 0;
-    
-    
+        
     private CacheMap cache = new CacheMap() {
         public Object fetch(Object key) {
             List items = fetchChildren(key);
@@ -48,7 +47,7 @@ public abstract class TreeTableModel extends SubListModel {
         Object id = getRowId(obj);
         cache.remove(id);
         
-        ArrayList arrayList = (ArrayList) dataList;
+        ArrayList arrayList = (ArrayList) getDataList();
         int idx = arrayList.indexOf(obj);
         ItemStatus status = getStatus(obj);
         int level = status.level;
@@ -76,47 +75,48 @@ public abstract class TreeTableModel extends SubListModel {
         }
     }
     
-    protected void fetch() 
+    protected void fetch(boolean forceLoad) 
     {
-        if ( dataList == null) 
+        List dataList = getDataList();
+        if (dataList == null) 
         {
             dataList = new ArrayList();
             
-            Map qry = getQuery();
-            if (qry == null) qry = new HashMap();
-            if (qry.get("searchtext") == null)
-                qry.put("searchtext", getSearchtext());
+            Map params = new HashMap();
+            onbeforeFetchList(params);
             
-            List result = fetchList(qry);
-            if (result != null) dataList.addAll(result);
-            
-            //if(isAllocNewRow()) maxRows = maxRows + 1;
+            List result = fetchList(params);
+            if (result != null) 
+            {
+                onafterFetchList(result);
+                dataList.addAll(result);
+            }
         }
         
         maxRows = dataList.size()-1;
         
         //reset the force load.
-        List subList = null;
-        if( dataList.size() > 0 ) {
+        List subList = new ArrayList();
+        if (dataList.size() > 0) 
+        {
             int tail = toprow + getRows();
-            if( tail > dataList.size() ) tail = dataList.size();
+            if (tail > dataList.size()) tail = dataList.size();
+            
             subList = dataList.subList(toprow, tail);
-        } else {
-            subList = new ArrayList();
         }
-        fillListItems(subList,toprow);
         
-        if(selectedItem!=null) {
-            pageIndex = (selectedItem.getRownum()/ getRows())+1;
-        } else {
+        fillListItems(subList, toprow);
+        
+        if (getSelectedItem() != null) 
+            pageIndex = (getSelectedItem().getRownum()/ getRows())+1;
+        
+        else 
+        {
             pageIndex = 1;
             setSelectedItem(0);
         }
+        
         pageCount = ((maxRows+1) / getRows()) + (((maxRows+1) % getRows()>0)?1:0);
-    }
-    
-    public List getDataList() {
-        return dataList;
     }
     
     public abstract List fetchChildren(Object parent);
@@ -126,20 +126,24 @@ public abstract class TreeTableModel extends SubListModel {
         return null;
     }
     
-    private Object getRowId(Object obj) {
+    private Object getRowId(Object obj) 
+    {
         Column col = getPrimaryColumn();
-        if( col != null ) {
-            PropertyResolver resolver = PropertyResolver.getInstance();
+        if ( col != null ) 
+        {
             return resolver.getProperty(obj, col.getName());
-        } else {
+        } 
+        else {
             return obj;
         }
     }
     
-    public final ItemStatus getStatus(Object obj) {
+    public final ItemStatus getStatus(Object obj) 
+    {
         Object id = getRowId(obj);
         ItemStatus status = statusIndex.get(id);
-        if( status == null ) {
+        if ( status == null ) 
+        {
             status = new ItemStatus();
             status.level = 0;
             statusIndex.put(id, status);
@@ -161,28 +165,34 @@ public abstract class TreeTableModel extends SubListModel {
     private void processToggle(Object obj) {
         Object id = getRowId(obj);
         
-        ArrayList arrayList = (ArrayList) dataList;
+        ArrayList arrayList = (ArrayList) getDataList();
         
         int idx = arrayList.indexOf(obj);
         ItemStatus status = getStatus(obj);
         int level = status.level;
         
-        if( !status.expanded ) {
+        if ( !status.expanded ) 
+        {
             List subList = (List) cache.getData( id, obj );
             if( subList == null ) return;
             
             arrayList.addAll(idx+1, subList);
-            for(Object o : subList) {
+            for (Object o : subList) 
+            {
                 ItemStatus is = getStatus(o);
-                if( is.expanded ) loadExpandedItems(o);
+                if ( is.expanded ) loadExpandedItems(o);
             }
             status.expanded = true;
-        } else {
+        } 
+        else 
+        {
             List removed = new ArrayList();
-            for( int j=idx+1; j<arrayList.size(); j++ ) {
+            for ( int j=idx+1; j<arrayList.size(); j++ ) 
+            {
                 Object x = arrayList.get(j);
                 ItemStatus xStatus = getStatus(x);
                 if( xStatus.level <= level ) break;
+                
                 removed.add(x);
             }
             arrayList.removeAll(removed);
@@ -191,7 +201,7 @@ public abstract class TreeTableModel extends SubListModel {
     }
     
     private void loadExpandedItems(Object obj) {
-        ArrayList arrayList = (ArrayList) dataList;
+        ArrayList arrayList = (ArrayList) getDataList();
         int idx = arrayList.indexOf(obj);
         
         Object id = getRowId(obj);
@@ -199,13 +209,15 @@ public abstract class TreeTableModel extends SubListModel {
         if( subList == null ) return;
         
         arrayList.addAll(idx+1, subList);
-        for(Object o : subList) {
+        for (Object o : subList) 
+        {
             ItemStatus is = getStatus(o);
             if( is.expanded ) loadExpandedItems(o);
         }
     }
     
-    //<editor-fold defaultstate="collapsed" desc="  getters/setters  ">
+    // <editor-fold defaultstate="collapsed" desc="  getters/setters  ">
+    
     public int getIndentWidth() {
         return indentWidth;
     }
@@ -221,6 +233,7 @@ public abstract class TreeTableModel extends SubListModel {
     public final void setSelectedColumnIndex(int selectedColumnIndex) {
         this.selectedColumnIndex = selectedColumnIndex;
     }
-    //</editor-fold>
+    
+    // </editor-fold>
     
 }

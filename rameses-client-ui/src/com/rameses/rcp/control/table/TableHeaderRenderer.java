@@ -16,24 +16,25 @@ import java.awt.Dimension;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Insets;
 import java.beans.Beans;
 import java.math.BigDecimal;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Date;
-import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
-import javax.swing.border.Border;
 import javax.swing.table.TableCellRenderer;
 
 
-public class TableHeaderRenderer extends JLabel implements TableCellRenderer {
+public class TableHeaderRenderer extends JLabel implements TableCellRenderer 
+{
     
     public TableHeaderRenderer() {}
     
-    public void paint(Graphics g) {
+    public void paint(Graphics g) 
+    {
         Graphics2D g2 = (Graphics2D) g.create();
         Color bg = Color.LIGHT_GRAY;
         Dimension d = getSize();
@@ -61,10 +62,7 @@ public class TableHeaderRenderer extends JLabel implements TableCellRenderer {
         }
         
         setText( ValueUtil.isEmpty(value) ? " " : value + "");
-        Border bb = BorderFactory.createLineBorder(table.getGridColor());
-        Border eb = BorderFactory.createEmptyBorder(2,5,2,5);
-        setBorder( BorderFactory.createCompoundBorder(bb, eb) );
-        
+        setBorder( new DataTableHeader.CustomBorder(table, new Insets(2,5,2,5)) );        
         return this;
     }
     

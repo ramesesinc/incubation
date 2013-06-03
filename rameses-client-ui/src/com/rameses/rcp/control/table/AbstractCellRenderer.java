@@ -10,6 +10,7 @@
 package com.rameses.rcp.control.table;
 
 import com.rameses.common.ExpressionResolver;
+import com.rameses.rcp.common.AbstractListDataProvider;
 import com.rameses.rcp.common.AbstractListModel;
 import com.rameses.rcp.common.Column;
 import com.rameses.rcp.support.ColorUtil;
@@ -87,8 +88,7 @@ public abstract class AbstractCellRenderer implements TableCellRenderer
             }
         }
         
-        AbstractListModel lm = xtable.getListModel();
-        ExpressionResolver exprRes = ExpressionResolver.getInstance();
+        AbstractListDataProvider ldp = xtable.getDataProvider();
         column = xmodel.getColumn(colIndex);
         
 //            try {
@@ -114,7 +114,7 @@ public abstract class AbstractCellRenderer implements TableCellRenderer
 //            } catch(Exception e){;}
         
         
-        String errmsg = lm.getErrorMessage(rowIndex);
+        String errmsg = ldp.getMessageSupport().getErrorMessage(rowIndex);
         if (errmsg != null) 
         {
             if (!hasFocus) 

@@ -13,7 +13,7 @@ import com.rameses.osiris2.client.InvokerFilter;
 import com.rameses.osiris2.client.InvokerUtil;
 import com.rameses.rcp.annotations.Binding;
 import com.rameses.rcp.annotations.Invoker;
-import com.rameses.rcp.common.AbstractListModel;
+import com.rameses.rcp.common.AbstractListDataProvider;
 import com.rameses.rcp.common.Column;
 import com.rameses.rcp.common.LookupModel;
 import com.rameses.rcp.common.LookupSelector;
@@ -46,7 +46,8 @@ public abstract class LookupController extends LookupModel
     public LookupController() {
         setSelector(new LookupSelectorImpl()); 
     }
-    
+        
+    public void init() {}
     
     // <editor-fold defaultstate="collapsed" desc="  Getters/Setters  ">
     
@@ -61,7 +62,7 @@ public abstract class LookupController extends LookupModel
         this.selectedEntity = selectedEntity; 
     }
     
-    public final AbstractListModel getListHandler() { return this; } 
+    public final AbstractListDataProvider getListHandler() { return this; } 
     
     public com.rameses.rcp.framework.Binding getBinding() { return binding; }  
     

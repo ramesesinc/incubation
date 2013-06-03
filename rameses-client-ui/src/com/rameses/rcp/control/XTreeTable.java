@@ -178,8 +178,9 @@ public class XTreeTable extends JPanel implements UIOutput, TreeTableListener, F
                 table.setListModel(listModel);
                 table.setListener(this);
                 table.setBinding(binding);
-                scrollBar.setListModel(listModel);
-                scrollPane.setListModel(listModel);
+                scrollBar.setDataProvider(listModel); 
+                //scrollBar.setListModel(listModel);
+                //scrollPane.setListModel(listModel);
                 
                 if ( rowHeaderView != null )
                     rowHeaderView.setRowCount( listModel.getRows() );
@@ -411,7 +412,7 @@ public class XTreeTable extends JPanel implements UIOutput, TreeTableListener, F
             removeAll();
             JComponent label = null;
             for (int i = 0; i < rowCount; ++i) {
-                add(new RowHeader(table.getGridColor()));
+                add(new RowHeader(table));
             }
             SwingUtilities.updateComponentTreeUI(this);
         }

@@ -6,64 +6,64 @@
  */
 package com.rameses.rcp.control.table;
 
+import com.rameses.rcp.common.AbstractListModel;
 import com.rameses.rcp.common.Column;
 import com.rameses.rcp.common.ListItem;
+import com.rameses.rcp.common.ListModelSupport;
 import com.rameses.common.PropertyResolver;
-import com.rameses.rcp.common.AbstractListDataProvider;
-import com.rameses.rcp.common.TableModelHandler;
-import com.rameses.rcp.framework.Binding;
 import com.rameses.util.ValueUtil;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.table.AbstractTableModel;
 
-public class DataTableModel extends AbstractTableModel implements TableControlModel, TableModelHandler 
+public class DataTableModel_1 extends AbstractTableModel implements TableControlModel 
 {
     private List<Column> columnList = new ArrayList();    
-    private AbstractListDataProvider dataProvider; 
-    private Binding binding;
+    private ListModelSupport listModelSupport; 
+    private AbstractListModel listModel;
     private String varStatus;
-    
-    void setBinding(Binding binding) { this.binding = binding; }
     
     public String getVarStatus() { return varStatus; }    
     public void setVarStatus(String varStatus) { this.varStatus = varStatus; }     
     
-    public AbstractListDataProvider getDataProvider() { return dataProvider; }    
-    public void setDataProvider(AbstractListDataProvider dataProvider) 
-    {
-        if (this.dataProvider != null) {
-            this.dataProvider.removeHandler(this);
-        } 
-        
-        this.dataProvider = dataProvider;
-        if (this.dataProvider != null) {
-            this.dataProvider.addHandler(this);
-        } 
-        
-        columnList.clear(); 
-        indexColumns(); 
-    } 
+    public final boolean hasListModelSupport() {
+        return (listModelSupport != null); 
+    }
     
-    private void indexColumns() 
+    public ListModelSupport getListModelSupport() { return listModelSupport; } 
+    public AbstractListModel getListModel() { return listModel; }    
+    public void setListModel(AbstractListModel model) 
     {
-        if (dataProvider == null) return;
+        columnList.clear();        
+        listModel = model;
         
-        for (Column col : dataProvider.getColumns()) 
+        if (listModel == null) { 
+            listModelSupport = null; 
+        } 
+        else 
         {
-            if (col.isVisible()) columnList.add(col);
+            listModelSupport = AbstractListModel.Support.link(this, listModel); 
+            indexColumns();
+        } 
+    }
+    
+    private void indexColumns() {
+        for ( Column col : listModel.getColumns() ) {
+            if ( col.isVisible() ) {
+                columnList.add(col);
+            }
         }
     }
     
-    public void reIndexColumns() 
-    {
+    public void reIndexColumns() {
         columnList.clear();
         indexColumns();
     }
-        
+    
+    
     public int getRowCount() {
-        return dataProvider.getListItems().size();
-    } 
+        return listModel.getItemList().size();
+    }
     
     public Column getColumn(int index) 
     {
@@ -104,7 +104,7 @@ public class DataTableModel extends AbstractTableModel implements TableControlMo
     public ListItem getListItem(int rowIndex) 
     {
         try {
-            return dataProvider.getListItem(rowIndex); 
+            return listModel.getItemList().get(rowIndex); 
         } catch(Exception e) {
             return null;
         } 
@@ -146,15 +146,6 @@ public class DataTableModel extends AbstractTableModel implements TableControlMo
             throw new NullPointerException("The item object in row " + rowIndex + " column " + columnIndex + " is not initialized");
         
         PropertyResolver resolver = PropertyResolver.getInstance();
-        
-        Object oldValue = null; 
-        try { 
-            oldValue = resolver.getProperty(item, column.getName()); 
-        } catch(Exception ex) {;} 
-        
-        //exit if no changes made
-        if (!hasValueChanged(oldValue, value)) return;
-        
         resolver.setProperty(item, column.getName(), value); 
         
         ListItem li = getListItem(rowIndex);
@@ -162,20 +153,43 @@ public class DataTableModel extends AbstractTableModel implements TableControlMo
             li.setState(ListItem.STATE_EDIT); 
         
         fireTableRowsUpdated(rowIndex, rowIndex); 
-        
-        try { 
-            binding.getChangeLog().addEntry(item, column.getName(), oldValue, value);
-        } catch(Exception ex) {;} 
     }
 
-    public void fireTableRowSelected(int row, boolean focusOnItemDataOnly) {
-    }
-    
-    private boolean hasValueChanged(Object oldValue, Object newValue) 
+    public void commit(ListItem item) 
     {
-        if (oldValue == null && newValue == null) return false; 
-        if (oldValue != null && newValue != null && oldValue.equals(newValue)) return false; 
+        getListModel().commit(item);
+        fireTableRowsUpdated(item.getIndex(), item.getIndex()); 
+    }
+
+    void ensureRowVisibility(int rowIndex) 
+    {
+        ListItem li = getListItem(rowIndex);
+        if (li != null) return;
         
-        return true;
+        if (hasListModelSupport()) 
+            listModelSupport.createListItemAt(rowIndex);
+            
+        listModel.createListItemAt(rowIndex); 
+    }
+
+    void removeDraftItem(ListItem li) 
+    {
+        if (!li.isDraftItem()) return;
+        
+        int rowIndex = li.getIndex(); 
+        listModel.removeErrorMessage(rowIndex); 
+
+        
+        
+        if (listModel.removeListItemAt(rowIndex)) 
+        {
+            if (getListItem(rowIndex) != null) 
+                fireTableRowsUpdated(rowIndex, rowIndex); 
+        }
+        else 
+        {
+            listModel.replaceListItem(li); 
+            fireTableRowsUpdated(rowIndex, rowIndex); 
+        }
     }
 }

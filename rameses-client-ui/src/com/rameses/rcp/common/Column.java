@@ -1,6 +1,7 @@
 package com.rameses.rcp.common;
 
 import com.rameses.common.PropertyResolver;
+import com.rameses.rcp.constant.TextCase;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
@@ -21,6 +22,7 @@ public class Column implements Serializable
     private boolean nullWhenEmpty = true;
     private boolean editable;
     private String editableWhen;
+    private TextCase textCase = TextCase.UPPER;
     
     private String type = "string";    
     private Object handler;
@@ -130,6 +132,7 @@ public class Column implements Serializable
      */
     public Column clone() {
         Column col = new Column(getName(), getCaption());
+        col.textCase = textCase;
         col.type = type;
         col.width = width;
         col.minWidth = minWidth;
@@ -163,6 +166,9 @@ public class Column implements Serializable
     
     // <editor-fold defaultstate="collapsed" desc=" Getters/Setters ">
         
+    public TextCase getTextCase() { return textCase; }
+    public void setTextCase(TextCase textCase) { this.textCase = textCase; }
+    
     public Column.TypeHandler getTypeHandler() { return typeHandler; } 
     public void setTypeHandler(Column.TypeHandler typeHandler) { 
         this.typeHandler = typeHandler; 

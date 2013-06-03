@@ -8,7 +8,7 @@
 package com.rameses.rcp.control.table;
 
 import com.rameses.common.ExpressionResolver;
-import com.rameses.rcp.common.AbstractListModel;
+import com.rameses.rcp.common.AbstractListDataProvider;
 import com.rameses.rcp.common.CheckBoxColumnHandler;
 import com.rameses.rcp.common.Column;
 import com.rameses.rcp.common.ComboBoxColumnHandler;
@@ -36,7 +36,6 @@ import com.rameses.rcp.util.UIControlUtil;
 import com.rameses.util.ValueUtil;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Insets;
@@ -169,10 +168,13 @@ public final class TableUtil
     
     public static synchronized void customize(JScrollPane scrollPane, JTable table) 
     {
-        JLabel corner = new JLabel();
-        corner.setBorder(new TableHeaderBorder());
-        corner.setPreferredSize(new Dimension(23,23));  
-        scrollPane.setCorner(JScrollPane.UPPER_RIGHT_CORNER, (JComponent) headerRenderer);
+//        JLabel corner = new JLabel();
+//        corner.setBorder(new TableHeaderBorder());
+//        corner.setPreferredSize(new Dimension(23,23));  
+        
+        JComponent corner = new DataTableHeader.CornerBorder(table, JScrollPane.UPPER_RIGHT_CORNER).createComponent();
+        scrollPane.setCorner(JScrollPane.UPPER_RIGHT_CORNER, corner);
+        //scrollPane.setCorner(JScrollPane.UPPER_RIGHT_CORNER, (JComponent) headerRenderer);
     }
     
     
@@ -347,7 +349,7 @@ public final class TableUtil
                 }
             }
             
-            AbstractListModel lm = xtable.getListModel();
+            AbstractListDataProvider lm = xtable.getDataProvider();
             ClientContext clientCtx = ClientContext.getCurrentContext();
             ExpressionResolver exprRes = ExpressionResolver.getInstance();
             Column colModel = xmodel.getColumn(column);
@@ -375,7 +377,7 @@ public final class TableUtil
 //            } catch(Exception e){;}
             
             
-            String errmsg = lm.getErrorMessage(row);
+            String errmsg = lm.getMessageSupport().getErrorMessage(row);
             if (errmsg != null) 
             {
                 if (!hasFocus) 
@@ -470,6 +472,9 @@ public final class TableUtil
                     Object bean = columnValue;
                     if (table.getModel() instanceof DataTableModel)
                         bean = ((DataTableModel) table.getModel()).getItem(row); 
+                    
+                    if (table instanceof DataTableComponent) 
+                        bean = ((DataTableComponent) table).createExpressionBean(bean); 
                     
                     columnValue = UIControlUtil.evaluateExpr(bean, c.getExpression()); 
                 } 
@@ -566,18 +571,18 @@ public final class TableUtil
             empty = new JLabel("");
         }
         
-        public JComponent getComponent(JTable table, int row, int column) 
+        public JComponent getComponent(JTable table, int rowIndex, int colIndex) 
         {
-            AbstractListModel alm = ((TableControl) table).getListModel();
-            if (alm.getItemList().get(row).getItem() == null) return empty;
+            AbstractListDataProvider ldp = ((TableControl) table).getDataProvider();
+            if (ldp.getListItemData(rowIndex) == null) return empty;
             
             return component;
         }
         
-        public void refresh(JTable table, Object value, boolean selected, boolean focus, int row, int column) 
+        public void refresh(JTable table, Object value, boolean selected, boolean focus, int rowIndex, int colIndex) 
         {
-            AbstractListModel alm = ((TableControl) table).getListModel();
-            if (alm.getItemList().get(row).getItem() == null) return;
+            AbstractListDataProvider ldp = ((TableControl) table).getDataProvider();
+            if (ldp.getListItemData(rowIndex) == null) return;
             
             component.setSelected(resolveValue(value));
         }
