@@ -50,6 +50,14 @@ public class RuleContext {
         conf = KnowledgeBuilderFactory.newKnowledgeBuilderConfiguration(properties);
     }
     
+    public void build(List<Reader> readers) throws Exception {
+        KnowledgeBuilder builder = KnowledgeBuilderFactory.newKnowledgeBuilder(conf); 
+        for(Reader r: readers) {
+            builder.add( ResourceFactory.newReaderResource(r), ResourceType.DRL );    
+        }
+        knowledgeBase = builder.newKnowledgeBase();
+    }
+    
     public void start() throws Exception {
         //load the resource providers
         providers = new ArrayList();

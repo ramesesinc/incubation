@@ -268,7 +268,10 @@ is divided into following sections:
     -->
     <target name="deps-jar" depends="init" unless="no.deps">
         <ant target="jar" inheritall="false" antfile="${project.anubis-cms2}/build.xml"/>
+        <ant target="jar" inheritall="false" antfile="${project.db-dialect}/build.xml"/>
+        <ant target="jar" inheritall="false" antfile="${project.osiris3-memcache}/build.xml"/>
         <ant target="jar" inheritall="false" antfile="${project.rameses-common2}/build.xml"/>
+        <ant target="jar" inheritall="false" antfile="${project.rameses-custom-impl}/build.xml"/>
         <ant target="jar" inheritall="false" antfile="${project.rameses-osiris3-core2}/build.xml"/>
         <ant target="jar" inheritall="false" antfile="${project.rameses-osiris3-mail}/build.xml"/>
         <ant target="jar" inheritall="false" antfile="${project.rameses-osiris3-rules}/build.xml"/>
@@ -571,7 +574,10 @@ is divided into following sections:
     -->
     <target name="deps-clean" depends="init" unless="no.deps">
         <ant target="clean" inheritall="false" antfile="${project.anubis-cms2}/build.xml"/>
+        <ant target="clean" inheritall="false" antfile="${project.db-dialect}/build.xml"/>
+        <ant target="clean" inheritall="false" antfile="${project.osiris3-memcache}/build.xml"/>
         <ant target="clean" inheritall="false" antfile="${project.rameses-common2}/build.xml"/>
+        <ant target="clean" inheritall="false" antfile="${project.rameses-custom-impl}/build.xml"/>
         <ant target="clean" inheritall="false" antfile="${project.rameses-osiris3-core2}/build.xml"/>
         <ant target="clean" inheritall="false" antfile="${project.rameses-osiris3-mail}/build.xml"/>
         <ant target="clean" inheritall="false" antfile="${project.rameses-osiris3-rules}/build.xml"/>
