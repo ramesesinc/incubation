@@ -4,7 +4,6 @@
  * Created on July 26, 2010, 11:45 AM
  * @author jaycverg
  */
-
 package com.rameses.rcp.impl;
 
 import com.rameses.platform.interfaces.SubWindow;
@@ -15,49 +14,56 @@ import java.awt.event.WindowListener;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 
-
-public class PopupDialog extends JDialog implements SubWindow, WindowListener {
-    
+public class PopupDialog extends JDialog implements SubWindow, WindowListener 
+{
     private ViewContext viewContext;
     private boolean canClose = true;
     private PlatformImpl platformImpl;
     private String id;
     
-    public PopupDialog() {
+    public PopupDialog() 
+    {
         super();
         init();
     }
     
-    public PopupDialog(JFrame parent) {
+    public PopupDialog(JFrame parent) 
+    {
         super(parent);
         init();
     }
     
-    public PopupDialog(JDialog parent) {
+    public PopupDialog(JDialog parent) 
+    {
         super(parent);
         init();
     }
     
-    private void init() {
-        addWindowListener(this);
+    private void init() 
+    {
         setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+        addWindowListener(this);
     }
     
-    public void setContentPane(Container contentPane) {
+    public void setContentPane(Container contentPane) 
+    {
         super.setContentPane(contentPane);
         if ( contentPane instanceof ViewContext ) {
             viewContext = (ViewContext) contentPane;
         }
     }
     
-    public void closeWindow() {
+    public void closeWindow()     
+    {
         if ( !canClose ) return;
         if ( viewContext != null && !viewContext.close() ) return;
         
         super.dispose();
         platformImpl.getWindows().remove(id);
+        //notify others
+        getContentPane().firePropertyChange("Window.close", 0L, 1L); 
     }
-    
+        
     public boolean isCanClose() {
         return canClose;
     }

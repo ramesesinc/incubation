@@ -1,8 +1,7 @@
 package com.rameses.platform.interfaces;
 
-
-public interface SubWindow {
-    
+public interface SubWindow 
+{    
     static final long serialVersionUID = 1L;
     
     void closeWindow();

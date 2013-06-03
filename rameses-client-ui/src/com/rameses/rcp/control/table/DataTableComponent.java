@@ -105,18 +105,15 @@ public class DataTableComponent extends JTable implements TableControl
         getTableHeader().setReorderingAllowed(false);
         addKeyListener(new TableKeyAdapter());       
         
-        int cond = super.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT;
+        int cond = WHEN_ANCESTOR_OF_FOCUSED_COMPONENT;
         KeyStroke enter = KeyStroke.getKeyStroke(KeyEvent.VK_ENTER,0);
         getInputMap(cond).put(enter, "selectNextColumnCell");
         
         KeyStroke shiftEnter = KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 1);
         getInputMap(cond).put(shiftEnter, "selectPreviousColumnCell");
         
-        TableEnterAction enta = new TableEnterAction(this);
-        registerKeyboardAction(enta, enta.keyStroke, JComponent.WHEN_FOCUSED);
-        
-        TableEscapeAction esca = new TableEscapeAction(this);
-        registerKeyboardAction(esca, esca.keyStroke, JComponent.WHEN_FOCUSED);
+        new TableEnterAction().install(this);
+        new TableEscapeAction().install(this);
         
         //row editing ctrl+Z support
         KeyStroke ctrlZ = KeyStroke.getKeyStroke("ctrl Z");
@@ -1165,34 +1162,39 @@ public class DataTableComponent extends JTable implements TableControl
     
     // <editor-fold defaultstate="collapsed" desc="  TableEnterAction (class)  ">
     
-    private class TableEnterAction implements ActionListener {
-        
-        KeyStroke keyStroke;
+    private class TableEnterAction implements ActionListener 
+    {
         private JComponent component;
-        private ActionListener origAction;
+        private ActionListener oldAction;
         
-        TableEnterAction(JComponent component) {
+        void install(JComponent component) 
+        {
             this.component = component;
-            keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0, false);
-            origAction = component.getActionForKeyStroke(keyStroke);
+            KeyStroke ks = KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0, false);
+            oldAction = component.getActionForKeyStroke(ks);
+            component.registerKeyboardAction(this, ks, JComponent.WHEN_FOCUSED); 
         }
         
-        public void actionPerformed(ActionEvent e) {
-            if( !isReadonly()  && editors.size() > 0 ) {
+        public void actionPerformed(ActionEvent e) 
+        {
+            if ( !isReadonly()  && editors.size() > 0 ) 
+            {
                 JTable tbl = DataTableComponent.this;
                 int row = tbl.getSelectedRow();
                 int col = tbl.getSelectedColumn();
                 focusNextCellFrom(row, col);
             }
-            else {
+            else 
+            {
                 JRootPane rp = component.getRootPane();
-                if (rp != null && rp.getDefaultButton() != null ) {
+                if (rp != null && rp.getDefaultButton() != null ) 
+                {
                     JButton btn = rp.getDefaultButton();
                     btn.doClick();
                 } 
-                else {
-                    origAction.actionPerformed(e);
-                }
+                else if (oldAction != null) { 
+                    oldAction.actionPerformed(e); 
+                } 
             }
         }
     }
@@ -1203,21 +1205,32 @@ public class DataTableComponent extends JTable implements TableControl
     
     private class TableEscapeAction implements ActionListener 
     {        
-        KeyStroke keyStroke;
-        private JComponent component;
-        private ActionListener origAction;
+        private ActionListener oldAction;
         
-        TableEscapeAction(JComponent component) 
+        void install(JComponent comp) 
         {
-            this.component = component;
-            keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0, false);
-            origAction = component.getActionForKeyStroke(keyStroke);
+            KeyStroke ks = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0, false);            
+            oldAction = comp.getActionForKeyStroke(ks);
+            comp.registerKeyboardAction(this, ks, JComponent.WHEN_FOCUSED); 
         }
         
         public void actionPerformed(ActionEvent e) 
         {
-            if (editorModel == null) return;
-            
+            if (editorModel != null) 
+            {
+                fireAction(); 
+                return;
+            }
+
+            ActionListener actionL = (ActionListener) getRootPane().getClientProperty("Window.closeAction"); 
+            if (actionL != null) 
+                actionL.actionPerformed(e); 
+            else if (oldAction != null) 
+                oldAction.actionPerformed(e); 
+        } 
+        
+        private void fireAction() 
+        {
             int rowIndex = getSelectedRow(); 
             ListItem li = editorModel.getListItem(rowIndex); 
             if (li == null) return; 
@@ -1240,8 +1253,8 @@ public class DataTableComponent extends JTable implements TableControl
             } 
             else {
                 tableModel.fireTableRowsUpdated(rowIndex, rowIndex);                 
-            } 
-        } 
+            }             
+        }
     }
     
     // </editor-fold>    

@@ -2,6 +2,7 @@ package com.rameses.rcp.control;
 
 import com.rameses.common.PropertyResolver;
 import com.rameses.platform.interfaces.Platform;
+import com.rameses.platform.interfaces.SubWindow;
 import com.rameses.rcp.common.LookupHandler;
 import com.rameses.rcp.common.LookupModel;
 import com.rameses.rcp.common.LookupOpenerSupport;
@@ -29,17 +30,24 @@ import com.rameses.rcp.util.ControlSupport;
 import com.rameses.rcp.util.UIControlUtil;
 import com.rameses.rcp.util.UIInputUtil;
 import com.rameses.util.ValueUtil;
+import java.awt.Container;
 import java.awt.Font;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.beans.Beans;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 import javax.swing.InputVerifier;
 import javax.swing.JComponent;
+import javax.swing.JOptionPane;
+import javax.swing.JRootPane;
+import javax.swing.event.AncestorEvent;
+import javax.swing.event.AncestorListener;
 
 /**
  *
@@ -327,6 +335,8 @@ public class XLookupField extends IconedTextField implements UIFocusableContaine
         
     // <editor-fold defaultstate="collapsed" desc="  ActionListener/LookupSelector implementation  ">
     
+    private int selectionOption = JOptionPane.CANCEL_OPTION;
+    
     protected void onactionPerformed(ActionEvent e) {
         fireLookup(); 
     }       
@@ -346,11 +356,13 @@ public class XLookupField extends IconedTextField implements UIFocusableContaine
                 MsgBox.alert("No available lookup model found. Please check.");
                 return;
             }
-                
-            lookupHandlerProxy.getModel().setSelector(this);            
+
+            selectionOption = JOptionPane.CANCEL_OPTION;
+            lookupHandlerProxy.getModel().setSelector(this);   
             boolean show = lookupHandlerProxy.getModel().show( getText() );            
             if ( show ) 
             {
+                lookupHandlerProxy.getModel().setSelectedItem(-1);
                 UIController c =  lookupHandlerProxy.getController(); 
                 if ( c == null ) return; //should use a default lookup handler
                 
@@ -360,12 +372,12 @@ public class XLookupField extends IconedTextField implements UIFocusableContaine
                 if ( conId == null ) conId = getName() + handler;
                 if ( platform.isWindowExists(conId) ) return;
                 
-                UIControllerPanel lookupPanel = new UIControllerPanel( uic );
+                UIControllerPanel lookupPanel = new UIControllerPanel(uic);
+                new WindowSupport().install(lookupPanel); 
                 
                 Map props = new HashMap();
                 props.put("id", conId);
                 props.put("title", uic .getTitle());
-                
                 platform.showPopup(this, lookupPanel, props);
             }
         } 
@@ -378,6 +390,7 @@ public class XLookupField extends IconedTextField implements UIFocusableContaine
     
     public void select(Object value) 
     {
+        selectionOption = JOptionPane.OK_OPTION;
         selectedValue = value;        
         getInputSupport().setValue(getName(), selectedValue);         
         putClientProperty("updateBeanValue", true); 
@@ -600,4 +613,46 @@ public class XLookupField extends IconedTextField implements UIFocusableContaine
     
     // </editor-fold>    
     
+    // <editor-fold defaultstate="collapsed" desc="  WindowSupport (Class)  ">    
+    
+    private class WindowSupport implements AncestorListener, ActionListener, PropertyChangeListener 
+    {
+        private JComponent component;
+        
+        void install(JComponent comp) 
+        { 
+            this.component = comp;
+            comp.addAncestorListener(this);  
+            comp.addPropertyChangeListener("Window.close", this); 
+        } 
+        
+        public void ancestorAdded(AncestorEvent e) 
+        {        
+            JRootPane rootPane = component.getRootPane();
+            if (rootPane == null) return;
+            
+            rootPane.putClientProperty("Window.closeAction", this); 
+        }
+
+        public void ancestorRemoved(AncestorEvent e) {}
+        public void ancestorMoved(AncestorEvent e) {}        
+
+        public void actionPerformed(ActionEvent e) 
+        {
+            JRootPane rootPane = component.getRootPane();
+            if (rootPane == null) return;
+            
+            Container parent = rootPane.getParent(); 
+            if (parent instanceof SubWindow) 
+                ((SubWindow) parent).closeWindow(); 
+        } 
+
+        public void propertyChange(PropertyChangeEvent evt) 
+        {
+            if (selectionOption == JOptionPane.CANCEL_OPTION)
+                cancelSelection();                 
+        }
+    }
+        
+    // </editor-fold>
 }

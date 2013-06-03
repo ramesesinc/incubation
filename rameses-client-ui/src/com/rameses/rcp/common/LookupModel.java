@@ -83,6 +83,5 @@ public class LookupModel extends ScrollListModel
         selector = null;
     }
 
-    public void moveLastPage() {
-    }   
+    public void moveLastPage() {}   
 }
