@@ -102,6 +102,12 @@ public class RuleService extends ContextService {
         return ruleContexts.get(name);
     }
     
+    public void buildRuleContext(String name, List readers ) throws Exception {
+        RuleContext rc = new RuleContext(name, super.context);
+        rc.build(readers);
+        ruleContexts.put(name, rc);
+    }
+    
     public void addRulePackage( String ruleContextName, Reader reader ) throws Exception {
         RuleContext kbase = getRuleContext(ruleContextName);
         kbase.addRulePackage( reader );

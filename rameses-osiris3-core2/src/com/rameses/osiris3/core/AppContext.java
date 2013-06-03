@@ -11,7 +11,12 @@ package com.rameses.osiris3.core;
 
 import com.rameses.io.LineReader;
 import com.rameses.io.LineReader.Handler;
+import com.rameses.util.ScanFileFilter;
+import com.rameses.util.URLDirectory;
 import java.io.InputStream;
+import java.net.URL;
+import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -58,5 +63,53 @@ public class AppContext extends MainContext {
             try {is.close();} catch(Exception ign){;}
         }
     }
+    
+    public void scanFiles(String path, ScanFileFilter scanFilter) throws Exception {
+        scanFiles(path, scanFilter, null);
+    }
+    public void scanFiles(String path, ScanFileFilter scanFilter, String filePath) throws Exception {
+        CustomURLScanFilter usf = new CustomURLScanFilter();
+        usf.scanFilter = scanFilter;
+        usf.filePathFilter = filePath;
+        ClassLoader loader = getClassLoader();
+        Enumeration<URL> e = loader.getResources( path );
+        
+        while(e.hasMoreElements()) {
+            URLDirectory ud = new URLDirectory(e.nextElement());
+            ud.list( usf, loader );
+        }
+        //scan also shared context
+        loader = getSharedContext().getClassLoader();
+        e = loader.getResources( path );
+        while(e.hasMoreElements()) {
+            URLDirectory ud = new URLDirectory(e.nextElement());
+            ud.list( usf, loader );
+        }
+    }
+    
+    private class CustomURLScanFilter implements URLDirectory.URLFilter {
+        private ScanFileFilter scanFilter;
+        private String filePathFilter;
+        public boolean accept(URL u, String filter) {
+            if(filePathFilter!=null && !u.getFile().matches(filePathFilter)) return false;
+            Map map = new HashMap();
+            map.put("url", u);
+            boolean directory = false;
+            String filename = u.getFile();
+            if(filename.endsWith("/")) {
+                directory = true;
+                filename = filename.substring(0, filename.length()-1);
+                filename = filename.substring(filename.lastIndexOf("/")+1);
+            } else {
+                filename = filename.substring(filename.lastIndexOf("/")+1);
+            }
+            map.put("directory",directory);
+            map.put("filename",filename);
+            scanFilter.handle( map );
+            return false;
+        }
+        
+    }
+    
     
 }

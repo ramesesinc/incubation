@@ -24,18 +24,30 @@ public class SimpleCacheUnit {
     //timeout in seconds. default is 30 seconds
     private int timeout;
     private Object value;
+    private boolean noExpiry = false;
     
     public SimpleCacheUnit(Object data, int timeout) {
-        if(timeout==0) timeout = 30;
         this.value = data;
-        Calendar cal = Calendar.getInstance();
-        cal.add( Calendar.SECOND, timeout );
-        this.expiry = cal.getTime();
+        if(timeout<0) {
+            noExpiry = true;
+        }
+        else {
+            if(timeout==0) timeout = 30;
+            Calendar cal = Calendar.getInstance();
+            cal.add( Calendar.SECOND, timeout );
+            this.expiry = cal.getTime();
+        }
     }
 
+    //if timeout less than 0 it never expires
     public boolean isExpired() {
-        Date now = new Date();
-        return now.after( expiry );
+        if(!noExpiry) {
+            Date now = new Date();
+            return now.after( expiry );
+        }
+        else {
+            return false;
+        }
     }
 
     public Object getValue() {
