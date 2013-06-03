@@ -508,13 +508,11 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
                                 String fiCaption = formItemPanel.getCaption();
                                 if (fiCaption == null || fiCaption.length() == 0) 
                                 { 
-                                    Object ov = null; 
-                                    try {
-                                        ov = UIControlUtil.getBeanValue(binding, newCategoryid); 
-                                    } catch(Exception ign){;} 
-
-                                    if (ov != null) ov = model.getCategory(ov.toString()); 
-                                    if (ov != null) formItemPanel.setCaption(ov.toString()); 
+                                    String s = model.getCategory(newCategoryid); 
+                                    if (s != null) formItemPanel.setCaption(s); 
+                                    
+                                    //if (ov != null) ov = model.getCategory(ov.toString()); 
+                                    //if (ov != null) formItemPanel.setCaption(ov.toString()); 
                                 }                            
                             }
                             add(jc); 
