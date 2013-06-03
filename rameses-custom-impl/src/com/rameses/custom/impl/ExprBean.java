@@ -72,7 +72,7 @@ public class ExprBean extends HashMap {
                 PropertyResolver res = PropertyResolver.getInstance();
                 value = res.getProperty(bean, key.toString());
             } catch(Exception e) {
-                System.out.println("field " + key + " does not exist");
+                //System.out.println("field " + key + " does not exist");
             }
         }
         else {

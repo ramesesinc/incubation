@@ -47,7 +47,7 @@ public class PropertyResolverImpl extends PropertyResolver  {
         } 
         catch (Exception ex) 
         {
-            System.out.println("error setProperty '" + propertyName + "': "+ ex.getMessage() );
+            //System.out.println("error setProperty '" + propertyName + "': "+ ex.getMessage() );
             return false;
         }
     }
@@ -56,7 +56,7 @@ public class PropertyResolverImpl extends PropertyResolver  {
         try {
             return PropertyUtils.getPropertyType(bean, fixPropertyName(bean,propertyName));
         } catch (Exception ex) {
-            System.out.println("error getProperty " + propertyName + "->" + ex.getMessage() );
+            //System.out.println("error getProperty " + propertyName + "->" + ex.getMessage() );
             return null;
         }
     }
@@ -75,7 +75,7 @@ public class PropertyResolverImpl extends PropertyResolver  {
         }
         catch (Exception e) 
         {
-            System.out.println("error getProperty " + propertyName + "-> " + e.getMessage() );
+            //System.out.println("error getProperty " + propertyName + "-> " + e.getMessage() );
             if (e instanceof MissingPropertyException) return null; 
             
             return null;
