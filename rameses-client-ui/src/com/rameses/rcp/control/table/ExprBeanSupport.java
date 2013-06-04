@@ -47,10 +47,25 @@ public class ExprBeanSupport extends HashMap implements InvocationHandler
 
     public Object get(Object key) 
     {
-        if (itemName != null && itemName.equals(key+"")) 
-            return item;
-        else
-            return super.get(key); 
+        if (key == null) return null; 
+        if (key.toString().equals(itemName)) return item;
+        
+        String skey = key.toString(); 
+        String propName = "get" + skey.substring(0,1).toUpperCase() + skey.substring(1); 
+        Object[] params = new Object[]{};
+        Method method = findGetterMethod(root, propName, params); 
+        if (method == null) return null;
+        
+        try {
+            return method.invoke(root, params);
+        } catch (IllegalArgumentException ex) {
+            //do nothing
+        } catch (IllegalAccessException ex) {
+            //do nothing
+        } catch (InvocationTargetException ex) {
+            //do nothing
+        }
+        return null;
     }
     
     public Object put(Object key, Object value) 
@@ -77,22 +92,36 @@ public class ExprBeanSupport extends HashMap implements InvocationHandler
         if ("toString".equals(method.getName()))  return _toString;
         else if ("hashCode".equals(method.getName())) return proxy.hashCode();
 
-        Object[] beans = new Object[]{root, this};
-        for (int i=0; i<beans.length; i++) 
-        {
-            Object bean = beans[i];
-            try {
-                return method.invoke(bean, args); 
-            } catch (IllegalArgumentException ex) {
-                //do nothing 
-            } catch (InvocationTargetException ex) {
-                //do nothing`
-            } catch (IllegalAccessException ex) {
-                //do nothing
-            } catch (NullPointerException npe) {
-                //do nothing
-            }           
-        }
+        try {
+            return method.invoke(this, args); 
+        } catch (IllegalArgumentException ex) {
+            //do nothing
+        } catch (InvocationTargetException ex) {
+            //do nothing
+        } catch (IllegalAccessException ex) {
+            //do nothing
+        } catch (NullPointerException npe) {
+            //do nothing
+        }           
         return null; 
-    }      
+    }   
+    
+    private Method findGetterMethod(Object bean, String name, Object[] args) 
+    {
+        if (bean == null || name == null) return null;
+        if (args == null) args = new Object[]{};
+        
+        Class beanClass = bean.getClass();
+        Method[] methods = beanClass.getMethods(); 
+        for (int i=0; i<methods.length; i++) 
+        {
+            Method m = methods[i];
+            if (!m.getName().equals(name)) continue;
+            
+            int paramSize = (m.getParameterTypes() == null? 0: m.getParameterTypes().length); 
+            int argSize = (args == null? 0: args.length); 
+            if (paramSize == argSize) return m;
+        }
+        return null;
+    }    
 }

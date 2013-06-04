@@ -4,12 +4,13 @@
  * Created on October 29, 2010, 10:59 AM
  * @author jaycverg
  */
-
 package com.rameses.rcp.control;
 
 import com.rameses.common.MethodResolver;
 import com.rameses.common.PropertyResolver;
+import com.rameses.rcp.common.MsgBox;
 import com.rameses.rcp.common.PropertySupport;
+import com.rameses.rcp.control.table.ExprBeanSupport;
 import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.framework.ClientContext;
 import com.rameses.rcp.ui.UIControl;
@@ -17,6 +18,7 @@ import com.rameses.rcp.util.UIControlUtil;
 import com.rameses.util.ValueUtil;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.EventQueue;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -39,36 +41,40 @@ import javax.swing.SwingConstants;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-public class XList extends JList implements UIControl, ListSelectionListener {
-    
+public class XList extends JList implements UIControl, ListSelectionListener 
+{    
     private Binding binding;
     private String[] depends;
-    private int index;
+    private String varName;
     private String expression;
     private String items;
+    private String openAction;    
     private boolean dynamic;
-    private Insets padding = new Insets(1,3,1,3);
-    private String openAction;
+    private int index;    
     
     private DefaultListModel model;
-    
+    private Insets padding = new Insets(1,3,1,3);    
     private int cellVerticalAlignment = SwingConstants.CENTER;
     private int cellHorizontalAlignment = SwingConstants.LEADING;
-    
-    
-    public XList() {
+        
+    public XList() 
+    {
         setCellRenderer(new DefaultCellRenderer());
         setMultiselect(false);
+        setVarName("item");
         
-        if ( Beans.isDesignTime() ) {
+        if ( Beans.isDesignTime() ) 
+        {
             setPreferredSize(new Dimension(80, 100));
-            super.setModel(new javax.swing.AbstractListModel() {
+            super.setModel(new javax.swing.AbstractListModel() 
+            {
                 String[] strings = { "Item 1", "Item 2" };
                 public int getSize() { return strings.length; }
                 public Object getElementAt(int i) { return strings[i]; }
             });
         }
-        else {
+        else 
+        {
             registerKeyboardAction(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     openItem();
@@ -77,20 +83,140 @@ public class XList extends JList implements UIControl, ListSelectionListener {
         }
     }
     
-    public void setModel(ListModel model) {;}
+    // <editor-fold defaultstate="collapsed" desc="  Getters/Setters  ">
     
-    public void refresh() {
+    public String getVarName() { return varName; } 
+    public void setVarName(String varName) { this.varName = varName; }
+    
+    public String[] getDepends() { return depends; }    
+    public void setDepends(String[] depends) { this.depends = depends; }
+    
+    public int getIndex() { return index; }    
+    public void setIndex(int index) { this.index = index; }
+
+    public Binding getBinding() { return binding; }    
+    public void setBinding(Binding binding) { this.binding = binding; }
+        
+    public String getExpression() { return expression; }    
+    public void setExpression(String expression) {
+        this.expression = expression;
+    }
+    
+    public String getItems() { return items; }    
+    public void setItems(String items) { this.items = items; }
+    
+    public boolean isDynamic() { return dynamic; }    
+    public void setDynamic(boolean dynamic) {
+        this.dynamic = dynamic;
+    }
+
+    public boolean isMultiselect() {
+        return getSelectionMode() == ListSelectionModel.MULTIPLE_INTERVAL_SELECTION;
+    }       
+    public void setMultiselect(boolean multi) 
+    {
+        if ( multi )
+            setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+        else
+            setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+    }
+    
+    public Insets getPadding() { return padding; }    
+    public void setPadding(Insets padding) {
+        this.padding = (padding == null? new Insets(0,0,0,0): padding);
+    }
+    
+    public int getCellVerticalAlignment() { return cellVerticalAlignment; }    
+    public void setCellVerticalAlignment(int cellVerticalAlignment) {
+        this.cellVerticalAlignment = cellVerticalAlignment;
+    }
+    
+    public int getCellHorizontalAlignment() { return cellHorizontalAlignment; }    
+    public void setCellHorizontalAlignment(int cellHorizontalAlignment) {
+        this.cellHorizontalAlignment = cellHorizontalAlignment;
+    }
+    
+    public String getOpenAction() { return openAction; }
+    public void setOpenAction(String openAction) {
+        this.openAction = openAction;
+    }
+
+    public void setPropertyInfo(PropertySupport.PropertyInfo info) {
+    }
+    
+    // </editor-fold>    
+    
+    public final void setModel(ListModel model) {;}
+    
+    public void refresh() 
+    {
         if ( dynamic ) buildList();
         
         selectSelectedItems();
     }
     
-    public void load() {
+    public void load() 
+    {
         model = new DefaultListModel();
         super.setModel(model);
         
         if ( !dynamic ) buildList();
     }
+    
+    public int compareTo(Object o) {
+        return UIControlUtil.compare(this, o);
+    }
+    
+    public void valueChanged(ListSelectionEvent e) 
+    {
+        if ( getSelectedIndex() != -1 && !e.getValueIsAdjusting() ) 
+        {
+            PropertyResolver res = PropertyResolver.getInstance();
+            if ( isMultiselect() ) 
+                res.setProperty(binding.getBean(), getName(), getSelectedValues());
+            else 
+                res.setProperty(binding.getBean(), getName(), getSelectedValue());
+
+            binding.notifyDepends(this);
+        }
+    }
+    
+    private void openItem() 
+    {
+        try 
+        {
+            if ( ValueUtil.isEmpty(openAction) ) return;
+            
+            MethodResolver mr = MethodResolver.getInstance();
+            Object outcome = mr.invoke(binding.getBean(), openAction, null, null);
+            if ( outcome == null ) return;
+
+            binding.fireNavigation(outcome);
+        }
+        catch(Exception e) 
+        {
+            if (ClientContext.getCurrentContext().isDebugMode())  e.printStackTrace(); 
+            
+            MsgBox.err(e); 
+        }
+    }
+
+    protected void processMouseEvent(MouseEvent e) 
+    {
+        if (e.getID() == MouseEvent.MOUSE_PRESSED && e.getClickCount() == 2) 
+        {
+            e.consume(); 
+            EventQueue.invokeLater(new Runnable() {
+                public void run() {
+                    openItem(); 
+                }
+            });
+        }
+        else { 
+            super.processMouseEvent(e); 
+        } 
+    }
+    
     
     //<editor-fold defaultstate="collapsed" desc="  helper methods  ">
     private void buildList() {
@@ -172,198 +298,69 @@ public class XList extends JList implements UIControl, ListSelectionListener {
         }
     }
     //</editor-fold>
-    
-    public int compareTo(Object o) {
-        return UIControlUtil.compare(this, o);
-    }
-    
-    public void valueChanged(ListSelectionEvent e) {
-        if ( getSelectedIndex() != -1 && !e.getValueIsAdjusting() ) {
-            PropertyResolver res = PropertyResolver.getInstance();
-            if ( isMultiselect() ) {
-                res.setProperty(binding.getBean(), getName(), getSelectedValues());
-            } else {
-                res.setProperty(binding.getBean(), getName(), getSelectedValue());
-            }
-            binding.notifyDepends(this);
-        }
-    }
-    
-    private void openItem() {
-        try {
-            if( ValueUtil.isEmpty(openAction) ) return;
-            
-            MethodResolver mr = MethodResolver.getInstance();
-            Object outcome = mr.invoke(binding.getBean(), openAction, null, null);
-            if( outcome == null ) return;
-
-            binding.fireNavigation(outcome);
-        }
-        catch(Exception e) {
-            if( ClientContext.getCurrentContext().isDebugMode() ) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    protected void processMouseEvent(MouseEvent e) {
-        if( e.getClickCount() == 2 && e.getID() == MouseEvent.MOUSE_PRESSED) {
-            openItem();
-            e.consume();
-            return;
-        }
         
-        super.processMouseEvent(e);
-    }
+    // <editor-fold defaultstate="collapsed" desc="  DefaultCellRenderer (class)  ">
     
-    
-    // <editor-fold defaultstate="collapsed" desc="  Getters/Setters  ">
-    
-    public String[] getDepends() {
-        return depends;
-    }
-    
-    public void setDepends(String[] depends) {
-        this.depends = depends;
-    }
-    
-    public int getIndex() {
-        return index;
-    }
-    
-    public void setIndex(int index) {
-        this.index = index;
-    }
-    
-    public void setBinding(Binding binding) {
-        this.binding = binding;
-    }
-    
-    public Binding getBinding() {
-        return binding;
-    }
-    
-    public String getExpression() {
-        return expression;
-    }
-    
-    public void setExpression(String expression) {
-        this.expression = expression;
-    }
-    
-    public String getItems() {
-        return items;
-    }
-    
-    public void setItems(String items) {
-        this.items = items;
-    }
-    
-    public boolean isDynamic() {
-        return dynamic;
-    }
-    
-    public void setDynamic(boolean dynamic) {
-        this.dynamic = dynamic;
-    }
-    
-    public void setMultiselect(boolean multi) {
-        if ( multi )
-            setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-        else
-            setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-    }
-    
-    public boolean isMultiselect() {
-        return getSelectionMode() == ListSelectionModel.MULTIPLE_INTERVAL_SELECTION;
-    }
-    
-    public Insets getPadding() {
-        return padding;
-    }
-    
-    public void setPadding(Insets padding) {
-        if ( padding == null ) padding = new Insets(0,0,0,0);
-        this.padding = padding;
-    }
-    
-    public int getCellVerticalAlignment() {
-        return cellVerticalAlignment;
-    }
-    
-    public void setCellVerticalAlignment(int cellVerticalAlignment) {
-        this.cellVerticalAlignment = cellVerticalAlignment;
-    }
-    
-    public int getCellHorizontalAlignment() {
-        return cellHorizontalAlignment;
-    }
-    
-    public void setCellHorizontalAlignment(int cellHorizontalAlignment) {
-        this.cellHorizontalAlignment = cellHorizontalAlignment;
-    }
-    
-    public String getOpenAction() {
-        return openAction;
-    }
-
-    public void setOpenAction(String openAction) {
-        this.openAction = openAction;
-    }
-
-    public void setPropertyInfo(PropertySupport.PropertyInfo info) {
-    }
-    
-    // </editor-fold>
-    
-    //<editor-fold defaultstate="collapsed" desc="  DefaultCellRenderer (class)  ">
-    private class DefaultCellRenderer implements ListCellRenderer {
-        
+    private class DefaultCellRenderer implements ListCellRenderer 
+    {
         private JLabel cellLabel;
         
-        public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-            if( cellLabel == null ) {
-                cellLabel = new JLabel();
-                cellLabel.setComponentOrientation(list.getComponentOrientation());
-                cellLabel.setOpaque(true);
-            }
-            
-            cellLabel.setBorder(BorderFactory.createEmptyBorder(padding.top, padding.left, padding.bottom, padding.right));
+        DefaultCellRenderer() 
+        {
+            cellLabel = new JLabel();
+            cellLabel.setOpaque(true);
+            cellLabel.setBorder(BorderFactory.createEmptyBorder(padding.top, padding.left, padding.bottom, padding.right));            
+        }
+        
+        public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) 
+        {
+            cellLabel.setComponentOrientation(list.getComponentOrientation());
             cellLabel.setSize( list.getFixedCellWidth(), list.getFixedCellHeight() );
             cellLabel.setEnabled(list.isEnabled());
             cellLabel.setFont(list.getFont());
             cellLabel.setVerticalAlignment( getCellVerticalAlignment() );
             cellLabel.setHorizontalAlignment( getCellHorizontalAlignment() );
             
-            if(isSelected) {
+            if (isSelected) 
+            {
                 cellLabel.setBackground(list.getSelectionBackground());
                 cellLabel.setForeground(list.getSelectionForeground());
-            } else {
+            } 
+            else 
+            {
                 cellLabel.setBackground(list.getBackground());
                 cellLabel.setForeground(list.getForeground());
             }
             
-            if ( Beans.isDesignTime() ) {
+            if ( Beans.isDesignTime() ) 
+            {
                 cellLabel.setText( value+"" );
                 return cellLabel;
             }
             
-            Object val = null;
-            if( getExpression() != null ) {
-                try {
-                    value = UIControlUtil.evaluateExpr(value, getExpression()); 
-                } catch(Exception e) {
-                    e.printStackTrace();
-                }
-            } else {
-                val = value;
-            }
+            Object cellValue = value;
+            String expr = getExpression();
+            if (expr != null) 
+            {
+                try 
+                {
+                    Object exprBean = createExpressionBean(value);
+                    cellValue = UIControlUtil.evaluateExpr(exprBean, expr); 
+                } 
+                catch(Exception e) {;}
+            } 
             
-            cellLabel.setText( (val == null? " " : val.toString()) );
-            
+            cellLabel.setText((cellValue == null? " " : cellValue.toString()));            
             return cellLabel;
         }
+        
+        private Object createExpressionBean(Object itemBean) 
+        {
+            ExprBeanSupport beanSupport = new ExprBeanSupport(binding.getBean());
+            beanSupport.setItem(getVarName(), itemBean); 
+            return beanSupport.createProxy(); 
+        } 
     }
-    //</editor-fold>
-
+    
+    // </editor-fold>    
 }
