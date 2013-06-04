@@ -68,6 +68,8 @@ public class Action implements Comparable<Action>
         return index - a.index;
     }
 
+    public Object getSource() { return null; } 
+    
     //overridable
     public Object execute() {
         return null;

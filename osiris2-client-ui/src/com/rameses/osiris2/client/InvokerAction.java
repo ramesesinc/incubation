@@ -23,24 +23,19 @@ public class InvokerAction extends Action
         this.invParam = invParam;
     }
     
-    public Object execute() {
-        return InvokerUtil.invokeAction(this);
-    }
-
-    public Invoker getInvoker() {
-        return invoker;
-    }
-
+    public Object getSource() { return invoker; } 
+    
+    public Invoker getInvoker() { return invoker; }
     public void setInvoker(Invoker invoker) {
         this.invoker = invoker;
     }
 
-    public InvokerParameter getInvokerParam() {
-        return invParam;
-    }
-
+    public InvokerParameter getInvokerParam() { return invParam; }
     public void setInvokerParam(InvokerParameter invParam) {
         this.invParam = invParam;
     }
-    
+
+    public Object execute() {
+        return InvokerUtil.invokeAction(this);
+    }    
 }

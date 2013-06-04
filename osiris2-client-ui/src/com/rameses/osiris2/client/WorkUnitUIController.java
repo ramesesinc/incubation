@@ -193,15 +193,19 @@ public class WorkUnitUIController extends UIController
         if (bean == null || name == null) return false;
         
         Class beanClass = bean.getClass();
-        Method[] methods = beanClass.getMethods(); 
-        for (int i=0; i<methods.length; i++) 
+        while (beanClass != null) 
         {
-            Method m = methods[i];
-            if (!m.getName().equals(name)) continue;
-            
-            int paramSize = (m.getParameterTypes() == null? 0: m.getParameterTypes().length); 
-            int argSize = (args == null? 0: args.length); 
-            if (paramSize == argSize) return true;
+            Method[] methods = beanClass.getMethods(); 
+            for (int i=0; i<methods.length; i++) 
+            {
+                Method m = methods[i];
+                if (!m.getName().equals(name)) continue;
+
+                int paramSize = (m.getParameterTypes() == null? 0: m.getParameterTypes().length); 
+                int argSize = (args == null? 0: args.length); 
+                if (paramSize == argSize) return true;
+            }
+            beanClass = beanClass.getSuperclass();
         }
         return false;
     }    
