@@ -7,6 +7,7 @@ import com.rameses.platform.interfaces.SubWindow;
 import com.rameses.rcp.util.ErrorDialog;
 import com.rameses.util.ValueUtil;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.KeyboardFocusManager;
 import java.awt.Window;
@@ -69,7 +70,8 @@ public class PlatformImpl implements Platform {
         windows.put(id, t);
     }
     
-    public void showPopup(JComponent actionSource, JComponent comp, Map properties) {
+    public void showPopup(JComponent actionSource, JComponent comp, Map properties) 
+    {
         String id = (String) properties.remove("id");
         if ( ValueUtil.isEmpty(id) )
             throw new IllegalStateException("id is required for a page.");
@@ -91,7 +93,7 @@ public class PlatformImpl implements Platform {
             dd = new PopupDialog((JFrame) parent);
         }
         
-        if( properties.size() > 0 ) setProperties(dd, properties);
+        if ( properties.size() > 0 ) setProperties(dd, properties);
         
         final PopupDialog d = dd;
         d.setTitle(title);
@@ -100,6 +102,11 @@ public class PlatformImpl implements Platform {
         d.setPlatformImpl(this);
         d.setModal( !"false".equals(modal) );
         d.pack();
+        
+        Dimension dim = d.getSize();
+        int pWidth = Math.max(dim.width, toInt(properties.get("width")));
+        int pHeight = Math.max(dim.height, toInt(properties.get("height")));
+        d.setSize(pWidth, pHeight); 
         d.setLocationRelativeTo(parent);
         
         EventQueue.invokeLater(new Runnable() {
@@ -118,6 +125,20 @@ public class PlatformImpl implements Platform {
                 resolver.setProperty( bean,me.getKey().toString(),  me.getValue());
             }catch(Exception e) {;}
         }
+    }
+    
+    private int toInt(Object value) 
+    {
+        if (value == null) 
+            return -1; 
+        else if (value instanceof Number)
+            return ((Number) value).intValue();
+        
+        try {
+            return Integer.parseInt(value.toString()); 
+        } catch(Exception ex) {
+            return -1; 
+        } 
     }
     
     public void showError(JComponent actionSource, Exception e) {

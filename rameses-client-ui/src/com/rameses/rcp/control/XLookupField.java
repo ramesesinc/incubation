@@ -377,7 +377,15 @@ public class XLookupField extends IconedTextField implements UIFocusableContaine
                 
                 Map props = new HashMap();
                 props.put("id", conId);
-                props.put("title", uic .getTitle());
+                props.put("title", uic.getTitle());
+                
+                try 
+                {
+                    Map openerProps = lookupHandlerProxy.opener.getProperties(); 
+                    props.put("width", openerProps.get("width"));
+                    props.put("height", openerProps.get("height"));
+                } catch(Exception ex) {;} 
+                
                 platform.showPopup(this, lookupPanel, props);
             }
         } 
