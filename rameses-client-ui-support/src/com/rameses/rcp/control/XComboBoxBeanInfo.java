@@ -51,7 +51,8 @@ public class XComboBoxBeanInfo extends ComponentBeanInfo.Support
             new PropertyDescriptor("items", getBeanClass()),
             new PropertyDescriptor("itemsObject", getBeanClass()),
             new PropertyDescriptor("readonly", getBeanClass(), "isReadonly", "setReadonly"),
-            new PropertyDescriptor("required", getBeanClass(), "isRequired", "setRequired") 
+            new PropertyDescriptor("required", getBeanClass(), "isRequired", "setRequired"), 
+            new PropertyDescriptor("varName", getBeanClass())
         }; 
     }
 }
