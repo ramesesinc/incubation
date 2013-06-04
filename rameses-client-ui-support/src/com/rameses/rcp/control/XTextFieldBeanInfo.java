@@ -48,6 +48,7 @@ public class XTextFieldBeanInfo extends ComponentBeanInfo.Support
             new PropertyDescriptor("inputFormat", getBeanClass()),
             new PropertyDescriptor("inputFormatErrorMsg", getBeanClass()),
             new PropertyDescriptor("maxLength", getBeanClass()),
+            new PropertyDescriptor("spaceChar", getBeanClass()),
             
             new PropertyDescriptor("nullWhenEmpty", getBeanClass(), "isNullWhenEmpty", "setNullWhenEmpty"),
             new PropertyDescriptor("readonly", getBeanClass(), "isReadonly", "setReadonly"),

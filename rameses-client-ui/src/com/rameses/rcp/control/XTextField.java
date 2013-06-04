@@ -39,15 +39,15 @@ public class XTextField extends DefaultTextField implements UIInput, Validatable
     protected ActionMessage actionMessage = new ActionMessage();
     
     private int index;
+    private char spaceChar;    
+    private String[] replaceExpr;
+    private String[] replaceString;    
     private String[] depends = new String[]{};
-    private boolean nullWhenEmpty = true;
-    private boolean readonly;
     private String hint;
     private String inputFormat;
     private String inputFormatErrorMsg;
-    private String[] replaceExpr;
-    private String[] replaceString;
-    
+    private boolean nullWhenEmpty = true;
+    private boolean readonly;    
     private boolean showHint;
     private boolean isHintShown;
     
@@ -68,8 +68,9 @@ public class XTextField extends DefaultTextField implements UIInput, Validatable
         //set default font
         Font f = ThemeUI.getFont("XTextField.font");
         if ( f != null ) setFont(f);
+        
         Color c = ThemeUI.getColor("XTextField.disabledTextColor");
-        if( c != null ) setDisabledTextColor(c);
+        if ( c != null ) setDisabledTextColor(c);
     }
         
     public void paint(Graphics origGraphics) 
@@ -96,7 +97,7 @@ public class XTextField extends DefaultTextField implements UIInput, Validatable
         }
     }
     
-    //<editor-fold defaultstate="collapsed" desc="  UIControl implementation  ">
+    // <editor-fold defaultstate="collapsed" desc="  UIControl implementation  ">
     
     public void refresh() 
     {
@@ -114,10 +115,8 @@ public class XTextField extends DefaultTextField implements UIInput, Validatable
                     setFocusable(false);
                 }
                 
-                if ( value == null ) {
-                    setText("");
-                } 
-                else 
+                String txtValue = "";
+                if ( value != null ) 
                 {
                     StringBuffer text = new StringBuffer();
                     Matcher m = Pattern.compile(securityPattern).matcher(value.toString());
@@ -125,12 +124,14 @@ public class XTextField extends DefaultTextField implements UIInput, Validatable
                         m.appendReplacement(text, repeat(securityChar, m.group().length()));
                     }
                     m.appendTail(text);
-                    setText(text.toString());
+                    txtValue = text.toString();
                 }
+                
+                super.setText(txtValue); 
             } 
             else 
             {
-                if ( !readonly && !isFocusable() ) setReadonly(false);
+                if (!readonly && !isFocusable()) setReadonly(false);
                 
                 setValue(value);
             }
@@ -191,7 +192,8 @@ public class XTextField extends DefaultTextField implements UIInput, Validatable
             property.setErrorMessage( actionMessage.toString() );
         }
     }
-    //</editor-fold>
+    
+    // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc="  Getters/Setters  ">
     
@@ -201,28 +203,33 @@ public class XTextField extends DefaultTextField implements UIInput, Validatable
         super.setText(name);
     }
     
-    public Object getValue() {
-        if( isSecured() ) return securedValue;
+    public Object getValue() 
+    {
+        if ( isSecured() ) return securedValue;
         
         String txtValue = getText();
-        if ( ValueUtil.isEmpty(txtValue) && nullWhenEmpty )
-            return null;
+        if ( ValueUtil.isEmpty(txtValue) && nullWhenEmpty ) return null;
         
-        if ( trimSpaceOption != null ) {
+        if ( trimSpaceOption != null ) 
             txtValue = trimSpaceOption.trim(txtValue);
-        }
         
-        if ( replaceExpr != null && replaceString != null ) {
-            for(int i=0; i<replaceExpr.length; ++i) {
+        if ( replaceExpr != null && replaceString != null ) 
+        {
+            for (int i=0; i<replaceExpr.length; ++i) 
+            {
                 if ( replaceString.length <= i) break;
+                
                 txtValue = txtValue.replaceAll( replaceExpr[i], replaceString[i] );
             }
-        }
+        } 
         
+        txtValue = renderSpaceChar(txtValue);
+        super.setText(txtValue);
         return txtValue;
     }
     
-    public void setValue(Object value) {
+    public void setValue(Object value) 
+    {
         if ( value instanceof EventObject ) 
         {
             if (value instanceof KeyEvent)
@@ -233,11 +240,10 @@ public class XTextField extends DefaultTextField implements UIInput, Validatable
         } 
         else 
         {
-            if ( value == null ) {
+            if ( value == null ) 
                 setText("");
-            } else if ( !ValueUtil.isEqual(value, getText()) ) {
+            else if ( !ValueUtil.isEqual(value, getText()) )
                 setText(value.toString());
-            }
         }
     }
     
@@ -255,11 +261,9 @@ public class XTextField extends DefaultTextField implements UIInput, Validatable
     public void setBinding(Binding binding) {
         this.binding = binding;
     }
-    
-    
-    public ActionMessage getActionMessage() {
-        return actionMessage;
-    }
+        
+    public ActionMessage getActionMessage() { return actionMessage; }
+    public ControlProperty getControlProperty() { return property; }   
     
     public boolean isRequired() { return property.isRequired(); }    
     public void setRequired(boolean required) {
@@ -273,153 +277,110 @@ public class XTextField extends DefaultTextField implements UIInput, Validatable
     
     public char getCaptionMnemonic() { 
         return property.getCaptionMnemonic();
-    }
-    
+    }    
     public void setCaptionMnemonic(char c) {
         property.setCaptionMnemonic(c);
     }
     
     public int getCaptionWidth() {
         return property.getCaptionWidth();
-    }
-    
+    }    
     public void setCaptionWidth(int width) {
         property.setCaptionWidth(width);
     }    
     
-    public boolean isNullWhenEmpty() {
-        return nullWhenEmpty;
-    }
-    
+    public boolean isNullWhenEmpty() { return nullWhenEmpty; }    
     public void setNullWhenEmpty(boolean nullWhenEmpty) {
         this.nullWhenEmpty = nullWhenEmpty;
     }
-    
-
-    
+        
     public boolean isShowCaption() {
         return property.isShowCaption();
-    }
-    
+    }    
     public void setShowCaption(boolean showCaption) {
         property.setShowCaption(showCaption);
     }
     
     public Font getCaptionFont() {
         return property.getCaptionFont();
-    }
-    
+    }    
     public void setCaptionFont(Font f) {
         property.setCaptionFont(f);
     }
     
     public Insets getCellPadding() {
         return property.getCellPadding();
-    }
-    
+    }    
     public void setCellPadding(Insets padding) {
         property.setCellPadding(padding);
     }
-    
-    public ControlProperty getControlProperty() {
-        return property;
-    }
-    
+        
     public TextCase getTextCase() {
         return document.getTextCase();
-    }
-    
+    }    
     public void setTextCase(TextCase textCase) {
         document.setTextCase(textCase);
     }
     
     public int getMaxLength() {
         return document.getMaxlength();
-    }
-    
+    }    
     public void setMaxLength(int length) {
         document.setMaxlength(length);
     }
     
-    public TrimSpaceOption getTrimSpaceOption() {
-        return trimSpaceOption;
-    }
-    
+    public TrimSpaceOption getTrimSpaceOption() { return trimSpaceOption; }    
     public void setTrimSpaceOption(TrimSpaceOption option) {
         this.trimSpaceOption = option;
     }
-    
-    public void setReadonly(boolean readonly) {
+
+    public boolean isReadonly() { return readonly; }    
+    public void setReadonly(boolean readonly) 
+    {
         this.readonly = readonly;
         setEditable(!readonly);
         setFocusable(!readonly);
     }
-    
-    public boolean isReadonly() {
-        return readonly;
-    }
-    
+        
     public void setRequestFocus(boolean focus) {
         if ( focus ) requestFocus();
     }
     
-    public boolean isImmediate() {
-        return false;
-    }
+    public boolean isImmediate() { return false; }    
     
-    public String getHint() {
-        return hint;
-    }
-    
-    public void setHint(String hint) {
+    public String getHint() { return hint; }    
+    public void setHint(String hint) 
+    {
         this.hint = hint;
         showHint = !ValueUtil.isEmpty(hint);
     }
     
-    public String getInputFormat() {
-        return inputFormat;
-    }
-    
+    public String getInputFormat() { return inputFormat; }    
     public void setInputFormat(String inputFormat) {
         this.inputFormat = inputFormat;
     }
     
-    public String getInputFormatErrorMsg() {
-        return inputFormatErrorMsg;
-    }
-    
+    public String getInputFormatErrorMsg() { return inputFormatErrorMsg; }    
     public void setInputFormatErrorMsg(String inputFormatErrorMsg) {
         this.inputFormatErrorMsg = inputFormatErrorMsg;
     }
     
-    public String[] getReplaceExpr() {
-        return replaceExpr;
-    }
-    
+    public String[] getReplaceExpr() { return replaceExpr; }    
     public void setReplaceExpr(String[] replaceExpr) {
         this.replaceExpr = replaceExpr;
     }
     
-    public String[] getReplaceString() {
-        return replaceString;
-    }
-    
+    public String[] getReplaceString() { return replaceString; }    
     public void setReplaceString(String[] replaceString) {
         this.replaceString = replaceString;
     }
     
-    public String getSecurityPattern() {
-        return securityPattern;
-    }
-    
+    public String getSecurityPattern() { return securityPattern; }    
     public void setSecurityPattern(String securityPattern) {
         this.securityPattern = securityPattern;
     }
     
-    public String getSecurityChar() {
-        return securityChar;
-    }
-    
+    public String getSecurityChar() { return securityChar; }    
     public void setSecurityChar(String securityChar) {
         this.securityChar = securityChar;
     }
@@ -428,9 +389,23 @@ public class XTextField extends DefaultTextField implements UIInput, Validatable
         return securityPattern != null && securityPattern.length() > 0 && securityChar != null && securityChar.length() > 0;
     }
     
+    public char getSpaceChar() { return spaceChar; } 
+    public void setSpaceChar(char spaceChar) { this.spaceChar = spaceChar; } 
+    
     public void setPropertyInfo(PropertySupport.PropertyInfo info) {
     }    
     
     // </editor-fold>
-   
+    
+    // <editor-fold defaultstate="collapsed" desc="  Helper methods  ">    
+    
+    private String renderSpaceChar(String value) 
+    {
+        if (value != null && spaceChar != '\u0000') 
+            value = value.replaceAll(" ", String.valueOf(spaceChar)); 
+
+        return value;
+    }
+    
+    // </editor-fold>
 }
