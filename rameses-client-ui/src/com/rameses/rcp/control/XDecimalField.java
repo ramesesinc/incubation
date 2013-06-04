@@ -241,6 +241,7 @@ public class XDecimalField extends AbstractNumberField implements UIInput, Valid
             }
 
             getModel().setValue(number); 
+            getModel().showFormattedText(true); 
             getModel().refresh();
         } 
         catch(Exception e) 

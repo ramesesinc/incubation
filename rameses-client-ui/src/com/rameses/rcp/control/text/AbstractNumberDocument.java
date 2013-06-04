@@ -199,7 +199,7 @@ public abstract class AbstractNumberDocument extends PlainDocument
         return formatter.format(value);
     }    
 
-    void showFormattedText(boolean show) 
+    public final void showFormattedText(boolean show) 
     {
         try 
         {
