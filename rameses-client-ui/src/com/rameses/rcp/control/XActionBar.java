@@ -128,8 +128,10 @@ public class XActionBar extends JPanel implements UIComposite
     }
     
     
-    //<editor-fold defaultstate="collapsed" desc="  helper methods  ">
-    private void buildButtons() {
+    // <editor-fold defaultstate="collapsed" desc="  helper methods  ">
+    
+    private void buildButtons() 
+    {
         buttons.clear();
         List<Action> actions = new ArrayList();
         
@@ -141,11 +143,14 @@ public class XActionBar extends JPanel implements UIComposite
         
         if (value == null) {
             //do nothing
-        } else if (value.getClass().isArray()) {
+        } 
+        else if (value.getClass().isArray()) 
+        {
             for (Action aa: (Action[]) value) {
                 actions.add(aa);
             }
-        } else if (value instanceof Collection) {
+        } 
+        else if (value instanceof Collection) {
             actions.addAll((Collection) value);
         }
         
@@ -156,14 +161,16 @@ public class XActionBar extends JPanel implements UIComposite
             if (actionProvider != null) 
             {
                 UIController controller = binding.getController();
-                List<Action> aa = actionProvider.getActionsByType(getName(), controller);
+                List <Action> aa = actionProvider.getActionsByType(getName(), controller);
                 if (aa != null) actions.addAll(aa);
             }
         } 
         
-        if (actions.size() > 0) {            
+        if (actions.size() > 0) 
+        {
             Collections.sort(actions);
-            for (Action action: actions) {
+            for (Action action: actions) 
+            {
                 //check permission
                 String permission = action.getPermission();
                 String role = action.getRole();
@@ -176,6 +183,8 @@ public class XActionBar extends JPanel implements UIComposite
                 if (!allowed) continue;
                 
                 XButton btn = createButton(action);
+                Object actionInvoker = action.getProperties().get("Action.Invoker");
+                btn.putClientProperty("Action.Invoker", actionInvoker); 
                 buttons.add(btn);                
             }
         }

@@ -45,9 +45,12 @@ public final class InvokerUtil {
         invoke(invoker, params, null);
     }
     
-    public static void invoke(Invoker invoker, Map params, Object caller) {
-        try {
-            if(params==null) params = new HashMap();
+    public static void invoke(Invoker invoker, Map params, Object caller) 
+    {
+        try 
+        {
+            if (params == null) params = new HashMap();
+            
             ClientContext ctx = ClientContext.getCurrentContext();
             Platform platform = ctx.getPlatform();
             
@@ -58,66 +61,66 @@ public final class InvokerUtil {
             
             Object callee = u.getCodeBean();
             ControlSupport.injectInvoker(callee, callee.getClass(), invoker);
-            if ( caller != null ) {
+            if ( caller != null ) 
                 ControlSupport.injectCaller(callee, callee.getClass(), caller);
-            }
-            
             
             String action = invoker.getAction();
             u.setId( createInvokerId(invoker) );
             u.setName( wuId );
             u.setTitle( invoker.getCaption() );
             
-            Object outcome = u.init(params, action);
-            
+            Object outcome = u.init(params, action);            
             String windowId = u.getId();
             
             //check if window id already exists
-            if ( platform.isWindowExists( windowId )) {
+            if ( platform.isWindowExists( windowId )) 
+            {
                 platform.activateWindow( windowId );
                 return;
             }
             
             String target = (String)invoker.getProperties().get("target");
-            if( target == null ) target = "_window";
+            if ( target == null ) target = "_window";
             
-            if((target.endsWith("process")||target.endsWith("action"))) {
-                if ( outcome instanceof Opener ) {
+            if ((target.endsWith("process")||target.endsWith("action"))) 
+            {
+                if ( outcome instanceof Opener ) 
                     invoke( (Opener) outcome, u );
-                }
-            } else {
+            } 
+            else 
+            {
                 UIControllerContext uic = new UIControllerContext( u );
                 uic.setId(windowId);
-                if ( !ValueUtil.isEmpty(outcome) ) {
+                
+                if ( !ValueUtil.isEmpty(outcome) ) 
                     uic.setCurrentView(outcome.toString());
-                }
+
                 UIControllerPanel panel = new UIControllerPanel( uic );
                 Map winParams = new HashMap();
                 
-                if ( invoker.getProperties() != null ) {
+                if ( invoker.getProperties() != null ) 
+                {
                     Map props = invoker.getProperties();
                     winParams.putAll( props );
                     
-                    if ( props.get("alwaysOnTop") != null ) {
+                    if ( props.get("alwaysOnTop") != null ) 
                         winParams.put("alwaysOnTop", Boolean.valueOf( props.get("alwaysOnTop")+"") );
-                    }
                 }
                 
                 winParams.put("id", windowId);
                 winParams.put("title", uic.getTitle());
                 
-                if ( "_popup".equals(target) || "popup".equals(target) ) {
+                if ( "_popup".equals(target) || "popup".equals(target) ) 
                     platform.showPopup(null, panel, winParams);
-                } else {
+                else 
                     platform.showWindow(null, panel, winParams);
-                }
             }
-        } catch(Exception ex) {
-            Exception e = ExceptionManager.getOriginal(ex);
-            
-            if ( !ExceptionManager.getInstance().handleError(e) ) {
+        } 
+        catch(Exception ex) 
+        {
+            Exception e = ExceptionManager.getOriginal(ex);            
+            if ( !ExceptionManager.getInstance().handleError(e) ) 
                 ClientContext.getCurrentContext().getPlatform().showError(null, ex);
-            }
         }
     }
     
@@ -162,9 +165,9 @@ public final class InvokerUtil {
     {
         try 
         {
-            Invoker inv = action.getInvoker();
+            Invoker inv = action.getInvoker();            
             InvokerParameter invParam = action.getInvokerParam();
-            
+
             String target = (String) inv.getProperties().get("target");
             if ( target == null ) target = "_window";
             
@@ -176,12 +179,14 @@ public final class InvokerUtil {
                 caption = (String) props.remove( "formTitle" );
             }
             
-            if (caption == null) caption = inv.getCaption();
+            action.getProperties().put("Action.Invoker", inv); 
+            
+            if (caption == null) caption = inv.getCaption(); 
             
             if ((target.endsWith("process") || target.endsWith("action"))) 
-            {
+            { 
                 invoke( inv, props );
-                return null;                
+                return null; 
             } 
             else {
                 return createOpener(inv, props, caption);
@@ -220,44 +225,41 @@ public final class InvokerUtil {
         return lookupActions( type, param, null);
     }
     
-    public static List lookupActions(String type, InvokerParameter param, InvokerFilter filter) {
+    public static List lookupActions(String type, InvokerParameter param, InvokerFilter filter) 
+    {
         List actions = new ArrayList();
         List invList = lookup(type, null, filter);
-        for(Object o: invList) {
+        for (Object o: invList) 
+        {
             Invoker inv = (Invoker)  o;
             actions.add( createInvokerAction(inv, param) );
         }
         return actions;
     }
     
-    private static Action createInvokerAction(Invoker inv, InvokerParameter param) {
+    private static Action createInvokerAction(Invoker inv, InvokerParameter param) 
+    {
         InvokerAction a = new InvokerAction(inv, param);
         
         Map invProps = new HashMap(inv.getProperties());
         a.setName( inv.getAction() );
         a.setCaption( inv.getCaption() );
-        if(inv.getIndex()!=null) {
-            a.setIndex(inv.getIndex());
-        }
+        if(inv.getIndex() != null) a.setIndex(inv.getIndex());
+
         a.setIcon((String)invProps.remove("icon"));
         a.setImmediate( "true".equals(invProps.remove("immediate")+"") );
         a.setUpdate( "true".equals(invProps.remove("update")+"") );
         a.setVisibleWhen( (String) invProps.remove("visibleWhen") );
         
         String mnemonic = (String) invProps.remove("mnemonic");
-        if ( !ValueUtil.isEmpty(mnemonic) ) {
-            a.setMnemonic(mnemonic.charAt(0));
-        }
+        if ( !ValueUtil.isEmpty(mnemonic) ) a.setMnemonic(mnemonic.charAt(0));
         
         Object tooltip = invProps.remove("tooltip");
-        if ( !ValueUtil.isEmpty(tooltip) ) {
-            a.setTooltip(tooltip+"");
-        }
+        if ( !ValueUtil.isEmpty(tooltip) ) a.setTooltip(tooltip+"");
         
-        if ( !invProps.isEmpty() ) {
-            a.getProperties().putAll( invProps );
-        }
-        
+        if ( !invProps.isEmpty() ) a.getProperties().putAll( invProps );
+
+        a.getProperties().put("Action.Invoker", inv);
         return a;
     }
     

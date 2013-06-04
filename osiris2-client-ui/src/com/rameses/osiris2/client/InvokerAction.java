@@ -23,8 +23,6 @@ public class InvokerAction extends Action
         this.invParam = invParam;
     }
     
-    public Object getSource() { return invoker; } 
-    
     public Invoker getInvoker() { return invoker; }
     public void setInvoker(Invoker invoker) {
         this.invoker = invoker;

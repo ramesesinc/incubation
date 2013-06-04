@@ -56,9 +56,8 @@ public class UICommandUtil {
                 if ( !action.startsWith("_")) 
                 {
                     Object[] actionParams = new Object[]{};
-                    Object actionSource = btn.getClientProperty("actionSource");
-                    if (actionSource != null) 
-                        actionParams = new Object[]{ actionSource };
+                    Object actionInvoker = btn.getClientProperty("Action.Invoker");
+                    if (actionInvoker != null) actionParams = new Object[]{ actionInvoker };
                     
                     if (hasMethod(binding.getBean(), action, actionParams))
                         outcome = resolver.invoke(binding.getBean(), action, actionParams);

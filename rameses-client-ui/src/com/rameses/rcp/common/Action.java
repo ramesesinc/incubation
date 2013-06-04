@@ -37,8 +37,7 @@ public class Action implements Comparable<Action>
     private String permission;
     private boolean showCaption;
     
-    public Action() {
-        
+    public Action() {        
     }
     
     public Action(String name) {
@@ -68,16 +67,14 @@ public class Action implements Comparable<Action>
         return index - a.index;
     }
 
-    public Object getSource() { return null; } 
-    
     //overridable
-    public Object execute() {
-        return null;
-    }
+    public Object execute() { return null; }
     
     
-    //<editor-fold defaultstate="collapsed" desc="  Getters/Setters  ">
-    public String getCaption() {
+    // <editor-fold defaultstate="collapsed" desc="  Getters/Setters  "> 
+    
+    public String getCaption() 
+    {
         if ( ValueUtil.isEmpty(caption) && !ValueUtil.isEmpty(properties.get("caption")))
             return properties.get("caption")+"";
         
@@ -99,35 +96,18 @@ public class Action implements Comparable<Action>
         this.icon = icon;
     }
     
-    public Action getParent() {
-        return parent;
-    }
-    
+    public Action getParent() { return parent; }    
     public void setParent(Action parent) {
         this.parent = parent;
     }
+        
+    public String getName() { return name; }    
+    public void setName(String name) { this.name = name; }
     
+    public int getIndex() { return index; }    
+    public void setIndex(int index) { this.index = index; }
     
-    public String getName() {
-        return name;
-    }
-    
-    public void setName(String name) {
-        this.name = name;
-    }
-    
-    public int getIndex() {
-        return index;
-    }
-    
-    public void setIndex(int index) {
-        this.index = index;
-    }
-    
-    public String getCategory() {
-        return category;
-    }
-    
+    public String getCategory() { return category; }    
     public void setCategory(String category) {
         this.category = category;
     }
@@ -137,11 +117,10 @@ public class Action implements Comparable<Action>
         return category + "/" + name;
     }
     
-    public Map getProperties() {
-        return properties;
-    }
+    public Map getProperties() { return properties; }    
     
-    public char getMnemonic() {
+    public char getMnemonic() 
+    {
         if ( mnemonic == '\u0000' && !ValueUtil.isEmpty(properties.get("mnemonic")))
             return (properties.get("mnemonic")+"").charAt(0);
         
@@ -152,44 +131,30 @@ public class Action implements Comparable<Action>
         this.mnemonic = mnemonic;
     }
     
-    public boolean isImmediate() {
-        return immediate;
-    }
-    
+    public boolean isImmediate() { return immediate; }    
     public void setImmediate(boolean immediate) {
         this.immediate = immediate;
     }
     
-    public String getPermission() {
-        return permission;
-    }
-    
+    public String getPermission() { return permission; }    
     public void setPermission(String permission) {
         this.permission = permission;
     }
     
     @Deprecated
-    public Map getParameters() {
-        return parameters;
-    }
+    public Map getParameters() { return parameters; }
     
     @Deprecated
     public void setParameters(Map parameters) {
         this.parameters = parameters;
     }
     
-    public Map getParams() {
-        return parameters;
+    public Map getParams() { return parameters; }    
+    public void setParams(Map params) { 
+        this.parameters = params; 
     }
     
-    public void setParams(Map p) {
-        this.parameters = p;
-    }
-    
-    public boolean isUpdate() {
-        return update;
-    }
-    
+    public boolean isUpdate() { return update; }    
     public void setUpdate(boolean update) {
         this.update = update;
     }
@@ -219,32 +184,28 @@ public class Action implements Comparable<Action>
     public void setVisibleWhen(String visibleWhen) {
         this.visibleWhen = visibleWhen;
     }
-    //</editor-fold>
+    
+    // </editor-fold>
 
-    public String getRole() {
-        return role;
-    }
-
+    public String getRole() { return role; }
     public void setRole(String role) {
         this.role = role;
     }
 
-    public String getDomain() {
-        return domain;
-    }
-
+    public String getDomain() { return domain; }
     public void setDomain(String domain) {
         this.domain = domain;
     }
 
     //force the showing of captions if icon is null 
-    public boolean isShowCaption() {
-        if(icon==null) return true;
+    public boolean isShowCaption() 
+    {
+        if (icon == null) return true;
+        
         return showCaption;
     }
 
     public void setShowCaption(boolean showCaption) {
         this.showCaption = showCaption;
-    }
-    
+    }    
 }
