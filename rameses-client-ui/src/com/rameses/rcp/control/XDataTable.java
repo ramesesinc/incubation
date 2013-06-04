@@ -10,6 +10,7 @@ package com.rameses.rcp.control;
 import com.rameses.rcp.common.AbstractListDataProvider;
 import com.rameses.rcp.common.BasicListModel;
 import com.rameses.rcp.common.Column;
+import com.rameses.rcp.common.EditorListModel;
 import com.rameses.rcp.common.ListItem;
 import com.rameses.rcp.common.MsgBox;
 import com.rameses.rcp.common.PropertyChangeHandler;
@@ -55,6 +56,7 @@ public class XDataTable extends JPanel implements UIInput, Validatable, FocusLis
     private boolean dynamic;
     private boolean showRowHeader;
     private boolean immediate;
+    private boolean editable; 
     
     private ListItem currentItem;    
     private RowChangeNotifier rowChangeNotifier; 
@@ -214,7 +216,12 @@ public class XDataTable extends JPanel implements UIInput, Validatable, FocusLis
         }
         
         if (newProvider == null && getItems() != null) 
-            newProvider = new ListModelWrapper(getItems()); 
+        {
+            if (isEditable())
+                newProvider = new EditableListModel(getItems()); 
+            else 
+                newProvider = new ReadonlyListModel(getItems()); 
+        }
         
         if (newProvider != null)
         {
@@ -320,7 +327,7 @@ public class XDataTable extends JPanel implements UIInput, Validatable, FocusLis
         {
             try 
             {
-                ListModelWrapper lm = new ListModelWrapper(null);
+                ReadonlyListModel lm = new ReadonlyListModel(null);
                 lm.setColumns(columns);
                 table.setDataProvider(lm);
             }
@@ -432,6 +439,9 @@ public class XDataTable extends JPanel implements UIInput, Validatable, FocusLis
     public void setPropertyInfo(PropertySupport.PropertyInfo info) {
     }
     
+    public boolean isEditable() { return editable; } 
+    public void setEditable(boolean editable) { this.editable = editable; }
+    
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc="  ScrollBarPanel (class)  ">
@@ -464,14 +474,14 @@ public class XDataTable extends JPanel implements UIInput, Validatable, FocusLis
     
     // </editor-fold>
         
-    // <editor-fold defaultstate="collapsed" desc="  ListModelWrapper (class)  ">
+    // <editor-fold defaultstate="collapsed" desc="  ReadonlyListModel (class)  ">
     
-    private class ListModelWrapper extends BasicListModel 
+    private class ReadonlyListModel extends BasicListModel 
     {
         private java.util.List userDefinedList;
         private String name;
         
-        ListModelWrapper(String name) { this.name = name; } 
+        ReadonlyListModel(String name) { this.name = name; } 
 
         public java.util.List fetchList(Map params) 
         {
@@ -488,6 +498,29 @@ public class XDataTable extends JPanel implements UIInput, Validatable, FocusLis
     }
     
     // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc="  EditableListModel (class)  ">
+    
+    private class EditableListModel extends EditorListModel 
+    {
+        private java.util.List userDefinedList;
+        private String name;
+        
+        EditableListModel(String name) { this.name = name; } 
+
+        public java.util.List fetchList(Map params) 
+        {
+            if (userDefinedList == null && name != null)
+                userDefinedList = (java.util.List) UIControlUtil.getBeanValue(binding, name); 
+            
+            if (userDefinedList == null)
+                return new ArrayList();
+            else
+                return userDefinedList; 
+        } 
+    }
+    
+    // </editor-fold>    
     
     // <editor-fold defaultstate="collapsed" desc="  RowChangeNotifier (Class)  ">
 

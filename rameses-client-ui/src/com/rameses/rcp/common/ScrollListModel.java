@@ -218,7 +218,11 @@ public abstract class ScrollListModel extends AbstractListDataProvider implement
         if (getSelectedItem() == null) return; 
         
         int newToprow = toprow - getRows();
-        if (newToprow < 0) newToprow = 0;
+        if (newToprow < 0) 
+        {
+            newToprow = 0;
+            setSelectedItem(0); 
+        }
         
         this.toprow = newToprow;
         if (newToprow < minlimit && minlimit > 0)  

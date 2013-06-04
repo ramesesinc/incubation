@@ -39,6 +39,7 @@ public class XDataTableBeanInfo extends ComponentBeanInfo.Support
             
             new PropertyDescriptor("depends", getBeanClass()),
             new PropertyDescriptor("dynamic", getBeanClass(), "isDynamic", "setDynamic"),
+            new PropertyDescriptor("editable", getBeanClass(), "isEditable", "setEditable"),
             new PropertyDescriptor("errorBackground", getBeanClass()),
             new PropertyDescriptor("errorForeground", getBeanClass()),
             new PropertyDescriptor("evenBackground", getBeanClass()),

@@ -92,7 +92,7 @@ public abstract class AbstractListDataProvider
         fillListItems(dataList, 0); 
 
         if (selectedItem != null) setSelectedItem(selectedItem.getIndex());
-        if (selectedItem == null) setSelectedItem(0);     
+        if (selectedItem == null) setSelectedItem(0);
     } 
     
     private void fetchImpl() 
@@ -107,6 +107,7 @@ public abstract class AbstractListDataProvider
             
             int index = (selectedItem == null? 0: selectedItem.getIndex());
             tableModelSupport.fireTableRowSelected(index, false);
+            //fireFocusSelectedItem(); 
         }
         catch(RuntimeException re) {
             throw re;

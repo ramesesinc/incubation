@@ -1348,6 +1348,7 @@ public class DataTableComponent extends JTable implements TableControl
                     }
                 }
                 root.getSelectionModel().setSelectionInterval(preferredRow, preferredRow); 
+                onrowChanged();
             }
         }
     }
