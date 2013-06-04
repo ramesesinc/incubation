@@ -10,6 +10,7 @@ import com.rameses.util.BusinessException;
 import com.rameses.util.ExceptionManager;
 import com.rameses.util.ValueUtil;
 import java.beans.Beans;
+import java.lang.reflect.Method;
 import javax.swing.JComponent;
 
 /**
@@ -45,38 +46,57 @@ public class UICommandUtil {
             
             Object outcome = null;
             String action = command.getActionName();
-            if ( btn.getClientProperty(Action.class.getName()) != null ) {
+            if ( btn.getClientProperty(Action.class.getName()) != null ) 
+            {
                 Action a = (Action) btn.getClientProperty(Action.class.getName());
-                outcome = a.execute();
-                
-            } else if ( action != null ) {
-                if ( !action.startsWith("_")) {
-                    outcome = resolver.invoke(binding.getBean(), action, null, null);
-                } else {
+                outcome = a.execute();                
+            } 
+            else if ( action != null ) 
+            {
+                if ( !action.startsWith("_")) 
+                    outcome = resolver.invoke(binding.getBean(), action, null, null); 
+                else 
                     outcome = action;
-                }
                 
-                if ( command.isUpdate() ) {
-                    binding.update();
-                }
+                if ( command.isUpdate() ) binding.update();
             }
-            NavigationHandler handler = ctx.getNavigationHandler();
-            if ( handler != null ) {
-                handler.navigate(navPanel, command, outcome);
-            }
-        } catch(Exception ex) {
-            Exception e = ExceptionManager.getOriginal(ex);
             
-            if ( !ExceptionManager.getInstance().handleError(e) ) {
+            NavigationHandler handler = ctx.getNavigationHandler();
+            if ( handler != null ) handler.navigate(navPanel, command, outcome);
+        } 
+        catch(Exception ex) 
+        {
+            ex.printStackTrace();
+            
+            Exception e = ExceptionManager.getOriginal(ex);            
+            if (!ExceptionManager.getInstance().handleError(e))
                 ClientContext.getCurrentContext().getPlatform().showError((JComponent) command, ex);
-            }
         }
     }
     
-    private static void validate(UICommand command, Binding binding) throws BusinessException {
+    private static void validate(UICommand command, Binding binding) throws BusinessException 
+    {
         if ( binding == null ) return;
         if ( !command.isUpdate() && command.isImmediate() ) return;
         
         binding.validate();
+    }
+    
+    private static boolean hasMethod(Object bean, String name, Object[] args) 
+    {
+        if (bean == null || name == null) return false;
+        
+        Class beanClass = bean.getClass();
+        Method[] methods = beanClass.getMethods(); 
+        for (int i=0; i<methods.length; i++) 
+        {
+            Method m = methods[i];
+            if (!m.getName().equals(name)) continue;
+            
+            int paramSize = (m.getParameterTypes() == null? 0: m.getParameterTypes().length); 
+            int argSize = (args == null? 0: args.length); 
+            if (paramSize == argSize) return true;
+        }
+        return false;
     }
 }

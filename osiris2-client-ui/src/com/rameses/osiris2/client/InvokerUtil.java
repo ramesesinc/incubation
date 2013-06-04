@@ -158,35 +158,41 @@ public final class InvokerUtil {
     }
     
     
-    public static Object invokeAction(InvokerAction action) {
-        try {
+    public static Object invokeAction(InvokerAction action) 
+    {
+        try 
+        {
             Invoker inv = action.getInvoker();
             InvokerParameter invParam = action.getInvokerParam();
             
-            String target = (String)inv.getProperties().get("target");
-            if( target == null ) target = "_window";
+            String target = (String) inv.getProperties().get("target");
+            if ( target == null ) target = "_window";
             
             Map props = null;
             String caption = null;
-            if( invParam !=null ) {
+            if ( invParam !=null ) 
+            {
                 props = invParam.getParams(inv);
-                caption = (String)props.remove( "formTitle" );
+                caption = (String) props.remove( "formTitle" );
             }
-            if(caption==null) caption = inv.getCaption();
             
-            if((target.endsWith("process")||target.endsWith("action"))) {
+            if (caption == null) caption = inv.getCaption();
+            
+            if ((target.endsWith("process") || target.endsWith("action"))) 
+            {
                 invoke( inv, props );
-                return null;
-                
-            } else {
+                return null;                
+            } 
+            else {
                 return createOpener(inv, props, caption);
             }
-        } catch(Exception ex) {
-            Exception e = ExceptionManager.getOriginal(ex);
-            
-            if ( !ExceptionManager.getInstance().handleError(e) ) {
+        } 
+        catch(Exception ex) 
+        {
+            Exception e = ExceptionManager.getOriginal(ex);            
+            if ( !ExceptionManager.getInstance().handleError(e) ) 
                 ClientContext.getCurrentContext().getPlatform().showError(null, ex);
-            }
+
             return null;
         }
     }
@@ -373,20 +379,23 @@ public final class InvokerUtil {
         return createOpener(inv, params, null);
     }
     
-    public static Opener createOpener(Invoker inv, Map params, String caption ) {
+    public static Opener createOpener(Invoker inv, Map params, String caption ) 
+    {
         String target = (String)inv.getProperties().get("target");
         Opener opener = new Opener(inv.getWorkunitid());
-        if(caption==null) caption = inv.getCaption();
-        if(caption==null) caption = inv.getWorkunitid();
+        if (caption == null) caption = inv.getCaption();
+        if (caption == null) caption = inv.getWorkunitid();
+        
         opener.setId( createInvokerId(inv) );
         opener.setCaption(caption);
         opener.setAction(inv.getAction());
         
         if ( target !=null ) target = target.replaceAll("^([^_])", "_$1");
-        opener.setTarget( target );
-        if(params!=null) opener.setParams( params );
         
-        if( inv.getProperties().size() > 0 )
+        opener.setTarget( target );
+        if (params != null) opener.setParams( params );
+        
+        if (inv.getProperties().size() > 0)
             opener.getProperties().putAll( inv.getProperties() );
 
         opener.getProperties().put("_INVOKER_", inv);
@@ -395,8 +404,7 @@ public final class InvokerUtil {
             public void load(Opener o) {
                 InvokerUtil.invokeOpener( o );
             }
-        });
-        
+        });        
         return opener;
     }
     

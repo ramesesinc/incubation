@@ -18,8 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 public class WorkUnitUIController extends UIController 
-{
-    
+{    
     private WorkUnitInstance workunit;
     private String id;
     private String title;
@@ -118,14 +117,16 @@ public class WorkUnitUIController extends UIController
             return title;
     }
     
-    public Object init(Map properties, String action) {
+    public Object init(Map properties, String action, Object[] actionParams) 
+    {
         //set the properties
         ControlSupport.setProperties( getCodeBean(), properties );
         
         //check first if the workunit has already started.
         //if it has already started, fire the transition.
         //The subprocess normnally calls _close:signalAction.
-       if( workunit.getPageFlow()!=null && workunit.isStarted()) {
+       if ( workunit.getPageFlow()!=null && workunit.isStarted()) 
+       {
             if(action ==null) {
                 workunit.signal();
             } else {
@@ -137,16 +138,28 @@ public class WorkUnitUIController extends UIController
                 return "_close";
             else
                 return workunit.getCurrentPage().getName();
-        } else {
-            if( workunit.getWorkunit().getPages().size()>0 ) {
+        } 
+       else 
+       {
+            if ( workunit.getWorkunit().getPages().size() > 0 ) {
                 defaultPageName = workunit.getCurrentPage().getName();
             }
-            if(action == null ) {
+            
+            if (action == null ) {
                 return null;
-            } else if( action.startsWith("_")) {
+            } 
+            else if( action.startsWith("_")) {
                 return action.substring(1);
-            } else {
-                return ControlSupport.invoke(  getCodeBean(), action, null);
+            } 
+            else 
+            {
+                if (actionParams == null) actionParams = new Object[]{};
+                
+                Object codeBean = getCodeBean();
+                if (hasMethod(codeBean, action, actionParams))
+                    return ControlSupport.invoke(codeBean, action, actionParams);
+                else 
+                    return ControlSupport.invoke(codeBean, action, null);
             }
         }
     }
@@ -174,4 +187,22 @@ public class WorkUnitUIController extends UIController
         
         return map;
     }
+    
+    private boolean hasMethod(Object bean, String name, Object[] args) 
+    {
+        if (bean == null || name == null) return false;
+        
+        Class beanClass = bean.getClass();
+        Method[] methods = beanClass.getMethods(); 
+        for (int i=0; i<methods.length; i++) 
+        {
+            Method m = methods[i];
+            if (!m.getName().equals(name)) continue;
+            
+            int paramSize = (m.getParameterTypes() == null? 0: m.getParameterTypes().length); 
+            int argSize = (args == null? 0: args.length); 
+            if (paramSize == argSize) return true;
+        }
+        return false;
+    }    
 }

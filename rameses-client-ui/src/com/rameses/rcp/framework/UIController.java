@@ -10,7 +10,8 @@ public abstract class UIController {
     public abstract View[] getViews();
     public abstract String getDefaultView();
     public abstract Object getCodeBean();
-    public abstract Object init(Map params, String action);
+    
+    public abstract Object init(Map params, String action, Object[] actionParams);
     
     public abstract String getId();
     public abstract void setId(String id);
@@ -23,6 +24,10 @@ public abstract class UIController {
     
     public abstract Map getInfo();
 
+    public final Object init(Map params, String action) {
+        return init(params, action, null); 
+    }
+        
     public static class View {
         
         private String name;
@@ -46,5 +51,5 @@ public abstract class UIController {
         }
         
     }
-    
+        
 }

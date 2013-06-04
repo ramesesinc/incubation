@@ -176,7 +176,7 @@ public class XActionBar extends JPanel implements UIComposite
                 if (!allowed) continue;
                 
                 XButton btn = createButton(action);
-                buttons.add(btn);
+                buttons.add(btn);                
             }
         }
         
@@ -230,7 +230,7 @@ public class XActionBar extends JPanel implements UIComposite
         
         if (action.getIcon() != null) 
             btn.setIcon(ControlSupport.getImageIcon(action.getIcon()));
-        
+
         btn.putClientProperty("visibleWhen", action.getVisibleWhen());
         btn.setBinding(binding);
         

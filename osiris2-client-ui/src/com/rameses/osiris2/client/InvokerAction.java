@@ -10,8 +10,8 @@ package com.rameses.osiris2.client;
 import com.rameses.osiris2.Invoker;
 import com.rameses.rcp.common.Action;
 
-public class InvokerAction extends Action  {
-    
+public class InvokerAction extends Action  
+{    
     private Invoker invoker;
     private InvokerParameter invParam;
     

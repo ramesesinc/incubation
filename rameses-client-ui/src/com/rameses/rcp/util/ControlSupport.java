@@ -108,16 +108,19 @@ public final class ControlSupport {
         return initOpener(opener, caller, true);
     }
     
-    public static Opener initOpener( Opener opener, UIController caller, boolean invokeOpenerAction ) {
-        if ( caller != null && ValueUtil.isEmpty(opener.getName()) ) {
+    public static Opener initOpener( Opener opener, UIController caller, boolean invokeOpenerAction ) 
+    {
+        if ( caller != null && ValueUtil.isEmpty(opener.getName()) ) 
+        {
             opener.setController( caller );
-            if( opener.getCaption() != null )
+            if ( opener.getCaption() != null )
                 caller.setTitle( opener.getCaption() );
-            if( opener.getId() != null )
+            if ( opener.getId() != null )
                 caller.setId( opener.getId() );
             
         } 
-        else if ( opener.getController() == null ) {
+        else if ( opener.getController() == null ) 
+        {
             ControllerProvider provider = ClientContext.getCurrentContext().getControllerProvider();
             UIController controller = provider.getController(opener.getName(), caller);
             controller.setId( opener.getId() );
@@ -136,15 +139,20 @@ public final class ControlSupport {
             
             opener.setController( controller );
             
-            if ( invokeOpenerAction ) {
-                Object o = controller.init(opener.getParams(), opener.getAction());
-                if( o == null );
+            if ( invokeOpenerAction ) 
+            {
+                Object[] actionParams = new Object[]{};
+                if (invoker != null) actionParams = new Object[]{ invoker };
+                
+                Object o = controller.init(opener.getParams(), opener.getAction(), actionParams);
+                if ( o == null ) {;} 
                 else if ( o instanceof String ) {
                     opener.setOutcome( (String)o );
                 } 
                 //if the opener action returns another opener,
                 //then intialize the opener and return it
-                else if ( o instanceof Opener ) {
+                else if ( o instanceof Opener ) 
+                {
                     Opener oo = (Opener) o;
                     opener = initOpener(oo, oo.getController(), invokeOpenerAction);
                 }

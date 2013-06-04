@@ -47,7 +47,7 @@ public class DefaultLookupController extends UIController
 
     public Object getCodeBean() { return this.codeBean; }
 
-    public Object init(Map params, String action) 
+    public Object init(Map params, String action, Object[] actionParams) 
     {
         ControlSupport.setProperties( getCodeBean(), params );     
         if (action == null) 

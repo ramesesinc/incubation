@@ -14,8 +14,8 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
 
-public class Action implements Comparable<Action> {
-    
+public class Action implements Comparable<Action> 
+{    
     private String name;
     //index is used for sorting
     private int index;
@@ -67,11 +67,12 @@ public class Action implements Comparable<Action> {
     public int compareTo(Action a) {
         return index - a.index;
     }
-    
+
     //overridable
     public Object execute() {
         return null;
     }
+    
     
     //<editor-fold defaultstate="collapsed" desc="  Getters/Setters  ">
     public String getCaption() {
