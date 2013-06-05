@@ -12,6 +12,7 @@ import com.rameses.rcp.common.Opener;
 import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.constant.TextCase;
 import com.rameses.rcp.constant.TrimSpaceOption;
+import com.rameses.rcp.control.table.ExprBeanSupport;
 import com.rameses.rcp.control.text.IconedTextField;
 import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.framework.ClientContext;
@@ -67,8 +68,9 @@ public class XLookupField extends IconedTextField implements UIFocusableContaine
     private String[] depends;
     private int index;
     
+    private String varName = "item";
     private String hint;
-    private String handler;
+    private String handler;    
     private Object handlerObject;    
     private Object selectedValue;
     private String expression;
@@ -93,6 +95,9 @@ public class XLookupField extends IconedTextField implements UIFocusableContaine
     }    
 
     // <editor-fold defaultstate="collapsed" desc="  Getters/Setters ">
+    
+    public String getVarName() { return varName; } 
+    public void setVarName(String varName) { this.varName = varName; }
     
     public boolean isNullWhenEmpty() { return nullWhenEmpty; }
     public void setNullWhenEmpty(boolean nullWhenEmpty) { 
@@ -215,9 +220,20 @@ public class XLookupField extends IconedTextField implements UIFocusableContaine
         Object expval = null;
         if ( !ValueUtil.isEmpty(expression) ) 
         {
+            Object itemBean = null; 
+            if ( !ValueUtil.isEmpty(getName()) ) 
+            { 
+                try {
+                    itemBean = UIControlUtil.getBeanValue(this);
+                } catch(Exception ign){;} 
+            }
+            
             Object bean = binding.getBean(); 
             if (bean != null) 
-                expval = UIControlUtil.evaluateExpr(bean, expression); 
+            {
+                Object exprBean = createExpressionBean(itemBean); 
+                expval = UIControlUtil.evaluateExpr(exprBean, expression); 
+            }
         }
         
         setText((expval == null? null: expval.toString()));         
@@ -231,6 +247,13 @@ public class XLookupField extends IconedTextField implements UIFocusableContaine
     public int compareTo(Object o) {
         return UIControlUtil.compare(this, o);        
     }
+    
+    private Object createExpressionBean(Object itemBean) 
+    {
+        ExprBeanSupport beanSupport = new ExprBeanSupport(binding.getBean());
+        beanSupport.setItem(getVarName(), itemBean); 
+        return beanSupport.createProxy(); 
+    }        
     
     // </editor-fold>     
     
