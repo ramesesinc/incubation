@@ -17,6 +17,7 @@ import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
 import java.beans.SimpleBeanInfo;
+import javax.swing.JComponent;
 
 /**
  *
@@ -38,7 +39,8 @@ public class ComponentBeanInfo extends SimpleBeanInfo
                 new PropertyDescriptor("font", Component.class), 
                 
                 new PropertyDescriptor("name", Component.class),
-                new PropertyDescriptor("visible", Component.class) 
+                new PropertyDescriptor("visible", Component.class), 
+                new PropertyDescriptor("opaque", JComponent.class, "isOpaque", "setOpaque")
             };
         } 
         catch (IntrospectionException ie) {
