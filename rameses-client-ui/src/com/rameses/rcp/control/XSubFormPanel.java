@@ -167,7 +167,7 @@ public class XSubFormPanel extends JPanel implements UISubControl, ActiveControl
             return;
         }
         
-        if ( !multiForm && currentOpeners.size() > 0 && openers.get(0) == currentOpeners.get(0) ) {
+        if ( !multiForm && currentOpeners.size() > 0 && openers.get(0) == currentOpeners.get(0) && !subFormItems.isEmpty() ) {
             SubFormContext sfc = subFormItems.get(0);
             sfc.renderView();
             
