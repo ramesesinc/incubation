@@ -1296,7 +1296,6 @@ public class DataTableComponent extends JTable implements TableControl
             if (!root.dataProvider.validRange(rowIndex)) rowIndex = 0;
             
             root.tableModel.fireTableRowsUpdated(rowIndex, rowIndex); 
-            //root.changeSelection(rowIndex, loc.x, false, false); 
             root.setRowSelectionInterval(rowIndex, rowIndex); 
         }
     }

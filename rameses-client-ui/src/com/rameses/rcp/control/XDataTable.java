@@ -34,7 +34,7 @@ import java.util.ArrayList;
 import java.util.Map;
 import javax.swing.*;
 
-public class XDataTable extends JPanel implements UIInput, Validatable, FocusListener 
+public class XDataTable extends JPanel implements UIInput, Validatable, FocusListener
 {    
     private DataTableComponentImpl table;
     private ListScrollBar scrollBar;
@@ -57,7 +57,7 @@ public class XDataTable extends JPanel implements UIInput, Validatable, FocusLis
     private boolean showRowHeader;
     private boolean immediate;
     private boolean editable; 
-    
+            
     private ListItem currentItem;    
     private RowChangeNotifier rowChangeNotifier; 
     private ListModelLoader loader;
@@ -191,6 +191,7 @@ public class XDataTable extends JPanel implements UIInput, Validatable, FocusLis
     public void setBinding(Binding binding) { this.binding = binding; }
     
     private boolean refreshed;
+    private boolean hasLoaded;
     
     public void refresh() 
     {
@@ -206,6 +207,9 @@ public class XDataTable extends JPanel implements UIInput, Validatable, FocusLis
     
     public void load() 
     {
+        //System.out.println("load: class="+getClass().getName()+"@"+hashCode() + ", loaded="+hasLoaded + ", name="+getName());
+        if (hasLoaded) return;
+        
         refreshed = false;
         AbstractListDataProvider newProvider = null;
         if ( handler != null ) 
@@ -239,6 +243,7 @@ public class XDataTable extends JPanel implements UIInput, Validatable, FocusLis
                 table.getModel().addTableModelListener(rowHeaderView);
             }
         }
+        hasLoaded = true;
     }
     
     public Object getValue() 
@@ -735,12 +740,8 @@ public class XDataTable extends JPanel implements UIInput, Validatable, FocusLis
         public void firePropertyChange(String name, Object value) 
         {
             if ("selectedItemChanged".equals(name)) 
-            {
-                try { 
-                    root.scrollBar.adjustValues(); 
-                } catch(Exception ex) {;}                
-            }
-        }         
+                root.table.onrowChanged();
+        }   
     }
     
     // </editor-fold>     

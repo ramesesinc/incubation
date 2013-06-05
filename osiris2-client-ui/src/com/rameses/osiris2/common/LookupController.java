@@ -46,7 +46,7 @@ public abstract class LookupController extends LookupModel
     public LookupController() {
         setSelector(new LookupSelectorImpl()); 
     }
-        
+    
     public void init() {}
     
     // <editor-fold defaultstate="collapsed" desc="  Getters/Setters  ">

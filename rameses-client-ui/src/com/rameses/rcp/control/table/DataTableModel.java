@@ -41,24 +41,19 @@ public class DataTableModel extends AbstractTableModel implements TableControlMo
             this.dataProvider.addHandler(this);
         } 
         
-        columnList.clear(); 
-        indexColumns(); 
+        reIndexColumns(); 
     } 
     
-    private void indexColumns() 
+    public void reIndexColumns() 
     {
+        columnList.clear(); 
+        
         if (dataProvider == null) return;
         
         for (Column col : dataProvider.getColumns()) 
         {
             if (col.isVisible()) columnList.add(col);
-        }
-    }
-    
-    public void reIndexColumns() 
-    {
-        columnList.clear();
-        indexColumns();
+        }        
     }
         
     public int getRowCount() {

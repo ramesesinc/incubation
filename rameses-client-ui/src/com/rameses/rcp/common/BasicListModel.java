@@ -7,8 +7,7 @@ import java.util.Map;
 
 public class BasicListModel extends AbstractListDataProvider 
 {    
-    private List DEFAULT_LIST = new ArrayList();
-    
+    private List DEFAULT_LIST = new ArrayList();    
     private Map query = new HashMap();
 
     public Map getQuery() { return query; } 

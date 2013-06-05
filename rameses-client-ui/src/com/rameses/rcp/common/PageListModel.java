@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public abstract class PageListModel extends AbstractListDataProvider implements ListPageModel
+public abstract class PageListModel extends AbstractListDataProvider implements ListPageModel 
 {    
     //stores the fetched result list size 
     private int fetchedRows;
@@ -14,6 +14,7 @@ public abstract class PageListModel extends AbstractListDataProvider implements 
     private int pageIndex = 1;
     private int pageCount = 1;    
     private String searchtext;
+    
     private Map query = new HashMap(); 
 
     public void load() 
@@ -49,7 +50,8 @@ public abstract class PageListModel extends AbstractListDataProvider implements 
     { 
         preferredRows = getRows();         
         List dataList = getDataList();
-        if (dataList == null || forceLoad) 
+        boolean fetchNewRecords = (dataList == null || forceLoad);
+        if (fetchNewRecords) 
         {
             int _startRow = (pageIndex * preferredRows) - preferredRows;
             if (_startRow < 0) _startRow = 0;
@@ -76,6 +78,10 @@ public abstract class PageListModel extends AbstractListDataProvider implements 
 
         fillListItems(dataList, 0);         
         setSelectedItem((getSelectedItem() == null? 0: getSelectedItem().getIndex())); 
+        if (fetchNewRecords && !dataList.isEmpty() && getSelectedItem() != null) 
+        {
+            if (getSelectedItem().getItem() == null) setSelectedItem(0);
+        }
     }
         
     public void moveFirstPage() 
