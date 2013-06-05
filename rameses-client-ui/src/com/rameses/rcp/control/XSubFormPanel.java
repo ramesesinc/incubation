@@ -1,5 +1,6 @@
 package com.rameses.rcp.control;
 
+import com.rameses.rcp.common.LookupOpenerSupport;
 import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.ui.ActiveControl;
@@ -23,6 +24,7 @@ import java.awt.LayoutManager;
 import java.beans.Beans;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 import javax.swing.BoxLayout;
@@ -123,37 +125,47 @@ public class XSubFormPanel extends JPanel implements UISubControl, ActiveControl
         bindingConnector.setParentBinding(binding);
     }
     
-    //<editor-fold defaultstate="collapsed" desc="  helper methods  ">
-    protected void buildForm() {
+    // <editor-fold defaultstate="collapsed" desc="  helper methods  ">
+    
+    protected void buildForm() 
+    {
         handlerObj = null;
         
         //this is usually set by XTabbedPane or
         //other controls that used XSubForm internally
         if ( getOpeners().size() > 0 ) {
             handlerObj = getOpeners();
-        } else {
-            handlerObj = UIControlUtil.getBeanValue(this, getHandler());
-            multiForm = true; //reset, check based on passed value
+        } 
+        else if ( !ValueUtil.isEmpty(getHandler()) ) 
+        {
+            String shandler = getHandler();
+            if ( shandler.matches(".+:.+") ) 
+                handlerObj = LookupOpenerSupport.lookupOpener(shandler, new HashMap()); 
+            else 
+                handlerObj = UIControlUtil.getBeanValue(this, shandler);
         }
         
-        List<Opener> openers = new ArrayList();
-        
+        multiForm = true; //reset, check based on passed value        
+        List<Opener> openers = new ArrayList();        
         if ( handlerObj == null ) {
             //do nothing
-        } else if ( handlerObj instanceof Collection ) {
-            for(Object o: (Collection) handlerObj) {
+        } 
+        else if ( handlerObj instanceof Collection ) 
+        {
+            for (Object o: (Collection) handlerObj) {
                 openers.add( (Opener)o );
-            }
-            
-        } else if ( handlerObj.getClass().isArray() ) {
-            for(Object o: (Object[]) handlerObj) {
+            }            
+        } 
+        else if ( handlerObj.getClass().isArray() ) 
+        {
+            for (Object o: (Object[]) handlerObj) {
                 openers.add( (Opener)o );
-            }
-            
-        } else if ( handlerObj instanceof Opener ) {
+            }            
+        } 
+        else if ( handlerObj instanceof Opener ) 
+        {
             openers.add( (Opener)handlerObj );
             multiForm = false;
-            
         }
         
         //-- display support
