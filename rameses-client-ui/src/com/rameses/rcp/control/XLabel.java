@@ -1,6 +1,7 @@
 package com.rameses.rcp.control;
 
 import com.rameses.rcp.common.PropertySupport;
+import com.rameses.rcp.control.table.ExprBeanSupport;
 import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.framework.ClientContext;
 import com.rameses.rcp.support.ThemeUI;
@@ -27,14 +28,15 @@ import javax.swing.border.Border;
  *
  * @author jaycverg
  */
-public class XLabel extends JLabel implements UIOutput, ActiveControl {
-    
-    private int index;
-    private String[] depends;
-    private Binding binding;
+public class XLabel extends JLabel implements UIOutput, ActiveControl 
+{
     private ControlProperty property = new ControlProperty();
+    private Binding binding;        
+    private String[] depends;
     private String expression;
     private String visibleWhen;
+    private String varName;
+    private int index;    
     private Insets padding;
     private Format format;
     
@@ -79,22 +81,29 @@ public class XLabel extends JLabel implements UIOutput, ActiveControl {
                 if (!result) return;
             }
             
+            Object beanValue = null; 
+            boolean hasName = !ValueUtil.isEmpty(getName());
+            if (hasName) beanValue = UIControlUtil.getBeanValue(this);
+            
             Object value = null;
             if ( !ValueUtil.isEmpty(expression) )  
-                value = UIControlUtil.evaluateExpr(binding.getBean(), expression);
-
-            else if ( !ValueUtil.isEmpty(getName()) ) 
             {
-                value = UIControlUtil.getBeanValue(this);
-                if ( value != null && format != null )
-                    value = format.format(value);
+                Object exprBean = binding.getBean(); 
+                if (getVarName() != null) exprBean = createExpressionBean(beanValue);
+
+                value = UIControlUtil.evaluateExpr(exprBean, expression);
+            }
+            else if ( hasName ) 
+            {
+                value = beanValue;
+                if (beanValue != null && format != null)
+                    value = format.format(beanValue);
+            } 
+            else { 
+                value = super.getText();
             } 
             
-            else 
-                value = super.getText();
-            
-            super.setText(( (value != null)? value+"" : ""));
-            
+            super.setText((value == null? "": value.toString()));            
         } 
         catch(Exception e) 
         {
@@ -162,25 +171,27 @@ public class XLabel extends JLabel implements UIOutput, ActiveControl {
     
     // <editor-fold defaultstate="collapsed" desc="  Getters/Setters  ">
     
-    public String getName() {
-        return super.getName(); 
-    }
+    public String getVarName() { return varName; } 
+    public void setVarName(String varName) { this.varName = varName; }
     
-    public void setName(String name) {
+    public void setName(String name) 
+    {
         super.setName(name);
         super.setText(name);
     }
     
-    public String getText() {
-        if ( Beans.isDesignTime() ) {
+    public String getText() 
+    {
+        if (Beans.isDesignTime()) 
+        {
             if ( !ValueUtil.isEmpty(expression) )
                 return expression;
             else if ( !ValueUtil.isEmpty(getName()) )
                 return getName();
             else
                 return super.getText();
-            
-        } else {
+        } 
+        else {
             return super.getText();
         }
     }
@@ -199,113 +210,87 @@ public class XLabel extends JLabel implements UIOutput, ActiveControl {
     public String getVisibleWhen() { return visibleWhen; } 
     public void setVisibleWhen(String visibleWhen) { this.visibleWhen = visibleWhen;  }
     
-    public void setBorder(Border border) {
-        origBorder = border;
-        
-        if ( padding != null ) {
+    public Border getBorder() { return origBorder; }    
+    public void setBorder(Border border) 
+    {
+        origBorder = border;        
+        if ( padding != null ) 
+        {
             Border padBorder = BorderFactory.createEmptyBorder(padding.top, padding.left, padding.bottom, padding.right);
             Border b = BorderFactory.createCompoundBorder(origBorder, padBorder);
             super.setBorder(b);
-        } else {
+        } 
+        else {
             super.setBorder(origBorder);
         }
     }
-    
-    public Border getBorder() {
-        return origBorder;
-    }
-    
+        
     public String getCaption() {
         return property.getCaption();
-    }
-    
+    }    
     public void setCaption(String caption) {
         property.setCaption(caption);
     }
     
     public boolean isShowCaption() {
         return property.isShowCaption();
-    }
-    
+    }    
     public void setShowCaption(boolean show) {
         property.setShowCaption(show);
     }
     
     public char getCaptionMnemonic() {
         return property.getCaptionMnemonic();
-    }
-    
+    }    
     public void setCaptionMnemonic(char c) {
         property.setCaptionMnemonic(c);
     }
     
     public int getCaptionWidth() {
         return property.getCaptionWidth();
-    }
-    
+    }    
     public void setCaptionWidth(int width) {
         property.setCaptionWidth(width);
     }
     
     public Font getCaptionFont() {
         return property.getCaptionFont();
-    }
-    
+    }    
     public void setCaptionFont(Font f) {
         property.setCaptionFont(f);
     }
     
     public Insets getCellPadding() {
         return property.getCellPadding();
-    }
-    
+    }    
     public void setCellPadding(Insets padding) {
         property.setCellPadding(padding);
     }
     
-    public String[] getDepends() {
-        return depends;
-    }
+    public String[] getDepends() { return depends; }    
+    public void setDepends(String[] depends) { this.depends = depends; }    
     
-    public void setDepends(String[] depends) {
-        this.depends = depends;
-    }
+    public int getIndex() { return index; }    
+    public void setIndex(int idx) { index = idx; }
+
+    public Binding getBinding() { return binding; }    
+    public void setBinding(Binding binding) { this.binding = binding; }
+        
+    public ControlProperty getControlProperty() { return property; }
     
-    public int getIndex() {
-        return index;
-    }
+    public String getFor() { return labelFor; }    
+    public void setFor(String name) { this.labelFor = name; }
     
-    public void setIndex(int idx) {
-        index = idx;
-    }
-    
-    public void setBinding(Binding binding) {
-        this.binding = binding;
-    }
-    
-    public Binding getBinding() {
-        return binding;
-    }
-    
-    public ControlProperty getControlProperty() {
-        return property;
-    }
-    
-    public String getFor() {
-        return labelFor;
-    }
-    
-    public void setFor(String name) {
-        this.labelFor = name;
-    }
-    
-    public void setLabelFor(Component c) {
+    public void setLabelFor(Component c) 
+    {
         activeComponent = (JComponent) c;
-        if ( c instanceof ActiveControl ) {
+        if ( c instanceof ActiveControl ) 
+        {
             ActiveControl ac = (ActiveControl) c;
             activeProperty = ac.getControlProperty();
             String acCaption = activeProperty.getCaption();
-            if ( forceUseActiveCaption || (!ValueUtil.isEmpty(acCaption) && !acCaption.equals("Caption")) ) {
+            if ( forceUseActiveCaption || (!ValueUtil.isEmpty(acCaption) && !acCaption.equals("Caption")) ) 
+            {
                 setName(null);
                 setExpression(null);
                 formatText(activeProperty.getCaption(), activeProperty.isRequired());
@@ -318,49 +303,54 @@ public class XLabel extends JLabel implements UIOutput, ActiveControl {
         super.setLabelFor(c);
     }
     
-    public Insets getPadding() {
-        return padding;
-    }
-    
-    public void setPadding(Insets padding) {
+    public Insets getPadding() { return padding; }    
+    public void setPadding(Insets padding) 
+    {
         this.padding = padding;
         this.setBorder(origBorder);
     }
     
-    public boolean isAddCaptionColon() {
-        return addCaptionColon;
-    }
-    
-    public void setAddCaptionColon(boolean addCaptionColon) {
+    public boolean isAddCaptionColon() { return addCaptionColon; }    
+    public void setAddCaptionColon(boolean addCaptionColon) 
+    {
         this.addCaptionColon = addCaptionColon;
         formatText( activeProperty.getCaption(), activeProperty.isRequired() );
     }
     
     public Object getValue() 
     {
-        if ( !ValueUtil.isEmpty(expression) ) {
-            return UIControlUtil.evaluateExpr(binding.getBean(), expression);
-        } else if ( !ValueUtil.isEmpty(getName()) )
-            return UIControlUtil.getBeanValue(this);
-        else
-            return super.getText();
+        Object beanValue = null;
+        boolean hasName = !ValueUtil.isEmpty(getName());
+        if ( hasName ) beanValue = UIControlUtil.getBeanValue(this);
         
+        if ( !ValueUtil.isEmpty(expression) ) 
+        {
+            Object exprBean = binding.getBean(); 
+            if (getVarName() != null) exprBean = createExpressionBean(beanValue); 
+            
+            return UIControlUtil.evaluateExpr(exprBean, expression);
+        }
+        else if ( hasName ) 
+            return beanValue; 
+        else 
+            return super.getText();
     }
     
-    public Format getFormat() {
-        return format;
-    }
-
-    public void setFormat(Format format) {
-        this.format = format;
-    }
+    public Format getFormat() { return format; }
+    public void setFormat(Format format) { this.format = format; }
 
     public void setPropertyInfo(PropertySupport.PropertyInfo info) {
     }
     
+    private Object createExpressionBean(Object itemBean) 
+    {
+        ExprBeanSupport beanSupport = new ExprBeanSupport(binding.getBean());
+        beanSupport.setItem(getVarName(), itemBean); 
+        return beanSupport.createProxy(); 
+    }    
+    
     // </editor-fold>
-    
-    
+        
     //<editor-fold defaultstate="collapsed" desc="  ActiveControlSupport (class)  ">
     private class ActiveControlSupport implements PropertyChangeListener {
         
@@ -400,5 +390,4 @@ public class XLabel extends JLabel implements UIOutput, ActiveControl {
         
     }
 //</editor-fold>
-    
 }
