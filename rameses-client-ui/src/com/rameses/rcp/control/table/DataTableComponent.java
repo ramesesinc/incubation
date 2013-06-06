@@ -253,7 +253,7 @@ public class DataTableComponent extends JTable implements TableControl
     public Color getErrorForeground() { return errorForeground; }
     public void setErrorForeground(Color errorForeground) { this.errorForeground = errorForeground; }
     
-    public String getVarStatus()            { return tableModel.getVarStatus(); }
+    public String getVarStatus() { return tableModel.getVarStatus(); }
     public void setVarStatus(String status) { tableModel.setVarStatus(status); }
     
     // </editor-fold>
@@ -266,11 +266,14 @@ public class DataTableComponent extends JTable implements TableControl
         editors.clear(); //clear column editors map
         required = false; //reset flag to false
         
+        ColumnHandlerUtil handlerUtil = ColumnHandlerUtil.newInstance();
         int length = tableModel.getColumnCount();        
         for ( int i=0; i<length; i++ ) 
         {
             Column col = tableModel.getColumn(i);
             TableCellRenderer cellRenderer = TableUtil.getCellRenderer(col);
+            handlerUtil.prepare(col);
+            
             TableColumn tableCol = getColumnModel().getColumn(i);
             tableCol.setCellRenderer(cellRenderer);
             applyColumnProperties(tableCol, col);
@@ -336,15 +339,16 @@ public class DataTableComponent extends JTable implements TableControl
         comp.registerKeyboardAction(kba, kba.keyStroke, JComponent.WHEN_FOCUSED);
     }
     
-    private void applyColumnProperties(TableColumn tc, Column c) {
+    private void applyColumnProperties(TableColumn tc, Column c) 
+    {
         if ( c.getMaxWidth() > 0 ) tc.setMaxWidth( c.getMaxWidth() );
         if ( c.getMinWidth() > 0 ) tc.setMinWidth( c.getMinWidth() );
         
-        if ( c.getWidth() > 0 ) {
+        if ( c.getWidth() > 0 ) 
+        {
             tc.setWidth( c.getWidth() );
             tc.setPreferredWidth( c.getWidth() );
-        }
-        
+        }        
         tc.setResizable( c.isResizable() );
     }
     

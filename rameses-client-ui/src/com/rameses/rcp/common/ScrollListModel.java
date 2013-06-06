@@ -32,6 +32,9 @@ public abstract class ScrollListModel extends AbstractListDataProvider implement
     private int fetchedRows;
     private int pageMode = PAGE_FIRST;
     
+    private int maxRecordCount;
+    private int maxPageCount;
+    
     public Map getQuery() { return query; } 
     
     public String getSearchtext() {  return searchtext; }     
@@ -43,7 +46,17 @@ public abstract class ScrollListModel extends AbstractListDataProvider implement
     
     public Object createItem() { 
         return new HashMap(); 
-    }     
+    }    
+    
+    public ListItemStatus createListItemStatus(ListItem oListItem) 
+    {
+        ListItemStatus stat = super.createListItemStatus(oListItem); 
+        stat.setPageIndex(pageIndex); 
+        stat.setPageCount(maxPageCount);
+        stat.setRecordCount(maxRecordCount);
+        stat.setIsLastPage(isLastPage()); 
+        return stat;
+    }    
     
     public void load() 
     {
@@ -53,6 +66,10 @@ public abstract class ScrollListModel extends AbstractListDataProvider implement
         maxRows = -1;
         pageIndex = 1;
         pageCount = 1;
+        maxRecordCount = 0;
+        maxPageCount = 0;
+        fetchedRows = 0;
+        preferredRows = 0;
         super.load();
     }
     
@@ -111,7 +128,11 @@ public abstract class ScrollListModel extends AbstractListDataProvider implement
             pageCount = ((maxRows+1)/getRows()) + ( ((maxRows+1)%getRows())>0?1:0 ); 
         }
 
+        int tmpTotalRows = minlimit + Math.min(fetchedRows, preferredRows); 
+        maxRecordCount = Math.max(maxRecordCount, tmpTotalRows); 
+        maxPageCount = Math.max(maxPageCount, (tmpTotalRows/getRows())+1); 
         pageIndex = (toprow/getRows())+1; 
+        
         if (toprow==0 && minlimit==0) {
             fillListItems(getDataList(), minlimit);  
         } 
@@ -318,8 +339,16 @@ public abstract class ScrollListModel extends AbstractListDataProvider implement
         return maxRows;
     }
     
-    public boolean isLastPage() {
-        return pageIndex >= pageCount;
+    public boolean isLastPage() 
+    {
+        if (pageIndex < pageCount) 
+            return false; 
+        else if (fetchedRows <= preferredRows)
+            return true; 
+        else if (pageIndex > pageCount) 
+            return true; 
+        else 
+            return false;
     }
     
     /**

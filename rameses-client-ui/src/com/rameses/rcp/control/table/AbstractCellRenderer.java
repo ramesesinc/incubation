@@ -35,9 +35,9 @@ public abstract class AbstractCellRenderer implements TableCellRenderer
     private Insets CELL_MARGIN = TableUtil.CELL_MARGIN; 
     private Color FOCUS_BG = TableUtil.FOCUS_BG;
     
-    public abstract JComponent getComponent(JTable table, int row, int column);
+    public abstract JComponent getComponent(JTable table, int rowIndex, int columnIndex);
     
-    public abstract void refresh(JTable table, Object value, boolean selected, boolean focus, int row, int column);
+    public abstract void refresh(JTable table, Object value, boolean selected, boolean hasFocus, int rowIndex, int columnIndex);
     
     public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int rowIndex, int colIndex) 
     {
@@ -91,29 +91,6 @@ public abstract class AbstractCellRenderer implements TableCellRenderer
         AbstractListDataProvider ldp = xtable.getDataProvider();
         column = xmodel.getColumn(colIndex);
         
-//            try {
-//                StyleRule[] styles = xtable.getBinding().getStyleRules();
-//                if( styles != null && styles.length > 0) {
-//                    comp.setOpaque(true);
-//
-//                    ListItem listItem = lm.getSelectedItem();
-//                    if( listItem == null ) {
-//                        listItem = lm.getItemList().get(0);
-//                    }
-//
-//                    Map bean = new HashMap();
-//                    bean.put("row", listItem.getRownum());
-//                    bean.put("column", column);
-//                    bean.put("columnName", colModel.getName());
-//                    bean.put("root", listItem.getRoot());
-//                    bean.put("selected", isSelected);
-//                    bean.put("hasFocus", hasFocus);
-//                    bean.put("item", listItem.getItem());
-//                    applyStyle( xtable.getName(), bean, comp, styles, exprRes );
-//                }
-//            } catch(Exception e){;}
-        
-        
         String errmsg = ldp.getMessageSupport().getErrorMessage(rowIndex);
         if (errmsg != null) 
         {
@@ -136,14 +113,12 @@ public abstract class AbstractCellRenderer implements TableCellRenderer
         //border support
         Border inner = BorderFactory.createEmptyBorder(CELL_MARGIN.top, CELL_MARGIN.left, CELL_MARGIN.bottom, CELL_MARGIN.right);
         Border border = BorderFactory.createEmptyBorder(1,1,1,1);
-        if (hasFocus) {
-            if (isSelected)
-                border = UIManager.getBorder("Table.focusSelectedCellHighlightBorder");
-            if (border == null)
-                border = UIManager.getBorder("Table.focusCellHighlightBorder");
+        if (hasFocus) 
+        {
+            if (isSelected) border = UIManager.getBorder("Table.focusSelectedCellHighlightBorder");
+            if (border == null) border = UIManager.getBorder("Table.focusCellHighlightBorder");
         }
-        comp.setBorder(BorderFactory.createCompoundBorder(border, inner));
-        
+        comp.setBorder(BorderFactory.createCompoundBorder(border, inner));        
         refresh(table, value, isSelected, hasFocus, rowIndex, colIndex);
         return comp;        
     }

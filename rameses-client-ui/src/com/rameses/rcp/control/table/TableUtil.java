@@ -17,6 +17,7 @@ import com.rameses.rcp.common.DecimalColumnHandler;
 import com.rameses.rcp.common.DoubleColumnHandler;
 import com.rameses.rcp.common.IntegerColumnHandler;
 import com.rameses.rcp.common.LookupColumnHandler;
+import com.rameses.rcp.common.SelectionColumnHandler;
 import com.rameses.rcp.common.StyleRule;
 import com.rameses.rcp.common.TextColumnHandler;
 import com.rameses.rcp.control.XCheckBox;
@@ -25,7 +26,6 @@ import com.rameses.rcp.control.XDateField;
 import com.rameses.rcp.control.XDecimalField;
 import com.rameses.rcp.control.XIntegerField;
 import com.rameses.rcp.control.XLookupField;
-import com.rameses.rcp.control.XNumberField;
 import com.rameses.rcp.control.XTextField;
 import com.rameses.rcp.framework.ClientContext;
 import com.rameses.rcp.support.ColorUtil;
@@ -33,7 +33,6 @@ import com.rameses.rcp.ui.UIControl;
 import com.rameses.rcp.ui.Validatable;
 import com.rameses.rcp.util.ControlSupport;
 import com.rameses.rcp.util.UIControlUtil;
-import com.rameses.util.ValueUtil;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
@@ -92,17 +91,20 @@ public final class TableUtil
         editors.put("boolean", XCheckBox.class);
         editors.put("checkbox", XCheckBox.class);
         editors.put("combo", XComboBox.class);
+        editors.put("combobox", XComboBox.class);
         editors.put("date", XDateField.class);
         editors.put("double", XDecimalField.class);
         editors.put("decimal", XDecimalField.class);
         editors.put("integer", XIntegerField.class);        
         editors.put("lookup", XLookupField.class);
+        editors.put("selection", SelectionCellEditor.class);
         
         //map of renderers
         renderers.put("string", new StringRenderer());
         renderers.put("boolean", new BooleanRenderer());
         renderers.put("checkbox", new BooleanRenderer());  
         renderers.put("combo", new StringRenderer());
+        renderers.put("combobox", new StringRenderer());
         renderers.put("date", new StringRenderer());        
         renderers.put("double", new DecimalRenderer());
         renderers.put("decimal", new DecimalRenderer());
@@ -117,6 +119,7 @@ public final class TableUtil
         renderers.put(DecimalColumnHandler.class, new DecimalCellRenderer());
         renderers.put(IntegerColumnHandler.class, new IntegerCellRenderer());        
         renderers.put(LookupColumnHandler.class, new LookupCellRenderer());
+        renderers.put(SelectionColumnHandler.class, new SelectionCellRenderer());
         
         //number class types
         numClass.put("decimal", BigDecimal.class);
@@ -128,12 +131,10 @@ public final class TableUtil
         
     public static JComponent createCellEditor(Column oColumn) 
     {
-        Class editorClass = null; 
         if (oColumn.getTypeHandler() == null) 
-            editorClass = editors.get(oColumn.getType()); 
-        else 
-            editorClass = editors.get(oColumn.getTypeHandler().getType()); 
+            oColumn.setTypeHandler(ColumnHandlerUtil.newInstance().createTypeHandler(oColumn)); 
         
+        Class editorClass = editors.get(oColumn.getTypeHandler().getType());         
         JComponent editor = null;
         try 
         { 
@@ -149,9 +150,9 @@ public final class TableUtil
     public static TableCellRenderer getCellRenderer(Column oColumn) 
     {
         if (oColumn.getTypeHandler() == null) 
-            return renderers.get(oColumn.getType()); 
-        else 
-            return renderers.get(oColumn.getTypeHandler().getClass()); 
+            oColumn.setTypeHandler(ColumnHandlerUtil.newInstance().createTypeHandler(oColumn)); 
+            
+        return renderers.get(oColumn.getTypeHandler().getClass()); 
     }
     
     public static TableCellRenderer getHeaderRenderer() {
@@ -197,58 +198,41 @@ public final class TableUtil
             v.setCaption( col.getCaption() );
         }
 
-        String type = col.getType()+"";        
-        Column.TypeHandler typeHandler = col.getTypeHandler();
-        if ( editor instanceof UIControl && typeHandler != null) 
-            ((UIControl) editor).setPropertyInfo(typeHandler); 
+        Column.TypeHandler oHandler = ColumnHandlerUtil.newInstance().createTypeHandler(col); 
+        if (col.getTypeHandler() == null) col.setTypeHandler(oHandler); 
+        
+        if ( editor instanceof UIControl && oHandler != null) 
+            ((UIControl) editor).setPropertyInfo(oHandler); 
 
-        else if ( editor instanceof XCheckBox ) 
-        {
-            XCheckBox xcb = (XCheckBox) editor;
-            xcb.setHorizontalAlignment(SwingConstants.CENTER);
-            xcb.setBorderPainted(true);
-            if( col.getCheckValue() != null )  xcb.setCheckValue( col.getCheckValue() );
-            if( col.getUncheckValue() != null )xcb.setUncheckValue( col.getUncheckValue() );
-            
+        if ( editor instanceof XCheckBox ) 
+        { 
+            XCheckBox xcomp = (XCheckBox) editor;
+            xcomp.setHorizontalAlignment(SwingConstants.CENTER);
+            xcomp.setBorderPainted(true); 
         } 
-        else if ( editor instanceof XNumberField ) 
+        else if ( editor instanceof XComboBox ) 
         {
-            XNumberField xnf = (XNumberField) editor;
-            xnf.setFieldType(numClass.get(type));
-            if ( !ValueUtil.isEmpty(col.getFormat()) ) {
-                xnf.setPattern( col.getFormat() );
-            }
-            
-        } 
+            XComboBox xcomp = (XComboBox) editor;
+            xcomp.setDynamic( col.isDynamic() );
+            xcomp.setImmediate(true);
+            if (col.isRequired()) 
+                xcomp.setAllowNull(false);
+            if (col.getFieldType() != null) 
+                xcomp.setFieldType(col.getFieldType());
+        }
         else if ( editor instanceof XLookupField ) 
         {
-            XLookupField xlf = (XLookupField) editor;
-            if( col.getHandler() instanceof String )
-                xlf.setHandler( (String) col.getHandler() );
-            else
-                xlf.setHandlerObject( col.getHandler() );
-            
-            if( col.getExpression() != null )
-                xlf.setExpression( col.getExpression() );
-            
-            xlf.setTransferFocusOnSelect(false);            
-        } 
-        else if ( editor instanceof XDateField ) 
-        {
-            XDateField xdf = (XDateField) editor;
-            xdf.setHorizontalAlignment(SwingConstants.CENTER);
-            if ( !ValueUtil.isEmpty(col.getFormat()) ) {
-                xdf.setInputFormat( col.getFormat() );
-                xdf.setOutputFormat( col.getFormat() );
-            }
+            XLookupField xcomp = (XLookupField) editor;
+            xcomp.setTransferFocusOnSelect(false);            
         } 
         
-        editor.setBackground(FOCUS_BG);
         Font font = (Font) UIManager.get("Table.font");
         editor.setFont(font);
+        editor.setBackground(FOCUS_BG);
         
         //set alignment if it is specified in the Column model
-        if ( col.getAlignment() != null && editor instanceof JTextField ) {
+        if ( col.getAlignment() != null && editor instanceof JTextField ) 
+        {
             JTextField jtf = (JTextField) editor;
             if ( "right".equals(col.getAlignment().toLowerCase()) )
                 jtf.setHorizontalAlignment(SwingConstants.RIGHT);
@@ -256,40 +240,19 @@ public final class TableUtil
                 jtf.setHorizontalAlignment(SwingConstants.CENTER);
             else if ( "left".equals(col.getAlignment().toLowerCase()) )
                 jtf.setHorizontalAlignment(SwingConstants.LEFT);
-        }
-        
-        if ( editor instanceof XComboBox ) {
-            XComboBox cbox = (XComboBox) editor;
-            cbox.setDynamic( col.isDynamic() );
-            cbox.setImmediate(true);
-            if ( col.getItems() != null ) {
-                if( col.getItems() instanceof String )
-                    cbox.setItems( (String) col.getItems() );
-                else
-                    cbox.setItemsObject( col.getItems() );
-            }
-            if ( col.isRequired() ) {
-                cbox.setAllowNull(false);
-            }
-            if ( col.getFieldType() != null ) {
-                cbox.setFieldType( col.getFieldType() );
-            }
-            if ( col.getExpression() != null ) {
-                cbox.setExpression( col.getExpression() );
-            }
-            
-        } else {
+        }        
+        else 
+        {
             //border support
             Border inner = BorderFactory.createEmptyBorder(CELL_MARGIN.top, CELL_MARGIN.left, CELL_MARGIN.bottom, CELL_MARGIN.right);
             Border border = UIManager.getBorder("Table.focusSelectedCellHighlightBorder");
-            if (border == null) {
-                border = UIManager.getBorder("Table.focusCellHighlightBorder");
-            }
+            if (border == null) border = UIManager.getBorder("Table.focusCellHighlightBorder");
             
             editor.setBorder(BorderFactory.createCompoundBorder(border, inner));
         }
     }
-    //</editor-fold>
+    
+    // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc="  AbstractRenderer (class)  ">
     

@@ -10,15 +10,28 @@ public abstract class PageListModel extends AbstractListDataProvider implements 
     //stores the fetched result list size 
     private int fetchedRows;
     private int preferredRows;
-    
+    private int totalMaxRows;
     private int pageIndex = 1;
     private int pageCount = 1;    
     private String searchtext;
     
     private Map query = new HashMap(); 
+    
+    public ListItemStatus createListItemStatus(ListItem oListItem) 
+    {
+        ListItemStatus stat = super.createListItemStatus(oListItem); 
+        stat.setPageIndex(pageIndex); 
+        stat.setPageCount(pageCount);
+        stat.setRecordCount(totalMaxRows);
+        stat.setIsLastPage(isLastPage()); 
+        return stat;
+    }       
 
     public void load() 
     {
+        fetchedRows = 0;
+        preferredRows = 0;
+        totalMaxRows = 0;
         pageIndex = 1;
         pageCount = 1;
         super.load();
@@ -76,6 +89,8 @@ public abstract class PageListModel extends AbstractListDataProvider implements 
             setDataList(dataList); 
         }
 
+        totalMaxRows = Math.max(totalMaxRows, (pageIndex*getRows())+Math.min(fetchedRows, preferredRows));
+        
         fillListItems(dataList, 0);         
         setSelectedItem((getSelectedItem() == null? 0: getSelectedItem().getIndex())); 
         if (fetchNewRecords && !dataList.isEmpty() && getSelectedItem() != null) 

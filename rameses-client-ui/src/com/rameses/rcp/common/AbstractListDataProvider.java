@@ -239,6 +239,7 @@ public abstract class AbstractListDataProvider
     
     
     
+    
     public void load() 
     {
         fetchMode = FETCH_MODE_LOAD; 
@@ -347,6 +348,21 @@ public abstract class AbstractListDataProvider
     
     
     // <editor-fold defaultstate="collapsed" desc=" ListItem helper methods "> 
+    
+    public ListItemStatus createListItemStatus(ListItem oListItem) 
+    { 
+        if (oListItem == null) return null;
+        
+        ListItemStatus stat = new ListItemStatus(oListItem); 
+        stat.setPageIndex(1);
+        stat.setPageCount(1);
+        stat.setIsLastPage(true);
+        
+        if (dataList != null) 
+            stat.setRecordCount(dataList.size());
+        
+        return stat; 
+    } 
     
     protected ListItem createCustomListItem() {
         return new ListItem();
@@ -553,5 +569,5 @@ public abstract class AbstractListDataProvider
         }        
     }
     
-    // </editor-fold> 
+    // </editor-fold>     
 }

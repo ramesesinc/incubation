@@ -533,26 +533,32 @@ public class XDataTable extends JPanel implements UIInput, Validatable, FocusLis
     {
         void execute() 
         {
-            updateBean(); 
-            notifyDepends(); 
+            int rowIndex = 0;
+            if (dataProvider.getSelectedItem() != null) 
+                rowIndex = dataProvider.getSelectedItem().getIndex();
+            
+            updateBean(rowIndex); 
+            notifyDepends(rowIndex); 
         }
                
-        void updateBean() 
+        void updateBean(int rowIndex) 
         {
             try
             {
-                String name = getName();                
+                String name = getName();                 
+                ListItem oListItem = dataProvider.getListItem(rowIndex);
                 if ( !ValueUtil.isEmpty(name) ) 
                 {
-                    Object value = null;
-                    if ( currentItem != null ) value = currentItem.getItem();
-
+                    Object value = (oListItem == null? null: oListItem.getItem()); 
                     UIControlUtil.setBeanValue(binding, name, value);
                 }
-
-                String varStatus = table.getVarStatus();
-                if ( !ValueUtil.isEmpty(varStatus) ) 
-                    UIControlUtil.setBeanValue(binding, varStatus, currentItem);
+                
+                String statName = getVarStatus();
+                if ( !ValueUtil.isEmpty(statName) ) 
+                {
+                    Object statValue = dataProvider.createListItemStatus(oListItem); 
+                    UIControlUtil.setBeanValue(binding, statName, statValue);
+                } 
             } 
             catch (Exception ex) 
             {
@@ -561,7 +567,7 @@ public class XDataTable extends JPanel implements UIInput, Validatable, FocusLis
             }
         }
         
-        void notifyDepends() 
+        void notifyDepends(final int rowIndex) 
         {
             if ( !ValueUtil.isEmpty(getName()) ) 
             {
@@ -572,7 +578,7 @@ public class XDataTable extends JPanel implements UIInput, Validatable, FocusLis
                 {
                     Thread thread = new Thread(new Runnable() {
                         public void run() { 
-                            notifyDependsAsync(table.getSelectedRow());
+                            notifyDependsAsync(rowIndex);
                         }
                     });
                     thread.start(); 

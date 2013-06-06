@@ -24,19 +24,26 @@ public class Column implements Serializable
     private String editableWhen;
     private TextCase textCase = TextCase.UPPER;
     
-    private String type = "string";    
-    private Object handler;
-    
-    //for combo box support
+    private String type = "string";   
+    private String expression;
+    private boolean visible = true;
+        
+    //checkbox support
+    private Class fieldType;    
+    private Object checkValue;
+    private Object uncheckValue;
+
+    //combobox support
     private Object items;
     
+    //lookup support
+    private Object handler;
+        
     private String fieldname;
-    private boolean visible = true;
     private int rowheight;
     private boolean primary;
     private boolean htmlDisplay;
     private String format;
-    private Class fieldType;
     
     //alignment support
     private String alignment;
@@ -54,12 +61,8 @@ public class Column implements Serializable
     private String headerIcon;
     
     private String validateExpression;
-    private String expression;
     private String category;
     
-    //checkbox support
-    private Object checkValue;
-    private Object uncheckValue;
     
     //action text support
     private Object action;

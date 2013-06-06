@@ -116,7 +116,8 @@ public class EditorListModel extends AbstractListDataProvider
     {
         if (li == null) return;
         
-        onCommitItem(li.getItem());         
+        onCommitItem(li.getItem()); 
+        li.setState(ListItem.STATE_SYNC); 
     }
 
     public void fireValidateItem(ListItem li) 
