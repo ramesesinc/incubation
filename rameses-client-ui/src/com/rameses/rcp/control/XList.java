@@ -46,6 +46,7 @@ public class XList extends JList implements UIControl, ListSelectionListener
     private Binding binding;
     private String[] depends;
     private String varName;
+    private String varStatus;
     private String expression;
     private String items;
     private String openAction;    
@@ -87,6 +88,9 @@ public class XList extends JList implements UIControl, ListSelectionListener
     
     public String getVarName() { return varName; } 
     public void setVarName(String varName) { this.varName = varName; }
+    
+    public String getVarStatus() { return varStatus; } 
+    public void setVarStatus(String varStatus) { this.varStatus = varStatus; }    
     
     public String[] getDepends() { return depends; }    
     public void setDepends(String[] depends) { this.depends = depends; }
@@ -171,13 +175,25 @@ public class XList extends JList implements UIControl, ListSelectionListener
     {
         if ( getSelectedIndex() != -1 && !e.getValueIsAdjusting() ) 
         {
+            Object value = (isMultiselect()? getSelectedValues(): getSelectedValue());
             PropertyResolver res = PropertyResolver.getInstance();
-            if ( isMultiselect() ) 
-                res.setProperty(binding.getBean(), getName(), getSelectedValues());
-            else 
-                res.setProperty(binding.getBean(), getName(), getSelectedValue());
+            res.setProperty(binding.getBean(), getName(), value);
 
-            binding.notifyDepends(this);
+            if (getVarStatus() != null) 
+            {
+                ItemStatus stat = new ItemStatus();
+                stat.value = value;
+                stat.name = getName();
+                stat.index = getSelectedIndex();
+                stat.multiSelect = isMultiselect(); 
+                res.setProperty(binding.getBean(), getVarStatus(), stat);
+            }
+            
+            EventQueue.invokeLater(new Runnable() {
+                public void run() {
+                    binding.notifyDepends(XList.this);                    
+                }
+            });
         }
     }
     
@@ -216,7 +232,6 @@ public class XList extends JList implements UIControl, ListSelectionListener
             super.processMouseEvent(e); 
         } 
     }
-    
     
     //<editor-fold defaultstate="collapsed" desc="  helper methods  ">
     private void buildList() {
@@ -298,7 +313,7 @@ public class XList extends JList implements UIControl, ListSelectionListener
         }
     }
     //</editor-fold>
-        
+    
     // <editor-fold defaultstate="collapsed" desc="  DefaultCellRenderer (class)  ">
     
     private class DefaultCellRenderer implements ListCellRenderer 
@@ -363,4 +378,21 @@ public class XList extends JList implements UIControl, ListSelectionListener
     }
     
     // </editor-fold>    
+    
+    // <editor-fold defaultstate="collapsed" desc="  ItemStatus (class)  ">
+    
+    public class ItemStatus 
+    {
+        private Object value;        
+        private String name;
+        private int index;
+        private boolean multiSelect;
+
+        public Object getValue() { return value; }        
+        public String getName() { return name; }        
+        public int getIndex() { return index; }
+        public boolean isMultiSelect() { return multiSelect; }
+    }
+    
+    // </editor-fold>
 }

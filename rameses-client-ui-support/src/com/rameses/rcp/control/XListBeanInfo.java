@@ -44,7 +44,8 @@ public class XListBeanInfo extends ComponentBeanInfo.Support
             new PropertyDescriptor("multiselect", getBeanClass(), "isMultiselect", "setMultiselect"),
             new PropertyDescriptor("openAction", getBeanClass()),
             new PropertyDescriptor("padding", getBeanClass()), 
-            new PropertyDescriptor("varName", getBeanClass()) 
+            new PropertyDescriptor("varName", getBeanClass()),  
+            new PropertyDescriptor("varStatus", getBeanClass())
         }; 
     }
 }
