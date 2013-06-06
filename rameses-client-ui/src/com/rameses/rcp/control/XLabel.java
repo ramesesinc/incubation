@@ -177,7 +177,7 @@ public class XLabel extends JLabel implements UIOutput, ActiveControl
     public void setName(String name) 
     {
         super.setName(name);
-        super.setText(name);
+        showPreferredText();
     }
     
     public String getText() 
@@ -196,15 +196,28 @@ public class XLabel extends JLabel implements UIOutput, ActiveControl
         }
     }
     
-    public void setText(String text) {
-        setExpression(text);
-    }
-    
     public String getExpression() { return expression; }    
     public void setExpression(String expression) 
     {
         this.expression = expression;
-        super.setText(expression);
+        showPreferredText();
+    }
+    
+    private String firstTextValue;
+    private void showPreferredText() 
+    {
+        if (Beans.isDesignTime()) 
+        {
+            if (firstTextValue == null) firstTextValue = super.getText();
+            if (firstTextValue == null) firstTextValue = "";
+                                
+            if (expression != null)
+                super.setText(expression); 
+            else if (getName() != null)
+                super.setText(getName());
+            else 
+                super.setText(firstTextValue); 
+        }
     }
     
     public String getVisibleWhen() { return visibleWhen; } 
