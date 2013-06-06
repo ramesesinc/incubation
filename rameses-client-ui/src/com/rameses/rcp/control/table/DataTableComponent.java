@@ -458,6 +458,20 @@ public class DataTableComponent extends JTable implements TableControl
     
     public boolean editCellAt(int rowIndex, int colIndex, EventObject e) 
     {
+        Column oColumn = tableModel.getColumn(colIndex); 
+        if (oColumn == null) return false;
+
+        //automatically this column turns editable if handler is SelectionColumnHandler
+        if (oColumn.getTypeHandler() instanceof SelectionColumnHandler) 
+        {
+            if (dataProvider.getListItemData(rowIndex) == null) return false;
+            
+            JComponent editor = editors.get(colIndex);
+            if (editor != null) showEditor(editor, rowIndex, colIndex, e);
+            
+            return false;
+        } 
+        
         if (isReadonly()) return false;
         if (editorModel == null) return false; 
         
@@ -632,8 +646,7 @@ public class DataTableComponent extends JTable implements TableControl
     
     public void editItem(int rowIndex, int colIndex, EventObject e) 
     {
-        if (editorModel == null) return;         
-        
+        if (editorModel == null) return;        
         /*
             if ListItem has error messages, 
             allow editing only to the row that caused the error
@@ -824,6 +837,7 @@ public class DataTableComponent extends JTable implements TableControl
     
     private void hideEditor(JComponent editor, int rowIndex, int colIndex, boolean commit, boolean grabFocus) 
     {
+        if (editor instanceof SelectionCellEditor) commit = false;        
         /*
          * force to invoke the setValue of the editor support when editor is instanceof JCheckBox 
          * to make sure that the data has been sent to the temporary storage before committing. 
@@ -833,7 +847,7 @@ public class DataTableComponent extends JTable implements TableControl
             UIInput uiinput = (UIInput) editor;
             uiinput.putClientProperty("cellEditorValue", uiinput.getValue()); 
         }
-        
+                
         editor.setVisible(false);
         editor.setInputVerifier(null);
         editingMode = false;        
@@ -918,7 +932,7 @@ public class DataTableComponent extends JTable implements TableControl
         if ( !editorBeanLoaded ) 
         {
             itemBinding.update(); //clear change log
-            Object bean = dataProvider.getSelectedItem().getItem();
+            Object bean = dataProvider.getListItemData(rowIndex); 
             itemBinding.setBean(bean);
             itemBinding.refresh();
             refreshed = true;

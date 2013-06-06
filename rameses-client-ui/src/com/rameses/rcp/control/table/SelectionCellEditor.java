@@ -17,6 +17,7 @@ import com.rameses.rcp.ui.UIInput;
 import com.rameses.rcp.util.UIControlUtil;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.event.KeyEvent;
 import javax.swing.JCheckBox;
 import javax.swing.SwingConstants;
 
@@ -32,8 +33,8 @@ public class SelectionCellEditor extends JCheckBox implements UIInput
     public SelectionCellEditor() 
     {
         setHorizontalAlignment(SwingConstants.CENTER); 
-        setBorderPainted(true);     
-        addItemListener(itemHandler); 
+        setBorderPainted(true);    
+        addItemListener((itemHandler = new ItemHandler())); 
     }
 
     // <editor-fold defaultstate="collapsed" desc="  UIInput implementation  ">
@@ -41,7 +42,13 @@ public class SelectionCellEditor extends JCheckBox implements UIInput
     public Object getValue() { return null; }    
     public void setValue(Object value) 
     {
-        refresh(); 
+        System.out.println("SelectionCellEditor_setValue: value=" + value);
+        if (value instanceof KeyEvent) 
+        {
+            KeyEvent ke = (KeyEvent) value;
+            if (ke.getKeyCode() != KeyEvent.VK_SPACE) return;
+        }
+        refresh();
         setSelected(!isSelected()); 
     }
 
@@ -69,10 +76,12 @@ public class SelectionCellEditor extends JCheckBox implements UIInput
     }
 
     public void load() {
+        System.out.println("SelectionCellEditor_load ");
     }
     
     public void refresh() 
     {
+        System.out.println("SelectionCellEditor_refresh ");
         try 
         {
             itemHandler.enabled = false;
@@ -102,6 +111,7 @@ public class SelectionCellEditor extends JCheckBox implements UIInput
         {
             if (!enabled) return;
             
+            System.out.println("SelectionCellEditor_itemStateChanged: event=" + e);
             try 
             {
                 Object oResult = null;
