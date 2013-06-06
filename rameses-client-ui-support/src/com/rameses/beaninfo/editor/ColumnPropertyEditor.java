@@ -18,6 +18,7 @@ import com.rameses.rcp.common.DecimalColumnHandler;
 import com.rameses.rcp.common.DoubleColumnHandler;
 import com.rameses.rcp.common.IntegerColumnHandler;
 import com.rameses.rcp.common.LookupColumnHandler;
+import com.rameses.rcp.common.SelectionColumnHandler;
 import com.rameses.rcp.common.TextColumnHandler;
 import java.awt.Component;
 import java.awt.Graphics;
@@ -160,6 +161,12 @@ public class ColumnPropertyEditor implements PropertyEditor
             LookupColumnHandler lkp = (LookupColumnHandler) typeHandler;
             sb.append("new " + lkp.getClass().getName() + "(");
             sb.append(convertString(lkp.getExpression()) + ", " + convertString(lkp.getHandler())); 
+            sb.append(")");
+        } 
+        else if (typeHandler instanceof SelectionColumnHandler) 
+        {
+            SelectionColumnHandler handler = (SelectionColumnHandler) typeHandler;
+            sb.append("new " + handler.getClass().getName() + "(");
             sb.append(")");
         }         
         else {

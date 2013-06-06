@@ -42,7 +42,6 @@ public class SelectionCellEditor extends JCheckBox implements UIInput
     public Object getValue() { return null; }    
     public void setValue(Object value) 
     {
-        System.out.println("SelectionCellEditor_setValue: value=" + value);
         if (value instanceof KeyEvent) 
         {
             KeyEvent ke = (KeyEvent) value;
@@ -76,12 +75,10 @@ public class SelectionCellEditor extends JCheckBox implements UIInput
     }
 
     public void load() {
-        System.out.println("SelectionCellEditor_load ");
     }
     
     public void refresh() 
     {
-        System.out.println("SelectionCellEditor_refresh ");
         try 
         {
             itemHandler.enabled = false;
@@ -111,7 +108,6 @@ public class SelectionCellEditor extends JCheckBox implements UIInput
         {
             if (!enabled) return;
             
-            System.out.println("SelectionCellEditor_itemStateChanged: event=" + e);
             try 
             {
                 Object oResult = null;

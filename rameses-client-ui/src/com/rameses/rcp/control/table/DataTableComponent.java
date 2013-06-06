@@ -169,7 +169,9 @@ public class DataTableComponent extends JTable implements TableControl
         if (Beans.isDesignTime())
         {
             Column[] columns = (dataProvider == null? null: dataProvider.getColumns());
-            setModel(new DataTableModelDesignTime(columns)); 
+            DataTableModelDesignTime dtm = new DataTableModelDesignTime(columns);
+            setModel(dtm); 
+            dtm.applyColumnAttributes(this); 
             return; 
         }
         
@@ -321,6 +323,7 @@ public class DataTableComponent extends JTable implements TableControl
             editors.put(i, editor);
             add(editor);
         }
+        
         itemBinding.setOwner( binding.getOwner() );
         itemBinding.setViewContext( binding.getViewContext() );
         itemBinding.init(); //initialize item binding

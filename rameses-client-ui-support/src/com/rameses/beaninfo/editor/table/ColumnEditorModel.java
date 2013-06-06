@@ -64,6 +64,7 @@ public class ColumnEditorModel extends AbstractTableModel
     
     Column getItem(int index) 
     {
+        System.out.println("getItem: index="+index + ", rows="+rows);
         try {
             return rows.get(index); 
         } catch(Exception ex) {
@@ -71,7 +72,7 @@ public class ColumnEditorModel extends AbstractTableModel
         }
     }
     
-    Column addRow() 
+    public Column addRow() 
     {
         Column col = new Column();
         int index = rows.size(); 
@@ -97,9 +98,11 @@ public class ColumnEditorModel extends AbstractTableModel
     {
         if (index-1 >= 0 && index-1 < getRowCount()) 
         {
-            Column popItem = rows.remove(index-1); 
-            rows.add(index, popItem);
-            fireTableDataChanged(); 
+            Column source = rows.get(index);
+            Column target = rows.get(index-1);
+            rows.set(index-1, source);
+            rows.set(index, target);
+            fireTableRowsUpdated(index-1, index); 
             return true;
         }
         else {
@@ -109,14 +112,13 @@ public class ColumnEditorModel extends AbstractTableModel
     
     boolean moveItemDown(int index) 
     {
-        int moveIndex = index+1;
-        if (moveIndex >= 0 && moveIndex < getRowCount()) 
+        if (index+1 >= 0 && index+1 < getRowCount()) 
         {
-            Column moveItem = rows.get(index); 
-            Column affectedItem = rows.get(moveIndex); 
-            rows.set(moveIndex, moveItem);
-            rows.set(index, affectedItem); 
-            fireTableRowsUpdated(index, moveIndex); 
+            Column source = rows.get(index);
+            Column target = rows.get(index+1);
+            rows.set(index+1, source);
+            rows.set(index, target);
+            fireTableRowsUpdated(index, index+1); 
             return true;
         }
         else {
@@ -125,9 +127,6 @@ public class ColumnEditorModel extends AbstractTableModel
     }    
     
     int indexOf(Column c) {
-        for (int i=0; i<rows.size(); i++) {
-            if (c.equals(rows.get(i))) return i; 
-        }
-        return -1;
+        return rows.indexOf(c); 
     }
 }

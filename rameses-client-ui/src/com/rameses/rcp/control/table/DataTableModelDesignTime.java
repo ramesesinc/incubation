@@ -10,7 +10,9 @@
 package com.rameses.rcp.control.table;
 
 import com.rameses.rcp.common.Column;
+import com.rameses.rcp.common.SelectionColumnHandler;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.table.TableColumn;
 
 /**
  *
@@ -42,5 +44,28 @@ class DataTableModelDesignTime extends AbstractTableModel
     public Object getValueAt(int rowIndex, int columnIndex) {
         return "";
     }
-    
+
+    void applyColumnAttributes(DataTableComponent table) 
+    {
+        int columnCount = getColumnCount(); 
+        for (int i=0; i<columnCount; i++) 
+        {
+            Column oColumn = columns[i];             
+            if (oColumn.getTypeHandler() instanceof SelectionColumnHandler) 
+                oColumn.setEditable(true);
+
+            TableColumn oTableColumn = table.getColumnModel().getColumn(i);            
+            if (oColumn.getWidth() >= 0)
+            {
+                oTableColumn.setPreferredWidth(oColumn.getWidth());
+                oTableColumn.setWidth(oColumn.getWidth());
+            }
+            if (oColumn.getMinWidth() > 0) 
+                oTableColumn.setMinWidth(oColumn.getMinWidth());
+            if (oColumn.getMaxWidth() > 0) 
+                oTableColumn.setMaxWidth(oColumn.getMaxWidth());
+            
+            oTableColumn.setResizable(oColumn.isResizable());            
+        }
+    }    
 }

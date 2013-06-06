@@ -64,6 +64,7 @@ public class ColumnEditorPage extends javax.swing.JPanel
         controller.addExtendedPage("double", new DecimalExtendedPage()); 
         controller.addExtendedPage("decimal", new DecimalExtendedPage()); 
         controller.addExtendedPage("lookup", new LookupExtendedPage()); 
+        controller.addExtendedPage("selection", new SelectionExtendedPage()); 
         
         controller.setEnableComponents(false); 
         cbotype.setItems(new ComboItem[]{
@@ -74,7 +75,8 @@ public class ColumnEditorPage extends javax.swing.JPanel
            new ComboItem("date"),
            new ComboItem("double"),
            new ComboItem("decimal"),
-           new ComboItem("lookup")
+           new ComboItem("lookup"),
+           new ComboItem("selection")
         });
         cbotype.setUpdateable(false); 
         cbotype.addItemListener(new TypeHandler());
@@ -86,12 +88,18 @@ public class ColumnEditorPage extends javax.swing.JPanel
         });
         txtEditableWhen.putClientProperty(DependHandler.class, new DependHandler("editable", txtEditableWhen)); 
         
-        btnUp.addActionListener(new ActionListener() {
+        btnDown.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) 
             {
-                int selIndex = tblcolumn.getSelectedRow();
-                if (model.moveItemDown(selIndex)) 
-                    tblcolumn.getSelectionModel().setSelectionInterval(selIndex+1, selIndex+1);       
+                int index = tblcolumn.getSelectedRow();
+                if (model.moveItemDown(index)) 
+                {
+                    tblcolumn.setRowSelectionInterval(index+1, index+1); 
+                    tblcolumn.grabFocus(); 
+                    
+                    if (propertyEditor != null) 
+                        propertyEditor.setValue(model.getColumns()); 
+                }
             }
         });
     }
@@ -393,11 +401,14 @@ public class ColumnEditorPage extends javax.swing.JPanel
 	
     private void btnUpActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUpActionPerformed
 
-        int index = model.indexOf(controller.getColumn()); 
+        int index = tblcolumn.getSelectedRow();
         if (model.moveItemUp(index)) 
         { 
-            tblcolumn.getSelectionModel().setSelectionInterval(index-1, index-1); 
+            tblcolumn.setRowSelectionInterval(index-1, index-1);
             tblcolumn.grabFocus(); 
+            
+            if (propertyEditor != null) 
+                propertyEditor.setValue(model.getColumns());       
         }
                 
     }//GEN-LAST:event_btnUpActionPerformed
@@ -421,7 +432,8 @@ public class ColumnEditorPage extends javax.swing.JPanel
                 tblcolumn.changeSelection(rowcount-1, selPoint.x, false, false);
             }
             
-            if (propertyEditor != null) propertyEditor.setValue(model.getColumns());             
+            if (propertyEditor != null) 
+                propertyEditor.setValue(model.getColumns()); 
         }
         
     }//GEN-LAST:event_btnRemoveActionPerformed
@@ -558,6 +570,9 @@ public class ColumnEditorPage extends javax.swing.JPanel
                         IExtendedPage xpage = (IExtendedPage) page;
                         xpage.setTypeHandler(controller.getColumn().getTypeHandler());         
                         controller.getColumn().setTypeHandler(xpage.getTypeHandler()); 
+                        
+                        if (propertyEditor != null) 
+                            propertyEditor.setValue(model.getColumns()); 
                     }
                     controller.refresh(page, controller.getColumn().getTypeHandler());
                 }

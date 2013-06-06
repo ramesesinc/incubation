@@ -93,7 +93,10 @@ public class ColumnEditorController
     }
     
     Column getColumn() { return column; } 
-    void setColumn(Column column) { this.column = column; }
+    void setColumn(Column column) { 
+        System.out.println("setColumn-> " + column);
+        this.column = column; 
+    }
         
     void setEnableComponents(boolean enable) {
         for (JComponent jc : components) {
@@ -207,7 +210,7 @@ public class ColumnEditorController
                 value = toDouble(value); 
 
             m.invoke(source, new Object[]{value}); 
-            onvalueChanged(name); 
+            onvalueChanged(name);  
         } 
         catch(Exception ex) {
             System.out.println("[ERROR] setValue: " + ex.getMessage());

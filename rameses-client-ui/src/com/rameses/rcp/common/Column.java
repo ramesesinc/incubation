@@ -133,23 +133,28 @@ public class Column implements Serializable
     /**
      * Do not remove this. This is used by the client support in the ListColumn Property Editor
      */
-    public Column clone() {
+    public Column clone() 
+    {
         Column col = new Column(getName(), getCaption());
-        col.textCase = textCase;
-        col.type = type;
+        col.typeHandler = typeHandler;
         col.width = width;
         col.minWidth = minWidth;
         col.maxWidth = maxWidth;
+        col.required = required;        
         col.resizable = resizable;
+        col.nullWhenEmpty = nullWhenEmpty;
         col.editable = editable;
+        col.editableWhen = editableWhen;
+        col.properties = properties; 
+
+        col.type = type;        
         col.visible = visible;
-        col.setProperties(new HashMap(getProperties()));
+        col.textCase = textCase;        
         col.fieldname = fieldname;
         col.rowheight = rowheight;
         col.primary = primary;
         col.htmlDisplay = htmlDisplay;
         col.format = format;
-        col.required = required;
         col.fieldType = fieldType;
         col.alignment = alignment;
         col.vAlignment = vAlignment;
@@ -163,7 +168,6 @@ public class Column implements Serializable
         col.checkValue = checkValue;
         col.uncheckValue = uncheckValue;
         col.action = action;
-        col.nullWhenEmpty = nullWhenEmpty;
         return col;
     }    
     
