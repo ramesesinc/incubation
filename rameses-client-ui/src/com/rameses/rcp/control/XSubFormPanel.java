@@ -133,7 +133,8 @@ public class XSubFormPanel extends JPanel implements UISubControl, ActiveControl
         
         //this is usually set by XTabbedPane or
         //other controls that used XSubForm internally
-        if ( getOpeners().size() > 0 ) {
+        if ( getOpeners().size() > 0 ) 
+        {
             handlerObj = getOpeners();
         } 
         else if ( !ValueUtil.isEmpty(getHandler()) ) 
@@ -240,9 +241,14 @@ public class XSubFormPanel extends JPanel implements UISubControl, ActiveControl
         return false;
     }
     
-    public Object getHandlerObject() {
-        return handlerObj;
-    }
+    public Object getHandlerObject() { return handlerObj; }
+    public void setHandlerObject(Object handlerObj) 
+    { 
+        this.handlerObj = handlerObj; 
+        
+        if (handlerObj instanceof Opener) 
+            getOpeners().add((Opener) handlerObj);
+    } 
        
     // <editor-fold defaultstate="collapsed" desc="  Getters/Setters  ">
     
