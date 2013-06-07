@@ -9,10 +9,14 @@
 
 package com.rameses.rcp.control.text;
 
+import com.rameses.rcp.support.ThemeUI;
+import java.awt.Color;
 import java.awt.event.FocusEvent;
 import java.awt.event.KeyEvent;
+import java.beans.Beans;
 import javax.swing.InputVerifier;
 import javax.swing.JTextField;
+import javax.swing.UIManager;
 
 /**
  *
@@ -20,18 +24,66 @@ import javax.swing.JTextField;
  */
 public class DefaultTextField extends JTextField 
 {
-    private InputVerifierProxy inputVerifierProxy;    
+    private InputVerifierProxy inputVerifierProxy;  
+    private Color focusBackground;
+    private Color disabledBackground;
+    private Color enabledBackground;
+    private boolean readonly;
     
     public DefaultTextField() 
     {
+        super();
         initDefaults(); 
         resetInputVerifierProxy(); 
+        
+        focusBackground = ThemeUI.getColor("XTextField.focusBackground");
     }
 
     protected void initDefaults() {}
         
     protected InputVerifier getMainInputVerifier() { return null; } 
     protected InputVerifier getChildInputVerifier() { return null; } 
+    
+    public Color getFocusBackground() { return focusBackground; } 
+    public Color getDisabledBackground() { return disabledBackground; } 
+    public Color getEnabledBackground() { return enabledBackground; } 
+    
+    public Color getBackground() 
+    {
+        if (Beans.isDesignTime()) return super.getBackground();
+        
+        boolean enabled = isEnabled(); 
+        if (enabled) 
+        {
+            if (hasFocus()) 
+            {
+                Color newColor = getFocusBackground();
+                return (newColor == null? enabledBackground: newColor);
+            }
+            else {
+                return enabledBackground; 
+            } 
+        } 
+        else { 
+            return disabledBackground;
+        } 
+    } 
+    
+    public boolean isReadonly() { return readonly; }
+    public void setReadonly(boolean readonly) 
+    {
+        if (!isEnabled()) return;
+
+        this.readonly = readonly;
+        setEditable(!readonly);
+        super.firePropertyChange("editable", readonly, !readonly); 
+    }
+
+    public void setEnabled(boolean enabled) 
+    {
+        super.setEnabled(enabled);
+        setEditable((enabled? !isReadonly(): enabled));    
+    }
     
     protected void resetInputVerifierProxy() 
     {
@@ -52,19 +104,37 @@ public class DefaultTextField extends JTextField
     {
         if (e.getID() == FocusEvent.FOCUS_GAINED) 
         {
+            updateBackground();
+            
             resetInputVerifierProxy(); 
             inputVerifierProxy.setEnabled(true); 
             super.setInputVerifier(inputVerifierProxy); 
+            
             try { onfocusGained(e); } catch(Exception ex) {;} 
         } 
         else if (e.getID() == FocusEvent.FOCUS_LOST) 
         { 
+            if (!e.isTemporary()) updateBackground(); 
+            
             try { onfocusLost(e); } catch(Exception ex) {;} 
+            
             inputVerifierProxy.setEnabled(false);
         } 
         
         super.processFocusEvent(e); 
     }     
+        
+    protected void updateBackground() 
+    {
+        if (enabledBackground == null) 
+            enabledBackground = UIManager.getLookAndFeelDefaults().getColor("TextField.background");
+        if (disabledBackground == null)
+            disabledBackground = UIManager.getLookAndFeelDefaults().getColor("TextField.disabledBackground");
+        
+        Color newColor = getBackground(); 
+        setBackground(newColor); 
+        repaint();
+    }
     
     protected void onfocusGained(FocusEvent e) {
     }

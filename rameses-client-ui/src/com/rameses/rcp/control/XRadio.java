@@ -27,40 +27,40 @@ import javax.swing.ButtonGroup;
 import javax.swing.JRadioButton;
 
 
-public class XRadio extends JRadioButton implements UIInput, ItemListener, ActiveControl {
-    
+public class XRadio extends JRadioButton implements UIInput, ItemListener, ActiveControl 
+{
     private Binding binding;
     private String[] depends;
-    private int index;
     private boolean readonly;
+    private int index;
     
     private Object optionValue;
     private ButtonGroup buttonGroup;
     private ControlProperty property = new ControlProperty();
     
-    
-    public XRadio() {
+    public XRadio() 
+    {
         addItemListener(this);
         
         //default font
         Font f = ThemeUI.getFont("XRadio.font");
         if ( f != null ) setFont( f );
     }
-    
-    
-    public void refresh() {
-        try {
+        
+    public void refresh() 
+    {
+        try 
+        {
+            //force to update component's status
+            if (isEnabled()) setReadonly(isReadonly()); 
+            
             Object value = UIControlUtil.getBeanValue(this);
             setValue( value );
-            if( !readonly && !isFocusable() ) setReadonly(false);
-        } catch(Exception e) {
-            //disable when there is error
-            setEnabled(false);
-            setFocusable(false);
-            
-            if( ClientContext.getCurrentContext().isDebugMode() ) {
+        }
+        catch(Exception e) 
+        {
+            if (ClientContext.getCurrentContext().isDebugMode()) 
                 e.printStackTrace();
-            }
         }
     }
     
@@ -105,16 +105,16 @@ public class XRadio extends JRadioButton implements UIInput, ItemListener, Activ
     }
     
     public boolean isNullWhenEmpty() { return true; }
-    
-    public void setReadonly(boolean readonly) {
+
+    public boolean isReadonly() { return readonly; }    
+    public void setReadonly(boolean readonly) 
+    {
         this.readonly = readonly;
-        setEnabled(!readonly);
-        setFocusable(!readonly);
+        super.setEnabled(!readonly);
+        super.firePropertyChange("enabled", readonly, !readonly); 
+        repaint();
     }
     
-    public boolean isReadonly() {
-        return readonly;
-    }
     
     public void setRequestFocus(boolean focus) {
         if ( focus ) requestFocus();

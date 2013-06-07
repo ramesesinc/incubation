@@ -64,14 +64,21 @@ public class IconedTextField extends DefaultTextField implements ActionListener
     
     public void paint(Graphics g) 
     {
+        try { paintImpl(g); } catch(Exception e) {;} 
+    }
+    
+    private void paintImpl(Graphics g) 
+    {
         super.paint(g);
         
         if (icon != null) 
         {
             Graphics2D g2 = (Graphics2D) g.create();
-            if ( !isFocusable() && !Beans.isDesignTime() ) 
+            if ( isReadonly() || !isEnabled() )
+                g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_ATOP, 0.5f));
+            else if ( !isFocusable() && !Beans.isDesignTime() ) 
                 g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_ATOP, 0.3f));
-            else if( mouseOverImage == true ) 
+            else if( mouseOverImage == true )
                 g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_ATOP, 0.5f));
             
             if (imgWidth > 0) 
@@ -91,7 +98,7 @@ public class IconedTextField extends DefaultTextField implements ActionListener
                 icon.paintIcon(this, g2, x, y);
             }
             g2.dispose();
-        }
+        }        
     }
     
     public void setBorder(Border border) 

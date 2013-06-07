@@ -51,6 +51,8 @@ public class XCheckBox extends JCheckBox implements UIInput, ActiveControl
             //disable the item handler to prevent cyclic updating of values
             itemHandler.enabled = false; 
             
+            if (isEnabled()) setReadonly( isReadonly() );
+            
             //check if this component is owned by the JTable
             if ("true".equals(getClientProperty(JTable.class)+"")) 
             {
@@ -60,8 +62,6 @@ public class XCheckBox extends JCheckBox implements UIInput, ActiveControl
             
             resolveValues();
             
-            if ( !isReadonly() && !isFocusable() ) setReadonly(false);
-            
             Object value = UIControlUtil.getBeanValue(this);
             boolean selected = resolveValue(value); 
             setSelected(selected);
@@ -69,8 +69,6 @@ public class XCheckBox extends JCheckBox implements UIInput, ActiveControl
         catch(Exception e) 
         {
             setSelected(false);
-            setFocusable(false);
-            setEnabled(false);
             
             if (ClientContext.getCurrentContext().isDebugMode())
                 e.printStackTrace();
@@ -78,7 +76,7 @@ public class XCheckBox extends JCheckBox implements UIInput, ActiveControl
         finally 
         {
             //enable the item handler
-            itemHandler.enabled = true;             
+            itemHandler.enabled = true;   
         }
     }
     
@@ -140,19 +138,6 @@ public class XCheckBox extends JCheckBox implements UIInput, ActiveControl
             if ((checkValue+"").equals(value+"")) selected = true; 
             else if ("true".equals(value+"")) selected = true; 
             else if ("1".equals(value+"")) selected = true; 
-            
-            /*
-            boolean isCheck = getCheckValue().equals(value);
-            boolean isUncheck = getUncheckValue().equals(value);
-            if ( !isCheck ) {
-                setSelected(false);
-                if ( !isUncheck ) {
-                    UIInputUtil.updateBeanValue(this, false, false);
-                }
-            } 
-            else {
-                setSelected(true);
-            }*/
             
             UIInputUtil.updateBeanValue(this, false, false);
             setSelected(selected);
@@ -216,9 +201,7 @@ public class XCheckBox extends JCheckBox implements UIInput, ActiveControl
         this.binding = binding;
     }
     
-    public ControlProperty getControlProperty() {
-        return property;
-    }
+    public ControlProperty getControlProperty() { return property; }
     
     public Object getCheckValue() { return checkValue; }    
     public void setCheckValue(Object checkValue) {
@@ -246,25 +229,21 @@ public class XCheckBox extends JCheckBox implements UIInput, ActiveControl
         else if (expr.matches(".*\\$\\{[^\\{\\}]+\\}.*")) return true; 
         else return false; 
     }
-    
+
+    public boolean isReadonly() { return readonly; }    
     public void setReadonly(boolean readonly) 
     {
         this.readonly = readonly;
-        setEnabled(!readonly);
-        setFocusable(!readonly);
-    }
-    
-    public boolean isReadonly() {
-        return readonly;
+        super.setEnabled(!readonly);
+        super.firePropertyChange("enabled", readonly, !readonly); 
+        repaint();
     }
     
     public void setRequestFocus(boolean focus) {
         if ( focus ) requestFocus();
     }
     
-    public boolean isImmediate() {
-        return true;
-    }
+    public boolean isImmediate() { return true; }
 
     public void setPropertyInfo(PropertySupport.PropertyInfo info) 
     {

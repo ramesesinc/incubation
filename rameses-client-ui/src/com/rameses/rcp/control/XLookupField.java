@@ -76,7 +76,6 @@ public class XLookupField extends IconedTextField implements UIFocusableContaine
     private String expression;
     private boolean transferFocusOnSelect = true;    
     private boolean dirty;
-    private boolean readonly;
     private boolean loaded;
     private boolean nullWhenEmpty = true; 
     
@@ -106,13 +105,6 @@ public class XLookupField extends IconedTextField implements UIFocusableContaine
     
     public String getHint() { return hint; } 
     public void setHint(String hint) { this.hint = hint; }    
-    
-    public boolean isReadonly() { return readonly; }
-    public void setReadonly(boolean readonly) { 
-        this.readonly = readonly; 
-        setEditable(!readonly);
-        setFocusable(!readonly);        
-    }
     
     public String getHandler() { return handler; }    
     public void setHandler(String handler) { this.handler = handler; }
@@ -217,6 +209,9 @@ public class XLookupField extends IconedTextField implements UIFocusableContaine
     
     public void refresh() 
     {
+        //force to update the component status
+        updateBackground();
+        
         Object expval = null;
         if ( !ValueUtil.isEmpty(expression) ) 
         {
@@ -367,6 +362,7 @@ public class XLookupField extends IconedTextField implements UIFocusableContaine
     private void fireLookup() 
     {
         if (Beans.isDesignTime()) return;
+        if (isReadonly()) return;
 
         try 
         {

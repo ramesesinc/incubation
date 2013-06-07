@@ -32,7 +32,6 @@ public class XIntegerField extends AbstractNumberField implements UIInput, Valid
     
     private IntegerDocument model = new IntegerDocument(); 
     private boolean nullWhenEmpty;
-    private boolean readonly;
     private String[] depends; 
     private String pattern;  
     private int index;
@@ -188,14 +187,6 @@ public class XIntegerField extends AbstractNumberField implements UIInput, Valid
         this.nullWhenEmpty = nullWhenEmpty; 
     }
 
-    public boolean isReadonly() { return readonly; }
-    public void setReadonly(boolean readonly) 
-    { 
-        this.readonly = readonly; 
-        setEditable(!readonly);
-        setFocusable(!readonly);        
-    }
-
     public void setRequestFocus(boolean focus) {
         if ( focus ) requestFocus();
     }
@@ -215,7 +206,7 @@ public class XIntegerField extends AbstractNumberField implements UIInput, Valid
     {
         try 
         {
-            if (!isReadonly() && !isFocusable()) setReadonly(false); 
+            updateBackground();
             
             Object value = UIControlUtil.getBeanValue(this);
             
@@ -239,12 +230,8 @@ public class XIntegerField extends AbstractNumberField implements UIInput, Valid
         catch(Exception e) 
         {
             setText("");
-            setEditable(false);
-            setFocusable(false);
             
-            if ( ClientContext.getCurrentContext().isDebugMode() ) {
-                e.printStackTrace();
-            }
+            if (ClientContext.getCurrentContext().isDebugMode()) e.printStackTrace();
         }
     }
 

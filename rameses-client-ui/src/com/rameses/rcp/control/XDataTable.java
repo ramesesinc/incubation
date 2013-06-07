@@ -195,6 +195,9 @@ public class XDataTable extends JPanel implements UIInput, Validatable, FocusLis
     
     public void refresh() 
     {
+        //force to update component status
+        if (isEnabled()) setReadonly(isReadonly()); 
+        
         if ( dataProvider != null ) 
         {
             if ( !refreshed || dynamic ) 

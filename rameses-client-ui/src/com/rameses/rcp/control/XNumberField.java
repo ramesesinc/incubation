@@ -16,41 +16,42 @@ import javax.swing.JTextField;
  *
  * @author Windhel
  */
-public class XNumberField extends XTextField {
-    
+public class XNumberField extends XTextField 
+{    
     private Class fieldType;
     private String pattern;
     private DecimalFormat formatter;
     private boolean immediate;
     
     NumberFieldSupport fieldSupport = new NumberFieldSupport();
-    
-    
+        
     public XNumberField() {
         setHorizontalAlignment(JTextField.RIGHT);
         addKeyListener(fieldSupport);
         addFocusListener(fieldSupport);
     }
     
-    public void refresh() {
-        try {
-            if( !isReadonly() && !isFocusable() ) setReadonly(false);
-            
+    public void refresh() 
+    {
+        try 
+        {
+            //force to update component status
+            updateBackground();
+            //
             showFormattedValue(true);
-        } catch(Exception e) {
-            //block input is name is null
+        } 
+        catch(Exception e) 
+        {
             setText("");
-            setEditable(false);
-            setFocusable(false);
             
-            if( ClientContext.getCurrentContext().isDebugMode() ) {
+            if (ClientContext.getCurrentContext().isDebugMode()) 
                 e.printStackTrace();
-            }
         }
     }
     
-    public void load() {
-        if( !immediate )
+    public void load() 
+    {
+        if ( !immediate )
             setInputVerifier(UIInputUtil.VERIFIER);
         else
             fieldSupport.setUpdateOnKeyRelease(true);

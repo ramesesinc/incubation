@@ -27,7 +27,6 @@ import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.Insets;
 import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 import java.beans.Beans;
 import java.util.Arrays;
@@ -40,7 +39,7 @@ import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
-public class XComboBox extends JComboBox implements UIInput, ItemListener, Validatable, ActiveControl 
+public class XComboBox extends JComboBox implements UIInput, Validatable, ActiveControl 
 {
     protected Binding binding;
     
@@ -292,14 +291,6 @@ public class XComboBox extends JComboBox implements UIInput, ItemListener, Valid
         this.fieldType = fieldType;
     }
 
-    public boolean isReadonly() { return readonly; }    
-    public void setReadonly(boolean readonly) 
-    {
-        this.readonly = readonly;
-        setEnabled(!readonly);
-        setFocusable(!readonly);
-    }
-    
     public void setRequestFocus(boolean focus) {
         if ( focus ) requestFocus();
     }
@@ -340,6 +331,15 @@ public class XComboBox extends JComboBox implements UIInput, ItemListener, Valid
             setItems(cbo.getItems().toString()); 
         else 
             setItemsObject(cbo.getItems()); 
+    }
+        
+    public boolean isReadonly() { return readonly; }    
+    public void setReadonly(boolean readonly) 
+    { 
+        this.readonly = readonly; 
+        super.setEnabled(!readonly);
+        super.firePropertyChange("enabled", readonly, !readonly);
+        repaint(); 
     }
     
     // </editor-fold>    
@@ -443,13 +443,13 @@ public class XComboBox extends JComboBox implements UIInput, ItemListener, Valid
     
     public void load() 
     {
-        model = new DefaultComboBoxModel();
+        model = new DefaultComboBoxModel();        
         super.setModel(model);
         
         if ( !dynamic ) buildList();
         
         if ( !immediate ) {
-            super.addItemListener(this);
+            //super.addItemListener(this);
         } 
         else 
         {
@@ -468,7 +468,7 @@ public class XComboBox extends JComboBox implements UIInput, ItemListener, Valid
     {
         try 
         {
-            if ( !isReadonly() && !isFocusable() ) setReadonly(false);
+            if (isEnabled()) setReadonly(isReadonly());
             
             if ( dynamic ) 
             {
@@ -515,7 +515,7 @@ public class XComboBox extends JComboBox implements UIInput, ItemListener, Valid
         return UIControlUtil.compare(this, o);
     }
     
-    public void itemStateChanged(ItemEvent e) 
+    protected void onItemStateChanged(ItemEvent e) 
     {
         if ( e.getStateChange() == ItemEvent.SELECTED && !updating ) 
         {
@@ -527,7 +527,16 @@ public class XComboBox extends JComboBox implements UIInput, ItemListener, Valid
             catch(Exception ex) {;}
         }
     }
+
+    protected final void fireItemStateChanged(ItemEvent e) 
+    {
+        if (isReadonly()) return;
         
+        onItemStateChanged(e);        
+        super.fireItemStateChanged(e); 
+    }
+
+    
     // <editor-fold defaultstate="collapsed" desc="  ComboItem (class)  ">
     
     public class ComboItem 

@@ -4,6 +4,7 @@ import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.framework.ClientContext;
 import com.rameses.rcp.support.TextEditorSupport;
+import com.rameses.rcp.support.ThemeUI;
 import com.rameses.rcp.ui.ActiveControl;
 import com.rameses.rcp.ui.ControlProperty;
 import com.rameses.rcp.ui.UIInput;
@@ -17,6 +18,7 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Insets;
+import java.awt.event.FocusEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.beans.Beans;
@@ -35,10 +37,14 @@ import javax.swing.text.DefaultCaret;
  * @author Windhel
  */
 
-public class XPasswordField extends JPasswordField implements UIInput, Validatable, ActiveControl {
-    
+public class XPasswordField extends JPasswordField implements UIInput, Validatable, ActiveControl 
+{    
     private static Font FONT = new Font("Dialog", Font.PLAIN, 24);
     
+    private Color focusBackground;
+    private Color disabledBackground;
+    private Color enabledBackground;
+        
     private ImageIcon[] icons;
     private String[] iconPathList;
     private int imgHeight;
@@ -47,7 +53,6 @@ public class XPasswordField extends JPasswordField implements UIInput, Validatab
     private int psswrdWidth;
     private DefaultCaret caret;
     private List iconIndexList = new ArrayList();
-    private boolean nullWhenEmpty = true;
     private String[] depends;
     private Binding binding;
     private int index;
@@ -55,33 +60,33 @@ public class XPasswordField extends JPasswordField implements UIInput, Validatab
     private ActionMessage actionMessage = new ActionMessage();
     private ControlProperty property = new ControlProperty();
     private boolean readonly;
+    private boolean showHint;    
+    private boolean nullWhenEmpty = true;    
     private String hint;
-    private boolean showHint;
-    
     
     public XPasswordField() 
     {
         TextEditorSupport.install(this);
-                
-        //set default font
-//        Font f = ThemeUI.getFont("XPasswordField.font");
-//        if ( f != null ) setFont(f);
         
         super.setFont(Font.decode("Monospaced--"));
         
         Insets margin = UIManager.getInsets("TextField.margin");
-        if (margin != null) {
+        if (margin != null) 
+        {
             Border borderOut = getBorder();
             Border borderIn = BorderFactory.createEmptyBorder(0, margin.left, 0, 0);
             setBorder(BorderFactory.createCompoundBorder(borderOut, borderIn));
         }
+        
+        focusBackground = ThemeUI.getColor("XTextField.focusBackground");        
     }
-    
-    
-    public void paint(Graphics origGraphics) {
+        
+    public void paint(Graphics origGraphics) 
+    {
         super.paint(origGraphics);
         
-        if( showHint && getDocument().getLength() == 0 ) {
+        if ( showHint && getDocument().getLength() == 0 ) 
+        {
             Graphics g = origGraphics.create();
             Font f = getFont();
             FontMetrics fm = g.getFontMetrics(f);
@@ -100,15 +105,21 @@ public class XPasswordField extends JPasswordField implements UIInput, Validatab
         }
     }
     
-    public void refresh() {
+    public void refresh() 
+    {
+        //force to update component's status
+        updateBackground();
+        //
         Object value = UIControlUtil.getBeanValue(this);
         setValue(value);
     }
     
-    public void load() {
+    public void load() 
+    {
         setInputVerifier(UIInputUtil.VERIFIER);
         
-        if( getEchoChar() == ' ') {
+        if ( getEchoChar() == ' ') 
+        {
             setFont(FONT);
             addKeyListener(new KeyListenerSupport());
             charWidth = getFontMetrics(FONT).charWidth(passwordChar);
@@ -121,24 +132,29 @@ public class XPasswordField extends JPasswordField implements UIInput, Validatab
         return UIControlUtil.compare(this, o);
     }
     
-    public void paintComponent(Graphics g) {
+    public void paintComponent(Graphics g) 
+    {
         super.paintComponent(g);
-        if(Beans.isDesignTime()) return;
+        if (Beans.isDesignTime()) return; 
         
-        if( getEchoChar() == ' ') {
+        if ( getEchoChar() == ' ') 
+        {
             int x = 0;
             int iconIndex = 0;
             if( getPassword().length >= psswrdWidth)
                 x = getPassword().length - psswrdWidth + 1;
             else
                 x = 1;
-            for(int counter = x, passLength = 0; counter < getPassword().length + 1 ; counter++) {
-                if(! (passLength == (psswrdWidth - 1)))
-                    passLength++;
-                if(iconIndexList.isEmpty() == true)
+            
+            for (int counter = x, passLength = 0; counter < getPassword().length + 1 ; counter++) 
+            {
+                if (! (passLength == (psswrdWidth - 1))) passLength++;
+                
+                if (iconIndexList.isEmpty() == true) 
                     iconIndex = 0;
                 else
                     iconIndex = Integer.parseInt( (String) iconIndexList.get(counter - 1) );
+                
                 g.drawImage( icons[iconIndex].getImage(), passLength * charWidth, (getHeight() - imgHeight) / 2 , charWidth, imgHeight, null);
             }
         }
@@ -146,9 +162,9 @@ public class XPasswordField extends JPasswordField implements UIInput, Validatab
     
     // <editor-fold defaultstate="collapsed" desc="  Getters/Setters  ">
     
-    public Object getValue() {
-        if( Beans.isDesignTime())
-            return "";
+    public Object getValue() 
+    {
+        if (Beans.isDesignTime()) return "";
         
         return String.valueOf(getPassword());
     }
@@ -157,58 +173,37 @@ public class XPasswordField extends JPasswordField implements UIInput, Validatab
         setText( value==null? "" : value.toString() );
     }
     
-    public boolean isNullWhenEmpty() {
-        return nullWhenEmpty;
-    }
-    
+    public boolean isNullWhenEmpty() { return nullWhenEmpty; }    
     public void setNullWhenEmpty(boolean nullWhenEmpty) {
         this.nullWhenEmpty = nullWhenEmpty;
     }
     
-    public String[] getDepends() {
-        return depends;
-    }
+    public String[] getDepends() { return depends; }    
+    public void setDepends(String[] depends) { this.depends = depends; }
     
-    public void setDepends(String[] depends) {
-        this.depends = depends;
-    }
+    public int getIndex() { return index; }    
+    public void setIndex(int index) { this.index = index; }
     
-    public int getIndex() {
-        return index;
-    }
-    
-    public void setIndex(int index) {
-        this.index = index;
-    }
-    
-    public Binding getBinding() {
-        return binding;
-    }
-    
-    public void setBinding(Binding binding) {
-        this.binding = binding;
-    }
-    
-    public void setEchoChar(char c) {
+    public Binding getBinding() { return binding; }    
+    public void setBinding(Binding binding) { this.binding = binding; }
+
+    public char getEchoChar() { return passwordChar; }    
+    public void setEchoChar(char c) 
+    {
         this.passwordChar = c;
         icons = null;
         iconPathList = null;
     }
-    
-    public char getEchoChar() {
-        return passwordChar;
-    }
-    
-    public void setMargin(Insets m) {
+        
+    public void setMargin(Insets m) 
+    {
         Insets insets = new Insets(m.top, charWidth, m.bottom, charWidth);
         super.setMargin(insets);
     }
     
-    public String[] getIcons() {
-        return iconPathList;
-    }
-    
-    public void setIcons(String[] iconPathList) {
+    public String[] getIcons() { return iconPathList; }    
+    public void setIcons(String[] iconPathList) 
+    {
         passwordChar = ' ';
         this.iconPathList = iconPathList;
         if(Beans.isDesignTime()) return;
@@ -292,37 +287,35 @@ public class XPasswordField extends JPasswordField implements UIInput, Validatab
         }
     }
     
-    public ActionMessage getActionMessage() {
-        return actionMessage;
-    }
+    public ActionMessage getActionMessage() { return actionMessage; }    
     
-    public ControlProperty getControlProperty() {
-        return property;
-    }
+    public ControlProperty getControlProperty() { return property; }
     
-    public void setReadonly(boolean readonly) {
+    public boolean isReadonly() { return readonly; }    
+    public void setReadonly(boolean readonly) 
+    {
+        if (!isEnabled()) return;
+
         this.readonly = readonly;
         setEditable(!readonly);
-        setFocusable(!readonly);
+        super.firePropertyChange("editable", readonly, !readonly);
     }
     
-    public boolean isReadonly() {
-        return readonly;
-    }
+    public void setEnabled(boolean enabled) 
+    {
+        super.setEnabled(enabled);
+        setEditable((enabled? !isReadonly(): enabled));    
+    }    
     
     public void setRequestFocus(boolean focus) {
         if ( focus ) requestFocus();
     }
     
-    public boolean isImmediate() {
-        return false;
-    }
+    public boolean isImmediate() { return false; }
     
-    public String getHint() {
-        return hint;
-    }
-    
-    public void setHint(String hint) {
+    public String getHint() { return hint; }    
+    public void setHint(String hint) 
+    {
         this.hint = hint;
         showHint = !ValueUtil.isEmpty(hint);
     }
@@ -332,8 +325,10 @@ public class XPasswordField extends JPasswordField implements UIInput, Validatab
     
     // </editor-fold>
         
-    //<editor-fold defaultstate="collapsed" desc="  KeyListenerSupport (class)  ">
-    private class KeyListenerSupport implements KeyListener{
+    // <editor-fold defaultstate="collapsed" desc="  KeyListenerSupport (class)  ">
+    
+    private class KeyListenerSupport implements KeyListener
+    {
         public void keyTyped(KeyEvent e) {
         }
         
@@ -349,5 +344,60 @@ public class XPasswordField extends JPasswordField implements UIInput, Validatab
         public void keyReleased(KeyEvent e) {
         }
     }
-    //</editor-fold>
+    
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc="  others methods  ">
+    
+    public Color getFocusBackground() { return focusBackground; } 
+    
+    public Color getBackground() 
+    {
+        if (Beans.isDesignTime()) return super.getBackground();
+        
+        boolean enabled = isEnabled(); 
+        if (enabled) 
+        {
+            if (hasFocus()) 
+            {
+                Color newColor = getFocusBackground();
+                return (newColor == null? enabledBackground: newColor);
+            }
+            else {
+                return enabledBackground; 
+            } 
+        } 
+        else { 
+            return disabledBackground;
+        } 
+    } 
+    
+    protected void updateBackground() 
+    {
+        if (enabledBackground == null) 
+            enabledBackground = UIManager.getLookAndFeelDefaults().getColor("TextField.background");
+        if (disabledBackground == null)
+            disabledBackground = UIManager.getLookAndFeelDefaults().getColor("TextField.disabledBackground");
+        
+        Color newColor = getBackground(); 
+        setBackground(newColor); 
+        repaint();
+    }
+    
+    protected void processFocusEvent(FocusEvent e) 
+    {
+        if (e.getID() == FocusEvent.FOCUS_GAINED) 
+        {
+            updateBackground();
+        } 
+        
+        else if (e.getID() == FocusEvent.FOCUS_LOST) 
+        { 
+            if (!e.isTemporary()) updateBackground(); 
+        } 
+        
+        super.processFocusEvent(e); 
+    } 
+    
+    // </editor-fold>
 }

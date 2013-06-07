@@ -176,37 +176,39 @@ public class XDateField extends AbstractIconedTextField
     
     // </editor-fold>
     
-    public void refresh() {
-        try {
-            if( !isReadonly() && !isFocusable() ) setReadonly(false);
+    public void refresh() 
+    {
+        try 
+        {
+            //force to update component status
+            updateBackground(); 
             
             Object value = UIControlUtil.getBeanValue(this);
             setValue(value);
-        } catch(Exception e) {
+        } 
+        catch(Exception e) 
+        {
             setText("");
-            setEditable(false);
-            setFocusable(false);
             
-            if( ClientContext.getCurrentContext().isDebugMode() ) {
-                e.printStackTrace();
-            }
+            if (ClientContext.getCurrentContext().isDebugMode()) e.printStackTrace();
         }
         
     }
     
-    public void load() {
+    public void load() 
+    {
         setInputVerifier(UIInputUtil.VERIFIER);
         guideFormat = getInputFormat();
-        for(char c : getInputFormat().toCharArray()) {
-            if(c != 'y' && c != 'M' && c != 'd') {
+        for (char c : getInputFormat().toCharArray()) 
+        {
+            if (c != 'y' && c != 'M' && c != 'd') 
+            {
                 dateSeparator = c;
                 break;
             }
         }
         
-        if(isUseDatePickerModel()) {
-            dpm = new DatePickerModel(this);
-        }
+        if (isUseDatePickerModel()) dpm = new DatePickerModel(this);
     }
     
     private final void showFormattedValue(boolean formatted) {

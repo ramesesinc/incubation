@@ -22,7 +22,10 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Insets;
+import java.awt.event.FocusEvent;
+import java.beans.Beans;
 import javax.swing.JTextArea;
+import javax.swing.UIManager;
 
 /**
  *
@@ -31,6 +34,10 @@ import javax.swing.JTextArea;
 
 public class XTextArea extends JTextArea implements UIInput, Validatable, ActiveControl 
 {
+    private Color focusBackground;
+    private Color disabledBackground;
+    private Color enabledBackground;
+    
     private Binding binding;
     private int index;
     private boolean nullWhenEmpty = true;
@@ -59,6 +66,7 @@ public class XTextArea extends JTextArea implements UIInput, Validatable, Active
         //set default margin
         setMargin(new Insets(2,2,2,2));
         setPreferredSize(new Dimension(100,40));
+        focusBackground = ThemeUI.getColor("XTextField.focusBackground"); 
     }
         
     public void paint(Graphics origGraphics) 
@@ -85,7 +93,8 @@ public class XTextArea extends JTextArea implements UIInput, Validatable, Active
     {
         try 
         {
-            if ( !isReadonly() && !isFocusable() ) setReadonly(false);
+            //force to update component's status
+            updateBackground();
             
             Object value = UIControlUtil.getBeanValue(this);
             setValue(value);
@@ -94,10 +103,8 @@ public class XTextArea extends JTextArea implements UIInput, Validatable, Active
         catch(Exception e) 
         {
             setText("");
-            setEditable(false);
-            setFocusable(false);
             
-            if ( ClientContext.getCurrentContext().isDebugMode() ) 
+            if (ClientContext.getCurrentContext().isDebugMode()) 
                 e.printStackTrace();
         }
     }
@@ -232,10 +239,11 @@ public class XTextArea extends JTextArea implements UIInput, Validatable, Active
     public boolean isReadonly() { return readonly; }    
     public void setReadonly(boolean readonly) 
     {
+        if (!isEnabled()) return;
+
         this.readonly = readonly;
         setEditable(!readonly);
-        setFocusable(!readonly);
-        setOpaque(!readonly);
+        super.firePropertyChange("editable", readonly, !readonly);
     }
         
     public void setRequestFocus(boolean focus) {
@@ -253,4 +261,58 @@ public class XTextArea extends JTextArea implements UIInput, Validatable, Active
     }
     
     // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc="  others methods  ">
+    
+    public Color getFocusBackground() { return focusBackground; } 
+    
+    public Color getBackground() 
+    {
+        if (Beans.isDesignTime()) return super.getBackground();
+        
+        boolean enabled = isEnabled(); 
+        if (enabled) 
+        {
+            if (hasFocus()) 
+            {
+                Color newColor = getFocusBackground();
+                return (newColor == null? enabledBackground: newColor);
+            }
+            else {
+                return enabledBackground; 
+            } 
+        } 
+        else { 
+            return disabledBackground;
+        } 
+    } 
+    
+    protected void updateBackground() 
+    {
+        if (enabledBackground == null) 
+            enabledBackground = UIManager.getLookAndFeelDefaults().getColor("TextField.background");
+        if (disabledBackground == null)
+            disabledBackground = UIManager.getLookAndFeelDefaults().getColor("TextField.disabledBackground");
+        
+        Color newColor = getBackground(); 
+        setBackground(newColor); 
+        repaint();
+    }
+    
+    protected void processFocusEvent(FocusEvent e) 
+    {
+        if (e.getID() == FocusEvent.FOCUS_GAINED) 
+        {
+            updateBackground();
+        } 
+        
+        else if (e.getID() == FocusEvent.FOCUS_LOST) 
+        { 
+            if (!e.isTemporary()) updateBackground(); 
+        } 
+        
+        super.processFocusEvent(e); 
+    } 
+    
+    // </editor-fold>    
 }

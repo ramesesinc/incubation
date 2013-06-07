@@ -461,6 +461,8 @@ public class DataTableComponent extends JTable implements TableControl
     
     public boolean editCellAt(int rowIndex, int colIndex, EventObject e) 
     {
+        if (isReadonly()) return false;
+        
         Column oColumn = tableModel.getColumn(colIndex); 
         if (oColumn == null) return false;
 
@@ -475,7 +477,6 @@ public class DataTableComponent extends JTable implements TableControl
             return false;
         } 
         
-        if (isReadonly()) return false;
         if (editorModel == null) return false; 
         
         if (e instanceof MouseEvent) 

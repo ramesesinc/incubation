@@ -25,8 +25,8 @@ import javax.swing.border.Border;
  * @author Windhel
  */
 
-public abstract class AbstractIconedTextField extends XTextField implements ActionListener {
-    
+public abstract class AbstractIconedTextField extends XTextField implements ActionListener 
+{    
     public static final String ICON_ON_LEFT = "LEFT";
     public static final String ICON_ON_RIGHT = "RIGHT";
     
@@ -47,7 +47,8 @@ public abstract class AbstractIconedTextField extends XTextField implements Acti
         addActionListener(this);
     }
     
-    public AbstractIconedTextField(String iconPath) {
+    public AbstractIconedTextField(String iconPath) 
+    {
         this();
         setIcon(iconPath);
     }
@@ -56,30 +57,35 @@ public abstract class AbstractIconedTextField extends XTextField implements Acti
     public abstract void actionPerformed();
     
     
-    public void actionPerformed(ActionEvent e) {
+    public void actionPerformed(ActionEvent e) 
+    {
         if ( !isFocusable() || !isVisible() || !isEnabled() ) return;
         
         actionPerformed();
     }
     
-    public void paint(Graphics g) {
+    public void paint(Graphics g) 
+    {
         super.paint(g);
         
-        if(icon != null) {
+        if (icon != null) 
+        {
             Graphics2D g2 = (Graphics2D) g.create();
-            if( !isFocusable() && !Beans.isDesignTime() ) {
+            if ( !isFocusable() && !Beans.isDesignTime() )
                 g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_ATOP, 0.3f));
-            } else if( mouseOverImage == true ) {
+            else if ( mouseOverImage == true )
                 g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_ATOP, 0.5f));
-            }
             
-            if(imgWidth > 0) {
+            if (imgWidth > 0) 
+            {
                 int x=0 ,y=0;
-                if(orientation.toUpperCase() == "RIGHT") {
+                if (orientation.toUpperCase() == "RIGHT") 
+                {
                     x = this.getWidth() - (imgWidth + XPAD);
                     y = (this.getHeight() - imgHeight) / 2;
                 }
-                else {
+                else 
+                {
                     x = XPAD;
                     y = (this.getHeight() - imgHeight) / 2;
                 }
@@ -90,13 +96,13 @@ public abstract class AbstractIconedTextField extends XTextField implements Acti
         }
     }
     
-    public void setBorder(Border border) {
+    public void setBorder(Border border) 
+    {
         Border inner = null;
-        if( ICON_ON_LEFT.equals( orientation ) ) {
+        if ( ICON_ON_LEFT.equals( orientation ) ) 
             inner = BorderFactory.createEmptyBorder(0, imgWidth + MARGIN_PAD, 0, 0);
-        } else {
+        else 
             inner = BorderFactory.createEmptyBorder(0, 0, 0, imgWidth + MARGIN_PAD);
-        }
         
         Border newBorder = null;
         if ( border != null )
@@ -107,79 +113,89 @@ public abstract class AbstractIconedTextField extends XTextField implements Acti
         super.setBorder(newBorder);
     }
     
-    public String getOrientation() {
-        return orientation;
-    }
-    
-    public void setOrientation(String orient) {
-        if( orient != null ) orient = orient.toUpperCase();
+    public String getOrientation() { return orientation; }    
+    public void setOrientation(String orient) 
+    {
+        if ( orient != null ) orient = orient.toUpperCase();
         
         this.orientation = orient;
         Insets insets = super.getMargin();
         Insets actualInsets = null;
-        if( ICON_ON_LEFT.equals( orientation ) ) {
+        if ( ICON_ON_LEFT.equals( orientation ) ) 
+        {
             actualInsets = new Insets(insets.top,  imgWidth + MARGIN_PAD, insets.bottom, 0);
             super.setMargin(actualInsets);
-        } else {
+        } 
+        else 
+        {
             actualInsets = new Insets(insets.top,  insets.right, insets.bottom, imgWidth + MARGIN_PAD);
             super.setMargin(actualInsets);
         }
     }
     
-    public Icon getIcon() {
-        return icon;
-    }
-    
-    public void setIcon(Icon icon) {
+    public Icon getIcon() { return icon; }    
+    public void setIcon(Icon icon) 
+    {
         this.icon = icon;
-        if ( icon != null ) {
+        if ( icon != null ) 
+        {
             imgWidth = icon.getIconWidth();
             imgHeight = icon.getIconHeight();
         }
     }
     
-    public void setIcon(String path) {
+    public void setIcon(String path) 
+    {
         if ( ValueUtil.isEmpty(path) ) {
             setIcon( (ImageIcon) null );
-        } else {
-            try{
+        } 
+        else 
+        {
+            try
+            {
                 ClassLoader loader = null;
-                if ( Beans.isDesignTime() ) {
+                if ( Beans.isDesignTime() )
                     loader = getClass().getClassLoader();
-                } else {
+                else 
                     loader = ClientContext.getCurrentContext().getClassLoader();
-                }
                 
                 URL url = loader.getResource(path);                
                 setIcon( new ImageIcon(url) );
-            }catch(Exception ex) {
-                if( ClientContext.getCurrentContext().isDebugMode() ) {
+            }
+            catch(Exception ex) 
+            {
+                if (ClientContext.getCurrentContext().isDebugMode()) 
                     ex.printStackTrace();
-                }
             }
         }
     }
-    
-    
-    //<editor-fold defaultstate="collapsed" desc="  IconedTextFieldSupport (class)  ">
-    private class IconedTextFieldSupport implements MouseListener, MouseMotionListener {
         
+    // <editor-fold defaultstate="collapsed" desc="  IconedTextFieldSupport (class)  ">
+    
+    private class IconedTextFieldSupport implements MouseListener, MouseMotionListener 
+    {
         public void mousePressed(MouseEvent e) {}
         public void mouseReleased(MouseEvent e) {}
         public void mouseEntered(MouseEvent e) {}
         public void mouseDragged(MouseEvent e) {}
         
-        public void mouseClicked(MouseEvent e) {
-            if(orientation.toUpperCase() == "RIGHT") {
-                if(e.getX() >= (AbstractIconedTextField.this.getWidth() - (imgWidth + XPAD))) {
+        public void mouseClicked(MouseEvent e) 
+        {
+            if (orientation.toUpperCase() == "RIGHT") 
+            {
+                if (e.getX() >= (AbstractIconedTextField.this.getWidth() - (imgWidth + XPAD))) 
+                {
                     EventQueue.invokeLater(new Runnable() {
                         public void run() {
                             actionPerformed(null);
                         }
                     });
                 }
-            } else {
-                if(e.getX() > 0 && e.getX() < (XPAD + imgWidth)) {
+            } 
+            else 
+            {
+                if (e.getX() > 0 && e.getX() < (XPAD + imgWidth)) 
+                {
                     EventQueue.invokeLater(new Runnable() {
                         public void run() {
                             actionPerformed(null);
@@ -189,36 +205,46 @@ public abstract class AbstractIconedTextField extends XTextField implements Acti
             }
         }
         
-        public void mouseExited(MouseEvent e) {
+        public void mouseExited(MouseEvent e) 
+        {
             mouseOverImage = false;
             AbstractIconedTextField.this.repaint();
         }
         
-        public void mouseMoved(MouseEvent e) {
-            if(orientation.toUpperCase() == "RIGHT") {
-                if(e.getX() >= (AbstractIconedTextField.this.getWidth() - (imgWidth + XPAD))) {
+        public void mouseMoved(MouseEvent e) 
+        {
+            if (orientation.toUpperCase() == "RIGHT") 
+            {
+                if (e.getX() >= (AbstractIconedTextField.this.getWidth() - (imgWidth + XPAD))) 
+                {
                     setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                     mouseOverImage = true;
                     AbstractIconedTextField.this.repaint();
-                } else {
+                } 
+                else 
+                {
                     setCursor(Cursor.getPredefinedCursor(Cursor.TEXT_CURSOR));
                     mouseOverImage = false;
                     AbstractIconedTextField.this.repaint();
                 }
-            } else {
-                if(e.getX() > 0 && e.getX() < (XPAD + imgWidth)) {
+            } 
+            else 
+            {
+                if (e.getX() > 0 && e.getX() < (XPAD + imgWidth)) 
+                {
                     setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                     mouseOverImage = true;
                     AbstractIconedTextField.this.repaint();
-                } else {
+                } 
+                else 
+                {
                     setCursor(Cursor.getPredefinedCursor(Cursor.TEXT_CURSOR));
                     mouseOverImage = false;
                     AbstractIconedTextField.this.repaint();
                 }
             }
-        }
-        
+        }        
     }
-    //</editor-fold>
     
+    // </editor-fold>    
 }

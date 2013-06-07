@@ -47,7 +47,6 @@ public class XTextField extends DefaultTextField implements UIInput, Validatable
     private String inputFormat;
     private String inputFormatErrorMsg;
     private boolean nullWhenEmpty = true;
-    private boolean readonly;    
     private boolean showHint;
     private boolean isHintShown;
     
@@ -96,24 +95,20 @@ public class XTextField extends DefaultTextField implements UIInput, Validatable
             g.dispose();
         }
     }
-    
+
     // <editor-fold defaultstate="collapsed" desc="  UIControl implementation  ">
-    
+
     public void refresh() 
     {
         try 
         {
+            updateBackground(); 
+            
             Object value = UIControlUtil.getBeanValue(this);
             if ( isSecured() ) 
             {
                 //keep the actual value
                 securedValue = (String) value;
-                
-                if ( !readonly ) 
-                {
-                    setEditable(false);
-                    setFocusable(false);
-                }
                 
                 String txtValue = "";
                 if ( value != null ) 
@@ -129,10 +124,7 @@ public class XTextField extends DefaultTextField implements UIInput, Validatable
                 
                 super.setText(txtValue); 
             } 
-            else 
-            {
-                if (!readonly && !isFocusable()) setReadonly(false);
-                
+            else {
                 setValue(value);
             }
         } 
@@ -140,12 +132,8 @@ public class XTextField extends DefaultTextField implements UIInput, Validatable
         {
             //just block the input when the name is null
             setText("");
-            setEditable(false);
-            setFocusable(false);
             
-            if ( ClientContext.getCurrentContext().isDebugMode() ) { 
-                e.printStackTrace(); 
-            } 
+            if (ClientContext.getCurrentContext().isDebugMode()) e.printStackTrace(); 
         } 
     } 
     
@@ -334,14 +322,6 @@ public class XTextField extends DefaultTextField implements UIInput, Validatable
         this.trimSpaceOption = option;
     }
 
-    public boolean isReadonly() { return readonly; }    
-    public void setReadonly(boolean readonly) 
-    {
-        this.readonly = readonly;
-        setEditable(!readonly);
-        setFocusable(!readonly);
-    }
-        
     public void setRequestFocus(boolean focus) {
         if ( focus ) requestFocus();
     }
