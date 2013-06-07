@@ -44,6 +44,7 @@ public class XSubFormPanelBeanInfo extends ComponentBeanInfo.Support
             new PropertyDescriptor("depends", getBeanClass()),
             new PropertyDescriptor("dynamic", getBeanClass(), "isDynamic", "setDynamic"),
             new PropertyDescriptor("handler", getBeanClass()),
+            new PropertyDescriptor("handlerObject", getBeanClass()),
             new PropertyDescriptor("index", getBeanClass()) 
         }; 
     }

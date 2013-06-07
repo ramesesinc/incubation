@@ -105,6 +105,5 @@ public abstract class PropertySupport
     
     public static interface TextPropertyInfo extends PropertyInfo 
     {
-    }     
-    
+    }       
 }

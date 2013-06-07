@@ -247,9 +247,9 @@ public class XSubFormPanel extends JPanel implements UISubControl, ActiveControl
         this.handlerObj = handlerObj; 
         
         if (handlerObj instanceof Opener) 
-            getOpeners().add((Opener) handlerObj);
+            getOpeners().add((Opener) handlerObj); 
     } 
-       
+    
     // <editor-fold defaultstate="collapsed" desc="  Getters/Setters  ">
     
     public Dimension getPreferredSize() {
@@ -368,7 +368,8 @@ public class XSubFormPanel extends JPanel implements UISubControl, ActiveControl
         return property;
     }
 
-    public void setPropertyInfo(PropertySupport.PropertyInfo info) {
+    public void setPropertyInfo(PropertySupport.PropertyInfo info) 
+    {
     }
     
     // </editor-fold>

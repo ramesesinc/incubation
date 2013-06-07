@@ -10,6 +10,7 @@ package com.rameses.rcp.control;
 import com.rameses.common.PropertyResolver;
 import com.rameses.rcp.common.FormControl;
 import com.rameses.rcp.common.Opener;
+import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.common.SubControlModel;
 import com.rameses.rcp.constant.TextCase;
 import com.rameses.rcp.constant.TrimSpaceOption;
@@ -27,11 +28,13 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -273,21 +276,23 @@ public class FormControlUtil {
     }
     
     //<editor-fold defaultstate="collapsed" desc="  helper methods  ">
-    private void setProperties(Object control, Map properties) {
+    private void setProperties(Object control, Map properties) 
+    {
         if ( properties == null ) return;
         
         ClientContext ctx = ClientContext.getCurrentContext();
         PropertyResolver resolver = PropertyResolver.getInstance();
         
-        for( Object oo : properties.entrySet()) {
+        for( Object oo : properties.entrySet()) 
+        {
             Map.Entry me = (Map.Entry)oo;
-            try {
-                
+            try 
+            {                
                 String key = me.getKey()+"";
                 Object value = resolveValue(key, me.getValue());
-                resolver.setProperty(control, key, value );
-                
-            } catch(Exception e) {;}
+                resolver.setProperty(control, key, value ); 
+            } 
+            catch(Exception e) {}
         }
     }
     
@@ -300,10 +305,12 @@ public class FormControlUtil {
         }
         return value;
     }
-    //</editor-fold>
+    
+    // </editor-fold>
     
     
-    //<editor-fold defaultstate="collapsed" desc="  ValueResolver  ">
+    // <editor-fold defaultstate="collapsed" desc="  ValueResolver  ">
+    
     public static interface ValueResolver {
         
         Object resolve(String name, Object value);
@@ -383,6 +390,52 @@ public class FormControlUtil {
         }
         
     }
-    //</editor-fold>
     
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc="  UIProperties  ">
+    
+    private class UIProperties implements Map, PropertySupport.PropertyInfo
+    {
+        private Map properties;
+        
+        UIProperties(Map properties) {
+            this.properties = properties;
+        }
+
+        public int size() { return properties.size(); }
+
+        public boolean isEmpty() { 
+            return properties.isEmpty(); 
+        }
+
+        public boolean containsKey(Object key) { 
+            return properties.containsKey(key); 
+        }
+
+        public boolean containsValue(Object value) { 
+            return properties.containsValue(value);
+        }
+
+        public Object get(Object key) {
+            return properties.get(key);
+        }
+
+        public Object put(Object key, Object value) {
+            return null;
+        }
+
+        public Object remove(Object key) {
+            return properties.remove(key);
+        }
+
+        public void putAll(Map map) {}
+        public void clear() {}
+
+        public Set keySet() { return properties.keySet(); }
+        public Collection values() { return properties.values(); }
+        public Set<Map.Entry> entrySet() { return properties.entrySet(); }        
+    }
+    
+    // </editor-fold>
 }
