@@ -66,7 +66,6 @@ public class XTextArea extends JTextArea implements UIInput, Validatable, Active
         //set default margin
         setMargin(new Insets(2,2,2,2));
         setPreferredSize(new Dimension(100,40));
-        focusBackground = ThemeUI.getColor("XTextField.focusBackground"); 
     }
         
     public void paint(Graphics origGraphics) 
@@ -270,21 +269,29 @@ public class XTextArea extends JTextArea implements UIInput, Validatable, Active
     {
         if (Beans.isDesignTime()) return super.getBackground();
         
+        if (enabledBackground == null) 
+            enabledBackground = UIManager.getLookAndFeelDefaults().getColor("TextField.background");
+        if (disabledBackground == null)
+            disabledBackground = UIManager.getLookAndFeelDefaults().getColor("TextField.disabledBackground");
+        
+        Color preferredColor = null;
         boolean enabled = isEnabled(); 
         if (enabled) 
         {
             if (hasFocus()) 
             {
                 Color newColor = getFocusBackground();
-                return (newColor == null? enabledBackground: newColor);
+                preferredColor = (newColor == null? enabledBackground: newColor);
             }
             else {
-                return enabledBackground; 
+                preferredColor = enabledBackground; 
             } 
         } 
         else { 
-            return disabledBackground;
+            preferredColor = disabledBackground;
         } 
+        
+        return (preferredColor == null? super.getBackground(): preferredColor); 
     } 
     
     protected void updateBackground() 
