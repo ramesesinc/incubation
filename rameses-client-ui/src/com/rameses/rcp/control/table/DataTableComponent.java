@@ -57,6 +57,10 @@ public class DataTableComponent extends JTable implements TableControl
     private PropertyChangeHandlerImpl propertyHandler;
     private TableModelHandlerImpl tableModelHandler;
         
+    private String multiSelectName;    
+    private String varName = "item";
+    private String varStatus;
+    
     //internal flags
     private int editingRow = -1;
     private boolean readonly;
@@ -202,27 +206,35 @@ public class DataTableComponent extends JTable implements TableControl
         tableModel.setBinding(itemBinding); 
         setModel(tableModel);
         buildColumns();
+        onTableModelChanged(tableModel); 
     }
     
     public DataTableModel getDataTableModel() { return tableModel; } 
-    
+        
     public boolean isProcessingRequest() { 
         return (processingRequest || fetching); 
     } 
     
-    public String getVarName() { 
-        return getDataTableModel().getVarName(); 
-    } 
-    public void setVarName(String varName) { 
-        getDataTableModel().setVarName(varName);
+    public String getVarName() { return varName; } 
+    public void setVarName(String varName) 
+    { 
+        this.varName = varName; 
+        getDataTableModel().setVarName(varName); 
     }
     
-    public String getMultiSelectName() { 
-        return tableModel.getMultiSelectName(); 
+    public String getVarStatus() { return varStatus; }    
+    public void setVarStatus(String varStatus) 
+    { 
+        this.varStatus = varStatus; 
+        getDataTableModel().setVarStatus(varStatus);
     } 
-    public void setMultiSelectName(String multiSelectName) {
-        tableModel.setMultiSelectName(multiSelectName); 
-    }
+        
+    public String getMultiSelectName() { return multiSelectName; } 
+    public void setMultiSelectName(String multiSelectName) 
+    {
+        this.multiSelectName = multiSelectName; 
+        getDataTableModel().setMultiSelectName(multiSelectName); 
+    }    
     
     public void setBinding(Binding binding) { this.binding = binding; }
     public Binding getBinding() { return binding; }
@@ -264,9 +276,6 @@ public class DataTableComponent extends JTable implements TableControl
     
     public Color getErrorForeground() { return errorForeground; }
     public void setErrorForeground(Color errorForeground) { this.errorForeground = errorForeground; }
-    
-    public String getVarStatus() { return tableModel.getVarStatus(); }
-    public void setVarStatus(String status) { tableModel.setVarStatus(status); }
     
     // </editor-fold>
     
@@ -343,9 +352,16 @@ public class DataTableComponent extends JTable implements TableControl
     {
         tableModel = new DataTableModel();
         tableModel.setDataProvider(dataProvider);
+        tableModel.setVarName(getVarName());
+        tableModel.setVarStatus(getVarStatus());
+        tableModel.setMultiSelectName(getMultiSelectName()); 
         setModel(tableModel);
         buildColumns();
-    }    
+        onTableModelChanged(tableModel); 
+    } 
+    
+    protected void onTableModelChanged(DataTableModel tableModel){        
+    }
     
     private void addKeyboardAction(JComponent comp, int key, boolean commit) {
         EditorKeyBoardAction kba = new EditorKeyBoardAction(comp, key, commit);

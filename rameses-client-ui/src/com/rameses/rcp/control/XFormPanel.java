@@ -950,9 +950,13 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
     
     private class FormPanelBindingListener implements BindingListener 
     {        
-        public void notifyDepends(UIControl u, Binding parent) 
+        public void notifyDepends(UIControl u, Binding parent) {
+            notifyDepends(u, parent, u.getName()); 
+        }
+        
+        public void notifyDepends(UIControl u, Binding parent, String name) 
         {
-            if ( ValueUtil.isEmpty(u.getName()) ) return;
+            if ( ValueUtil.isEmpty(name) ) return;
             
             //if view type is HTML_VIEW do not refresh the control
             //the html renderer also refresh the items before rendering
@@ -961,7 +965,7 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
                 boolean shouldRefresh = false;
                 for ( UIControl control : controls ) 
                 {
-                    if ( !isDependent( u.getName(), control ) ) continue;
+                    if ( !isDependent( name, control ) ) continue;
                     
                     shouldRefresh = true;
                 }
@@ -973,7 +977,7 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
                 Set<UIControl> refreshed = new HashSet();
                 for ( UIControl control : controls ) 
                 {
-                    if ( !isDependent( u.getName(), control ) ) continue;
+                    if ( !isDependent( name, control ) ) continue;
                     
                     _doRefresh( control, refreshed );
                 }

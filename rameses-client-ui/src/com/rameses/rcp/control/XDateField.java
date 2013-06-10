@@ -198,6 +198,10 @@ public class XDateField extends AbstractIconedTextField
     public void load() 
     {
         setInputVerifier(UIInputUtil.VERIFIER);
+        if (getInputFormat() == null) setInputFormat("yyyy-MM-dd");
+        if (getOutputFormat() == null) setOutputFormat("yyyy-MM-dd");
+        if (getValueFormat() == null) setValueFormat("yyyy-MM-dd");
+        
         guideFormat = getInputFormat();
         for (char c : getInputFormat().toCharArray()) 
         {

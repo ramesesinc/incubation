@@ -219,55 +219,89 @@ public class Binding {
         }
     }
     
-    public void init() {
+    public void init() 
+    {
         if ( _initialized ) return;
         
         _initialized = true;
         Collections.sort( controls );
         Collections.sort( validatables );
-        for( UIControl u : controls ) {
+        for ( UIControl u : controls ) 
+        {
             //index all default focusable controls
-            if ( u instanceof UIInput || u instanceof UIFocusableContainer ) {
+            if (u instanceof UIInput || u instanceof UIFocusableContainer) {
                 focusableControls.add( u );
             }
             
-            String n = u.getName();
-            if( n==null || n.trim().length() == 0 ) continue;
-            for( UIControl c: _depends ) {
-                if( u == c ) continue;
-                for( String s: c.getDepends() ) {
-                    if(n.matches(s)) {
-                        if(! depends.containsKey(n)) depends.put(n, new HashSet<UIControl>());
-                        depends.get(n).add( c );
+            String cname = u.getName();
+            if (cname == null || cname.trim().length() == 0) continue;
+            
+            for (UIControl c : _depends) 
+            {
+                if ( u == c ) continue;
+                
+                for (String s : c.getDepends()) 
+                {
+                    if (cname.matches(s)) 
+                    {
+                        if (!depends.containsKey(cname)) 
+                            depends.put(cname, new HashSet<UIControl>());
+                        
+                        depends.get(cname).add(c);
                     }
                 }
-            }
-            
+            } 
         }
+        
+        //verify all dependency controls have been registered
+        for (UIControl c : _depends) 
+        {
+            String cname = c.getName();
+            for (String s : c.getDepends()) 
+            {
+                if (s.equals(cname)) continue;
+                
+                if (!depends.containsKey(s)) 
+                    depends.put(s, new HashSet<UIControl>());
+
+                Set<UIControl> sets = depends.get(s);
+                if (!sets.contains(c)) sets.add(c);
+            }
+        }        
     } 
     
     // </editor-fold>
     
-    //<editor-fold defaultstate="collapsed" desc="  control update/refresh  ">
+    // <editor-fold defaultstate="collapsed" desc="  control update/refresh  "> 
+    
     public void notifyDepends( final UIControl u ) {
-        EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                try {
-                    doNotifyDepends(u);
-                }
-                catch(Exception e) {
-                    if(ClientContext.getCurrentContext().isDebugMode()) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        });
+        notifyDepends(u, u.getName()); 
     }
     
-    private void doNotifyDepends( UIControl u ) {
+    public void notifyDepends( final UIControl u, final String name ) 
+    {
+        EventQueue.invokeLater(new Runnable() 
+        {
+            public void run() 
+            {
+                try {
+                    doNotifyDepends(u, name);
+                }
+                catch(Exception e) 
+                {
+                    if (ClientContext.getCurrentContext().isDebugMode()) 
+                        e.printStackTrace();
+                }
+            }
+        });        
+    }
+    
+    private void doNotifyDepends( UIControl u, String name ) 
+    {
         Set<UIControl> refreshed = new HashSet();
-        if ( !ValueUtil.isEmpty(u.getName()) && depends.containsKey(u.getName()) ) {
-            for( UIControl uu : depends.get(u.getName() ) ) {
+        if ( !ValueUtil.isEmpty(name) && depends.containsKey(name) ) 
+        {
+            for (UIControl uu : depends.get(name)) {
                 _doRefresh( uu, refreshed );
             }
         }
@@ -332,15 +366,23 @@ public class Binding {
         }
     }
     
-    private void _doRefresh( UIControl u, Set refreshed ) {
-        if( refreshed.add(u) ) {
-            if ( u instanceof UIComposite ) {
+    private void _doRefresh( UIControl u, Set refreshed ) { 
+        _doRefresh(u, refreshed, u.getName()); 
+    } 
+    
+    private void _doRefresh( UIControl u, Set refreshed, String name ) 
+    {
+        if ( refreshed.add(u) ) 
+        {
+            if ( u instanceof UIComposite ) 
+            {
                 UIComposite comp = (UIComposite)u;
-                if ( comp.isDynamic() ) {
+                if ( comp.isDynamic() ) 
+                {
                     JComponent jc = (JComponent) comp;
                     //do not reload on first refresh since load is first called
                     //this should only be called on the next refresh
-                    if( jc.getClientProperty(getClass() + "REFRESHED") != null )
+                    if ( jc.getClientProperty(getClass() + "REFRESHED") != null )
                         comp.reload();
                     else
                         jc.putClientProperty(getClass() + "REFRESHED", true);
@@ -349,19 +391,19 @@ public class Binding {
                 //apply style rules to children
                 for (UIControl uic: comp.getControls()) applyStyle(uic);
                 //apply style rules to parent
-                applyStyle(u);
-                
-            } else {
+                applyStyle(u);                
+            } 
+            else {
                 applyStyle(u);
             }
             
             u.refresh();
-            String name = u.getName();
-            if( !ValueUtil.isEmpty(name) && depends.containsKey(name) ) {
-                for( UIControl uu : depends.get( u.getName() )) {
-                    _doRefresh( uu, refreshed );
-                }
-            }
+            if ( !ValueUtil.isEmpty(name) && depends.containsKey(name) ) 
+            {
+                for ( UIControl uu : depends.get(name)) {
+                    _doRefresh( uu, refreshed ); 
+                } 
+            } 
         }
     }
     

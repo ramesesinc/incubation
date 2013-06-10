@@ -51,6 +51,7 @@ public class XDataTableBeanInfo extends ComponentBeanInfo.Support
             new PropertyDescriptor("items", getBeanClass()),
             new PropertyDescriptor("varName", getBeanClass()),
             new PropertyDescriptor("varStatus", getBeanClass()), 
+            new PropertyDescriptor("multiSelectName", getBeanClass()),             
             new PropertyDescriptor("oddBackground", getBeanClass()),
             new PropertyDescriptor("oddForeground", getBeanClass()),
             new PropertyDescriptor("readonly", getBeanClass(), "isReadonly", "setReadonly"),

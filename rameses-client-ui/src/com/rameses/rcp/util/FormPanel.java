@@ -773,26 +773,39 @@ public class FormPanel extends JPanel implements UIComposite, ControlContainer, 
     }
     //</editor-fold>
     
-    //<editor-fold defaultstate="collapsed" desc="  FormPanelBindingListener (class)  ">
-    private class FormPanelBindingListener implements BindingListener {
-        
+    // <editor-fold defaultstate="collapsed" desc="  FormPanelBindingListener (class)  ">
+    
+    private class FormPanelBindingListener implements BindingListener 
+    {        
         public void notifyDepends(UIControl u, Binding parent) {
-            if ( ValueUtil.isEmpty(u.getName()) ) return;
+            notifyDepends(u, parent, u.getName()); 
+        }
+        
+        public void notifyDepends(UIControl u, Binding parent, String name) 
+        {
+            if ( ValueUtil.isEmpty(name) ) return;
             
             //if view type is HTML_VIEW do not refresh the control
             //the html renderer also refresh the items before rendering
-            if( ValueUtil.isEqual(viewType, HTML_VIEW)) {
+            if ( ValueUtil.isEqual(viewType, HTML_VIEW)) 
+            {
                 boolean shouldRefresh = false;
-                for( UIControl control : controls ) {
-                    if ( !isDependent( u.getName(), control ) ) continue;
+                for ( UIControl control : controls ) 
+                {
+                    if ( !isDependent( name, control ) ) continue;
+                    
                     shouldRefresh = true;
                 }
                 
-                if( shouldRefresh ) refreshHtml();
-            } else {
+                if ( shouldRefresh ) refreshHtml();
+            } 
+            else 
+            {
                 Set<UIControl> refreshed = new HashSet();
-                for( UIControl control : controls ) {
-                    if ( !isDependent( u.getName(), control ) ) continue;
+                for ( UIControl control : controls ) 
+                {
+                    if ( !isDependent( name, control ) ) continue;
+                    
                     _doRefresh( control, refreshed );
                 }
                 refreshed.clear();

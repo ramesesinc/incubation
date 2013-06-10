@@ -18,6 +18,7 @@ import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.common.TableModelHandler;
 import com.rameses.rcp.control.table.DataTableComponent;
 import com.rameses.rcp.control.table.DataTableHeader;
+import com.rameses.rcp.control.table.DataTableModel;
 import com.rameses.rcp.control.table.ListScrollBar;
 import com.rameses.rcp.control.table.RowHeaderView;
 import com.rameses.rcp.control.table.TableBorder;
@@ -293,6 +294,20 @@ public class XDataTable extends JPanel implements UIInput, Validatable, FocusLis
         table.setVarName(varName); 
     }
     
+    public String getVarStatus() { 
+        return (table == null? null: table.getVarStatus());
+    }    
+    public void setVarStatus(String varStatus) { 
+        table.setVarStatus(varStatus);
+    } 
+        
+    public String getMultiSelectName() { 
+        return (table == null? null: table.getMultiSelectName()); 
+    } 
+    public void setMultiSelectName(String multiSelectName) {
+        table.setMultiSelectName(multiSelectName);
+    } 
+    
     public boolean isRequired() { return table.isRequired(); }    
     public void setRequired(boolean required) {}
     
@@ -433,9 +448,6 @@ public class XDataTable extends JPanel implements UIInput, Validatable, FocusLis
     
     public int getRowHeight() { return table.getRowHeight(); }
     public void setRowHeight(int h) { table.setRowHeight(h); }
-    
-    public String getVarStatus() { return table.getVarStatus(); }
-    public void setVarStatus(String varStatus) { table.setVarStatus(varStatus); }
     
     public boolean isScrollbarAlwaysVisible() {
         return scrollBar.isVisibleAlways();
@@ -589,7 +601,25 @@ public class XDataTable extends JPanel implements UIInput, Validatable, FocusLis
             } 
         }
         
-        synchronized void notifyDependsAsync(int selectedRow) 
+        void notifyDependsCheckedItems(final String name) 
+        {
+            if (!dataProvider.isMultiSelect()) return;
+            
+            if (immediate)
+                binding.notifyDepends(XDataTable.this, name); 
+
+            else 
+            {
+                Thread thread = new Thread(new Runnable() {
+                    public void run() { 
+                        notifyDependsCheckedItemsAsync(name);
+                    }
+                });
+                thread.start(); 
+            }
+        }
+        
+        private synchronized void notifyDependsAsync(int selectedRow) 
         {
             try { Thread.sleep(200); } catch(Exception ex) {;}             
             try 
@@ -599,7 +629,14 @@ public class XDataTable extends JPanel implements UIInput, Validatable, FocusLis
                 } 
             } 
             catch(Exception ex) {;} 
-        }
+        }       
+        
+        private synchronized void notifyDependsCheckedItemsAsync(String name) 
+        {
+            try {
+                binding.notifyDepends(XDataTable.this, name); 
+            } catch(Exception ex) {;} 
+        }         
     }
            
     // </editor-fold>     
@@ -661,6 +698,27 @@ public class XDataTable extends JPanel implements UIInput, Validatable, FocusLis
     private class DataTableComponentImpl extends DataTableComponent 
     {
         XDataTable root = XDataTable.this;
+        
+        PropertyChangeListener propertyHandler = new PropertyChangeListener() {
+            public void propertyChange(PropertyChangeEvent e) {
+                onPropertyChange(e);
+            }
+        };
+        
+        protected void onPropertyChange(PropertyChangeEvent e) 
+        {
+            String propName = e.getPropertyName();
+            if ("checkedItemsChanged".equals(propName)) 
+            {
+                if (!dataProvider.isMultiSelect()) return;
+
+                String multiName = getMultiSelectName();
+                if (multiName == null) 
+                    multiName = table.getDataTableModel().DEFAULT_MULTI_SELECT_NAME; 
+                
+                rowChangeNotifier.notifyDependsCheckedItems(multiName); 
+            }
+        }
 
         protected void uninstall(AbstractListDataProvider dataProvider) 
         {
@@ -673,6 +731,10 @@ public class XDataTable extends JPanel implements UIInput, Validatable, FocusLis
             dataProvider.addHandler(root.propertyHandler);
             dataProvider.addHandler(root.tableModelHandler);             
         }
+
+        protected void onTableModelChanged(DataTableModel tableModel) { 
+            tableModel.addHandler(propertyHandler); 
+        } 
         
         protected void onrowChanged() 
         { 

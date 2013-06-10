@@ -12,6 +12,8 @@ import com.rameses.common.PropertyResolver;
 import com.rameses.rcp.common.AbstractListDataProvider;
 import com.rameses.rcp.common.TableModelHandler;
 import com.rameses.util.ValueUtil;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -19,16 +21,37 @@ import java.util.List;
 import javax.swing.table.AbstractTableModel;
 
 public class DataTableModel extends AbstractTableModel implements TableControlModel, TableModelHandler 
-{
+{    
+    public final static String DEFAULT_MULTI_SELECT_NAME = "listHandler.checkedItems";
+    
+    private PropertyChangeSupport propertySupport = new PropertyChangeSupport(this);
     private List<Column> columnList = new ArrayList();    
+    
     private AbstractListDataProvider dataProvider; 
     private DataTableBinding binding;
     private String multiSelectName;    
     private String varName = "item";
     private String varStatus;
-    
+
     void setBinding(DataTableBinding binding) { this.binding = binding; }
     
+    public void removeHandler(PropertyChangeListener handler) 
+    {
+        if (handler != null) propertySupport.removePropertyChangeListener(handler); 
+    }
+    public void addHandler(PropertyChangeListener handler) 
+    {
+        if (handler != null) 
+        {
+            propertySupport.removePropertyChangeListener(handler);
+            propertySupport.addPropertyChangeListener(handler);
+        } 
+    }
+    
+    public void firePropertyChange(String name, Object oldValue, Object newValue) {
+        propertySupport.firePropertyChange(name, oldValue, newValue); 
+    } 
+        
     public String getVarName() { return varName; } 
     public void setVarName(String varName) { this.varName = varName; }
     
@@ -63,7 +86,7 @@ public class DataTableModel extends AbstractTableModel implements TableControlMo
         if (dataProvider.isMultiSelect()) 
         {
             String multiName = getMultiSelectName();
-            if (multiName == null) multiName = "dataListProvider.checkedItems";
+            if (multiName == null) multiName = DEFAULT_MULTI_SELECT_NAME; 
             
             Column col = new Column(multiName, " ");
             col.setTypeHandler(new SelectionColumnHandler()); 
@@ -172,15 +195,17 @@ public class DataTableModel extends AbstractTableModel implements TableControlMo
             } 
             catch(Exception ex) {;} 
             
+            boolean selected = "true".equals(value+"");
             synchronized (checkedItems) 
             {
-                if ("true".equals(value+"")) 
+                if (selected) 
                     checkedItems.add(item);
                 else 
                     checkedItems.remove(item);
             }
             
             fireTableRowsUpdated(rowIndex, rowIndex); 
+            firePropertyChange("checkedItemsChanged", !selected, selected); 
         } 
         else 
         {
@@ -227,7 +252,7 @@ public class DataTableModel extends AbstractTableModel implements TableControlMo
     {
         Object rootBean = binding.getRoot().getBean();
         ExprBeanSupport support = new ExprBeanSupport(rootBean);
-        support.setItem("dataListProvider", dataProvider); 
+        support.setItem("listHandler", dataProvider); 
         
         if (getVarName() != null)
         {
