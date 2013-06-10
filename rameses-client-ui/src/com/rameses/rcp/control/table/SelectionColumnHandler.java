@@ -7,7 +7,9 @@
  * and open the template in the editor.
  */
 
-package com.rameses.rcp.common;
+package com.rameses.rcp.control.table;
+
+import com.rameses.rcp.common.Column;
 
 /**
  *

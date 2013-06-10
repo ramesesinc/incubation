@@ -17,7 +17,6 @@ import com.rameses.rcp.common.DecimalColumnHandler;
 import com.rameses.rcp.common.DoubleColumnHandler;
 import com.rameses.rcp.common.IntegerColumnHandler;
 import com.rameses.rcp.common.LookupColumnHandler;
-import com.rameses.rcp.common.SelectionColumnHandler;
 import com.rameses.rcp.common.TextColumnHandler;
 
 /**

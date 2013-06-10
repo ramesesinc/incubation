@@ -11,9 +11,10 @@ import com.rameses.rcp.common.ListItem;
 import com.rameses.common.PropertyResolver;
 import com.rameses.rcp.common.AbstractListDataProvider;
 import com.rameses.rcp.common.TableModelHandler;
-import com.rameses.rcp.framework.Binding;
 import com.rameses.util.ValueUtil;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import javax.swing.table.AbstractTableModel;
 
@@ -21,13 +22,23 @@ public class DataTableModel extends AbstractTableModel implements TableControlMo
 {
     private List<Column> columnList = new ArrayList();    
     private AbstractListDataProvider dataProvider; 
-    private Binding binding;
+    private DataTableBinding binding;
+    private String multiSelectName;    
+    private String varName = "item";
     private String varStatus;
     
-    void setBinding(Binding binding) { this.binding = binding; }
+    void setBinding(DataTableBinding binding) { this.binding = binding; }
+    
+    public String getVarName() { return varName; } 
+    public void setVarName(String varName) { this.varName = varName; }
     
     public String getVarStatus() { return varStatus; }    
     public void setVarStatus(String varStatus) { this.varStatus = varStatus; }     
+        
+    public String getMultiSelectName() { return multiSelectName; } 
+    public void setMultiSelectName(String multiSelectName) {
+        this.multiSelectName = multiSelectName; 
+    }    
     
     public AbstractListDataProvider getDataProvider() { return dataProvider; }    
     public void setDataProvider(AbstractListDataProvider dataProvider) 
@@ -48,12 +59,21 @@ public class DataTableModel extends AbstractTableModel implements TableControlMo
     {
         columnList.clear(); 
         
-        if (dataProvider == null) return;
+        if (dataProvider == null) return;        
+        if (dataProvider.isMultiSelect()) 
+        {
+            String multiName = getMultiSelectName();
+            if (multiName == null) multiName = "dataListProvider.checkedItems";
+            
+            Column col = new Column(multiName, " ");
+            col.setTypeHandler(new SelectionColumnHandler()); 
+            columnList.add(col);
+        } 
         
         for (Column col : dataProvider.getColumns()) 
         {
             if (col.isVisible()) columnList.add(col);
-        }        
+        } 
     }
         
     public int getRowCount() {
@@ -141,26 +161,49 @@ public class DataTableModel extends AbstractTableModel implements TableControlMo
             throw new NullPointerException("The item object in row " + rowIndex + " column " + columnIndex + " is not initialized");
         
         PropertyResolver resolver = PropertyResolver.getInstance();
-        
-        Object oldValue = null; 
-        try { 
-            oldValue = resolver.getProperty(item, column.getName()); 
-        } catch(Exception ex) {;} 
-        
-        //exit if no changes made
-        if (!hasValueChanged(oldValue, value)) return;
-        
-        resolver.setProperty(item, column.getName(), value); 
-        
-        ListItem li = getListItem(rowIndex);
-        if (li.getState() == ListItem.STATE_SYNC)
-            li.setState(ListItem.STATE_EDIT); 
-        
-        fireTableRowsUpdated(rowIndex, rowIndex); 
-        
-        try { 
-            binding.getChangeLog().addEntry(item, column.getName(), oldValue, value);
-        } catch(Exception ex) {;} 
+        if (column.getTypeHandler() instanceof SelectionColumnHandler)
+        {
+            Object exprBean = createExpressionBean(rowIndex);             
+            Collection checkedItems = null; 
+            try 
+            { 
+                checkedItems = (Collection) resolver.getProperty(exprBean, column.getName()); 
+                if (checkedItems == null) return;
+            } 
+            catch(Exception ex) {;} 
+            
+            synchronized (checkedItems) 
+            {
+                if ("true".equals(value+"")) 
+                    checkedItems.add(item);
+                else 
+                    checkedItems.remove(item);
+            }
+            
+            fireTableRowsUpdated(rowIndex, rowIndex); 
+        } 
+        else 
+        {
+            Object oldValue = null; 
+            try { 
+                oldValue = resolver.getProperty(item, column.getName()); 
+            } catch(Exception ex) {;} 
+
+            //exit if no changes made
+            if (!hasValueChanged(oldValue, value)) return;
+
+            resolver.setProperty(item, column.getName(), value); 
+
+            ListItem li = getListItem(rowIndex);
+            if (li.getState() == ListItem.STATE_SYNC)
+                li.setState(ListItem.STATE_EDIT); 
+
+            fireTableRowsUpdated(rowIndex, rowIndex); 
+
+            try { 
+                binding.getChangeLog().addEntry(item, column.getName(), oldValue, value);
+            } catch(Exception ex) {;} 
+        }
     }
 
     public void fireTableRowSelected(int row, boolean focusOnItemDataOnly) {
@@ -173,4 +216,25 @@ public class DataTableModel extends AbstractTableModel implements TableControlMo
         
         return true;
     }
+   
+    public Object createExpressionBean(int rowIndex) 
+    {
+        Object item = dataProvider.getListItemData(rowIndex); 
+        return createExpressionBean(item);
+    } 
+    
+    public Object createExpressionBean(Object itemBean) 
+    {
+        Object rootBean = binding.getRoot().getBean();
+        ExprBeanSupport support = new ExprBeanSupport(rootBean);
+        support.setItem("dataListProvider", dataProvider); 
+        
+        if (getVarName() != null)
+        {
+            if (itemBean == null) itemBean = new HashMap(); 
+            
+            support.setItem(getVarName(), itemBean); 
+        } 
+        return support.createProxy(); 
+    }     
 }

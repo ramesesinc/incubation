@@ -336,7 +336,7 @@ public class XDataTable extends JPanel implements UIInput, Validatable, FocusLis
             try 
             {
                 ReadonlyListModel lm = new ReadonlyListModel(null);
-                lm.setColumns(columns);
+                lm.setColumns(columns);                
                 table.setDataProvider(lm);
             }
             catch(Exception ex) {

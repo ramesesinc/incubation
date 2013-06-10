@@ -13,7 +13,6 @@ import com.rameses.rcp.common.AbstractListDataProvider;
 import com.rameses.rcp.common.Column;
 import com.rameses.rcp.util.UIControlUtil;
 import java.util.Collection;
-import java.util.Iterator;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -46,25 +45,23 @@ public class SelectionCellRenderer extends AbstractCellRenderer
     }
 
     public void refresh(JTable table, Object value, boolean selected, boolean focus, int rowIndex, int columnIndex) 
-    {
-        if (!(table instanceof TableControl)) return;
+    {                
+        component.setSelected(false);
         
-        TableControl tc = (TableControl) table;
-        Object item = tc.getDataProvider().getListItemData(rowIndex);
-        if (item == null) return; 
-        
-        Column oColumn = null; 
         if (table.getModel() instanceof DataTableModel) 
-            oColumn = ((DataTableModel) table.getModel()).getColumn(columnIndex); 
-        
-        if (oColumn == null) return;
-        
-        Object beanValue = null; 
-        try { 
-            beanValue = UIControlUtil.getBeanValue(tc.getBinding(), oColumn.getName()); 
-        } catch(Exception ex) {;} 
+        {
+            DataTableModel tableModel = (DataTableModel) table.getModel(); 
+            Column oColumn = tableModel.getColumn(columnIndex); 
+            Object oItem = tableModel.getDataProvider().getListItemData(rowIndex);
+            Object exprBean = tableModel.createExpressionBean(oItem); 
+            
+            Collection checkedItems = null; 
+            try {
+                checkedItems = (Collection) UIControlUtil.getBeanValue(exprBean, oColumn.getName()); 
+            } catch(Exception ex) {;} 
 
-        boolean matched = SelectionCellUtil.newInstance().match(beanValue, item);
-        component.setSelected(matched); 
-    } 
+            boolean matched = (checkedItems == null? false: checkedItems.contains(oItem));
+            component.setSelected(matched);             
+        }
+    }  
 }

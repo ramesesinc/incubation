@@ -10,7 +10,6 @@
 package com.rameses.rcp.control.table;
 
 import com.rameses.rcp.common.Column;
-import com.rameses.rcp.common.SelectionColumnHandler;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableColumn;
 

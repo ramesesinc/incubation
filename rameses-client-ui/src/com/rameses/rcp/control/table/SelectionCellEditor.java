@@ -18,6 +18,7 @@ import com.rameses.rcp.util.UIControlUtil;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
+import java.util.Collection;
 import javax.swing.JCheckBox;
 import javax.swing.SwingConstants;
 
@@ -25,7 +26,7 @@ import javax.swing.SwingConstants;
  *
  * @author wflores
  */
-public class SelectionCellEditor extends JCheckBox implements UIInput
+public class SelectionCellEditor extends JCheckBox implements UIInput, ImmediateCellEditor
 {
     private ItemHandler itemHandler; 
     private Binding binding;
@@ -94,7 +95,7 @@ public class SelectionCellEditor extends JCheckBox implements UIInput
             itemHandler.enabled = true;
         }
     } 
-
+    
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc="  ItemHandler (class)  ">
@@ -110,17 +111,10 @@ public class SelectionCellEditor extends JCheckBox implements UIInput
             
             try 
             {
-                Object oResult = null;
-                Object checkedItems = getCheckedItems(); 
-                
-                boolean result = (e.getStateChange() == ItemEvent.SELECTED); 
-                if (result) 
-                    oResult = cellUtil.attachItem(checkedItems, binding.getBean());
-                else 
-                    oResult = cellUtil.detachItem(checkedItems, binding.getBean()); 
-                    
-                updateBean(oResult); 
-            }
+                boolean value = (e.getStateChange() == ItemEvent.SELECTED);
+                DataTableBinding tableBinding = (DataTableBinding) binding;
+                tableBinding.getTableModel().setValueAt(value, tableBinding.getRowIndex(), tableBinding.getColumnIndex()); 
+            } 
             catch(Exception ex) {
                 MsgBox.err(ex);
             }
@@ -128,20 +122,15 @@ public class SelectionCellEditor extends JCheckBox implements UIInput
         
         boolean isItemMatches() 
         {
-            Object checkedItems = getCheckedItems();
-            return cellUtil.match(checkedItems, binding.getBean());             
-        }
-        
-        Object getCheckedItems() 
-        {
-            Binding oBinding = (Binding) getClientProperty(Binding.class); 
-            return UIControlUtil.getBeanValue(oBinding, getName()); 
-        }
-        
-        void updateBean(Object value) 
-        {
-            Binding oBinding = (Binding) getClientProperty(Binding.class); 
-            UIControlUtil.setBeanValue(oBinding, getName(), value); 
+            DataTableBinding tableBinding = (DataTableBinding) binding;
+            Object exprBean = tableBinding.createExpressionBean(); 
+            
+            Collection checkedItems = null;
+            try {
+                checkedItems = (Collection) UIControlUtil.getBeanValue(exprBean, getName()); 
+            } catch(Exception ign){;} 
+            
+            return (checkedItems == null? false: checkedItems.contains(binding.getBean())); 
         }
     }
     

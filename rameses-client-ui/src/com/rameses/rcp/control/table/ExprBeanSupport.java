@@ -26,8 +26,6 @@ import java.util.Map;
 public class ExprBeanSupport extends HashMap implements InvocationHandler 
 {
     private Object root;
-    private Object item;
-    private String itemName;
     private String _toString;
     
     public ExprBeanSupport(Object root) 
@@ -41,14 +39,13 @@ public class ExprBeanSupport extends HashMap implements InvocationHandler
     {
         if (name == null) name = "item";
         
-        this.itemName = name;
-        this.item = item;
+        super.put(name, item); 
     }
 
     public Object get(Object key) 
     {
         if (key == null) return null; 
-        if (key.toString().equals(itemName)) return item;
+        if (containsKey(key)) return super.get(key);
         
         String skey = key.toString(); 
         String propName = "get" + skey.substring(0,1).toUpperCase() + skey.substring(1); 

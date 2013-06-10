@@ -47,7 +47,7 @@ public class DataTableComponent extends JTable implements TableControl
     private static final String COLUMN_POINT = "COLUMN_POINT";
 
     private Map<Integer, JComponent> editors = new HashMap();
-    private Binding itemBinding = new Binding();    
+    private DataTableBinding itemBinding = new DataTableBinding();    
     
     private DataTableModel tableModel;
     private TableListener tableListener;
@@ -56,9 +56,7 @@ public class DataTableComponent extends JTable implements TableControl
     private AbstractListDataProvider dataProvider;
     private PropertyChangeHandlerImpl propertyHandler;
     private TableModelHandlerImpl tableModelHandler;
-    
-    private String varName = "item";
-    
+        
     //internal flags
     private int editingRow = -1;
     private boolean readonly;
@@ -200,6 +198,7 @@ public class DataTableComponent extends JTable implements TableControl
             install(dataProvider);
         } 
         
+        itemBinding.setRoot(getBinding()); 
         tableModel.setBinding(itemBinding); 
         setModel(tableModel);
         buildColumns();
@@ -211,8 +210,19 @@ public class DataTableComponent extends JTable implements TableControl
         return (processingRequest || fetching); 
     } 
     
-    public String getVarName() { return varName; } 
-    public void setVarName(String varName) { this.varName = varName; }
+    public String getVarName() { 
+        return getDataTableModel().getVarName(); 
+    } 
+    public void setVarName(String varName) { 
+        getDataTableModel().setVarName(varName);
+    }
+    
+    public String getMultiSelectName() { 
+        return tableModel.getMultiSelectName(); 
+    } 
+    public void setMultiSelectName(String multiSelectName) {
+        tableModel.setMultiSelectName(multiSelectName); 
+    }
     
     public void setBinding(Binding binding) { this.binding = binding; }
     public Binding getBinding() { return binding; }
@@ -502,9 +512,9 @@ public class DataTableComponent extends JTable implements TableControl
         int oldRowIndex = getSelectedRow();
         if (editingMode) 
         {
-            Point point = (Point) currentEditor.getClientProperty(COLUMN_POINT);
-            if (rowIndex != point.y || columnIndex != point.x) {
-                hideEditor(currentEditor, point.y, point.x, true, true);
+            //Point point = (Point) currentEditor.getClientProperty(COLUMN_POINT);
+            if (rowIndex != oldRowIndex || columnIndex != oldColIndex) {
+                hideEditor(currentEditor, oldRowIndex, oldColIndex, true, true);
             }            
         }
 
@@ -929,13 +939,19 @@ public class DataTableComponent extends JTable implements TableControl
     {
         Rectangle bounds = getCellRect(rowIndex, colIndex, false);
         editor.putClientProperty(COLUMN_POINT, new Point(colIndex, rowIndex));
-        editor.setBounds(bounds);
+        editor.putClientProperty("cellEditorValue", null); 
+        editor.setBounds(bounds); 
         
         UIControl ui = (UIControl) editor;
         boolean refreshed = false;
         if ( !editorBeanLoaded ) 
         {
             itemBinding.update(); //clear change log
+            itemBinding.setRoot(binding); 
+            itemBinding.setTableModel(tableModel);
+            itemBinding.setRowIndex(rowIndex);
+            itemBinding.setColumnIndex(colIndex); 
+            
             Object bean = dataProvider.getListItemData(rowIndex); 
             itemBinding.setBean(bean);
             itemBinding.refresh();
@@ -976,6 +992,13 @@ public class DataTableComponent extends JTable implements TableControl
             return;
         }
         
+        if (editor instanceof ImmediateCellEditor) 
+        {
+            //exit right away since this was tagged as immediate
+            editorBeanLoaded = false;
+            return;
+        } 
+        
         oneditCellAt(rowIndex, colIndex);
         previousItem = dataProvider.getSelectedItem();
         
@@ -986,7 +1009,6 @@ public class DataTableComponent extends JTable implements TableControl
             editor.putClientProperty(InputVerifier.class, verifier);
         }
 
-        editor.putClientProperty("cellEditorValue", null); 
         editor.setInputVerifier( verifier );
         editor.setVisible(true);
         editor.grabFocus();       

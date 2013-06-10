@@ -39,18 +39,21 @@ public class UIControlUtil
         return getBeanValue(control.getBinding(), property); 
     } 
     
-    public static Object getBeanValue(Binding binding, String property) 
+    public static Object getBeanValue(Binding binding, String property) { 
+        return getBeanValue(binding.getBean(), property); 
+    } 
+    
+    public static Object getBeanValue(Object bean, String property) 
     {
         if ( ValueUtil.isEmpty(property) ) return null;
         
         PropertyResolver resolver = PropertyResolver.getInstance();
-        Object bean = binding.getBean(); 
         try { 
             return resolver.getProperty(bean, property); 
         } catch(NullPointerException npe) { 
             return null; 
         } 
-    } 
+    }
     
     public static Class getValueType(UIControl control, String property) 
     {

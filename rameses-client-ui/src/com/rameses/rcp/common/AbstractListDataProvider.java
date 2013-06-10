@@ -34,13 +34,14 @@ public abstract class AbstractListDataProvider
     private int fetchMode = FETCH_MODE_LOAD; 
     
     private String selectedColumn;    
-    private boolean processing;
     private Column[] columns;
     private List dataList;
     private int fetchedRows;
+    private boolean multiSelect;
+    private boolean processing;
 
-    private List<ListItem> itemList = new ArrayList<ListItem>();    
-    private ListItem selectedItem;
+    private List<ListItem> itemList = new ArrayList<ListItem>(); 
+    private ListItem selectedItem; 
         
     public AbstractListDataProvider() 
     {
@@ -54,9 +55,14 @@ public abstract class AbstractListDataProvider
 
     public Column[] getColumns() { return columns; } 
     public void setColumns(Column[] columns) { this.columns = columns; }
-
+    
+    public boolean isMultiSelect() { return multiSelect; } 
+    public void setMultiSelect(boolean multiSelect) {
+        this.multiSelect = multiSelect;
+    }
+    
     public Column getPrimaryColumn() { return null; } 
-        
+    
     public void removeHandler(TableModelHandler handler) {
         tableModelSupport.remove(handler); 
     }
@@ -242,6 +248,7 @@ public abstract class AbstractListDataProvider
     
     public void load() 
     {
+        checkedItems.clear();        
         fetchMode = FETCH_MODE_LOAD; 
         fetchImpl();
     }
