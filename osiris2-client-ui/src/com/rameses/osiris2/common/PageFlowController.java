@@ -18,6 +18,7 @@ import com.rameses.osiris2.flow.Transition;
 import com.rameses.rcp.annotations.Binding;
 import com.rameses.rcp.annotations.Caller;
 import com.rameses.rcp.annotations.Controller;
+import com.rameses.rcp.annotations.Invoker;
 import com.rameses.rcp.common.Action;
 import com.rameses.rcp.common.MsgBox;
 import com.rameses.rcp.common.StyleRule;
@@ -29,8 +30,8 @@ import java.util.List;
  *
  * @author Elmo
  */
-public class PageFlowController {
-    
+public class PageFlowController 
+{
     @Controller
     protected WorkUnitUIController workunit;
     
@@ -39,6 +40,9 @@ public class PageFlowController {
     
     @Caller
     private Object caller;
+    
+    @Invoker
+    protected com.rameses.osiris2.Invoker invoker;
     
     public PageFlowController() {
     }
@@ -132,8 +136,19 @@ public class PageFlowController {
         return getActions();
     }
     
-    public List<Action> getNavActions() {
-        return null;
+    public List<Action> getNavActions() 
+    {
+        try 
+        {
+            return InvokerUtil.lookupActions("navActions", new InvokerFilter() {
+                public boolean accept(com.rameses.osiris2.Invoker o) { 
+                    return o.getWorkunitid().equals(invoker.getWorkunitid()); 
+                }
+            });
+        }
+        catch(Exception ex) {
+            return null; 
+        } 
     }
     
     public StyleRule[] getStyleRules() {
