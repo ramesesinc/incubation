@@ -17,25 +17,27 @@ import java.util.Map;
 public class Action implements Comparable<Action> 
 {    
     private String name;
-    //index is used for sorting
-    private int index;
-    private Action parent;
     private String caption;
-    private String category;
     private String icon;
     private char mnemonic;
-    private boolean immediate;
-    private Map properties = new Hashtable();
-    
-    private Map parameters = new HashMap();
-    private boolean update;
+    private String permission;
+
     private String tooltip;
     private String visibleWhen;
+    private String category;
+    
+    //index is used for sorting
+    private int index;
+    private boolean immediate;
+    private boolean update;
     
     private String role;
     private String domain;
-    private String permission;
     private boolean showCaption;
+
+    private Action parent;    
+    private Map properties = new Hashtable();    
+    private Map parameters = new HashMap();
     
     public Action() {        
     }
@@ -43,11 +45,13 @@ public class Action implements Comparable<Action>
     public Action(String name) {
         this.name = name;
     }
+
     public Action(String name, String caption, String icon ) {
         this.name = name;
         this.caption = caption;
         this.icon = icon;
     }
+    
     public Action(String name, String caption, String icon, char mnemonic ) {
         this.name = name;
         this.caption = caption;
@@ -207,5 +211,30 @@ public class Action implements Comparable<Action>
 
     public void setShowCaption(boolean showCaption) {
         this.showCaption = showCaption;
-    }    
+    } 
+    
+    
+    
+    public Action clone() 
+    {
+        Action newAction = new Action(); 
+        newAction.setName(getName());
+        newAction.setCaption(getCaption());
+        newAction.setIcon(getIcon());
+        newAction.setMnemonic(getMnemonic()); 
+        newAction.setPermission(getPermission());
+        newAction.setTooltip(getTooltip());
+        newAction.setVisibleWhen(getVisibleWhen());
+        newAction.setCategory(getCategory()); 
+        newAction.setIndex(getIndex()); 
+        newAction.setImmediate(isImmediate());
+        newAction.setUpdate(isUpdate()); 
+        newAction.setRole(getRole());
+        newAction.setDomain(getDomain()); 
+        newAction.setShowCaption(isShowCaption());
+        newAction.setParent(getParent());
+        newAction.getProperties().putAll(getProperties()); 
+        newAction.getParams().putAll(getParams());
+        return newAction; 
+    }
 }

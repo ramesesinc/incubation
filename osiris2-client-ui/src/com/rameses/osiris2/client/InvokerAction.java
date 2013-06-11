@@ -36,4 +36,11 @@ public class InvokerAction extends Action
     public Object execute() {
         return InvokerUtil.invokeAction(this);
     }    
+
+    public Action clone() 
+    {
+        Action newAction = super.clone();
+        newAction.getProperties().put("Action.Invoker", getInvoker()); 
+        return newAction;
+    }
 }

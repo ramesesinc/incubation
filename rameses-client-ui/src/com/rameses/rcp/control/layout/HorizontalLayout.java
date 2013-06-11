@@ -52,8 +52,27 @@ public class HorizontalLayout implements LayoutManager
 
             if (comps[i] instanceof SeparatorComponent) 
                 parent.remove(comps[i]); 
-            else 
-                list.add(comps[i]);
+            else
+            {
+                if (comps[i] instanceof Container) 
+                {
+                    boolean hasInnerComponents = false;
+                    Component[] innerComps = ((Container) comps[i]).getComponents();
+                    for (int ii=0; ii<innerComps.length; ii++)
+                    {
+                        if (innerComps[ii].isVisible()) 
+                        {
+                            hasInnerComponents = true;
+                            break;
+                        }
+                    }
+                    
+                    if (hasInnerComponents) list.add(comps[i]); 
+                }
+                else { 
+                    list.add(comps[i]);
+                } 
+            }
         }
         return list;
     }

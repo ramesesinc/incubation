@@ -131,6 +131,7 @@ public class PageFlowController
     }
     
    
+    // <editor-fold defaultstate="collapsed" desc=" Form and Navigation Actions ">  
     
     public List<Action> getFormActions() {
         return getActions();
@@ -138,18 +139,30 @@ public class PageFlowController
     
     public List<Action> getNavActions() 
     {
-        try 
-        {
-            return InvokerUtil.lookupActions("navActions", new InvokerFilter() {
-                public boolean accept(com.rameses.osiris2.Invoker o) { 
-                    return o.getWorkunitid().equals(invoker.getWorkunitid()); 
-                }
-            });
-        }
-        catch(Exception ex) {
+        try {
+            return lookupActions("navActions");
+        } catch(Exception ex) {
             return null; 
         } 
-    }
+    } 
+    
+    protected final List<Action> lookupActions(String type)
+    {
+        List<Action> actions = InvokerUtil.lookupActions(type, new InvokerFilter() {
+            public boolean accept(com.rameses.osiris2.Invoker o) { 
+                return o.getWorkunitid().equals(invoker.getWorkunitid()); 
+            }
+        }); 
+        
+        for (int i=0; i<actions.size(); i++) 
+        {
+            Action newAction = actions.get(i).clone();
+            actions.set(i, newAction);
+        }
+        return actions; 
+    }    
+    
+    // </editor-fold>
     
     public StyleRule[] getStyleRules() {
         return null;

@@ -276,7 +276,8 @@ public final class InvokerUtil {
      * context = the invocation context.
      * a sample implementation as follows: #{param.name == context.module.name}
      */
-    public static List lookup(String type, Object obj, InvokerFilter filter) {
+    public static List lookup(String type, Object obj, InvokerFilter filter) 
+    {
         SessionContext app = OsirisContext.getSession();
         List list = app.getInvokers(type);
 

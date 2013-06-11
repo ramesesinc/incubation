@@ -5,6 +5,7 @@ import com.rameses.osiris2.client.InvokerUtil;
 import com.rameses.rcp.annotations.Binding;
 import com.rameses.rcp.annotations.Invoker;
 import com.rameses.rcp.common.AbstractListDataProvider;
+import com.rameses.rcp.common.Action;
 import com.rameses.rcp.common.Column;
 import com.rameses.rcp.common.MsgBox;
 import com.rameses.rcp.common.Opener;
@@ -23,7 +24,7 @@ public abstract class BasicListController extends PageListModel
     
 
     private Object selectedEntity;
-    private List formActions;
+    private List<Action> formActions;
     
     
     public abstract Column[] getColumns();
@@ -95,14 +96,21 @@ public abstract class BasicListController extends PageListModel
         return new ArrayList(); 
     }
     
-    protected List lookupActions(String type)
+    protected final List<Action> lookupActions(String type)
     {
-        return InvokerUtil.lookupActions(type, new InvokerFilter() {
+        List<Action> actions = InvokerUtil.lookupActions(type, new InvokerFilter() {
             public boolean accept(com.rameses.osiris2.Invoker o) { 
                 return o.getWorkunitid().equals(invoker.getWorkunitid()); 
             }
         }); 
-    }
+        
+        for (int i=0; i<actions.size(); i++) 
+        {
+            Action newAction = actions.get(i).clone();
+            actions.set(i, newAction);
+        }
+        return actions; 
+    }    
         
     // </editor-fold>
        

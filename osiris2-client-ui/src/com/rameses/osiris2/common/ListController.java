@@ -1,6 +1,5 @@
 package com.rameses.osiris2.common;
 
-import com.rameses.osiris2.client.InvokerFilter;
 import com.rameses.osiris2.client.InvokerProxy;
 import com.rameses.osiris2.client.InvokerUtil;
 import com.rameses.rcp.common.Action;
@@ -122,12 +121,9 @@ public abstract class ListController extends BasicListController implements List
             
             formActions.add(createAction("reload", "Refresh", "images/toolbars/refresh.png", "ctrl R", 'r', null, true)); 
             
-            List extActions = InvokerUtil.lookupActions("formActions", new InvokerFilter() {
-                public boolean accept(com.rameses.osiris2.Invoker o) { 
-                    return o.getWorkunitid().equals(invoker.getWorkunitid()); 
-                }
-            });
-            formActions.addAll(extActions); 
+            List extActions = lookupActions("formActions");
+            formActions.addAll(extActions);
+            extActions.clear(); 
         } 
         return formActions; 
     }
@@ -141,8 +137,8 @@ public abstract class ListController extends BasicListController implements List
         a.setImmediate( immediate );
         a.setShowCaption(true); 
         return a;
-    }    
-    
+    } 
+        
     // </editor-fold>
     
     

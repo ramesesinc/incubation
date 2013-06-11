@@ -14,6 +14,7 @@ import com.rameses.osiris2.client.InvokerUtil;
 import com.rameses.rcp.annotations.Binding;
 import com.rameses.rcp.annotations.Invoker;
 import com.rameses.rcp.common.AbstractListDataProvider;
+import com.rameses.rcp.common.Action;
 import com.rameses.rcp.common.Column;
 import com.rameses.rcp.common.LookupModel;
 import com.rameses.rcp.common.LookupSelector;
@@ -82,13 +83,20 @@ public abstract class LookupController extends LookupModel
     
     // <editor-fold defaultstate="collapsed" desc=" Options ">  
     
-    protected List lookupActions(String type)
+    protected final List<Action> lookupActions(String type)
     {
-        return InvokerUtil.lookupActions(type, new InvokerFilter() {
+        List<Action> actions = InvokerUtil.lookupActions(type, new InvokerFilter() {
             public boolean accept(com.rameses.osiris2.Invoker o) { 
                 return o.getWorkunitid().equals(invoker.getWorkunitid()); 
             }
         }); 
+        
+        for (int i=0; i<actions.size(); i++) 
+        {
+            Action newAction = actions.get(i).clone();
+            actions.set(i, newAction);
+        }
+        return actions; 
     }
         
     // </editor-fold>    

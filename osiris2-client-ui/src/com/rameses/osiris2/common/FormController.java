@@ -5,6 +5,7 @@ import com.rameses.osiris2.client.InvokerUtil;
 import com.rameses.rcp.annotations.Binding;
 import com.rameses.rcp.annotations.ChangeLog;
 import com.rameses.rcp.annotations.Invoker;
+import com.rameses.rcp.common.Action;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,7 +22,7 @@ public class FormController {
     private com.rameses.rcp.framework.Binding binding;
     
     
-    private List formActions;
+    private List<Action> formActions;
     
     public FormController() {
     }
@@ -35,7 +36,9 @@ public class FormController {
         if (formActions == null) 
         {
             formActions = new ArrayList();
-            try { formActions.addAll(lookupActions("formActions")); } catch(Exception ign){;} 
+            try { 
+                formActions.addAll(lookupActions("formActions")); 
+            } catch(Exception ign){;} 
         }
         return formActions;
     }
@@ -44,12 +47,19 @@ public class FormController {
         return new ArrayList(); 
     }
     
-    protected List lookupActions(String type)
+    protected final List<Action> lookupActions(String type)
     {
-        return InvokerUtil.lookupActions(type, new InvokerFilter() {
+        List<Action> actions = InvokerUtil.lookupActions(type, new InvokerFilter() {
             public boolean accept(com.rameses.osiris2.Invoker o) { 
                 return o.getWorkunitid().equals(invoker.getWorkunitid()); 
             }
         }); 
+        
+        for (int i=0; i<actions.size(); i++) 
+        {
+            Action newAction = actions.get(i).clone();
+            actions.set(i, newAction);
+        }
+        return actions; 
     }    
 }
