@@ -64,6 +64,7 @@ public class ColumnEditorPage extends javax.swing.JPanel
         controller.addExtendedPage("double", new DecimalExtendedPage()); 
         controller.addExtendedPage("decimal", new DecimalExtendedPage()); 
         controller.addExtendedPage("lookup", new LookupExtendedPage()); 
+        controller.addExtendedPage("opener", new OpenerExtendedPage()); 
         
         controller.setEnableComponents(false); 
         cbotype.setItems(new ComboItem[]{
@@ -74,7 +75,8 @@ public class ColumnEditorPage extends javax.swing.JPanel
            new ComboItem("date"),
            new ComboItem("double"),
            new ComboItem("decimal"),
-           new ComboItem("lookup")
+           new ComboItem("lookup"),
+           new ComboItem("opener")
         });
         cbotype.setUpdateable(false); 
         cbotype.addItemListener(new TypeHandler());

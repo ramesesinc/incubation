@@ -29,22 +29,24 @@ public class UIInputUtil {
     
     public static UIInputVerifier VERIFIER = new UIInputVerifier();
     
-    public static class UIInputVerifier extends InputVerifier {
-        
-        public boolean verify(JComponent input) {
+    public static class UIInputVerifier extends InputVerifier 
+    {
+        public boolean verify(JComponent input) 
+        {
             if ( Beans.isDesignTime() ) return true;
             
-            if ( !(input instanceof UIInput) )
+            UIInput control = null;
+            if (input instanceof UIInput) 
+                control = (UIInput) input;
+            else 
+                control = (UIInput) input.getClientProperty(UIInput.class); 
+            
+            if (control == null) 
                 throw new IllegalStateException("UIInputVerifier should be used for UIInput controls only.");
             
-            UIInput control = (UIInput) input;
             if ( control.isReadonly() || !input.isEnabled() ) return true;
             if ( input instanceof JTextComponent && !((JTextComponent) input).isEditable() ) return true;
             if ( input.getParent() == null ) return true;
-            
-//            if ( control instanceof Validatable ) {
-//                ((Validatable) control).validateInput();
-//            }
             
             updateBeanValue(control);
             return true;

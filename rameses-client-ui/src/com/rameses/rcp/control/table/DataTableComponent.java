@@ -363,7 +363,8 @@ public class DataTableComponent extends JTable implements TableControl
     protected void onTableModelChanged(DataTableModel tableModel){        
     }
     
-    private void addKeyboardAction(JComponent comp, int key, boolean commit) {
+    private void addKeyboardAction(JComponent comp, int key, boolean commit) 
+    {
         EditorKeyBoardAction kba = new EditorKeyBoardAction(comp, key, commit);
         comp.registerKeyboardAction(kba, kba.keyStroke, JComponent.WHEN_FOCUSED);
     }
@@ -807,10 +808,17 @@ public class DataTableComponent extends JTable implements TableControl
     
     private void selectAll(JComponent editor, EventObject evt) 
     {
-        if (editor instanceof JTextComponent) 
+        if (editor instanceof JTextComponent) { 
             ((JTextComponent) editor).selectAll();
-        else if (editor instanceof JCheckBox) 
-            ((UIInput) editor).setValue(evt);
+        }
+        else 
+        {
+            if (editor instanceof UIInput)
+                ((UIInput) editor).setRequestFocus(true);
+            
+            if (editor instanceof JCheckBox) 
+                ((UIInput) editor).setValue(evt);
+        } 
     }
     
     private void focusNextCellFrom(int rowIndex, int colIndex) 
@@ -977,6 +985,8 @@ public class DataTableComponent extends JTable implements TableControl
         
         if (e == null) e = currentKeyEvent; 
         
+        editor.putClientProperty("updateBeanValue", false); 
+        
         if (e instanceof MouseEvent || isEditKey(e)) 
         {
             if (!refreshed) ui.refresh();
@@ -1027,7 +1037,7 @@ public class DataTableComponent extends JTable implements TableControl
 
         editor.setInputVerifier( verifier );
         editor.setVisible(true);
-        editor.grabFocus();       
+        editor.grabFocus(); 
         
         editingRow = rowIndex; 
         editingMode = true;
@@ -1076,12 +1086,27 @@ public class DataTableComponent extends JTable implements TableControl
                 if (editingMode) 
                 {
                     JComponent comp = (JComponent) e.getSource();
-                    String ubv = comp.getClientProperty("updateBeanValue")+""; 
+                    UIInput uiinput = (UIInput) comp.getClientProperty(UIInput.class); 
+                    
+                    String ubv = null;
+                    if (uiinput != null) 
+                        ubv = uiinput.getClientProperty("updateBeanValue")+"";
+                    else 
+                        ubv = comp.getClientProperty("updateBeanValue")+""; 
+                    
                     if ("false".equals(ubv)) return; 
                     
                     hideEditor(true);
-                    Point point = (Point) comp.getClientProperty(COLUMN_POINT);                    
-                    focusNextCellFrom(point.y, point.x);
+                    
+                    Point selPoint = null;
+                    if (uiinput != null) 
+                        selPoint = (Point) uiinput.getClientProperty(COLUMN_POINT);                     
+                    if (selPoint == null) 
+                        selPoint = (Point) comp.getClientProperty(COLUMN_POINT);
+                    
+                    try { 
+                        focusNextCellFrom(selPoint.y, selPoint.x);
+                    } catch(Exception ex) {;}
                 }
                 fromTempFocus = false;
             } 
@@ -1111,9 +1136,13 @@ public class DataTableComponent extends JTable implements TableControl
             
             //hold only action on enter key
             //this is usually used by lookup
-            if ( key == KeyEvent.VK_ENTER && comp instanceof JTextField ) 
+            JComponent uieditor = comp;
+            if (comp instanceof UIInputWrapper) 
+                uieditor = ((UIInputWrapper) comp).getEditorComponent(); 
+            
+            if ( key == KeyEvent.VK_ENTER && uieditor instanceof JTextField ) 
             {
-                JTextField jtf = (JTextField) comp;
+                JTextField jtf = (JTextField) uieditor;
                 listeners = jtf.getActionListeners();
             }
         }

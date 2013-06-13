@@ -162,6 +162,5 @@ public class DefaultTextField extends JTextField
     }
     
     protected void onprocessKeyEvent(KeyEvent e){
-    } 
-    
+    }     
 }

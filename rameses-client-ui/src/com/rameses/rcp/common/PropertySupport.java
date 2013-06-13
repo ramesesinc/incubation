@@ -103,6 +103,15 @@ public abstract class PropertySupport
         void setExpression(String expression); 
     }    
     
+    public static interface OpenerPropertyInfo extends PropertyInfo 
+    {
+        Object getHandler();
+        void setHandler(Object handler); 
+        
+        String getExpression();
+        void setExpression(String expression); 
+    }      
+    
     public static interface TextPropertyInfo extends PropertyInfo 
     {
     }       

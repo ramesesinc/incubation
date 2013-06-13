@@ -11,6 +11,7 @@ package com.rameses.rcp.control.text;
 
 import javax.swing.InputVerifier;
 import javax.swing.JComponent;
+import javax.swing.text.JTextComponent;
 
 /**
  *
@@ -56,8 +57,15 @@ public class InputVerifierProxy extends InputVerifier
         try
         {
             processing = true; 
-            
             input.firePropertyChange("detachInputVerifier", false, true); 
+
+            if (!input.isEnabled()) return true; 
+            if (input instanceof JTextComponent) 
+            {
+                JTextComponent jtxt = (JTextComponent) input; 
+                if (!jtxt.isEditable()) return true;
+            }
+            
             InputVerifier[] verifiers = new InputVerifier[] { verifier, child };
             for (InputVerifier iv : verifiers)
             {

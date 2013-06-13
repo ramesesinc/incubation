@@ -25,11 +25,15 @@ import javax.swing.JComponent;
 public class UIControlUtil 
 {
 
-    public static void setBeanValue(Binding binding, String name, Object value) 
+    public static void setBeanValue(Binding binding, String name, Object value) {
+        setBeanValue(binding.getBean(), name, value); 
+    }
+    
+    public static void setBeanValue(Object bean, String name, Object value) 
     {
         PropertyResolver resolver = PropertyResolver.getInstance();
-        resolver.setProperty(binding.getBean(), name, value); 
-    }
+        resolver.setProperty(bean, name, value); 
+    }    
     
     public static Object getBeanValue(UIControl control) {
         return getBeanValue(control, control.getName());

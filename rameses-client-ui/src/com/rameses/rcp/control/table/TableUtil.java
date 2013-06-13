@@ -17,6 +17,7 @@ import com.rameses.rcp.common.DecimalColumnHandler;
 import com.rameses.rcp.common.DoubleColumnHandler;
 import com.rameses.rcp.common.IntegerColumnHandler;
 import com.rameses.rcp.common.LookupColumnHandler;
+import com.rameses.rcp.common.OpenerColumnHandler;
 import com.rameses.rcp.common.StyleRule;
 import com.rameses.rcp.common.TextColumnHandler;
 import com.rameses.rcp.control.XCheckBox;
@@ -25,10 +26,12 @@ import com.rameses.rcp.control.XDateField;
 import com.rameses.rcp.control.XDecimalField;
 import com.rameses.rcp.control.XIntegerField;
 import com.rameses.rcp.control.XLookupField;
+import com.rameses.rcp.control.XOpenerField;
 import com.rameses.rcp.control.XTextField;
 import com.rameses.rcp.framework.ClientContext;
 import com.rameses.rcp.support.ColorUtil;
 import com.rameses.rcp.ui.UIControl;
+import com.rameses.rcp.ui.UIInputWrapper;
 import com.rameses.rcp.ui.Validatable;
 import com.rameses.rcp.util.ControlSupport;
 import com.rameses.rcp.util.UIControlUtil;
@@ -96,6 +99,7 @@ public final class TableUtil
         editors.put("decimal", XDecimalField.class);
         editors.put("integer", XIntegerField.class);        
         editors.put("lookup", XLookupField.class);
+        editors.put("opener", XOpenerField.class);
         editors.put("selection", SelectionCellEditor.class);
         
         //map of renderers
@@ -109,6 +113,7 @@ public final class TableUtil
         renderers.put("decimal", new DecimalRenderer());
         renderers.put("integer", new IntegerRenderer());        
         renderers.put("lookup", new StringRenderer());
+        renderers.put("opener", new StringRenderer());
         
         renderers.put(TextColumnHandler.class, new TextCellRenderer());
         renderers.put(CheckBoxColumnHandler.class, new CheckBoxCellRenderer());
@@ -118,6 +123,7 @@ public final class TableUtil
         renderers.put(DecimalColumnHandler.class, new DecimalCellRenderer());
         renderers.put(IntegerColumnHandler.class, new IntegerCellRenderer());        
         renderers.put(LookupColumnHandler.class, new LookupCellRenderer());
+        renderers.put(OpenerColumnHandler.class, new OpenerCellRenderer());
         renderers.put(SelectionColumnHandler.class, new SelectionCellRenderer());
         
         //number class types
@@ -182,16 +188,21 @@ public final class TableUtil
     
     private static void customize(JComponent editor, Column col) 
     {
+        JComponent uieditor = editor;
+        if (editor instanceof UIInputWrapper) 
+            uieditor = ((UIInputWrapper) editor).getEditorComponent();
+        
         //add JTable flag to notify that editor is in a JTable component
         editor.putClientProperty(JTable.class, true);
-        
+                
         //remove all focus listeners (we don't need it in the table)
         for (FocusListener l : editor.getFocusListeners() ) {
-            editor.removeFocusListener(l);
+            uieditor.removeFocusListener(l);
         }
         
         //apply required if editor is Validatable
-        if( editor instanceof Validatable ) {
+        if ( editor instanceof Validatable ) 
+        {
             Validatable v = (Validatable) editor;
             v.setRequired( col.isRequired() );
             v.setCaption( col.getCaption() );
@@ -226,13 +237,13 @@ public final class TableUtil
         } 
         
         Font font = (Font) UIManager.get("Table.font");
-        editor.setFont(font);
-        editor.setBackground(FOCUS_BG);
+        uieditor.setFont(font);
+        uieditor.setBackground(FOCUS_BG);
         
         //set alignment if it is specified in the Column model
-        if ( col.getAlignment() != null && editor instanceof JTextField ) 
+        if ( col.getAlignment() != null && uieditor instanceof JTextField ) 
         {
-            JTextField jtf = (JTextField) editor;
+            JTextField jtf = (JTextField) uieditor;
             if ( "right".equals(col.getAlignment().toLowerCase()) )
                 jtf.setHorizontalAlignment(SwingConstants.RIGHT);
             else if ( "center".equals(col.getAlignment().toLowerCase()))
