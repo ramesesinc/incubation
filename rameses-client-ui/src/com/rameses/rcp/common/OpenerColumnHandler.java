@@ -38,4 +38,15 @@ public class OpenerColumnHandler extends Column.TypeHandler implements PropertyS
     public void setHandler(Object handler) {
         this.handler = handler;
     }
+
+    public Object put(Object key, Object value) 
+    {
+        String skey = key+"";
+        if ("handler".equals(skey)) 
+            setHandler(value);
+        else if ("expression".equals(skey))
+            setExpression((value == null? null: value.toString())); 
+
+        return super.put(key, value); 
+    }
 }
