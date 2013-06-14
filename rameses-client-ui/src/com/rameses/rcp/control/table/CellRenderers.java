@@ -44,7 +44,7 @@ import javax.swing.table.TableCellRenderer;
  *
  * @author wflores
  */
-public final class CellRenderers 
+public class CellRenderers 
 {
     // <editor-fold defaultstate="collapsed" desc="  AbstractRenderer (class)  ">
     
@@ -510,4 +510,28 @@ public final class CellRenderers
     }    
     
     // </editor-fold>    
+    
+    // <editor-fold defaultstate="collapsed" desc="  DynamicRenderer (class)  ">
+    
+    public static class DynamicRenderer extends TextRenderer 
+    {
+        protected Object resolveValue(Column oColumn, Object value) 
+        {
+            Object cellValue = value;             
+            String expression = oColumn.getExpression();
+            if (expression != null) 
+            {
+                try 
+                {
+                    Object itemData = getTableControl().getDataProvider().getListItemData(getRowIndex()); 
+                    Object exprBean = getTableControl().createExpressionBean(itemData); 
+                    cellValue = UIControlUtil.evaluateExpr(exprBean, expression); 
+                } 
+                catch(Exception e) {;}
+            }
+            return cellValue; 
+        }
+    }    
+    
+    // </editor-fold>        
 }

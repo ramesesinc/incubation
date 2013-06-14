@@ -25,6 +25,7 @@ public class Column implements Serializable
     
     private String type = "string";   
     private String expression;
+    private String visibleWhen;
     private boolean visible = true;
         
     //checkbox support
@@ -169,59 +170,76 @@ public class Column implements Serializable
     
     // <editor-fold defaultstate="collapsed" desc=" Getters/Setters ">
         
-    public String getTextCase() { return textCase; }
-    public void setTextCase(String textCase) { this.textCase = textCase; }
+    public String getName() { return name; }    
+    public void setName(String name) { this.name = name; }
+    
+    public String getCaption() { return caption; }    
+    public void setCaption(String caption) { this.caption = caption; }
     
     public Column.TypeHandler getTypeHandler() { return typeHandler; } 
     public void setTypeHandler(Column.TypeHandler typeHandler) { 
         this.typeHandler = typeHandler; 
     } 
     
-    public String getName() { return name; }    
-    public void setName(String name) {
-        this.name = name;
-    }
-    
-    public String getCaption() { return caption; }    
-    public void setCaption(String caption) {
-        this.caption = caption;
-    }
-    
     public int getWidth() { return width; }    
-    public void setWidth(int width) {
-        this.width = width;
-    }
+    public void setWidth(int width) { this.width = width; }
     
     public int getMinWidth() { return minWidth; }    
-    public void setMinWidth(int minwidth) {
-        this.minWidth = minwidth;
-    }
+    public void setMinWidth(int minwidth) { this.minWidth = minwidth; }
     
     public int getMaxWidth() { return maxWidth; }    
-    public void setMaxWidth(int maxwidth) {
-        this.maxWidth = maxwidth;
-    }
+    public void setMaxWidth(int maxwidth) { this.maxWidth = maxwidth; }
+    
+    public boolean isRequired() { return required; }    
+    public void setRequired(boolean required) { this.required = required; }
     
     public boolean isResizable() { return resizable; }    
-    public void setResizable(boolean resizable) {
-        this.resizable = resizable;
+    public void setResizable(boolean resizable) { 
+        this.resizable = resizable; 
     }
+        
+    public boolean isNullWhenEmpty() { return nullWhenEmpty; }
+    public void setNullWhenEmpty(boolean nullWhenEmpty) {
+        this.nullWhenEmpty = nullWhenEmpty;
+    }     
     
     public boolean isEditable() { return editable; }    
     public void setEditable(boolean editable) {
         this.editable = editable;
     }
     
+    public String getEditableWhen() { return editableWhen; }    
+    public void setEditableWhen(String editableWhen) {
+        this.editableWhen = editableWhen;
+    }    
+    
+    public String getTextCase() { return textCase; }
+    public void setTextCase(String textCase) { this.textCase = textCase; }      
+    
+    public String getType() { return type; }    
+    public void setType(String type) { this.type = type; } 
+    
+    public String getExpression() { return expression; }     
+    public void setExpression(String expression) {
+        this.expression = expression;
+    }   
+    
+    public String getVisibleWhen() { return visibleWhen; }     
+    public void setVisibleWhen(String visibleWhen) {
+        this.visibleWhen = visibleWhen;
+    }     
+    
     public boolean isVisible() { return visible; }    
     public void setVisible(boolean visible) {
         this.visible = visible;
     }
     
+    
     public Map getProperties() { return properties; }    
     public void setProperties(Map properties) {
         this.properties = properties;
     }
-    
+        
     public int getRowheight() { return rowheight; }    
     public void setRowheight(int rowheight) {
         this.rowheight = rowheight;
@@ -252,17 +270,7 @@ public class Column implements Serializable
     public void setFormat(String format) {
         this.format = format;
     }
-    
-    public String getType() { return type; }    
-    public void setType(String type) {
-        this.type = type;
-    }
-    
-    public boolean isRequired() { return required; }    
-    public void setRequired(boolean required) {
-        this.required = required;
-    }
-    
+        
     public Object getHandler() { return handler; }    
     public void setHandler(Object handler) {
         this.handler = handler;
@@ -276,11 +284,6 @@ public class Column implements Serializable
     public Class getFieldType() { return fieldType; }    
     public void setFieldType(Class fieldType) {
         this.fieldType = fieldType;
-    }
-    
-    public String getEditableWhen() { return editableWhen; }    
-    public void setEditableWhen(String editableWhen) {
-        this.editableWhen = editableWhen;
     }
     
     public String getAlignment() { return alignment; }    
@@ -299,11 +302,6 @@ public class Column implements Serializable
     public String getValidateExpression() { return validateExpression; } 
     public void setValidateExpression(String validateExpression) {
         this.validateExpression = validateExpression;
-    }
-    
-    public String getExpression() { return expression; }     
-    public void setExpression(String expression) {
-        this.expression = expression;
     }
     
     public String getCategory() { return category; }    
@@ -345,12 +343,7 @@ public class Column implements Serializable
     public void setDynamic(boolean dynamic) {
         this.dynamic = dynamic;
     }
-    
-    public boolean isNullWhenEmpty() { return nullWhenEmpty; }
-    public void setNullWhenEmpty(boolean nullWhenEmpty) {
-        this.nullWhenEmpty = nullWhenEmpty;
-    }    
-    
+       
     // </editor-fold>
     
     public final Column set(String name, Object value) 

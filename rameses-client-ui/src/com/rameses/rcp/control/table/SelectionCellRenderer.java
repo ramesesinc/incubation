@@ -23,7 +23,7 @@ import javax.swing.SwingConstants;
  *
  * @author wflores
  */
-public class SelectionCellRenderer extends AbstractCellRenderer
+public class SelectionCellRenderer extends CellRenderers.AbstractRenderer
 {
     private JLabel label;
     private JCheckBox component;
@@ -38,30 +38,24 @@ public class SelectionCellRenderer extends AbstractCellRenderer
 
     public JComponent getComponent(JTable table, int rowIndex, int columnIndex) 
     {
-        AbstractListDataProvider ldp = ((TableControl) table).getDataProvider();
-        if (ldp.getListItemData(rowIndex) == null) return label;
-        
-        return component;        
+        Object itemData = getTableControl().getDataProvider().getListItemData(rowIndex);
+        return (itemData == null? label: component);
     }
 
     public void refresh(JTable table, Object value, boolean selected, boolean focus, int rowIndex, int columnIndex) 
     {                
         component.setSelected(false);
         
-        if (table.getModel() instanceof DataTableModel) 
-        {
-            DataTableModel tableModel = (DataTableModel) table.getModel(); 
-            Column oColumn = tableModel.getColumn(columnIndex); 
-            Object oItem = tableModel.getDataProvider().getListItemData(rowIndex);
-            Object exprBean = tableModel.createExpressionBean(oItem); 
-            
-            Collection checkedItems = null; 
-            try {
-                checkedItems = (Collection) UIControlUtil.getBeanValue(exprBean, oColumn.getName()); 
-            } catch(Exception ex) {;} 
+        Column oColumn = getTableControlModel().getColumn(columnIndex); 
+        Object itemData = getTableControl().getDataProvider().getListItemData(rowIndex); 
+        Object exprBean = getTableControl().createExpressionBean(itemData);
+        
+        Collection checkedItems = null; 
+        try {
+            checkedItems = (Collection) UIControlUtil.getBeanValue(exprBean, oColumn.getName()); 
+        } catch(Exception ex) {;} 
 
-            boolean matched = (checkedItems == null? false: checkedItems.contains(oItem));
-            component.setSelected(matched);             
-        }
+        boolean matched = (checkedItems == null? false: checkedItems.contains(itemData));
+        component.setSelected(matched); 
     }  
 }

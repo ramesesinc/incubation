@@ -18,7 +18,7 @@ import java.util.List;
  */
 public class DynamicColumn extends Column 
 {
-    private List<Column> items = new ArrayList();
+    private List<Column> columns = new ArrayList();
     
     public DynamicColumn() {
         super();
@@ -30,8 +30,21 @@ public class DynamicColumn extends Column
 
     public String getType() { return "dynamic"; }
     
-    public List<Column> getItems() { return items; } 
-    public void setItems(List<Column> items) { 
-        this.items = (items == null? new ArrayList(): items); 
+    public List<Column> getColumns() { return columns; } 
+    public void setColumns(List<Column> columns) { 
+        this.columns = (columns == null? new ArrayList(): columns); 
     } 
+    
+    public void setColumns(Column[] columns) 
+    { 
+        this.columns.clear();
+        if (columns != null) 
+        {
+            for (int i=0; i<columns.length; i++) 
+            {
+                if (columns[i] != null) this.columns.add(columns[i]); 
+            }
+        }
+    } 
+    
 }

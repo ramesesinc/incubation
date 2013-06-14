@@ -9,17 +9,8 @@ package com.rameses.rcp.control.table;
 
 import com.rameses.common.ExpressionResolver;
 import com.rameses.rcp.common.AbstractListDataProvider;
-import com.rameses.rcp.common.CheckBoxColumnHandler;
 import com.rameses.rcp.common.Column;
-import com.rameses.rcp.common.ComboBoxColumnHandler;
-import com.rameses.rcp.common.DateColumnHandler;
-import com.rameses.rcp.common.DecimalColumnHandler;
-import com.rameses.rcp.common.DoubleColumnHandler;
-import com.rameses.rcp.common.IntegerColumnHandler;
-import com.rameses.rcp.common.LookupColumnHandler;
-import com.rameses.rcp.common.OpenerColumnHandler;
 import com.rameses.rcp.common.StyleRule;
-import com.rameses.rcp.common.TextColumnHandler;
 import com.rameses.rcp.control.XCheckBox;
 import com.rameses.rcp.control.XComboBox;
 import com.rameses.rcp.control.XDateField;
@@ -104,6 +95,7 @@ public final class TableUtil
         
         //map of renderers
         renderers.put("string", new CellRenderers.TextRenderer());
+        renderers.put("text", new CellRenderers.TextRenderer());
         renderers.put("boolean", new CellRenderers.CheckBoxRenderer());
         renderers.put("checkbox", new CellRenderers.CheckBoxRenderer());  
         renderers.put("combo", new CellRenderers.ComboBoxRenderer());
@@ -114,17 +106,8 @@ public final class TableUtil
         renderers.put("integer", new CellRenderers.IntegerRenderer());        
         renderers.put("lookup", new CellRenderers.LookupCellRenderer());
         renderers.put("opener", new CellRenderers.OpenerRenderer());
-        renderers.put("dynamic", new CellRenderers.TextRenderer());
+        renderers.put("dynamic", new CellRenderers.DynamicRenderer());
         
-        renderers.put(TextColumnHandler.class, new CellRenderers.TextRenderer());
-        renderers.put(CheckBoxColumnHandler.class, new CellRenderers.CheckBoxRenderer());
-        renderers.put(ComboBoxColumnHandler.class, new CellRenderers.ComboBoxRenderer());
-        renderers.put(DateColumnHandler.class, new CellRenderers.DateRenderer());        
-        renderers.put(DoubleColumnHandler.class, new CellRenderers.DecimalRenderer());
-        renderers.put(DecimalColumnHandler.class, new CellRenderers.DecimalRenderer());
-        renderers.put(IntegerColumnHandler.class, new CellRenderers.IntegerRenderer());        
-        renderers.put(LookupColumnHandler.class, new CellRenderers.LookupCellRenderer());
-        renderers.put(OpenerColumnHandler.class, new CellRenderers.OpenerRenderer());
         renderers.put(SelectionColumnHandler.class, new SelectionCellRenderer());
         
         //number class types
@@ -140,7 +123,8 @@ public final class TableUtil
         if (oColumn.getTypeHandler() == null) 
             oColumn.setTypeHandler(ColumnHandlerUtil.newInstance().createTypeHandler(oColumn)); 
         
-        Class editorClass = editors.get(oColumn.getTypeHandler().getType());         
+        oColumn.setType(oColumn.getTypeHandler().getType()); 
+        Class editorClass = editors.get(oColumn.getType()); 
         JComponent editor = null;
         try 
         { 
@@ -158,7 +142,12 @@ public final class TableUtil
         if (oColumn.getTypeHandler() == null) 
             oColumn.setTypeHandler(ColumnHandlerUtil.newInstance().createTypeHandler(oColumn)); 
             
-        return renderers.get(oColumn.getTypeHandler().getClass()); 
+        oColumn.setType(oColumn.getTypeHandler().getType()); 
+        TableCellRenderer renderer = renderers.get(oColumn.getType()); 
+        if (renderer == null) 
+            return renderers.get(oColumn.getTypeHandler().getClass());
+        else
+            return renderer; 
     }
     
     public static TableCellRenderer getHeaderRenderer() {
