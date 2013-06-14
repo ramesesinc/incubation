@@ -42,10 +42,10 @@ public class OpenerColumnHandler extends Column.TypeHandler implements PropertyS
     public Object put(Object key, Object value) 
     {
         String skey = key+"";
-        if ("handler".equals(skey)) 
+        if ("expression".equals(skey))
+            setExpression((value == null? null: value.toString()));         
+        else if ("handler".equals(skey)) 
             setHandler(value);
-        else if ("expression".equals(skey))
-            setExpression((value == null? null: value.toString())); 
 
         return super.put(key, value); 
     }

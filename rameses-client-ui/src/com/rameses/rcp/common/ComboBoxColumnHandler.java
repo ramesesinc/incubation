@@ -46,4 +46,17 @@ public class ComboBoxColumnHandler extends Column.TypeHandler implements Propert
         this.items = items;
     }
     
+    public Object put(Object key, Object value) 
+    {
+        String skey = key+"";
+        if ("expression".equals(skey)) 
+            setExpression((value == null? null : value.toString())); 
+        else if ("itemKey".equals(skey))
+            setItemKey((value == null? null: value.toString()));
+        else if ("items".equals(skey))
+            setItems(value); 
+
+        return super.put(key, value); 
+    }    
+    
 }

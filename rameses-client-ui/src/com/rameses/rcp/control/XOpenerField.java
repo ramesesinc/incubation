@@ -501,11 +501,17 @@ public class XOpenerField extends DefaultTextField implements UIInput, UIInputVe
         if (info instanceof PropertySupport.OpenerPropertyInfo) 
         {
             PropertySupport.OpenerPropertyInfo p = (PropertySupport.OpenerPropertyInfo) info; 
-            if (p.getHandler() != null) 
+            if (p.getHandler() instanceof String)
             {
                 setHandler(p.getHandler().toString());
-                setExpression(p.getExpression()); 
+                setHandlerObject(null);
             }
+            else 
+            {
+                setHandler(null); 
+                setHandlerObject(p.getHandler());
+            }
+            setExpression(p.getExpression());        
         }
     }
 

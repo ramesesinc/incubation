@@ -167,10 +167,15 @@ public class XLookupField extends IconedTextField implements UIFocusableContaine
 
         PropertySupport.LookupPropertyInfo lkp = (PropertySupport.LookupPropertyInfo) info; 
         if (lkp.getHandler() instanceof String)
+        {
             setHandler(lkp.getHandler().toString()); 
+            setHandlerObject(null);
+        }
         else 
+        {
+            setHandler(null); 
             setHandlerObject(lkp.getHandler()); 
-        
+        }        
         setExpression(lkp.getExpression()); 
     } 
    

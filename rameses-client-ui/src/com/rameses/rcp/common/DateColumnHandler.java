@@ -46,4 +46,16 @@ public class DateColumnHandler extends Column.TypeHandler implements PropertySup
         this.valueFormat = valueFormat;
     }
     
+    public Object put(Object key, Object value) 
+    {
+        String skey = key+"";
+        if ("inputFormat".equals(skey)) 
+            setInputFormat((value == null? null: value.toString())); 
+        else if ("outputFormat".equals(skey)) 
+            setOutputFormat((value == null? null: value.toString())); 
+        else if ("valueFormat".equals(skey)) 
+            setValueFormat((value == null? null: value.toString())); 
+
+        return super.put(key, value); 
+    }     
 }

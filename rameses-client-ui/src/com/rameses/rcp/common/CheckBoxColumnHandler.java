@@ -46,4 +46,17 @@ public class CheckBoxColumnHandler extends Column.TypeHandler implements Propert
     public void setUncheckValue(Object uncheckValue) {
         this.uncheckValue = uncheckValue; 
     }
+    
+    public Object put(Object key, Object value) 
+    {
+        String skey = key+"";
+        if ("valueType".equals(skey)) 
+            setValueType((Class) value);
+        else if ("checkValue".equals(skey))
+            setCheckValue(value); 
+        else if ("uncheckValue".equals(skey))
+            setUncheckValue(value); 
+
+        return super.put(key, value); 
+    }    
 }

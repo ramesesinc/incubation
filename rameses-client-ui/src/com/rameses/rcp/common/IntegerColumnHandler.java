@@ -49,4 +49,29 @@ public class IntegerColumnHandler extends Column.TypeHandler implements Property
     public void setMaxValue(int maxValue) { 
         this.maxValue = maxValue;
     } 
+    
+    public Object put(Object key, Object value) 
+    {
+        String skey = key+"";
+        if ("format".equals(skey)) 
+            setFormat((value == null? null: value.toString())); 
+        else if ("minValue".equals(skey)) 
+        {
+            try {
+                setMinValue(Integer.parseInt(value+""));
+            } catch(Exception ex) {
+                setMinValue(-1); 
+            }
+        }
+        else if ("maxValue".equals(skey)) 
+        {
+            try {
+                setMaxValue(Integer.parseInt(value+""));
+            } catch(Exception ex) {
+                setMaxValue(-1); 
+            }
+        } 
+
+        return super.put(key, value); 
+    }       
 }

@@ -57,4 +57,31 @@ public class DecimalColumnHandler extends Column.TypeHandler implements Property
     public void setMaxValue(double maxValue) { 
         this.maxValue = maxValue;
     } 
+    
+    public Object put(Object key, Object value) 
+    {
+        String skey = key+"";
+        if ("format".equals(skey)) 
+            setFormat((value == null? null: value.toString())); 
+        else if ("usePrimitiveValue".equals(skey))
+            setUsePrimitiveValue("true".equals(value+""));
+        else if ("minValue".equals(skey)) 
+        {
+            try {
+                setMinValue(Double.parseDouble(value+""));
+            } catch(Exception ex) {
+                setMinValue(-1.0); 
+            }
+        }
+        else if ("maxValue".equals(skey)) 
+        {
+            try {
+                setMaxValue(Double.parseDouble(value+""));
+            } catch(Exception ex) {
+                setMaxValue(-1.0); 
+            }
+        } 
+
+        return super.put(key, value); 
+    }    
 }

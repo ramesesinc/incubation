@@ -38,4 +38,15 @@ public class LookupColumnHandler extends Column.TypeHandler implements PropertyS
     public void setHandler(Object handler) {
         this.handler = handler;
     }
+    
+    public Object put(Object key, Object value) 
+    {
+        String skey = key+"";
+        if ("expression".equals(skey)) 
+            setExpression((value == null? null: value.toString())); 
+        else if ("handler".equals(skey)) 
+            setHandler(value); 
+
+        return super.put(key, value); 
+    }    
 }
