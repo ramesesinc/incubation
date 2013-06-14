@@ -9,6 +9,7 @@
 
 package com.rameses.rcp.control.text;
 
+import com.rameses.rcp.ui.UIInputVerifier;
 import javax.swing.InputVerifier;
 import javax.swing.JComponent;
 import javax.swing.text.JTextComponent;
@@ -36,9 +37,7 @@ public class InputVerifierProxy extends InputVerifier
     }    
 
     public boolean isEnabled() { return enabled; } 
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled; 
-    } 
+    public void setEnabled(boolean enabled) { this.enabled = enabled; } 
     
     public InputVerifier getChild() { return child; } 
     public void setChild(InputVerifier child) { this.child = child; }
@@ -48,7 +47,7 @@ public class InputVerifierProxy extends InputVerifier
         this.verifier = null;
         this.child = null;
     }
-        
+   
     public boolean verify(JComponent input) 
     {
         if (!enabled) return true;
@@ -64,6 +63,12 @@ public class InputVerifierProxy extends InputVerifier
             {
                 JTextComponent jtxt = (JTextComponent) input; 
                 if (!jtxt.isEditable()) return true;
+            }
+
+            if (input instanceof UIInputVerifier) 
+            {
+                boolean b = ((UIInputVerifier) input).verify(input); 
+                if (!b) return false; 
             }
             
             InputVerifier[] verifiers = new InputVerifier[] { verifier, child };

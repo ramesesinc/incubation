@@ -278,7 +278,10 @@ public class TreeTableComponent extends JTable implements ListModelListener, Tab
     public AbstractListDataProvider getDataProvider() {
         return null; 
     }
-    
+
+    public Object createExpressionBean(Object bean) {
+        return bean;
+    }    
     
     //<editor-fold defaultstate="collapsed" desc="  SheetSelectionListener (class)  ">
     private class SheetSelectionListener implements ListSelectionListener {

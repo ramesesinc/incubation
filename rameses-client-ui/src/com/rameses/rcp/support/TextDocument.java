@@ -70,6 +70,12 @@ public class TextDocument extends PlainDocument
         super.insertString(offs, str, a);
         dirty = true; 
     }
+
+    public void remove(int offs, int len) throws BadLocationException 
+    {
+        super.remove(offs, len); 
+        dirty = true; 
+    }
     
     private void update() 
     {        

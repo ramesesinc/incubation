@@ -86,12 +86,12 @@ public class PlatformImpl implements Platform {
         Component parent = getParentWindow(actionSource);
         PopupDialog dd = null;
         
-        if ( parent instanceof JDialog ) {
+        if ( parent instanceof JDialog ) 
             dd = new PopupDialog((JDialog) parent);
-        }
-        else if ( parent instanceof JFrame ) {
+        else if ( parent instanceof JFrame ) 
             dd = new PopupDialog((JFrame) parent);
-        }
+        else 
+            dd = new PopupDialog(); 
         
         if ( properties.size() > 0 ) setProperties(dd, properties);
         
@@ -108,6 +108,7 @@ public class PlatformImpl implements Platform {
         int pHeight = Math.max(dim.height, toInt(properties.get("height")));
         d.setSize(pWidth, pHeight); 
         d.setLocationRelativeTo(parent);
+        d.setSource(actionSource);
         
         EventQueue.invokeLater(new Runnable() {
             public void run() {

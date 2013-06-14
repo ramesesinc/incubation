@@ -30,8 +30,8 @@ import com.rameses.rcp.control.XOpenerField;
 import com.rameses.rcp.control.XTextField;
 import com.rameses.rcp.framework.ClientContext;
 import com.rameses.rcp.support.ColorUtil;
+import com.rameses.rcp.support.ComponentSupport;
 import com.rameses.rcp.ui.UIControl;
-import com.rameses.rcp.ui.UIInputWrapper;
 import com.rameses.rcp.ui.Validatable;
 import com.rameses.rcp.util.ControlSupport;
 import com.rameses.rcp.util.UIControlUtil;
@@ -103,27 +103,28 @@ public final class TableUtil
         editors.put("selection", SelectionCellEditor.class);
         
         //map of renderers
-        renderers.put("string", new StringRenderer());
-        renderers.put("boolean", new BooleanRenderer());
-        renderers.put("checkbox", new BooleanRenderer());  
-        renderers.put("combo", new StringRenderer());
-        renderers.put("combobox", new StringRenderer());
-        renderers.put("date", new StringRenderer());        
-        renderers.put("double", new DecimalRenderer());
-        renderers.put("decimal", new DecimalRenderer());
-        renderers.put("integer", new IntegerRenderer());        
-        renderers.put("lookup", new StringRenderer());
-        renderers.put("opener", new StringRenderer());
+        renderers.put("string", new CellRenderers.TextRenderer());
+        renderers.put("boolean", new CellRenderers.CheckBoxRenderer());
+        renderers.put("checkbox", new CellRenderers.CheckBoxRenderer());  
+        renderers.put("combo", new CellRenderers.ComboBoxRenderer());
+        renderers.put("combobox", new CellRenderers.ComboBoxRenderer());
+        renderers.put("date", new CellRenderers.DateRenderer());        
+        renderers.put("double", new CellRenderers.DecimalRenderer());
+        renderers.put("decimal", new CellRenderers.DecimalRenderer());
+        renderers.put("integer", new CellRenderers.IntegerRenderer());        
+        renderers.put("lookup", new CellRenderers.LookupCellRenderer());
+        renderers.put("opener", new CellRenderers.OpenerRenderer());
+        renderers.put("dynamic", new CellRenderers.TextRenderer());
         
-        renderers.put(TextColumnHandler.class, new TextCellRenderer());
-        renderers.put(CheckBoxColumnHandler.class, new CheckBoxCellRenderer());
-        renderers.put(ComboBoxColumnHandler.class, new ComboBoxCellRenderer());
-        renderers.put(DateColumnHandler.class, new DateCellRenderer());        
-        renderers.put(DoubleColumnHandler.class, new DecimalCellRenderer());
-        renderers.put(DecimalColumnHandler.class, new DecimalCellRenderer());
-        renderers.put(IntegerColumnHandler.class, new IntegerCellRenderer());        
-        renderers.put(LookupColumnHandler.class, new LookupCellRenderer());
-        renderers.put(OpenerColumnHandler.class, new OpenerCellRenderer());
+        renderers.put(TextColumnHandler.class, new CellRenderers.TextRenderer());
+        renderers.put(CheckBoxColumnHandler.class, new CellRenderers.CheckBoxRenderer());
+        renderers.put(ComboBoxColumnHandler.class, new CellRenderers.ComboBoxRenderer());
+        renderers.put(DateColumnHandler.class, new CellRenderers.DateRenderer());        
+        renderers.put(DoubleColumnHandler.class, new CellRenderers.DecimalRenderer());
+        renderers.put(DecimalColumnHandler.class, new CellRenderers.DecimalRenderer());
+        renderers.put(IntegerColumnHandler.class, new CellRenderers.IntegerRenderer());        
+        renderers.put(LookupColumnHandler.class, new CellRenderers.LookupCellRenderer());
+        renderers.put(OpenerColumnHandler.class, new CellRenderers.OpenerRenderer());
         renderers.put(SelectionColumnHandler.class, new SelectionCellRenderer());
         
         //number class types
@@ -188,16 +189,12 @@ public final class TableUtil
     
     private static void customize(JComponent editor, Column col) 
     {
-        JComponent uieditor = editor;
-        if (editor instanceof UIInputWrapper) 
-            uieditor = ((UIInputWrapper) editor).getEditorComponent();
-        
         //add JTable flag to notify that editor is in a JTable component
         editor.putClientProperty(JTable.class, true);
                 
         //remove all focus listeners (we don't need it in the table)
         for (FocusListener l : editor.getFocusListeners() ) {
-            uieditor.removeFocusListener(l);
+            editor.removeFocusListener(l);
         }
         
         //apply required if editor is Validatable
@@ -237,20 +234,20 @@ public final class TableUtil
         } 
         
         Font font = (Font) UIManager.get("Table.font");
-        uieditor.setFont(font);
-        uieditor.setBackground(FOCUS_BG);
+        editor.setFont(font);
+        editor.setBackground(FOCUS_BG);
         
         //set alignment if it is specified in the Column model
-        if ( col.getAlignment() != null && uieditor instanceof JTextField ) 
+        if ( col.getAlignment() != null && editor instanceof JTextField ) 
         {
-            JTextField jtf = (JTextField) uieditor;
+            JTextField jtf = (JTextField) editor;
             if ( "right".equals(col.getAlignment().toLowerCase()) )
                 jtf.setHorizontalAlignment(SwingConstants.RIGHT);
             else if ( "center".equals(col.getAlignment().toLowerCase()))
                 jtf.setHorizontalAlignment(SwingConstants.CENTER);
             else if ( "left".equals(col.getAlignment().toLowerCase()) )
                 jtf.setHorizontalAlignment(SwingConstants.LEFT);
-        }        
+        } 
         else 
         {
             //border support
@@ -268,6 +265,15 @@ public final class TableUtil
     
     public static abstract class AbstractRenderer implements TableCellRenderer 
     {
+        private ComponentSupport componentSupport;
+        
+        protected ComponentSupport getComponentSupport() 
+        {
+            if (componentSupport == null) 
+                componentSupport = new ComponentSupport();
+
+            return componentSupport;
+        }
         
         public abstract JComponent getComponent(JTable table, int row, int column);
         
@@ -422,7 +428,8 @@ public final class TableUtil
     {        
         private JLabel label;
         
-        public StringRenderer() {
+        public StringRenderer() 
+        {
             label = new JLabel();
             label.setVerticalAlignment(SwingConstants.CENTER);
         }
@@ -481,7 +488,6 @@ public final class TableUtil
                     formatter = new SimpleDateFormat("yyyy-MM-dd");
                 
                 label.setText((columnValue == null ? "" : formatter.format(columnValue)));
-                
             } 
             else 
             {
@@ -492,27 +498,8 @@ public final class TableUtil
                 label.setText((columnValue == null ? "" : columnValue.toString()));
             }
             
-            //set alignment if it is specified in the Column model
             if ( c.getAlignment() != null ) 
-            {
-                if ( "right".equals(c.getAlignment().toLowerCase()) )
-                    label.setHorizontalAlignment(SwingConstants.RIGHT);
-                else if ( "center".equals(c.getAlignment().toLowerCase()))
-                    label.setHorizontalAlignment(SwingConstants.CENTER);
-                else if ( "left".equals(c.getAlignment().toLowerCase()) )
-                    label.setHorizontalAlignment(SwingConstants.LEFT);
-            }
-            
-            //set vertical alignment if it is specified in the Column model
-            if ( c.getVAlignment() != null ) 
-            {
-                if ( "top".equals(c.getVAlignment().toLowerCase()) )
-                    label.setVerticalAlignment(SwingConstants.TOP);
-                else if ( "center".equals(c.getVAlignment().toLowerCase()) )
-                    label.setVerticalAlignment(SwingConstants.CENTER);
-                else if ( "bottom".equals(c.getVAlignment().toLowerCase()) )
-                    label.setVerticalAlignment(SwingConstants.BOTTOM);
-            }
+                getComponentSupport().alignText(label, c.getAlignment());
         }
         
         private String format(Object value, String format, String defaultFormat) {
@@ -703,5 +690,4 @@ public final class TableUtil
         
     }
     //</editor-fold>
-            
 }

@@ -11,15 +11,18 @@ import com.rameses.platform.interfaces.ViewContext;
 import java.awt.Container;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 
 public class PopupDialog extends JDialog implements SubWindow, WindowListener 
 {
     private ViewContext viewContext;
-    private boolean canClose = true;
     private PlatformImpl platformImpl;
+    private boolean canClose = true;
     private String id;
+    
+    private JComponent source;
     
     public PopupDialog() 
     {
@@ -45,6 +48,9 @@ public class PopupDialog extends JDialog implements SubWindow, WindowListener
         addWindowListener(this);
     }
     
+    public JComponent getSource() { return source; } 
+    public void setSource(JComponent source) { this.source = source; }
+    
     public void setContentPane(Container contentPane) 
     {
         super.setContentPane(contentPane);
@@ -62,38 +68,32 @@ public class PopupDialog extends JDialog implements SubWindow, WindowListener
         platformImpl.getWindows().remove(id);
         //notify others
         getContentPane().firePropertyChange("Window.close", 0L, 1L); 
+        //
+        JComponent source = getSource();
+        if (source != null) source.firePropertyChange("Window.close", false, true);
     }
         
-    public boolean isCanClose() {
-        return canClose;
-    }
-    
+    public boolean isCanClose() { return canClose; }    
     public void setCanClose(boolean canClose) {
         this.canClose = canClose;
     }
     
-    public PlatformImpl getPlatformImpl() {
-        return platformImpl;
-    }
-    
+    public PlatformImpl getPlatformImpl() { return platformImpl; }    
     public void setPlatformImpl(PlatformImpl platformImpl) {
         this.platformImpl = platformImpl;
     }
     
-    public String getId() {
-        return id;
-    }
-    
-    public void setId(String id) {
-        this.id = id;
-    }
+    public String getId() { return id; }    
+    public void setId(String id) { this.id = id; }
     
     public void windowClosing(WindowEvent e) {
         closeWindow();
     }
     
-    public void windowOpened(WindowEvent e) {
-        if ( viewContext != null ) {
+    public void windowOpened(WindowEvent e) 
+    {
+        if ( viewContext != null ) 
+        {
             viewContext.display();
             viewContext.setSubWindow(this);
         }

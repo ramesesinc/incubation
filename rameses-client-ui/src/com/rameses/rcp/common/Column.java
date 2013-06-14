@@ -1,7 +1,6 @@
 package com.rameses.rcp.common;
 
 import com.rameses.common.PropertyResolver;
-import com.rameses.rcp.constant.TextCase;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
@@ -22,7 +21,7 @@ public class Column implements Serializable
     private boolean nullWhenEmpty = true;
     private boolean editable;
     private String editableWhen;
-    private TextCase textCase = TextCase.UPPER;
+    private String textCase = "UPPER";
     
     private String type = "string";   
     private String expression;
@@ -45,9 +44,7 @@ public class Column implements Serializable
     private boolean htmlDisplay;
     private String format;
     
-    //alignment support
     private String alignment;
-    private String vAlignment;
     
     //icon support
     private String iconVisibleWhen;
@@ -146,6 +143,7 @@ public class Column implements Serializable
         col.editable = editable;
         col.editableWhen = editableWhen;
         col.properties = properties; 
+        col.alignment = alignment;
 
         col.type = type;        
         col.visible = visible;
@@ -156,8 +154,6 @@ public class Column implements Serializable
         col.htmlDisplay = htmlDisplay;
         col.format = format;
         col.fieldType = fieldType;
-        col.alignment = alignment;
-        col.vAlignment = vAlignment;
         col.iconVisibleWhen = iconVisibleWhen;
         col.icon = icon;
         col.iconOrientation = iconOrientation;
@@ -173,8 +169,8 @@ public class Column implements Serializable
     
     // <editor-fold defaultstate="collapsed" desc=" Getters/Setters ">
         
-    public TextCase getTextCase() { return textCase; }
-    public void setTextCase(TextCase textCase) { this.textCase = textCase; }
+    public String getTextCase() { return textCase; }
+    public void setTextCase(String textCase) { this.textCase = textCase; }
     
     public Column.TypeHandler getTypeHandler() { return typeHandler; } 
     public void setTypeHandler(Column.TypeHandler typeHandler) { 
@@ -287,28 +283,13 @@ public class Column implements Serializable
         this.editableWhen = editableWhen;
     }
     
-    //alias for getHAlignment (old method)
-    public String getAlignment() { return alignment; }
-    
-    //alias for setHAlignment (old method)
-    public void setAlignment(String alignment) {
-        this.alignment = alignment;
-    }
-    
-    public String getHAlignment() { return alignment; }    
-    public void setHAlignment(String alignment) {
-        this.alignment = alignment;
-    }
-    
-    public String getVAlignment() { return vAlignment; }    
-    public void setVAlignment(String vAlignment) {
-        this.vAlignment = vAlignment;
+    public String getAlignment() { return alignment; }    
+    public void setAlignment(String alignment) { 
+        this.alignment = alignment; 
     }
     
     public String getIcon() { return icon; }    
-    public void setIcon(String icon) {
-        this.icon = icon;
-    }
+    public void setIcon(String icon) { this.icon = icon; }
     
     public String getHeaderIcon() { return headerIcon; }    
     public void setHeaderIcon(String headerIcon) {

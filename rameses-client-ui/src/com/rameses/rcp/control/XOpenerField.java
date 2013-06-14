@@ -27,9 +27,8 @@ import com.rameses.rcp.framework.UIControllerPanel;
 import com.rameses.rcp.support.TextDocument;
 import com.rameses.rcp.ui.ActiveControl;
 import com.rameses.rcp.ui.ControlProperty;
-import com.rameses.rcp.ui.UIControl;
 import com.rameses.rcp.ui.UIInput;
-import com.rameses.rcp.ui.UIInputWrapper;
+import com.rameses.rcp.ui.UIInputVerifier;
 import com.rameses.rcp.ui.Validatable;
 import com.rameses.rcp.util.ActionMessage;
 import com.rameses.rcp.util.ControlSupport;
@@ -37,16 +36,17 @@ import com.rameses.rcp.util.UIControlUtil;
 import com.rameses.rcp.util.UIInputUtil;
 import com.rameses.util.ValueUtil;
 import java.awt.Component;
-import java.awt.Container;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Graphics;
 import java.awt.Insets;
 import java.awt.LayoutManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
 import java.beans.Beans;
 import java.util.EventObject;
 import java.util.HashMap;
@@ -55,24 +55,25 @@ import javax.swing.BorderFactory;
 import javax.swing.InputVerifier;
 import javax.swing.JButton;
 import javax.swing.JComponent;
-import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.KeyStroke;
-import javax.swing.UIManager;
+import javax.swing.border.AbstractBorder;
 import javax.swing.border.Border;
 import javax.swing.plaf.PanelUI;
+import javax.swing.text.Document;
 
 /**
  *
  * @author wflores
  */
-public class XOpenerField extends JPanel implements UIInputWrapper, Validatable, ActiveControl  
+public class XOpenerField extends DefaultTextField implements UIInput, UIInputVerifier, Validatable, ActiveControl  
 {
-    private Dimension minimumSize = new Dimension(0,0);
-    private DefaultTextFieldImpl textField; 
-    private JButton button;
-    private Layout layout;
-    private Border border;
+    private Dimension minimumSize = new Dimension(0,0); 
+    private BorderImpl borderImpl;
+    private ButtonImpl buttonImpl;
+    private Insets margin;
+    
+    private boolean allowSelectAll;
 
     private ControlProperty property = new ControlProperty();
     private ActionMessage actionMessage = new ActionMessage();    
@@ -86,15 +87,17 @@ public class XOpenerField extends JPanel implements UIInputWrapper, Validatable,
     private String[] depends;    
     private boolean nullWhenEmpty = true;
     private int index;
-    
-    private TextDocument document;
+
+    private ApproveCallbackHandler callbackHandler = new ApproveCallbackHandler();
     private TrimSpaceOption trimSpaceOption;
+    private TextDocument document;    
+    
+    private Object oldValue;
     private Object value;
 
     public XOpenerField() 
     {
         super();
-        super.setLayout((layout = new Layout()));         
         initComponents();
     }
     
@@ -102,64 +105,68 @@ public class XOpenerField extends JPanel implements UIInputWrapper, Validatable,
     
     private void initComponents() 
     {
-        textField = new DefaultTextFieldImpl(); 
-        textField.setDocument(document = new TextDocument());
-        textField.putClientProperty(UIInput.class, this); 
-        textField.putClientProperty(UIControl.class, this); 
-        
-        button = new JButton("...");
-        button.setMargin(new Insets(0,0,0,0)); 
-        button.setFocusable(false); 
+        getButtonImpl();        
+        super.setDocument(document = new TextDocument());
 
-        Dimension dim = textField.getPreferredSize();
+        Dimension dim = getPreferredSize();
         minimumSize = new Dimension(50, dim.height);
         setPreferredSize(new Dimension(Math.max(dim.width,100), dim.height)); 
-        
-        Border border = textField.getBorder(); 
-        Insets margin = textField.getMargin();
-        textField.setBorder(BorderFactory.createEmptyBorder(margin.top, margin.left, margin.bottom, margin.right)); 
-        super.setBorder(border);         
-        add(textField);
-        add(button);
 
         document.setTextCase(TextCase.UPPER); 
         trimSpaceOption = TrimSpaceOption.NORMAL;
         
-        button.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                fireButtonClicked(e);
-            }
-        });
-        
-        new KeyboardAction().install(textField); 
-    }
-
-    public void removeFocusListener(FocusListener listener) 
-    {
-        if (listener != null) textField.removeFocusListener(listener);
+        new KeyboardAction().install(); 
     }
     
-    public void addFocusListener(FocusListener listener) 
-    { 
-        if (listener != null) 
+    private BorderImpl getBorderImpl() 
+    {
+        if (borderImpl == null) borderImpl = new BorderImpl(); 
+        
+        return borderImpl;
+    }  
+    
+    private ButtonImpl getButtonImpl()
+    {
+        if (buttonImpl == null) 
         {
-            textField.removeFocusListener(listener);
-            textField.addFocusListener(listener); 
+            buttonImpl = new ButtonImpl();
+            buttonImpl.setText("...");
+            buttonImpl.setMargin(new Insets(0,0,0,0)); 
+            buttonImpl.setFocusable(false);    
+            add(buttonImpl);            
         }
-    }
+        return buttonImpl; 
+    }    
     
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" Getters / Setters ">  
+
+    public final void setLayout(LayoutManager mgr) {;} 
+    public final void setDocument(Document document) {;} 
     
-    public LayoutManager getLayout() { return layout; }    
-    public final void setLayout(LayoutManager mgr) {} 
-    
-    public Border getBorder() { return border; } 
-    public void setBorder(Border border) 
+    public Insets getMargin() { return margin; } 
+    public final void setMargin(Insets margin) 
     {
-        this.border = border; 
-        super.setBorder(border); 
+        if (margin == null) margin = new Insets(0, 0, 0, 0); 
+        
+        this.margin = margin;
+        
+        int width = getButtonImpl().getPreferredSize().width+2;
+        Insets newMargin = new Insets(margin.top, margin.left, margin.bottom, margin.right); 
+        newMargin.right = Math.max(newMargin.right, width); 
+        super.setMargin(newMargin);
+    } 
+    
+    public final void setBorder(Border border) 
+    {
+        getButtonImpl();
+        
+        if (border == null) border = BorderFactory.createEmptyBorder();
+        
+        Border compound = BorderFactory.createCompoundBorder(border, getBorderImpl()); 
+        getBorderImpl().setSource(border);
+        super.setBorder(compound); 
     }
     
     public String getHandler() { return handler; } 
@@ -187,21 +194,14 @@ public class XOpenerField extends JPanel implements UIInputWrapper, Validatable,
     public void setInputFormatErrorMsg(String inputFormatErrorMsg) {
         this.inputFormatErrorMsg = inputFormatErrorMsg;
     }    
-    
-    public boolean isEditable() { return textField.isEditable(); } 
-    public void setEditable(boolean editable) {
-        textField.setEditable(editable);
-    } 
 
     public void setEnabled(boolean enabled) 
     {
         super.setEnabled(enabled); 
-        textField.setEnabled(enabled);
-        button.setEnabled(enabled); 
         
         boolean readonly = isReadonly(); 
-        textField.setEditable(!readonly);
-        button.setEnabled(!readonly);
+        setEditable(!readonly); 
+        getButtonImpl().setEnabled(!readonly); 
     }
     
     public TextCase getTextCase() { 
@@ -219,46 +219,58 @@ public class XOpenerField extends JPanel implements UIInputWrapper, Validatable,
     public void setName(String name) 
     {
         super.setName(name);
-        textField.setName(name);  
         
-        if (Beans.isDesignTime()) textField.setText(name); 
-    }    
+        if (Beans.isDesignTime()) setText(name); 
+    } 
 
     public void setUI(PanelUI ui) 
     {
         super.setUI(ui); 
                 
-        if ("true".equals(getClientProperty(JTable.class)+"")) {
-            setBorder(BorderFactory.createEmptyBorder()); 
-        }
-        else 
-        {
-            Border border = UIManager.getLookAndFeelDefaults().getBorder("TextField.border");
-            setBorder(border); 
-        }
+        if ("true".equals(getClientProperty(JTable.class)+"")) 
+            setBorder(null); 
     }
+    
+    protected InputVerifier getChildInputVerifier() {
+        return UIInputUtil.VERIFIER;
+    } 
     
     // </editor-fold>
     
-    // <editor-fold defaultstate="collapsed" desc=" owner methods ">  
+    // <editor-fold defaultstate="collapsed" desc=" owner, override methods ">  
     
+    protected void onfocusGained(FocusEvent e) 
+    {
+        if ("false".equals(getClientProperty("allowSelectAll")+"")) {
+            //do nothing
+        }
+        else if (allowSelectAll && callbackHandler.isReady()) { 
+            selectAll(); 
+        }
+        allowSelectAll = true;
+    }
+
+    protected void onpropertyChange(String propertyName, boolean oldValue, boolean newValue) 
+    {
+        if ("Window.close".equals(propertyName))
+            callbackHandler.onPopupClosed();
+    }
+        
     private void fireButtonClicked(ActionEvent e) 
     {
         try 
         {
-            textField.getInputVerifierProxy().setEnabled(false);
-            textField.allowSelectAll = false;
+            getInputVerifierProxy().setEnabled(false);
+            allowSelectAll = false;
             onButtonClicked(e); 
         } 
         catch(Exception ex) {
             MsgBox.err(ex); 
-        }
-        finally 
-        {
-            textField.getInputVerifierProxy().setEnabled(true);  
         } 
+        finally {
+            getInputVerifierProxy().setEnabled(true);
+        }
     }
-    
     
     public void onButtonClicked(ActionEvent e) { 
         processHandler();
@@ -310,7 +322,7 @@ public class XOpenerField extends JPanel implements UIInputWrapper, Validatable,
             throw new IllegalStateException("'"+opener.getName()+"' opener must have a controller");
         
         try {
-            UIControlUtil.setBeanValue(uic.getCodeBean(), "handler", new ApproveCallbackHandler()); 
+            UIControlUtil.setBeanValue(uic.getCodeBean(), "handler", callbackHandler); 
         } catch(Exception ex) {
             System.out.println("Unable to set value for 'handler' property in " + uic.getCodeBean());
         } 
@@ -346,7 +358,8 @@ public class XOpenerField extends JPanel implements UIInputWrapper, Validatable,
         catch(Exception ex){
         } 
 
-        platform.showPopup(textField, uipanel, props); 
+        callbackHandler.setStatus(callbackHandler.READY);
+        platform.showPopup(this, uipanel, props); 
     }
     
     private void fireValueChanged() 
@@ -355,7 +368,7 @@ public class XOpenerField extends JPanel implements UIInputWrapper, Validatable,
         
         try 
         {
-            textField.fireUpdateBackground(); 
+            updateBackground();
             
             String expr = getExpression();
             if (expr == null || value instanceof String) 
@@ -386,29 +399,25 @@ public class XOpenerField extends JPanel implements UIInputWrapper, Validatable,
         return beanSupport.createProxy(); 
     }     
     
-    public void grabFocus() 
+    public void registerKeyboardAction(ActionListener anAction, KeyStroke aKeyStroke, int aCondition) 
     {
-        if (textField.isEnabled())
-            textField.grabFocus(); 
-        else if (button.isEnabled()) 
-            button.grabFocus(); 
+        super.registerKeyboardAction(anAction, aKeyStroke, aCondition); 
+        new KeyboardAction().install(); 
     }
-
-    public boolean hasFocus() { 
-        return (textField.hasFocus() || button.hasFocus()); 
-    }
+    
+    private void installKeyboardAction(ActionListener anAction, KeyStroke aKeyStroke, int aCondition) {
+        super.registerKeyboardAction(anAction, aKeyStroke, aCondition); 
+    } 
     
     // </editor-fold>    
     
-    // <editor-fold defaultstate="collapsed" desc=" UIInputWrapper implementation ">  
-    
-    public JComponent getEditorComponent() { return textField; }
+    // <editor-fold defaultstate="collapsed" desc=" UIInput implementation ">  
     
     public Object getValue() 
     {
         if (document.isDirty())
         {
-            String text = textField.getText();
+            String text = getText();
             if (text == null || text.length() == 0)
                 return (isNullWhenEmpty()? null: "");
             else 
@@ -424,18 +433,20 @@ public class XOpenerField extends JPanel implements UIInputWrapper, Validatable,
     
     public void setValue(Object value) 
     {
+        callbackHandler.setStatus(callbackHandler.READY); 
+        
         if (value instanceof EventObject) 
         {
             if (value instanceof KeyEvent)
             {
                 KeyEvent ke = (KeyEvent) value;
-                textField.setText( ke.getKeyChar()+"" );
-                textField.allowSelectAll = false; 
+                setText( ke.getKeyChar()+"" );
+                allowSelectAll = false; 
             }
         } 
         else {
-            textField.setText((value == null? "": value.toString()));
-        }        
+            setText((value == null? "": value.toString()));
+        } 
     }
 
     public boolean isNullWhenEmpty() { return nullWhenEmpty; }
@@ -443,17 +454,14 @@ public class XOpenerField extends JPanel implements UIInputWrapper, Validatable,
         this.nullWhenEmpty = nullWhenEmpty;
     }
 
-    public boolean isReadonly() { 
-        return textField.isReadonly(); 
-    } 
     public void setReadonly(boolean readonly) 
     {
-        textField.setReadonly(readonly); 
-        button.setEnabled(!readonly); 
+        super.setReadonly(readonly);
+        getButtonImpl().setEnabled(!readonly); 
     }
 
     public void setRequestFocus(boolean focus) {
-        if (focus) textField.requestFocus();
+        if (focus) requestFocus();
     }
 
     public boolean isImmediate() { return false; }
@@ -476,12 +484,15 @@ public class XOpenerField extends JPanel implements UIInputWrapper, Validatable,
     
     public void refresh() 
     {
+        updateBackground();
+        
         try {
             this.value = UIControlUtil.getBeanValue(this);
         } catch(Exception e) {
             this.value = null; 
         }
         
+        this.oldValue = this.value; 
         fireValueChanged(); 
     }
 
@@ -498,6 +509,27 @@ public class XOpenerField extends JPanel implements UIInputWrapper, Validatable,
         }
     }
 
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" UIInputVerifier implementation ">  
+    
+    public boolean verify(JComponent input) 
+    {
+        if (callbackHandler.isCancelled()) 
+            callbackHandler.setStatus(callbackHandler.READY); 
+
+        updateStatus();
+        return true; 
+    }
+        
+    private void updateStatus() 
+    {
+        if (callbackHandler.isApproved() || document.isDirty()) 
+            putClientProperty("updateBeanValue", true);
+        else 
+            putClientProperty("updateBeanValue", false);
+    } 
+    
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" Validatable implementation ">  
@@ -518,7 +550,10 @@ public class XOpenerField extends JPanel implements UIInputWrapper, Validatable,
     {
         actionMessage.clearMessages();
         property.setErrorMessage(null);
-        String text = textField.getText();
+        
+        Object value = getValue();
+        String text = (value == null? null: value.toString()); 
+        
         if (ValueUtil.isEmpty(text)) 
         {
             if (isRequired()) 
@@ -582,87 +617,74 @@ public class XOpenerField extends JPanel implements UIInputWrapper, Validatable,
     
     // </editor-fold>
     
-    // <editor-fold defaultstate="collapsed" desc=" DefaultTextFieldImpl (class) ">      
+    // <editor-fold defaultstate="collapsed" desc=" BorderImpl (class) ">  
     
-    private class DefaultTextFieldImpl extends DefaultTextField 
+    private class BorderImpl extends AbstractBorder 
     {
-        boolean allowSelectAll = true;
+        XOpenerField root = XOpenerField.this;
         
-        protected InputVerifier getChildInputVerifier() {
-            return UIInputUtil.VERIFIER;
-        }
+        private Border source; 
+        private Insets sourceMargin;
         
-        public UIInput getUIInput() { 
-            return XOpenerField.this; 
-        }
-        
-        protected void onfocusGained(FocusEvent e) 
+        void setSource(Border source) 
         {
-            if (allowSelectAll) selectAll(); 
+            this.source = source;
+            this.sourceMargin = null; 
+        }
+        
+        public Insets getBorderInsets(Component c) 
+        {
+            if (sourceMargin == null && source != null) 
+                sourceMargin = source.getBorderInsets(c); 
 
-            allowSelectAll = true;
-            document.reset(); 
+            return getBorderInsets(c, new Insets(0,0,0,0)); 
+        }
+        
+        public Insets getBorderInsets(Component c, Insets insets) {
+            return insets; 
         }
 
-        void fireUpdateBackground() {
-            super.updateBackground(); 
+        public boolean isBorderOpaque() { return false; }
+        
+        public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) 
+        {
+            if (buttonImpl.getParent() == null) root.add(buttonImpl); 
+            
+            Dimension dim = buttonImpl.getPreferredSize();
+            int nX = root.getWidth()-dim.width-1;
+                
+            buttonImpl.setBounds(nX, 1, dim.width, root.getHeight()-2); 
         }
     }
     
-    // </editor-fold>
+    // </editor-fold>    
     
-    // <editor-fold defaultstate="collapsed" desc=" Layout (class) ">  
+    // <editor-fold defaultstate="collapsed" desc=" ButtonImpl (class) ">  
     
-    private class Layout implements LayoutManager
+    private class ButtonImpl extends JButton 
     {
-        public void addLayoutComponent(String name, Component comp) {}
-        public void removeLayoutComponent(Component comp) {}
-
-        public Dimension preferredLayoutSize(Container parent) {
-            return getLayoutSize(parent);
-        }
-
-        public Dimension minimumLayoutSize(Container parent) {
-            return new Dimension(minimumSize.width, minimumSize.height);
-        }
-
-        public Dimension getLayoutSize(Container parent) 
-        {
-            synchronized (parent.getTreeLock()) 
-            {
-                Dimension dim = textField.getPreferredSize();
-                int w = dim.width, h = dim.height;
-                
-                dim = button.getPreferredSize();
-                w += dim.width;
-                
-                Insets margin = parent.getInsets();
-                w += (margin.left + margin.right);
-                h += (margin.top + margin.bottom); 
-                return new Dimension(w, h); 
-            }
-        }        
+        XOpenerField root = XOpenerField.this;
         
-        public void layoutContainer(Container parent) 
+        protected void processMouseEvent(MouseEvent e) 
         {
-            synchronized (parent.getTreeLock()) 
-            {
-                int pWidth = parent.getWidth();
-                int pHeight = parent.getHeight();
-                
-                Insets margin = parent.getInsets();                
-                int x = margin.left, y = margin.top;
-                int h = pHeight - (margin.top + margin.bottom);
-                
-                Dimension btnSize = button.getPreferredSize();
-                int btnX = (pWidth - margin.right) - btnSize.width; 
-                button.setBounds(btnX, y, btnSize.width, h); 
-                
-                Dimension txtSize = textField.getPreferredSize();
-                int txtW = (btnX - x);
-                textField.setBounds(x, y, txtW, h);                 
-            }            
-        }        
+            this.setCursor(Cursor.getDefaultCursor()); 
+            
+            if (!this.isEnabled()) return;
+            
+            if (e.getID() == MouseEvent.MOUSE_PRESSED) 
+                root.getInputVerifierProxy().setEnabled(false);
+            
+            else if (e.getID() == MouseEvent.MOUSE_RELEASED) 
+                root.getInputVerifierProxy().setEnabled(true);
+            
+            super.processMouseEvent(e); 
+        }
+        
+        protected void fireActionPerformed(ActionEvent e) 
+        {
+            root.fireButtonClicked(e); 
+            super.fireActionPerformed(e); 
+        }
     }
     
     // </editor-fold>    
@@ -671,17 +693,33 @@ public class XOpenerField extends JPanel implements UIInputWrapper, Validatable,
     
     private class ApproveCallbackHandler extends DefaultCallbackHandler
     {
-        private XOpenerField root = XOpenerField.this;
+        int READY       = 1;
+        int APPROVED    = 2;
+        int CANCELLED   = 3;
+        
+        XOpenerField root = XOpenerField.this;
+        private int status = READY;
+        
+        boolean isReady() { return status==READY; }
+        boolean isApproved() { return status==APPROVED; } 
+        boolean isCancelled() { return status==CANCELLED; } 
+        
+        void setStatus(int status) { this.status = status;  }
+        
+        void onPopupClosed() 
+        {
+            if (!isApproved()) setStatus(CANCELLED); 
+        }
         
         public Object call(Object[] args) 
         {
             if (args == null || args.length == 0) return null; 
             
+            setStatus(APPROVED); 
             root.value = args[0]; 
             root.fireValueChanged(); 
-            root.putClientProperty("updateBeanValue", true);
             return null; 
-        }      
+        } 
     } 
     
     // </editor-fold>
@@ -690,14 +728,14 @@ public class XOpenerField extends JPanel implements UIInputWrapper, Validatable,
     
     private class KeyboardAction implements ActionListener
     {
+        XOpenerField root = XOpenerField.this;
         private JComponent component;
         
-        void install(JComponent component) 
+        void install() 
         {
-            this.component = component; 
-            
             KeyStroke ks = KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0, false);
-            component.registerKeyboardAction(this, ks, JComponent.WHEN_FOCUSED); 
+            root.unregisterKeyboardAction(ks); 
+            root.installKeyboardAction(this, ks, JComponent.WHEN_FOCUSED); 
         }
         
         public void actionPerformed(ActionEvent e) {

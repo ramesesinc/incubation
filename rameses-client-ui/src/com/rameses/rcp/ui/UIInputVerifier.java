@@ -1,7 +1,7 @@
 /*
- * UIInputWrapper.java
+ * UIInputVerifier.java
  *
- * Created on June 11, 2013, 10:46 AM
+ * Created on June 13, 2013, 3:01 PM
  *
  * To change this template, choose Tools | Template Manager
  * and open the template in the editor.
@@ -15,7 +15,7 @@ import javax.swing.JComponent;
  *
  * @author wflores
  */
-public interface UIInputWrapper extends UIInput 
+public interface UIInputVerifier 
 {
-    JComponent getEditorComponent(); 
+    boolean verify(JComponent input); 
 }

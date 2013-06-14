@@ -9,13 +9,16 @@
 
 package com.rameses.rcp.support;
 
+import java.awt.Insets;
 import java.util.HashMap;
 import java.util.Map;
 import javax.swing.AbstractButton;
+import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.border.Border;
 
 /**
  *
@@ -87,4 +90,15 @@ public class ComponentSupport
         } 
     }
     
+    public Border createEmptyBorder(Insets margin) 
+    {
+        if (margin == null) margin = new Insets(0, 0, 0, 0);
+        
+        return BorderFactory.createEmptyBorder(margin.top, margin.left, margin.bottom, margin.right);
+    }
+    
+    public void setEmptyBorder(JComponent comp, Insets margin) 
+    {
+        if (comp != null) comp.setBorder(createEmptyBorder(margin)); 
+    }
 }

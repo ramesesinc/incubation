@@ -9,9 +9,7 @@
 
 package com.rameses.rcp.control.table;
 
-import com.rameses.common.ExpressionResolver;
 import com.rameses.rcp.common.AbstractListDataProvider;
-import com.rameses.rcp.common.AbstractListModel;
 import com.rameses.rcp.common.Column;
 import com.rameses.rcp.support.ColorUtil;
 import java.awt.Color;

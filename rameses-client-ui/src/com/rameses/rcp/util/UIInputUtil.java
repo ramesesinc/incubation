@@ -39,9 +39,6 @@ public class UIInputUtil {
             if (input instanceof UIInput) 
                 control = (UIInput) input;
             else 
-                control = (UIInput) input.getClientProperty(UIInput.class); 
-            
-            if (control == null) 
                 throw new IllegalStateException("UIInputVerifier should be used for UIInput controls only.");
             
             if ( control.isReadonly() || !input.isEnabled() ) return true;

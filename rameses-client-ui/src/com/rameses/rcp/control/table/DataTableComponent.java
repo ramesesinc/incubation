@@ -986,6 +986,7 @@ public class DataTableComponent extends JTable implements TableControl
         if (e == null) e = currentKeyEvent; 
         
         editor.putClientProperty("updateBeanValue", false); 
+        editor.putClientProperty("allowSelectAll", false);
         
         if (e instanceof MouseEvent || isEditKey(e)) 
         {
@@ -997,6 +998,7 @@ public class DataTableComponent extends JTable implements TableControl
         {
             char ch = currentKeyEvent.getKeyChar();
             boolean dispatched = false; 
+            
             if (editor instanceof JTextComponent) 
             {
                 try 
@@ -1136,13 +1138,9 @@ public class DataTableComponent extends JTable implements TableControl
             
             //hold only action on enter key
             //this is usually used by lookup
-            JComponent uieditor = comp;
-            if (comp instanceof UIInputWrapper) 
-                uieditor = ((UIInputWrapper) comp).getEditorComponent(); 
-            
-            if ( key == KeyEvent.VK_ENTER && uieditor instanceof JTextField ) 
+            if ( key == KeyEvent.VK_ENTER && comp instanceof JTextField ) 
             {
-                JTextField jtf = (JTextField) uieditor;
+                JTextField jtf = (JTextField) comp;
                 listeners = jtf.getActionListeners();
             }
         }

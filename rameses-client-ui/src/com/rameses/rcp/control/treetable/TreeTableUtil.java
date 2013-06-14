@@ -14,6 +14,7 @@ import com.rameses.rcp.common.ListItem;
 import com.rameses.rcp.common.TreeTableModel;
 import com.rameses.rcp.common.StyleRule;
 import com.rameses.rcp.framework.ClientContext;
+import com.rameses.rcp.support.ComponentSupport;
 import com.rameses.rcp.util.ControlSupport;
 import com.rameses.rcp.util.UIControlUtil;
 import com.rameses.util.ValueUtil;
@@ -90,8 +91,19 @@ public final class TreeTableUtil {
         return label;
     }
     
-    //<editor-fold defaultstate="collapsed" desc="  AbstractRenderer (class)  ">
-    private static abstract class AbstractRenderer implements TableCellRenderer {
+    // <editor-fold defaultstate="collapsed" desc="  AbstractRenderer (class)  ">
+    
+    private static abstract class AbstractRenderer implements TableCellRenderer 
+    {
+        private ComponentSupport componentSupport;
+        
+        protected ComponentSupport getComponentSupport() 
+        {
+            if (componentSupport == null) 
+                componentSupport = new ComponentSupport();
+
+            return componentSupport;
+        }
         
         public abstract JComponent getComponent(JTable table, int row, int column);
         
@@ -274,9 +286,10 @@ public final class TreeTableUtil {
     }
     //</editor-fold>
     
-    //<editor-fold defaultstate="collapsed" desc="  StringRenderer (class)  ">
-    private static class StringRenderer extends AbstractRenderer {
-        
+    // <editor-fold defaultstate="collapsed" desc="  StringRenderer (class)  ">
+    
+    private static class StringRenderer extends AbstractRenderer 
+    {        
         private JLabel label;
         
         StringRenderer() {
@@ -321,25 +334,8 @@ public final class TreeTableUtil {
                 label.setText((value == null ? "" : value.toString()));
             }
             
-            //set alignment if it is specified in the Column model
-            if ( c.getAlignment() != null ) {
-                if ( "right".equals(c.getAlignment().toLowerCase()) )
-                    label.setHorizontalAlignment(SwingConstants.RIGHT);
-                else if ( "center".equals(c.getAlignment().toLowerCase()))
-                    label.setHorizontalAlignment(SwingConstants.CENTER);
-                else if ( "left".equals(c.getAlignment().toLowerCase()) )
-                    label.setHorizontalAlignment(SwingConstants.LEFT);
-            }
-            
-            //set vertical alignment if it is specified in the Column model
-            if ( c.getVAlignment() != null ) {
-                if ( "top".equals(c.getVAlignment().toLowerCase()) )
-                    label.setVerticalAlignment(SwingConstants.TOP);
-                else if ( "center".equals(c.getVAlignment().toLowerCase()) )
-                    label.setVerticalAlignment(SwingConstants.CENTER);
-                else if ( "bottom".equals(c.getVAlignment().toLowerCase()) )
-                    label.setVerticalAlignment(SwingConstants.BOTTOM);
-            }
+            if ( c.getAlignment() != null ) 
+                getComponentSupport().alignText(label, c.getAlignment()); 
         }
         
         private String format(Object value, String format, String defaultFormat) {
