@@ -1,6 +1,7 @@
 package com.rameses.rcp.common;
 
 import com.rameses.common.PropertyResolver;
+import com.rameses.rcp.constant.TextCase;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
@@ -21,7 +22,7 @@ public class Column implements Serializable
     private boolean nullWhenEmpty = true;
     private boolean editable;
     private String editableWhen;
-    private String textCase = "UPPER";
+    private TextCase textCase = TextCase.UPPER;
     
     private String type = "string";   
     private String expression;
@@ -213,8 +214,16 @@ public class Column implements Serializable
         this.editableWhen = editableWhen;
     }    
     
-    public String getTextCase() { return textCase; }
-    public void setTextCase(String textCase) { this.textCase = textCase; }      
+    public TextCase getTextCase() { return textCase; }
+    public void setTextCase(TextCase textCase) { this.textCase = textCase; }          
+    public void setTextCase(String textCase) 
+    { 
+        try { 
+            this.textCase = TextCase.valueOf(textCase.toUpperCase()); 
+        } catch(Exception ex) {
+            this.textCase = TextCase.UPPER; 
+        }
+    }
     
     public String getType() { return type; }    
     public void setType(String type) { this.type = type; } 
@@ -233,8 +242,7 @@ public class Column implements Serializable
     public void setVisible(boolean visible) {
         this.visible = visible;
     }
-    
-    
+        
     public Map getProperties() { return properties; }    
     public void setProperties(Map properties) {
         this.properties = properties;
