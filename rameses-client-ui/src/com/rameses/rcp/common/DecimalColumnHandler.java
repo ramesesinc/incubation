@@ -15,6 +15,7 @@ package com.rameses.rcp.common;
  */
 public class DecimalColumnHandler extends Column.TypeHandler implements PropertySupport.DecimalPropertyInfo
 {   
+    private static final long serialVersionUID = 1L;    
     private String format;
     private double minValue;
     private double maxValue;

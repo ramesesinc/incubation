@@ -122,4 +122,18 @@ class ColumnHandlerUtil
         }
     }
     
+    public Object resolveValue(Column oColumn, Object cellValue, Object exprBean) 
+    {
+        Column.TypeHandler handler = oColumn.getTypeHandler();
+        if (handler == null) handler = createTypeHandler(oColumn); 
+        
+        if (handler instanceof CheckBoxColumnHandler)
+        {
+            CheckBoxColumnHandler h = (CheckBoxColumnHandler) handler;
+            
+        }
+        
+        return null;
+    }
+    
 }

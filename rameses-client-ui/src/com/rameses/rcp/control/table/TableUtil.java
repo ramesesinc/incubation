@@ -104,9 +104,9 @@ public final class TableUtil
         renderers.put("double", new CellRenderers.DecimalRenderer());
         renderers.put("decimal", new CellRenderers.DecimalRenderer());
         renderers.put("integer", new CellRenderers.IntegerRenderer());        
-        renderers.put("lookup", new CellRenderers.LookupCellRenderer());
+        renderers.put("lookup", new CellRenderers.LookupRenderer());
         renderers.put("opener", new CellRenderers.OpenerRenderer());
-        renderers.put("dynamic", new CellRenderers.DynamicRenderer());
+        renderers.put("dynamic", new DynamicCellRenderer());
         
         renderers.put(SelectionColumnHandler.class, new SelectionCellRenderer());
         

@@ -15,6 +15,7 @@ package com.rameses.rcp.common;
  */
 public class CheckBoxColumnHandler extends Column.TypeHandler implements PropertySupport.CheckBoxPropertyInfo 
 {
+    private static final long serialVersionUID = 1L;
     private Class valueType;
     private Object checkValue;
     private Object uncheckValue;

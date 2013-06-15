@@ -15,6 +15,7 @@ package com.rameses.rcp.common;
  */
 public class ComboBoxColumnHandler extends Column.TypeHandler implements PropertySupport.ComboBoxPropertyInfo
 {   
+    private static final long serialVersionUID = 1L;
     private Object items;
     private String itemKey;
     private String expression;

@@ -9,7 +9,6 @@
 
 package com.rameses.rcp.control.table;
 
-import com.rameses.common.ExpressionResolver;
 import com.rameses.rcp.common.AbstractListDataProvider;
 import com.rameses.rcp.common.CheckBoxColumnHandler;
 import com.rameses.rcp.common.Column;
@@ -30,6 +29,8 @@ import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import javax.swing.BorderFactory;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
@@ -46,6 +47,97 @@ import javax.swing.table.TableCellRenderer;
  */
 public class CellRenderers 
 {
+    private static Map<String,Class> renderers;
+    
+    static 
+    {
+        renderers = new HashMap();
+        renderers.put("text", TextRenderer.class); 
+        renderers.put("string", TextRenderer.class); 
+        renderers.put("boolean", CheckBoxRenderer.class); 
+        renderers.put("checkbox", CheckBoxRenderer.class); 
+        renderers.put("combo", ComboBoxRenderer.class); 
+        renderers.put("combobox", ComboBoxRenderer.class); 
+        renderers.put("date", DateRenderer.class); 
+        renderers.put("decimal", DecimalRenderer.class); 
+        renderers.put("double", DecimalRenderer.class); 
+        renderers.put("integer", IntegerRenderer.class); 
+        renderers.put("lookup", LookupRenderer.class); 
+        renderers.put("opener", OpenerRenderer.class); 
+    }
+    
+    public static AbstractRenderer getRendererFor(Column oColumn) 
+    {
+        Column.TypeHandler handler = oColumn.getTypeHandler();
+        if (handler == null) 
+            handler = ColumnHandlerUtil.newInstance().createTypeHandler(oColumn);
+        
+        return null;
+    }
+    
+    
+    // <editor-fold defaultstate="collapsed" desc="  Context (class)  ">
+    
+    public static class Context 
+    {
+        private JTable table;
+        private Object value;
+        private int rowIndex;
+        private int columnIndex;
+        
+        private TableControl tableControl;
+        private TableControlModel tableControlModel;
+        
+        Context(JTable table, Object value, int rowIndex, int columnIndex) 
+        {
+            this.table = table;
+            this.value = value;
+            this.rowIndex = rowIndex;
+            this.columnIndex = columnIndex;        
+            
+            this.tableControl = (TableControl) table;
+            this.tableControlModel = (TableControlModel) this.tableControl.getModel(); 
+        }
+        
+        public JTable getTable() { return table; }
+        public Object getValue() { return value; }
+        public int getRowIndex() { return rowIndex; } 
+        public int getColumnIndex() { return columnIndex; }
+        
+        public TableControl getTableControl() { return tableControl; }
+        public TableControlModel getTableControlModel() { return tableControlModel; } 
+        
+        public AbstractListDataProvider getDataProvider() {
+            return tableControl.getDataProvider(); 
+        }
+        
+        public Object getItemData() {
+            return getItemData(this.rowIndex); 
+        }
+        
+        public Object getItemData(int rowIndex) {
+            return getDataProvider().getListItemData(rowIndex); 
+        }
+        
+        public Column getColumn() {
+            return getColumn(this.columnIndex); 
+        }
+        
+        public Column getColumn(int index) {
+            return getTableControlModel().getColumn(index); 
+        }
+        
+        public Object createExpressionBean() {
+            return createExpressionBean(getItemData()); 
+        }
+        
+        public Object createExpressionBean(Object bean) { 
+            return getTableControl().createExpressionBean(bean);
+        } 
+    }
+    
+    // </editor-fold>
+        
     // <editor-fold defaultstate="collapsed" desc="  AbstractRenderer (class)  ">
     
     public static abstract class AbstractRenderer implements TableCellRenderer 
@@ -53,9 +145,7 @@ public class CellRenderers
         private Insets CELL_MARGIN = TableUtil.CELL_MARGIN;
         private Color FOCUS_BG = TableUtil.FOCUS_BG; 
         private ComponentSupport componentSupport; 
-
-        private TableControl tc;
-        private TableControlModel tcm;
+        private CellRenderers.Context ctx;
         
         protected ComponentSupport getComponentSupport() 
         {
@@ -65,17 +155,20 @@ public class CellRenderers
             return componentSupport;
         }
         
-        protected TableControl getTableControl() { return tc; } 
-        protected TableControlModel getTableControlModel() { return tcm; } 
-        
+        protected CellRenderers.Context getContext() { return ctx; }        
+        protected TableControl getTableControl() { return ctx.getTableControl(); } 
+        protected TableControlModel getTableControlModel() { return ctx.getTableControlModel(); } 
+                
         public abstract JComponent getComponent(JTable table, int rowIndex, int columnIndex);
         
         public abstract void refresh(JTable table, Object value, boolean selected, boolean focus, int rowIndex, int columnIndex);
         
         public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int rowIndex, int columnIndex) 
         {
-            tc = (TableControl) table;
-            tcm = (TableControlModel) tc.getModel();
+            ctx = new CellRenderers.Context(table, value, rowIndex, columnIndex); 
+            
+            TableControl tc = ctx.getTableControl();
+            TableControlModel tcm = ctx.getTableControlModel(); 
             
             JComponent comp = getComponent(table, rowIndex, columnIndex);
             getComponentSupport().setEmptyBorder(comp, CELL_MARGIN);             
@@ -121,7 +214,7 @@ public class CellRenderers
                 }
             }
             
-            AbstractListDataProvider ldp = tc.getDataProvider();
+            AbstractListDataProvider ldp = ctx.getDataProvider();
             String errmsg = ldp.getMessageSupport().getErrorMessage(rowIndex);
             if (errmsg != null) 
             {
@@ -181,7 +274,7 @@ public class CellRenderers
         
         public void refresh(JTable table, Object value, boolean selected, boolean focus, int rowIndex, int columnIndex) 
         {
-            Column c = getTableControlModel().getColumn(columnIndex); 
+            Column c = getContext().getColumn(); 
             String result = getFormattedValue(c, value);
             label.setText((result == null ? "" : result));
             
@@ -211,8 +304,6 @@ public class CellRenderers
     
     public static class TextRenderer extends AbstractRenderer 
     {        
-        private int rowIndex;
-        private int columnIndex;
         private JLabel label;
         
         public TextRenderer() 
@@ -221,30 +312,20 @@ public class CellRenderers
             label.setVerticalAlignment(SwingConstants.CENTER);
         }
 
-        protected int getRowIndex() { return rowIndex; }
-        protected int getColumnIndex() { return columnIndex; } 
-        
-        protected Object resolveValue(Column oColumn, Object value) { 
-            return value; 
-        }
-        
         public JComponent getComponent(JTable table, int rowIndex, int columnIndex) {
             return label;
         }
         
+        protected Object resolveValue(CellRenderers.Context ctx) { 
+            return ctx.getValue();
+        }        
+        
         public void refresh(JTable table, Object value, boolean selected, boolean focus, int rowIndex, int columnIndex) 
         {
-            this.rowIndex = rowIndex;
-            this.columnIndex = columnIndex; 
-
-            Column oColumn = getTableControlModel().getColumn(columnIndex); 
-            Object columnValue = resolveValue(oColumn, value);
+            Object columnValue = resolveValue(getContext());
+            Column oColumn = getContext().getColumn();
             
-            TextCase oTextCase = TextCase.UPPER;
-            try {
-                oTextCase = TextCase.valueOf(oColumn.getTextCase().toUpperCase()); 
-            } catch(Exception ex) {;} 
-            
+            TextCase oTextCase = oColumn.getTextCase();
             if (oTextCase != null && columnValue != null) 
                 label.setText(oTextCase.convert(columnValue.toString())); 
 
@@ -281,21 +362,18 @@ public class CellRenderers
         
         public JComponent getComponent(JTable table, int rowIndex, int colIndex) 
         {
-            Object itemData = getTableControl().getDataProvider().getListItemData(rowIndex); 
-            if (itemData == null) return empty;
-            
-            return component;
+            return (getContext().getItemData() == null? empty: component);
         }
         
         public void refresh(JTable table, Object value, boolean selected, boolean focus, int rowIndex, int columnIndex) 
         {
-            Object itemData = getTableControl().getDataProvider().getListItemData(rowIndex); 
+            Object itemData = getContext().getItemData();
             if (itemData == null) return;
             
-            Column oColumn = getTableControlModel().getColumn(columnIndex); 
+            Column oColumn = getContext().getColumn();
             component.setSelected(resolveValue(oColumn, value));
         }
-        
+
         private boolean resolveValue(Column oColumn, Object value) 
         {
             Object checkValue = null;
@@ -323,22 +401,21 @@ public class CellRenderers
     
     public static class ComboBoxRenderer extends TextRenderer 
     {
-        protected Object resolveValue(Column oColumn, Object value) 
+        protected Object resolveValue(CellRenderers.Context ctx) 
         {
             String expression = null;
+            Column oColumn = ctx.getColumn(); 
             if (oColumn.getTypeHandler() instanceof ComboBoxColumnHandler) 
                 expression = ((ComboBoxColumnHandler) oColumn.getTypeHandler()).getExpression(); 
             else 
                 expression = oColumn.getExpression(); 
                 
-            Object cellValue = value;             
+            Object cellValue = ctx.getValue();
             if (expression != null) 
             {
-                ExpressionResolver er = ExpressionResolver.getInstance();
                 try 
                 {
-                    Object itemData = getTableControl().getDataProvider().getListItemData(getRowIndex()); 
-                    Object exprBean = getTableControl().createExpressionBean(itemData); 
+                    Object exprBean = ctx.createExpressionBean();
                     cellValue = UIControlUtil.evaluateExpr(exprBean, expression); 
                 } 
                 catch(Exception e) {;}
@@ -355,23 +432,24 @@ public class CellRenderers
     {
         private SimpleDateFormat outputFormatter;
 
-        protected Object resolveValue(Column oColumn, Object value) 
+        protected Object resolveValue(CellRenderers.Context ctx) 
         {
             String format = null;
+            Column oColumn = ctx.getColumn();
             if (oColumn.getTypeHandler() instanceof DateColumnHandler) 
                 format = ((DateColumnHandler) oColumn.getTypeHandler()).getOutputFormat(); 
             else 
                 format = oColumn.getFormat();
 
-            Object cellValue = value;             
-            if (format != null && value instanceof Date) 
+            Object cellValue = ctx.getValue();             
+            if (format != null && cellValue instanceof Date) 
             {
                 try 
                 {
                     if (outputFormatter == null) 
                         outputFormatter = new SimpleDateFormat(format); 
 
-                    cellValue = outputFormatter.format((Date) value); 
+                    cellValue = outputFormatter.format((Date) cellValue); 
                 } 
                 catch(Exception ex) {;}
             }
@@ -455,23 +533,23 @@ public class CellRenderers
     
     // <editor-fold defaultstate="collapsed" desc="  LookupRenderer (class)  ">
     
-    public static class LookupCellRenderer extends TextRenderer 
+    public static class LookupRenderer extends TextRenderer 
     {
-        protected Object resolveValue(Column oColumn, Object value) 
+        protected Object resolveValue(CellRenderers.Context ctx) 
         {
             String expression = null;
+            Column oColumn = ctx.getColumn();
             if (oColumn.getTypeHandler() instanceof LookupColumnHandler) 
                 expression = ((LookupColumnHandler) oColumn.getTypeHandler()).getExpression(); 
             else
                 expression = oColumn.getExpression();
             
-            Object cellValue = value; 
+            Object cellValue = ctx.getValue(); 
             if (expression != null) 
             {
                 try 
                 {
-                    Object itemData = getTableControl().getDataProvider().getListItemData(getRowIndex()); 
-                    Object exprBean = getTableControl().createExpressionBean(itemData); 
+                    Object exprBean = getContext().createExpressionBean();
                     cellValue = UIControlUtil.evaluateExpr(exprBean, expression); 
                 } 
                 catch(Exception e) {;}
@@ -486,21 +564,21 @@ public class CellRenderers
     
     public static class OpenerRenderer extends TextRenderer 
     {
-        protected Object resolveValue(Column oColumn, Object value) 
+        protected Object resolveValue(CellRenderers.Context ctx) 
         {
             String expression = null;
+            Column oColumn = ctx.getColumn();
             if (oColumn.getTypeHandler() instanceof OpenerColumnHandler) 
                 expression = ((OpenerColumnHandler) oColumn.getTypeHandler()).getExpression(); 
             else
                 expression = oColumn.getExpression();
             
-            Object cellValue = value; 
+            Object cellValue = ctx.getValue(); 
             if (expression != null) 
             {
                 try 
                 {
-                    Object itemData = getTableControl().getDataProvider().getListItemData(getRowIndex()); 
-                    Object exprBean = getTableControl().createExpressionBean(itemData); 
+                    Object exprBean = getContext().createExpressionBean();
                     cellValue = UIControlUtil.evaluateExpr(exprBean, expression); 
                 } 
                 catch(Exception e) {;}
@@ -510,28 +588,4 @@ public class CellRenderers
     }    
     
     // </editor-fold>    
-    
-    // <editor-fold defaultstate="collapsed" desc="  DynamicRenderer (class)  ">
-    
-    public static class DynamicRenderer extends TextRenderer 
-    {
-        protected Object resolveValue(Column oColumn, Object value) 
-        {
-            Object cellValue = value;             
-            String expression = oColumn.getExpression();
-            if (expression != null) 
-            {
-                try 
-                {
-                    Object itemData = getTableControl().getDataProvider().getListItemData(getRowIndex()); 
-                    Object exprBean = getTableControl().createExpressionBean(itemData); 
-                    cellValue = UIControlUtil.evaluateExpr(exprBean, expression); 
-                } 
-                catch(Exception e) {;}
-            }
-            return cellValue; 
-        }
-    }    
-    
-    // </editor-fold>        
 }
