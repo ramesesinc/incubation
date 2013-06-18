@@ -69,7 +69,7 @@ public class WebsocketServerLoader implements ServerLoader {
         }
         
         System.out.println("***************************************************************");
-        System.out.println("START WEBSOCKET SERVER @ port:" + port + new Date());
+        System.out.println("START WEBSOCKET SERVER @ port:" + port + " " + new Date());
         System.out.println("***************************************************************");
     }
     
@@ -116,7 +116,7 @@ public class WebsocketServerLoader implements ServerLoader {
     }
     
     public void stop() throws Exception {
-        System.out.println("STOPPING WEBSOCKET SERVER @ port:" + port + new Date());
+        System.out.println("STOPPING WEBSOCKET SERVER @ port:" + port + " " + new Date());
         server.stop();
     }
 

@@ -39,9 +39,11 @@ public class BoneCPDsProvider implements DsProvider {
             init(map);
         }
         
-        public void init(Map map) {
+        public void init(Map map) 
+        {
             super.init(map);
-            try {
+            try 
+            {
                 Class.forName(getDriverClass());
                 config = new BoneCPConfig();
                 config.setJdbcUrl(getUrl());
@@ -50,10 +52,13 @@ public class BoneCPDsProvider implements DsProvider {
                 config.setMinConnectionsPerPartition(getMinPoolSize());
                 config.setMaxConnectionsPerPartition(getMaxPoolSize());
                 config.setPartitionCount(1);
-                connectionPool = new BoneCP(config);
-                
-            } catch(Exception e) {
-                throw new RuntimeException(e);
+                connectionPool = new BoneCP(config);                
+            }
+            catch(RuntimeException re) {
+                throw re;
+            }
+            catch(Exception e) {
+                throw new RuntimeException(e.getMessage(), e);
             }
         }
         

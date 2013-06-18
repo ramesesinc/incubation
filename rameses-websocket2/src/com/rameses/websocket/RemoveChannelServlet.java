@@ -26,7 +26,9 @@ public class RemoveChannelServlet extends HttpServlet {
     public RemoveChannelServlet(SocketConnections s) {
         this.sockets = s;
     }
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException 
+    {
         String channelName = req.getParameter("channel");
         sockets.removeChannel(channelName);
         System.out.println("channel "+channelName +" removed");

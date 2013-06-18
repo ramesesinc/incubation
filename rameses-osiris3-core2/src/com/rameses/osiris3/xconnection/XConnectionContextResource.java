@@ -70,21 +70,22 @@ public class XConnectionContextResource extends ContextResource {
             conn.start();
             return conn;
             
-        } catch(FileNotFoundException nfe) {
+        } 
+        catch(FileNotFoundException nfe) {
             //attempt to find the default. we do this by appending default to the key
             String newKey = "default-"+key;
             XConnection xc = providers.get(newKey).createConnection(newKey, null);
-            if(xc==null)
-                throw new RuntimeException("connection key "+key+ " not found!");
+            if (xc == null) throw new RuntimeException("connection key "+key+ " not found!");
+            
             return xc;
-        } catch(Exception e) {
+        }
+        catch(RuntimeException re) {
+            throw re;
+        }
+        catch(Exception e) 
+        {
             e.printStackTrace();
-            throw new RuntimeException(e);
+            throw new RuntimeException(e.getMessage(), e);
         }
     }
-    
-    
-    
-    
-    
 }

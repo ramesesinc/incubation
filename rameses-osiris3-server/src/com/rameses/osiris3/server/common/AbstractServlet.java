@@ -34,37 +34,51 @@ public abstract class AbstractServlet extends HttpServlet {
     }
     
     //this is overridable
-    protected Object[] readRequest( HttpServletRequest req ) throws IOException {
+    protected Object[] readRequest( HttpServletRequest req ) throws IOException 
+    {
         ObjectInputStream in = null;
-        try {
+        try 
+        {
             in = new ObjectInputStream(req.getInputStream());
             Object obj = in.readObject();
-            if(obj instanceof SealedMessage) {
+            if (obj instanceof SealedMessage) {
                 obj = ((SealedMessage)obj).getMessage();
             }
+            
             Object[] o = (Object[])obj;
             return  filterInput(obj);
-        } catch(Exception e) {
-            throw new IOException(e);
-        } finally {
+        } 
+        catch(IOException ioe) { throw ioe; }
+        catch(RuntimeException re) { throw re; }
+        catch(Exception e) {
+            throw new IOException(e.getMessage(), e);
+        } 
+        finally {
             try {in.close();} catch(Exception ign){;}
         }
     }
     
-    protected void writeResponse( Object response, HttpServletResponse res ) {
+    protected void writeResponse( Object response, HttpServletResponse res ) 
+    {
         //prepare to write the response
         ObjectOutputStream out = null;
-        try {
+        try 
+        {
             out = new ObjectOutputStream(res.getOutputStream());
             out.writeObject(filterOutput(response));
-        } catch (Exception ex) {
-            try {
+        } 
+        catch (Exception ex) 
+        {
+            try 
+            {
                 out = new ObjectOutputStream(res.getOutputStream());
                 out.writeObject(filterOutput(ex));
-            } catch(Exception ign){
+            } 
+            catch(Exception ign){
                 System.out.println("error in filtering output");
             }
-        } finally {
+        } 
+        finally {
             try { out.close(); } catch (Exception ex) {;}
         }
     }

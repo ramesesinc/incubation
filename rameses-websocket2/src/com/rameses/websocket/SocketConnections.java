@@ -17,18 +17,24 @@ import java.util.Map;
  *
  * @author Elmo
  */
-public class SocketConnections {
-    
+public class SocketConnections 
+{
     public final static int SHUTDOWN = 10;
     
     private final Map<String, Channel> channels = Collections.synchronizedMap(new HashMap());
     
-    public void addChannel(Channel channel) {
+    public boolean addChannel(Channel channel) 
+    {
         String name = channel.getName();
-        if(channels.containsKey(name)) {
+        if (channels.containsKey(name)) 
+        {
             System.out.println("channel " + name + " already exists!");
-        } else {
+            return false;
+        } 
+        else 
+        {
             channels.put( name, channel );
+            return true;
         }
     }
     

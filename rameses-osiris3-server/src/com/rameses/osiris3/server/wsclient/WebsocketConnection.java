@@ -57,15 +57,21 @@ public class WebsocketConnection extends MessageConnection implements WebSocket.
         }
     }
     
-    public void start() {
-        try {
+    public void start() 
+    {
+        try 
+        {
             factory = new WebSocketClientFactory();
             factory.start();
             wsclient = factory.newWebSocketClient();
             wsclient.setProtocol(protocol);
             open();
-        } catch(Exception e) {
-            throw new RuntimeException(e);
+        } 
+        catch(RuntimeException re) {
+            throw re;
+        }
+        catch(Exception e) {
+            throw new RuntimeException(e.getMessage(), e);
         }
     }
     
