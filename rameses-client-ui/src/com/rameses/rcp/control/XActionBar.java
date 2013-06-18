@@ -132,7 +132,6 @@ public class XActionBar extends JPanel implements UIComposite
     
     private void buildButtons() 
     {
-        System.out.println("XActionBar.buildButtons started (name=" + getName() + ")");
         buttons.clear();
         List<Action> actions = new ArrayList();
         
@@ -141,7 +140,6 @@ public class XActionBar extends JPanel implements UIComposite
         try {
             value = UIControlUtil.getBeanValue(this);
         } catch(Exception e) {;}
-        System.out.println("XActionBar.buildButtons: value=" + value);
         
         if (value == null) {
             //do nothing
@@ -160,20 +158,16 @@ public class XActionBar extends JPanel implements UIComposite
         {
             //--get actions defined from the action provider
             ActionProvider actionProvider = ClientContext.getCurrentContext().getActionProvider();
-            System.out.println("XActionBar.buildButtons: getting actions from action provider (" + actionProvider + ")");
-            
             if (actionProvider != null) 
             {
                 UIController controller = binding.getController();
                 List <Action> aa = actionProvider.getActionsByType(getName(), controller);
                 if (aa != null) actions.addAll(aa);
             }
-            System.out.println("XActionBar.buildButtons: result=" + actions);
         } 
         
         if (actions.size() > 0) 
         {
-            System.out.println("XActionBar.buildButtons: sorting actions");
             Collections.sort(actions);
             for (Action action: actions) 
             {
@@ -191,11 +185,10 @@ public class XActionBar extends JPanel implements UIComposite
                 XButton btn = createButton(action);
                 Object actionInvoker = action.getProperties().get("Action.Invoker");
                 btn.putClientProperty("Action.Invoker", actionInvoker); 
-                buttons.add(btn);                
+                buttons.add(btn); 
             }
         }
         
-        System.out.println("XActionBar.buildButtons ended (button size=" + buttons.size() + ")");
         //set dirty flag to true
         dirty = true;
     }
@@ -209,10 +202,6 @@ public class XActionBar extends JPanel implements UIComposite
         btn.setName(action.getName());        
         btn.setFont(buttonTpl.getFont());
         btn.setForeground(buttonTpl.getForeground());        
-//        btn.setBorderPainted(buttonTpl.isBorderPainted());
-//        btn.setContentAreaFilled(buttonTpl.isContentAreaFilled());
-//        btn.setVerticalTextPosition(buttonTpl.getVerticalTextPosition());
-//        btn.setHorizontalTextPosition(buttonTpl.getHorizontalTextPosition());
         if ( buttonTpl.isPreferredSizeSet() )
             btn.setPreferredSize(buttonTpl.getPreferredSize());
         
@@ -287,6 +276,13 @@ public class XActionBar extends JPanel implements UIComposite
                
         boolean b = action.isShowCaption();
         if (!b) b = isShowCaptions();
+        
+        //check for forceShowCaption
+        if ("true".equals(action.getProperties().get("forceShowCaption")+"")) 
+        {
+            action.setShowCaption(true);
+            b = true;            
+        }
         
         if (b && action.getCaption() != null) 
         {
