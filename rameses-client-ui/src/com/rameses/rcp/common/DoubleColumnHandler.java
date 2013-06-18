@@ -15,6 +15,8 @@ package com.rameses.rcp.common;
  */
 public class DoubleColumnHandler extends DecimalColumnHandler implements PropertySupport.DoublePropertyInfo
 {      
+    private static final long serialVersionUID = 1L;
+    
     public DoubleColumnHandler(){
         this("#,##0.00");
     } 

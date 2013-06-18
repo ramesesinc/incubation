@@ -33,31 +33,39 @@ public class CheckBoxColumnHandler extends Column.TypeHandler implements Propert
 
     public String getType() { return "checkbox"; }
     
-    public Class getValueType() { return valueType; }    
+    public Class getValueType() 
+    {
+        Object value = super.get("valueType");
+        if (value == null) value = this.valueType;
+        
+        return (value == null? Boolean.class: (Class)value); 
+    }    
+    
     public void setValueType(Class valueType) { 
         this.valueType = valueType; 
     }
     
-    public Object getCheckValue() { return checkValue; }
+    public Object getCheckValue() 
+    {
+        Object value = super.get("checkValue");
+        if (value == null) value = this.checkValue;
+        
+        return value;
+    }
+    
     public void setCheckValue(Object checkValue) {
         this.checkValue = checkValue;
     }
 
-    public Object getUncheckValue() { return uncheckValue; }
-    public void setUncheckValue(Object uncheckValue) {
-        this.uncheckValue = uncheckValue; 
+    public Object getUncheckValue() 
+    {
+        Object value = super.get("uncheckValue");
+        if (value == null) value = this.uncheckValue;
+        
+        return value; 
     }
     
-    public Object put(Object key, Object value) 
-    {
-        String skey = key+"";
-        if ("valueType".equals(skey)) 
-            setValueType((Class) value);
-        else if ("checkValue".equals(skey))
-            setCheckValue(value); 
-        else if ("uncheckValue".equals(skey))
-            setUncheckValue(value); 
-
-        return super.put(key, value); 
+    public void setUncheckValue(Object uncheckValue) {
+        this.uncheckValue = uncheckValue; 
     }    
 }

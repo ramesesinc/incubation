@@ -18,6 +18,8 @@ import java.awt.Font;
 import java.awt.Insets;
 import java.awt.event.KeyEvent;
 import java.beans.Beans;
+import java.util.HashMap;
+import java.util.Map;
 import javax.swing.InputVerifier;
 
 /**
@@ -109,12 +111,12 @@ public class XIntegerField extends AbstractNumberField implements UIInput, Valid
     
     public void setPropertyInfo(PropertySupport.PropertyInfo info) 
     {
-        if (!(info instanceof PropertySupport.IntegerPropertyInfo)) return;
+        if (info == null) return;
         
-        PropertySupport.IntegerPropertyInfo pif = (PropertySupport.IntegerPropertyInfo) info;
-        setPattern(pif.getFormat()); 
-        setMinValue(pif.getMinValue());
-        setMaxValue(pif.getMaxValue()); 
+        PropertyInfoWrapper pi = new PropertyInfoWrapper(info);
+        setPattern(pi.getFormat()); 
+        setMinValue(pi.getMinValue());
+        setMaxValue(pi.getMaxValue()); 
     }    
     
     // </editor-fold>     
@@ -280,4 +282,61 @@ public class XIntegerField extends AbstractNumberField implements UIInput, Valid
     
     // </editor-fold>    
 
+    // <editor-fold defaultstate="collapsed" desc=" PropertyInfoWrapper (Class)  "> 
+    
+    private class PropertyInfoWrapper 
+    {
+        private PropertySupport.IntegerPropertyInfo property;
+        private Map map = new HashMap(); 
+        
+        PropertyInfoWrapper(PropertySupport.PropertyInfo info) 
+        {
+            if (info instanceof Map) map = (Map)info;
+            if (info instanceof PropertySupport.IntegerPropertyInfo)
+                property = (PropertySupport.IntegerPropertyInfo) info;
+        }
+        
+        public String getFormat() 
+        {
+            Object value = map.get("format");
+            if (value == null && property != null)
+                value = property.getFormat();
+            
+            return (value == null? null: value.toString());
+        }
+        
+        public int getMinValue() 
+        {
+            Object value = map.get("minValue");
+            if (value == null && property != null)
+                value = property.getMinValue();
+            
+            Number num = convertNumber(value);
+            return (num == null? -1: num.intValue());
+        }
+        
+        public int getMaxValue() 
+        {
+            Object value = map.get("maxValue");
+            if (value == null && property != null)
+                value = property.getMaxValue();
+            
+            Number num = convertNumber(value);
+            return (num == null? -1: num.intValue());            
+        }    
+        
+        private Number convertNumber(Object value) 
+        {
+            if (value instanceof Number)
+                return (Number) value;
+            
+            try {
+                return Integer.parseInt(value.toString()); 
+            } catch(Exception ex) {
+                return null; 
+            }
+        }
+    }
+    
+    // </editor-fold>        
 }

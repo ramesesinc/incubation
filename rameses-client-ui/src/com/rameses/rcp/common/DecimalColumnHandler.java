@@ -39,50 +39,78 @@ public class DecimalColumnHandler extends Column.TypeHandler implements Property
     
     public String getType() { return "decimal"; }
     
-    public String getFormat() { return format; }
+    public String getFormat() 
+    {
+        Object value = super.get("format");
+        if (value == null) value = this.format;
+        
+        return (value == null? null: value.toString());
+    }
+    
     public void setFormat(String format) {
         this.format = format;
     }
 
-    public boolean isUsePrimitiveValue() { return usePrimitiveValue; } 
+    public boolean isUsePrimitiveValue() 
+    {
+        Object value = super.get("usePrimitiveValue");
+        if (value == null) value = this.usePrimitiveValue;
+        
+        Boolean bool = convertBoolean(value); 
+        return (bool == null? false: bool.booleanValue());
+    }
+    
     public void setUsePrimitiveValue(boolean usePrimitiveValue) {
         this.usePrimitiveValue = usePrimitiveValue;
     }
     
-    public double getMinValue() { return minValue; }
+    public double getMinValue() 
+    {
+        Object value = super.get("minValue");
+        if (value == null) value = this.minValue;
+        
+        Number num = convertDouble(value);
+        return (num == null? -1.0: num.doubleValue()); 
+    }
+    
     public void setMinValue(double minValue) { 
         this.minValue = minValue;
     }
     
-    public double getMaxValue() { return maxValue; } 
+    public double getMaxValue() 
+    {
+        Object value = super.get("maxValue");
+        if (value == null) value = this.maxValue;
+        
+        Number num = convertDouble(value);
+        return (num == null? -1.0: num.doubleValue()); 
+    }
+    
     public void setMaxValue(double maxValue) { 
         this.maxValue = maxValue;
     } 
     
-    public Object put(Object key, Object value) 
+    protected Number convertDouble(Object value) 
     {
-        String skey = key+"";
-        if ("format".equals(skey)) 
-            setFormat((value == null? null: value.toString())); 
-        else if ("usePrimitiveValue".equals(skey))
-            setUsePrimitiveValue("true".equals(value+""));
-        else if ("minValue".equals(skey)) 
-        {
-            try {
-                setMinValue(Double.parseDouble(value+""));
-            } catch(Exception ex) {
-                setMinValue(-1.0); 
-            }
-        }
-        else if ("maxValue".equals(skey)) 
-        {
-            try {
-                setMaxValue(Double.parseDouble(value+""));
-            } catch(Exception ex) {
-                setMaxValue(-1.0); 
-            }
-        } 
+        if (value instanceof Number)
+            return (Number) value;
 
-        return super.put(key, value); 
-    }    
+        try {
+            return Double.parseDouble(value.toString()); 
+        } catch(Exception ex) {
+            return null; 
+        }
+    }
+
+    private Boolean convertBoolean(Object value) 
+    {
+        if (value instanceof Boolean)
+            return (Boolean) value;
+
+        try {
+            return Boolean.parseBoolean(value.toString()); 
+        } catch(Exception ex) {
+            return null; 
+        }
+    }
 }

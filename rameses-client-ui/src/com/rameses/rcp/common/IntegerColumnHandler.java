@@ -15,6 +15,7 @@ package com.rameses.rcp.common;
  */
 public class IntegerColumnHandler extends Column.TypeHandler implements PropertySupport.IntegerPropertyInfo
 {   
+    private static final long serialVersionUID = 1L;
     private String format;
     private int minValue;
     private int maxValue;
@@ -35,43 +36,53 @@ public class IntegerColumnHandler extends Column.TypeHandler implements Property
     
     public String getType() { return "integer"; }
         
-    public String getFormat() { return format; }
+    public String getFormat() 
+    {
+        Object value = super.get("format");
+        if (value == null) value = this.format;
+        
+        return (value == null? null: value.toString());
+    }
+    
     public void setFormat(String format) {
         this.format = format;
     }
 
-    public int getMinValue() { return minValue; }
+    public int getMinValue() 
+    {
+        Object value = super.get("minValue");
+        if (value == null) value = this.minValue;
+        
+        Number num = convertInteger(value);
+        return (num == null? -1: num.intValue());
+    }
+    
     public void setMinValue(int minValue) { 
         this.minValue = minValue;
     }
     
-    public int getMaxValue() { return maxValue; } 
+    public int getMaxValue() 
+    {
+        Object value = super.get("maxValue");
+        if (value == null) value = this.maxValue;
+        
+        Number num = convertInteger(value);
+        return (num == null? -1: num.intValue());
+    }
+    
     public void setMaxValue(int maxValue) { 
         this.maxValue = maxValue;
     } 
     
-    public Object put(Object key, Object value) 
+    protected Number convertInteger(Object value) 
     {
-        String skey = key+"";
-        if ("format".equals(skey)) 
-            setFormat((value == null? null: value.toString())); 
-        else if ("minValue".equals(skey)) 
-        {
-            try {
-                setMinValue(Integer.parseInt(value+""));
-            } catch(Exception ex) {
-                setMinValue(-1); 
-            }
-        }
-        else if ("maxValue".equals(skey)) 
-        {
-            try {
-                setMaxValue(Integer.parseInt(value+""));
-            } catch(Exception ex) {
-                setMaxValue(-1); 
-            }
-        } 
+        if (value instanceof Number)
+            return (Number) value;
 
-        return super.put(key, value); 
-    }       
+        try {
+            return Integer.parseInt(value.toString()); 
+        } catch(Exception ex) {
+            return null; 
+        }
+    }     
 }

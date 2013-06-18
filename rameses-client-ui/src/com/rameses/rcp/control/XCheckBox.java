@@ -15,6 +15,8 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.beans.Beans;
 import java.util.EventObject;
+import java.util.HashMap;
+import java.util.Map;
 import javax.swing.JCheckBox;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
@@ -247,12 +249,12 @@ public class XCheckBox extends JCheckBox implements UIInput, ActiveControl
 
     public void setPropertyInfo(PropertySupport.PropertyInfo info) 
     {
-        if (!(info instanceof PropertySupport.CheckBoxPropertyInfo)) return;
+        if (info == null) return;
         
-        PropertySupport.CheckBoxPropertyInfo chk = (PropertySupport.CheckBoxPropertyInfo) info;
-        this.valueType = chk.getValueType();
-        this.checkValue = chk.getCheckValue();
-        this.uncheckValue = chk.getUncheckValue(); 
+        PropertyInfoWrapper pi = new PropertyInfoWrapper(info); 
+        this.valueType = pi.getValueType();
+        setCheckValue(pi.getCheckValue());
+        setUncheckValue(pi.getUncheckValue()); 
     }
     
     // </editor-fold>
@@ -286,4 +288,47 @@ public class XCheckBox extends JCheckBox implements UIInput, ActiveControl
     
     // </editor-fold> 
     
+    // <editor-fold defaultstate="collapsed" desc=" PropertyInfoWrapper (Class)  "> 
+    
+    private class PropertyInfoWrapper 
+    {
+        private PropertySupport.CheckBoxPropertyInfo property;
+        private Map map = new HashMap(); 
+        
+        PropertyInfoWrapper(PropertySupport.PropertyInfo info) 
+        {
+            if (info instanceof Map) map = (Map) info;
+            if (info instanceof PropertySupport.CheckBoxPropertyInfo)
+                property = (PropertySupport.CheckBoxPropertyInfo) info;
+        }
+        
+        public Class getValueType() 
+        {
+            Object value = map.get("valueType");
+            if (value == null && property != null)
+                value = property.getValueType();
+            
+            return (property == null? Boolean.class: (Class) value);
+        }
+        
+        public Object getCheckValue() 
+        {
+            Object value = map.get("checkValue");
+            if (value == null && property != null)
+                value = property.getCheckValue();
+            
+            return value;
+        }   
+        
+        public Object getUncheckValue() 
+        {
+            Object value = map.get("uncheckValue");
+            if (value == null && property != null)
+                value = property.getUncheckValue();
+            
+            return value; 
+        }        
+    }
+    
+    // </editor-fold>    
 }

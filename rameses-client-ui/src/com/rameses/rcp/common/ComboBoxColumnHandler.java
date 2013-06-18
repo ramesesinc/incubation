@@ -32,32 +32,39 @@ public class ComboBoxColumnHandler extends Column.TypeHandler implements Propert
     
     public String getType() { return "combobox"; }
     
-    public String getExpression() { return expression; }
+    public String getExpression() 
+    {
+        Object value = super.get("expression");
+        if (value == null) value = this.expression;
+        
+        return (value == null? null: value.toString()); 
+    }
+    
     public void setExpression(String expression) {
         this.expression = expression;
     }
 
-    public String getItemKey() { return itemKey; }
+    public String getItemKey() 
+    {
+        Object value = super.get("itemKey");
+        if (value == null) value = this.itemKey;
+        
+        return (value == null? null: value.toString()); 
+    }
+    
     public void setItemKey(String itemKey) {
         this.itemKey = itemKey;
     }
 
-    public Object getItems() { return items; }
+    public Object getItems() 
+    {
+        Object value = super.get("items");
+        if (value == null) value = this.items;
+        
+        return value; 
+    }
+    
     public void setItems(Object items) { 
         this.items = items;
     }
-    
-    public Object put(Object key, Object value) 
-    {
-        String skey = key+"";
-        if ("expression".equals(skey)) 
-            setExpression((value == null? null : value.toString())); 
-        else if ("itemKey".equals(skey))
-            setItemKey((value == null? null: value.toString()));
-        else if ("items".equals(skey))
-            setItems(value); 
-
-        return super.put(key, value); 
-    }    
-    
 }

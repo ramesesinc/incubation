@@ -163,20 +163,22 @@ public class XLookupField extends IconedTextField implements UIFocusableContaine
     
     public void setPropertyInfo(PropertySupport.PropertyInfo info) 
     {
-        if (!(info instanceof PropertySupport.LookupPropertyInfo)) return; 
-
-        PropertySupport.LookupPropertyInfo lkp = (PropertySupport.LookupPropertyInfo) info; 
-        if (lkp.getHandler() instanceof String)
+        if (info == null) return;
+        
+        PropertyInfoWrapper pi = new PropertyInfoWrapper(info); 
+        setExpression(pi.getExpression()); 
+        
+        Object handler = pi.getHandler();
+        if (handler instanceof String) 
         {
-            setHandler(lkp.getHandler().toString()); 
+            setHandler(handler.toString()); 
             setHandlerObject(null);
         }
         else 
         {
-            setHandler(null); 
-            setHandlerObject(lkp.getHandler()); 
-        }        
-        setExpression(lkp.getExpression()); 
+            setHandler(null);
+            setHandlerObject(handler); 
+        }
     } 
    
     // </editor-fold> 
@@ -686,5 +688,40 @@ public class XLookupField extends IconedTextField implements UIFocusableContaine
         }
     }
         
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" PropertyInfoWrapper (Class)  "> 
+    
+    private class PropertyInfoWrapper 
+    {
+        private PropertySupport.LookupPropertyInfo property;
+        private Map map = new HashMap();
+        
+        PropertyInfoWrapper(PropertySupport.PropertyInfo info) 
+        {
+            if (info instanceof Map) map = (Map) info;
+            if (info instanceof PropertySupport.LookupPropertyInfo)
+                property = (PropertySupport.LookupPropertyInfo) info;
+        }
+        
+        public Object getHandler() 
+        {
+            Object value = map.get("handler");
+            if (value == null && property != null)
+                value = property.getHandler(); 
+            
+            return value;
+        }
+
+        public String getExpression() 
+        {
+            Object value = map.get("expression");
+            if (value == null && property != null)
+                value = property.getExpression();
+            
+            return (value == null? null: value.toString());
+        }
+    }
+    
     // </editor-fold>
 }

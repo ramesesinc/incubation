@@ -20,6 +20,8 @@ import java.awt.event.KeyEvent;
 import java.beans.Beans;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.HashMap;
+import java.util.Map;
 import javax.swing.InputVerifier;
 
 /**
@@ -111,13 +113,13 @@ public class XDecimalField extends AbstractNumberField implements UIInput, Valid
     
     public void setPropertyInfo(PropertySupport.PropertyInfo info) 
     {
-        if (!(info instanceof PropertySupport.DecimalPropertyInfo)) return;
+        if (info == null) return;
         
-        PropertySupport.DecimalPropertyInfo dec = (PropertySupport.DecimalPropertyInfo) info; 
-        setPattern(dec.getFormat()); 
-        setMinValue(dec.getMinValue());
-        setMaxValue(dec.getMaxValue());
-        setUsePrimitiveValue(dec.isUsePrimitiveValue()); 
+        PropertyInfoWrapper pi = new PropertyInfoWrapper(info);
+        setPattern(pi.getFormat()); 
+        setMinValue(pi.getMinValue());
+        setMaxValue(pi.getMaxValue());
+        setUsePrimitiveValue(pi.isUsePrimitiveValue()); 
     }    
     
     // </editor-fold>     
@@ -288,4 +290,83 @@ public class XDecimalField extends AbstractNumberField implements UIInput, Valid
     
     // </editor-fold>
    
+    // <editor-fold defaultstate="collapsed" desc=" PropertyInfoWrapper (Class)  "> 
+    
+    private class PropertyInfoWrapper 
+    {
+        private PropertySupport.DecimalPropertyInfo property;
+        private Map map = new HashMap(); 
+        
+        PropertyInfoWrapper(PropertySupport.PropertyInfo info) 
+        {
+            if (info instanceof Map) map = (Map)info;
+            if (info instanceof PropertySupport.DecimalPropertyInfo)
+                property = (PropertySupport.DecimalPropertyInfo) info;
+        }
+        
+        public String getFormat() 
+        {
+            Object value = map.get("format");
+            if (value == null && property != null)
+                value = property.getFormat();
+            
+            return (value == null? null: value.toString());
+        }
+        
+        public double getMinValue() 
+        {
+            Object value = map.get("minValue");
+            if (value == null && property != null)
+                value = property.getMinValue();
+            
+            Number num = convertNumber(value);
+            return (num == null? -1.0: num.doubleValue());
+        }
+        
+        public double getMaxValue() 
+        {
+            Object value = map.get("maxValue");
+            if (value == null && property != null)
+                value = property.getMaxValue();
+            
+            Number num = convertNumber(value);
+            return (num == null? -1.0: num.doubleValue());            
+        }    
+        
+        public boolean isUsePrimitiveValue() 
+        {
+            Object value = map.get("usePrimitiveValue");
+            if (value == null && property != null)
+                value = property.isUsePrimitiveValue(); 
+            
+            Boolean bool = convertBoolean(value);
+            return (bool == null? false: bool.booleanValue()); 
+        }     
+        
+        private Number convertNumber(Object value) 
+        {
+            if (value instanceof Number)
+                return (Number) value;
+            
+            try {
+                return Double.parseDouble(value.toString()); 
+            } catch(Exception ex) {
+                return null; 
+            }
+        }
+        
+        private Boolean convertBoolean(Object value) 
+        {
+            if (value instanceof Boolean)
+                return (Boolean) value;
+            
+            try {
+                return Boolean.parseBoolean(value.toString()); 
+            } catch(Exception ex) {
+                return null; 
+            }
+        }
+    }
+    
+    // </editor-fold>    
 }

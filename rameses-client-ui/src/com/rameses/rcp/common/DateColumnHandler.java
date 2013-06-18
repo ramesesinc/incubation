@@ -15,6 +15,7 @@ package com.rameses.rcp.common;
  */
 public class DateColumnHandler extends Column.TypeHandler implements PropertySupport.DatePropertyInfo 
 {   
+    private static final long serialVersionUID = 1L;
     private String inputFormat;
     private String outputFormat;
     private String valueFormat;
@@ -31,31 +32,39 @@ public class DateColumnHandler extends Column.TypeHandler implements PropertySup
     
     public String getType() { return "date"; }
     
-    public String getInputFormat() { return inputFormat; }
+    public String getInputFormat() 
+    {
+        Object value = super.get("inputFormat");
+        if (value == null) value = this.inputFormat;
+        
+        return (value == null? null: value.toString());
+    }
+    
     public void setInputFormat(String inputFormat) {
         this.inputFormat = inputFormat;
     }
 
-    public String getOutputFormat() { return outputFormat; }
+    public String getOutputFormat() 
+    {
+        Object value = super.get("outputFormat");
+        if (value == null) value = this.outputFormat;
+        
+        return (value == null? null: value.toString()); 
+    }
+    
     public void setOutputFormat(String outputFormat) {
         this.outputFormat = outputFormat; 
     }
 
-    public String getValueFormat() { return valueFormat; }
+    public String getValueFormat() 
+    {
+        Object value = super.get("valueFormat");
+        if (value == null) value = this.valueFormat;
+        
+        return (value == null? null: value.toString()); 
+    }
+    
     public void setValueFormat(String valueFormat) { 
         this.valueFormat = valueFormat;
     }
-    
-    public Object put(Object key, Object value) 
-    {
-        String skey = key+"";
-        if ("inputFormat".equals(skey)) 
-            setInputFormat((value == null? null: value.toString())); 
-        else if ("outputFormat".equals(skey)) 
-            setOutputFormat((value == null? null: value.toString())); 
-        else if ("valueFormat".equals(skey)) 
-            setValueFormat((value == null? null: value.toString())); 
-
-        return super.put(key, value); 
-    }     
 }

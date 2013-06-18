@@ -216,10 +216,10 @@ public class Column implements Serializable
     
     public TextCase getTextCase() { return textCase; }
     public void setTextCase(TextCase textCase) { this.textCase = textCase; }          
-    public void setTextCase(String textCase) 
+    public void setTextCase(String stextCase) 
     { 
         try { 
-            this.textCase = TextCase.valueOf(textCase.toUpperCase()); 
+            this.textCase = TextCase.valueOf(stextCase.toUpperCase()); 
         } catch(Exception ex) {
             this.textCase = TextCase.UPPER; 
         }
@@ -381,7 +381,7 @@ public class Column implements Serializable
             if (super.equals(o)) return true;
             
             return (getType() == o);
-        }    
+        }  
     }
     
     // </editor-fold>

@@ -18,6 +18,7 @@ import java.util.List;
  */
 public class SwitchColumn extends Column 
 {
+    private static final long serialVersionUID = 1L;
     private List conditions = new ArrayList();
     
     public SwitchColumn(String name, String caption) {

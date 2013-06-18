@@ -15,6 +15,8 @@ package com.rameses.rcp.common;
  */
 public class TextColumnHandler extends Column.TypeHandler implements PropertySupport.TextPropertyInfo
 {   
+    private static final long serialVersionUID = 1L;
+    
     public TextColumnHandler(){
     } 
     

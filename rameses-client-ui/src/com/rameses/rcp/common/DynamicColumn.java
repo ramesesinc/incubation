@@ -18,6 +18,7 @@ import java.util.List;
  */
 public class DynamicColumn extends Column 
 {
+    private static final long serialVersionUID = 1L;
     private List<Column> columns = new ArrayList();
     
     public DynamicColumn() {

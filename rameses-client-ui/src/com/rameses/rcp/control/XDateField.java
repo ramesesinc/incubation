@@ -17,6 +17,8 @@ import java.awt.event.KeyListener;
 import java.beans.Beans;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import javax.swing.ImageIcon;
 
 /**
@@ -166,12 +168,12 @@ public class XDateField extends AbstractIconedTextField
 
     public void setPropertyInfo(PropertyInfo info) 
     {
-        if (!(info instanceof PropertySupport.DatePropertyInfo)) return;
+        if (info == null) return;
         
-        PropertySupport.DatePropertyInfo dt = (PropertySupport.DatePropertyInfo) info;
-        setInputFormat(dt.getInputFormat()); 
-        setOutputFormat(dt.getOutputFormat());
-        setValueFormat(dt.getValueFormat()); 
+        PropertyInfoWrapper pi = new PropertyInfoWrapper(info);
+        setInputFormat(pi.getInputFormat()); 
+        setOutputFormat(pi.getOutputFormat());
+        setValueFormat(pi.getValueFormat()); 
     }
     
     // </editor-fold>
@@ -311,4 +313,45 @@ public class XDateField extends AbstractIconedTextField
     }
     //</editor-fold>
     
+    // <editor-fold defaultstate="collapsed" desc=" PropertyInfoWrapper (Class)  "> 
+    
+    private class PropertyInfoWrapper 
+    {
+        private PropertySupport.DatePropertyInfo property;
+        private Map map = new HashMap();
+        
+        PropertyInfoWrapper(PropertySupport.PropertyInfo info) 
+        {
+            if (info instanceof Map) map = (Map) info;            
+            if (info instanceof PropertySupport.DatePropertyInfo)
+                property = (PropertySupport.DatePropertyInfo) info;
+        }
+        
+        public String getInputFormat() 
+        {
+            Object value = map.get("inputFormat");
+            if (value == null && property != null) 
+                value = property.getInputFormat();
+            
+            return (value == null? null: value.toString());
+        }  
+        public String getOutputFormat() 
+        {
+            Object value = map.get("outputFormat");
+            if (value == null && property != null) 
+                value = property.getOutputFormat();
+            
+            return (value == null? null: value.toString());            
+        }  
+        public String getValueFormat() 
+        {
+            Object value = map.get("valueFormat");
+            if (value == null && property != null) 
+                value = property.getValueFormat();
+            
+            return (value == null? null: value.toString());
+        } 
+    }
+    
+    // </editor-fold>        
 }

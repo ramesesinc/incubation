@@ -498,20 +498,21 @@ public class XOpenerField extends DefaultTextField implements UIInput, UIInputVe
 
     public void setPropertyInfo(PropertySupport.PropertyInfo info) 
     {
-        if (info instanceof PropertySupport.OpenerPropertyInfo) 
+        if (info == null) return;
+        
+        PropertyInfoWrapper pi = new PropertyInfoWrapper(info);
+        setExpression(pi.getExpression()); 
+        
+        Object handler = pi.getHandler();
+        if (handler instanceof String) 
         {
-            PropertySupport.OpenerPropertyInfo p = (PropertySupport.OpenerPropertyInfo) info; 
-            if (p.getHandler() instanceof String)
-            {
-                setHandler(p.getHandler().toString());
-                setHandlerObject(null);
-            }
-            else 
-            {
-                setHandler(null); 
-                setHandlerObject(p.getHandler());
-            }
-            setExpression(p.getExpression());        
+            setHandler(handler.toString()); 
+            setHandlerObject(null);
+        }
+        else 
+        {
+            setHandler(null); 
+            setHandlerObject(handler);
         }
     }
 
@@ -750,4 +751,39 @@ public class XOpenerField extends DefaultTextField implements UIInput, UIInputVe
     } 
     
     // </editor-fold>    
+    
+    // <editor-fold defaultstate="collapsed" desc=" PropertyInfoWrapper (Class)  "> 
+    
+    private class PropertyInfoWrapper 
+    {
+        private PropertySupport.OpenerPropertyInfo property;
+        private Map map = new HashMap(); 
+        
+        PropertyInfoWrapper(PropertySupport.PropertyInfo info) 
+        {
+            if (info instanceof Map) map = (Map)info;
+            if (info instanceof PropertySupport.OpenerPropertyInfo)
+                property = (PropertySupport.OpenerPropertyInfo) info;
+        }
+        
+        public String getExpression() 
+        {
+            Object value = map.get("expression");
+            if (value == null && property != null)
+                value = property.getExpression();
+            
+            return (value == null? null: value.toString());
+        }
+        
+        public Object getHandler() 
+        {
+            Object value = map.get("handler");
+            if (value == null && property != null)
+                value = property.getHandler();
+            
+            return value; 
+        }
+    }
+    
+    // </editor-fold>        
 }

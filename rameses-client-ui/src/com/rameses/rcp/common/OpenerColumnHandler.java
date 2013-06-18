@@ -15,6 +15,7 @@ package com.rameses.rcp.common;
  */
 public class OpenerColumnHandler extends Column.TypeHandler implements PropertySupport.OpenerPropertyInfo
 {   
+    private static final long serialVersionUID = 1L;
     private Object handler;
     private String expression;
     
@@ -29,24 +30,27 @@ public class OpenerColumnHandler extends Column.TypeHandler implements PropertyS
     
     public String getType() { return "opener"; }
     
-    public String getExpression() { return expression; }
+    public String getExpression() 
+    {
+        Object value = super.get("expression");
+        if (value == null) value = this.expression;
+        
+        return (value == null? null: value.toString()); 
+    }
+    
     public void setExpression(String expression) {
         this.expression = expression;
     }
 
-    public Object getHandler() { return handler; }
+    public Object getHandler() 
+    {
+        Object value = super.get("handler");
+        if (value == null) value = this.handler;
+        
+        return value; 
+    }
+    
     public void setHandler(Object handler) {
         this.handler = handler;
-    }
-
-    public Object put(Object key, Object value) 
-    {
-        String skey = key+"";
-        if ("expression".equals(skey))
-            setExpression((value == null? null: value.toString()));         
-        else if ("handler".equals(skey)) 
-            setHandler(value);
-
-        return super.put(key, value); 
     }
 }

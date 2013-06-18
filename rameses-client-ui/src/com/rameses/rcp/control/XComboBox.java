@@ -31,6 +31,8 @@ import java.awt.event.KeyEvent;
 import java.beans.Beans;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.InputVerifier;
 import javax.swing.JComboBox;
@@ -322,15 +324,23 @@ public class XComboBox extends JComboBox implements UIInput, Validatable, Active
 
     public void setPropertyInfo(PropertySupport.PropertyInfo info) 
     {
-        if (!(info instanceof PropertySupport.ComboBoxPropertyInfo)) return;
+        if (info == null) return;
         
-        PropertySupport.ComboBoxPropertyInfo cbo = (PropertySupport.ComboBoxPropertyInfo) info;
-        setExpression(cbo.getExpression());
-        setItemKey(cbo.getItemKey());
-        if (cbo.getItems() instanceof String) 
-            setItems(cbo.getItems().toString()); 
+        PropertyInfoWrapper pi = new PropertyInfoWrapper(info);
+        setExpression(pi.getExpression());
+        setItemKey(pi.getItemKey());
+        
+        Object items = pi.getItems();
+        if (items instanceof String) 
+        {
+            setItems(items.toString()); 
+            setItemsObject(null);
+        }
         else 
-            setItemsObject(cbo.getItems()); 
+        {
+            setItems(null);
+            setItemsObject(items);
+        }
     }
         
     public boolean isReadonly() { return readonly; }    
@@ -575,4 +585,48 @@ public class XComboBox extends JComboBox implements UIInput, Validatable, Active
     }
     
     // </editor-fold>    
+    
+    // <editor-fold defaultstate="collapsed" desc=" PropertyInfoWrapper (Class)  "> 
+    
+    private class PropertyInfoWrapper 
+    {
+        private PropertySupport.ComboBoxPropertyInfo property;
+        private Map map = new HashMap(); 
+        
+        PropertyInfoWrapper(PropertySupport.PropertyInfo info) 
+        {
+            if (info instanceof Map) map = (Map)info;
+            if (info instanceof PropertySupport.ComboBoxPropertyInfo)
+                property = (PropertySupport.ComboBoxPropertyInfo) info;
+        }
+        
+        public String getExpression() 
+        {
+            Object value = map.get("expression");
+            if (value == null && property != null)
+                value = property.getExpression();
+            
+            return (value == null? null: value.toString());
+        }
+        
+        public String getItemKey() 
+        {
+            Object value = map.get("itemKey");
+            if (value == null && property != null)
+                value = property.getItemKey();
+            
+            return (value == null? null: value.toString());
+        }   
+        
+        public Object getItems() 
+        {
+            Object value = map.get("items");
+            if (value == null && property != null)
+                value = property.getItems();
+            
+            return value;
+        }        
+    }
+    
+    // </editor-fold>        
 }

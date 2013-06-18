@@ -17,5 +17,7 @@ import com.rameses.rcp.common.Column;
  */
 public class SelectionColumnHandler extends Column.TypeHandler 
 {
+    private static final long serialVersionUID = 1L;
+    
     public final String getType() { return "selection"; }
 }
