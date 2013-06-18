@@ -1,0 +1,5 @@
+{
+  code: 'com.rameses.functions.StringFunc.substr',
+  signature: '@empty( cond )',
+  group: 'string'  
+}

@@ -1,5 +1,0 @@
-iif=com.rameses.functions.LogicalFunc.iif
-fixed=com.rameses.functions.NumberFunc.fixed
-substr=com.rameses.functions.StringFunc.substr
-empty=com.rameses.functions.LogicalFunc.empty
-ifEmpty=com.rameses.functions.LogicalFunc.ifEmpty

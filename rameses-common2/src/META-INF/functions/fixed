@@ -1,0 +1,5 @@
+{
+  code: 'com.rameses.functions.NumberFunc.fixed',
+  signature: '@iif( cond, truevalue, falsevalue )',
+  group: 'number'  
+}

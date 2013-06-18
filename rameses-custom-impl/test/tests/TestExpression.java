@@ -30,7 +30,7 @@ public class TestExpression extends TestCase {
     
     // TODO add test methods here. The name must begin with 'test'. For example:
     
-    public void testHello() {
+    public void xtestHello1() {
         ExpressionResolver er = ExpressionResolver.getInstance();
         Map person = new HashMap();
         person.put("lastname", "flores");
@@ -41,15 +41,18 @@ public class TestExpression extends TestCase {
         System.out.println(".."+s+"..");
     }
     
-    /*
+    
+  
+    
     public void testDouble() {
         ExpressionResolver er = ExpressionResolver.getInstance();
         Map m = new HashMap();
         m.put( "value", 200.0 );
-        double d = er.evalDouble( "#{value * 2}", m );
+        String d = er.evalString( "#{ @iif( (value * 2)>200,'nope','yep') }", m );
         System.out.println(".."+d+"..");
     }
     
+    /*
     public void testBigDecimal() {
         ExpressionResolver er = ExpressionResolver.getInstance();
         Map m = new HashMap();

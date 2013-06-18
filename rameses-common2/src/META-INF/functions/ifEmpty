@@ -1,0 +1,5 @@
+{
+  code: 'com.rameses.functions.LogicalFunc.ifEmpty',
+  signature: '',
+  group: 'logical'  
+}

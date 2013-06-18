@@ -1,12 +1,7 @@
 package com.rameses.common;
 
-import com.rameses.io.LineReader;
 import com.rameses.util.Service;
-import java.io.InputStream;
 import java.math.BigDecimal;
-import java.net.URL;
-import java.util.Enumeration;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -19,6 +14,8 @@ public abstract class ExpressionResolver {
     private Map<String,String> functions;
     
     private String findFunction(String key) {
+        return FunctionResolver.getInstance().findStringFunction( key );
+        /*
         if( functions == null ) {
             try {
                 LineReader reader = new LineReader();
@@ -47,6 +44,7 @@ public abstract class ExpressionResolver {
         if(f==null)
             throw new RuntimeException("Function " + key + " not found");
         return f;
+         */
     }
     
     protected String replaceFunctions(String text) {
