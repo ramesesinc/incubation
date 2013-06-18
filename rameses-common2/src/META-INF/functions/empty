@@ -1,0 +1,4 @@
+{
+  code: 'com.rameses.functions.LogicalFunc.empty',
+  signature: '@empty( cond )'  
+}
