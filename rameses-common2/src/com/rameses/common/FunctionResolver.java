@@ -11,6 +11,7 @@ package com.rameses.common;
 
 import com.rameses.util.Service;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -35,4 +36,7 @@ public abstract class FunctionResolver {
     
     public abstract String findStringFunction( String key );
     public abstract Map getFunctionInfo(String key);
+    public abstract List<Map> getAllFunctions(String n);
+    public abstract List<Map> getFunctionsByGroup(String n);
+    
 }

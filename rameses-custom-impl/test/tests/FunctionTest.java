@@ -8,6 +8,7 @@
 package tests;
 
 import com.rameses.common.FunctionResolver;
+import java.util.List;
 import junit.framework.*;
 
 /**
@@ -28,7 +29,11 @@ public class FunctionTest extends TestCase {
     
     // TODO add test methods here. The name must begin with 'test'. For example:
     public void testHello() {
-        System.out.println("func->"+FunctionResolver.getInstance().findStringFunction("iif"));
+        //System.out.println("func->"+FunctionResolver.getInstance().findStringFunction("iif"));
+        List list = FunctionResolver.getInstance().getFunctionsByGroup("logical");
+        for(Object o: list) {
+            System.out.println(o);
+        }
     }
 
 }

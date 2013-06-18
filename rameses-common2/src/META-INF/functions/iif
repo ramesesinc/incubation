@@ -1,4 +1,5 @@
 {
   code: 'com.rameses.functions.LogicalFunc.iif',
-  signature: '@iif( cond, truevalue, falsevalue )'  
+  signature: '@iif( cond, truevalue, falsevalue )',
+  group: 'logical'  
 }

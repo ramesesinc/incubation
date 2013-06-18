@@ -14,7 +14,10 @@ import com.rameses.io.StreamUtil;
 import com.rameses.util.URLDirectory;
 import java.net.URL;
 import java.util.Enumeration;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -80,6 +83,23 @@ public class BasicFunctionResolver extends FunctionResolver {
         if(func==null)
             throw new RuntimeException("Function " + key + " not found");
         return func;
+    }
+
+    public List<Map> getAllFunctions(String n) {
+        return getFunctionsByGroup(null);
+    }
+
+    public List<Map> getFunctionsByGroup(String n) {
+        buildMap();
+        List<Map> list = new LinkedList();
+        Iterator<Map> iter = functions.values().iterator();
+        while(iter.hasNext()) {
+            Map map =iter.next();
+            if(n==null || n.equalsIgnoreCase( map.get("group")+"")) {
+                list.add(map);
+            }
+        }
+        return list;
     }
     
     
