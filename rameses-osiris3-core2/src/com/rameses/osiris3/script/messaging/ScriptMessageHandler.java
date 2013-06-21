@@ -69,17 +69,16 @@ public class ScriptMessageHandler implements MessageHandler {
         return this.hashCode() == obj.hashCode();
     }
 
-    public boolean accept(Object data) {
+    public boolean accept(Object data) 
+    {
         boolean accept = true;
-        if( evalExpr!=null && evalExpr.trim().length()>0  ) {
+        if ( evalExpr!=null && evalExpr.trim().length()>0  ) 
+        {
             Map map = new HashMap();
             map.put("data", data);
             try {
-                accept = Boolean.parseBoolean( ExpressionResolver.getInstance().evalString(evalExpr,  map )+"");    
-            }
-            catch(Exception ign){
-                ign.printStackTrace();
-            }
+                accept = ExpressionResolver.getInstance().evalBoolean(evalExpr, map);    
+            } catch(Exception ign){;}
         }
         return accept;
     }

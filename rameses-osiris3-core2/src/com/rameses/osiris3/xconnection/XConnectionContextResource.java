@@ -33,7 +33,7 @@ public class XConnectionContextResource extends ContextResource {
         while(iter.hasNext()) {
             XConnectionProvider xp = iter.next();
             xp.setContext( context );
-            System.out.println("added provider " + xp.getProviderName());
+            //System.out.println("added provider " + xp.getProviderName());
             providers.put( xp.getProviderName(), xp );
         }
     }
