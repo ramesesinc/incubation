@@ -10,9 +10,14 @@
 package com.rameses.anubis.web;
 
 import com.rameses.anubis.JsonUtil;
+import com.rameses.util.SealedMessage;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.PrintWriter;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
@@ -44,11 +49,44 @@ public class AnubisPollServlet extends HttpServlet {
     private static Map<String, Channel> channels = new Hashtable();
     private static ExecutorService thread = Executors.newCachedThreadPool();
     
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String channelName = req.getPathInfo().substring(1);
-        Map params = RequestUtil.buildRequestParams( req );
-        Channel channel = getChannel(channelName);
-        channel.send(params);
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException 
+    {
+        ObjectInputStream in = null;
+        try 
+        {
+            in = new ObjectInputStream(req.getInputStream());
+            
+            Object o = in.readObject();
+            if (o instanceof SealedMessage) 
+                o = ((SealedMessage)o).getMessage(); 
+
+            Collection collection = null;
+            if (o instanceof Collection)
+                collection = (Collection) o; 
+            else if (o instanceof Object[]) 
+                collection = Arrays.asList((Object[]) o);
+            
+            if (collection == null) return;
+
+            String channelName = req.getPathInfo().substring(1);
+            Channel channel = getChannel(channelName);
+            
+            Iterator itr = collection.iterator(); 
+            while (itr.hasNext()) 
+            {
+                Map data = (Map) itr.next();
+                if (data == null) continue;
+                
+                channel.send(data);
+            }
+        } 
+        catch(IOException ioe) { throw ioe; }
+        catch(Exception e) {
+            throw new ServletException(e.getMessage(), e);
+        }
+        finally {
+            try {in.close();} catch(Exception ign){;}
+        }        
     }
     
     private void writeResponse(String msg, HttpServletResponse res)  throws ServletException, IOException{
