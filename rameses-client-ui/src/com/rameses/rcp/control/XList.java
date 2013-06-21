@@ -209,10 +209,7 @@ public class XList extends JList implements UIControl, ListSelectionListener
 
             binding.fireNavigation(outcome);
         }
-        catch(Exception e) 
-        {
-            if (ClientContext.getCurrentContext().isDebugMode())  e.printStackTrace(); 
-            
+        catch(Exception e) {
             MsgBox.err(e); 
         }
     }

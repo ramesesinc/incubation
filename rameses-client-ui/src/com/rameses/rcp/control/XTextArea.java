@@ -1,6 +1,7 @@
 package com.rameses.rcp.control;
 
 import com.rameses.rcp.common.PropertySupport;
+import com.rameses.rcp.common.TextDocumentModel;
 import com.rameses.rcp.constant.TextCase;
 import com.rameses.rcp.constant.TrimSpaceOption;
 import com.rameses.rcp.framework.Binding;
@@ -18,20 +19,22 @@ import com.rameses.rcp.util.UIInputUtil;
 import com.rameses.util.ValueUtil;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Insets;
 import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.beans.Beans;
 import javax.swing.JTextArea;
 import javax.swing.UIManager;
+import javax.swing.text.BadLocationException;
 
 /**
  *
  * @author Windhel
  */
-
 public class XTextArea extends JTextArea implements UIInput, Validatable, ActiveControl 
 {
     private Color focusBackground;
@@ -40,24 +43,29 @@ public class XTextArea extends JTextArea implements UIInput, Validatable, Active
     
     private Binding binding;
     private int index;
-    private boolean nullWhenEmpty = true;
+    private boolean readonly;    
+    private boolean nullWhenEmpty = true;   
     private String[] depends;
     private ControlProperty property = new ControlProperty();
     private ActionMessage actionMessage = new ActionMessage();
-    private boolean readonly;
     
     private TextDocument textDocument = new TextDocument();
     private TrimSpaceOption trimSpaceOption = TrimSpaceOption.NONE;
     
+    private String handler;
+    private TextDocumentModel handlerObject; 
+    
     private String hint;
     private boolean showHint;
-    
-    
+        
     public XTextArea() 
     {
         super();
-        
+
         TextEditorSupport.install(this);
+        for (FocusListener l : getFocusListeners()) {
+            removeFocusListener(l); 
+        }
         
         //default font
         Font f = ThemeUI.getFont("XTextArea.font");
@@ -67,7 +75,7 @@ public class XTextArea extends JTextArea implements UIInput, Validatable, Active
         setMargin(new Insets(2,2,2,2));
         setPreferredSize(new Dimension(100,40));
     }
-        
+
     public void paint(Graphics origGraphics) 
     {
         super.paint(origGraphics);
@@ -112,6 +120,17 @@ public class XTextArea extends JTextArea implements UIInput, Validatable, Active
     {
         setInputVerifier(UIInputUtil.VERIFIER);
         setDocument(textDocument);
+        
+        String shandler = getHandler();
+        if (shandler != null) 
+        {
+            Object obj = UIControlUtil.getBeanValue(getBinding(), shandler); 
+            if (obj instanceof TextDocumentModel) 
+            {
+                handlerObject = (TextDocumentModel) obj;
+                handlerObject.setProvider(new DocumentProvider()); 
+            }
+        }
     }
     
     public int compareTo(Object o) {
@@ -128,14 +147,14 @@ public class XTextArea extends JTextArea implements UIInput, Validatable, Active
             property.setErrorMessage(actionMessage.toString());
         }
     }
-    
-    
+        
     // <editor-fold defaultstate="collapsed" desc="  Getters/Setters  "> 
     
     public void setName(String name) 
     {
         super.setName(name);
-        super.setText(name);
+        
+        if (Beans.isDesignTime()) super.setText(name);
     }
     
     public Object getValue() 
@@ -255,6 +274,9 @@ public class XTextArea extends JTextArea implements UIInput, Validatable, Active
         this.hint = hint;
         showHint = !ValueUtil.isEmpty(hint);
     }
+    
+    public String getHandler() { return handler; } 
+    public void setHandler(String handler) { this.handler = handler; }
 
     public void setPropertyInfo(PropertySupport.PropertyInfo info) {
     }
@@ -322,4 +344,51 @@ public class XTextArea extends JTextArea implements UIInput, Validatable, Active
     } 
     
     // </editor-fold>    
+    
+    // <editor-fold defaultstate="collapsed" desc="  DocumentProvider (class)  ">
+    
+    private class DocumentProvider implements TextDocumentModel.Provider 
+    {
+        private XTextArea root = XTextArea.this; 
+        
+        public String getText() { 
+            return root.getText(); 
+        }
+
+        public void setText(String text) 
+        {
+            if (text == null) return;
+            
+            root.setText(text); 
+            root.repaint();
+        }
+
+        public void insertText(String text) 
+        {
+            if (text == null) return;
+
+            int caretPos = root.getCaretPosition();
+            try 
+            {
+                root.textDocument.insertString(caretPos, text, null);
+                repaint(); 
+            } 
+            catch (BadLocationException ex) {
+                System.out.println("[XTextArea] failed to insert text at position " + caretPos);
+            }
+        } 
+        
+        public void requestFocus() 
+        {
+            EventQueue.invokeLater(new Runnable() {
+                public void run() 
+                {
+                    root.requestFocus();
+                    root.grabFocus();
+                }
+            }); 
+        }
+    }
+    
+    // </editor-fold>
 }

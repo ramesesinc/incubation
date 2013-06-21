@@ -92,8 +92,24 @@ public class UIInputUtil {
                 if ( addLog ) {
                     binding.getChangeLog().addEntry(bean, name, beanValue, inputValue);
                 }
-                if ( refresh && control instanceof JTextComponent ) {
-                    control.refresh();
+                
+                if ( refresh && control instanceof JTextComponent ) 
+                {
+                    JTextComponent jtxt = (JTextComponent) control;
+                    int oldCaretPos = jtxt.getCaretPosition(); 
+                    
+                    try { 
+                        control.refresh(); 
+                    } 
+                    catch(Exception e) {
+                        throw new RuntimeException(e.getMessage(), e); 
+                    } 
+                    finally 
+                    {
+                        try {
+                            jtxt.setCaretPosition(oldCaretPos); 
+                        } catch(Exception ign) {;} 
+                    }
                 }
                 
                 binding.notifyDepends(control);
