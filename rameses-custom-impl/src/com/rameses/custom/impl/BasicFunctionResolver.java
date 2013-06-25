@@ -35,10 +35,8 @@ public class BasicFunctionResolver extends FunctionResolver {
                 String name = filter.substring(filter.lastIndexOf("/")+1);
                 String s = StreamUtil.toString(u.openStream());
                 map.put(  name, JsonUtil.toMap(s));
-            } catch(Exception e) {
-                System.out.println("error load function");
+            } catch(Throwable e) {
                 e.printStackTrace();
-                
             }
             return false;
         }
@@ -52,7 +50,7 @@ public class BasicFunctionResolver extends FunctionResolver {
         if( functions == null ) {
             try {
                 CustomFilter cf = new CustomFilter();
-                ClassLoader loader = getClass().getClassLoader();
+                ClassLoader loader = FunctionResolver.class.getClassLoader();
                 Enumeration<URL> e = loader.getResources( "META-INF/functions" );
                 while(e.hasMoreElements()) {
                     URL u = e.nextElement();
