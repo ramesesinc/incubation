@@ -7,12 +7,12 @@
 
 package com.rameses.rcp.control;
 
+import com.rameses.rcp.common.MsgBox;
 import com.rameses.rcp.common.Node;
 import com.rameses.rcp.common.NodeFilter;
 import com.rameses.rcp.common.NodeListener;
 import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.common.TreeNodeModel;
-import com.rameses.rcp.common.TreeNodeModelListener;
 import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.framework.ClientContext;
 import com.rameses.rcp.util.ControlSupport;
@@ -20,12 +20,10 @@ import com.rameses.rcp.framework.NavigatablePanel;
 import com.rameses.rcp.framework.NavigationHandler;
 import com.rameses.rcp.ui.UIControl;
 import com.rameses.rcp.util.UIControlUtil;
-import com.rameses.common.PropertyResolver;
-import com.rameses.util.ValueUtil;
 import java.awt.Component;
+import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,265 +32,423 @@ import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JTree;
 import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
-
-public class XTree extends JTree implements UIControl, TreeSelectionListener, TreeNodeModelListener {
+public class XTree extends JTree implements UIControl 
+{
+    private DefaultProvider provider = new DefaultProvider(); 
+    private TreeEventSupport eventSupport = new TreeEventSupport();
     
     private Binding binding;
-    private int index;
     private String[] depends;
+    private String handler;    
+    private Object handlerObject;
     private boolean dynamic;
-    private String handler;
+    private int index;
     
     private DefaultMutableTreeNode root;
     private DefaultTreeModel model;
     private TreeNodeModel nodeModel;
-    private DefaultNode defaultNode;
+            
+    public XTree() { 
+        initComponents(); 
+    } 
     
+    // <editor-fold defaultstate="collapsed" desc=" initComponents ">
     
-    public XTree() {
-        setCellRenderer( new NodeTreeRenderer() );
+    private void initComponents() 
+    {
+        getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+        setCellRenderer(new NodeTreeRenderer());         
+
+        //install listeners
+        super.addTreeSelectionListener(eventSupport); 
         
+        getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "openNode");
+        getActionMap().put("openNode", new AbstractAction(){             
+            public void actionPerformed(ActionEvent e) {
+                fireOpenSelectedNode();
+            } 
+        });
     }
     
-    public String[] getDepends() {
-        return depends;
+    // </editor-fold>
+
+    // <editor-fold defaultstate="collapsed" desc=" Getters and Setters ">
+    
+    public boolean isDynamic() { return dynamic; }    
+    public void setDynamic(boolean dynamic) { this.dynamic = dynamic; }
+    
+    public String getHandler() { return handler; }    
+    public void setHandler(String handler) { this.handler = handler; }
+    
+    public Object getHandlerObject() { return handlerObject; }
+    public void setHandlerObject(Object handlerObject) {
+        this.handlerObject = handlerObject; 
     }
     
-    public void setDepends(String[] depends) {
-        this.depends = depends;
+    // </editor-fold>
+        
+    // <editor-fold defaultstate="collapsed" desc=" UIControl implementation ">
+    
+    public Binding getBinding() { return binding; }    
+    public void setBinding(Binding binding) { this.binding = binding; }
+    
+    public String[] getDepends() { return depends; }    
+    public void setDepends(String[] depends) { this.depends = depends; }
+    
+    public int getIndex() { return index; }    
+    public void setIndex(int index) { this.index = index; }
+
+    public int compareTo(Object o) { 
+        return UIControlUtil.compare(this, o);
     }
     
-    public int getIndex() {
-        return index;
-    }
-    
-    public void setIndex(int index) {
-        this.index = index;
-    }
-    
-    public void setBinding(Binding binding) {
-        this.binding = binding;
-    }
-    
-    public Binding getBinding() {
-        return binding;
-    }
+    public void setPropertyInfo(PropertySupport.PropertyInfo info) {}
     
     public void refresh() {}
     
-    public void load() {
-        if( ValueUtil.isEmpty(handler) ) {
-            throw new RuntimeException( "XTree Error: A handler must be provided" );
+    public void load() 
+    {
+        try 
+        {
+            Object obj = getHandlerObject(); 
+            if (obj instanceof String) 
+                obj = UIControlUtil.getBeanValue(this, obj.toString());
+
+            String shandler = getHandler(); 
+            if (shandler != null) 
+                obj = UIControlUtil.getBeanValue(this, shandler);
+
+            if (obj == null) throw new Exception("A handler must be provided");
+
+            nodeModel = (TreeNodeModel) obj;
+        }
+        catch(Exception ex) 
+        {
+            nodeModel = new DummyTreeNodeModel();
+            
+            if (ClientContext.getCurrentContext().isDebugMode()) 
+                ex.printStackTrace(); 
         }
         
-        nodeModel = (TreeNodeModel) UIControlUtil.getBeanValue(this, handler);
-        nodeModel.setListener(this);
+        nodeModel.setProvider(provider); 
+
+        Node rootNode = nodeModel.getRootNode(); 
+        if (rootNode == null) 
+        {
+            rootNode = new Node("root", "");
+            setRootVisible(false); 
+        } 
+        else {
+            setRootVisible(nodeModel.isRootVisible()); 
+        }
         
-        root = new DefaultNode(nodeModel.getRootNode());
-        
+        root = new DefaultNode(rootNode); 
         model = new DefaultTreeModel(root, true);
-        setModel(model);
-        
-        addTreeSelectionListener(this);
-        getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
-        
         //treat items w/ no children as folders unless explicitly defined as leaf
-        model.setAsksAllowsChildren(true);
-        addMouseListener(  new MouseAdapter() {
-            public void mouseClicked(MouseEvent me) {
-                if(me.getClickCount()==2) {
-                    openNode(nodeModel.getSelectedNode());
+        model.setAsksAllowsChildren(true);         
+        setModel(model);        
+    }
+
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" Owned and helper methods ">
+
+    public void removeTreeSelectionListener(TreeSelectionListener handler) {
+        eventSupport.remove(handler); 
+    }
+    public void addTreeSelectionListener(TreeSelectionListener handler) {
+        eventSupport.add(handler); 
+    }
+    
+    protected void processMouseEvent(MouseEvent evt) 
+    {
+        if (evt.getClickCount() == 2 && evt.getID() == MouseEvent.MOUSE_CLICKED) 
+        {
+            if (SwingUtilities.isLeftMouseButton(evt)) 
+                fireOpenSelectedNode(); 
+        }
+        super.processMouseEvent(evt); 
+    }
+    
+    private void fireOpenSelectedNode() 
+    {
+        final DefaultNode selNode = getSelectedNode(); 
+        if (selNode == null) return;
+        
+        EventQueue.invokeLater(new Runnable() {
+            public void run() 
+            {
+                try { 
+                    openNode(selNode.getNode()); 
+                } catch(Exception ex) {
+                    MsgBox.err(ex); 
                 }
             }
         });
+    }
         
-        getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER,0), "openNode");
-        getActionMap().put("openNode", new AbstractAction(){
-            public void actionPerformed(ActionEvent e) {
-                openNode(nodeModel.getSelectedNode());
-            }
-        });
+    private DefaultNode getSelectedNode() 
+    {
+        TreePath treePath = getSelectionPath();
+        if (treePath == null) return null; 
+        
+        return (DefaultNode) treePath.getLastPathComponent(); 
     }
     
-    private void openNode( Node node) {
+    private void openNode(Node node) 
+    {
         Object retVal = null;
-        if( node == null ); //do nothing
-        else if( node.isLeaf() ) {
+        if (node == null) {
+            //do nothing
+        } else if (node.isLeaf()) {
             retVal = nodeModel.openLeaf(node);
         } else {
             retVal = nodeModel.openFolder(node);
         }
+        
+        if (retVal == null) return;
         
         NavigationHandler handler = ClientContext.getCurrentContext().getNavigationHandler();
         NavigatablePanel panel = UIControlUtil.getParentPanel(this, null);
         handler.navigate(panel, this, retVal);
     }
     
-    public int compareTo(Object o) {
-        return UIControlUtil.compare(this, o);
-    }
-    
-    public boolean isDynamic() {
-        return dynamic;
-    }
-    
-    public void setDynamic(boolean dynamic) {
-        this.dynamic = dynamic;
-    }
-    
-    public void valueChanged(TreeSelectionEvent e) {
-        defaultNode = ((DefaultNode)e.getPath().getLastPathComponent());
-        nodeModel.setSelectedNode( defaultNode.getNode() );
-        if(getName()!=null ) {
-            PropertyResolver res = PropertyResolver.getInstance();
-            res.setProperty(binding.getBean(), getName(), nodeModel.getSelectedNode());
-            binding.notifyDepends(this);
-        }
-    }
-    
-    public String getHandler() {
-        return handler;
-    }
-    
-    public void setHandler(String handler) {
-        this.handler = handler;
-    }
-    
-    public Node findNode(NodeFilter filter) {
-        DefaultNode parent = (DefaultNode) model.getRoot();
-        Node n = parent.getNode();
-        if ( filter.accept(n) ) return n;
-        
-        return doFindNode(parent, filter);
-    }
-    
-    private Node doFindNode(DefaultNode parent, NodeFilter filter) {
-        for(int i = 0; i < parent.getChildCount(); ++i) {
+    private Node doFindNode(DefaultNode parent, NodeFilter filter) 
+    {
+        for (int i = 0; i < parent.getChildCount(); i++) 
+        {
             DefaultNode child = (DefaultNode) parent.getChildAt(i);
             Node n = child.getNode();
-            if ( filter.accept(n) ) return n;
+            if (filter.accept(n)) return n;
             
-            if ( n.isLoaded() && child.getChildCount() > 0 ) {
+            if (n.isLoaded() && child.getChildCount() > 0) 
+            {
                 Node nn = doFindNode(child, filter);
-                if ( nn != null ) return nn;
+                if (nn != null) return nn;
             }
         }
         return null;
     }
     
-    public List<Node> findNodes(NodeFilter filter) {
-        List<Node> nodes = new ArrayList();
-        DefaultNode parent = (DefaultNode) model.getRoot();
-        Node n = parent.getNode();
-        if ( filter.accept(n) ) nodes.add(n);
-        
-        doCollectNodeList(parent, filter, nodes);
-        
-        return nodes;
-    }
-    
-    private void doCollectNodeList(DefaultNode parent, NodeFilter filter, List nodes) {
-        for(int i = 0; i < parent.getChildCount(); ++i) {
-            DefaultNode child = (DefaultNode) parent.getChildAt(i);
-            Node n = child.getNode();
-            if ( filter.accept(n) ) nodes.add(n);
+    private void doCollectNodeList(DefaultNode parent, NodeFilter filter, List nodes) 
+    {
+        for (int i=0; i < parent.getChildCount(); i++) 
+        {
+            DefaultNode oChild = (DefaultNode) parent.getChildAt(i);
+            Node oNode = oChild.getNode();
+            if (filter.accept(oNode)) nodes.add(oNode);
             
-            if ( n.isLoaded() && child.getChildCount() > 0 ) {
-                doCollectNodeList(child, filter, nodes);
-            }
+            if (oNode.isLoaded() && oChild.getChildCount() > 0) 
+                doCollectNodeList(oChild, filter, nodes);
         }
     }
-
-    public void setPropertyInfo(PropertySupport.PropertyInfo info) {
-    }
     
+    // </editor-fold>
     
-    //<editor-fold defaultstate="collapsed" desc="  DefaultNode (class)  ">
-    public class DefaultNode extends DefaultMutableTreeNode implements NodeListener {
+    // <editor-fold defaultstate="collapsed" desc=" DefaultNode (class) ">
+    
+    public class DefaultNode extends DefaultMutableTreeNode implements NodeListener 
+    {        
+        XTree root = XTree.this;
         
         private Node node;
         
         public DefaultNode(String n) {
-            super(n);
+            super(n); 
         }
         
-        public DefaultNode(Node node) {
+        public DefaultNode(Node node) 
+        {
             super(node.getCaption(), !node.isLeaf());
             this.node = node;
             this.node.addListener(this);
         }
         
-        public int getChildCount() {
-            if( !node.isLoaded() ) {
-                synchronized(this) {
-                    node.setLoaded( true );
+        public int getChildCount() 
+        {
+            if (!node.isLoaded()) 
+            {
+                synchronized(this) 
+                {
+                    node.setLoaded(true);
                     loadChildren();
                 }
             }
             return super.getChildCount();
         }
         
-        public void loadChildren() {
+        public void loadChildren() 
+        {
             Node[] nodes = nodeModel.fetchNodes(node);
-            if( nodes !=null) {
+            if (nodes != null) 
+            {
                 super.removeAllChildren();
-                for(Node n: nodes ) {
+                for (Node n : nodes) {
                     this.add(new DefaultNode(n));
                 }
             }
         }
         
-        public Node getNode() {
-            return node;
-        }
+        public Node getNode() { return node; }
         
-        public void reload() {
-            if ( !node.isLoaded() ) return;
+        public void reload() 
+        {
+            if (!node.isLoaded()) return;
             
-            synchronized(this) {
+            synchronized(this) 
+            {
                 loadChildren();
-                XTree.this.model.reload(this);
+                root.model.reload(this);
             }
-        }
-        
+        } 
     }
-    //</editor-fold>
     
-    //<editor-fold defaultstate="collapsed" desc="  NodeTreeRenderer (class)  ">
-    class NodeTreeRenderer extends DefaultTreeCellRenderer {
-        
-        public Component getTreeCellRendererComponent(JTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" NodeTreeRenderer (class) ">
+    
+    class NodeTreeRenderer extends DefaultTreeCellRenderer 
+    {        
+        public Component getTreeCellRendererComponent(JTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) 
+        {
             super.getTreeCellRendererComponent(tree,value,selected,expanded,leaf,row,hasFocus);
             super.setText(value+"");
             super.setToolTipText(value+"");
             super.setBorder( BorderFactory.createEmptyBorder(1,1,1,1) );
             
-            if( value !=null && (value instanceof DefaultNode)) {
+            if ( value !=null && (value instanceof DefaultNode)) 
+            {
                 Node n = ((DefaultNode)value).getNode();
-                if( n!=null ) {
-                    if( n.getIcon()!=null ) {
+                if (n != null) 
+                {
+                    if (n.getIcon()!= null) 
+                    {
                         String icon = n.getIcon();
                         ImageIcon ic = ControlSupport.getImageIcon(icon);
-                        if( ic != null ) {
-                            super.setIcon(ic);
-                        }
+                        if (ic != null) super.setIcon(ic);
                     }
-                    if( n.getTooltip() !=null) {
+                    
+                    if (n.getTooltip() !=null) 
                         super.setToolTipText(n.getTooltip());
-                    }
                 }
             }
             return this;
+        }        
+    }
+    
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" DummyTreeNodeModel (class) "> 
+    
+    private class DummyTreeNodeModel extends TreeNodeModel 
+    {
+        public Node[] fetchNodes(Node node) { return null; }
+
+        public Node getRootNode() { 
+            return new Node("root", "Default");
+        }
+    }
+    
+    // </editor-fold>    
+    
+    // <editor-fold defaultstate="collapsed" desc=" DefaultProvider (class) "> 
+    
+    private class DefaultProvider implements TreeNodeModel.Provider 
+    {
+        XTree root = XTree.this; 
+        
+        public Node getSelectedNode() 
+        {
+            DefaultNode defNode = root.getSelectedNode(); 
+            return (defNode == null? null: defNode.getNode()); 
         }
         
+        public Node findNode(NodeFilter filter) 
+        {
+            DefaultNode parent = (DefaultNode) root.model.getRoot();
+            Node n = parent.getNode();
+            if (filter.accept(n)) return n;
+
+            return root.doFindNode(parent, filter);
+        }
+
+        public List<Node> findNodes(NodeFilter filter) 
+        {
+            List<Node> nodes = new ArrayList();
+            DefaultNode parent = (DefaultNode) root.model.getRoot();
+
+            Node n = parent.getNode();
+            if (filter.accept(n)) nodes.add(n);
+
+            root.doCollectNodeList(parent, filter, nodes);      
+            return nodes;
+        }         
     }
-    //</editor-fold>
+            
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" TreeEventSupport (class) "> 
+    
+    private class TreeEventSupport implements TreeSelectionListener
+    {
+        XTree root = XTree.this; 
+        private List<TreeSelectionListener> selectionHandlers = new ArrayList(); 
+        
+        void add(TreeSelectionListener handler) 
+        {
+            if (handler != null && !selectionHandlers.contains(handler)) 
+                selectionHandlers.add(handler); 
+        }
+        
+        void remove(TreeSelectionListener handler) 
+        {
+            if (handler != null) selectionHandlers.remove(handler); 
+        }
+        
+        public void valueChanged(TreeSelectionEvent evt) 
+        {
+            try 
+            {
+                if (root.getName() != null) 
+                {
+                    DefaultNode selNode = getSelectedNode(); 
+                    UIControlUtil.setBeanValue(getBinding(), getName(), selNode); 
+
+                    EventQueue.invokeLater(new Runnable() {
+                        public void run() { 
+                            fireNotifyDepends();
+                        } 
+                    });
+                }
+                
+                for (TreeSelectionListener handler : selectionHandlers) {
+                    handler.valueChanged(evt); 
+                }
+            }
+            catch(Exception ex) { 
+                MsgBox.err(ex);  
+            }            
+        }      
+        
+        private void fireNotifyDepends() 
+        {
+            try {
+                root.getBinding().notifyDepends(root); 
+            } catch(Exception ex) {
+                MsgBox.err(ex); 
+            } 
+        } 
+    }
+    
+    // </editor-fold>
     
 }

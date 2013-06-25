@@ -2,39 +2,40 @@ package com.rameses.rcp.common;
 
 import java.util.List;
 
-public abstract class TreeNodeModel {
-    
+public abstract class TreeNodeModel 
+{
+    private static final long serialVersionUID = 1L;
+    private TreeNodeModel.Provider provider;
     private Node selectedNode;
-    private TreeNodeModelListener listener;
     
     public TreeNodeModel() {
     }
     
     public abstract Node[] fetchNodes( Node node );
+
+    public void setProvider(TreeNodeModel.Provider provider) {
+        this.provider = provider; 
+    } 
+    
+    public boolean isRootVisible() { return true; } 
     
     public Node getRootNode() {
         return new Node("root", "All");
     }
     
-    public Object openLeaf(Node node){
-        //do nothing
-        return null;
-    }
+    public Node getSelectedNode() 
+    {
+        if (provider == null) 
+            throw new NullPointerException("No provider implementation found"); 
+        
+        return provider.getSelectedNode(); 
+    } 
+
+    public Object openLeaf(Node node) { return null; }    
+    public Object openFolder(Node node) { return null; }
     
-    public Object openFolder(Node node) {
-        //do nothing
-        return null;
-    }
-    
-    public Node getSelectedNode() {
-        return selectedNode;
-    }
-    
-    public void setSelectedNode(Node selectedNode) {
-        this.selectedNode = selectedNode;
-    }
-    
-    public Object openSelected() {
+    public Object openSelected() 
+    {
         if ( selectedNode == null ) return null;
         
         if ( selectedNode.isLeaf() )
@@ -42,26 +43,31 @@ public abstract class TreeNodeModel {
         
         return openFolder( selectedNode );
     }
-    
-    public TreeNodeModelListener getListener() {
-        return listener;
-    }
-    
-    public void setListener(TreeNodeModelListener listener) {
-        this.listener = listener;
-    }
-    
-    public final Node findNode(NodeFilter filter) {
-        if ( listener == null )
-            throw new RuntimeException("No TreeNodeModelListener found.");
+       
+    public final Node findNode(NodeFilter filter) 
+    {
+        if (provider == null) 
+            throw new NullPointerException("No provider implementation found"); 
         
-        return listener.findNode(filter);
+        return provider.findNode(filter);
     }
     
-    public final List<Node> findNodes(NodeFilter filter) {
-        if ( listener == null )
-            throw new RuntimeException("No TreeNodeModelListener found.");
+    public final List<Node> findNodes(NodeFilter filter) 
+    {
+        if (provider == null) 
+            throw new NullPointerException("No provider implementation found"); 
         
-        return listener.findNodes(filter);
+        return provider.findNodes(filter);
     }
+    
+    
+    
+    public static interface Provider 
+    {
+        Node getSelectedNode(); 
+        
+        Node findNode(NodeFilter filter);        
+        List<Node> findNodes(NodeFilter filter);
+    }
+    
 }
