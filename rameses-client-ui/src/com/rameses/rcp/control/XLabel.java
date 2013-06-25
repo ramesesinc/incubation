@@ -13,12 +13,14 @@ import com.rameses.rcp.util.UIControlUtil;
 import com.rameses.util.ValueUtil;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Insets;
 import java.beans.Beans;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.text.Format;
+import java.util.logging.Logger;
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -54,8 +56,10 @@ public class XLabel extends JLabel implements UIOutput, ActiveControl
     private JComponent activeComponent;
     private ActiveControlSupport activeControlSupport;
     
+    private Logger logger; 
     
-    public XLabel() {  
+    public XLabel() 
+    {  
         this(false); 
     } 
     
@@ -65,6 +69,7 @@ public class XLabel extends JLabel implements UIOutput, ActiveControl
         this.forceUseActiveCaption = forceUseActiveCaption;
         
         setPadding(new Insets(1,3,1,1));
+        setPreferredSize(new Dimension(50,19));
         
         //default font
         Font f = ThemeUI.getFont("XLabel.font");
@@ -73,37 +78,45 @@ public class XLabel extends JLabel implements UIOutput, ActiveControl
     
     // <editor-fold defaultstate="collapsed" desc="  Getters/Setters  ">
     
+    private Logger getLogger() 
+    {
+        if (logger == null) 
+            logger = Logger.getLogger(getClass().getName());
+        
+        return logger;
+    }
+    
     public boolean isUseHtml() { return useHtml; } 
     public void setUseHtml(boolean useHtml) 
     { 
         this.useHtml = useHtml; 
-
-        if (Beans.isDesignTime()) setText("");
+        
+        if (Beans.isDesignTime()) showDesignTimeValue(); 
     }
     
     public String getVarName() { return varName; } 
     public void setVarName(String varName) { this.varName = varName; }
             
-    public String getExpression() { return expression; }    
+    public String getExpression() 
+    {
+        if (!Beans.isDesignTime()) return expression;
+        
+        return expression;
+    }
+    
     public void setExpression(String expression) 
     {
         this.expression = expression;
-        setText(expression); 
+        
+        if (Beans.isDesignTime()) showDesignTimeValue(); 
     }    
     
     public void setText(String text) 
     {
         if (Beans.isDesignTime()) 
-        {
-            String str = getExpression(); 
-            if ((str = getExpression()) != null)
-                super.setText(resolveText(str)); 
-            else if ((str = getName()) != null) 
-                super.setText(str); 
-        } 
-        else { 
-            super.setText(resolveText(text)); 
-        } 
+            setExpression(text); 
+        else 
+            setTextValue(text); 
     } 
     
     public String getVisibleWhen() { return visibleWhen; } 
@@ -235,7 +248,8 @@ public class XLabel extends JLabel implements UIOutput, ActiveControl
     public void setName(String name) 
     {
         super.setName(name);
-        setText(name); 
+        
+        if (Beans.isDesignTime()) showDesignTimeValue(); 
     }
 
     public int getIndex() { return index; }    
@@ -291,11 +305,11 @@ public class XLabel extends JLabel implements UIOutput, ActiveControl
                 value = super.getText();
             } 
             
-            setText((value == null? "": value.toString()));            
+            setTextValue((value == null? "": value.toString()));            
         } 
         catch(Exception e) 
         {
-            setText("");
+            setTextValue("");
             
             if ( ClientContext.getCurrentContext().isDebugMode() ) e.printStackTrace();
         }
@@ -318,12 +332,40 @@ public class XLabel extends JLabel implements UIOutput, ActiveControl
     
     // <editor-fold defaultstate="collapsed" desc=" Owned and helper methods ">   
        
+    private void showDesignTimeValue() 
+    {
+        if (!Beans.isDesignTime()) return;
+        
+        String str = null; 
+        if ((str = getExpression()) != null) 
+            super.setText(resolveText(str)); 
+        else if ((str = getName()) != null) 
+            super.setText(str); 
+        else 
+            super.setText("");
+    }
+    
+    private String originalText;    
+    private void setTextValue(String text) 
+    {
+        this.originalText = text; 
+        super.setText(resolveText(text));
+    }
+    
     private String resolveText(String text) 
     {
         if (isUseHtml() && text != null) 
         {
-            if (!text.trim().toLowerCase().startsWith("<html>"))
-                return "<html>"+text+"</html>"; 
+            StringBuffer sb = new StringBuffer();
+            if (text.toLowerCase().indexOf("<html>") < 0) 
+                sb.append("<html>"); 
+            
+            sb.append(text); 
+            
+            if (text.toLowerCase().lastIndexOf("</html>") < 0)
+                sb.append("</html>");
+
+            return sb.toString(); 
         }
         return text; 
     }
