@@ -110,6 +110,8 @@ public class UIInputUtil {
                             jtxt.setCaretPosition(oldCaretPos); 
                         } catch(Exception ign) {;} 
                     }
+                    
+                    jtxt.putClientProperty("CaretPosition", oldCaretPos); 
                 }
                 
                 binding.notifyDepends(control);
