@@ -7,7 +7,6 @@
 package com.rameses.rcp.control;
 
 import com.rameses.common.MethodResolver;
-import com.rameses.common.PropertyResolver;
 import com.rameses.rcp.common.MsgBox;
 import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.control.table.ExprBeanSupport;
@@ -41,8 +40,10 @@ import javax.swing.SwingConstants;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-public class XList extends JList implements UIControl, ListSelectionListener 
-{    
+public class XList extends JList implements UIControl 
+{
+    private ListSelectionSupport selectionSupport;    
+    
     private Binding binding;
     private String[] depends;
     private String varName;
@@ -52,7 +53,7 @@ public class XList extends JList implements UIControl, ListSelectionListener
     private String openAction;    
     private boolean dynamic;
     private int index;    
-    
+
     private DefaultListModel model;
     private Insets padding = new Insets(1,3,1,3);    
     private int cellVerticalAlignment = SwingConstants.CENTER;
@@ -60,6 +61,7 @@ public class XList extends JList implements UIControl, ListSelectionListener
         
     public XList() 
     {
+        super.addListSelectionListener(getSelectionSupport()); 
         setCellRenderer(new DefaultCellRenderer());
         setMultiselect(false);
         setVarName("item");
@@ -78,29 +80,22 @@ public class XList extends JList implements UIControl, ListSelectionListener
         {
             registerKeyboardAction(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                    openItem();
+                    fireOpenItem();
                 }
             }, KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), JComponent.WHEN_FOCUSED);
-        }
+        }        
     }
     
     // <editor-fold defaultstate="collapsed" desc="  Getters/Setters  ">
+    
+    public final void setModel(ListModel model) {;}    
     
     public String getVarName() { return varName; } 
     public void setVarName(String varName) { this.varName = varName; }
     
     public String getVarStatus() { return varStatus; } 
     public void setVarStatus(String varStatus) { this.varStatus = varStatus; }    
-    
-    public String[] getDepends() { return depends; }    
-    public void setDepends(String[] depends) { this.depends = depends; }
-    
-    public int getIndex() { return index; }    
-    public void setIndex(int index) { this.index = index; }
-
-    public Binding getBinding() { return binding; }    
-    public void setBinding(Binding binding) { this.binding = binding; }
-        
+            
     public String getExpression() { return expression; }    
     public void setExpression(String expression) {
         this.expression = expression;
@@ -150,14 +145,16 @@ public class XList extends JList implements UIControl, ListSelectionListener
     
     // </editor-fold>    
     
-    public final void setModel(ListModel model) {;}
+    // <editor-fold defaultstate="collapsed" desc=" UIControl implementation ">
+
+    public int getIndex() { return index; }    
+    public void setIndex(int index) { this.index = index; }
     
-    public void refresh() 
-    {
-        if ( dynamic ) buildList();
-        
-        selectSelectedItems();
-    }
+    public String[] getDepends() { return depends; }    
+    public void setDepends(String[] depends) { this.depends = depends; }
+    
+    public Binding getBinding() { return binding; }    
+    public void setBinding(Binding binding) { this.binding = binding; }  
     
     public void load() 
     {
@@ -167,37 +164,47 @@ public class XList extends JList implements UIControl, ListSelectionListener
         if ( !dynamic ) buildList();
     }
     
+    public void refresh() 
+    {
+        if ( dynamic ) buildList();
+        
+        selectSelectedItems();
+    }    
+    
     public int compareTo(Object o) {
         return UIControlUtil.compare(this, o);
-    }
+    }    
     
-    public void valueChanged(ListSelectionEvent e) 
-    {
-        if ( getSelectedIndex() != -1 && !e.getValueIsAdjusting() ) 
-        {
-            Object value = (isMultiselect()? getSelectedValues(): getSelectedValue());
-            PropertyResolver res = PropertyResolver.getInstance();
-            res.setProperty(binding.getBean(), getName(), value);
+    // </editor-fold>
+   
+    // <editor-fold defaultstate="collapsed" desc="  Owned / helper methods  ">
 
-            if (getVarStatus() != null) 
-            {
-                ItemStatus stat = new ItemStatus();
-                stat.value = value;
-                stat.name = getName();
-                stat.index = getSelectedIndex();
-                stat.multiSelect = isMultiselect(); 
-                res.setProperty(binding.getBean(), getVarStatus(), stat);
-            }
-            
-            EventQueue.invokeLater(new Runnable() {
-                public void run() {
-                    binding.notifyDepends(XList.this);                    
-                }
-            });
-        }
+    public void addListSelectionListener(ListSelectionListener listener) {
+        getSelectionSupport().add(listener); 
     }
     
-    private void openItem() 
+    public void removeListSelectionListener(ListSelectionListener listener) {
+        getSelectionSupport().remove(listener); 
+    }
+     
+    private ListSelectionSupport getSelectionSupport() 
+    {
+        if (selectionSupport == null) 
+            selectionSupport = new ListSelectionSupport(); 
+        
+        return selectionSupport; 
+    }
+    
+    private void fireOpenItem() 
+    {
+        EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                openItem(); 
+            }
+        }); 
+    }
+    
+    protected void openItem() 
     {
         try 
         {
@@ -219,51 +226,47 @@ public class XList extends JList implements UIControl, ListSelectionListener
         if (e.getID() == MouseEvent.MOUSE_PRESSED && e.getClickCount() == 2) 
         {
             e.consume(); 
-            EventQueue.invokeLater(new Runnable() {
-                public void run() {
-                    openItem(); 
-                }
-            });
+            fireOpenItem();
         }
         else { 
             super.processMouseEvent(e); 
         } 
-    }
+    }    
     
-    //<editor-fold defaultstate="collapsed" desc="  helper methods  ">
-    private void buildList() {
-        removeListSelectionListener(this);
-        
-        if( ValueUtil.isEmpty(items) ) return;
+    private void buildList() 
+    {
+        if (ValueUtil.isEmpty(items)) return;
         
         model.clear();
         
         List list = new ArrayList();
-        try {
+        try 
+        {
             Object value = UIControlUtil.getBeanValue(this, items);
-            if ( value == null ) return;
+            if (value == null) return;
             
-            if ( value instanceof Collection )
-                list.addAll( (Collection) value );
-            else if ( value.getClass().isArray() ) {
-                for(Object o: (Object[]) value) list.add( o );
+            if (value instanceof Collection)
+                list.addAll((Collection) value);
+            
+            else if (value.getClass().isArray()) 
+            {
+                for (Object o: (Object[]) value) {
+                    list.add( o );
+                }
             }
             
-            if ( list.size() == 0 ) return;
-        } catch(Exception e) {
-            e.printStackTrace();
-        }
+            if (list.size() == 0) return;
+        } 
+        catch(Exception e) {;}
         
         int i = 0;
-        for(Object o: list) {
-            model.add(i++, o);
-        }
-        
-        if ( !ValueUtil.isEmpty(getName()) )
-            addListSelectionListener(this);
+        for (Object o: list) { 
+            model.add(i++, o); 
+        } 
     }
     
-    private void selectSelectedItems() {
+    private void selectSelectedItems() 
+    {
         if ( ValueUtil.isEmpty(getName()) ) return;
         
         Object value = null;
@@ -309,7 +312,8 @@ public class XList extends JList implements UIControl, ListSelectionListener
             setSelectedValue(value, true);
         }
     }
-    //</editor-fold>
+    
+    // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc="  DefaultCellRenderer (class)  ">
     
@@ -375,6 +379,72 @@ public class XList extends JList implements UIControl, ListSelectionListener
     }
     
     // </editor-fold>    
+    
+    // <editor-fold defaultstate="collapsed" desc=" ListSelectionSupport (class) "> 
+    
+    private class ListSelectionSupport implements ListSelectionListener
+    {
+        XList root = XList.this; 
+        List<ListSelectionListener> listeners = new ArrayList(); 
+        
+        void remove(ListSelectionListener listener) 
+        {
+            if (listener != null) listeners.remove(listener); 
+        }
+        
+        void add(ListSelectionListener listener) 
+        {
+            if (listener != null) 
+            {
+                listeners.remove(listener); 
+                listeners.add(listener); 
+            }
+        }
+        
+        public void valueChanged(final ListSelectionEvent evt) 
+        {
+            try 
+            {
+                int selIndex = root.getSelectedIndex(); 
+                if (selIndex != -1 && !evt.getValueIsAdjusting()) 
+                {
+                    Object value = (root.isMultiselect()? root.getSelectedValues(): root.getSelectedValue());
+                    UIControlUtil.setBeanValue(root.getBinding(), root.getName(), value);
+                    
+                    if (root.getVarStatus() != null) 
+                    {
+                        ItemStatus stat = new ItemStatus();
+                        stat.multiSelect = root.isMultiselect(); 
+                        stat.index = root.getSelectedIndex();
+                        stat.name = root.getName();                        
+                        stat.value = value;
+                        UIControlUtil.setBeanValue(root.getBinding(), root.getVarStatus(), stat); 
+                    }
+
+                    EventQueue.invokeLater(new Runnable() {
+                        public void run() {
+                            binding.notifyDepends(XList.this);                    
+                        }
+                    });
+                } 
+                
+                //notify listeners
+                notifyListeners(evt);
+            }
+            catch(Exception ex) {
+                MsgBox.err(ex); 
+            }
+        }
+
+        private void notifyListeners(ListSelectionEvent evt) 
+        {
+            for (ListSelectionListener listener : listeners) { 
+                listener.valueChanged(evt); 
+            } 
+        }    
+    }
+    
+    // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc="  ItemStatus (class)  ">
     
