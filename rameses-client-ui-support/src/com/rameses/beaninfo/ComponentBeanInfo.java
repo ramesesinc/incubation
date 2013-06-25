@@ -14,6 +14,7 @@ import java.awt.Component;
 import java.awt.Image;
 import java.beans.BeanDescriptor;
 import java.beans.BeanInfo;
+import java.beans.Beans;
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
 import java.beans.SimpleBeanInfo;
@@ -48,7 +49,6 @@ public class ComponentBeanInfo extends SimpleBeanInfo
         }
     }
     
-    
     public abstract static class Support extends SimpleBeanInfo
     {
         private String iconName;
@@ -78,10 +78,15 @@ public class ComponentBeanInfo extends SimpleBeanInfo
 
         public PropertyDescriptor[] getPropertyDescriptors()
         {
-            try {
-                return createPropertyDescriptors(); 
+            try 
+            {
+                if (Beans.isDesignTime()) 
+                    return createPropertyDescriptors(); 
+                else 
+                    return super.getPropertyDescriptors(); 
             } 
-            catch (IntrospectionException ie) {
+            catch (IntrospectionException ie) 
+            {
                 MsgBox.err(ie); 
                 return null;
             }

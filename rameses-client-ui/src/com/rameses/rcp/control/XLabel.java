@@ -31,15 +31,16 @@ import javax.swing.border.Border;
 public class XLabel extends JLabel implements UIOutput, ActiveControl 
 {
     private ControlProperty property = new ControlProperty();
-    private Binding binding;        
+    private Binding binding; 
     private String[] depends;
     private String expression;
     private String visibleWhen;
-    private String varName;
+    private String varName;    
     private int index;    
-    private Insets padding;
-    private Format format;
+    private boolean useHtml;
     
+    private Insets padding;
+    private Format format;    
     private Border origBorder;
     
     /**
@@ -54,171 +55,56 @@ public class XLabel extends JLabel implements UIOutput, ActiveControl
     private ActiveControlSupport activeControlSupport;
     
     
-    public XLabel() 
+    public XLabel() {  
+        this(false); 
+    } 
+    
+    public XLabel(boolean forceUseActiveCaption) 
     {
         super();
+        this.forceUseActiveCaption = forceUseActiveCaption;
+        
         setPadding(new Insets(1,3,1,1));
         
         //default font
         Font f = ThemeUI.getFont("XLabel.font");
-        if ( f != null ) setFont( f );
-    }
-    
-    public XLabel(boolean forceUseActiveCaption) {
-        this();
-        this.forceUseActiveCaption = forceUseActiveCaption;
-    }
-    
-    public void refresh() 
-    {
-        try 
-        {
-            String expr = getVisibleWhen();
-            if ( !ValueUtil.isEmpty(expr) ) 
-            {
-                boolean result = UIControlUtil.evaluateExprBoolean(binding.getBean(), expr);
-                setVisible(result); 
-                if (!result) return;
-            }
-            
-            Object beanValue = null; 
-            boolean hasName = !ValueUtil.isEmpty(getName());
-            if (hasName) beanValue = UIControlUtil.getBeanValue(this);
-            
-            Object value = null;
-            if ( !ValueUtil.isEmpty(expression) )  
-            {
-                Object exprBean = binding.getBean(); 
-                if (getVarName() != null) exprBean = createExpressionBean(beanValue);
-
-                value = UIControlUtil.evaluateExpr(exprBean, expression);
-            }
-            else if ( hasName ) 
-            {
-                value = beanValue;
-                if (beanValue != null && format != null)
-                    value = format.format(beanValue);
-            } 
-            else { 
-                value = super.getText();
-            } 
-            
-            super.setText((value == null? "": value.toString()));            
-        } 
-        catch(Exception e) 
-        {
-            super.setText("");
-            
-            if ( ClientContext.getCurrentContext().isDebugMode() ) e.printStackTrace();
-        }
-    }
-    
-    public void load() 
-    {
-        if ( !ValueUtil.isEmpty(labelFor) ) 
-        {
-            UIControl c = binding.find(labelFor);
-            if ( c == null ) return;
-            if (c instanceof JComponent) {
-                this.setLabelFor((JComponent) c);
-            }
-        }
-    }
-    
-    public int compareTo(Object o) {
-        return UIControlUtil.compare(this, o);
-    }
-    
-    private void formatText(String text, boolean required) {
-        StringBuffer sb = new StringBuffer(text);
-        if ( addCaptionColon && !ValueUtil.isEmpty(text) ) {
-            sb.append(" :");
-        }
-        if ( required ) {
-            int mnem = getDisplayedMnemonic();
-            int idx = findDisplayedMnemonicIndex(sb, mnem);
-            if( idx != -1 ) {
-                sb.replace(idx, idx+1, "<u>" + sb.charAt(idx) + "</u>");
-            }
-            
-            sb.insert(0, "<html>");
-            sb.append(" <font color=\"red\">*</font>");
-            sb.append("</html>");
-        }
-        
-        super.setText(sb.toString());
-    }
-    
-    static int findDisplayedMnemonicIndex(StringBuffer text, int mnemonic) {
-        if (text == null || mnemonic == '\0') {
-            return -1;
-        }
-        
-        char uc = Character.toUpperCase((char)mnemonic);
-        char lc = Character.toLowerCase((char)mnemonic);
-        
-        int uci = text.indexOf(uc+"");
-        int lci = text.indexOf(lc+"");
-        
-        if (uci == -1) {
-            return lci;
-        } else if(lci == -1) {
-            return uci;
-        } else {
-            return (lci < uci) ? lci : uci;
-        }
+        if (f != null) setFont(f);
     }
     
     // <editor-fold defaultstate="collapsed" desc="  Getters/Setters  ">
     
+    public boolean isUseHtml() { return useHtml; } 
+    public void setUseHtml(boolean useHtml) 
+    { 
+        this.useHtml = useHtml; 
+
+        if (Beans.isDesignTime()) setText("");
+    }
+    
     public String getVarName() { return varName; } 
     public void setVarName(String varName) { this.varName = varName; }
-    
-    public void setName(String name) 
-    {
-        super.setName(name);
-        showPreferredText();
-    }
-    
-    public String getText() 
-    {
-        if (Beans.isDesignTime()) 
-        {
-            if ( !ValueUtil.isEmpty(expression) )
-                return expression;
-            else if ( !ValueUtil.isEmpty(getName()) )
-                return getName();
-            else
-                return super.getText();
-        } 
-        else {
-            return super.getText();
-        }
-    }
-    
+            
     public String getExpression() { return expression; }    
     public void setExpression(String expression) 
     {
         this.expression = expression;
-        showPreferredText();
-    }
+        setText(expression); 
+    }    
     
-    private String firstTextValue;
-    private void showPreferredText() 
+    public void setText(String text) 
     {
         if (Beans.isDesignTime()) 
         {
-            if (firstTextValue == null) firstTextValue = super.getText();
-            if (firstTextValue == null) firstTextValue = "";
-                                
-            if (expression != null)
-                super.setText(expression); 
-            else if (getName() != null)
-                super.setText(getName());
-            else 
-                super.setText(firstTextValue); 
-        }
-    }
+            String str = getExpression(); 
+            if ((str = getExpression()) != null)
+                super.setText(resolveText(str)); 
+            else if ((str = getName()) != null) 
+                super.setText(str); 
+        } 
+        else { 
+            super.setText(resolveText(text)); 
+        } 
+    } 
     
     public String getVisibleWhen() { return visibleWhen; } 
     public void setVisibleWhen(String visibleWhen) { this.visibleWhen = visibleWhen;  }
@@ -279,25 +165,14 @@ public class XLabel extends JLabel implements UIOutput, ActiveControl
     public void setCellPadding(Insets padding) {
         property.setCellPadding(padding);
     }
-    
-    public String[] getDepends() { return depends; }    
-    public void setDepends(String[] depends) { this.depends = depends; }    
-    
-    public int getIndex() { return index; }    
-    public void setIndex(int idx) { index = idx; }
-
-    public Binding getBinding() { return binding; }    
-    public void setBinding(Binding binding) { this.binding = binding; }
         
-    public ControlProperty getControlProperty() { return property; }
-    
     public String getFor() { return labelFor; }    
     public void setFor(String name) { this.labelFor = name; }
     
     public void setLabelFor(Component c) 
     {
         activeComponent = (JComponent) c;
-        if ( c instanceof ActiveControl ) 
+        if (c instanceof ActiveControl) 
         {
             ActiveControl ac = (ActiveControl) c;
             activeProperty = ac.getControlProperty();
@@ -330,6 +205,13 @@ public class XLabel extends JLabel implements UIOutput, ActiveControl
         formatText( activeProperty.getCaption(), activeProperty.isRequired() );
     }
     
+    public Format getFormat() { return format; }
+    public void setFormat(Format format) { this.format = format; }
+
+    // </editor-fold>    
+    
+    // <editor-fold defaultstate="collapsed" desc=" UIOutput implementation ">    
+    
     public Object getValue() 
     {
         Object beanValue = null;
@@ -343,16 +225,107 @@ public class XLabel extends JLabel implements UIOutput, ActiveControl
             
             return UIControlUtil.evaluateExpr(exprBean, expression);
         }
+        
         else if ( hasName ) 
             return beanValue; 
         else 
             return super.getText();
     }
     
-    public Format getFormat() { return format; }
-    public void setFormat(Format format) { this.format = format; }
+    public void setName(String name) 
+    {
+        super.setName(name);
+        setText(name); 
+    }
 
+    public int getIndex() { return index; }    
+    public void setIndex(int idx) { index = idx; }
+    
+    public String[] getDepends() { return depends; }    
+    public void setDepends(String[] depends) { this.depends = depends; }    
+    
+    public Binding getBinding() { return binding; }    
+    public void setBinding(Binding binding) { this.binding = binding; }
+    
+    public void load() 
+    {
+        if ( !ValueUtil.isEmpty(labelFor) ) 
+        {
+            UIControl c = binding.find(labelFor);
+            if (c instanceof JComponent) 
+                this.setLabelFor((JComponent) c);
+        }
+    } 
+    
+    public void refresh() 
+    {
+        try 
+        {
+            String expr = getVisibleWhen();
+            if ( !ValueUtil.isEmpty(expr) ) 
+            {
+                boolean result = UIControlUtil.evaluateExprBoolean(binding.getBean(), expr);
+                setVisible(result); 
+                if (!result) return;
+            }
+            
+            Object beanValue = null; 
+            boolean hasName = !ValueUtil.isEmpty(getName());
+            if (hasName) beanValue = UIControlUtil.getBeanValue(this);
+            
+            Object value = null;
+            if ( !ValueUtil.isEmpty(expression) )  
+            {
+                Object exprBean = binding.getBean(); 
+                if (getVarName() != null) exprBean = createExpressionBean(beanValue);
+
+                value = UIControlUtil.evaluateExpr(exprBean, expression);
+            }
+            else if ( hasName ) 
+            {
+                value = beanValue;
+                if (beanValue != null && format != null)
+                    value = format.format(beanValue);
+            } 
+            else { 
+                value = super.getText();
+            } 
+            
+            setText((value == null? "": value.toString()));            
+        } 
+        catch(Exception e) 
+        {
+            setText("");
+            
+            if ( ClientContext.getCurrentContext().isDebugMode() ) e.printStackTrace();
+        }
+    }   
+    
     public void setPropertyInfo(PropertySupport.PropertyInfo info) {
+    }    
+    
+    public int compareTo(Object o) {
+        return UIControlUtil.compare(this, o);
+    }
+    
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" ActiveControl implementation ">    
+    
+    public ControlProperty getControlProperty() { return property; }
+
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" Owned and helper methods ">   
+       
+    private String resolveText(String text) 
+    {
+        if (isUseHtml() && text != null) 
+        {
+            if (!text.trim().toLowerCase().startsWith("<html>"))
+                return "<html>"+text+"</html>"; 
+        }
+        return text; 
     }
     
     private Object createExpressionBean(Object itemBean) 
@@ -360,13 +333,53 @@ public class XLabel extends JLabel implements UIOutput, ActiveControl
         ExprBeanSupport beanSupport = new ExprBeanSupport(binding.getBean());
         beanSupport.setItem(getVarName(), itemBean); 
         return beanSupport.createProxy(); 
+    }  
+    
+    private void formatText(String text, boolean required) 
+    {
+        StringBuffer sb = new StringBuffer(text);
+        if (addCaptionColon && !ValueUtil.isEmpty(text)) sb.append(" :");
+
+        if (required) 
+        {
+            int mnem = getDisplayedMnemonic();
+            int idx = findDisplayedMnemonicIndex(sb, mnem);
+            if (idx != -1) 
+                sb.replace(idx, idx+1, "<u>" + sb.charAt(idx) + "</u>");
+            
+            sb.insert(0, "<html>");
+            sb.append(" <font color=\"red\">*</font>");
+            sb.append("</html>");
+        }
+        
+        super.setText(sb.toString());
+    }
+    
+    static int findDisplayedMnemonicIndex(StringBuffer text, int mnemonic) 
+    {
+        if (text == null || mnemonic == '\0') return -1;
+        
+        char uc = Character.toUpperCase((char)mnemonic);
+        char lc = Character.toLowerCase((char)mnemonic);
+        
+        int uci = text.indexOf(uc+"");
+        int lci = text.indexOf(lc+"");
+        
+        if (uci == -1) {
+            return lci;
+        } else if(lci == -1) {
+            return uci;
+        } else {
+            return (lci < uci) ? lci : uci;
+        }
     }    
     
     // </editor-fold>
-        
-    //<editor-fold defaultstate="collapsed" desc="  ActiveControlSupport (class)  ">
-    private class ActiveControlSupport implements PropertyChangeListener {
-        
+    
+    // <editor-fold defaultstate="collapsed" desc="  ActiveControlSupport (class)  ">
+    
+    private class ActiveControlSupport implements PropertyChangeListener 
+    {        
         private Color oldFg;
         
         public void propertyChange(PropertyChangeEvent evt) {
@@ -399,8 +412,8 @@ public class XLabel extends JLabel implements UIOutput, ActiveControl
                     activeComponent.setToolTipText(message);
                 }
             }
-        }
-        
+        }        
     }
-//</editor-fold>
+    
+    // </editor-fold>
 }
