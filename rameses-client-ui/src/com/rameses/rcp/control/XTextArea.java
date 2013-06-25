@@ -4,6 +4,7 @@ import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.common.TextDocumentModel;
 import com.rameses.rcp.constant.TextCase;
 import com.rameses.rcp.constant.TrimSpaceOption;
+import com.rameses.rcp.framework.ActionHandler;
 import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.framework.ClientContext;
 import com.rameses.rcp.support.TextDocument;
@@ -51,6 +52,7 @@ public class XTextArea extends JTextArea implements UIInput, Validatable, Active
     
     private TextDocument textDocument = new TextDocument();
     private TrimSpaceOption trimSpaceOption = TrimSpaceOption.NONE;
+    private ActionHandlerImpl actionHandler = new ActionHandlerImpl();
     
     private String handler;
     private TextDocumentModel handlerObject; 
@@ -98,6 +100,7 @@ public class XTextArea extends JTextArea implements UIInput, Validatable, Active
     
     public void refresh() 
     {
+        int oldCaretPos = getCaretPosition();
         try 
         {
             //force to update component's status
@@ -105,7 +108,6 @@ public class XTextArea extends JTextArea implements UIInput, Validatable, Active
             
             Object value = UIControlUtil.getBeanValue(this);
             setValue(value);
-            setCaretPosition(0);
         } 
         catch(Exception e) 
         {
@@ -114,6 +116,10 @@ public class XTextArea extends JTextArea implements UIInput, Validatable, Active
             if (ClientContext.getCurrentContext().isDebugMode()) 
                 e.printStackTrace();
         }
+        
+        try {
+            setCaretPosition(oldCaretPos); 
+        } catch(Exception ign){;} 
     }
     
     public void load() 
@@ -183,7 +189,17 @@ public class XTextArea extends JTextArea implements UIInput, Validatable, Active
     public void setIndex(int index) { this.index = index; }
 
     public Binding getBinding() { return binding; }    
-    public void setBinding(Binding binding) { this.binding = binding; }
+    public void setBinding(Binding binding) 
+    { 
+        //detached the handler from the old binding
+        if (this.binding != null) 
+            this.binding.getActionHandlerSupport().remove(actionHandler); 
+        
+        this.binding = binding; 
+        
+        if (binding != null) 
+            binding.getActionHandlerSupport().add(actionHandler); 
+    }
         
     public String getCaption() {
         return property.getCaption();
@@ -370,11 +386,25 @@ public class XTextArea extends JTextArea implements UIInput, Validatable, Active
             int caretPos = root.getCaretPosition();
             try 
             {
+                int caretCharPos = (text == null? -1: text.indexOf('|'));
+                if (caretCharPos >= 0) 
+                {
+                    StringBuffer sb = new StringBuffer(); 
+                    sb.append(text.substring(0, caretCharPos));
+                    sb.append(' ');
+                    sb.append(text.substring(caretCharPos+1));
+                    text = sb.toString(); 
+                }
+
                 root.textDocument.insertString(caretPos, text, null);
-                repaint(); 
+                
+                if (caretCharPos >= 0) root.setCaretPosition(caretPos + caretCharPos);
             } 
             catch (BadLocationException ex) {
-                System.out.println("[XTextArea] failed to insert text at position " + caretPos);
+                System.out.println("[XTextArea] failed to insert text at position " + caretPos + " caused by " + ex.getMessage());
+            }
+            finally {
+                repaint();                 
             }
         } 
         
@@ -388,7 +418,32 @@ public class XTextArea extends JTextArea implements UIInput, Validatable, Active
                 }
             }); 
         }
+        
+        public void load() { root.load(); }
+        public void refresh() { root.refresh(); } 
     }
     
     // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" ActionHandlerImpl (class) ">   
+    
+    private class ActionHandlerImpl implements ActionHandler
+    {
+        XTextArea root = XTextArea.this;
+        
+        public void onBeforeExecute() {
+        }
+
+        /*
+         *  This method is called once a button is clicked.
+         */
+        public void onAfterExecute() 
+        {
+            if (!root.textDocument.isDirty()) return;
+            
+            UIInputUtil.updateBeanValue(root); 
+        } 
+    }
+    
+    // </editor-fold>    
 }

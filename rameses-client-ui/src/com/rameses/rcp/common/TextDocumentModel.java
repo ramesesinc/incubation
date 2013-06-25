@@ -44,15 +44,25 @@ public class TextDocumentModel
         provider.requestFocus();
     }
     
+    public void load() { 
+        provider.load(); 
+    } 
+    
+    public void refresh() {
+        provider.refresh(); 
+    }
+    
     
     
     public static interface Provider 
     {
-        void requestFocus();
+        void insertText(String text); 
         
         String getText(); 
         void setText(String text);
-        
-        void insertText(String text);         
+                        
+        void load();
+        void refresh();
+        void requestFocus();        
     }
 }
