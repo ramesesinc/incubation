@@ -401,6 +401,7 @@ public class XTree extends JTree implements UIControl
     private class TreeEventSupport implements TreeSelectionListener
     {
         XTree root = XTree.this; 
+        
         private List<TreeSelectionListener> selectionHandlers = new ArrayList(); 
         
         void add(TreeSelectionListener handler) 
@@ -421,13 +422,8 @@ public class XTree extends JTree implements UIControl
                 if (root.getName() != null) 
                 {
                     DefaultNode selNode = getSelectedNode(); 
-                    UIControlUtil.setBeanValue(getBinding(), getName(), selNode); 
-
-                    EventQueue.invokeLater(new Runnable() {
-                        public void run() { 
-                            fireNotifyDepends();
-                        } 
-                    });
+                    UIControlUtil.setBeanValue(root.getBinding(), root.getName(), selNode); 
+                    root.getBinding().notifyDepends(root); 
                 }
                 
                 for (TreeSelectionListener handler : selectionHandlers) {
@@ -438,15 +434,6 @@ public class XTree extends JTree implements UIControl
                 MsgBox.err(ex);  
             }            
         }      
-        
-        private void fireNotifyDepends() 
-        {
-            try {
-                root.getBinding().notifyDepends(root); 
-            } catch(Exception ex) {
-                MsgBox.err(ex); 
-            } 
-        } 
     }
     
     // </editor-fold>
