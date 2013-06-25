@@ -46,8 +46,8 @@ import javax.swing.text.JTextComponent;
  *
  * @author jaycverg
  */
-public class Binding {
-    
+public class Binding 
+{
     private static final String CHANGE_LOG_PREFIX_KEY = "CHANGE_LOG_PREFIX_KEY";
     
     private Object bean;
@@ -121,23 +121,27 @@ public class Binding {
     //focus flag
     private String focusComponentName;
     
+    /*
+     *  Stores the ActionHandler interfaces and notifies the handlers 
+     *  everytime a command button is being executed. This is very useful 
+     *  for editor components like TextArea and FormulaEditor. 
+     */
+    private ActionHandlerSupport actionSupport; 
     
-    public Binding() {}
+    public Binding() { 
+        this(null);
+    }
     
     public Binding(UIViewPanel owner) {
         setOwner(owner);
     }
     
-    public UIViewPanel getOwner() {
-        return owner;
-    }
+    public UIViewPanel getOwner() { return owner; }    
+    public void setOwner(UIViewPanel owner) { this.owner = owner; }
     
-    public void setOwner(UIViewPanel owner) {
-        this.owner = owner;
-    }
-    
-    public void addValidator(Validator validator) {
-        if ( validators.contains(validator) )
+    public void addValidator(Validator validator) 
+    {
+        if (validators.contains(validator))
             validators.add(validator);
     }
     
@@ -145,8 +149,13 @@ public class Binding {
         return validators.remove(validator);
     }
     
-    public EventManager getEventManager() {
-        return eventManager;
+    public EventManager getEventManager() { return eventManager; }
+    
+    public ActionHandlerSupport getActionHandlerSupport() 
+    {
+        if (actionSupport == null) actionSupport = new ActionHandlerSupport();
+        
+        return actionSupport; 
     }
     
     
@@ -841,8 +850,7 @@ public class Binding {
         }
     }
     //</editor-fold>
-    
-    
+        
     //<editor-fold defaultstate="collapsed" desc="  ChangeLogKeySupport (class)  ">
     private class ChangeLogKeySupport implements KeyListener {
         
@@ -864,7 +872,8 @@ public class Binding {
     }
     //</editor-fold>
     
-    //<editor-fold defaultstate="collapsed" desc="  ControlEventSupport (class)  ">
+    // <editor-fold defaultstate="collapsed" desc="  ControlEventSupport (class)  ">
+    
     private class ControlEventSupport implements MouseListener, KeyListener {
         
         public void mouseClicked(MouseEvent e) {}
@@ -900,4 +909,40 @@ public class Binding {
     }
     //</editor-fold>
     
+    // <editor-fold defaultstate="collapsed" desc=" ActionHandlerSupport (class) ">
+    
+    public class ActionHandlerSupport 
+    {
+        private List<ActionHandler> handlers = new ArrayList(); 
+        
+        public void add(ActionHandler handler) 
+        {
+            if (handler == null) return;
+            
+            //try to remove it first, to prevent from duplicating the entries
+            handlers.remove(handler);
+            handlers.add(handler); 
+        }
+        
+        public void remove(ActionHandler handler) 
+        {
+            if (handler != null) handlers.remove(handler); 
+        }
+        
+        public void fireBeforeExecute() 
+        {
+            for (ActionHandler handler: handlers) {
+                handler.onBeforeExecute(); 
+            }
+        }
+
+        public void fireAfterExecute() 
+        {
+            for (ActionHandler handler: handlers) {
+                handler.onAfterExecute(); 
+            }            
+        } 
+    }
+    
+    // </editor-fold>
 }
