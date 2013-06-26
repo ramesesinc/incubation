@@ -9,6 +9,7 @@
 
 package com.rameses.rcp.control.table;
 
+import com.rameses.rcp.common.AbstractListDataProvider;
 import com.rameses.rcp.common.MsgBox;
 import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.framework.Binding;
@@ -18,7 +19,6 @@ import com.rameses.rcp.util.UIControlUtil;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
-import java.util.Collection;
 import javax.swing.JCheckBox;
 import javax.swing.SwingConstants;
 
@@ -67,7 +67,7 @@ public class SelectionCellEditor extends JCheckBox implements UIInput, Immediate
     public void setBinding(Binding binding) {
         this.binding = binding;
     }
-
+    
     public int compareTo(Object o) {
         return UIControlUtil.compare(this, o);
     }
@@ -96,6 +96,16 @@ public class SelectionCellEditor extends JCheckBox implements UIInput, Immediate
         }
     } 
     
+    DataTableBinding getTableBinding() { 
+        return (DataTableBinding) getBinding();
+    } 
+    DataTableModel getTableModel() {
+        return getTableBinding().getTableModel();
+    }        
+    AbstractListDataProvider.ListSelectionSupport getSelectionSupport() {
+        return getTableModel().getDataProvider().getSelectionSupport(); 
+    }
+    
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc="  ItemHandler (class)  ">
@@ -122,15 +132,19 @@ public class SelectionCellEditor extends JCheckBox implements UIInput, Immediate
         
         boolean isItemMatches() 
         {
-            DataTableBinding tableBinding = (DataTableBinding) binding;
-            Object exprBean = tableBinding.createExpressionBean(); 
-            
-            Collection checkedItems = null;
-            try {
-                checkedItems = (Collection) UIControlUtil.getBeanValue(exprBean, getName()); 
-            } catch(Exception ign){;} 
-            
-            return (checkedItems == null? false: checkedItems.contains(binding.getBean())); 
+            DataTableBinding tableBinding = getTableBinding(); 
+            Object itemData = getTableModel().getDataProvider().getListItemData(tableBinding.getRowIndex()); 
+            return getSelectionSupport().isItemChecked(itemData); 
+//            boolean matched = false;
+//            if (getSelectionSupport().containsItem(itemData)) { 
+//                matched = getSelectionSupport().isItemChecked(itemData); 
+//            }
+//            else 
+//            {
+//                matched = getSelectionSupport().isItemCheckedFromHandler(itemData); 
+//                if (matched) getSelectionSupport().setItemChecked(itemData, true); 
+//            } 
+//            return matched; 
         }
     }
     

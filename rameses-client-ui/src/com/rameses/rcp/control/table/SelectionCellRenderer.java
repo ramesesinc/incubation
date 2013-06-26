@@ -9,10 +9,9 @@
 
 package com.rameses.rcp.control.table;
 
+import com.rameses.rcp.common.AbstractListDataProvider;
 import com.rameses.rcp.common.Column;
-import com.rameses.rcp.framework.ClientContext;
 import com.rameses.rcp.util.UIControlUtil;
-import java.lang.reflect.Method;
 import java.util.Collection;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
@@ -49,23 +48,18 @@ public class SelectionCellRenderer extends CellRenderers.AbstractRenderer
         
         Column oColumn = getTableControlModel().getColumn(columnIndex); 
         Object itemData = getTableControl().getDataProvider().getListItemData(rowIndex); 
-        Collection checkedItems = getSourceItems(itemData, oColumn.getName());
-
-        boolean matched = false;
-        Object checkHandler = getTableControl().getDataProvider().getMultiSelectHandler(); 
-        if (checkHandler != null) 
-            matched = isItemCheckedFromHandler(checkHandler, itemData); 
         
-        if (!matched)
-            matched = (checkedItems == null? false: checkedItems.contains(itemData));
+        boolean matched = getSelectionSupport().isItemChecked(itemData);
+//        if (getSelectionSupport().containsItem(itemData)) { 
+//            matched = getSelectionSupport().isItemChecked(itemData); 
+//        }
+//        else 
+//        {
+//            matched = getSelectionSupport().isItemCheckedFromHandler(itemData); 
+//            if (matched) getSelectionSupport().setItemChecked(itemData, true); 
+//        }
         
-        if (checkedItems != null) 
-        {
-            checkedItems.remove(itemData);
-            if (matched) checkedItems.add(itemData);
-            
-            component.setSelected(matched); 
-        }
+        component.setSelected(matched); 
     }  
     
     private Collection getSourceItems(Object itemData, String name) 
@@ -79,26 +73,8 @@ public class SelectionCellRenderer extends CellRenderers.AbstractRenderer
         
         return checkedItems; 
     }
-    
-    private boolean isItemCheckedFromHandler(Object handler, Object itemData) 
-    {
-        try 
-        {
-            Class handlerClass = handler.getClass();
-            Method m = handlerClass.getMethod("call", new Class[]{Object.class}); 
-            Object res = m.invoke(handler, new Object[]{ itemData }); 
-            if (res instanceof Boolean) 
-                return ((Boolean) res).booleanValue(); 
-            else 
-                return "true".equals(res+""); 
-        }
-        catch(Throwable ex) 
-        {
-            if (ClientContext.getCurrentContext().isDebugMode()) 
-                ex.printStackTrace(); 
-            
-            return false; 
-        }
-    }
-    
+        
+    private AbstractListDataProvider.ListSelectionSupport getSelectionSupport() {
+        return getTableControl().getDataProvider().getSelectionSupport(); 
+    }  
 }

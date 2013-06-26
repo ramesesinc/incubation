@@ -8,9 +8,11 @@
  */
 package com.rameses.rcp.common;
 
+import com.rameses.rcp.framework.ClientContext;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -68,11 +70,9 @@ public abstract class AbstractListDataProvider
     public Column[] getColumns() { return columns; } 
     public void setColumns(Column[] columns) { this.columns = columns; }
     
-    public boolean isMultiSelect() { 
-        return getSelectionSupport().isMultiSelect();
-    } 
+    public boolean isMultiSelect() { return multiSelect; } 
     public void setMultiSelect(boolean multiSelect) {
-        getSelectionSupport().setMultiSelect(multiSelect); 
+        this.multiSelect = multiSelect;
     }
     
     public Object getMultiSelectHandler() { return multiSelectHandler; } 
@@ -269,6 +269,7 @@ public abstract class AbstractListDataProvider
     {
         checkedItems.clear();        
         fetchMode = FETCH_MODE_LOAD; 
+        selectionSupport = null;
         fetchImpl();
     }
     
@@ -489,13 +490,11 @@ public abstract class AbstractListDataProvider
                 Object item = list.get(i);
                 li.loadItem( item );
                 li.setState(ListItem.STATE_SYNC);
-                li.setSelected(isSelected(item));
             } 
             else 
             {
                 li.loadItem(null);
                 li.setState(ListItem.STATE_EMPTY);
-                li.setSelected(false);
             }
         }
     } 
@@ -507,6 +506,18 @@ public abstract class AbstractListDataProvider
         }
     } 
     
+    /*
+     *  This is called by the ListSelectionSupport. You need to override this method 
+     *  if you want to handle a custom routing check of an item. 
+     */
+    public boolean isItemSelected(Object item) 
+    { 
+        Object callback = getMultiSelectHandler();
+        return getSelectionSupport().isItemCheckedFromHandler(callback, item); 
+    } 
+    
+    
+    /*
     public boolean isSelected(Object item) {
         return checkedItems.contains(item);
     }    
@@ -520,7 +531,7 @@ public abstract class AbstractListDataProvider
             checkedItems.add(item);
         else 
             checkedItems.remove(item);
-    }    
+    }*/   
     
     protected void refreshSelectedItem() { 
         fireFocusSelectedItem(); 
@@ -528,7 +539,8 @@ public abstract class AbstractListDataProvider
     
     public final Object getSelectedValue() 
     {
-        if (isMultiSelect()) return getCheckedItems().toArray(); 
+        if (isMultiSelect()) 
+            return getSelectionSupport().getSelectedValues(); 
             
         if (getSelectedItem() == null) 
             return null; 
@@ -613,20 +625,97 @@ public abstract class AbstractListDataProvider
     {
         AbstractListDataProvider root = AbstractListDataProvider.this; 
         
-        private boolean multiSelect;
-        private Object multiSelectHandler; 
+        private Map<Object, Boolean> checkedItems; 
+        private CallbackHandlerProxy callbackProxy;
         
-        public boolean isMultiSelect() { return multiSelect; } 
-        public void setMultiSelect(boolean multiSelect) {
-            this.multiSelect = multiSelect; 
-        }
-     
-        public Object getMultiSelectHandler() { return multiSelectHandler; } 
-        public void setMultiSelectHandler(Object multiSelectHandler) {
-            this.multiSelectHandler = multiSelectHandler; 
+        public ListSelectionSupport() 
+        {
+            checkedItems = new LinkedHashMap(); 
+            callbackProxy = new CallbackHandlerProxy(null); 
         }
         
+        protected void finalize() throws Throwable { 
+            checkedItems.clear(); 
+        } 
+                
+        public boolean containsItem(Object itemData) {
+            return (itemData == null? false: checkedItems.containsKey(itemData)); 
+        } 
+        
+        public boolean isItemChecked(Object itemData) 
+        {
+            if (itemData == null) return false; 
+            
+            if (containsItem(itemData))
+                return checkedItems.get(itemData).booleanValue(); 
+            
+            boolean checked = false; 
+            try {
+                checked = root.isItemSelected(itemData); 
+            } catch(Exception ex) {;} 
+            
+            if (checked) setItemChecked(itemData, checked); 
+            
+            return checked; 
+        }
+        
+        public boolean isItemCheckedFromHandler(Object itemData) 
+        {
+            Object callback = root.getMultiSelectHandler();
+            return isItemCheckedFromHandler(callback, itemData); 
+        }  
+        
+        public boolean isItemCheckedFromHandler(Object callback, Object itemData) 
+        {
+            try 
+            {
+                if (callback == null) return false;
+                
+                Object res = callbackProxy.invoke(callback, itemData); 
+                if (res instanceof Boolean) 
+                    return ((Boolean) res).booleanValue(); 
+                else 
+                    return "true".equals(res+""); 
+            } 
+            catch(Throwable ex) 
+            {
+                if (ClientContext.getCurrentContext().isDebugMode()) 
+                    ex.printStackTrace(); 
+
+                return false; 
+            } 
+        } 
+        
+        public synchronized void setItemChecked(Object itemData, boolean checked) { 
+            checkedItems.put(itemData, checked); 
+        } 
+        
+        public Object[] getSelectedValues() 
+        {
+            List list = new ArrayList(); 
+            for (Map.Entry<Object,Boolean> entry : checkedItems.entrySet()) 
+            {
+                if (entry.getValue().booleanValue()) 
+                    list.add(entry.getKey()); 
+            }
+            
+            try {
+                return list.toArray(new Object[]{}); 
+            } finally {
+                list.clear(); 
+            }
+        }
+        
+        public Object getSelectedValue() 
+        {
+            Object[] values = getSelectedValues(); 
+            if (values == null || values.length == 0) 
+                return null; 
+            else 
+                return values[0]; 
+        }
     }
     
     // </editor-fold>
+
 }

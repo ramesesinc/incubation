@@ -15,7 +15,6 @@ import com.rameses.util.ValueUtil;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import javax.swing.table.AbstractTableModel;
@@ -186,24 +185,9 @@ public class DataTableModel extends AbstractTableModel implements TableControlMo
         PropertyResolver resolver = PropertyResolver.getInstance();
         if (column.getTypeHandler() instanceof SelectionColumnHandler)
         {
-            Object exprBean = createExpressionBean(rowIndex);             
-            Collection checkedItems = null; 
-            try 
-            { 
-                checkedItems = (Collection) resolver.getProperty(exprBean, column.getName()); 
-                if (checkedItems == null) return;
-            } 
-            catch(Exception ex) {;} 
-            
-            boolean selected = "true".equals(value+"");
-            synchronized (checkedItems) 
-            {
-                if (selected) 
-                    checkedItems.add(item);
-                else 
-                    checkedItems.remove(item);
-            }
-            
+            boolean selected = "true".equals(value+""); 
+            getDataProvider().getSelectionSupport().setItemChecked(item, selected); 
+                        
             fireTableRowsUpdated(rowIndex, rowIndex); 
             firePropertyChange("checkedItemsChanged", !selected, selected); 
         } 
