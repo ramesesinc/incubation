@@ -21,16 +21,6 @@ public class LookupModel extends ScrollListModel
     
     public LookupSelector getSelector() { return selector; }    
     public void setSelector(LookupSelector s) { this.selector = s; }
-
-    public Object getSelectedValue() 
-    {
-        if (isMultiSelect()) return getCheckedItems().toArray(); 
-            
-        if (getSelectedItem() == null) 
-            return null; 
-        else
-            return getSelectedItem().getItem(); 
-    }    
         
     public boolean selectSingleResult() { return false; }    
     public boolean errorOnEmpty() { return false; }    

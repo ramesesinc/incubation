@@ -56,13 +56,23 @@ public abstract class AbstractListDataProvider
     }
     
     public abstract List fetchList(Map params);
-
+    
+    public final ListSelectionSupport getSelectionSupport() 
+    {
+        if (selectionSupport == null) 
+            selectionSupport = new ListSelectionSupport(); 
+        
+        return selectionSupport; 
+    }    
+    
     public Column[] getColumns() { return columns; } 
     public void setColumns(Column[] columns) { this.columns = columns; }
     
-    public boolean isMultiSelect() { return multiSelect; } 
+    public boolean isMultiSelect() { 
+        return getSelectionSupport().isMultiSelect();
+    } 
     public void setMultiSelect(boolean multiSelect) {
-        this.multiSelect = multiSelect;
+        getSelectionSupport().setMultiSelect(multiSelect); 
     }
     
     public Object getMultiSelectHandler() { return multiSelectHandler; } 
@@ -251,14 +261,7 @@ public abstract class AbstractListDataProvider
     public final void setSelectedColumn(String selectedColumn) {
         this.selectedColumn = selectedColumn;
     }    
-    
-    public final ListSelectionSupport getSelectionSupport() 
-    {
-        if (selectionSupport == null) 
-            selectionSupport = new ListSelectionSupport(); 
-        
-        return selectionSupport; 
-    }
+
     
     
     
@@ -523,6 +526,16 @@ public abstract class AbstractListDataProvider
         fireFocusSelectedItem(); 
     } 
     
+    public final Object getSelectedValue() 
+    {
+        if (isMultiSelect()) return getCheckedItems().toArray(); 
+            
+        if (getSelectedItem() == null) 
+            return null; 
+        else
+            return getSelectedItem().getItem(); 
+    } 
+    
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" MessageSupport (Class) ">
@@ -598,12 +611,21 @@ public abstract class AbstractListDataProvider
     
     public class ListSelectionSupport
     {
+        AbstractListDataProvider root = AbstractListDataProvider.this; 
+        
         private boolean multiSelect;
+        private Object multiSelectHandler; 
         
         public boolean isMultiSelect() { return multiSelect; } 
         public void setMultiSelect(boolean multiSelect) {
             this.multiSelect = multiSelect; 
         }
+     
+        public Object getMultiSelectHandler() { return multiSelectHandler; } 
+        public void setMultiSelectHandler(Object multiSelectHandler) {
+            this.multiSelectHandler = multiSelectHandler; 
+        }
+        
     }
     
     // </editor-fold>
