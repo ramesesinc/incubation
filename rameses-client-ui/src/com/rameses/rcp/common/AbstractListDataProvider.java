@@ -690,7 +690,7 @@ public abstract class AbstractListDataProvider
             checkedItems.put(itemData, checked); 
         } 
         
-        public Object[] getSelectedValues() 
+        public List getSelectedValues() 
         {
             List list = new ArrayList(); 
             for (Map.Entry<Object,Boolean> entry : checkedItems.entrySet()) 
@@ -698,21 +698,16 @@ public abstract class AbstractListDataProvider
                 if (entry.getValue().booleanValue()) 
                     list.add(entry.getKey()); 
             }
-            
-            try {
-                return list.toArray(new Object[]{}); 
-            } finally {
-                list.clear(); 
-            }
+            return list; 
         }
         
         public Object getSelectedValue() 
         {
-            Object[] values = getSelectedValues(); 
-            if (values == null || values.length == 0) 
+            List values = getSelectedValues(); 
+            if (values == null || values.isEmpty()) 
                 return null; 
             else 
-                return values[0]; 
+                return values.get(0); 
         }
     }
     
