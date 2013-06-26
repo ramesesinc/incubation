@@ -9,9 +9,10 @@
 
 package com.rameses.rcp.control.table;
 
-import com.rameses.rcp.common.AbstractListDataProvider;
 import com.rameses.rcp.common.Column;
+import com.rameses.rcp.framework.ClientContext;
 import com.rameses.rcp.util.UIControlUtil;
+import java.lang.reflect.Method;
 import java.util.Collection;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
@@ -48,14 +49,56 @@ public class SelectionCellRenderer extends CellRenderers.AbstractRenderer
         
         Column oColumn = getTableControlModel().getColumn(columnIndex); 
         Object itemData = getTableControl().getDataProvider().getListItemData(rowIndex); 
-        Object exprBean = getTableControl().createExpressionBean(itemData);
+        Collection checkedItems = getSourceItems(itemData, oColumn.getName());
+
+        boolean matched = false;
+        Object checkHandler = getTableControl().getDataProvider().getMultiSelectHandler(); 
+        if (checkHandler != null) 
+            matched = isItemCheckedFromHandler(checkHandler, itemData); 
         
+        if (!matched)
+            matched = (checkedItems == null? false: checkedItems.contains(itemData));
+        
+        if (checkedItems != null) 
+        {
+            checkedItems.remove(itemData);
+            if (matched) checkedItems.add(itemData);
+            
+            component.setSelected(matched); 
+        }
+    }  
+    
+    private Collection getSourceItems(Object itemData, String name) 
+    {
+        Object exprBean = getTableControl().createExpressionBean(itemData);
+
         Collection checkedItems = null; 
         try {
-            checkedItems = (Collection) UIControlUtil.getBeanValue(exprBean, oColumn.getName()); 
+            checkedItems = (Collection) UIControlUtil.getBeanValue(exprBean, name); 
         } catch(Exception ex) {;} 
-
-        boolean matched = (checkedItems == null? false: checkedItems.contains(itemData));
-        component.setSelected(matched); 
-    }  
+        
+        return checkedItems; 
+    }
+    
+    private boolean isItemCheckedFromHandler(Object handler, Object itemData) 
+    {
+        try 
+        {
+            Class handlerClass = handler.getClass();
+            Method m = handlerClass.getMethod("call", new Class[]{Object.class}); 
+            Object res = m.invoke(handler, new Object[]{ itemData }); 
+            if (res instanceof Boolean) 
+                return ((Boolean) res).booleanValue(); 
+            else 
+                return "true".equals(res+""); 
+        }
+        catch(Throwable ex) 
+        {
+            if (ClientContext.getCurrentContext().isDebugMode()) 
+                ex.printStackTrace(); 
+            
+            return false; 
+        }
+    }
+    
 }

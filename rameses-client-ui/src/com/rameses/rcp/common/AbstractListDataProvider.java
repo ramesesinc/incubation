@@ -37,12 +37,16 @@ public abstract class AbstractListDataProvider
     private Column[] columns;
     private List dataList;
     private int fetchedRows;
-    private boolean multiSelect;
     private boolean processing;
+        
+    private boolean multiSelect;
+    private Object multiSelectHandler; 
 
     private List<ListItem> itemList = new ArrayList<ListItem>(); 
     private ListItem selectedItem; 
-        
+
+    private ListSelectionSupport selectionSupport;
+    
     public AbstractListDataProvider() 
     {
         propertySupport = new PropertyChangeSupport();
@@ -59,6 +63,11 @@ public abstract class AbstractListDataProvider
     public boolean isMultiSelect() { return multiSelect; } 
     public void setMultiSelect(boolean multiSelect) {
         this.multiSelect = multiSelect;
+    }
+    
+    public Object getMultiSelectHandler() { return multiSelectHandler; } 
+    public void setMultiSelectHandler(Object multiSelectHandler) {
+        this.multiSelectHandler = multiSelectHandler; 
     }
     
     public Column getPrimaryColumn() { return null; } 
@@ -243,6 +252,13 @@ public abstract class AbstractListDataProvider
         this.selectedColumn = selectedColumn;
     }    
     
+    public final ListSelectionSupport getSelectionSupport() 
+    {
+        if (selectionSupport == null) 
+            selectionSupport = new ListSelectionSupport(); 
+        
+        return selectionSupport; 
+    }
     
     
     
@@ -577,4 +593,18 @@ public abstract class AbstractListDataProvider
     }
     
     // </editor-fold>     
+    
+    // <editor-fold defaultstate="collapsed" desc=" ListSelectionSupport (Class) ">    
+    
+    public class ListSelectionSupport
+    {
+        private boolean multiSelect;
+        
+        public boolean isMultiSelect() { return multiSelect; } 
+        public void setMultiSelect(boolean multiSelect) {
+            this.multiSelect = multiSelect; 
+        }
+    }
+    
+    // </editor-fold>
 }

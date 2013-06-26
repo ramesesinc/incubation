@@ -34,9 +34,9 @@ public class SelectionCellEditor extends JCheckBox implements UIInput, Immediate
     public SelectionCellEditor() 
     {
         setHorizontalAlignment(SwingConstants.CENTER); 
-        setBorderPainted(true);    
+        setBorderPainted(true); 
         addItemListener((itemHandler = new ItemHandler())); 
-    }
+    } 
 
     // <editor-fold defaultstate="collapsed" desc="  UIInput implementation  ">
     

@@ -24,8 +24,10 @@ public class LookupModel extends ScrollListModel
 
     public Object getSelectedValue() 
     {
+        if (isMultiSelect()) return getCheckedItems().toArray(); 
+            
         if (getSelectedItem() == null) 
-            return null;
+            return null; 
         else
             return getSelectedItem().getItem(); 
     }    
@@ -38,7 +40,8 @@ public class LookupModel extends ScrollListModel
     //default implementation for select and cancel
     public String select() 
     {
-        if (selector != null) selector.select( getSelectedValue() );
+        if (selector != null) 
+            selector.select( getSelectedValue() ); 
         
         return "_close";
     }
