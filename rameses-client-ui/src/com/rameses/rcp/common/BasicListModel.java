@@ -14,9 +14,7 @@ public class BasicListModel extends AbstractListDataProvider
     
     public List fetchList(Map params) { return DEFAULT_LIST; }
     
-    public BasicListModel getListHandler() {
-        return this;
-    }
+    public AbstractListDataProvider getListHandler() { return this; }
     
     protected void onbeforeFetchList(Map params) 
     {
