@@ -27,11 +27,11 @@ public class OKCancelPage extends javax.swing.JPanel {
 
         xButton1.setText("OK");
         xButton1.setDefaultCommand(true);
-        xButton1.setName("ok");
+        xButton1.setName("doOk");
         xButton1.setPreferredSize(new java.awt.Dimension(66, 23));
 
         xButton2.setText("Cancel");
-        xButton2.setName("cancel");
+        xButton2.setName("doCancel");
         xButton2.setPreferredSize(new java.awt.Dimension(66, 23));
 
         org.jdesktop.layout.GroupLayout jPanel1Layout = new org.jdesktop.layout.GroupLayout(jPanel1);

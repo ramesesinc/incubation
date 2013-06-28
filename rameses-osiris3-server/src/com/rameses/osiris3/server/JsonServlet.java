@@ -48,7 +48,7 @@ public class JsonServlet extends ServiceInvokerServlet {
             while(en.hasMoreElements()) {
                 String s = en.nextElement();
                 if(!s.equals("env")) {
-                    map.put( s, req.getParameter(s) );
+                    map.put( s, JsonUtil.toObject(req.getParameter(s)) );
                 }
             }
             args = new Object[]{map};
