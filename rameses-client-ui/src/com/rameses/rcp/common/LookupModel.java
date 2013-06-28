@@ -1,5 +1,6 @@
 package com.rameses.rcp.common;
 
+import com.rameses.common.PropertyResolver;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -16,11 +17,30 @@ public class LookupModel extends ScrollListModel
     private List DEFAULT_LIST = new ArrayList(); 
     private Map properties = new HashMap(); 
     private LookupSelector selector;
+    
+    private String returnItemKey;
+    private String returnItemValue;
+    private String returnFields;    
         
     public Map getProperties() { return properties; } 
     
     public LookupSelector getSelector() { return selector; }    
     public void setSelector(LookupSelector s) { this.selector = s; }
+    
+    public String getReturnItemKey() { return returnItemKey; }    
+    public void setReturnItemKey(String returnItemKey) { 
+        this.returnItemKey = returnItemKey; 
+    }
+
+    public String getReturnItemValue() { return returnItemValue; }    
+    public void setReturnItemValue(String returnItemValue) { 
+        this.returnItemValue = returnItemValue; 
+    } 
+    
+    public String getReturnFields() { return returnFields; }    
+    public void setReturnFields(String returnFields) { 
+        this.returnFields = returnFields; 
+    }       
         
     public boolean selectSingleResult() { return false; }    
     public boolean errorOnEmpty() { return false; }    
@@ -31,8 +51,24 @@ public class LookupModel extends ScrollListModel
     public String select() 
     {
         if (selector != null) 
-            selector.select( getSelectedValue() ); 
-        
+        {
+            Object selectedValue = getSelectedValue(); 
+            String rItemVal = getReturnItemValue();            
+            String rItemKey = getReturnItemKey();
+            String rFields = getReturnFields();
+            if (rItemKey != null || rItemVal != null) 
+            {
+                ResultKeyValueMapper kvm = new ResultKeyValueMapper();
+                selectedValue = kvm.parse(rItemKey, rItemVal, selectedValue); 
+            }
+            else if (rFields != null) 
+            {
+                ResultFieldsMapper fm = new ResultFieldsMapper();
+                selectedValue = fm.parse(rFields, selectedValue); 
+            }
+            
+            selector.select( selectedValue ); 
+        }
         return "_close";
     }
     
@@ -77,4 +113,93 @@ public class LookupModel extends ScrollListModel
     }
 
     public void moveLastPage() {}   
+    
+    // <editor-fold defaultstate="collapsed" desc=" ResultKeyValueMapper (class) ">  
+    
+    private class ResultKeyValueMapper 
+    {      
+        PropertyResolver res = PropertyResolver.getInstance();
+        
+        public Object parse(String itemKey, String itemVal, Object value) 
+        {
+            if (value == null) return null;
+            if (itemKey == null && itemVal == null) return value;            
+            if (itemKey == null && itemVal != null) itemKey = itemVal;
+            
+            if (value instanceof List) 
+            {                
+                List results = new ArrayList();                 
+                for (Object o : (List)value) 
+                {
+                    Object xo = extract(itemKey, itemVal, o);
+                    if (xo != null) results.add(xo); 
+                }
+                return results;
+            }
+            else if (value != null) {
+                return extract(itemKey, itemVal, value); 
+            } 
+            else {
+                return null; 
+            }
+        }
+        
+        private Object extract(String itemKey, String itemVal, Object o) 
+        {
+            Map map = new HashMap(); 
+            if (itemKey != null) 
+                map.put("key", res.getProperty(o, itemKey)); 
+            if (itemVal != null) 
+                map.put("value", res.getProperty(o, itemVal)); 
+            
+            return map; 
+        }        
+    }
+    
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" ResultFieldsMapper (class) ">  
+    
+    private class ResultFieldsMapper 
+    {       
+        PropertyResolver res = PropertyResolver.getInstance();
+        
+        public Object parse(String fields, Object value) 
+        {
+            if (value == null || fields == null) return value;
+            
+            String[] fldnames = fields.split(",");
+            
+            if (value instanceof List) 
+            {                
+                List results = new ArrayList();                 
+                for (Object o : (List)value) 
+                {
+                    Object xo = extract(fldnames, o);
+                    if (xo != null) results.add(xo); 
+                } 
+                return results;
+            }
+            else if (value != null) {
+                return extract(fldnames, value); 
+            }
+            else {
+                return null; 
+            }
+        }
+        
+        private Object extract(String[] fldnames, Object o) 
+        {
+            Map map = new HashMap(); 
+            for (String name : fldnames)
+            {
+                if (name == null || name.length() == 0) continue;
+                
+                map.put(name, res.getProperty(o, name)); 
+            }
+            return map; 
+        }
+    }
+    
+    // </editor-fold>    
 }

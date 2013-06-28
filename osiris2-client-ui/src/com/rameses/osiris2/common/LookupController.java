@@ -51,7 +51,7 @@ public abstract class LookupController extends LookupModel
     public void init() {}
     
     // <editor-fold defaultstate="collapsed" desc="  Getters/Setters  ">
-    
+
     public Object getOnselect() { return onselect; }    
     public void setOnselect(Object onselect) { this.onselect = onselect; }
     
