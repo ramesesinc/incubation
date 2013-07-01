@@ -196,7 +196,7 @@ public class XTree extends JTree implements UIControl
         });
     }
         
-    private DefaultNode getSelectedNode() 
+    private XTree.DefaultNode getSelectedNode() 
     {
         TreePath treePath = getSelectionPath();
         if (treePath == null) return null; 
@@ -421,8 +421,9 @@ public class XTree extends JTree implements UIControl
             {
                 if (root.getName() != null) 
                 {
-                    DefaultNode selNode = getSelectedNode(); 
-                    UIControlUtil.setBeanValue(root.getBinding(), root.getName(), selNode); 
+                    XTree.DefaultNode selNode = getSelectedNode(); 
+                    Node node = (selNode == null? null: selNode.getNode()); 
+                    UIControlUtil.setBeanValue(root.getBinding(), root.getName(), node); 
                     root.getBinding().notifyDepends(root); 
                 }
                 
