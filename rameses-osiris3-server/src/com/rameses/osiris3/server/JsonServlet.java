@@ -9,7 +9,11 @@
 
 package com.rameses.osiris3.server;
 
+import com.rameses.common.MediaFile;
+import java.io.BufferedOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -22,6 +26,7 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class JsonServlet extends ServiceInvokerServlet {
     
+    private static int DEFAULT_BUFFER_SIZE = 1024*8;
     
     /***
      * check first if there's an args parameters. if yes parse to json
@@ -56,7 +61,11 @@ public class JsonServlet extends ServiceInvokerServlet {
                     map.put( s, v );
                 }
             }
-            args = new Object[]{map};
+            if(map.isEmpty()) {
+                args = new Object[]{};
+            } else {
+                args = new Object[]{map};
+            }
         }
         
         Map env = new HashMap();
@@ -70,11 +79,35 @@ public class JsonServlet extends ServiceInvokerServlet {
     }
     
     protected void writeResponse( Object response, HttpServletResponse res ) {
-        res.setContentType("application/json");
-        try {
-            res.getWriter().println( JsonUtil.toString(response) );
-        } catch(Exception e) {
-            e.printStackTrace();
+        System.out.println("response is "+response);
+        if(response instanceof MediaFile) {
+            MediaFile mf = (MediaFile)response;
+            System.out.println("content type is "+mf.getContentType());
+            res.setContentType( mf.getContentType() );
+            InputStream is = null;
+            OutputStream os = null;
+            try {
+                os = new BufferedOutputStream(res.getOutputStream());
+                int i = 0;
+                is = mf.getInputStream();
+                while( (i=is.read())!=-1 ) {
+                    os.write( i );
+                }    
+                os.flush();
+            } catch(Exception e) {
+                e.printStackTrace();
+            } finally {
+                try {is.close();} catch(Exception ign){;}
+                try {os.close();} catch(Exception ign){;}
+            }
+        } 
+        else {
+            res.setContentType("application/json");
+            try {
+                res.getWriter().println( JsonUtil.toString(response) );
+            } catch(Exception e) {
+                e.printStackTrace();
+            }
         }
     }
     
