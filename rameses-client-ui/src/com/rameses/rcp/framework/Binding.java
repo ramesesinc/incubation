@@ -741,13 +741,17 @@ public class Binding
     }
     //</editor-fold>
     
-    //<editor-fold defaultstate="collapsed" desc="  helper methods  ">
-    private void initAnnotatedFields( Object o, Class clazz ) {
-        if( o == null) return;
+    // <editor-fold defaultstate="collapsed" desc="  helper methods  ">
+    
+    private void initAnnotatedFields( Object o, Class clazz ) 
+    {
+        if (o == null) return;
         
-        if ( annotationScanIsDone ) {
+        if (annotationScanIsDone) 
+        {
             boolean accessible;
-            if ( bindingField != null ) {
+            if (bindingField != null) 
+            {
                 accessible = bindingField.isAccessible();
                 bindingField.setAccessible(true);
                 try {
@@ -757,18 +761,23 @@ public class Binding
                 }
                 bindingField.setAccessible(accessible);
             }
-            if ( changeLogField != null ) {
+            
+            if (changeLogField != null) 
+            {
                 accessible = changeLogField.isAccessible();
                 changeLogField.setAccessible(true);
-                try {
+                try 
+                {
                     ChangeLog cl = Binding.this.getChangeLog();
                     String[] prefixes = (String[]) getProperties().get(CHANGE_LOG_PREFIX_KEY);
-                    if( prefixes!=null) {
-                        for(String s: prefixes) {
-                            cl.getPrefix().add(s);
-                        }
+                    if (prefixes != null) 
+                    {
+                        for (String s: prefixes) {
+                            cl.getPrefix().add(s); 
+                        } 
                     }
-                } catch(Exception ex) {
+                } 
+                catch(Exception ex) {
                     System.out.println("ERROR injecting @Binding "  + ex.getMessage() );
                 }
                 changeLogField.setAccessible(accessible);
@@ -777,19 +786,23 @@ public class Binding
         }
         
         //check for field annotations
-        for( Field f: clazz.getDeclaredFields() ) {
+        for( Field f: clazz.getDeclaredFields() ) 
+        {
             boolean accessible = f.isAccessible();
-            if( f.isAnnotationPresent(com.rameses.rcp.annotations.Binding.class)) {
+            if (f.isAnnotationPresent(com.rameses.rcp.annotations.Binding.class)) 
+            {
                 com.rameses.rcp.annotations.Binding b = f.getAnnotation(com.rameses.rcp.annotations.Binding.class);
                 String[] values = b.validators();
                 PropertyResolver res = PropertyResolver.getInstance();
-                for(String s: values) {
-                    try {
+                for (String s: values) 
+                {
+                    try 
+                    {
                         Object v = res.getProperty(getBean(), s);
-                        if ( v instanceof Validator ) {
+                        if ( v instanceof Validator ) 
                             validators.add( (Validator) v );
-                        }
-                    } catch(Exception e) {
+                    } 
+                    catch(Exception e) {
                         e.printStackTrace();
                     }
                 }
@@ -800,39 +813,52 @@ public class Binding
                 } catch(Exception ex) {
                     System.out.println("ERROR injecting @Binding "  + ex.getMessage() );
                 }
-                f.setAccessible(accessible);
                 
-                bindingField = f;
-                
-            } else if( f.isAnnotationPresent(com.rameses.rcp.annotations.ChangeLog.class)) {
+                f.setAccessible(accessible);                
+                bindingField = f; 
+            } 
+            else if (f.isAnnotationPresent(com.rameses.rcp.annotations.ChangeLog.class)) 
+            {
                 f.setAccessible(true);
                 
                 //check first if the controllers change log is not yet set.
                 //The change log used will be the first one found.
-                try {
+                try 
+                {
                     com.rameses.rcp.annotations.ChangeLog annot = (com.rameses.rcp.annotations.ChangeLog)f.getAnnotation(com.rameses.rcp.annotations.ChangeLog.class);
                     String[] prefixes = annot.prefix();
                     getProperties().put(CHANGE_LOG_PREFIX_KEY, prefixes);
                     ChangeLog cl = Binding.this.getChangeLog();
-                    if( prefixes!=null) {
-                        for(String s: prefixes) {
-                            cl.getPrefix().add(s);
-                        }
+                    if ( prefixes != null) {
+                        for (String s : prefixes) cl.getPrefix().add(s);
                     }
+                    
                     f.set(o, cl );
-                } catch(Exception ex) {
+                } 
+                catch(Exception ex) {
                     System.out.println("ERROR injecting @ChangeLog "  + ex.getMessage() );
                 }
-                f.setAccessible(accessible);
                 
+                f.setAccessible(accessible);                
                 changeLogField = f;
+            }
+            else if (f.isAnnotationPresent(com.rameses.rcp.annotations.PropertyChangeListener.class)) 
+            {
+                f.setAccessible(true);
+                try 
+                {
+                    Map map = (Map) f.get(getBean());
+                    getValueChangeSupport().setExtendedHandler(map); 
+                } 
+                catch(Exception ex) {
+                    System.out.println("ERROR injecting @PropertyChangeListener caused by " + ex.getMessage());
+                } 
+                f.setAccessible(accessible); 
             }
         }
         
         Class superClass = clazz.getSuperclass();
-        if( superClass != null ) {
-            initAnnotatedFields( o, superClass );
-        }
+        if (superClass != null) initAnnotatedFields(o, superClass);
         
         annotationScanIsDone = true;
     }
@@ -851,6 +877,28 @@ public class Binding
     }
     //</editor-fold>
         
+    // <editor-fold defaultstate="collapsed" desc=" ValueChangeSupport helper methods "> 
+    
+    private ValueChangeSupport valueChangeSupport;
+    
+    public ValueChangeSupport getValueChangeSupport() 
+    {
+        if (valueChangeSupport == null) 
+            valueChangeSupport = new ValueChangeSupport(); 
+        
+        return valueChangeSupport; 
+    } 
+    
+    public void addValueListener(String property, Object callbackListener) {
+        getValueChangeSupport().add(property, callbackListener); 
+    } 
+    
+    public void removeValueListener(String property, Object callbackListener) {
+        getValueChangeSupport().remove(property, callbackListener); 
+    }
+    
+    // </editor-fold>
+    
     //<editor-fold defaultstate="collapsed" desc="  ChangeLogKeySupport (class)  ">
     private class ChangeLogKeySupport implements KeyListener {
         

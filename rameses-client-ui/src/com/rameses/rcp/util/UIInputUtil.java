@@ -67,31 +67,33 @@ public class UIInputUtil {
             }
             
             Binding binding = control.getBinding();
-            if ( binding == null ) return;
+            if (binding == null) return;
             
             Object bean = binding.getBean();
-            if ( bean == null ) return;
+            if (bean == null) return;
             
             ClientContext ctx = ClientContext.getCurrentContext();
             PropertyResolver resolver = PropertyResolver.getInstance();
             String name = control.getName();
-            if ( ValueUtil.isEmpty(name) ) return;
+            if (ValueUtil.isEmpty(name)) return;
             
             Object inputValue = control.getValue();
             Object beanValue = resolver.getProperty(bean, name);
             boolean forceUpdate = false;
-            if ( control instanceof JComponent ) {
+            if (control instanceof JComponent) 
+            {
                 //if the input is a JTable check for the flag
                 Object value = ((JComponent) control).getClientProperty(JTable.class);
                 forceUpdate = (value != null);
             }
             
-            if ( forceUpdate || !ValueUtil.isEqual(inputValue, beanValue) ) 
+            if (forceUpdate || !ValueUtil.isEqual(inputValue, beanValue)) 
             {
                 resolver.setProperty(bean, name, inputValue);
-                if ( addLog ) {
+                if ( addLog )  
                     binding.getChangeLog().addEntry(bean, name, beanValue, inputValue);
-                }
+                
+                binding.getValueChangeSupport().notify(name, inputValue);
                 
                 if ( refresh && control instanceof JTextComponent ) 
                 {
