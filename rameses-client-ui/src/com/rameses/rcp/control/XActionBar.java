@@ -16,6 +16,7 @@ import com.rameses.rcp.framework.ActionProvider;
 import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.framework.ClientContext;
 import com.rameses.rcp.support.ComponentSupport;
+import com.rameses.rcp.support.ImageIconSupport;
 import com.rameses.rcp.util.ControlSupport;
 import com.rameses.rcp.ui.UIComposite;
 import com.rameses.rcp.ui.UIControl;
@@ -39,6 +40,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JToolBar;
@@ -233,8 +235,8 @@ public class XActionBar extends JPanel implements UIComposite
         btn.setMnemonic(action.getMnemonic());
         btn.setToolTipText(action.getTooltip());
         
-        if (action.getIcon() != null) 
-            btn.setIcon(ControlSupport.getImageIcon(action.getIcon()));
+        ImageIcon icon = ImageIconSupport.getInstance().getIcon(action.getIcon());
+        btn.setIcon(icon); 
 
         btn.putClientProperty("visibleWhen", action.getVisibleWhen());
         btn.setBinding(binding);
@@ -278,15 +280,17 @@ public class XActionBar extends JPanel implements UIComposite
         if (!b) b = isShowCaptions();
         
         //check for forceShowCaption
-        if ("true".equals(action.getProperties().get("forceShowCaption")+"")) 
-        {
-            action.setShowCaption(true);
-            b = true;            
-        }
+//        if ("true".equals(action.getProperties().get("forceShowCaption")+"")) 
+//        {
+//            action.setShowCaption(true);
+//            b = true;            
+//        }
         
-        if (b && action.getCaption() != null) 
+        if (btn.getIcon() == null || (b && action.getCaption() != null))
         {
             String s = btn.getText(); 
+            if (s == null) s = "";    
+            
             if (!s.trim().startsWith("<html>")) 
                 btn.setText("<html>"+ s +"</html>"); 
         } 
