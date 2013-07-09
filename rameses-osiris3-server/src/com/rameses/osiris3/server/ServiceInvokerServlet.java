@@ -116,7 +116,5 @@ public class ServiceInvokerServlet extends AbstractServlet {
             }
             writeResponse( response, res );
         }
-    }
-    
-    
+    }    
 }

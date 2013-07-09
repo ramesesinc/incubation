@@ -9,8 +9,8 @@
 
 package com.rameses.io;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -20,7 +20,9 @@ import java.net.URL;
  *
  * @author elmo
  */
-public final class StreamUtil {
+public final class StreamUtil 
+{
+    private static IOStream io = new IOStream();
     
     public static String toString( String filePath ) {
         ClassLoader loader = StreamUtil.class.getClassLoader();
@@ -59,45 +61,31 @@ public final class StreamUtil {
         }
     }
     
-    public static void write(InputStream src, OutputStream dest) {
-        try {
-            int b = -1;
-            while( (b=src.read())!=-1 ) {
-                dest.write(b);
-            }
-            dest.flush();
-        } catch(RuntimeException re) {
-            throw re; 
-        } catch(Exception ex) {
-            throw new RuntimeException(ex.getMessage(), ex);
-        } finally {
-            try { src.close(); }catch(Exception ign){;}
-            try { dest.close(); }catch(Exception ign){;}
-        }
+    public static void write(byte[] bytes, OutputStream output) {
+        write(bytes, output, 1024); 
+    } 
+    
+    public static void write(byte[] bytes, OutputStream output, int bufferSize) {
+        write(new ByteArrayInputStream(bytes), output, bufferSize); 
+    } 
+    
+    public static void write(InputStream input, OutputStream output) {
+        write(input, output, 1024);
     }
     
-    public static void write(InputStream src, OutputStream dest, int bufferSize) {
-        BufferedInputStream bis = null;
-        BufferedOutputStream bos = null;
-        try {
-            bis = new BufferedInputStream(src, bufferSize);
-            bos = new BufferedOutputStream(dest, bufferSize);
-            byte []buffer = new byte[bufferSize];
-            int read = -1;
-            while( (read=bis.read(buffer))!=-1 ) {
-                bos.write(buffer, 0, read);
-            }
-            bos.flush();
-        } catch(RuntimeException re) {
-            throw re; 
-        } catch(Exception ex) {
-            throw new RuntimeException(ex.getMessage(), ex);
-        } finally {
-            try { bis.close(); }  catch(Exception ign){;}
-            try { bos.close(); }  catch(Exception ign){;}
-            try { src.close(); }  catch(Exception ign){;}
-            try { dest.close(); } catch(Exception ign){;}
-        }
+    public static void write(InputStream input, OutputStream output, int bufferSize) {
+        io.write(input, output, bufferSize); 
+    }
+
+    public static byte[] toByteArray(InputStream input) { 
+        return toByteArray(input, 1024*4); 
+    } 
+    
+    public static byte[] toByteArray(InputStream input, int bufferSize) 
+    {
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        write(input, output, bufferSize);
+        return output.toByteArray();
     }
     
     
@@ -132,7 +120,5 @@ public final class StreamUtil {
         finally {
             try {is.close();}catch(Exception ign){;}
         }
-    }
-    
-    
+    }    
 }
