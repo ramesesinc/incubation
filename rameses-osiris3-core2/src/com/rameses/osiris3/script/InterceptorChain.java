@@ -45,6 +45,7 @@ public class InterceptorChain {
         Map map = new HashMap();
         map.put("args", einfo.getArgs());
         map.put("env", tc.getEnv());
+        map.put("tag", einfo.getTag()); 
         if(einfo.getResult()!=null) {
             map.put("result", einfo.getResult());
         }
@@ -53,7 +54,7 @@ public class InterceptorChain {
             //check eval
             
             if(info.getEval()!=null && info.getEval().trim().length()>0) {
-                Boolean b = Boolean.parseBoolean(ExpressionResolver.getInstance().evalString( info.getEval(), map ));
+                boolean b = ExpressionResolver.getInstance().evalBoolean( info.getEval(), map );
                 if( b == false ) continue;
             }
             

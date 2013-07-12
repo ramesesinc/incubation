@@ -18,4 +18,5 @@ import java.lang.annotation.Target;
 @Target(value=ElementType.METHOD)
 public @interface ProxyMethod {
     boolean local() default false;
+    String tag() default "";
 }

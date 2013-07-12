@@ -9,6 +9,9 @@
 
 package com.rameses.osiris3.script;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  *
  * @author Elmo
@@ -19,6 +22,7 @@ public class ExecutionInfo {
     private Object[] args;
     private String serviceName;
     private String methodName;
+    private String tag;
     
     /** Creates a new instance of ExecutionInfo */
     public ExecutionInfo(String serviceName, String methodName, Object[] args ) {
@@ -26,7 +30,7 @@ public class ExecutionInfo {
         this.methodName = methodName;
         this.args = args;
     }
-
+    
     public Object getResult() {
         return result;
     }
@@ -49,5 +53,13 @@ public class ExecutionInfo {
     
     public String toString() {
         return this.serviceName+"."+this.getMethodName();
+    }
+
+    public String getTag() {
+        return tag;
+    }
+
+    public void setTag(String tag) {
+        this.tag = tag;
     }
 }

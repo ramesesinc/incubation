@@ -62,8 +62,9 @@ public class ManagedScriptExecutor {
             OsirisServer svr = txn.getServer();
             MainContext ct = txn.getContext();
             
-            ProxyMethod pma = m.getAnnotation(ProxyMethod.class );
+            ProxyMethod pma = m.getAnnotation(ProxyMethod.class);
             boolean isProxyMethod = (pma!=null);
+            if (isProxyMethod) e.setTag(pma.tag());
             
             //this is to support old methods. if proxy method marked as local, do not fire interceptors
             if(isProxyMethod && pma.local())fireInterceptors = false;
