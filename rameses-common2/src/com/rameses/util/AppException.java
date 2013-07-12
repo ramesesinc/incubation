@@ -13,8 +13,10 @@ package com.rameses.util;
  *
  * @author ms
  */
-public class AppException extends RuntimeException {
+public class AppException extends RuntimeException 
+{
     public static long serialVersionUID = 1L;
+    
     public AppException() {
     }
     
@@ -22,5 +24,8 @@ public class AppException extends RuntimeException {
         super(msg);
     }
     
+    public AppException(String msg, Throwable t) {
+        super(msg, t);
+    }
     
 }
