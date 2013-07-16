@@ -10,6 +10,7 @@
 package com.rameses.osiris2.reports.ui;
 
 import com.rameses.osiris2.reports.ReportModel;
+import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.ui.UIControl;
 import com.rameses.rcp.util.UIControlUtil;
@@ -105,6 +106,9 @@ public class XReportPanel extends JPanel implements UIControl {
     
     public int compareTo(Object o) {
         return UIControlUtil.compare(this, o);
+    }
+
+    public void setPropertyInfo(PropertySupport.PropertyInfo info) {
     }
     
 }

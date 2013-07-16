@@ -2,7 +2,6 @@
 package com.rameses.osiris2.reports;
 
 import com.rameses.common.PropertyResolver;
-import com.rameses.rcp.framework.ClientContext;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -20,7 +19,7 @@ public class ReportDataSource implements JRDataSource
 
     public ReportDataSource(Object source) {
         setSource(source);
-        propertyResolver = ClientContext.getCurrentContext().getPropertyResolver();        
+        propertyResolver = PropertyResolver.getInstance();
     }
     
     public void setSource(Object src) {
