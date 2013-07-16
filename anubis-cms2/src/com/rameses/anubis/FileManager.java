@@ -59,7 +59,8 @@ public class FileManager {
         
     }
     
-    public File getFile(String name) {
+    public File getFile(String name) 
+    {
         if( !files.containsKey(name) ) {
             //check first if file is requested from module or from the project
             

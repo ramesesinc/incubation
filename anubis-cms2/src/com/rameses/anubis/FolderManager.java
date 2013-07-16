@@ -53,9 +53,12 @@ public class FolderManager {
         } catch(Exception ign) {;}
         return items;
     }
-    public Folder getFolder(String name) {
+    
+    public Folder getFolder(String name) 
+    {
         AnubisContext ctx = AnubisContext.getCurrentContext();
-        if( !folders.containsKey(name)) {
+        if (!folders.containsKey(name)) 
+        {
             String moduleName = null;
             String fileName = name;
             
@@ -86,13 +89,14 @@ public class FolderManager {
             
             Folder folder = new Folder(name, new HashMap());
             
-            for(String s: urlNames) {
-                try {
+            for (String s: urlNames) 
+            {
+                try 
+                {
                     File f = project.getFileManager().getFile( s );
-                    if(!f.isHidden()) {
-                        folder.getChildren().add( f );
-                    }
-                } catch(Exception e) {
+                    if (!f.isHidden()) folder.getChildren().add( f );
+                } 
+                catch(Exception e) {
                     e.printStackTrace();
                 }
             }
@@ -100,6 +104,39 @@ public class FolderManager {
             folders.put(name, folder);
         }
         return folders.get(name);
+    }
+    
+    public Folder getFolder(String name, String moduleName) 
+    {
+        if (moduleName == null || moduleName.length() == 0)
+            return getFolder(name); 
+                
+        AnubisContext ctx = AnubisContext.getCurrentContext();
+        String sname = "/" + moduleName + name;        
+        if (!folders.containsKey(sname)) 
+        {
+            Set<String> urlNames = new LinkedHashSet();
+            Module mod = project.getModules().get(moduleName);
+            urlNames.addAll( scanFileNames(name, mod.getUrl(), name) );
+            urlNames.addAll( scanFileNames(name, mod.getProvider(), name) );
+            
+            Folder folder = new Folder(sname, new HashMap());            
+            for (String s: urlNames) 
+            {
+                try 
+                {
+                    String spath = "/" + moduleName + s;
+                    File f = project.getFileManager().getFile( spath );
+                    if (!f.isHidden()) folder.getChildren().add( f );
+                } 
+                catch(Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            Collections.sort( folder.getChildren()  );
+            folders.put(name, folder);
+        }
+        return folders.get(name); 
     }
 
     public File findFirstVisibleFile(String s) {

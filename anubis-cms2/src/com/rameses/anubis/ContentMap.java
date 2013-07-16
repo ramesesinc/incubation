@@ -89,14 +89,20 @@ public class ContentMap extends HashMap {
     }
     
     public Folder getFolder( String name ) {
-        try {
-            Project project = AnubisContext.getCurrentContext().getProject();
-            //return project.getFileManager().getFolder(name);
-            return project.getFolderManager().getFolder(name);
-        } catch(Exception e){
-            return null;
-        }
+        return getFolder(name, null); 
     }
+
+    public Folder getFolder( String name, String moduleName ) 
+    {
+        try 
+        {
+            Project project = AnubisContext.getCurrentContext().getProject();
+            return project.getFolderManager().getFolder(name, moduleName);
+        } 
+        catch(Exception e) { 
+            return null; 
+        } 
+    }    
     
     public File getFile(String name) {
         try {
