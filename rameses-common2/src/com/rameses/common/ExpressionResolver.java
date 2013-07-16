@@ -48,7 +48,7 @@ public abstract class ExpressionResolver {
     }
     
     protected String replaceFunctions(String text) {
-        text = text.replaceAll("#\\{", "\\$\\{").replace(" and "," && ").replaceAll(" or ", " || ");
+        text = text.replaceAll("#\\{", "\\$\\{");
         Matcher m = pattern.matcher(text);
         StringBuilder sb = new StringBuilder();
         int start = 0;

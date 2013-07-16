@@ -10,7 +10,7 @@
 package com.rameses.osiris3.script;
 
 import com.rameses.annotations.Env;
-import com.rameses.annotations.TransactionScope;
+import com.rameses.annotations.TransactionContext;
 import com.rameses.osiris3.core.*;
 import java.lang.annotation.Annotation;
 

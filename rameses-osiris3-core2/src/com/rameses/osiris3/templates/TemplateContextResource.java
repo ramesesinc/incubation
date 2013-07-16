@@ -49,11 +49,17 @@ public class TemplateContextResource extends ContextResource {
             if(tb==null)
                 throw new Exception("There is no template builder for  " + ext);
             
-            is = context.getClassLoader().getResourceAsStream( "templates/" + key );
+            String fullPath = null;
+            if( key.startsWith("/")) 
+                fullPath = key.substring(1);
+            else
+                fullPath = "templates/"+key;    
+            
+            is = context.getClassLoader().getResourceAsStream( fullPath );
             if(is==null) {
                 if(context instanceof AppContext)  {
                     SharedContext sharedCtx = ((AppContext)context).getSharedContext();
-                    is = sharedCtx.getClassLoader().getResourceAsStream("templates/" + key );
+                    is = sharedCtx.getClassLoader().getResourceAsStream(fullPath );
                 }
             }    
             if(is==null)

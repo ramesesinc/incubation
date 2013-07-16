@@ -28,12 +28,21 @@ public class ActionExpression {
         this.statement = stmt;
     }
     
+    public ActionExpression(String stmt, Map params) {
+        this.statement = stmt;
+        this.params = params;
+    }
+    
     public ActionExpression() {
     }
     
     public ActionExpression add(String name, Object value) {
         params.put(name, value);
         return this;
+    }
+    
+    public void setParams(Map p) {
+        params = p;
     }
     
     public Map getParams() {
@@ -61,7 +70,7 @@ public class ActionExpression {
     }
     
     public String getStringValue() {
-        return ExpressionResolver.getInstance().evalString(statement,params);
+        return ExpressionResolver.getInstance().evalString( "${"+statement+"}",params);
     }
     
     public boolean getBooleanValue() {
