@@ -203,7 +203,8 @@ public class WorkUnitUIController extends UIController
 
                 int paramSize = (m.getParameterTypes() == null? 0: m.getParameterTypes().length); 
                 int argSize = (args == null? 0: args.length); 
-                if (paramSize == argSize) return true;
+                if (paramSize == argSize && paramSize == 0) return true;
+                if (paramSize == argSize && m.getParameterTypes()[0] == Object.class) return true; 
             }
             beanClass = beanClass.getSuperclass();
         }
