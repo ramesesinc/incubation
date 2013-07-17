@@ -38,6 +38,7 @@ import javax.swing.InputVerifier;
 import javax.swing.JComboBox;
 import javax.swing.JComboBox.KeySelectionManager;
 import javax.swing.JComponent;
+import javax.swing.JTable;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
@@ -356,13 +357,25 @@ public class XComboBox extends JComboBox implements UIInput, Validatable, Active
     
     // <editor-fold defaultstate="collapsed" desc="  buildList  ">
     
+    private Binding getCurrentBinding() {
+        if ("true".equals(getClientProperty(JTable.class)+"")) 
+        {
+            if (getVarName() == null) setVarName("item");
+            
+            Object o = getClientProperty(Binding.class); 
+            if (o instanceof Binding) return (Binding)o;
+        } 
+        return getBinding(); 
+    }
+    
     private Collection fetchItems() 
-    {
+    {        
         Collection list = null;
         try 
         {
-            Class type = null;            
-            Object beanItems = UIControlUtil.getBeanValue(this, getItems());
+            Class type = null; 
+            Binding oBinding = getCurrentBinding();            
+            Object beanItems = UIControlUtil.getBeanValue(oBinding, getItems());
             if ( beanItems != null ) 
             {
                 type = beanItems.getClass();
