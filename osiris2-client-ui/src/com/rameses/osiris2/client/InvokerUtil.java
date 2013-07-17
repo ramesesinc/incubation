@@ -27,6 +27,7 @@ import com.rameses.rcp.common.Opener.OpenerLoader;
 import com.rameses.util.ExceptionManager;
 import com.rameses.util.ValueUtil;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -91,6 +92,9 @@ public final class InvokerUtil {
             {
                 UIControllerContext uic = new UIControllerContext( u );
                 uic.setId(windowId);
+                
+                if (outcome instanceof Object[] && outcome instanceof Collection) 
+                    throw new Exception("outcome must an instance of String or Opener"); 
                 
                 if ( !ValueUtil.isEmpty(outcome) ) 
                     uic.setCurrentView(outcome.toString());
