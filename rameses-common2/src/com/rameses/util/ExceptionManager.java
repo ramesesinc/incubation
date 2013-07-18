@@ -9,7 +9,6 @@
 
 package com.rameses.util;
 
-import com.rameses.util.Service;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -53,19 +52,24 @@ public final class ExceptionManager {
             t = t.getCause();
         }
         Exception e = null;
-        if( t instanceof AppException) {
+        if (t instanceof AppException) {
             e = (AppException)t;
         }
-        else if( t instanceof NullPointerException ) {
+        else if (t instanceof NullPointerException) {
             e = (NullPointerException)t;
         }
         else {
             String msg = t.getMessage();
-            if( msg == null ) {
-                if( msg == null )  msg = t.getClass().getName(); 
-            }
-            e = new Exception(msg);
-        }
+            if (t instanceof NoSuchMethodException) {
+                e = new NoSuchMethodException(msg); 
+            } else if (t instanceof NoSuchFieldException) { 
+                e = new NoSuchFieldException(msg); 
+            } else {
+                if (msg == null) msg = t.getClass().getName(); 
+                
+                e = new Exception(msg);
+            } 
+        } 
         return e;
     }
     
