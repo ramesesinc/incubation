@@ -26,37 +26,23 @@ public class WebAnubisContext extends AnubisContext {
     private ServletContext context;
     private WebSessionContext session;
     
-    /** Creates a new instance of WebAnubisContext */
     WebAnubisContext(ServletContext ctx, HttpServletRequest req, HttpServletResponse res) {
         this.request = req;
         this.response = res;
         this.context = ctx;
         this.session = new WebSessionContext(this.request, this.response);
     }
-   
-    public SessionContext getSession() {
-        return session;
-    }
-    
-    public Object getRequest() {
-        return request;
-    }
+
+    public ServletContext getServletContext() { return this.context; }    
+    public SessionContext getSession() { return session; }    
+    public Object getRequest() { return request; }
+    public Object getResponse() { return response; }
     
     void setRequest(HttpServletRequest req) {
         this.request = req;
     }
-    
-    public Object getResponse() {
-        return response;
-    }
-    
+        
     void setResponse(HttpServletResponse resp) {
         this.response = resp;
     }
-
-    public ServletContext getServletContext() {
-        return this.context;
-    }
-    
-    
 }

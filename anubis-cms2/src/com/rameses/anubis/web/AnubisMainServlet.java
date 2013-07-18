@@ -116,16 +116,18 @@ public class AnubisMainServlet extends AbstractAnubisServlet {
                 //hres.sendError(  )
                 String referer = hreq.getHeader("Referer");
                 //remove the server part
-                referer =referer + "#"+ file.getHashid();
+                referer = referer + "#"+ file.getHashid();
                 String redirect = path  + "?target=" + URLEncoder.encode(referer);
                 ResponseUtil.write( hreq, hres, mimeType, redirect);
-            } else {
+            } 
+            else {
                 //file = project.getFileManager().getFile( "/reload.pg" );
                 //InputStream is = project.getContentManager().getContent(file, params);
                 //ResponseUtil.write( hreq, hres, mimeType, is);
                 hres.sendRedirect( path + "?target=" + URLEncoder.encode(requestPath) );
             }
-        } else {
+        } 
+        else {
             boolean authorized = true;
             String domain = file.getDomain();
             String role = file.getRole();

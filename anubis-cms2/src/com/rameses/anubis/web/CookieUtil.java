@@ -51,13 +51,26 @@ public final class CookieUtil {
     }
     
     public static void removeCookie( String key, HttpServletRequest req, HttpServletResponse hres ) {
-        Cookie cook = getCookie(key,req);
-        if(cook!=null) {
-            cook.setPath("/");
-            cook.setValue("");
-            cook.setMaxAge(0);
-            hres.addCookie(cook);
-        }
+        Cookie cook = getCookie(key, req);
+        dispose(cook, hres); 
     }
     
+    public static void dispose(Cookie cookie, HttpServletResponse hres) 
+    {
+        if ( cookie != null ) 
+        {
+            cookie.setPath("/");
+            cookie.setValue("");
+            cookie.setMaxAge(0);
+            hres.addCookie(cookie);
+        }        
+    }
+    
+    public static void disposeAll(HttpServletRequest req, HttpServletResponse hres) 
+    {
+        Cookie[] cookies = req.getCookies();
+        if (cookies == null || cookies.length == 0) return;
+        
+        for (Cookie cook : cookies) dispose(cook, hres); 
+    }
 }
