@@ -17,6 +17,7 @@ import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.swing.table.AbstractTableModel;
 
 public class DataTableModel extends AbstractTableModel implements TableControlModel, TableModelHandler 
@@ -92,12 +93,23 @@ public class DataTableModel extends AbstractTableModel implements TableControlMo
             columnList.add(col);
         } 
         
-        for (Column col : dataProvider.getColumns()) 
+        Column[] columns = dataProvider.getColumns(); 
+        if (columns == null) 
         {
+            List<Map> list = dataProvider.getColumnList();    
+            if (list == null) list = new ArrayList(); 
+            
+            columns = new Column[list.size()];
+            for (int i=0; i<list.size(); i++) { 
+                columns[i] = new Column(list.get(i)); 
+            } 
+        }
+        
+        for (Column col : columns) {
             if (col.isVisible()) columnList.add(col);
         } 
     }
-        
+    
     public int getRowCount() {
         return dataProvider.getListItems().size();
     } 
