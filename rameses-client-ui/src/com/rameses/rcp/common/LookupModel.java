@@ -40,8 +40,9 @@ public class LookupModel extends ScrollListModel
     public String getReturnFields() { return returnFields; }    
     public void setReturnFields(String returnFields) { 
         this.returnFields = returnFields; 
-    }       
-        
+    }     
+
+    
     public boolean selectSingleResult() { return false; }    
     public boolean errorOnEmpty() { return false; }    
     
@@ -202,4 +203,5 @@ public class LookupModel extends ScrollListModel
     }
     
     // </editor-fold>    
+
 }
