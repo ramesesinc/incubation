@@ -5,6 +5,7 @@ import com.rameses.rcp.constant.TextCase;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 public class Column implements Serializable 
 {    
@@ -126,6 +127,10 @@ public class Column implements Serializable
     public Column( String name, String caption, String type, Map props, int width ) {
         this(name, caption, type, props);
         this.width = width;
+    }
+    
+    public Column( Map data ) {
+        init(data); 
     }
     
     
@@ -367,6 +372,21 @@ public class Column implements Serializable
             return this; 
         }
     } 
+    
+    // <editor-fold defaultstate="collapsed" desc=" init(Map) ">    
+    
+    private void init(Map data) {
+        PropertyResolver res = PropertyResolver.getInstance(); 
+        Set<Map.Entry<Object,Object>> entries = data.entrySet();
+        for (Map.Entry entry: entries) 
+        {
+            String key = entry.getKey().toString();
+            Object val = entry.getValue(); 
+            res.setProperty(this, key, val); 
+        }
+    }
+    
+    // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" TypeHandler (class) ">
     
