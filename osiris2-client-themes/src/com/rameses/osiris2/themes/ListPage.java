@@ -62,16 +62,16 @@ public class ListPage extends javax.swing.JPanel {
         );
         xSubFormPanel1Layout.setVerticalGroup(
             xSubFormPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(0, 40, Short.MAX_VALUE)
+            .add(0, 20, Short.MAX_VALUE)
         );
         jPanel1.add(xSubFormPanel1, java.awt.BorderLayout.SOUTH);
 
         jPanel2.setLayout(new java.awt.BorderLayout());
 
         lblTitle.setBackground(new java.awt.Color(255, 255, 255));
-        lblTitle.setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 5, 5, 5));
         lblTitle.setExpression("#{title}");
         lblTitle.setOpaque(true);
+        lblTitle.setPadding(new java.awt.Insets(5, 7, 5, 5));
         jPanel2.add(lblTitle, java.awt.BorderLayout.NORTH);
 
         xActionBar2.setDepends(new String[] {"selectedEntity"});

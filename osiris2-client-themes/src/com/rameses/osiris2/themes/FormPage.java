@@ -39,9 +39,9 @@ public class FormPage extends javax.swing.JPanel {
         jPanel1.setLayout(new java.awt.BorderLayout());
 
         lblTitle.setBackground(new java.awt.Color(255, 255, 255));
-        lblTitle.setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 5, 5, 5));
         lblTitle.setExpression("#{title}");
         lblTitle.setOpaque(true);
+        lblTitle.setPadding(new java.awt.Insets(5, 7, 5, 5));
         jPanel1.add(lblTitle, java.awt.BorderLayout.NORTH);
 
         xHorizontalPanel1.setBorder(new XToolbarBorder());
