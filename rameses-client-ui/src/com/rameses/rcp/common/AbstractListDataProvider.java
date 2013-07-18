@@ -67,8 +67,10 @@ public abstract class AbstractListDataProvider
         return selectionSupport; 
     }    
     
+    public List<Map> getColumnList() { return null; }
+        
     public Column[] getColumns() { return columns; } 
-    public void setColumns(Column[] columns) { this.columns = columns; }
+    public void setColumns(Column[] columns) { this.columns = columns; }    
     
     public boolean isMultiSelect() { return multiSelect; } 
     public void setMultiSelect(boolean multiSelect) {
@@ -712,5 +714,4 @@ public abstract class AbstractListDataProvider
     }
     
     // </editor-fold>
-
 }
