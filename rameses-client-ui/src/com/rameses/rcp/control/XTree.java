@@ -21,6 +21,7 @@ import com.rameses.rcp.framework.NavigationHandler;
 import com.rameses.rcp.ui.UIControl;
 import com.rameses.rcp.util.UIControlUtil;
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
@@ -30,9 +31,13 @@ import java.util.List;
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
+import javax.swing.JComponent;
 import javax.swing.JTree;
+import javax.swing.JViewport;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
+import javax.swing.event.AncestorEvent;
+import javax.swing.event.AncestorListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -76,6 +81,29 @@ public class XTree extends JTree implements UIControl
             public void actionPerformed(ActionEvent e) {
                 fireOpenSelectedNode();
             } 
+        });
+        
+        setBorder(BorderFactory.createEmptyBorder(3, 2, 0, 0)); 
+        addAncestorListener(new AncestorListener() {
+            private boolean inited;
+            
+            public void ancestorAdded(AncestorEvent event) 
+            {
+                if (inited) return;
+                
+                inited = true; 
+                JComponent owner = XTree.this;
+                Container parent = owner.getParent(); 
+                if (parent instanceof JViewport) 
+                {
+                    JViewport jv = (JViewport) parent;
+                    jv.setBackground(owner.getBackground()); 
+                }
+            }
+            public void ancestorMoved(AncestorEvent event) {
+            }
+            public void ancestorRemoved(AncestorEvent event) {
+            }
         });
     }
     
