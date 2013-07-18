@@ -46,7 +46,7 @@ public abstract class ScrollListModel extends AbstractListDataProvider implement
     
     public Object createItem() { 
         return new HashMap(); 
-    }    
+    } 
     
     public ListItemStatus createListItemStatus(ListItem oListItem) 
     {
@@ -101,7 +101,7 @@ public abstract class ScrollListModel extends AbstractListDataProvider implement
             params.put("_rowsize", preferredRows+1);
             params.put("_limit", preferredRows+1);
             
-            List resultList = fetchList(params);
+            List resultList = fetchList(params); 
             if (resultList == null) resultList = new ArrayList();
             
             onafterFetchList(resultList); 
