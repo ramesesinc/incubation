@@ -23,6 +23,7 @@ public class ExecutionInfo {
     private String serviceName;
     private String methodName;
     private String tag;
+    private Map info = new HashMap();
     
     /** Creates a new instance of ExecutionInfo */
     public ExecutionInfo(String serviceName, String methodName, Object[] args ) {
@@ -62,4 +63,9 @@ public class ExecutionInfo {
     public void setTag(String tag) {
         this.tag = tag;
     }
+
+    public Map getInfo() {
+        return info;
+    }
+  
 }

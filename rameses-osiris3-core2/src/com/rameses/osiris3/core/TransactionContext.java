@@ -40,7 +40,8 @@ public class TransactionContext {
     private OsirisServer server;
     private MainContext context;
     private Map env;
-   
+    
+    
     private Map<Class, TransactionManager> managers = new HashMap();
     
     public OsirisServer getServer() {
@@ -96,7 +97,7 @@ public class TransactionContext {
         this.env = null;
         TransactionContext.removeContext();
     }
-
+    
     
 }
 

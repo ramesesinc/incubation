@@ -8,6 +8,7 @@ import com.rameses.rcp.ui.UICommand;
 import com.rameses.rcp.common.Action;
 import com.rameses.util.BusinessException;
 import com.rameses.util.ExceptionManager;
+import com.rameses.util.IgnoreException;
 import com.rameses.util.ValueUtil;
 import java.beans.Beans;
 import java.lang.reflect.Method;
@@ -82,9 +83,10 @@ public class UICommandUtil {
         } 
         catch(Exception ex) 
         {
-            ex.printStackTrace();
+            Exception e = ExceptionManager.getOriginal(ex); 
+            if (e instanceof IgnoreException) return;
             
-            Exception e = ExceptionManager.getOriginal(ex);            
+            //ex.printStackTrace();            
             if (!ExceptionManager.getInstance().handleError(e))
                 ClientContext.getCurrentContext().getPlatform().showError((JComponent) command, ex);
         }

@@ -10,3 +10,4 @@ com.rameses.osiris3.script.dependency.SqlContextDependencyHandler
 com.rameses.osiris3.script.dependency.ContextDependencyHandler
 com.rameses.osiris3.script.dependency.XConnectionDependencyHandler
 com.rameses.osiris3.script.dependency.ResourceDependencyHandler
+com.rameses.osiris3.script.dependency.ExecutionContextDependencyHandler

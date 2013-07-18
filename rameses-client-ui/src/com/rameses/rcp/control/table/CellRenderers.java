@@ -411,7 +411,7 @@ public class CellRenderers
                 expression = oColumn.getExpression(); 
                 
             Object cellValue = ctx.getValue();
-            if (expression != null) 
+            if (expression != null && !(cellValue instanceof String)) 
             {
                 try 
                 {
