@@ -58,6 +58,8 @@ public class ManagedScriptExecutor {
             //get first the necessary resources
             ExecutionInfo e = new ExecutionInfo(scriptInfo.getName(),method, args);
             Method m = scriptInfo.getClassDef().findMethodByName( method );
+            if (m == null) throw new NoSuchMethodException("'"+method+"' method does not exist");
+            
             TransactionContext txn = TransactionContext.getCurrentContext();
             OsirisServer svr = txn.getServer();
             MainContext ct = txn.getContext();
