@@ -47,4 +47,8 @@ public abstract class SubListModel extends ScrollListModel
         }
         pageCount = ((maxRows+1) / getRows()) + (((maxRows+1) % getRows()>0)?1:0);
     }
+
+    public void moveLastPage() {
+    }
+    
 }
