@@ -2,6 +2,7 @@ package com.rameses.osiris2.client;
 
 import com.rameses.osiris2.*;
 import com.rameses.rcp.framework.ClientContext;
+import java.util.HashMap;
 import java.util.Map;
 
 public final class OsirisContext {
@@ -32,4 +33,10 @@ public final class OsirisContext {
         return getClientContext().getHeaders();
     }
 
+    public static Map getSessionEnv() {
+        Map map = new HashMap();
+        map.putAll(getEnv());
+        map.remove("ROLES");
+        return map;
+    }
 }

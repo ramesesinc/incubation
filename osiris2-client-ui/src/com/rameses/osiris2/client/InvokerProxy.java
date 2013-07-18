@@ -59,8 +59,10 @@ public class InvokerProxy  {
     public synchronized Object create(String name, Class localInterface) {
         try {
             ScriptServiceContext ect = new ScriptServiceContext(getAppEnv());
+            Map _env = OsirisContext.getSessionEnv();
+            
             if(localInterface != null) {
-                return ect.create( name, localInterface );
+                return ect.create( name, _env, localInterface );
             } 
             else {
                 if( !services.containsKey( name )) {
@@ -68,9 +70,7 @@ public class InvokerProxy  {
                     Class clz = classLoader.parseClass( si.getStringInterface() );
                     services.put( name, clz  );
                 }
-                Map map = new HashMap();
-                map.putAll( OsirisContext.getEnv() );
-                ServiceProxy sp = ect.create( name, map );
+                ServiceProxy sp = ect.create( name, _env );
                 
                 Class clz = services.get(name);
                 return Proxy.newProxyInstance( classLoader, new Class[]{clz}, new ServiceProxyInvocationHandler(sp)  );

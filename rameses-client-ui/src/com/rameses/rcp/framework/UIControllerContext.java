@@ -7,6 +7,8 @@ import com.rameses.rcp.support.StyleRuleParser.DefaultParseHandler;
 import com.rameses.rcp.ui.annotations.StyleSheet;
 import com.rameses.rcp.ui.annotations.Template;
 import com.rameses.util.ValueUtil;
+import java.awt.BorderLayout;
+import java.awt.Component;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -123,8 +125,19 @@ public class UIControllerContext {
                 throw new Exception("Master template " + mClass.getName() + " must not extend a UIViewPanel" );
             
             JComponent smaster = initPagePanel(master, binding);
-            master.add(panel);       
-            if( smaster != master ) {
+            JComponent targetPanel = findTargetPanel(master, t.target());
+            if (targetPanel != null) 
+            {
+                if (targetPanel.getLayout() instanceof BorderLayout) 
+                    targetPanel.add(panel, BorderLayout.NORTH); 
+                else 
+                    targetPanel.add(panel); 
+            }
+            else 
+                master.add(panel);
+            
+            if ( smaster != master ) 
+            {
                 smaster.add(master);
                 master = smaster;
             }
@@ -133,6 +146,23 @@ public class UIControllerContext {
         loadStyleRules(pageClass, binding);
         
         return (master!=null) ? master : panel;
+    }
+    
+    private JComponent findTargetPanel(JComponent panel, String name) 
+    {
+        if (name == null || name.length() == 0) return null;
+        
+        for (Component comp: panel.getComponents()) 
+        {
+            if (!(comp instanceof JPanel)) continue;
+            
+            JComponent jc = (JComponent) comp;
+            if (name.equals(jc.getName()+"")) return jc;
+            
+            JComponent jcr = findTargetPanel(jc, name); 
+            if (jcr != null) return jcr; 
+        }
+        return null; 
     }
     
     private void loadStyleRules(Class pageClass, Binding binding) {

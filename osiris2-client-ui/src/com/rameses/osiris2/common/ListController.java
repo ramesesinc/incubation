@@ -19,7 +19,9 @@ public abstract class ListController extends BasicListController implements List
     private List navActions;
     private Map query = new HashMap(); 
         
-    public abstract String getEntityName();
+    public String getEntityName() {
+        throw new RuntimeException("Please provide entity name");
+    }
     public abstract String getServiceName();
    
     

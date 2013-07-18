@@ -26,6 +26,10 @@ public final class OsirisTestPlatform {
     }
     
     public static void runTest(Map env, Map roles) throws Exception {
+        runTest( env, roles, new HashMap());
+    }
+    
+    public static void runTest(Map env, Map roles, Map profile) throws Exception {
         if(env==null) env = new HashMap();
         
         if( env.get("app.title") == null )
@@ -35,6 +39,8 @@ public final class OsirisTestPlatform {
         
         //add the client env here.    
         Map clientEnv = new HashMap();
+        clientEnv.putAll(profile);
+        
         if(roles==null) roles = new HashMap();
         roles.put("ALLOWED", "system.*");
         clientEnv.put("ROLES", roles);
