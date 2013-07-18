@@ -13,17 +13,18 @@ import com.rameses.rcp.util.UIControlUtil;
 import com.rameses.util.ValueUtil;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Graphics;
 import java.awt.Insets;
 import java.beans.Beans;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.text.Format;
 import java.util.logging.Logger;
-import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.UIManager;
+import javax.swing.border.AbstractBorder;
 import javax.swing.border.Border;
 
 /**
@@ -43,7 +44,6 @@ public class XLabel extends JLabel implements UIOutput, ActiveControl
     
     private Insets padding;
     private Format format;    
-    private Border origBorder;
     
     /**
      * ActiveControl support fields/properties
@@ -56,7 +56,9 @@ public class XLabel extends JLabel implements UIOutput, ActiveControl
     private JComponent activeComponent;
     private ActiveControlSupport activeControlSupport;
     
+    private Border sourceBorder;
     private Logger logger; 
+    
     
     public XLabel() 
     {  
@@ -69,7 +71,6 @@ public class XLabel extends JLabel implements UIOutput, ActiveControl
         this.forceUseActiveCaption = forceUseActiveCaption;
         
         setPadding(new Insets(1,3,1,1));
-        setPreferredSize(new Dimension(50,19));
         
         //default font
         Font f = ThemeUI.getFont("XLabel.font");
@@ -122,19 +123,23 @@ public class XLabel extends JLabel implements UIOutput, ActiveControl
     public String getVisibleWhen() { return visibleWhen; } 
     public void setVisibleWhen(String visibleWhen) { this.visibleWhen = visibleWhen;  }
     
-    public Border getBorder() { return origBorder; }    
     public void setBorder(Border border) 
     {
-        origBorder = border;        
-        if ( padding != null ) 
-        {
-            Border padBorder = BorderFactory.createEmptyBorder(padding.top, padding.left, padding.bottom, padding.right);
-            Border b = BorderFactory.createCompoundBorder(origBorder, padBorder);
-            super.setBorder(b);
+        if (border instanceof BorderWrapper) 
+            border = ((BorderWrapper) border).getBorder(); 
+
+        super.setBorder(new BorderWrapper(border)); 
+        this.sourceBorder = border; 
+    }
+    
+    public void setBorder(String uiresource) 
+    {
+        try 
+        { 
+            Border border = UIManager.getLookAndFeelDefaults().getBorder(uiresource); 
+            if (border != null) setBorder(border); 
         } 
-        else {
-            super.setBorder(origBorder);
-        }
+        catch(Exception ex) {;} 
     }
         
     public String getCaption() {
@@ -208,7 +213,7 @@ public class XLabel extends JLabel implements UIOutput, ActiveControl
     public void setPadding(Insets padding) 
     {
         this.padding = padding;
-        this.setBorder(origBorder);
+        setBorder(this.sourceBorder);
     }
     
     public boolean isAddCaptionColon() { return addCaptionColon; }    
@@ -418,7 +423,7 @@ public class XLabel extends JLabel implements UIOutput, ActiveControl
     
     // </editor-fold>
     
-    // <editor-fold defaultstate="collapsed" desc="  ActiveControlSupport (class)  ">
+    // <editor-fold defaultstate="collapsed" desc=" ActiveControlSupport (class) ">
     
     private class ActiveControlSupport implements PropertyChangeListener 
     {        
@@ -457,5 +462,53 @@ public class XLabel extends JLabel implements UIOutput, ActiveControl
         }        
     }
     
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" BorderWrapper (class) ">
+
+    private class BorderWrapper extends AbstractBorder
+    {   
+        XLabel root = XLabel.this;
+        private Border border;
+        
+        BorderWrapper(Border border) { 
+            if (border instanceof BorderWrapper) 
+                this.border = ((BorderWrapper) border).getBorder(); 
+            else 
+                this.border = border;  
+        }
+        
+        public Border getBorder() { return border; } 
+        
+        public Insets getBorderInsets(Component c) {
+            Insets ins = new Insets(0,0,0,0);
+            if (border != null) ins = border.getBorderInsets(c); 
+            
+            return getBorderInsets(c, ins); 
+        }
+        
+        public Insets getBorderInsets(Component c, Insets ins) {
+            Insets insCopy = (ins == null? new Insets(0,0,0,0): copy(ins));
+            Insets padding = root.getPadding(); 
+            if (padding == null) padding = new Insets(0,0,0,0); 
+            
+            insCopy.top += padding.top;
+            insCopy.left += padding.left; 
+            insCopy.bottom += padding.bottom; 
+            insCopy.right += padding.right; 
+            return insCopy; 
+        }
+
+        public void paintBorder(Component c, Graphics g, int x, int y, int w, int h) {
+            if (border != null) border.paintBorder(c, g, x, y, w, h); 
+        }
+        
+        private Insets copy(Insets padding) {
+            if (padding == null) return new Insets(0, 0, 0, 0);
+            
+            return new Insets(padding.top, padding.left, padding.bottom, padding.right); 
+        }
+    }
+
     // </editor-fold>
 }
