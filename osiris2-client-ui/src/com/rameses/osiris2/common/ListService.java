@@ -5,6 +5,8 @@ import java.util.Map;
 
 public interface ListService {
 
-    List getList(Map data);
+    List<Map> getColumns(Map params);
+    
+    List getList(Map params);
 
 }

@@ -3,6 +3,7 @@ package com.rameses.osiris2.common;
 import com.rameses.osiris2.client.InvokerProxy;
 import com.rameses.osiris2.client.InvokerUtil;
 import com.rameses.rcp.common.Action;
+import com.rameses.rcp.common.Column;
 import com.rameses.rcp.common.ListItem;
 import com.rameses.rcp.common.Opener;
 import java.util.ArrayList;
@@ -33,7 +34,13 @@ public abstract class ListController extends BasicListController implements List
         Opener o = new Opener();
         o.setOutcome("queryform");
         return o;
-    }    
+    } 
+
+    public Column[] getColumns() { return null; }
+
+    public List<Map> getColumnList() {
+        return getService().getColumns( new HashMap() ); 
+    }
     
     // </editor-fold>    
  
