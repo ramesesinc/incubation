@@ -100,6 +100,9 @@ public class ColumnPropertyEditor implements PropertyEditor
             sb.append(", " + convertString(c.getEditableWhen())); 
             sb.append(", " + getInitString(c.getTypeHandler())); 
             sb.append(")");
+            
+            if (c.getAlignment() != null) 
+                sb.append(".set(\"alignment\",\""+c.getAlignment()+"\")");
         }
         sb.append("\n}");
         return sb.toString(); 
@@ -190,6 +193,7 @@ public class ColumnPropertyEditor implements PropertyEditor
             oldColumn.isRequired(), oldColumn.isResizable(), oldColumn.isNullWhenEmpty(), oldColumn.isEditable(), 
             oldColumn.getEditableWhen(), oldColumn.getTypeHandler() 
         );
+        newColumn.setAlignment(oldColumn.getAlignment()); 
         return newColumn; 
     }
     

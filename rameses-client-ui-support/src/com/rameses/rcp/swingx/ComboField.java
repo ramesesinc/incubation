@@ -9,6 +9,7 @@
 
 package com.rameses.rcp.swingx;
 
+import java.util.Comparator;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
 
@@ -19,6 +20,7 @@ import javax.swing.JComboBox;
 public class ComboField extends JComboBox implements IComponent 
 {
     private ComboItem[] items;
+    private Comparator comparator;    
     private boolean updateable = true;
     
     public ComboField() {
@@ -55,8 +57,14 @@ public class ComboField extends JComboBox implements IComponent
     {
         if (items == null || items.length == 0) return -1;
         
-        for (int i=0; i<items.length; i++) {
-            if (items[i].equals(value)) return i;
+        for (int i=0; i<items.length; i++) {            
+            if (getComparator() == null) { 
+                if (items[i].equals(value)) return i;
+            } 
+            else {
+                int result = getComparator().compare(items[i], value);
+                if (result == 1) return i; 
+            } 
         }
         return -1;
     }
@@ -65,4 +73,9 @@ public class ComboField extends JComboBox implements IComponent
     public void setUpdateable(boolean updateable) {
         this.updateable = updateable;
     }  
+    
+    public Comparator getComparator() { return comparator; } 
+    public void setComparator(Comparator comparator) { 
+        this.comparator = comparator; 
+    } 
 }
