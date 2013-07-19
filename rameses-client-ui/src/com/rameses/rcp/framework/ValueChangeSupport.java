@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  *
@@ -49,7 +50,11 @@ public class ValueChangeSupport
         if (property == null || callbackListener == null) return;
         
         List list = handlers.get(property); 
-        if (list != null) list.remove(callbackListener); 
+        if (list != null) 
+        {
+            list.remove(callbackListener);
+            if (list.isEmpty()) handlers.remove(property);
+        }         
     }
     
     public void removeAll() 
@@ -63,15 +68,30 @@ public class ValueChangeSupport
     {
         if (property == null) return;
         
-        List list = handlers.get(property); 
-        if (list != null) 
-        { 
-            for (Object callback : list) { 
+        Set<Map.Entry<String,List>> entries = handlers.entrySet(); 
+        for (Map.Entry<String,List> entry: entries) 
+        {
+            String key = entry.getKey();
+            if (!property.matches(key)) continue;
+            
+            List list = entry.getValue(); 
+            if (list == null) continue;
+            
+            for (Object callback: list) {
                 invokeCallback(callback, value); 
-            } 
-        }        
-        if (extended != null) 
-            invokeCallback(extended.get(property), value); 
+            }
+        }
+        
+        if (extended == null) return;
+        
+        Set<Map.Entry> sets = extended.entrySet(); 
+        for (Map.Entry entry: sets) 
+        {
+            String key = (entry.getKey() == null? null: entry.getKey().toString()); 
+            if (key == null || key.length() == 0) continue;
+            
+            invokeCallback(entry.getValue(), value);
+        }
     }
     
     private void invokeCallback(Object callback, Object value) 
@@ -85,8 +105,7 @@ public class ValueChangeSupport
         catch(Exception ex) 
         {
             System.out.println("[ValueChangeSupport_notify] failed caused by " + ex.getMessage());
-            if (ClientContext.getCurrentContext().isDebugMode()) 
-                ex.printStackTrace(); 
+            if (ClientContext.getCurrentContext().isDebugMode()) ex.printStackTrace(); 
         } 
     }
 }
