@@ -220,7 +220,12 @@ public class XDataTable extends JPanel implements UIInput, Validatable, FocusLis
         {
             Object oHandler = UIControlUtil.getBeanValue(this, handler);
             if ( oHandler instanceof AbstractListDataProvider ) 
-                newProvider = (AbstractListDataProvider) oHandler;  
+                newProvider = (AbstractListDataProvider) oHandler; 
+            
+            else {
+                System.out.println("[WARN] '"+handler+"' list model is null");
+                newProvider = new ReadonlyListModel(null); 
+            }
         }
         
         if (newProvider == null && getItems() != null) 
@@ -313,6 +318,8 @@ public class XDataTable extends JPanel implements UIInput, Validatable, FocusLis
     
     public void validateInput() 
     {
+        if (dataProvider == null) return;
+        
         String errmsg = dataProvider.getMessageSupport().getErrorMessages(); 
         actionMessage.clearMessages();
         if ( errmsg != null ) 
