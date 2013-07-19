@@ -64,6 +64,8 @@ public class PlatformTabWindow extends JPanel implements SubWindow {
         }
     }
 
+    public String getName() { return this.id; } 
+    
     public String getTitle() {
         return title;
     }
