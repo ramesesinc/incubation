@@ -71,8 +71,8 @@ public class ValueChangeSupport
         Set<Map.Entry<String,List>> entries = handlers.entrySet(); 
         for (Map.Entry<String,List> entry: entries) 
         {
-            String key = entry.getKey();
-            if (!property.matches(key)) continue;
+            String regex = entry.getKey();
+            if (!match(property, regex)) continue;
             
             List list = entry.getValue(); 
             if (list == null) continue;
@@ -87,10 +87,23 @@ public class ValueChangeSupport
         Set<Map.Entry> sets = extended.entrySet(); 
         for (Map.Entry entry: sets) 
         {
-            String key = (entry.getKey() == null? null: entry.getKey().toString()); 
-            if (key == null || key.length() == 0) continue;
+            String regex = (entry.getKey() == null? null: entry.getKey().toString()); 
+            if (!match(property, regex)) continue;
             
             invokeCallback(entry.getValue(), value);
+        }
+    }
+    
+    private boolean match(String name, String regex) 
+    {
+        if (name == null || regex == null) return false; 
+        
+        try {
+            if ("*".equals(regex)) regex = ".*";
+
+            return name.matches(regex);            
+        } catch(Exception ex) {
+            return false; 
         }
     }
     
