@@ -75,6 +75,12 @@ public abstract class AbstractNumberDocument extends PlainDocument
         this.value = value;
         this.stringValue = (value != null) ? value.toString() : null;
         
+        try {
+            super.remove(0, getLength()); 
+        } catch (BadLocationException ex) {
+            ;
+        } 
+        
         if (value != null)
         {
             try
