@@ -37,6 +37,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JEditorPane;
@@ -841,6 +843,8 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
     
     private class Layout implements LayoutManager 
     {        
+        private Logger logger = Logger.getLogger(getClass().getName()); 
+        
         public void addLayoutComponent(String name, Component comp) {;}
         public void removeLayoutComponent(Component comp) {;}
         
@@ -863,6 +867,12 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
                 int w = parent.getWidth() - (margin.left + margin.right);
                 int h = parent.getHeight() - (margin.top + margin.bottom);
                 
+                if (Beans.isDesignTime()) 
+                {
+                    logger.log(Level.INFO, "*******************************");
+                    logger.log(Level.INFO, "container dimension: "+w+", "+h); 
+                }
+                
                 boolean hasVisibleComponents = false;
                 Component[] comps = parent.getComponents();
                 for (int i=0; i<comps.length; i++) 
@@ -879,6 +889,12 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
                         x += cellpadding.left;
                         c.setBounds(x, y, dim.width, dim.height);
                         x += cellpadding.right + dim.width;
+                        
+                        if (Beans.isDesignTime()) 
+                        {
+                            logger.log(Level.INFO, "component: " + c);
+                            logger.log(Level.INFO, "component-bounds:" + c.getBounds());
+                        }                        
                     } 
                     else 
                     {
@@ -886,11 +902,17 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
                         {
                             y += getCellspacing();
                             if (isShowCategory()) y += 10;
-                        }                         
+                        } 
                         
                         y += cellpadding.top;
                         c.setBounds(x, y, w, dim.height);
                         y += cellpadding.bottom + dim.height;
+                        
+                        if (Beans.isDesignTime()) 
+                        {
+                            logger.log(Level.INFO, "component: " + c);
+                            logger.log(Level.INFO, "component-bounds:" + c.getBounds());
+                        }
                     }
                     hasVisibleComponents = true;
                 }
