@@ -252,6 +252,10 @@ public class PageFlowController
         return ExpressionResolver.getInstance().evalString( expr, bean );
     }
 
+    public String getState() {
+        return workunit.getWorkunit().getCurrentNode().getName();
+    }
+    
     public Object getCaller() {
         return caller;
     }
