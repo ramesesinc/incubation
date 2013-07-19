@@ -272,6 +272,10 @@ public class CellRenderers
         
         protected abstract String getFormattedValue(Column c, Object value);
         
+        protected String resolveAlignment(String alignment) {
+            return alignment; 
+        }
+        
         public void refresh(JTable table, Object value, boolean selected, boolean focus, int rowIndex, int columnIndex) 
         {
             Column c = getContext().getColumn(); 
@@ -498,6 +502,13 @@ public class CellRenderers
     
     public static class IntegerRenderer extends AbstractNumberRenderer 
     { 
+        protected String resolveAlignment(String alignment) {
+            if (alignment == null || alignment.length() == 0)
+                return "CENTER"; 
+            else
+                return alignment;
+        }
+        
         protected String getFormattedValue(Column c, Object value)
         {
             Number num = null;
