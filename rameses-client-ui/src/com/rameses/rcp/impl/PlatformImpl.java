@@ -110,6 +110,10 @@ public class PlatformImpl implements Platform {
         d.setLocationRelativeTo(parent);
         d.setSource(actionSource);
         
+        if ("false".equals(properties.get("resizable")+"")) d.setResizable(false);
+        if ("true".equals(properties.get("alwaysOnTop")+"")) d.setAlwaysOnTop(true);
+        if ("true".equals(properties.get("undecorated")+"")) d.setUndecorated(true); 
+        
         EventQueue.invokeLater(new Runnable() {
             public void run() {
                 d.setVisible(true);
