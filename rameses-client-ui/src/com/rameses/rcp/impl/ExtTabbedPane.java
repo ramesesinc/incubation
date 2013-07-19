@@ -8,6 +8,7 @@ package com.rameses.rcp.impl;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.EventQueue;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
@@ -19,7 +20,6 @@ import java.util.Hashtable;
 import java.util.Map;
 import javax.swing.Icon;
 import javax.swing.JTabbedPane;
-import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
 /**
@@ -80,9 +80,12 @@ public class ExtTabbedPane extends JTabbedPane {
         final String _tip = tip;
         final int _index = index;
         
-        SwingUtilities.invokeLater(new Runnable() {
+        EventQueue.invokeLater(new Runnable() {
             public void run() {
-                Component old = tabIndex.get(_title);
+                String tabid = _component.getName();
+                if (tabid == null || tabid.length() == 0) tabid = _title;
+                
+                Component old = tabIndex.get(tabid);
                 if( old != null ) {
                     if( indexOfComponent(old) >= 0 ) {
                         setSelectedComponent(old);
@@ -92,7 +95,7 @@ public class ExtTabbedPane extends JTabbedPane {
                 
                 ExtTabbedPane.super.insertTab(_title, _icon, _component, _tip, _index);
                 setSelectedIndex(_index);
-                tabIndex.put(_title, _component);
+                tabIndex.put(tabid, _component);
             }
         });
     }
@@ -102,10 +105,12 @@ public class ExtTabbedPane extends JTabbedPane {
         if( idx >= 0 ) {
             String title = getTitleAt(idx);
             tabIndex.remove(title);
+            
+            String cname = component.getName();
+            if (cname != null) tabIndex.remove(cname);
         }
         super.remove(component);
     }
-    
     
     private class TabSupport implements MouseListener, MouseMotionListener {
         
