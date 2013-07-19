@@ -17,6 +17,7 @@ import com.rameses.rcp.util.UIControlUtil;
 import com.rameses.rcp.util.UIInputUtil;
 import com.rameses.util.ValueUtil;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Graphics;
 import java.awt.Point;
@@ -27,6 +28,7 @@ import java.util.*;
 import javax.swing.InputVerifier;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
+import javax.swing.JPopupMenu;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
@@ -37,6 +39,7 @@ import javax.swing.table.TableColumn;
 import javax.swing.text.JTextComponent;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JRootPane;
 import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
@@ -155,7 +158,9 @@ public class DataTableComponent extends JTable implements TableControl
                 currentEditor.requestFocus(); 
                 currentEditor.grabFocus(); 
             }            
-        });        
+        }); 
+        
+        addMouseListener(new PopupMenuAdapter());
     }
     
     // </editor-fold>
@@ -1440,4 +1445,118 @@ public class DataTableComponent extends JTable implements TableControl
     }
     
     // </editor-fold>             
+    
+    // <editor-fold defaultstate="collapsed" desc=" PopupMenu Support ">    
+    
+    private class PopupMenuAdapter extends MouseAdapter
+    {
+        DataTableComponent root = DataTableComponent.this; 
+        private JPopupMenu popup;
+
+        public void mouseClicked(MouseEvent e) {
+            if (!SwingUtilities.isRightMouseButton(e)) return;
+            if (root.getDataProvider() == null) return;
+            
+            System.out.println("right clicked");
+            int rowIndex = root.rowAtPoint(e.getPoint()); 
+            DataTableModel dtm = root.getDataTableModel(); 
+            ListItem li = dtm.getListItem(rowIndex); 
+            if (li == null) return;
+
+            int colIndex = root.columnAtPoint(e.getPoint()); 
+            if (colIndex < 0) colIndex = root.getSelectedColumn(); 
+            
+            root.changeSelection(rowIndex, colIndex, false, false);             
+            if (popup == null) 
+                popup = new JPopupMenu(); 
+            else 
+                popup.setVisible(false); 
+            
+            PopupMenuRunnable pmr = new PopupMenuRunnable(); 
+            pmr.popup = popup;
+            pmr.dtm = dtm; 
+            pmr.li = li; 
+            pmr.e = e; 
+            pmr.rowIndex = rowIndex; 
+            pmr.colIndex = colIndex; 
+            EventQueue.invokeLater(pmr);
+        }
+    } 
+    
+    private class PopupMenuRunnable implements Runnable 
+    {
+        DataTableComponent root = DataTableComponent.this; 
+        
+        private JPopupMenu popup;
+        private DataTableModel dtm;
+        private ListItem li;
+        private MouseEvent e;
+        private int rowIndex;
+        private int colIndex;
+        
+        private String colName;
+        
+        public void run() {
+            try {
+                runImpl();
+            } catch(Exception ex) {
+                MsgBox.err(ex); 
+            }
+        } 
+        
+        private void runImpl() 
+        {
+            Column oColumn = dtm.getColumn(colIndex); 
+            colName = (oColumn == null? null: oColumn.getName()); 
+            
+            List<Map> menuItems = root.getDataProvider().getContextMenu(li.getItem(), colName); 
+            if (menuItems == null || menuItems.isEmpty()) return;
+            
+            popup.removeAll();
+            for (Map data: menuItems) 
+            {
+                String value = getString(data, "value");
+                if ("separator".equalsIgnoreCase(value+"")) 
+                {
+                    popup.addSeparator();
+                    continue;
+                }
+                
+                JMenuItem jmi = new JMenuItem(value+"");
+                jmi.putClientProperty("UserObject", data);
+                jmi.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        invokeAction(e);
+                    }
+                });
+                Dimension dim = jmi.getPreferredSize();
+                jmi.setPreferredSize(new Dimension(Math.max(dim.width, 100), dim.height)); 
+                popup.add(jmi); 
+            }
+            popup.pack();
+            popup.show(e.getComponent(), e.getX(), e.getY()); 
+        }
+        
+        private void invokeAction(ActionEvent e) {
+            try 
+            {
+                JMenuItem jmi = (JMenuItem) e.getSource(); 
+                Object userObject = jmi.getClientProperty("UserObject");
+                Object result = root.getDataProvider().callContextMenu(li.getItem(), userObject);
+                if (result == null) return;
+                
+                root.getBinding().fireNavigation(result); 
+            } 
+            catch(Exception ex) {
+                MsgBox.err(ex); 
+            }
+         }
+        
+        private String getString(Map data, String name) {
+            Object o = data.get(name); 
+            return (o == null? null: o.toString()); 
+        }
+    }
+    
+    // </editor-fold>
 }

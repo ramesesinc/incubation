@@ -32,6 +32,7 @@ import java.awt.event.MouseListener;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -605,14 +606,16 @@ public class Binding
     
     private void doFireNavigation(Object outcome, String target) {
         try {
+            if (outcome == null) return;
+            if (outcome instanceof Object[] || outcome instanceof Collection)
+                throw new Exception("outcome must be a String or Opener"); 
+            
             ClientContext ctx = ClientContext.getCurrentContext();
             NavigationHandler handler = ctx.getNavigationHandler();
             NavigatablePanel navPanel = UIControlUtil.getParentPanel(owner, target);
-            if ( handler != null ) {
-                handler.navigate(navPanel, null, outcome);
-            }
-            
-        } catch(Exception e) {
+            if (handler != null) handler.navigate(navPanel, null, outcome);
+        } 
+        catch(Exception e) {
             ClientContext.getCurrentContext().getPlatform().showError(owner, e);
         }
     }

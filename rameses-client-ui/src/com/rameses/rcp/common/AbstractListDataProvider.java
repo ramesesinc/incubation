@@ -72,6 +72,15 @@ public abstract class AbstractListDataProvider
     public Column[] getColumns() { return columns; } 
     public void setColumns(Column[] columns) { this.columns = columns; }    
     
+    // the data for the popup menu
+    public List<Map> getContextMenu(Object item, String columnName) { 
+        return null; 
+    }    
+    // invoke when a menu item is selected
+    public Object callContextMenu(Object item, Object menuItem) {
+        return null; 
+    } 
+    
     public boolean isMultiSelect() { return multiSelect; } 
     public void setMultiSelect(boolean multiSelect) {
         this.multiSelect = multiSelect;
