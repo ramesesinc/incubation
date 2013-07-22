@@ -59,6 +59,7 @@ public class LookupPage extends javax.swing.JPanel {
         xButton1.setPreferredSize(new java.awt.Dimension(66, 23));
 
         xButton2.setText("Cancel");
+        xButton2.setImmediate(true);
         xButton2.setName("doCancel");
         xButton2.setPreferredSize(new java.awt.Dimension(66, 23));
 
