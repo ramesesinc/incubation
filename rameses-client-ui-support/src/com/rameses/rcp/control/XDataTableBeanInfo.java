@@ -57,6 +57,8 @@ public class XDataTableBeanInfo extends ComponentBeanInfo.Support
             new PropertyDescriptor("oddForeground", getBeanClass()),
             new PropertyDescriptor("readonly", getBeanClass(), "isReadonly", "setReadonly"),
             new PropertyDescriptor("required", getBeanClass(), "isRequired", "setRequired"),
+            new PropertyDescriptor("rowHeight", getBeanClass()),
+            new PropertyDescriptor("rowHeaderHeight", getBeanClass()),
             new PropertyDescriptor("showRowHeader", getBeanClass(), "isShowRowHeader", "setShowRowHeader")
         }; 
     }

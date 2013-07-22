@@ -90,7 +90,7 @@ public class DataTableComponent extends JTable implements TableControl
     
     private JLabel lblProcessing;
     private boolean fetching;
-    
+    private int rowHeaderHeight = -1;
     
     public DataTableComponent() {
         initComponents();
@@ -291,6 +291,18 @@ public class DataTableComponent extends JTable implements TableControl
     
     public Color getErrorForeground() { return errorForeground; }
     public void setErrorForeground(Color errorForeground) { this.errorForeground = errorForeground; }
+    
+    public void setRowHeight(int rowHeight) { 
+        super.setRowHeight(rowHeight); 
+        setRowHeaderHeight(rowHeight);
+    } 
+    
+    public int getRowHeaderHeight() { return rowHeaderHeight; } 
+    public void setRowHeaderHeight(int rowHeaderHeight) {
+        this.rowHeaderHeight = rowHeaderHeight;
+        getTableHeader().setPreferredSize(new Dimension(Short.MAX_VALUE, rowHeaderHeight)); 
+        getTableHeader().repaint(); 
+    }
     
     // </editor-fold>
     
@@ -1569,4 +1581,5 @@ public class DataTableComponent extends JTable implements TableControl
     }
     
     // </editor-fold>
+
 }

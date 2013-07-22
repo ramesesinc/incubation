@@ -473,6 +473,9 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
     
     public int getRowHeight() { return table.getRowHeight(); }
     public void setRowHeight(int h) { table.setRowHeight(h); }
+
+    public int getRowHeaderHeight() { return table.getRowHeaderHeight(); }
+    public void setRowHeaderHeight(int h) { table.setRowHeaderHeight(h); }
     
     public boolean isScrollbarAlwaysVisible() {
         return scrollBar.isVisibleAlways();
