@@ -67,8 +67,8 @@ public class DataTableHeader extends JTableHeader
         g2.dispose();
     } 
     
-    // <editor-fold defaultstate="collapsed" desc="  Painter (class)  ">    
-    
+    // <editor-fold defaultstate="collapsed" desc=" Painter (class) ">    
+
     public static class Painter 
     {
         public void paint(JComponent comp, Graphics g, int x, int y, int w, int h) 
@@ -81,30 +81,30 @@ public class DataTableHeader extends JTableHeader
             g2.dispose();    
         }
     }
-    
+
     // </editor-fold>
     
-   // <editor-fold defaultstate="collapsed" desc="  CustomBorder (class)  ">    
-    
+    // <editor-fold defaultstate="collapsed" desc=" CustomBorder (class) ">    
+
     public static class CustomBorder extends AbstractBorder 
     {
         private JTable table;
         private Insets margin;
-        
+
         public CustomBorder(JTable table) {
             this(table, null); 
         }
-        
+
         public CustomBorder(JTable table, Insets margin) 
         {
             this.table = table;
             this.margin = (margin == null? new Insets(0,0,0,0): margin); 
         }
-        
+
         public Insets getBorderInsets(Component c) {
             return getBorderInsets(c, margin); 
         }
-        
+
         public Insets getBorderInsets(Component c, Insets insets) {
             return margin;
         }
@@ -113,24 +113,24 @@ public class DataTableHeader extends JTableHeader
         {
             Color color = table.getGridColor();
             if (color == null) return;
-                    
+
             Color oldColor = g.getColor();
             g.setColor(color);
             g.drawRect(-1, -1, w, h); 
             g.setColor(oldColor); 
         } 
     }
-    
+
     // </editor-fold>    
     
-   // <editor-fold defaultstate="collapsed" desc="  CornerBorder (class)  ">    
-    
+    // <editor-fold defaultstate="collapsed" desc=" CornerBorder (class) ">    
+
     public static class CornerBorder extends AbstractBorder 
     {
         private JTable table;
         private String cornerType;
         private Color color;
-        
+
         public CornerBorder(JTable table, String cornerType) {
             this.table = table;
             this.cornerType = cornerType;
@@ -140,13 +140,13 @@ public class DataTableHeader extends JTableHeader
             this.color = color;
             this.cornerType = cornerType;
         }
-        
+
         public JComponent createComponent() 
         {
             JLabel lbl = new JLabel("")
             {
                 Painter painter = new Painter();
-                
+
                 public void paint(Graphics g) 
                 {
                     Rectangle rect = g.getClipBounds(); 
@@ -157,11 +157,11 @@ public class DataTableHeader extends JTableHeader
             lbl.setBorder(this); 
             return lbl;
         } 
-        
+
         public Insets getBorderInsets(Component c) {
             return getBorderInsets(c, new Insets(0,0,0,0)); 
         }
-        
+
         public Insets getBorderInsets(Component c, Insets insets) {
             return new Insets(0,0,0,0);
         }
@@ -171,9 +171,9 @@ public class DataTableHeader extends JTableHeader
             Color preferredColor = color;
             if (preferredColor == null && table != null) 
                 preferredColor = table.getGridColor();
-            
+
             if (preferredColor == null) return;
-            
+
             Color oldColor = g.getColor();
             g.setColor(preferredColor);
             if (JScrollPane.UPPER_LEFT_CORNER.equals(cornerType)) 
@@ -182,11 +182,11 @@ public class DataTableHeader extends JTableHeader
                 g.drawRect(-1, 0, w, h-1); 
             else 
                 g.drawRect(-1, -1, w+1, h+1); 
-            
+
             g.setColor(oldColor); 
         } 
     }
-    
+
     // </editor-fold>        
     
 }

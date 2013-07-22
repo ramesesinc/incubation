@@ -139,10 +139,14 @@ public final class TableUtil
     
     public static TableCellRenderer getCellRenderer(Column oColumn) 
     {
+        ColumnHandlerUtil u = ColumnHandlerUtil.newInstance();
         if (oColumn.getTypeHandler() == null) 
-            oColumn.setTypeHandler(ColumnHandlerUtil.newInstance().createTypeHandler(oColumn)); 
-            
+            oColumn.setTypeHandler(u.createTypeHandler(oColumn)); 
+                    
         oColumn.setType(oColumn.getTypeHandler().getType()); 
+        //this will force to set the preferred alignment of each column
+        CellRenderers.getPreferredAlignment(oColumn); 
+        
         TableCellRenderer renderer = renderers.get(oColumn.getType()); 
         if (renderer == null) 
             return renderers.get(oColumn.getTypeHandler().getClass());

@@ -49,6 +49,7 @@ public class XDataTableBeanInfo extends ComponentBeanInfo.Support
             new PropertyDescriptor("immediate", getBeanClass(), "isImmediate", "setImmediate"),
             new PropertyDescriptor("index", getBeanClass()),
             new PropertyDescriptor("items", getBeanClass()),
+            new PropertyDescriptor("id", getBeanClass()),
             new PropertyDescriptor("varName", getBeanClass()),
             new PropertyDescriptor("varStatus", getBeanClass()), 
             new PropertyDescriptor("multiSelectName", getBeanClass()),             
