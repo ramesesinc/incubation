@@ -55,10 +55,9 @@ public class XLabel extends JLabel implements UIOutput, ActiveControl
     private ControlProperty activeProperty;
     private JComponent activeComponent;
     private ActiveControlSupport activeControlSupport;
-    
+
+    private Logger logger;     
     private Border sourceBorder;
-    private Logger logger; 
-    
     
     public XLabel() 
     {  
@@ -125,11 +124,9 @@ public class XLabel extends JLabel implements UIOutput, ActiveControl
     
     public void setBorder(Border border) 
     {
-        if (border instanceof BorderWrapper) 
-            border = ((BorderWrapper) border).getBorder(); 
-
-        super.setBorder(new BorderWrapper(border)); 
-        this.sourceBorder = border; 
+        BorderWrapper wrapper = new BorderWrapper(border, getPadding()); 
+        super.setBorder(wrapper); 
+        this.sourceBorder = wrapper.getBorder(); 
     }
     
     public void setBorder(String uiresource) 
@@ -213,7 +210,7 @@ public class XLabel extends JLabel implements UIOutput, ActiveControl
     public void setPadding(Insets padding) 
     {
         this.padding = padding;
-        setBorder(this.sourceBorder);
+        setBorder(this.sourceBorder); 
     }
     
     public boolean isAddCaptionColon() { return addCaptionColon; }    
@@ -470,33 +467,41 @@ public class XLabel extends JLabel implements UIOutput, ActiveControl
     {   
         XLabel root = XLabel.this;
         private Border border;
+        private Insets padding;
         
-        BorderWrapper(Border border) { 
+        BorderWrapper(Border border, Insets padding) {
             if (border instanceof BorderWrapper) 
                 this.border = ((BorderWrapper) border).getBorder(); 
             else 
-                this.border = border;  
+                this.border = border; 
+            
+            this.padding = copy(padding); 
         }
         
         public Border getBorder() { return border; } 
         
         public Insets getBorderInsets(Component c) {
-            Insets ins = new Insets(0,0,0,0);
-            if (border != null) ins = border.getBorderInsets(c); 
-            
-            return getBorderInsets(c, ins); 
+            return getBorderInsets(c, new Insets(0,0,0,0)); 
         }
         
         public Insets getBorderInsets(Component c, Insets ins) {
-            Insets insCopy = (ins == null? new Insets(0,0,0,0): copy(ins));
-            Insets padding = root.getPadding(); 
-            if (padding == null) padding = new Insets(0,0,0,0); 
+            if (ins == null) new Insets(0,0,0,0);
             
-            insCopy.top += padding.top;
-            insCopy.left += padding.left; 
-            insCopy.bottom += padding.bottom; 
-            insCopy.right += padding.right; 
-            return insCopy; 
+            ins.top = ins.left = ins.bottom = ins.right = 0;
+            if (border != null) 
+            {
+                Insets ins0 = border.getBorderInsets(c); 
+                ins.top += ins0.top;
+                ins.left += ins0.left;
+                ins.bottom += ins0.bottom;
+                ins.right += ins0.right;
+            }
+            
+            ins.top += padding.top;
+            ins.left += padding.left;
+            ins.bottom += padding.bottom;
+            ins.right += padding.right;
+            return ins; 
         }
 
         public void paintBorder(Component c, Graphics g, int x, int y, int w, int h) {
