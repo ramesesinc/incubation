@@ -9,6 +9,7 @@
 
 package com.rameses.rcp.control.table;
 
+import com.rameses.common.ExpressionResolver;
 import com.rameses.rcp.common.AbstractListDataProvider;
 import com.rameses.rcp.common.CheckBoxColumnHandler;
 import com.rameses.rcp.common.Column;
@@ -18,9 +19,11 @@ import com.rameses.rcp.common.DecimalColumnHandler;
 import com.rameses.rcp.common.IntegerColumnHandler;
 import com.rameses.rcp.common.LookupColumnHandler;
 import com.rameses.rcp.common.OpenerColumnHandler;
+import com.rameses.rcp.common.StyleRule;
 import com.rameses.rcp.constant.TextCase;
 import com.rameses.rcp.support.ColorUtil;
 import com.rameses.rcp.support.ComponentSupport;
+import com.rameses.rcp.util.ControlSupport;
 import com.rameses.rcp.util.UIControlUtil;
 import java.awt.Color;
 import java.awt.Component;
@@ -214,6 +217,8 @@ public class CellRenderers
                 }
             }
             
+            try { applyStyles(comp); } catch(Throwable ex) {;}             
+            
             AbstractListDataProvider ldp = ctx.getDataProvider();
             String errmsg = ldp.getMessageSupport().getErrorMessage(rowIndex);
             if (errmsg != null) 
@@ -250,6 +255,32 @@ public class CellRenderers
             refresh(table, value, isSelected, hasFocus, rowIndex, columnIndex);
             return comp;
         }
+        
+        private void applyStyles(JComponent comp) 
+        {
+            TableControl tc = getContext().getTableControl();
+            if (tc.getVarName() == null || tc.getVarName().length() == 0) return;
+            if (tc.getId() == null || tc.getId().length() == 0) return;
+            
+            StyleRule[] styles = tc.getBinding().getStyleRules();
+            if (styles == null || styles.length == 0) return;
+            
+            String colName = getContext().getColumn().getName(); 
+            String sname = tc.getId()+":"+tc.getVarName()+"."+colName;
+            ExpressionResolver res = ExpressionResolver.getInstance();
+            
+            //apply style rules
+            for (StyleRule r : styles) {
+                String pattern = r.getPattern();
+                String expr = r.getExpression();
+                if (expr != null && sname.matches(pattern)){                    
+                    try {
+                        boolean matched = res.evalBoolean(expr, getContext().createExpressionBean());
+                        if (matched) ControlSupport.setStyles(r.getProperties(), comp);
+                    } catch (Throwable ign){;}
+                }
+            }
+        }        
     }
     
     // </editor-fold>    

@@ -32,6 +32,7 @@ public class DataTableModel extends AbstractTableModel implements TableControlMo
     private String multiSelectName;    
     private String varName = "item";
     private String varStatus;
+    private String id;
 
     void setBinding(DataTableBinding binding) { this.binding = binding; }
     
@@ -52,6 +53,9 @@ public class DataTableModel extends AbstractTableModel implements TableControlMo
         propertySupport.firePropertyChange(name, oldValue, newValue); 
     } 
         
+    public String getId() { return id; } 
+    public void setId(String id) { this.id = id; }    
+    
     public String getVarName() { return varName; } 
     public void setVarName(String varName) { this.varName = varName; }
     
@@ -258,4 +262,5 @@ public class DataTableModel extends AbstractTableModel implements TableControlMo
         } 
         return support.createProxy(); 
     }     
+
 }

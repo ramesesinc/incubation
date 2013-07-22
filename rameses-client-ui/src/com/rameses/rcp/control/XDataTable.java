@@ -35,7 +35,7 @@ import java.util.ArrayList;
 import java.util.Map;
 import javax.swing.*;
 
-public class XDataTable extends JPanel implements UIInput, Validatable, FocusListener
+public class XDataTable extends JPanel implements UIInput, UIComplex, Validatable, FocusListener
 {    
     private DataTableComponentImpl table;
     private ListScrollBar scrollBar;
@@ -53,6 +53,7 @@ public class XDataTable extends JPanel implements UIInput, Validatable, FocusLis
     private String items;    
     private String handler;
     private String caption;
+    private String id;
     private int index;    
     private boolean dynamic;
     private boolean showRowHeader;
@@ -93,8 +94,8 @@ public class XDataTable extends JPanel implements UIInput, Validatable, FocusLis
     }
     
     // </editor-fold>
-        
-    // <editor-fold defaultstate="collapsed" desc="  initialize table  ">
+    
+    // <editor-fold defaultstate="collapsed" desc=" initialize table ">
     
     private void init() 
     {
@@ -110,8 +111,9 @@ public class XDataTable extends JPanel implements UIInput, Validatable, FocusLis
         //--additional customization for the JScrollPane 
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
         scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        scrollPane.setBorder(BorderFactory.createEmptyBorder());        
-                
+        scrollPane.setBorder(BorderFactory.createEmptyBorder()); 
+        //scrollPane.setViewport(new ViewportImpl(table)); 
+                                
         //--attach mouse wheel listener to table
         table.addMouseWheelListener(new MouseWheelListener() {
             public void mouseWheelMoved(MouseWheelEvent e) 
@@ -180,7 +182,7 @@ public class XDataTable extends JPanel implements UIInput, Validatable, FocusLis
     
     // </editor-fold>
     
-    // <editor-fold defaultstate="collapsed" desc="  UIInput properties  ">
+    // <editor-fold defaultstate="collapsed" desc=" UIInput properties ">
     
     public String[] getDepends() { return depends; }    
     public void setDepends(String[] depends) { this.depends = depends; }
@@ -220,7 +222,7 @@ public class XDataTable extends JPanel implements UIInput, Validatable, FocusLis
         {
             Object oHandler = UIControlUtil.getBeanValue(this, handler);
             if ( oHandler instanceof AbstractListDataProvider ) 
-                newProvider = (AbstractListDataProvider) oHandler; 
+                newProvider = (AbstractListDataProvider) oHandler;  
             
             else {
                 System.out.println("[WARN] '"+handler+"' list model is null");
@@ -273,6 +275,16 @@ public class XDataTable extends JPanel implements UIInput, Validatable, FocusLis
         return UIControlUtil.compare(this, o);
     }
      
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" UIComplex implementation ">
+    
+    public String getId() { return id; }
+    public void setId(String id) { 
+        this.id = id; 
+        table.setId(id);
+    }
+    
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc="  table listener methods  ">
@@ -368,10 +380,16 @@ public class XDataTable extends JPanel implements UIInput, Validatable, FocusLis
     }
     
     public String getItems() { return items; } 
-    public void setItems(String items) { this.items = items; }
+    public void setItems(String items) { 
+        this.items = items; 
+        if (getId() == null) setId(this.items); 
+    }
     
     public String getHandler() { return handler; }
-    public void setHandler(String handler) { this.handler = handler; }
+    public void setHandler(String handler) { 
+        this.handler = handler; 
+        if (getId() == null) setId(this.handler); 
+    }
     
     public boolean isDynamic() { return dynamic; }
     public void setDynamic(boolean dynamic) { this.dynamic = dynamic; }
@@ -845,4 +863,39 @@ public class XDataTable extends JPanel implements UIInput, Validatable, FocusLis
     
     // </editor-fold>         
     
+    // <editor-fold defaultstate="collapsed" desc="  ViewPortImpl (class)  ">    
+    
+    private class ViewportImpl extends JViewport
+    {
+        XDataTable root = XDataTable.this;        
+        private Color bgcolor = Color.WHITE;
+        private Rectangle oldBounds = new Rectangle(); 
+        
+        ViewportImpl(Component view) 
+        { 
+            super.setBackground(bgcolor); 
+            super.setOpaque(true); 
+            super.setView(view); 
+            
+            addComponentListener(new ComponentListener() {
+                public void componentHidden(ComponentEvent e) {}
+                public void componentMoved(ComponentEvent e) {}
+                public void componentShown(ComponentEvent e) {}
+                
+                public void componentResized(ComponentEvent e) 
+                {
+                    Rectangle rect = getBounds(); 
+                    if (rect.height == oldBounds.height) return;
+                    
+//                    oldBounds = rect;
+//                    System.out.println("view-bounds-> " + rect);
+//                    System.out.println("table-bounds-> " + root.table.getBounds());
+                }                
+            });
+        }
+
+        public void setBackground(Color bg) {}
+    }
+    
+    // </editor-fold>             
 }

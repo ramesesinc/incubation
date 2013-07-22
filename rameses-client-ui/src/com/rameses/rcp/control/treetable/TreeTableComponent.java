@@ -45,7 +45,8 @@ public class TreeTableComponent extends JTable implements ListModelListener, Tab
     private Color errorForeground = Color.BLACK;
     
     private Binding binding;
-    
+    private String varName = "item";
+    private String id;
     private boolean multiselect;
     
     
@@ -142,9 +143,15 @@ public class TreeTableComponent extends JTable implements ListModelListener, Tab
         }
     }
     
-    public String getVarStatus()            { return tableModel.getVarStatus(); }
+    public String getVarStatus() { return tableModel.getVarStatus(); }
     public void setVarStatus(String status) { tableModel.setVarStatus(status); }
     
+    public String getVarName() { return varName; } 
+    public void setVarName(String varName) { this.varName = varName; } 
+    
+    public String getId() { return id; } 
+    public void setId(String id) { this.id = id; }     
+        
     //</editor-fold>
     
     //<editor-fold defaultstate="collapsed" desc="  buildColumns  ">

@@ -14,7 +14,10 @@ import javax.swing.table.TableModel;
 
 public interface TableControl 
 {
+    String getId();
     String getName();
+    String getVarName();
+    
     Binding getBinding();
     TableModel getModel();
     AbstractListDataProvider getDataProvider(); 

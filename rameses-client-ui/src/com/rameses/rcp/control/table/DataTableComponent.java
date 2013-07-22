@@ -220,6 +220,16 @@ public class DataTableComponent extends JTable implements TableControl
         return (processingRequest || fetching); 
     } 
     
+    public String getId() { 
+        DataTableModel dtm = getDataTableModel();
+        return (dtm == null? null: dtm.getId());
+    } 
+    public void setId(String id) 
+    { 
+        DataTableModel dtm = getDataTableModel();
+        if (dtm != null) dtm.setId(id);
+    }    
+    
     public String getVarName() { return varName; } 
     public void setVarName(String varName) 
     { 
