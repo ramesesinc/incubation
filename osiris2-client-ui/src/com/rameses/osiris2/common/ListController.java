@@ -3,6 +3,7 @@ package com.rameses.osiris2.common;
 import com.rameses.osiris2.client.InvokerProxy;
 import com.rameses.osiris2.client.InvokerUtil;
 import com.rameses.rcp.common.Action;
+import com.rameses.rcp.common.CallbackHandler;
 import com.rameses.rcp.common.Column;
 import com.rameses.rcp.common.ListItem;
 import com.rameses.rcp.common.Opener;
@@ -59,19 +60,15 @@ public abstract class ListController extends BasicListController implements List
     
     public Opener create() throws Exception 
     {
-        Map params = new HashMap();
-        params.put("listModelHandler", this);
-        
-        Opener o = InvokerUtil.lookupOpener(getEntityName()+":create", params);
+        Opener o = InvokerUtil.lookupOpener(getEntityName()+":create", createOpenerParams());
         o.setTarget(getFormTarget()); 
         return o;
     }
     
     public Object open() throws Exception 
     {
-        Map params = new HashMap();
+        Map params = createOpenerParams();
         params.put("entity", getSelectedEntity()); 
-        params.put("listModelHandler", this);
         
         Opener o = InvokerUtil.lookupOpener(getEntityName()+":open", params);
         o.setTarget(getFormTarget()); 
@@ -91,6 +88,18 @@ public abstract class ListController extends BasicListController implements List
     public void search() {
         load(); 
     }    
+    
+    private Map createOpenerParams() 
+    {
+        Map handlers = new HashMap();
+        handlers.put("saveCreate", new InsertRefreshHandler());
+        handlers.put("saveUpdate", new UpdateRefreshHandler());
+        
+        Map params = new HashMap();
+        params.put("listModelHandler", this);
+        params.put("refreshHandler", handlers); 
+        return params;
+    }
           
     // </editor-fold>
         
@@ -151,7 +160,7 @@ public abstract class ListController extends BasicListController implements List
     // </editor-fold>
     
     
-    public final List fetchList(Map m) {
+    public List fetchList(Map m) {
         return getService().getList(m); 
     }
     
@@ -170,6 +179,8 @@ public abstract class ListController extends BasicListController implements List
     /*
      *  ListControllerHandler implementation
      */ 
+    // <editor-fold defaultstate="collapsed" desc=" ListControllerHandler implementation "> 
+    
     public void handleInsert(Object data) 
     {
         if (data == null) return;
@@ -220,4 +231,43 @@ public abstract class ListController extends BasicListController implements List
         }
     }
     
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" refresh handler support "> 
+    
+    public class InsertRefreshHandler implements CallbackHandler
+    {
+        public Object call() { 
+            throw new NullPointerException("Please feed the data when invoking this method");
+        }
+
+        public Object call(Object arg) { 
+            return call(new Object[]{ arg }); 
+        }
+
+        public Object call(Object[] args) { 
+            Object data = args[0];
+            handleInsert(data);
+            return null;
+        } 
+    }
+    
+    public class UpdateRefreshHandler implements CallbackHandler
+    {
+        public Object call() { 
+            throw new NullPointerException("Please feed the data when invoking this method");
+        }
+
+        public Object call(Object arg) { 
+            return call(new Object[]{ arg }); 
+        }
+
+        public Object call(Object[] args) { 
+            Object data = args[0];
+            handleUpdate(data);
+            return null;
+        } 
+    }    
+    
+    // </editor-fold>
 }
