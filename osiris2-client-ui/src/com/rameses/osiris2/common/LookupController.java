@@ -10,6 +10,7 @@
 package com.rameses.osiris2.common;
 
 import com.rameses.osiris2.client.InvokerFilter;
+import com.rameses.osiris2.client.InvokerProxy;
 import com.rameses.osiris2.client.InvokerUtil;
 import com.rameses.rcp.annotations.Binding;
 import com.rameses.rcp.annotations.Invoker;
@@ -22,6 +23,7 @@ import com.rameses.rcp.common.MsgBox;
 import com.rameses.rcp.common.Opener;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -41,8 +43,25 @@ public abstract class LookupController extends LookupModel
     private Object onselect;
     private Object onempty;
     
-    public abstract Column[] getColumns();
-    public abstract List fetchList(Map params);     
+    public String getServiceName() { return null; }
+    
+    public Column[] getColumns() { return null; }
+
+    public List<Map> getColumnList() {
+        String name = getServiceName();
+        if (name != null && name.length() > 0) 
+            return getService().getColumns( new HashMap() ); 
+        else 
+            return null; 
+    }
+    
+    public List fetchList(Map params) { 
+        String name = getServiceName();
+        if (name != null && name.length() > 0) 
+            return getService().getList(params); 
+        else 
+            return new ArrayList();
+    }  
     
     public LookupController() {
         setSelector(new LookupSelectorImpl()); 
@@ -134,6 +153,24 @@ public abstract class LookupController extends LookupModel
     }    
     
     protected void onselect(Object item) {} 
+    
+    // <editor-fold defaultstate="collapsed" desc=" Helper methods for the ListService ">
+    
+    private ListService oListService;
+    
+    protected ListService getService()
+    {
+        if (oListService == null) {
+            String name = getServiceName();
+            if (name == null || name.length() == 0)
+                throw new RuntimeException("No service name specified"); 
+            
+            oListService = (ListService) InvokerProxy.getInstance().create(name, ListService.class);
+        }
+        return oListService;
+    }     
+    
+    // </editor-fold>
         
     // <editor-fold defaultstate="collapsed" desc=" LookupSelectorImpl (class) ">  
     
