@@ -20,6 +20,9 @@
         String getServiceName() {
             if (serviceName == null) {
                 serviceName = controller?.workunit?.workunit?.properties?.serviceName;
+                
+                if (serviceName == null) 
+                    throw new Exception('Please specify a serviceName attribute in your workunit'); 
             } 
             return serviceName;
         }
