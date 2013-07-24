@@ -42,6 +42,10 @@ public abstract class LookupController extends LookupModel
     private Object selectedEntity;
     private Object onselect;
     private Object onempty;
+    private String tag;
+    
+    public String getTag() { return tag; } 
+    public void setTag(String tag) { this.tag = tag; }
     
     public String getServiceName() { return null; }
     
@@ -49,18 +53,27 @@ public abstract class LookupController extends LookupModel
 
     public List<Map> getColumnList() {
         String name = getServiceName();
-        if (name != null && name.length() > 0) 
-            return getService().getColumns( new HashMap() ); 
-        else 
+        if (name != null && name.length() > 0) {
+            Map params = new HashMap();
+            String stag = getTag();
+            if (stag != null) params.put("_tag", stag);            
+            
+            return getService().getColumns(params); 
+        } else {
             return null; 
+        } 
     }
     
     public List fetchList(Map params) { 
         String name = getServiceName();
-        if (name != null && name.length() > 0) 
+        if (name != null && name.length() > 0) {
+            String stag = getTag();
+            if (stag != null) params.put("_tag", stag);
+            
             return getService().getList(params); 
-        else 
-            return new ArrayList();
+        } else {
+            return new ArrayList(); 
+        }
     }  
     
     public LookupController() {
