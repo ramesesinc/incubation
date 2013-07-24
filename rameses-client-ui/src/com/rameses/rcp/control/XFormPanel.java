@@ -113,7 +113,7 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
         propertySupport = new PropertyChangeSupport();
         super.setLayout(layout = new Layout());
         setPreferredSize(new Dimension(100,50)); 
-        setPadding(new Insets(5,5,5,5));
+        setPadding(new Insets(0,5,5,5));
         setOpaque(false);
         
         Font font = lblFont.getFont().deriveFont(Font.PLAIN);         
@@ -906,7 +906,7 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
                         
                         y += cellpadding.top;
                         c.setBounds(x, y, w, dim.height);
-                        y += cellpadding.bottom + dim.height;
+                        y += dim.height + cellpadding.bottom;
                         
                         if (Beans.isDesignTime()) 
                         {
@@ -968,7 +968,7 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
     
     // </editor-fold>
     
-    // <editor-fold defaultstate="collapsed" desc="  FormPanelBindingListener (class)  ">
+    // <editor-fold defaultstate="collapsed" desc=" FormPanelBindingListener (class) ">
     
     private class FormPanelBindingListener implements BindingListener 
     {        
@@ -1049,7 +1049,7 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
     
     // </editor-fold>
     
-    // <editor-fold defaultstate="collapsed" desc="  ModelListener (clas)  ">
+    // <editor-fold defaultstate="collapsed" desc=" ModelListener (class) ">
     
     private class ModelListener implements FormPanelModel.Listener 
     {        
