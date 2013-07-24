@@ -11,6 +11,7 @@ package com.rameses.rcp.impl;
 
 import com.rameses.platform.interfaces.MainWindow;
 import com.rameses.platform.interfaces.MainWindowListener;
+import com.rameses.platform.interfaces.SubWindow;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.EventQueue;
@@ -121,7 +122,8 @@ public class MainDialog implements MainWindow {
                     tabbedPane = new ExtTabbedPane();
                     dialog.add(tabbedPane, BorderLayout.CENTER);
                 }
-                tabbedPane.addTab(tab.getTitle(), tab);
+                tabbedPane.add((SubWindow) tab);
+                //tabbedPane.addTab(tab.getTitle(), tab);
             }
         } else if ( constraint.endsWith(MainWindow.STATUSBAR)) {
             if( statusbar != null )
