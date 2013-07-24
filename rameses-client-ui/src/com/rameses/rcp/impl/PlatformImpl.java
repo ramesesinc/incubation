@@ -62,7 +62,6 @@ public class PlatformImpl implements Platform {
         String modal = properties.remove("modal")+"";
         
         PlatformTabWindow t = new PlatformTabWindow(id, comp, this);
-                
         t.setTitle(title);
         t.setCanClose( !"false".equals(canClose) );
         
