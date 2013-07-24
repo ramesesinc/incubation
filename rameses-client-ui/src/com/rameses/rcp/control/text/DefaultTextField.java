@@ -52,21 +52,24 @@ public class DefaultTextField extends JTextField
     {
         if (Beans.isDesignTime()) return super.getBackground();
         
+        Color bgcolor = null;
         boolean enabled = isEnabled(); 
         if (enabled) 
         {
             if (hasFocus()) 
             {
                 Color newColor = getFocusBackground();
-                return (newColor == null? enabledBackground: newColor);
+                bgcolor = (newColor == null? enabledBackground: newColor);
             }
             else {
-                return enabledBackground; 
+                bgcolor = enabledBackground; 
             } 
         } 
         else { 
-            return disabledBackground;
+            bgcolor = disabledBackground;
         } 
+        
+        return bgcolor == null? new Color(255,255,255): bgcolor;
     } 
     
     public boolean isReadonly() { return readonly; }
