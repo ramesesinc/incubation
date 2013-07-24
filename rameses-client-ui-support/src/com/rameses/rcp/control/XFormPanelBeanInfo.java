@@ -10,6 +10,7 @@
 package com.rameses.rcp.control;
 
 import com.rameses.beaninfo.ComponentBeanInfo;
+import com.rameses.beaninfo.editor.OrientationPropertyEditor;
 import com.rameses.beaninfo.editor.SwingConstantsHAlignment;
 import com.rameses.beaninfo.editor.SwingConstantsVAlignment;
 import java.beans.IntrospectionException;
@@ -57,7 +58,9 @@ public class XFormPanelBeanInfo extends ComponentBeanInfo.Support
             new PropertyDescriptor("emptyText", getBeanClass(), "isEmptyText", "setEmptyText"),
             new PropertyDescriptor("emptyWhen", getBeanClass(), "isEmptyWhen", "setEmptyWhen"),
             new PropertyDescriptor("index", getBeanClass()),
-            new PropertyDescriptor("orientation", getBeanClass()),
+            
+            installEditor(new PropertyDescriptor("orientation", getBeanClass()), OrientationPropertyEditor.class),
+            
             new PropertyDescriptor("padding", getBeanClass()),
             new PropertyDescriptor("required", getBeanClass(), "isRequired", "setRequired"),
             new PropertyDescriptor("showCategory", getBeanClass(), "isShowCategory", "setShowCategory"),
