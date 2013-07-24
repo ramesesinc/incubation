@@ -1480,7 +1480,6 @@ public class DataTableComponent extends JTable implements TableControl
             if (!SwingUtilities.isRightMouseButton(e)) return;
             if (root.getDataProvider() == null) return;
             
-            System.out.println("right clicked");
             int rowIndex = root.rowAtPoint(e.getPoint()); 
             DataTableModel dtm = root.getDataTableModel(); 
             ListItem li = dtm.getListItem(rowIndex); 
@@ -1535,25 +1534,30 @@ public class DataTableComponent extends JTable implements TableControl
             List<Map> menuItems = root.getDataProvider().getContextMenu(li.getItem(), colName); 
             if (menuItems == null || menuItems.isEmpty()) return;
             
-            popup.removeAll();
-            for (Map data: menuItems) 
-            {
-                String value = getString(data, "value");
-                if ("-".equals(value+"")) {
-                    popup.addSeparator();
-                    continue;
-                }
-                
-                JMenuItem jmi = new JMenuItem(value+"");
-                jmi.putClientProperty("UserObject", data);
-                jmi.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        invokeAction(e);
+            Object items = popup.getClientProperty("ContextMenu.items");
+            if (items == null || (items != null && !items.equals(menuItems))) 
+            { 
+                popup.removeAll();
+                for (Map data: menuItems) 
+                {
+                    String value = getString(data, "value");
+                    if ("-".equals(value+"")) {
+                        popup.addSeparator();
+                        continue;
                     }
-                });
-                Dimension dim = jmi.getPreferredSize();
-                jmi.setPreferredSize(new Dimension(Math.max(dim.width, 100), dim.height)); 
-                popup.add(jmi); 
+
+                    JMenuItem jmi = new JMenuItem(value+"");
+                    jmi.putClientProperty("UserObject", data);
+                    jmi.addActionListener(new ActionListener() {
+                        public void actionPerformed(ActionEvent e) {
+                            invokeAction(e);
+                        }
+                    });
+                    Dimension dim = jmi.getPreferredSize();
+                    jmi.setPreferredSize(new Dimension(Math.max(dim.width, 100), dim.height)); 
+                    popup.add(jmi); 
+                } 
+                popup.putClientProperty("ContextMenu.items", menuItems);
             }
             popup.pack();
             popup.show(e.getComponent(), e.getX(), e.getY()); 
