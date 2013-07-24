@@ -13,6 +13,7 @@ import com.rameses.rcp.framework.ChangeLog;
 import com.rameses.rcp.framework.ClientContext;
 import com.rameses.rcp.ui.*;
 import com.rameses.rcp.util.ActionMessage;
+import com.rameses.rcp.util.UICommandUtil;
 import com.rameses.rcp.util.UIControlUtil;
 import com.rameses.rcp.util.UIInputUtil;
 import com.rameses.util.ValueUtil;
@@ -1538,8 +1539,7 @@ public class DataTableComponent extends JTable implements TableControl
             for (Map data: menuItems) 
             {
                 String value = getString(data, "value");
-                if ("separator".equalsIgnoreCase(value+"")) 
-                {
+                if ("-".equals(value+"")) {
                     popup.addSeparator();
                     continue;
                 }
@@ -1567,7 +1567,13 @@ public class DataTableComponent extends JTable implements TableControl
                 Object result = root.getDataProvider().callContextMenu(li.getItem(), userObject);
                 if (result == null) return;
                 
-                root.getBinding().fireNavigation(result); 
+                if (result instanceof Action) {
+                    Action a = (Action) result;
+                    UICommandUtil.processAction(root, root.getBinding(), a); 
+                }
+                else { 
+                    root.getBinding().fireNavigation(result); 
+                }
             } 
             catch(Exception ex) {
                 MsgBox.err(ex); 
