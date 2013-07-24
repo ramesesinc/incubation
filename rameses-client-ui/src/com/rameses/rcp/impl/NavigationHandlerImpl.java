@@ -79,8 +79,8 @@ public class NavigationHandlerImpl implements NavigationHandler {
                 
                 if ( self ) {
                     conStack.push(controller);
-                    
-                } else {
+                } 
+                else {
                     UIControllerPanel uic = new UIControllerPanel(controller);
                     
                     Map props = new HashMap();
