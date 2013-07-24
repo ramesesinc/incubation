@@ -1,0 +1,28 @@
+<workunit>
+    <pages>
+        <page template="com.rameses.osiris2.themes.LookupPage"/>
+        <page name="queryform" template="com.rameses.osiris2.themes.DefaultQueryFormPanel"/>
+    </pages>
+    
+    <code>
+    import com.rameses.rcp.common.*;
+    import com.rameses.rcp.annotations.*;
+    import com.rameses.osiris2.client.*;
+    import com.rameses.osiris2.common.*;
+
+    class ServiceLookupController extends LookupController
+    {
+        @Controller
+        def controller;
+        
+        private String serviceName;
+        
+        String getServiceName() {
+            if (serviceName == null) {
+                serviceName = controller?.workunit?.workunit?.properties?.serviceName;
+            } 
+            return serviceName;
+        }
+    }        
+    </code>
+</workunit>
