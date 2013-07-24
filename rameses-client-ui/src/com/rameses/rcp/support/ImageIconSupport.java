@@ -11,6 +11,7 @@ package com.rameses.rcp.support;
 
 import com.rameses.rcp.util.ControlSupport;
 import java.awt.Image;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import javax.swing.ImageIcon;
@@ -35,18 +36,28 @@ public class ImageIconSupport
     private ImageIconSupport() {
     }
     
+    public synchronized void removeIcon(String path) 
+    {
+        if (path == null || path.length() == 0) return;
+        
+        cache.remove(path);
+    }
+    
     public synchronized ImageIcon getIcon(String path) 
     {
         if (path == null || path.length() == 0) return null;
         
         Image image = cache.get(path); 
         if (image == null) 
-        {
-            byte[] bytes = ControlSupport.getByteFromResource(path);
-            if (bytes == null) return null; 
-            
+        {                        
             try 
             {
+                if (path.toLowerCase().startsWith("http://")) 
+                    return new ImageIcon(new URL(path)); 
+                
+                byte[] bytes = ControlSupport.getByteFromResource(path);
+                if (bytes == null) return null; 
+                
                 ImageIcon icon = new ImageIcon(bytes); 
                 cache.put(path, icon.getImage());
                 return icon;
