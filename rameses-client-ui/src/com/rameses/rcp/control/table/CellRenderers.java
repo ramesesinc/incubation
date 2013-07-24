@@ -83,7 +83,9 @@ public class CellRenderers {
         if (alignment != null) return alignment;
             
         Column.TypeHandler handler = oColumn.getTypeHandler();
-        if (handler instanceof DecimalColumnHandler)
+        if (handler instanceof CheckBoxColumnHandler)
+            oColumn.setAlignment("center");        
+        else if (handler instanceof DecimalColumnHandler)
             oColumn.setAlignment("right");
         else if (handler instanceof IntegerColumnHandler)
             oColumn.setAlignment("center");
