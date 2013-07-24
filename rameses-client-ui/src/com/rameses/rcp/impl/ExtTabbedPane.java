@@ -6,6 +6,9 @@
 
 package com.rameses.rcp.impl;
 
+import com.rameses.platform.interfaces.SubWindow;
+import com.rameses.platform.interfaces.SubWindowContainer;
+import com.rameses.platform.interfaces.SubWindowListener;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.EventQueue;
@@ -19,6 +22,7 @@ import java.awt.event.MouseMotionListener;
 import java.util.Hashtable;
 import java.util.Map;
 import javax.swing.Icon;
+import javax.swing.JComponent;
 import javax.swing.JTabbedPane;
 import javax.swing.UIManager;
 
@@ -26,13 +30,12 @@ import javax.swing.UIManager;
  *
  * @author jaycverg
  */
-public class ExtTabbedPane extends JTabbedPane {
-    
+public class ExtTabbedPane extends JTabbedPane implements SubWindowContainer 
+{    
     private Map<String,Component> tabIndex;
     private Rectangle closeIconBounds;
     private boolean closeIconHover;
-    
-    
+        
     public ExtTabbedPane() {
         tabIndex = new Hashtable();
         closeIconBounds = new Rectangle(0,0,10,10);
@@ -83,11 +86,15 @@ public class ExtTabbedPane extends JTabbedPane {
         EventQueue.invokeLater(new Runnable() {
             public void run() {
                 String tabid = _component.getName();
-                if (tabid == null || tabid.length() == 0) tabid = _title;
+                if (tabid == null) 
+                { 
+                    tabid = "WIN"+new java.rmi.server.UID();
+                    _component.setName(tabid);
+                }
                 
                 Component old = tabIndex.get(tabid);
-                if( old != null ) {
-                    if( indexOfComponent(old) >= 0 ) {
+                if (old != null) {
+                    if (indexOfComponent(old) >= 0) {
                         setSelectedComponent(old);
                         return;
                     }
@@ -102,7 +109,8 @@ public class ExtTabbedPane extends JTabbedPane {
     
     public void remove(Component component) {
         int idx = indexOfComponent(component);
-        if( idx >= 0 ) {
+        if (idx >= 0) 
+        {
             String title = getTitleAt(idx);
             tabIndex.remove(title);
             
@@ -111,8 +119,55 @@ public class ExtTabbedPane extends JTabbedPane {
         }
         super.remove(component);
     }
+
+    // <editor-fold defaultstate="collapsed" desc=" SubWindowContainer implementation ">
     
-    private class TabSupport implements MouseListener, MouseMotionListener {
+    public void add(SubWindow window) { 
+        if (!(window instanceof JComponent)) 
+            throw new IllegalStateException("window parameter must be an instance of SubWindow and JComponent"); 
+
+        JComponent jc = (JComponent) window;
+        jc.putClientProperty("SubWindow.id", window.getName()); 
+        window.setListener(new SubWindowHandler()); 
+        addTab(window.getTitle(), jc); 
+    }
+    
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" SubWindowHandler (class) ">
+    
+    private class SubWindowHandler implements SubWindowListener
+    {
+        public void fireUpdate(SubWindow window) {
+            if (window == null) return;
+            if (!(window instanceof Component)) 
+                throw new IllegalStateException("window parameter must be an instance of SubWindow and Component"); 
+
+            JComponent jc = (JComponent) window;
+            int index = indexOfComponent(jc);
+            if (index < 0) return;
+
+            setTitleAt(index, window.getTitle()+"          "); 
+            String newId = window.getName();            
+            String oldId = jc.getClientProperty("SubWindow.id")+""; 
+            if (oldId != null && newId != null && !oldId.equals(newId)) {
+                tabIndex.remove(oldId); 
+                tabIndex.put(newId, jc); 
+            }
+            jc.putClientProperty("SubWindow.id", newId);
+        } 
+    }
+    
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" TabSupport (class) ">
+    
+    private class TabSupport implements MouseListener, MouseMotionListener 
+    {
+        public void mousePressed(MouseEvent e) {}
+        public void mouseReleased(MouseEvent e) {}
+        public void mouseEntered(MouseEvent e) {}
+        public void mouseDragged(MouseEvent e) {}        
         
         public void mouseClicked(MouseEvent e) {
             if( closeIconBounds.contains(e.getPoint()) ) {
@@ -135,12 +190,7 @@ public class ExtTabbedPane extends JTabbedPane {
                 closeIconHover = false;
             }
         }
-        
-        public void mousePressed(MouseEvent e) {}
-        public void mouseReleased(MouseEvent e) {}
-        public void mouseEntered(MouseEvent e) {}
-        public void mouseDragged(MouseEvent e) {}
-        
     }
-    
+
+    // </editor-fold>
 }
