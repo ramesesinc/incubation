@@ -18,6 +18,7 @@ import com.rameses.rcp.util.UIControlUtil;
 import com.rameses.rcp.util.UIInputUtil;
 import com.rameses.util.ValueUtil;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Graphics;
@@ -1528,6 +1529,8 @@ public class DataTableComponent extends JTable implements TableControl
         
         private void runImpl() 
         {
+            if (li.getItem() == null) return;
+            
             Column oColumn = dtm.getColumn(colIndex); 
             colName = (oColumn == null? null: oColumn.getName()); 
             
@@ -1546,29 +1549,64 @@ public class DataTableComponent extends JTable implements TableControl
                         continue;
                     }
 
-                    JMenuItem jmi = new JMenuItem(value+"");
-                    jmi.putClientProperty("UserObject", data);
-                    jmi.addActionListener(new ActionListener() {
-                        public void actionPerformed(ActionEvent e) {
-                            invokeAction(e);
-                        }
-                    });
+                    ActionMenuItem jmi = new ActionMenuItem(data, li);
                     Dimension dim = jmi.getPreferredSize();
                     jmi.setPreferredSize(new Dimension(Math.max(dim.width, 100), dim.height)); 
                     popup.add(jmi); 
                 } 
                 popup.putClientProperty("ContextMenu.items", menuItems);
             }
+            
+            Component[] comps = popup.getComponents();
+            for (int i=0; i<comps.length; i++) {
+                if (!(comps[i] instanceof ActionMenuItem)) continue;
+                
+                ActionMenuItem ami = (ActionMenuItem) comps[i];
+                ami.listItem = li;
+                ami.refresh();
+            }
+            
             popup.pack();
             popup.show(e.getComponent(), e.getX(), e.getY()); 
         }
         
-        private void invokeAction(ActionEvent e) {
-            try 
-            {
-                JMenuItem jmi = (JMenuItem) e.getSource(); 
-                Object userObject = jmi.getClientProperty("UserObject");
-                Object result = root.getDataProvider().callContextMenu(li.getItem(), userObject);
+        private String getString(Map data, String name) {
+            Object o = data.get(name); 
+            return (o == null? null: o.toString()); 
+        }
+    }
+    
+    private class ActionMenuItem extends JMenuItem 
+    {
+        DataTableComponent root = DataTableComponent.this;
+        private Map data;
+        private ListItem listItem;
+        
+        ActionMenuItem(Map data, ListItem listItem) {
+            this.data = (data == null? new HashMap(): data);
+            this.listItem = listItem;
+            
+            setText(this.data.get("value")+"");
+            addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    invokeAction(e);
+                }
+            });
+            
+            if (this.data.get("action") instanceof Action) {
+                Action a = (Action) this.data.get("action");
+                Map newData = a.toMap(); 
+                newData.putAll(this.data); 
+                this.data = newData;
+            }
+        }
+        
+        Map getData() { return data; } 
+        
+        void invokeAction(ActionEvent e) {
+            try {
+                Object item = listItem == null? null: listItem.getItem();                 
+                Object result = root.getDataProvider().callContextMenu(item, getData());
                 if (result == null) return;
                 
                 if (result instanceof Action) {
@@ -1581,12 +1619,40 @@ public class DataTableComponent extends JTable implements TableControl
             } 
             catch(Exception ex) {
                 MsgBox.err(ex); 
-            }
-         }
+            }            
+        }
         
-        private String getString(Map data, String name) {
-            Object o = data.get(name); 
-            return (o == null? null: o.toString()); 
+        void refresh() 
+        {
+            try {
+                boolean enabled = !"false".equals(this.data.get("enabled")+""); 
+                setEnabled(enabled);
+                
+                Object item = listItem == null? null: listItem.getItem();
+                if (item == null) return;
+                
+                ExpressionResolver resolver = ExpressionResolver.getInstance();
+                synchronized (resolver) {
+                    Object exprBean = root.createExpressionBean(item);
+                    if (this.data.containsKey("disabledWhen")) {
+                        String expr = this.data.get("disabledWhen").toString(); 
+                        setEnabled(!evalBoolean(resolver, exprBean, expr)); 
+                    }
+                    if (this.data.containsKey("visibleWhen")) {
+                        String expr = this.data.get("visibleWhen").toString(); 
+                        setVisible(evalBoolean(resolver, exprBean, expr)); 
+                    } 
+                }
+            } 
+            catch(Throwable ex) {;}              
+        } 
+        
+        boolean evalBoolean(ExpressionResolver resolver, Object exprBean, String expr) {
+            try {
+                return resolver.evalBoolean(expr, exprBean);
+            } catch(Throwable ex) {
+                return false; 
+            }
         }
     }
     
