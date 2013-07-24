@@ -24,10 +24,10 @@ public class UICommandUtil {
     {
         if ( Beans.isDesignTime() ) return;
 
+        ClientContext ctx = ClientContext.getCurrentContext();
+        MethodResolver resolver = MethodResolver.getInstance();        
         try 
         {
-            ClientContext ctx = ClientContext.getCurrentContext();
-            MethodResolver resolver = MethodResolver.getInstance();
             Binding binding = command.getBinding();
             
             binding.formCommit();
@@ -86,10 +86,40 @@ public class UICommandUtil {
             Exception e = ExceptionManager.getOriginal(ex); 
             if (e instanceof IgnoreException) return;
             
-            //ex.printStackTrace();            
             if (!ExceptionManager.getInstance().handleError(e))
-                ClientContext.getCurrentContext().getPlatform().showError((JComponent) command, ex);
+                ctx.getPlatform().showError((JComponent) command, ex);
         }
+    }
+    
+    public static void processAction(JComponent invoker, Binding binding, Action action) 
+    {
+        if ( Beans.isDesignTime() ) return;
+
+        ClientContext ctx = ClientContext.getCurrentContext();
+        MethodResolver resolver = MethodResolver.getInstance();  
+        try 
+        {
+            Object[] actionParams = new Object[]{};
+            Object actionInvoker = action.getProperties().get("Action.Invoker");
+            if (actionInvoker != null) actionParams = new Object[]{ actionInvoker };
+
+            Object outcome = null;            
+            String command = action.getName();
+            if (hasMethod(binding.getBean(), command, actionParams))
+                outcome = resolver.invoke(binding.getBean(), command, actionParams);
+            else 
+                outcome = resolver.invoke(binding.getBean(), command, null, null); 
+            
+            if (outcome != null) binding.fireNavigation(outcome);
+        }
+        catch(Exception ex) 
+        {
+            Exception e = ExceptionManager.getOriginal(ex); 
+            if (e instanceof IgnoreException) return;
+            
+            if (!ExceptionManager.getInstance().handleError(e))
+                ctx.getPlatform().showError(invoker, ex);
+        }        
     }
     
     private static void validate(UICommand command, Binding binding) throws BusinessException 
