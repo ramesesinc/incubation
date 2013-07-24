@@ -189,8 +189,6 @@ public class Action implements Comparable<Action>
         this.visibleWhen = visibleWhen;
     }
     
-    // </editor-fold>
-
     public String getRole() { return role; }
     public void setRole(String role) {
         this.role = role;
@@ -211,9 +209,11 @@ public class Action implements Comparable<Action>
 
     public void setShowCaption(boolean showCaption) {
         this.showCaption = showCaption;
-    } 
+    }     
     
+    // </editor-fold>
     
+    // <editor-fold defaultstate="collapsed" desc=" clone utility "> 
     
     public Action clone() 
     {
@@ -237,4 +237,31 @@ public class Action implements Comparable<Action>
         newAction.getParams().putAll(getParams());
         return newAction; 
     }
+    
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" toMap utility "> 
+    
+    public Map toMap() {
+        Map map = new HashMap();
+        map.putAll(getProperties());
+        map.put("name", getName());
+        map.put("caption", getCaption());
+        map.put("icon", getIcon());
+        map.put("mnemonic", getMnemonic());
+        map.put("permission", getPermission());
+        map.put("tooltip", getTooltip());
+        map.put("visibleWhen", getVisibleWhen());
+        map.put("category", getCategory());
+        map.put("index", getIndex());
+        map.put("immediate", isImmediate());
+        map.put("update", isUpdate());
+        map.put("role", getRole());
+        map.put("domain", getDomain());
+        map.put("showCaption", isShowCaption());
+        map.put("parent", getParent());
+        return map;
+    }
+    
+    // </editor-fold>
 }
