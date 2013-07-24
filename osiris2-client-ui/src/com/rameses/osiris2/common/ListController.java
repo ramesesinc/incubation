@@ -13,11 +13,11 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class ListController extends BasicListController implements ListModelHandler 
-{    
-    
+{     
     private ListService service;
     private List formActions;
     private List navActions;
+    private List<Map> contextMenuActions;
     private Map query = new HashMap(); 
         
     public String getEntityName() {
@@ -44,6 +44,31 @@ public abstract class ListController extends BasicListController implements List
     public List<Map> getColumnList() {
         return getService().getColumns( new HashMap() ); 
     }
+    
+    public List<Map> getContextMenu(Object item, String columnName) {
+        if (contextMenuActions == null) {
+            contextMenuActions = new ArrayList();
+            List<Action> actions = lookupActions("contextMenu"); 
+            while (!actions.isEmpty()) {
+                Action a = (Action) actions.remove(0);                
+                Map map = new HashMap();
+                map.put("value", a.getCaption()); 
+                map.put("action", a);
+                contextMenuActions.add(map);
+            }
+        }
+        return contextMenuActions;
+    }
+
+    public Object callContextMenu(Object item, Object menuItem) {
+        if (menuItem instanceof Map) {
+            Map map = (Map) menuItem;
+            Object o = map.get("action"); 
+            if (o instanceof Action || o instanceof Opener || o instanceof String) 
+                return o;
+        }
+        return null; 
+    } 
     
     // </editor-fold>    
  
