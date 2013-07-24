@@ -19,15 +19,19 @@ public abstract class ListController extends BasicListController implements List
     private List navActions;
     private List<Map> contextMenuActions;
     private Map query = new HashMap(); 
-        
+    private String tag;
+    
+    public abstract String getServiceName();
+    
     public String getEntityName() {
         throw new RuntimeException("Please provide entity name");
     }
-    public abstract String getServiceName();
-   
-    
+       
     // <editor-fold defaultstate="collapsed" desc=" Getter/Setter ">        
             
+    public String getTag() { return tag; } 
+    public void setTag(String tag) { this.tag = tag; }    
+    
     public Map getQuery() { return query; }
           
     public String getFormTarget() { return "popup"; }    
@@ -42,7 +46,11 @@ public abstract class ListController extends BasicListController implements List
     public Column[] getColumns() { return null; }
 
     public List<Map> getColumnList() {
-        return getService().getColumns( new HashMap() ); 
+        Map params = new HashMap();
+        String stag = getTag();
+        if (stag != null) params.put("_tag", stag);
+        
+        return getService().getColumns(params); 
     }
     
     public List<Map> getContextMenu(Object item, String columnName) {
@@ -186,6 +194,9 @@ public abstract class ListController extends BasicListController implements List
     
     
     public List fetchList(Map m) {
+        String stag = getTag();
+        if (stag != null) m.put("_tag", stag);
+        
         return getService().getList(m); 
     }
     
