@@ -3,6 +3,7 @@ package com.rameses.rcp.framework;
 
 import com.rameses.common.ExpressionResolver;
 import com.rameses.common.PropertyResolver;
+import com.rameses.platform.interfaces.SubWindowListener;
 import com.rameses.rcp.common.StyleRule;
 import com.rameses.rcp.control.XButton;
 import com.rameses.rcp.ui.NonStylable;
@@ -15,6 +16,7 @@ import com.rameses.rcp.util.ControlSupport;
 import com.rameses.rcp.util.UIControlUtil;
 import com.rameses.rcp.util.UIInputUtil;
 import com.rameses.common.MethodResolver;
+import com.rameses.platform.interfaces.SubWindow;
 import com.rameses.platform.interfaces.ViewContext;
 import com.rameses.rcp.annotations.Close;
 import com.rameses.rcp.common.Validator;
@@ -750,11 +752,9 @@ public class Binding
     {
         if (o == null) return;
         
-        if (annotationScanIsDone) 
-        {
+        if (annotationScanIsDone) {
             boolean accessible;
-            if (bindingField != null) 
-            {
+            if (bindingField != null) {
                 accessible = bindingField.isAccessible();
                 bindingField.setAccessible(true);
                 try {
@@ -765,22 +765,18 @@ public class Binding
                 bindingField.setAccessible(accessible);
             }
             
-            if (changeLogField != null) 
-            {
+            if (changeLogField != null) {
                 accessible = changeLogField.isAccessible();
                 changeLogField.setAccessible(true);
-                try 
-                {
+                try {
                     ChangeLog cl = Binding.this.getChangeLog();
                     String[] prefixes = (String[]) getProperties().get(CHANGE_LOG_PREFIX_KEY);
-                    if (prefixes != null) 
-                    {
+                    if (prefixes != null) {
                         for (String s: prefixes) {
                             cl.getPrefix().add(s); 
                         } 
                     }
-                } 
-                catch(Exception ex) {
+                } catch(Throwable ex) {
                     System.out.println("ERROR injecting @Binding "  + ex.getMessage() );
                 }
                 changeLogField.setAccessible(accessible);
@@ -789,23 +785,18 @@ public class Binding
         }
         
         //check for field annotations
-        for( Field f: clazz.getDeclaredFields() ) 
-        {
+        for( Field f: clazz.getDeclaredFields() ) {
             boolean accessible = f.isAccessible();
-            if (f.isAnnotationPresent(com.rameses.rcp.annotations.Binding.class)) 
-            {
+            if (f.isAnnotationPresent(com.rameses.rcp.annotations.Binding.class)) {
                 com.rameses.rcp.annotations.Binding b = f.getAnnotation(com.rameses.rcp.annotations.Binding.class);
                 String[] values = b.validators();
                 PropertyResolver res = PropertyResolver.getInstance();
-                for (String s: values) 
-                {
-                    try 
-                    {
+                for (String s: values) {
+                    try {
                         Object v = res.getProperty(getBean(), s);
                         if ( v instanceof Validator ) 
                             validators.add( (Validator) v );
-                    } 
-                    catch(Exception e) {
+                    } catch(Throwable e) {
                         e.printStackTrace();
                     }
                 }
@@ -813,51 +804,52 @@ public class Binding
                 f.setAccessible(true);
                 try {
                     f.set(o, Binding.this );
-                } catch(Exception ex) {
+                } catch(Throwable ex) {
                     System.out.println("ERROR injecting @Binding "  + ex.getMessage() );
                 }
                 
                 f.setAccessible(accessible);                
                 bindingField = f; 
             } 
-            else if (f.isAnnotationPresent(com.rameses.rcp.annotations.ChangeLog.class)) 
-            {
-                f.setAccessible(true);
-                
+            else if (f.isAnnotationPresent(com.rameses.rcp.annotations.ChangeLog.class)) {
+                f.setAccessible(true);                
                 //check first if the controllers change log is not yet set.
                 //The change log used will be the first one found.
-                try 
-                {
+                try {
                     com.rameses.rcp.annotations.ChangeLog annot = (com.rameses.rcp.annotations.ChangeLog)f.getAnnotation(com.rameses.rcp.annotations.ChangeLog.class);
                     String[] prefixes = annot.prefix();
                     getProperties().put(CHANGE_LOG_PREFIX_KEY, prefixes);
                     ChangeLog cl = Binding.this.getChangeLog();
                     if ( prefixes != null) {
                         for (String s : prefixes) cl.getPrefix().add(s);
-                    }
-                    
+                    }                    
                     f.set(o, cl );
-                } 
-                catch(Exception ex) {
+                } catch(Throwable ex) {
                     System.out.println("ERROR injecting @ChangeLog "  + ex.getMessage() );
                 }
                 
                 f.setAccessible(accessible);                
                 changeLogField = f;
             }
-            else if (f.isAnnotationPresent(com.rameses.rcp.annotations.PropertyChangeListener.class)) 
-            {
+            else if (f.isAnnotationPresent(com.rameses.rcp.annotations.PropertyChangeListener.class)) {
                 f.setAccessible(true);
-                try 
-                {
+                try {
                     Map map = (Map) f.get(getBean());
                     getValueChangeSupport().setExtendedHandler(map); 
-                } 
-                catch(Exception ex) {
+                } catch(Throwable ex) {
                     System.out.println("ERROR injecting @PropertyChangeListener caused by " + ex.getMessage());
                 } 
                 f.setAccessible(accessible); 
             }
+            else if (f.isAnnotationPresent(com.rameses.rcp.annotations.SubWindow.class)) {
+                f.setAccessible(true);
+                try {
+                    f.set(o, new SubWindowAdapter());
+                } catch(Throwable ex) {
+                    System.out.println("ERROR injecting @SubWindow "  + ex.getMessage() );
+                }                
+                f.setAccessible(accessible); 
+            } 
         }
         
         Class superClass = clazz.getSuperclass();
@@ -878,7 +870,8 @@ public class Binding
             initAnnotatedMethods( o, superClazz );
         }
     }
-    //</editor-fold>
+    
+    // </editor-fold>
         
     // <editor-fold defaultstate="collapsed" desc=" ValueChangeSupport helper methods "> 
     
@@ -902,7 +895,8 @@ public class Binding
     
     // </editor-fold>
     
-    //<editor-fold defaultstate="collapsed" desc="  ChangeLogKeySupport (class)  ">
+    // <editor-fold defaultstate="collapsed" desc=" ChangeLogKeySupport (class) ">
+    
     private class ChangeLogKeySupport implements KeyListener {
         
         public void keyTyped(KeyEvent e) {}
@@ -921,9 +915,10 @@ public class Binding
         }
         
     }
-    //</editor-fold>
     
-    // <editor-fold defaultstate="collapsed" desc="  ControlEventSupport (class)  ">
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" ControlEventSupport (class) ">
     
     private class ControlEventSupport implements MouseListener, KeyListener {
         
@@ -958,7 +953,8 @@ public class Binding
         }
         
     }
-    //</editor-fold>
+    
+    // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" ActionHandlerSupport (class) ">
     
@@ -996,4 +992,97 @@ public class Binding
     }
     
     // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" SubWindowAdapter (class) ">
+    
+    public class SubWindowAdapter implements SubWindow
+    {
+        Binding root = Binding.this;
+        
+        private SubWindow getCurrentWindow() {
+            ViewContext ctx = root.getViewContext();
+            return (ctx == null? null: ctx.getSubWindow());
+        }
+        
+        public void close() { closeWindow(); } 
+        
+        public void closeWindow() { 
+            SubWindow win = getCurrentWindow();
+            if (win != null) win.closeWindow();
+        }
+        
+        public String getName() { 
+            SubWindow win = getCurrentWindow();
+            return (win == null? null: win.getName());        
+        } 
+
+        public String getTitle() {
+            SubWindow win = getCurrentWindow();
+            return (win == null? null: win.getTitle());
+        } 
+        
+        public void setTitle(String title) {
+            SubWindow win = getCurrentWindow();
+            if (win != null) win.setTitle(title);
+        } 
+        
+        public void setListener(SubWindowListener listener) {}
+        
+        public void update() 
+        {
+            SubWindow win = getCurrentWindow();
+            if (win == null) return;
+            
+            Map props = new HashMap(); 
+            Object bean = getBean(); 
+            loadFormPropertiesFromAnnotation(props, bean, bean.getClass()); 
+            update(props); 
+        } 
+        
+        public void update(Map windowAttributes) {
+            SubWindow win = getCurrentWindow();
+            if (win != null) win.update(windowAttributes);             
+        }        
+        
+        private void loadFormPropertiesFromAnnotation(Map props, Object bean, Class beanClass) 
+        {
+            for (Field f: beanClass.getDeclaredFields()) {
+                boolean accessible = f.isAccessible();
+                try {
+                    if (f.isAnnotationPresent(com.rameses.rcp.annotations.FormId.class)) {
+                        f.setAccessible(true);
+                        props.put("id", f.get(bean));
+                    } 
+                    else if (f.isAnnotationPresent(com.rameses.rcp.annotations.FormTitle.class)) {
+                        f.setAccessible(true);
+                        props.put("title", f.get(bean));
+                    } 
+                } catch(Throwable ex) {;}
+                
+                f.setAccessible(accessible); 
+            }
+            
+            for (Method m: beanClass.getDeclaredMethods()) {
+                boolean accessible = m.isAccessible();                
+                try {
+                    if (m.isAnnotationPresent(com.rameses.rcp.annotations.FormId.class)) {
+                        m.setAccessible(true);
+                        props.put("id", m.invoke(bean, new Object[]{}));
+                    } 
+                    else if (m.isAnnotationPresent(com.rameses.rcp.annotations.FormTitle.class)) {
+                        m.setAccessible(true);
+                        props.put("title", m.invoke(bean, new Object[]{}));
+                    } 
+                } catch(Throwable ex) {;}
+                
+                m.setAccessible(accessible); 
+            }            
+            
+            Class superClass = beanClass.getSuperclass();
+            if (superClass != null) loadFormPropertiesFromAnnotation(props, bean, superClass);
+        }
+    }
+    
+    // </editor-fold>
+    
 }
