@@ -18,6 +18,7 @@
         private String serviceName;
         private String entityName;
         private String formTarget;
+        private String tag;
         
         String getServiceName() {
             if (serviceName == null) {
@@ -43,6 +44,13 @@
             } 
             return formTarget; 
         }  
+        
+        String getTag() {
+            if (tag == null) {
+                tag = controller?.workunit?.workunit?.properties?.tag;
+            } 
+            return tag; 
+        }          
     }   
     </code>    
 </workunit>

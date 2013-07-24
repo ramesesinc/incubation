@@ -16,6 +16,7 @@
         def controller;
         
         private String serviceName;
+        private String tag;
         
         String getServiceName() {
             if (serviceName == null) {
@@ -25,7 +26,14 @@
                     throw new Exception('Please specify a serviceName attribute in your workunit'); 
             } 
             return serviceName;
-        }
+        } 
+        
+        String getTag() {
+            if (tag == null) {
+                tag = controller?.workunit?.workunit?.properties?.tag;
+            } 
+            return tag; 
+        } 
     }        
     </code>
 </workunit>
