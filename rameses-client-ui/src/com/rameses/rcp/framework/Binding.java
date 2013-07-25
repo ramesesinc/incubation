@@ -289,23 +289,28 @@ public class Binding
     public void notifyDepends( final UIControl u ) {
         notifyDepends(u, u.getName()); 
     }
+
+    public void notifyDepends( final UIControl u, final String name ) {
+        notifyDepends(u, name, true); 
+    }
     
-    public void notifyDepends( final UIControl u, final String name ) 
+    public void notifyDepends( final UIControl u, final String name, boolean invokeLater ) 
     {
-        EventQueue.invokeLater(new Runnable() 
-        {
-            public void run() 
-            {
+        Runnable process = new Runnable() {
+            public void run() {
                 try {
                     doNotifyDepends(u, name);
-                }
-                catch(Exception e) 
-                {
+                } catch(Exception e) { 
                     if (ClientContext.getCurrentContext().isDebugMode()) 
                         e.printStackTrace();
                 }
             }
-        });        
+        };
+        
+        if (invokeLater)
+            EventQueue.invokeLater(process);
+        else 
+            process.run(); 
     }
     
     private void doNotifyDepends( UIControl u, String name ) 
@@ -599,11 +604,19 @@ public class Binding
     }
     
     public void fireNavigation(final Object outcome, final String target) {
-        EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                doFireNavigation(outcome, target);
-            }
-        });
+        fireNavigation(outcome, target, true); 
+    }
+    
+    public void fireNavigation(final Object outcome, final String target, boolean invokeLater) {
+        Runnable process = new Runnable() {
+            public void run() { 
+                doFireNavigation(outcome, target); 
+            } 
+        };
+        if (invokeLater)
+            EventQueue.invokeLater(process); 
+        else 
+            process.run(); 
     }
     
     private void doFireNavigation(Object outcome, String target) {
