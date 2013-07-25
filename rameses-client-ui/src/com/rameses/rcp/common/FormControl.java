@@ -21,19 +21,28 @@ public class FormControl
     }
     
     public FormControl(String type, Map props) {
-        this(type, props, null); 
+        init(type, props, null);
     }
     
-    public FormControl(String type, Map props, String categoryid) 
-    {
+    public FormControl(String type, Map props, String categoryid) {
+        init(type, props, categoryid);
+    }
+    
+    public FormControl(Map data) {
+        String type = (String) data.remove("type");
+        String categoryid = (String) data.remove("categoryid");
+        init(type, data, categoryid);
+    }    
+    
+    private void init(String type, Map props, String categoryid) {
         this.type = type;
-        this.properties = (props==null? new HashMap(): props);
+        this.properties = (props == null? new HashMap(): props);
         this.categoryid = categoryid;
         
         if (!this.properties.containsKey("preferredSize")) 
-            this.properties.put("preferredSize", "0,19");
+            this.properties.put("preferredSize", "0,19");        
     }
-    
+        
     public String getType() { return type; }    
     public void setType(String type) { this.type = type; }
     
