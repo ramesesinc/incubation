@@ -630,6 +630,7 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
             
             model.setListener(defaultListener);
             value = model.getFormControls();
+            if (value == null) value = model.getControlList();
         } 
         
         if (value == null) {
