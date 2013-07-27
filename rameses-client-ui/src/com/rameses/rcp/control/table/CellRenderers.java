@@ -197,24 +197,24 @@ public class CellRenderers {
                     comp.setBackground(FOCUS_BG);
                     comp.setForeground(table.getForeground());
                 }
-            } else {
+            } 
+            else {
                 comp.setForeground(table.getForeground());
                 comp.setOpaque(false);
                 
-                if ( (rowIndex % 2 == 0) ) {
+                if ((rowIndex+1)%2 == 0) {
                     if (tc.getEvenBackground() != null) {
                         comp.setBackground(tc.getEvenBackground());
                         comp.setOpaque(true);
                     }
-                    
                     if (tc.getEvenForeground() != null)
                         comp.setForeground(tc.getEvenForeground());
-                } else {
+                } 
+                else {
                     if (tc.getOddBackground() != null) {
                         comp.setBackground(tc.getOddBackground());
                         comp.setOpaque(true);
-                    }
-                    
+                    }                    
                     if (tc.getOddForeground() != null)
                         comp.setForeground(tc.getOddForeground());
                 }

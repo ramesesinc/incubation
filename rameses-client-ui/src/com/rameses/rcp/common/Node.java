@@ -30,10 +30,13 @@ public class Node
     private boolean dynamic;
     private boolean leaf;
     private boolean loaded;
-    
-    private List<NodeListener> listeners = new ArrayList();
-    private Map properties = new HashMap();    
+    private boolean hideItems;
         
+    private List<NodeListener> listeners = new ArrayList();
+    private Map properties = new HashMap(); 
+    private Node.Provider provider;
+    private Node parent;
+            
     public Node() {
         this(null, null, null); 
     }
@@ -58,14 +61,15 @@ public class Node
             throw new NullPointerException("props parameter is required in the Node object");
             
         properties.putAll(props);
+        this.item = props; 
         this.id = resolveId(properties.remove("id")); 
         this.caption = removeString(properties, "caption");
-        this.item = properties.remove("item");
         this.mnemonic = removeString(properties, "mnemonic");
         this.tooltip = removeString(properties, "tooltip");
         this.icon = removeString(properties, "icon");
         this.dynamic = "true".equals(properties.remove("dynamic")+"");
         this.leaf = "true".equals(properties.remove("leaf")+"");
+        this.hideItems = "true".equals(properties.remove("hideItems")+"");
     }
     
     // <editor-fold defaultstate="collapsed" desc=" Getters/Setters ">
@@ -116,11 +120,22 @@ public class Node
         this.loaded = loaded; 
     }
     
+    public boolean isHideItems() { return hideItems; } 
+    public void setHideItems(boolean hideItems) { this.hideItems = hideItems; }
+    
     public Map getProperties() { return properties; }
     public void setProperties(Map properties) { 
         this.properties = properties; 
     } 
-            
+    
+    public Node getParent() { return parent; } 
+    public void setParent(Node parent) { this.parent = parent; }
+    
+    public Node.Provider getProvider() { return provider; } 
+    public void setProvider(Node.Provider provider) {
+        this.provider = provider; 
+    }
+    
     // </editor-fold>    
         
     // <editor-fold defaultstate="collapsed" desc=" helper methods ">
@@ -141,6 +156,8 @@ public class Node
     
     // </editor-fold>
     
+    // <editor-fold defaultstate="collapsed" desc=" events handling ">
+    
     public void addListener(NodeListener listener) 
     {
         if (listener != null && !listeners.contains(listener)) 
@@ -158,5 +175,56 @@ public class Node
             nl.reload();
         }
     }    
+    
+    // </editor-fold>
 
+    // <editor-fold defaultstate="collapsed" desc=" proxying Provider methods ">   
+    
+    public int getIndex() {
+        Node.Provider provider = getProvider();
+        return (provider == null? -1: provider.getIndex()); 
+    }
+    
+    public boolean hasItems() {
+        Node.Provider provider = getProvider();
+        return (provider == null? false: provider.hasItems()); 
+    }  
+    
+    public void reloadItems() {
+        Node.Provider provider = getProvider();
+        if (provider != null) provider.reloadItems();
+    }    
+    
+    public List<Node> getItems() {
+        Node.Provider provider = getProvider();
+        return (provider == null? null: provider.getItems());
+    }
+    
+    public void select() {
+        Node.Provider provider = getProvider();
+        if (provider != null) provider.select(); 
+    }    
+    
+    public Object open() {
+        Node.Provider provider = getProvider();
+        return (provider == null? null: provider.open());
+    }
+    
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" Provider interface for additional information ">
+    
+    public static interface Provider 
+    {
+        int getIndex();
+        
+        boolean hasItems();
+        void reloadItems();        
+        List<Node> getItems();
+        
+        void select();
+        Object open();
+    } 
+    
+    // </editor-fold>
 }

@@ -151,20 +151,17 @@ public class XSubFormPanel extends JPanel implements UISubControl, ActiveControl
         if ( handlerObj == null ) {
             //do nothing
         } 
-        else if ( handlerObj instanceof Collection ) 
-        {
+        else if ( handlerObj instanceof Collection ) {
             for (Object o: (Collection) handlerObj) {
                 openers.add( (Opener)o );
             }            
         } 
-        else if ( handlerObj.getClass().isArray() ) 
-        {
+        else if ( handlerObj.getClass().isArray() ) {
             for (Object o: (Object[]) handlerObj) {
                 openers.add( (Opener)o );
             }            
         } 
-        else if ( handlerObj instanceof Opener ) 
-        {
+        else if ( handlerObj instanceof Opener ) {
             openers.add( (Opener)handlerObj );
             multiForm = false;
         }

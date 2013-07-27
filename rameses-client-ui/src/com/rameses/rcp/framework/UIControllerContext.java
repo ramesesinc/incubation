@@ -133,12 +133,20 @@ public class UIControllerContext {
                 else 
                     targetPanel.add(panel); 
             }
-            else 
+            else if (master instanceof UIContentPanel) {
+                ((UIContentPanel) master).setContent(panel, t.target()); 
+            }
+            else {
                 master.add(panel);
+            }
             
             if ( smaster != master ) 
             {
-                smaster.add(master);
+                if (smaster instanceof UIContentPanel)
+                    ((UIContentPanel) smaster).setContent(master, t.target()); 
+                else 
+                    smaster.add(master);
+                
                 master = smaster;
             }
         }

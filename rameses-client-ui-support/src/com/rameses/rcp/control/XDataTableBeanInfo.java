@@ -34,9 +34,12 @@ public class XDataTableBeanInfo extends ComponentBeanInfo.Support
         return new PropertyDescriptor[] {
             new PropertyDescriptor("border", getBeanClass()),
             new PropertyDescriptor("autoResize", getBeanClass(), "isAutoResize", "setAutoResize"),
-            
+            new PropertyDescriptor("showHorizontalLines", getBeanClass(), "isShowHorizontalLines", "setShowHorizontalLines"), 
+            new PropertyDescriptor("showVerticalLines", getBeanClass(), "isShowVerticalLines", "setShowVerticalLines"),
+                        
             installEditor(new PropertyDescriptor("columns", getBeanClass()), ColumnPropertyEditor.class), 
             
+            new PropertyDescriptor("cellSpacing", getBeanClass()),
             new PropertyDescriptor("depends", getBeanClass()),
             new PropertyDescriptor("dynamic", getBeanClass(), "isDynamic", "setDynamic"),
             new PropertyDescriptor("editable", getBeanClass(), "isEditable", "setEditable"),
@@ -59,7 +62,7 @@ public class XDataTableBeanInfo extends ComponentBeanInfo.Support
             new PropertyDescriptor("required", getBeanClass(), "isRequired", "setRequired"),
             new PropertyDescriptor("rowHeight", getBeanClass()),
             new PropertyDescriptor("rowHeaderHeight", getBeanClass()),
-            new PropertyDescriptor("showRowHeader", getBeanClass(), "isShowRowHeader", "setShowRowHeader")
+            new PropertyDescriptor("showRowHeader", getBeanClass(), "isShowRowHeader", "setShowRowHeader") 
         }; 
     }
 }

@@ -13,15 +13,16 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Insets;
 import java.awt.RenderingHints;
+import javax.swing.BorderFactory;
 import javax.swing.border.AbstractBorder;
+import javax.swing.border.Border;
 
 public class XLineBorder extends AbstractBorder 
 {
-    private Color background;
+    private Border sourceBorder; 
     private Color color;
     private Insets padding;
     private int thickness;
-    private int arc;
     
     private boolean hideTop;
     private boolean hideLeft;
@@ -29,22 +30,16 @@ public class XLineBorder extends AbstractBorder
     private boolean hideRight;
     
     public XLineBorder() {
-        setLineColor(Color.BLACK);
-        setThickness(1);
-        setPadding(null); 
+        this.color = Color.BLACK;
+        this.thickness = 1;
+        this.padding = new Insets(0,0,0,0);        
     }
 
-    public Color getBackground() { return background; }    
-    public void setBackground(Color background) { this.background = background; }  
-    
     public Color getLineColor() { return color; }    
     public void setLineColor(Color color) { this.color = color; }
     
     public int getThickness() { return thickness; }    
     public void setThickness(int thickness) { this.thickness = thickness; }
-    
-    public int getArc() { return arc; }    
-    public void setArc(int arc) { this.arc = arc; }
     
     public Insets getPadding() { return padding; } 
     public void setPadding(Insets padding) {  
@@ -64,23 +59,24 @@ public class XLineBorder extends AbstractBorder
     public void setHideRight(boolean hideRight) { this.hideRight = hideRight; }    
             
     public Insets getBorderInsets(Component c) {
-        Insets ins = new Insets(0,0,0,0);
-        return getBorderInsets(c, ins);
+        return getBorderInsets(c, new Insets(0,0,0,0));
     }
     
     public Insets getBorderInsets(Component c, Insets ins) {
         if (ins == null) ins = new Insets(0, 0, 0, 0);
                 
         ins.top = ins.left = ins.bottom = ins.right = 0;
+        Color color0 = getLineColor();        
         int thickness0 = getThickness();
+        sourceBorder = BorderFactory.createLineBorder(color0, thickness0); 
         if (thickness0 > 0) 
         {
             if (!isHideTop()) ins.top+=thickness0;
             if (!isHideLeft()) ins.left+=thickness0;
             if (!isHideBottom()) ins.bottom+=thickness0;
             if (!isHideRight()) ins.right+=thickness0;
-        }
-        
+        }        
+                
         ins.top += padding.top;
         ins.left += padding.left;
         ins.bottom += padding.bottom;
@@ -91,44 +87,34 @@ public class XLineBorder extends AbstractBorder
     public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
         int thickness0 = getThickness();
         if (thickness0 <= 0) return;
+        if (sourceBorder == null) return;
         
-        Color newColor = getLineColor(); 
-        if (newColor == null) return;
-        
+        Color oldColor = g.getColor();        
         Graphics2D g2 = (Graphics2D) g.create();        
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        
-        if ( background != null ) { 
-            g2.setColor(background);  
-            g2.fillRoundRect(x, y, width-1, height-1, arc, arc);
-        }
-        
-        Color oldColor = g.getColor();
-        g.setColor(newColor);
-        if (!isHideTop()) {
+
+        sourceBorder.paintBorder(c, g, x, y, width, height);         
+        g.setColor(oldColor);
+        if (isHideTop()) {
             for (int i=0; i<thickness0; i++) {
                 g2.drawLine(x, y+i, width, y+i);
             } 
-        } 
-        
-        if (!isHideLeft()) {
+        }        
+        if (isHideLeft()) {
             for (int i=0; i<thickness0; i++) {
                 g2.drawLine(x+i, y, x+i, height);
             }
         } 
-        
-        if (!isHideBottom()) {
+        if (isHideBottom()) {
             for (int i=1; i<=thickness0; i++) {
                 g2.drawLine(x, height-i, width, height-i);
             }
         } 
-        
-        if (!isHideRight()) {
+        if (isHideRight()) {
             for (int i=1; i<=thickness0; i++) {
                 g2.drawLine(width-i, y, width-i, height);
             }
-        } 
-        
+        }         
         g2.dispose();
     }    
 }

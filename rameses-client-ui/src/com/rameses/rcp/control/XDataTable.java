@@ -106,13 +106,13 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
         scrollBar = new ListScrollBar();
         
         //--create and decorate scrollpane for the JTable
-        scrollPane = new JScrollPane(table);
+        scrollPane = new JScrollPane(table);        
         TableUtil.customize(scrollPane, table);
         //--additional customization for the JScrollPane 
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
         scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         scrollPane.setBorder(BorderFactory.createEmptyBorder()); 
-        //scrollPane.setViewport(new ViewportImpl(table)); 
+        scrollPane.setViewport(new ViewportImpl(table)); 
                                 
         //--attach mouse wheel listener to table
         table.addMouseWheelListener(new MouseWheelListener() {
@@ -137,13 +137,17 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
         setBorder(new TableBorder());
         
         //--default table properties
-        setGridColor(new Color(217,216,216));
-        setShowRowHeader(false);
-        setShowHorizontalLines(false);
-        setRowMargin(0);
-        setShowVerticalLines(true);
+        //setGridColor(new Color(217,216,216));
+        setCellSpacing(new Dimension(0,0));        
+        setGridColor(new Color(235, 240, 244)); 
+        setOddBackground(new Color(235, 240, 244)); 
+        setEvenBackground(new Color(251, 251, 251)); 
+        setShowRowHeader(false); 
+        setShowHorizontalLines(true); 
+        setShowVerticalLines(true);        
         setAutoResize(true);
-        setRowHeight(19);
+        setRowMargin(0);         
+        setRowHeight(21);
         
         if ( table.getEvenBackground() == null ) {
             Color bg = (Color) UIManager.get("Table.evenBackground");
@@ -159,6 +163,7 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
         if ( table.getOddBackground() == null ) {
             Color bg = (Color) UIManager.get("Table.oddBackground");
             if ( bg == null ) bg = new Color(225, 232, 246);
+            
             table.setOddBackground(bg);
         }
         
@@ -168,15 +173,11 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
         }
         
         //--design time display
-        if ( Beans.isDesignTime() ) {
-            if ( rowHeaderView != null )
-                rowHeaderView.setRowCount(1);
+        if (Beans.isDesignTime()) {
+            if (rowHeaderView != null) rowHeaderView.setRowCount(1);
             
             setPreferredSize(new Dimension(200,80));
-            table.setModel(new javax.swing.table.DefaultTableModel(
-                    new Object [][] { {null, null} },
-                    new String [] { "Title 1", "Title 2" }
-            ));
+            table.setDataProvider(new DesignTimeListModel()); 
         }
     }
     
@@ -403,6 +404,11 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
     public boolean isAutoResize() { return table.isAutoResize(); }    
     public void setAutoResize(boolean autoResize) { table.setAutoResize(autoResize); }
     
+    public Dimension getCellSpacing() { return table.getIntercellSpacing(); }
+    public void setCellSpacing(Dimension cellSpacing) {
+        table.setIntercellSpacing(cellSpacing); 
+    }
+    
     public void setRequestFocus(boolean focus) {
         if ( focus ) table.requestFocus();
     }
@@ -566,6 +572,22 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
             else
                 return userDefinedList; 
         } 
+    }
+    
+    // </editor-fold>    
+    
+    // <editor-fold defaultstate="collapsed" desc=" DesignTimeListModel (class) ">
+    
+    private class DesignTimeListModel extends BasicListModel 
+    {
+        public Column[] getColumns() {
+            return new Column[]{
+                new Column(null, "Column 1"),
+                new Column(null, "Column 2")
+            };
+        }
+        
+        public java.util.List fetchList(Map params) { return null; } 
     }
     
     // </editor-fold>    
@@ -890,10 +912,15 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
                     Rectangle rect = getBounds(); 
                     if (rect.height == oldBounds.height) return;
                     
-//                    oldBounds = rect;
-//                    System.out.println("view-bounds-> " + rect);
-//                    System.out.println("table-bounds-> " + root.table.getBounds());
-                }                
+                    oldBounds = rect;
+                    boolean dynamic = root.scrollBar.isDynamicallyVisible();
+                    if (rect.height < root.table.getBounds().height && !dynamic) {
+                        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED); 
+                    }
+                    else { 
+                        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER); 
+                    }
+                } 
             });
         }
 

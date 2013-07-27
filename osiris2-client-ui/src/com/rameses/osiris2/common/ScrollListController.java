@@ -9,12 +9,12 @@ import com.rameses.rcp.common.Action;
 import com.rameses.rcp.common.Column;
 import com.rameses.rcp.common.MsgBox;
 import com.rameses.rcp.common.Opener;
-import com.rameses.rcp.common.PageListModel;
+import com.rameses.rcp.common.ScrollListModel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public abstract class BasicListController extends PageListModel 
+public abstract class ScrollListController extends ScrollListModel 
 {    
     @Invoker
     protected com.rameses.osiris2.Invoker invoker;
@@ -22,7 +22,6 @@ public abstract class BasicListController extends PageListModel
     @Binding
     private com.rameses.rcp.framework.Binding binding;
     
-
     private Object selectedEntity;
     private List<Action> formActions;
     
@@ -58,8 +57,8 @@ public abstract class BasicListController extends PageListModel
               
     public String getFormTarget() { return "popup"; }    
             
-    public Opener getQueryForm() { return null; }    
-        
+    public Opener getQueryForm() { return null; }  
+    
     // </editor-fold>    
         
     // <editor-fold defaultstate="collapsed" desc=" Action Methods ">        
@@ -123,5 +122,4 @@ public abstract class BasicListController extends PageListModel
     } 
         
     // </editor-fold>
-       
 }

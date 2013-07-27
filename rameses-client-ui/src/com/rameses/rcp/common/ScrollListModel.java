@@ -261,6 +261,8 @@ public abstract class ScrollListModel extends AbstractListDataProvider implement
         refresh();
     }
     
+    public void moveLastPage() {}
+    
     /**
      * this method sets the top row.
      * check first if the top row is possible.

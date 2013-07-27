@@ -27,6 +27,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
@@ -43,6 +44,8 @@ import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.MutableTreeNode;
+import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
@@ -178,12 +181,13 @@ public class XTree extends JTree implements UIControl
         else {
             setRootVisible(nodeModel.isRootVisible()); 
         }
-        
+
+        rootNode.setId("root");
         root = new DefaultNode(rootNode); 
         model = new DefaultTreeModel(root, true);
         //treat items w/ no children as folders unless explicitly defined as leaf
         model.setAsksAllowsChildren(true);         
-        setModel(model);        
+        setModel(model); 
     }
 
     // </editor-fold>
@@ -197,28 +201,35 @@ public class XTree extends JTree implements UIControl
         eventSupport.add(handler); 
     }
     
-    protected void processMouseEvent(MouseEvent evt) 
+    protected void processMouseEvent(MouseEvent me) 
     {
-        if (evt.getClickCount() == 2 && evt.getID() == MouseEvent.MOUSE_CLICKED) 
-        {
-            if (SwingUtilities.isLeftMouseButton(evt)) 
-                fireOpenSelectedNode(); 
+        if (me.getID() == MouseEvent.MOUSE_CLICKED) {
+            if (SwingUtilities.isLeftMouseButton(me)) {
+                if (me.getClickCount() == 2) {
+                    fireOpenSelectedNode();
+                } else { 
+                    fireOpenSelectedNode(); 
+                } 
+            } 
         }
-        super.processMouseEvent(evt); 
+        super.processMouseEvent(me); 
     }
     
     private void fireOpenSelectedNode() 
-    {
+    {        
         final DefaultNode selNode = getSelectedNode(); 
         if (selNode == null) return;
-        
+        if (!selNode.hasChanged) return;
+
+        selNode.hasChanged = false;        
         EventQueue.invokeLater(new Runnable() {
-            public void run() 
-            {
+            public void run() {
                 try { 
-                    openNode(selNode.getNode()); 
+                    openNode(selNode.getNode());
                 } catch(Exception ex) {
                     MsgBox.err(ex); 
+                } finally {
+                    
                 }
             }
         });
@@ -287,55 +298,135 @@ public class XTree extends JTree implements UIControl
     public class DefaultNode extends DefaultMutableTreeNode implements NodeListener 
     {        
         XTree root = XTree.this;
-        
         private Node node;
+        private boolean hasChanged;
+        private Node[] nodes;
         
         public DefaultNode(String n) {
             super(n); 
         }
         
-        public DefaultNode(Node node) 
-        {
+        public DefaultNode(Node node) { 
+            this(node, null); 
+        } 
+        
+        public DefaultNode(Node node, Node parent) {
             super(node.getCaption(), !node.isLeaf());
             this.node = node;
-            this.node.addListener(this);
-        }
+            this.node.setParent(parent);
+            this.node.addListener(this); 
+            this.node.setProvider(new DefaultNodeProvider(this));
+        } 
         
-        public int getChildCount() 
-        {
-            if (!node.isLoaded()) 
-            {
-                synchronized(this) 
-                {
+        public Node getNode() { return node; }
+        
+        public int size() { return super.getChildCount(); } 
+                
+        public int getChildCount() {
+            if (!node.isLoaded()) {
+                synchronized(this) {
                     node.setLoaded(true);
-                    loadChildren();
+                    hasChanged = true;
+                    loadChildren(); 
                 }
             }
             return super.getChildCount();
         }
         
-        public void loadChildren() 
-        {
-            Node[] nodes = nodeModel.fetchNodes(node);
+        public void loadChildren() {
+            Node[] nodes = nodeModel.fetchNodes(node);            
             if (nodes == null) return;
-            
-            super.removeAllChildren();
+
+            super.removeAllChildren();             
             for (Node n: nodes) { 
-                if (n != null) this.add(new DefaultNode(n));
-            }
+                if (n == null) continue; 
+                
+                this.add(new DefaultNode(n, getNode())); 
+            } 
         }
         
-        public Node getNode() { return node; }
-        
-        public void reload() 
-        {
+        public void reload() {
             if (!node.isLoaded()) return;
             
-            synchronized(this) 
-            {
+            synchronized(this) {
                 loadChildren();
                 root.model.reload(this);
             }
+        } 
+        
+        List<Node> getItems() {
+            List<Node> nodes = new ArrayList();
+            Enumeration en = super.children();
+            while (en.hasMoreElements()) { 
+                Object item = en.nextElement(); 
+                XTree.DefaultNode dNode = (XTree.DefaultNode) item; 
+                nodes.add(dNode.getNode()); 
+            } 
+            return nodes; 
+        } 
+
+        public void insert(MutableTreeNode newChild, int childIndex) {
+            super.insert(newChild, childIndex);
+        }
+
+        public void remove(int childIndex) {
+            super.remove(childIndex);
+        }
+    } 
+    
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" DefaultNodeProvider (class) ">
+    
+    private class DefaultNodeProvider implements Node.Provider 
+    {
+        XTree root = XTree.this;
+        private DefaultNode treeNode;
+        private Node userNode;
+        
+        DefaultNodeProvider(DefaultNode treeNode) {
+            this.treeNode = treeNode;
+            this.userNode = treeNode.getNode();
+            if (this.userNode != null)
+                this.userNode.setProvider(this);
+        }
+        
+        public int getIndex() {
+            TreeNode parent = treeNode.getParent(); 
+            return (parent == null? -1: parent.getIndex(treeNode)); 
+        }
+        
+        public boolean hasItems() {
+            Enumeration en = treeNode.children();
+            return (en == null? false: en.hasMoreElements()); 
+        } 
+        
+        public void reloadItems() { 
+            treeNode.loadChildren(); 
+            root.model.nodeStructureChanged(treeNode); 
+        } 
+        
+        public List<Node> getItems() { 
+            return treeNode.getItems(); 
+        } 
+
+        public void select() {
+            TreeNode[] treeNodes = treeNode.getPath();
+            if (treeNodes == null || treeNodes.length == 0) return;
+            
+            treeNode.loadChildren();
+            root.setSelectionPath(new TreePath(treeNodes)); 
+        }
+
+        public Object open() {
+            select();
+            
+            if (userNode == null) 
+                return null; 
+            else if (userNode.isLeaf())
+                return nodeModel.openLeaf(userNode);
+            else 
+                return nodeModel.openFolder(userNode); 
         } 
     }
     
@@ -418,17 +509,33 @@ public class XTree extends JTree implements UIControl
 
             root.doCollectNodeList(parent, filter, nodes);      
             return nodes;
-        }         
+        }      
+        
+        public List<Node> children() {
+            DefaultNode defNode = root.getSelectedNode(); 
+            if (defNode == null) return null; 
+
+            List<Node> list = new ArrayList();            
+            Enumeration en = defNode.children(); 
+            while (en.hasMoreElements()) {
+                DefaultNode dn = (DefaultNode) en.nextElement(); 
+                list.add(dn.getNode()); 
+            }
+            return list; 
+        }
+        
+        
     }
             
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" TreeEventSupport (class) "> 
-    
-    private class TreeEventSupport implements TreeSelectionListener
+   
+    private class TreeEventSupport implements TreeSelectionListener 
     {
         XTree root = XTree.this; 
         
+        private Node oldNode;
         private List<TreeSelectionListener> selectionHandlers = new ArrayList(); 
         
         void add(TreeSelectionListener handler) 
@@ -444,13 +551,21 @@ public class XTree extends JTree implements UIControl
         
         public void valueChanged(final TreeSelectionEvent evt) 
         {
-            try 
-            {
-                if (root.getName() != null) 
-                {
+            try {
+                if (root.getName() != null) {
+                    boolean nodeHasChanged = false;
                     XTree.DefaultNode selNode = getSelectedNode(); 
                     Node node = (selNode == null? null: selNode.getNode()); 
+                    if (oldNode != null && node != null && oldNode.equals(node)) 
+                        nodeHasChanged = false; 
+                    else 
+                        nodeHasChanged = true;
+                    
+                    if (selNode != null && !selNode.hasChanged) 
+                        selNode.hasChanged = nodeHasChanged;
+                    
                     UIControlUtil.setBeanValue(root.getBinding(), root.getName(), node); 
+                    oldNode = node;                    
                     EventQueue.invokeLater(new Runnable(){
                         public void run() {
                             fireChangeNode(evt); 
@@ -467,10 +582,9 @@ public class XTree extends JTree implements UIControl
             //notify dependencies that the node has changed
             root.getBinding().notifyDepends(root, root.getName(), false); 
             //fire onChangeNode on the TreeNodeModel
-            Node node = root.nodeModel.getSelectedNode(); 
-            Object result = root.nodeModel.onChangeNode(node); 
-            if (result != null) 
-                root.getBinding().fireNavigation(result, null, false); 
+            //Node node = root.nodeModel.getSelectedNode(); 
+            //Object result = root.nodeModel.onChangeNode(node); 
+            //if (result != null) root.getBinding().fireNavigation(result, null, false); 
             
             for (TreeSelectionListener handler : selectionHandlers) {
                 handler.valueChanged(evt); 
@@ -478,6 +592,5 @@ public class XTree extends JTree implements UIControl
         } 
     }
     
-    // </editor-fold>
-    
+    // </editor-fold>     
 }

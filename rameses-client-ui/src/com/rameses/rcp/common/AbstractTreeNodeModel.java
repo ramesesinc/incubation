@@ -1,7 +1,7 @@
 package com.rameses.rcp.common;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public abstract class AbstractTreeNodeModel 
 {
@@ -16,17 +16,14 @@ public abstract class AbstractTreeNodeModel
     } 
     
     public boolean isRootVisible() { return true; } 
+    public boolean isLeafVisible() { return true; } 
     
     public Node getRootNode() {
         return new Node("root", "All");
     }
     
-    public Node getSelectedNode() 
-    {
-        if (provider == null) 
-            throw new NullPointerException("No provider implementation found"); 
-        
-        return provider.getSelectedNode(); 
+    public Node getSelectedNode() {
+        return (provider == null? null: provider.getSelectedNode());
     } 
 
     public Object openLeaf(Node node) { return null; }    
@@ -41,25 +38,17 @@ public abstract class AbstractTreeNodeModel
         
         return openFolder( selectedNode );
     }
-       
-    public Object onChangeNode(Node node) { 
-        return null; 
-    } 
     
-    public final Node findNode(NodeFilter filter) 
-    {
-        if (provider == null) 
-            throw new NullPointerException("No provider implementation found"); 
-        
-        return provider.findNode(filter);
+    public final Node findNode(NodeFilter filter) {
+        return (provider == null? null: provider.findNode(filter));
     }
     
-    public final List<Node> findNodes(NodeFilter filter) 
-    {
-        if (provider == null) 
-            throw new NullPointerException("No provider implementation found"); 
-        
-        return provider.findNodes(filter);
+    public final List<Node> findNodes(NodeFilter filter) {
+        return (provider == null? new ArrayList(): provider.findNodes(filter));
+    }
+    
+    public final List<Node> children() {
+        return (provider == null? new ArrayList(): provider.children()); 
     }
     
     
@@ -70,6 +59,7 @@ public abstract class AbstractTreeNodeModel
         
         Node findNode(NodeFilter filter);        
         List<Node> findNodes(NodeFilter filter);
+        List<Node> children();
     }
     
 }
