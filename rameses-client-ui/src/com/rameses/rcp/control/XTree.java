@@ -123,7 +123,7 @@ public class XTree extends JTree implements UIControl
     }
     
     // </editor-fold>
-        
+    
     // <editor-fold defaultstate="collapsed" desc=" UIControl implementation ">
     
     public Binding getBinding() { return binding; }    
@@ -317,12 +317,11 @@ public class XTree extends JTree implements UIControl
         public void loadChildren() 
         {
             Node[] nodes = nodeModel.fetchNodes(node);
-            if (nodes != null) 
-            {
-                super.removeAllChildren();
-                for (Node n : nodes) {
-                    this.add(new DefaultNode(n));
-                }
+            if (nodes == null) return;
+            
+            super.removeAllChildren();
+            for (Node n: nodes) { 
+                if (n != null) this.add(new DefaultNode(n));
             }
         }
         
@@ -443,7 +442,7 @@ public class XTree extends JTree implements UIControl
             if (handler != null) selectionHandlers.remove(handler); 
         }
         
-        public void valueChanged(TreeSelectionEvent evt) 
+        public void valueChanged(final TreeSelectionEvent evt) 
         {
             try 
             {
@@ -452,17 +451,31 @@ public class XTree extends JTree implements UIControl
                     XTree.DefaultNode selNode = getSelectedNode(); 
                     Node node = (selNode == null? null: selNode.getNode()); 
                     UIControlUtil.setBeanValue(root.getBinding(), root.getName(), node); 
-                    root.getBinding().notifyDepends(root); 
-                }
-                
-                for (TreeSelectionListener handler : selectionHandlers) {
-                    handler.valueChanged(evt); 
+                    EventQueue.invokeLater(new Runnable(){
+                        public void run() {
+                            fireChangeNode(evt); 
+                        }    
+                    });
                 }
             }
             catch(Exception ex) { 
                 MsgBox.err(ex);  
             }            
-        }      
+        } 
+        
+        private void fireChangeNode(TreeSelectionEvent evt) {
+            //notify dependencies that the node has changed
+            root.getBinding().notifyDepends(root, root.getName(), false); 
+            //fire onChangeNode on the TreeNodeModel
+            Node node = root.nodeModel.getSelectedNode(); 
+            Object result = root.nodeModel.onChangeNode(node); 
+            if (result != null) 
+                root.getBinding().fireNavigation(result, null, false); 
+            
+            for (TreeSelectionListener handler : selectionHandlers) {
+                handler.valueChanged(evt); 
+            }
+        } 
     }
     
     // </editor-fold>

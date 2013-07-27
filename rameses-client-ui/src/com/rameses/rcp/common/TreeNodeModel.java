@@ -1,73 +1,28 @@
 package com.rameses.rcp.common;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
-public abstract class TreeNodeModel 
+public class TreeNodeModel extends AbstractTreeNodeModel
 {
     private static final long serialVersionUID = 1L;
-    private TreeNodeModel.Provider provider;
-    private Node selectedNode;
     
     public TreeNodeModel() {
     }
-    
-    public abstract Node[] fetchNodes( Node node );
 
-    public void setProvider(TreeNodeModel.Provider provider) {
-        this.provider = provider; 
+    public List<Map> getNodeList(Node node) { return null; } 
+    
+    public Node[] fetchNodes(Node node) { 
+        List<Map> list = getNodeList(node);
+        if (list == null || list.isEmpty()) return null;
+        
+        List<Node> nodes = new ArrayList();
+        for (Map data: list) { 
+            if (data != null && !data.isEmpty()) 
+                nodes.add(new Node(data)); 
+        } 
+        return nodes.toArray(new Node[]{}); 
     } 
-    
-    public boolean isRootVisible() { return true; } 
-    
-    public Node getRootNode() {
-        return new Node("root", "All");
-    }
-    
-    public Node getSelectedNode() 
-    {
-        if (provider == null) 
-            throw new NullPointerException("No provider implementation found"); 
-        
-        return provider.getSelectedNode(); 
-    } 
-
-    public Object openLeaf(Node node) { return null; }    
-    public Object openFolder(Node node) { return null; }
-    
-    public Object openSelected() 
-    {
-        if ( selectedNode == null ) return null;
-        
-        if ( selectedNode.isLeaf() )
-            return openLeaf( selectedNode );
-        
-        return openFolder( selectedNode );
-    }
-       
-    public final Node findNode(NodeFilter filter) 
-    {
-        if (provider == null) 
-            throw new NullPointerException("No provider implementation found"); 
-        
-        return provider.findNode(filter);
-    }
-    
-    public final List<Node> findNodes(NodeFilter filter) 
-    {
-        if (provider == null) 
-            throw new NullPointerException("No provider implementation found"); 
-        
-        return provider.findNodes(filter);
-    }
-    
-    
-    
-    public static interface Provider 
-    {
-        Node getSelectedNode(); 
-        
-        Node findNode(NodeFilter filter);        
-        List<Node> findNodes(NodeFilter filter);
-    }
     
 }

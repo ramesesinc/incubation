@@ -630,18 +630,32 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
             
             model.setListener(defaultListener);
             value = model.getFormControls();
+            if (value == null) value = model.getControlList();
         } 
         
         if (value == null) {
             //do nothing
         }
         else if (value.getClass().isArray()) {
-            for (FormControl fc: (FormControl[]) value) list.add(fc);
+            for (Object o: (Object[]) value) {
+                if (o != null) list.add(toFormControl(o));
+            }
         } 
         else if (value instanceof Collection) {
-            list.addAll((Collection) value);
+            for (Object o: (Collection) value) {
+                if (o != null) list.add(toFormControl(o));
+            }
         }        
         return list;
+    }
+    
+    private FormControl toFormControl(Object value) {
+        if (value instanceof FormControl) 
+            return (FormControl) value;
+        else if (value instanceof Map) 
+            return new FormControl((Map) value);
+
+        throw new IllegalStateException("The form controls must be an instance of FormControl or Map"); 
     }
     
     // </editor-fold>

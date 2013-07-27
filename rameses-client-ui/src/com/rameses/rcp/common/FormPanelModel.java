@@ -6,6 +6,7 @@
 
 package com.rameses.rcp.common;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -21,6 +22,8 @@ public class FormPanelModel {
     }
     
     public Object getFormControls() { return null; }
+    
+    public List<Map> getControlList() { return null; } 
     
     public void setProperty(String name, Object value) {
         if( listener != null ) {
@@ -68,8 +71,7 @@ public class FormPanelModel {
         
         void onPropertyUpdated(String name, Object value);
         String getHtmlFormat(boolean partial);
-        void onReload();
-        
+        void onReload();        
     }
     
 }
