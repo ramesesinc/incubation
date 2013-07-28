@@ -44,7 +44,7 @@ public abstract class ExplorerViewController
     public String getFolderOpener() { return DEFAULT_FOLDER_OPENER; } 
 
     public boolean isRootVisible() { return false; }
-    public boolean isLeafVisible() { return false; } 
+    public String getIcon() { return "Tree.closedIcon"; } 
     
     public Object getNodeModel() { 
         return getTreeNodeModel(); 
@@ -121,7 +121,8 @@ public abstract class ExplorerViewController
         private Opener opener;
         
         public boolean isRootVisible() { return root.isRootVisible(); } 
-        public boolean isLeafVisible() { return root.isLeafVisible(); } 
+        
+        public String getIcon() { return root.getIcon(); }
         
         public List<Map> getNodeList(Node node) {
             Map params = new HashMap(); 
