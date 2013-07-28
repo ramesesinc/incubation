@@ -31,12 +31,13 @@ import java.util.Enumeration;
 import java.util.List;
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
+import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JTree;
 import javax.swing.JViewport;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 import javax.swing.event.AncestorEvent;
 import javax.swing.event.AncestorListener;
 import javax.swing.event.TreeSelectionEvent;
@@ -61,6 +62,7 @@ public class XTree extends JTree implements UIControl
     private boolean dynamic;
     private int index;
     
+    private NodeTreeRenderer renderer;
     private DefaultMutableTreeNode root;
     private DefaultTreeModel model;
     private TreeNodeModel nodeModel;
@@ -74,7 +76,7 @@ public class XTree extends JTree implements UIControl
     private void initComponents() 
     {
         getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
-        setCellRenderer(new NodeTreeRenderer());         
+        setCellRenderer(renderer=new NodeTreeRenderer()); 
 
         //install listeners
         super.addTreeSelectionListener(eventSupport); 
@@ -434,25 +436,26 @@ public class XTree extends JTree implements UIControl
     
     // <editor-fold defaultstate="collapsed" desc=" NodeTreeRenderer (class) ">
     
-    class NodeTreeRenderer extends DefaultTreeCellRenderer 
-    {        
+    private class NodeTreeRenderer extends DefaultTreeCellRenderer 
+    {  
+        XTree root = XTree.this;
+
         public Component getTreeCellRendererComponent(JTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) 
         {
             super.getTreeCellRendererComponent(tree,value,selected,expanded,leaf,row,hasFocus);
             super.setText(value+"");
             super.setToolTipText(value+"");
-            super.setBorder( BorderFactory.createEmptyBorder(1,1,1,1) );
+            super.setBorder( BorderFactory.createEmptyBorder(2,2,2,5) );
             
-            if ( value !=null && (value instanceof DefaultNode)) 
-            {
+            Icon oIcon = lookupIcon(root.nodeModel.getIcon());
+            if (oIcon != null) setIcon(oIcon);
+            
+            if (value != null && (value instanceof DefaultNode)) {
                 Node n = ((DefaultNode)value).getNode();
-                if (n != null) 
-                {
-                    if (n.getIcon()!= null) 
-                    {
-                        String icon = n.getIcon();
-                        ImageIcon ic = ControlSupport.getImageIcon(icon);
-                        if (ic != null) super.setIcon(ic);
+                if (n != null) {
+                    if (n.getIcon() != null) {
+                        oIcon = lookupIcon(n.getIcon());
+                        if (oIcon != null) super.setIcon(oIcon);
                     }
                     
                     if (n.getTooltip() !=null) 
@@ -460,7 +463,18 @@ public class XTree extends JTree implements UIControl
                 }
             }
             return this;
-        }        
+        }   
+        
+        private Icon lookupIcon(String name) {
+            try { 
+                Icon icon = ControlSupport.getImageIcon(name);
+                if (icon == null) icon = UIManager.getIcon(name);
+                
+                return icon;
+            } catch(Throwable t) {
+                return null;
+            }
+        }
     }
     
     // </editor-fold>
