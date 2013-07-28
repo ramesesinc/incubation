@@ -14,9 +14,10 @@ public abstract class AbstractTreeNodeModel
     public void setProvider(TreeNodeModel.Provider provider) {
         this.provider = provider; 
     } 
+
+    public String getIcon() { return null; } 
     
     public boolean isRootVisible() { return true; } 
-    public boolean isLeafVisible() { return true; } 
     
     public Node getRootNode() {
         return new Node("root", "All");
