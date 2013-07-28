@@ -199,10 +199,11 @@ public final class ControlSupport {
     
     public static ImageIcon getImageIcon(String name) {
         byte[] b = ControlSupport.getByteFromResource(name);
-        if(b!=null) {
+        if (b != null) {
             return new ImageIcon( b );
-        } else
+        } else {
             return null;
+        }
     }
     
     public static Opener initOpener( Opener opener, UIController caller ) {
