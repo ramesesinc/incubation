@@ -6,10 +6,13 @@
 
 package com.rameses.osiris2.themes;
 
+import com.rameses.rcp.ui.annotations.Template;
+
 /**
  *
  * @author  compaq
  */
+@Template(value=FormPage.class) 
 public class ExplorerViewPage extends javax.swing.JPanel {
     
     /** Creates new form ExplorerViewFormPage */
