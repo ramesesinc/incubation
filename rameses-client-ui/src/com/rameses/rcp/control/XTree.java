@@ -446,6 +446,7 @@ public class XTree extends JTree implements UIControl
             super.setText(value+"");
             super.setToolTipText(value+"");
             super.setBorder( BorderFactory.createEmptyBorder(2,2,2,5) );
+            if (root.nodeModel == null) return this;
             
             Icon oIcon = lookupIcon(root.nodeModel.getIcon());
             if (oIcon != null) setIcon(oIcon);
