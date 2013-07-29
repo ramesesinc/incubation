@@ -9,7 +9,9 @@
 
 package com.rameses.osiris2.common;
 
+import com.rameses.rcp.common.Action;
 import com.rameses.rcp.common.Node;
+import java.util.List;
 
 /**
  *
@@ -24,4 +26,8 @@ public interface ExplorerListViewModel {
     Object getSelectedNodeItem(); 
     
     ExplorerListViewService getService(); 
+    
+    List<Action> lookupActions(String invokerType); 
+    
+    List lookupOpeners(String invokerType); 
 }

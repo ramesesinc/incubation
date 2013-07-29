@@ -10,6 +10,7 @@
 package com.rameses.osiris2.common;
 
 import com.rameses.osiris2.client.InvokerUtil;
+import com.rameses.rcp.annotations.Caller;
 import com.rameses.rcp.common.Action;
 import com.rameses.rcp.common.Column;
 import com.rameses.rcp.common.Node;
@@ -25,9 +26,14 @@ import java.util.Map;
  */
 public class ExplorerViewController extends ListController
 {
-    private ExplorerListViewModel treeHandler;
-    private Node selectedNode;
+    @Caller
+    private Object caller; 
+    
     private List formActions;
+
+    public Opener getQueryForm() { return null; }     
+    public String getEntityName() { return null; } 
+    public Object getCaller() { return caller; }
     
     public String getServiceName() {
         ExplorerListViewModel handler = getTreeHandler();
@@ -36,24 +42,16 @@ public class ExplorerViewController extends ListController
         
         throw new NullPointerException("Please specify serviceName"); 
     }
-    public String getEntityName() { return null; } 
     
-    public ExplorerListViewModel getTreeHandler() { return treeHandler; } 
-    public void setTreeHandler(ExplorerListViewModel treeHandler) {
-        this.treeHandler = treeHandler; 
-    }
-    
-    public Opener getQueryForm() { return null; }    
-    
-    public Node getSelectedNode() { return selectedNode; }
-    public void setSelectedNode(Node selectedNode) {
-        this.selectedNode = selectedNode; 
+    public Node getSelectedNode() { 
+        ExplorerListViewModel handler = getTreeHandler();
+        return (handler==null? null: handler.getSelectedNode()); 
     }
     
     public Object getSelectedNodeItem() {
-        Node selNode = getSelectedNode(); 
-        return (selNode == null? null: selNode.getItem()); 
-    }    
+        ExplorerListViewModel handler = getTreeHandler();
+        return (handler==null? null: handler.getSelectedNodeItem()); 
+    } 
     
     public String getTitle() {
         Node selNode = getSelectedNode(); 
@@ -132,21 +130,27 @@ public class ExplorerViewController extends ListController
             Action a = createAction("open", "Open", "images/toolbars/open.png", "ctrl O", 'o', "#{selectedEntity != null}", true);
             a.getProperties().put("depends", "selectedEntity");
             formActions.add(a); 
+
+            ExplorerListViewModel handler = getTreeHandler();
+            if (handler != null) { 
+                List openers = handler.lookupOpeners("formActions");
+                while (!openers.isEmpty()) {
+                    Opener o = (Opener) openers.remove(0);
+                    formActions.add(new ActionOpener(o));
+                }                
+            }
             
-            List extActions = lookupActions("formActions");
-            formActions.addAll(extActions);
-            extActions.clear();  
+            List<Action> xactions = lookupActions("formActions");
+            formActions.addAll(xactions);
+            xactions.clear();
             
             Node node = getSelectedNode();
-            String type = (String) (node==null? null: node.getProperties().get("type"));
-            List list = InvokerUtil.lookupActions(type+":formActions"); 
-            if (list != null) {
-                formActions.addAll(list); 
-//                for (Object obj: list) {
-//                    Opener o = (Opener)obj;
-//                    formActions.add(new ActionOpener(o)); 
-//                }
-            } 
+            String type = (String) (node==null? null: node.getPropertyString("type"));
+            List openers = InvokerUtil.lookupOpeners(type+":formActions"); 
+            while (!openers.isEmpty()) {
+                Opener o = (Opener) openers.remove(0);
+                formActions.add(new ActionOpener(o));
+            }
         } 
         return formActions; 
     }
@@ -167,7 +171,7 @@ public class ExplorerViewController extends ListController
         
         public Object execute() { 
             String target = opener.getTarget()+"";
-            if (!target.matches("window|popup|process")) {
+            if (!target.matches("window|popup|process|_window|_popup|_process")) {
                 opener.setTarget("popup"); 
             }
             return opener; 
@@ -175,4 +179,24 @@ public class ExplorerViewController extends ListController
     }
     
     // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" ExplorerListViewModel helper methods "> 
+    
+    private ExplorerListViewModel treeHandler;
+    
+    public ExplorerListViewModel getTreeHandler() { 
+        if (treeHandler != null) return treeHandler; 
+        
+        Object o = getCaller();
+        if (o instanceof ExplorerListViewModel) 
+            return (ExplorerListViewModel) o;
+        else 
+            return null; 
+    } 
+    
+    public void setTreeHandler(ExplorerListViewModel treeHandler) {
+        this.treeHandler = treeHandler; 
+    }
+        
+    // </editor-fold> 
 }

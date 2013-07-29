@@ -5,7 +5,6 @@ import com.rameses.osiris2.client.InvokerProxy;
 import com.rameses.osiris2.client.InvokerUtil;
 import com.rameses.rcp.annotations.Binding;
 import com.rameses.rcp.annotations.Invoker;
-import com.rameses.rcp.common.AbstractListDataProvider;
 import com.rameses.rcp.common.Action;
 import com.rameses.rcp.common.Node;
 import com.rameses.rcp.common.Opener;
@@ -14,7 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public abstract class ExplorerListViewController 
+public abstract class ExplorerListViewController implements ExplorerListViewModel
 {     
     @Invoker
     protected com.rameses.osiris2.Invoker invoker;
@@ -31,19 +30,8 @@ public abstract class ExplorerListViewController
     public String getTitle() { 
         return (invoker == null? null: invoker.getCaption());
     }
-    
-    public Node getSelectedNode() { return selectedNode; }
-    public void setSelectedNode(Node selectedNode) { 
-        this.selectedNode = selectedNode;
-    }
-    
-    public Object getSelectedNodeItem() {
-        Node node = getSelectedNode(); 
-        return (node == null? null: node.getItem()); 
-    }
-
+   
     public String getName() { return name; } 
-    public String getServiceName() { return null; } 
 
     public boolean isRootVisible() { return false; }
     
@@ -59,9 +47,59 @@ public abstract class ExplorerListViewController
     
     // </editor-fold>   
     
+    // <editor-fold defaultstate="collapsed" desc=" ExplorerListViewModel implementation ">  
+    
+    public String getServiceName() { return null; } 
+    
+    public Node getSelectedNode() { return selectedNode; }
+    public void setSelectedNode(Node selectedNode) { 
+        this.selectedNode = selectedNode;
+    }
+    
+    public Object getSelectedNodeItem() {
+        Node node = getSelectedNode(); 
+        return (node == null? null: node.getItem()); 
+    }
+    
+    private ExplorerListViewService service;    
+    public ExplorerListViewService getService()
+    {
+        String name = getServiceName();
+        if (name == null || name.trim().length() == 0)
+            throw new RuntimeException("No service name specified"); 
+            
+        if (service == null) {
+            service = (ExplorerListViewService) InvokerProxy.getInstance().create(name, ExplorerListViewService.class);
+        }
+        return service;
+    } 
+    
+    public List<Action> lookupActions(String type) { 
+        List<Action> actions = InvokerUtil.lookupActions(type, new InvokerFilter() {
+            public boolean accept(com.rameses.osiris2.Invoker o) { 
+                return o.getWorkunitid().equals(invoker.getWorkunitid()); 
+            }
+        }); 
+        
+        for (int i=0; i<actions.size(); i++) {
+            Action newAction = actions.get(i).clone();
+            actions.set(i, newAction);
+        }
+        return actions;  
+    }  
+    
+    public List lookupOpeners(String type) { 
+        return InvokerUtil.lookupOpeners(type, null, new InvokerFilter() {
+            public boolean accept(com.rameses.osiris2.Invoker o) { 
+                return o.getWorkunitid().equals(invoker.getWorkunitid()); 
+            } 
+        }); 
+    }     
+    
+    // </editor-fold>    
+    
     // <editor-fold defaultstate="collapsed" desc=" event handling ">
     
-    private ExplorerListViewModelImpl treeHandler = new ExplorerListViewModelImpl(); 
     private Opener openerObj;
     
     public Opener getOpenerObject() { return openerObj; } 
@@ -70,8 +108,7 @@ public abstract class ExplorerListViewController
         if (node == null) return null;
         
         Map params = new HashMap(); 
-        params.put("treeHandler", treeHandler); 
-        params.put("selectedNode", getSelectedNode()); 
+        params.put("treeHandler", this); 
 
         String invokerType = getName() + "-listview:open";
         openerObj = InvokerUtil.lookupOpener(invokerType, params); 
@@ -84,8 +121,7 @@ public abstract class ExplorerListViewController
         if (node == null) return null;
         
         Map params = new HashMap(); 
-        params.put("treeHandler", treeHandler); 
-        params.put("selectedNode", getSelectedNode()); 
+        params.put("treeHandler", this); 
 
         String invokerType = getName() + "-listview:open";
         openerObj = InvokerUtil.lookupOpener(invokerType, params); 
@@ -93,7 +129,7 @@ public abstract class ExplorerListViewController
 
         return null;
     }
-    
+        
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" TreeNodeModel helper and utilities ">
@@ -138,48 +174,4 @@ public abstract class ExplorerListViewController
     }
     
     // </editor-fold>    
-    
-    // <editor-fold defaultstate="collapsed" desc=" ExplorerListViewService helper and utilities ">
-    
-    private ExplorerListViewService service;
-    
-    public ExplorerListViewService getService()
-    {
-        String name = getServiceName();
-        if (name == null || name.trim().length() == 0)
-            throw new RuntimeException("No service name specified"); 
-            
-        if (service == null) {
-            service = (ExplorerListViewService) InvokerProxy.getInstance().create(name, ExplorerListViewService.class);
-        }
-        return service;
-    } 
-        
-    // </editor-fold>
-    
-    // <editor-fold defaultstate="collapsed" desc=" ExplorerListViewModelImpl (class) ">
-    
-    private class ExplorerListViewModelImpl implements ExplorerListViewModel 
-    {
-        ExplorerListViewController root = ExplorerListViewController.this; 
-               
-        public String getServiceName() {
-            return root.getServiceName(); 
-        }
-        
-        public Node getSelectedNode() {
-            return root.getTreeNodeModel().getSelectedNode(); 
-        } 
-        
-        public Object getSelectedNodeItem() {
-            Node node = root.getTreeNodeModel().getSelectedNode(); 
-            return (node == null? null: node.getItem());
-        }
-        
-        public ExplorerListViewService getService() { 
-            return root.getService();
-        } 
-    }
-    
-    // </editor-fold>
 }
