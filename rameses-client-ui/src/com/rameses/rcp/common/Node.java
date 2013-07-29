@@ -136,6 +136,11 @@ public class Node
         this.provider = provider; 
     }
     
+    public String getPropertyString(String name) {
+        Object o = getProperties().get(name); 
+        return (o == null? null: o.toString()); 
+    }
+    
     // </editor-fold>    
         
     // <editor-fold defaultstate="collapsed" desc=" helper methods ">
