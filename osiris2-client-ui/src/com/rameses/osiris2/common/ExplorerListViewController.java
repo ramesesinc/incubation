@@ -36,6 +36,11 @@ public abstract class ExplorerListViewController
     public void setSelectedNode(Node selectedNode) { 
         this.selectedNode = selectedNode;
     }
+    
+    public Object getSelectedNodeItem() {
+        Node node = getSelectedNode(); 
+        return (node == null? null: node.getItem()); 
+    }
 
     public String getName() { return name; } 
     public String getServiceName() { return null; } 
@@ -52,14 +57,6 @@ public abstract class ExplorerListViewController
         return getService().getNodes(params);
     }
     
-    public List<Map> getColumnList(Map params) { 
-        return getService().getColumns(params);
-    }
-    
-    public List getList(Map params) {
-        return getService().getList(params); 
-    }
-    
     // </editor-fold>   
     
     // <editor-fold defaultstate="collapsed" desc=" event handling ">
@@ -74,6 +71,7 @@ public abstract class ExplorerListViewController
         
         Map params = new HashMap(); 
         params.put("treeHandler", treeHandler); 
+        params.put("selectedNode", getSelectedNode()); 
 
         String invokerType = getName() + "-listview:open";
         openerObj = InvokerUtil.lookupOpener(invokerType, params); 
@@ -87,41 +85,15 @@ public abstract class ExplorerListViewController
         
         Map params = new HashMap(); 
         params.put("treeHandler", treeHandler); 
+        params.put("selectedNode", getSelectedNode()); 
 
         String invokerType = getName() + "-listview:open";
         openerObj = InvokerUtil.lookupOpener(invokerType, params); 
-        if (binding != null) binding.refresh("subform");         
+        if (binding != null) binding.refresh("subform"); 
 
         return null;
     }
     
-    public Object create() {
-        Node selNode = getTreeNodeModel().getSelectedNode();
-        String type = (String) (selNode == null? null: selNode.getProperties().get("type"));
-        if (type == null) type = "default";
-        
-        String invokerType = getName() + "-"+type+":create";
-        Map params = new HashMap();
-        params.put("node", selNode);
-        return InvokerUtil.lookupOpener(invokerType, params);
-    }
-    
-    public Object open() {
-        Node selNode = getTreeNodeModel().getSelectedNode();
-        String type = (String) (selNode == null? null: selNode.getProperties().get("type"));
-        if (type == null) type = "default";
-        
-        Object entity = null; 
-        if (treeHandler.getListHandler() != null) 
-            entity = treeHandler.getListHandler().getSelectedValue(); 
-        
-        String invokerType = getName() + "-"+type+":open";
-        Map params = new HashMap();
-        params.put("node", selNode);
-        params.put("entity", entity); 
-        return InvokerUtil.lookupOpener(invokerType, params);        
-    }    
-        
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" TreeNodeModel helper and utilities ">
@@ -171,7 +143,7 @@ public abstract class ExplorerListViewController
     
     private ExplorerListViewService service;
     
-    protected ExplorerListViewService getService()
+    public ExplorerListViewService getService()
     {
         String name = getServiceName();
         if (name == null || name.trim().length() == 0)
@@ -190,57 +162,23 @@ public abstract class ExplorerListViewController
     private class ExplorerListViewModelImpl implements ExplorerListViewModel 
     {
         ExplorerListViewController root = ExplorerListViewController.this; 
-        private AbstractListDataProvider listHandler;
-                
-        public AbstractListDataProvider getListHandler() { return listHandler; }
-        public void setListHandler(AbstractListDataProvider listHandler) {
-            this.listHandler = listHandler; 
+               
+        public String getServiceName() {
+            return root.getServiceName(); 
         }
         
         public Node getSelectedNode() {
             return root.getTreeNodeModel().getSelectedNode(); 
         } 
         
+        public Object getSelectedNodeItem() {
+            Node node = root.getTreeNodeModel().getSelectedNode(); 
+            return (node == null? null: node.getItem());
+        }
+        
         public ExplorerListViewService getService() { 
             return root.getService();
         } 
-        
-        public List<Map> getColumnList(Map params) {
-            return root.getColumnList(params); 
-        }
-
-        public List getList(Map params) { 
-            return root.getList(params); 
-        } 
-        
-        public Map createParam(Node node) { 
-            Map param = new HashMap();
-            if (node != null) {
-                Object item = node.getItem(); 
-                if (item instanceof Map) 
-                    param.putAll((Map) item); 
-                else 
-                    param.put("item", node.getItem()); 
-
-                param.put("root", (node.getParent() == null));
-                param.put("caption", node.getCaption()); 
-            }
-            return param;
-        }
-        
-        public List<Action> lookupActions(String type) {
-            List<Action> actions = InvokerUtil.lookupActions(type, new InvokerFilter() {
-                public boolean accept(com.rameses.osiris2.Invoker o) { 
-                    return o.getWorkunitid().equals(invoker.getWorkunitid()); 
-                }
-            }); 
-
-            for (int i=0; i<actions.size(); i++) {
-                Action newAction = actions.get(i).clone();
-                actions.set(i, newAction);
-            }
-            return actions;              
-        }
     }
     
     // </editor-fold>

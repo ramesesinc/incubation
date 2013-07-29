@@ -23,60 +23,60 @@ import java.util.Map;
  *
  * @author wflores
  */
-public class ExplorerViewController extends BasicListController
+public class ExplorerViewController extends ListController
 {
-    private List formActions;
     private ExplorerListViewModel treeHandler;
+    private Node selectedNode;
+    private List formActions;
     
-    public void init() { 
+    public String getServiceName() {
         ExplorerListViewModel handler = getTreeHandler();
-        if (handler != null) {
-            handler.setListHandler(this); 
-        }
+        String svcname = (handler==null? null: handler.getServiceName()); 
+        if (svcname != null) return svcname;
+        
+        throw new NullPointerException("Please specify serviceName"); 
     }
-
+    public String getEntityName() { return null; } 
+    
     public ExplorerListViewModel getTreeHandler() { return treeHandler; } 
     public void setTreeHandler(ExplorerListViewModel treeHandler) {
         this.treeHandler = treeHandler; 
     }
     
-    public Node getSelectedNode() {
-        ExplorerListViewModel handler = getTreeHandler();
-        return (handler == null? null: handler.getSelectedNode()); 
+    public Opener getQueryForm() { return null; }    
+    
+    public Node getSelectedNode() { return selectedNode; }
+    public void setSelectedNode(Node selectedNode) {
+        this.selectedNode = selectedNode; 
     }
     
     public Object getSelectedNodeItem() {
-        ExplorerListViewModel handler = getTreeHandler();
-        if (handler == null) return null; 
-        
-        Node node = handler.getSelectedNode();
-        return (node == null? null: node.getItem()); 
+        Node selNode = getSelectedNode(); 
+        return (selNode == null? null: selNode.getItem()); 
     }    
     
     public String getTitle() {
-        ExplorerListViewModel handler = getTreeHandler();
-        Node node = (Node) handler.getSelectedNode();
-        return (node == null? null: node.getCaption()); 
-    }    
+        Node selNode = getSelectedNode(); 
+        return (selNode == null? null: selNode.getCaption()); 
+    } 
     
     public Column[] getColumns() {
         List<Map> list = getColumnList();
         if (list == null || list.isEmpty()) 
             return getDefaultColumns();
-        
-        Column[] columns = new Column[list.size()];
-        for (int i=0; i<list.size(); i++) {
-            columns[i] = new Column(list.get(i)); 
-        }
-        return columns;
+        else 
+            return super.getColumns(); 
     }   
     
     public List<Map> getColumnList() {
-        ExplorerListViewModel handler = getTreeHandler();
-        if (handler == null) return null;
+        Map params = new HashMap();
+        String stag = getTag();
+        if (stag != null) params.put("_tag", stag);
         
-        Node node = handler.getSelectedNode();
-        return handler.getColumnList(handler.createParam(node));
+        Object item = getSelectedNodeItem();
+        if (item instanceof Map) params.putAll((Map) item); 
+        
+        return getService().getColumns(params);
     }
     
     private Column[] getDefaultColumns() {
@@ -86,38 +86,41 @@ public class ExplorerViewController extends BasicListController
     }
 
     public List fetchList(Map params) {
-        ExplorerListViewModel handler = getTreeHandler();
-        if (handler == null) return null;
+        String stag = getTag();
+        if (stag != null) params.put("_tag", stag);
         
-        Node node = handler.getSelectedNode();
-        return handler.getList(handler.createParam(node));
+        Object item = getSelectedNodeItem();
+        if (item instanceof Map) params.putAll((Map) item); 
+        
+        return getService().getList(params); 
     }
-
-    public Object open() throws Exception { 
-        Object item = getSelectedEntity(); 
-        if (item == null) return null;
-        
+    
+    protected ListService getService()
+    {
         ExplorerListViewModel handler = getTreeHandler();
-        if (handler == null) return null;
+        ExplorerListViewService svc = (handler==null? null: handler.getService());
+        if (svc != null) return svc; 
         
-        Node node = handler.getSelectedNode(); 
+        return super.getService(); 
+    }     
+    
+    // <editor-fold defaultstate="collapsed" desc=" Action Methods ">        
+    
+    public Opener create() throws Exception 
+    {
+        Node node = getSelectedNode();
         String type = (String) (node == null? null: node.getProperties().get("type")); 
-        Map params = new HashMap();
-        params.put("entity", item);
-        params.put("node", node); 
-        return InvokerUtil.lookupOpener("explorer-"+type+":open", params); 
+        return InvokerUtil.lookupOpener("explorer-"+type+":create", new HashMap());
     }
-        
-    public Object create() {
-        ExplorerListViewModel handler = getTreeHandler();
-        if (handler == null) return null;
-        
-        Node node = handler.getSelectedNode(); 
+    
+    public Object open() throws Exception 
+    {
+        Node node = getSelectedNode();
         String type = (String) (node == null? null: node.getProperties().get("type")); 
-        Map params = new HashMap();
-        params.put("node", node); 
-        return InvokerUtil.lookupOpener("explorer-"+type+":create", params);        
+        return InvokerUtil.lookupOpener("explorer-"+type+":open", new HashMap());
     }    
+    
+    // </editor-fold>    
         
     // <editor-fold defaultstate="collapsed" desc=" Form and Navigation Actions ">  
 
@@ -130,38 +133,27 @@ public class ExplorerViewController extends BasicListController
             a.getProperties().put("depends", "selectedEntity");
             formActions.add(a); 
             
-            ExplorerListViewModel handler = getTreeHandler();
-            if (handler != null) { 
-                List exts = handler.lookupActions("formActions"); 
-                if (exts != null) formActions.addAll(exts); 
-                
-                Node node = handler.getSelectedNode();
-                String type = (String) (node==null? null: node.getProperties().get("type"));
-                List list = InvokerUtil.lookupOpeners(type+":formActions"); 
-                if (list != null) {
-                    for (Object obj: list) {
-                        Opener o = (Opener)obj;
-                        formActions.add(new ActionOpener(o)); 
-                    }
-                }
-            }
+            List extActions = lookupActions("formActions");
+            formActions.addAll(extActions);
+            extActions.clear();  
+            
+            Node node = getSelectedNode();
+            String type = (String) (node==null? null: node.getProperties().get("type"));
+            List list = InvokerUtil.lookupActions(type+":formActions"); 
+            if (list != null) {
+                formActions.addAll(list); 
+//                for (Object obj: list) {
+//                    Opener o = (Opener)obj;
+//                    formActions.add(new ActionOpener(o)); 
+//                }
+            } 
         } 
         return formActions; 
     }
-    
-    private Action createAction(String name, String caption, String icon, String shortcut, char mnemonic, String visibleWhen, boolean immediate) 
-    {
-        Action a = new Action(name, caption, icon, mnemonic);
-        if (visibleWhen != null) a.setVisibleWhen(visibleWhen); 
-        if (shortcut != null) a.getProperties().put("shortcut", shortcut);    
-        
-        a.setImmediate( immediate );
-        a.setShowCaption(true); 
-        return a;
-    }    
-    
+
     // </editor-fold>    
 
+    // <editor-fold defaultstate="collapsed" desc=" ActionOpener (class) "> 
     
     private class ActionOpener extends Action 
     {
@@ -181,4 +173,6 @@ public class ExplorerViewController extends BasicListController
             return opener; 
         }
     }
+    
+    // </editor-fold>
 }

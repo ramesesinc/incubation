@@ -9,11 +9,7 @@
 
 package com.rameses.osiris2.common;
 
-import com.rameses.rcp.common.AbstractListDataProvider;
-import com.rameses.rcp.common.Action;
 import com.rameses.rcp.common.Node;
-import java.util.List;
-import java.util.Map;
 
 /**
  *
@@ -21,17 +17,11 @@ import java.util.Map;
  */
 public interface ExplorerListViewModel {
 
-    AbstractListDataProvider getListHandler();
-    void setListHandler(AbstractListDataProvider listHandler); 
+    String getServiceName();
     
     Node getSelectedNode(); 
     
-    Map createParam(Node node);    
+    Object getSelectedNodeItem(); 
     
-    List<Map> getColumnList(Map params);     
-    
-    List getList(Map params); 
-    
-    List<Action> lookupActions(String invokerType);
-
+    ExplorerListViewService getService(); 
 }

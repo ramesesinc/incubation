@@ -179,7 +179,7 @@ public abstract class ListController extends BasicListController implements List
         return formActions; 
     }
     
-    private Action createAction(String name, String caption, String icon, String shortcut, char mnemonic, String visibleWhen, boolean immediate) 
+    protected Action createAction(String name, String caption, String icon, String shortcut, char mnemonic, String visibleWhen, boolean immediate) 
     {
         Action a = new Action(name, caption, icon, mnemonic);
         if (visibleWhen != null) a.setVisibleWhen(visibleWhen); 
