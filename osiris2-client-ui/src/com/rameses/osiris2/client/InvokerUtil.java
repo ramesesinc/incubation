@@ -353,11 +353,15 @@ public final class InvokerUtil {
     }
     
     public static List lookupOpeners( String invType) {
-        return lookupOpeners( invType, null );
+        return lookupOpeners( invType, null, null );
     }
     
     public static List lookupOpeners( String invType, Map params ) {
-        List<Invoker> list = lookup( invType );
+        return lookupOpeners( invType, params, null );
+    }
+        
+    public static List lookupOpeners( String invType, Map params, InvokerFilter filter ) {
+        List<Invoker> list = lookup( invType, null, filter );
         if ( list.size() ==0 ) {
             throw new RuntimeException("No invokers found for type [" + invType + "]");
         }
@@ -397,7 +401,7 @@ public final class InvokerUtil {
         opener.setCaption(caption);
         opener.setAction(inv.getAction());
         
-        if ( target !=null ) target = target.replaceAll("^([^_])", "_$1");
+        if (target != null) target = target.replaceAll("^([^_])", "_$1");
         
         opener.setTarget( target );
         if (params != null) opener.setParams( params );
