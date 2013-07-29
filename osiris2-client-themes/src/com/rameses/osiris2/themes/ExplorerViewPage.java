@@ -6,18 +6,15 @@
 
 package com.rameses.osiris2.themes;
 
-import com.rameses.rcp.ui.annotations.Template;
+import com.rameses.rcp.control.border.XToolbarBorder;
+import java.awt.Font;
 
-/**
- *
- * @author  compaq
- */
-@Template(value=FormPage.class) 
+
 public class ExplorerViewPage extends javax.swing.JPanel {
     
-    /** Creates new form ExplorerViewFormPage */
     public ExplorerViewPage() {
         initComponents();
+        lblTitle.setFont(Font.decode("-bold-18"));
     }
     
     /** This method is called from within the constructor to
@@ -27,9 +24,39 @@ public class ExplorerViewPage extends javax.swing.JPanel {
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
+        jPanel1 = new javax.swing.JPanel();
+        lblTitle = new com.rameses.rcp.control.XLabel();
+        xHorizontalPanel1 = new com.rameses.rcp.control.XHorizontalPanel();
+        xabFormActions = new com.rameses.rcp.control.XActionBar();
+        xabNavActions = new com.rameses.rcp.control.XActionBar();
         xDataTable1 = new com.rameses.rcp.control.XDataTable();
 
         setLayout(new java.awt.BorderLayout());
+
+        jPanel1.setLayout(new java.awt.BorderLayout());
+
+        lblTitle.setBackground(new java.awt.Color(255, 255, 255));
+        lblTitle.setExpression("#{title}");
+        lblTitle.setOpaque(true);
+        lblTitle.setPadding(new java.awt.Insets(5, 7, 5, 5));
+        jPanel1.add(lblTitle, java.awt.BorderLayout.NORTH);
+
+        xHorizontalPanel1.setBorder(new XToolbarBorder());
+        xabFormActions.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 5, 0, 5));
+        xabFormActions.setDepends(new String[] {"selectedEntity"});
+        xabFormActions.setName("formActions");
+        xabFormActions.setShowCaptions(false);
+        xHorizontalPanel1.add(xabFormActions);
+
+        xabNavActions.setBorder(null);
+        xabNavActions.setDepends(new String[] {"selectedEntity"});
+        xabNavActions.setName("navActions");
+        xabNavActions.setShowCaptions(false);
+        xHorizontalPanel1.add(xabNavActions);
+
+        jPanel1.add(xHorizontalPanel1, java.awt.BorderLayout.SOUTH);
+
+        add(jPanel1, java.awt.BorderLayout.NORTH);
 
         xDataTable1.setHandler("listHandler");
         xDataTable1.setName("selectedEntity");
@@ -39,7 +66,12 @@ public class ExplorerViewPage extends javax.swing.JPanel {
     
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JPanel jPanel1;
+    private com.rameses.rcp.control.XLabel lblTitle;
     private com.rameses.rcp.control.XDataTable xDataTable1;
+    private com.rameses.rcp.control.XHorizontalPanel xHorizontalPanel1;
+    private com.rameses.rcp.control.XActionBar xabFormActions;
+    private com.rameses.rcp.control.XActionBar xabNavActions;
     // End of variables declaration//GEN-END:variables
     
 }
