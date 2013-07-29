@@ -237,7 +237,6 @@ public class XActionBar extends JPanel implements UIComposite
         
         ImageIcon icon = ImageIconSupport.getInstance().getIcon(action.getIcon());
         btn.setIcon(icon); 
-
         btn.putClientProperty("visibleWhen", action.getVisibleWhen());
         btn.setBinding(binding);
         
