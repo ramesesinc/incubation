@@ -9,9 +9,10 @@
 
 package com.rameses.osiris2.common;
 
-import com.rameses.rcp.common.BasicListModel;
+import com.rameses.osiris2.client.InvokerUtil;
 import com.rameses.rcp.common.Column;
 import com.rameses.rcp.common.Node;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -19,10 +20,10 @@ import java.util.Map;
  *
  * @author wflores
  */
-public class ExplorerViewController extends BasicListModel
+public class ExplorerViewController extends BasicListController
 {
+    private List formActions;
     private ExplorerListViewModel treeHandler;
-    private Node selectedEntity;
     
     public void init() { 
         ExplorerListViewModel handler = getTreeHandler();
@@ -31,17 +32,16 @@ public class ExplorerViewController extends BasicListModel
         }
     }
 
-    public BasicListModel getListHandler() { return this; } 
-    
     public ExplorerListViewModel getTreeHandler() { return treeHandler; } 
     public void setTreeHandler(ExplorerListViewModel treeHandler) {
         this.treeHandler = treeHandler; 
     }
     
-    public Node getSelectedEntity() { return selectedEntity; } 
-    public void getSelectedEntity(Node selectedEntity) {
-        this.selectedEntity = selectedEntity;
-    }
+    public String getTitle() {
+        ExplorerListViewModel handler = getTreeHandler();
+        Node node = (Node) handler.getSelectedNode();
+        return (node == null? null: node.getCaption()); 
+    }    
     
     public Column[] getColumns() {
         List<Map> list = getColumnList();
@@ -74,14 +74,33 @@ public class ExplorerViewController extends BasicListModel
         if (handler == null) return null; 
 
         Node node = handler.getSelectedNode();
-        return (node == null? null: node.getItems()); 
+        return handler.getList(handler.createParam(node));
     }
 
-    protected Object onOpenItem(Object item, String columnName) {
-        if (item instanceof Node) {
-            Node node = (Node)item;
-            node.open();
+    public Object open() throws Exception { 
+        Object item = getSelectedEntity(); 
+        if (item instanceof Map) {
+            Map map = (Map) item;
+            String type = (String) map.get("type");
+            if (type != null) {
+                Map params = new HashMap();
+                params.put("entity", map);
+                return InvokerUtil.lookupOpener("explorer-"+type+":open", params); 
+            }
         }
-        return null;
+        return null; 
     }
+        
+    // <editor-fold defaultstate="collapsed" desc=" Form and Navigation Actions ">  
+
+    public List getFormActions() {
+        if (formActions == null) {
+            ExplorerListViewModel handler = getTreeHandler();
+            formActions = (handler == null? null: handler.lookupActions("formActions")); 
+        } 
+        return formActions; 
+    }
+    
+    // </editor-fold>    
+
 }

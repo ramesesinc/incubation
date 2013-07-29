@@ -1,10 +1,12 @@
 package com.rameses.osiris2.common;
 
+import com.rameses.osiris2.client.InvokerFilter;
 import com.rameses.osiris2.client.InvokerProxy;
 import com.rameses.osiris2.client.InvokerUtil;
 import com.rameses.rcp.annotations.Binding;
 import com.rameses.rcp.annotations.Invoker;
 import com.rameses.rcp.common.AbstractListDataProvider;
+import com.rameses.rcp.common.Action;
 import com.rameses.rcp.common.Node;
 import com.rameses.rcp.common.Opener;
 import com.rameses.rcp.common.TreeNodeModel;
@@ -70,8 +72,6 @@ public abstract class ExplorerListViewController
     public Object openFolder(Node node) {
         if (node == null) return null;
         
-        if (!node.hasItems()) node.reloadItems();
-        
         Map params = new HashMap(); 
         params.put("treeHandler", treeHandler); 
         
@@ -92,7 +92,7 @@ public abstract class ExplorerListViewController
         params.put("treeHandler", treeHandler); 
         
         String type = (String) node.getProperties().get("type");
-        if (type == null) return null;
+        if (type == null) type = "listview";
         
         String invokerType = getName() + "-" + type + ":open";
         openerObj = InvokerUtil.lookupOpener(invokerType, params); 
@@ -205,6 +205,20 @@ public abstract class ExplorerListViewController
                 param.put("caption", node.getCaption()); 
             }
             return param;
+        }
+        
+        public List<Action> lookupActions(String type) {
+            List<Action> actions = InvokerUtil.lookupActions(type, new InvokerFilter() {
+                public boolean accept(com.rameses.osiris2.Invoker o) { 
+                    return o.getWorkunitid().equals(invoker.getWorkunitid()); 
+                }
+            }); 
+
+            for (int i=0; i<actions.size(); i++) {
+                Action newAction = actions.get(i).clone();
+                actions.set(i, newAction);
+            }
+            return actions;              
         }
     }
     
