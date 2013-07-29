@@ -39,9 +39,11 @@ public class NavigationHandlerImpl implements NavigationHandler {
                 opener = ControlSupport.initOpener( opener, curController.getController() );
                 
                 String opTarget = opener.getTarget()+"";
-                if(opTarget.startsWith("_")) {
+                if (opTarget.matches("process|_process")) return;
+                
+                if (opTarget.startsWith("_")) 
                     opTarget = opTarget.substring(1);
-                }
+
                 boolean self = !opTarget.matches("window|popup|floating");
                 String windowId = opener.getController().getId();
 
