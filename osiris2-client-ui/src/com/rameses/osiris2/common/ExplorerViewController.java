@@ -79,16 +79,14 @@ public class ExplorerViewController extends BasicListController
 
     public Object open() throws Exception { 
         Object item = getSelectedEntity(); 
-        if (item instanceof Map) {
-            Map map = (Map) item;
-            String type = (String) map.get("type");
-            if (type != null) {
-                Map params = new HashMap();
-                params.put("entity", map);
-                return InvokerUtil.lookupOpener("explorer-"+type+":open", params); 
-            }
-        }
-        return null; 
+        if (item == null) return null;
+        
+        ExplorerListViewModel handler = getTreeHandler();
+        Node node = handler.getSelectedNode(); 
+        String type = (String) (node == null? null: node.getProperties().get("type")); 
+        Map params = new HashMap();
+        params.put("entity", item);
+        return InvokerUtil.lookupOpener("explorer-"+type+":open", params); 
     }
         
     // <editor-fold defaultstate="collapsed" desc=" Form and Navigation Actions ">  

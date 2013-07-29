@@ -74,11 +74,8 @@ public abstract class ExplorerListViewController
         
         Map params = new HashMap(); 
         params.put("treeHandler", treeHandler); 
-        
-        String type = (String) node.getProperties().get("type");
-        if (type == null) type = "listview";
-        
-        String invokerType = getName() + "-" + type + ":open";
+
+        String invokerType = getName() + "-listview:open";
         openerObj = InvokerUtil.lookupOpener(invokerType, params); 
         if (binding != null) binding.refresh("subform");         
 
@@ -90,11 +87,8 @@ public abstract class ExplorerListViewController
         
         Map params = new HashMap(); 
         params.put("treeHandler", treeHandler); 
-        
-        String type = (String) node.getProperties().get("type");
-        if (type == null) type = "listview";
-        
-        String invokerType = getName() + "-" + type + ":open";
+
+        String invokerType = getName() + "-listview:open";
         openerObj = InvokerUtil.lookupOpener(invokerType, params); 
         if (binding != null) binding.refresh("subform");         
 
