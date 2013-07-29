@@ -10,8 +10,11 @@
 package com.rameses.osiris2.common;
 
 import com.rameses.osiris2.client.InvokerUtil;
+import com.rameses.rcp.common.Action;
 import com.rameses.rcp.common.Column;
 import com.rameses.rcp.common.Node;
+import com.rameses.rcp.common.Opener;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +39,19 @@ public class ExplorerViewController extends BasicListController
     public void setTreeHandler(ExplorerListViewModel treeHandler) {
         this.treeHandler = treeHandler; 
     }
+    
+    public Node getSelectedNode() {
+        ExplorerListViewModel handler = getTreeHandler();
+        return (handler == null? null: handler.getSelectedNode()); 
+    }
+    
+    public Object getSelectedNodeItem() {
+        ExplorerListViewModel handler = getTreeHandler();
+        if (handler == null) return null; 
+        
+        Node node = handler.getSelectedNode();
+        return (node == null? null: node.getItem()); 
+    }    
     
     public String getTitle() {
         ExplorerListViewModel handler = getTreeHandler();
@@ -71,8 +87,8 @@ public class ExplorerViewController extends BasicListController
 
     public List fetchList(Map params) {
         ExplorerListViewModel handler = getTreeHandler();
-        if (handler == null) return null; 
-
+        if (handler == null) return null;
+        
         Node node = handler.getSelectedNode();
         return handler.getList(handler.createParam(node));
     }
@@ -82,23 +98,87 @@ public class ExplorerViewController extends BasicListController
         if (item == null) return null;
         
         ExplorerListViewModel handler = getTreeHandler();
+        if (handler == null) return null;
+        
         Node node = handler.getSelectedNode(); 
         String type = (String) (node == null? null: node.getProperties().get("type")); 
         Map params = new HashMap();
         params.put("entity", item);
+        params.put("node", node); 
         return InvokerUtil.lookupOpener("explorer-"+type+":open", params); 
     }
+        
+    public Object create() {
+        ExplorerListViewModel handler = getTreeHandler();
+        if (handler == null) return null;
+        
+        Node node = handler.getSelectedNode(); 
+        String type = (String) (node == null? null: node.getProperties().get("type")); 
+        Map params = new HashMap();
+        params.put("node", node); 
+        return InvokerUtil.lookupOpener("explorer-"+type+":create", params);        
+    }    
         
     // <editor-fold defaultstate="collapsed" desc=" Form and Navigation Actions ">  
 
     public List getFormActions() {
         if (formActions == null) {
+            formActions = new ArrayList();
+            formActions.add(createAction("create", "New", "images/toolbars/create.png", "ctrl N", 'n', null, true));       
+
+            Action a = createAction("open", "Open", "images/toolbars/open.png", "ctrl O", 'o', "#{selectedEntity != null}", true);
+            a.getProperties().put("depends", "selectedEntity");
+            formActions.add(a); 
+            
             ExplorerListViewModel handler = getTreeHandler();
-            formActions = (handler == null? null: handler.lookupActions("formActions")); 
+            if (handler != null) { 
+                List exts = handler.lookupActions("formActions"); 
+                if (exts != null) formActions.addAll(exts); 
+                
+                Node node = handler.getSelectedNode();
+                String type = (String) (node==null? null: node.getProperties().get("type"));
+                List list = InvokerUtil.lookupOpeners(type+":formActions"); 
+                if (list != null) {
+                    for (Object obj: list) {
+                        Opener o = (Opener)obj;
+                        formActions.add(new ActionOpener(o)); 
+                    }
+                }
+            }
         } 
         return formActions; 
     }
     
+    private Action createAction(String name, String caption, String icon, String shortcut, char mnemonic, String visibleWhen, boolean immediate) 
+    {
+        Action a = new Action(name, caption, icon, mnemonic);
+        if (visibleWhen != null) a.setVisibleWhen(visibleWhen); 
+        if (shortcut != null) a.getProperties().put("shortcut", shortcut);    
+        
+        a.setImmediate( immediate );
+        a.setShowCaption(true); 
+        return a;
+    }    
+    
     // </editor-fold>    
 
+    
+    private class ActionOpener extends Action 
+    {
+        private Opener opener;
+        
+        ActionOpener(Opener opener) {
+            this.opener = opener;
+            setName(opener.getAction()); 
+            setCaption(opener.getCaption()); 
+        }
+        
+        public Object execute() { 
+            String target = opener.getTarget()+"";
+            if (!target.matches("window|popup|process")) {
+                opener.setTarget("popup"); 
+            }
+            return opener; 
+        }
+    }
 }

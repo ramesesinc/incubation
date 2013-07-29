@@ -33,4 +33,5 @@ public interface ExplorerListViewModel {
     List getList(Map params); 
     
     List<Action> lookupActions(String invokerType);
+
 }

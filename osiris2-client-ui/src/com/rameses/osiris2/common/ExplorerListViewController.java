@@ -94,6 +94,33 @@ public abstract class ExplorerListViewController
 
         return null;
     }
+    
+    public Object create() {
+        Node selNode = getTreeNodeModel().getSelectedNode();
+        String type = (String) (selNode == null? null: selNode.getProperties().get("type"));
+        if (type == null) type = "default";
+        
+        String invokerType = getName() + "-"+type+":create";
+        Map params = new HashMap();
+        params.put("node", selNode);
+        return InvokerUtil.lookupOpener(invokerType, params);
+    }
+    
+    public Object open() {
+        Node selNode = getTreeNodeModel().getSelectedNode();
+        String type = (String) (selNode == null? null: selNode.getProperties().get("type"));
+        if (type == null) type = "default";
+        
+        Object entity = null; 
+        if (treeHandler.getListHandler() != null) 
+            entity = treeHandler.getListHandler().getSelectedValue(); 
+        
+        String invokerType = getName() + "-"+type+":open";
+        Map params = new HashMap();
+        params.put("node", selNode);
+        params.put("entity", entity); 
+        return InvokerUtil.lookupOpener(invokerType, params);        
+    }    
         
     // </editor-fold>
     
