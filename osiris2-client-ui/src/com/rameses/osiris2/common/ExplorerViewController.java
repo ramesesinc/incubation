@@ -31,7 +31,6 @@ public class ExplorerViewController extends ListController
     
     private List formActions;
 
-    public Opener getQueryForm() { return null; }     
     public String getEntityName() { return null; } 
     public Object getCaller() { return caller; }
     
@@ -100,7 +99,17 @@ public class ExplorerViewController extends ListController
         if (svc != null) return svc; 
         
         return super.getService(); 
-    }     
+    } 
+    
+    public Opener getQueryForm() { 
+        String nodeType = getNodeType();
+        if ("search".equals(nodeType)) 
+            return super.getQueryForm(); 
+        else 
+            return null; 
+    } 
+
+    public int getRows() { return 20; }
     
     // <editor-fold defaultstate="collapsed" desc=" Action Methods ">        
     

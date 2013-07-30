@@ -38,7 +38,8 @@ public abstract class ExplorerListViewController implements ExplorerListViewMode
     public String getType() { return type; } 
     public void setType(String type) { this.type = type; }
 
-    public boolean isRootVisible() { return false; }
+    public boolean isRootVisible() { return false; } 
+    public boolean isAllowSearch() { return true; } 
     
     public String getIcon() { return "Tree.closedIcon"; } 
     
@@ -46,7 +47,7 @@ public abstract class ExplorerListViewController implements ExplorerListViewMode
         return getTreeNodeModel(); 
     }
     
-    public List<Map> getNodes(Map params) {
+    public List<Map> getNodes(Map params) { 
         return getService().getNodes(params);
     }
     
@@ -116,19 +117,23 @@ public abstract class ExplorerListViewController implements ExplorerListViewMode
     }
     
     public List<Action> getNodeActions(List<Action> actions) {
-        addActionOpeners(actions, lookupOpeners("formActions"));
-
-        List<String> types = new ArrayList(); 
-        types.add(getType()); 
-        
         Node selNode = getSelectedNode();
-        if (selNode != null) {
-            String type = selNode.getPropertyString("type");
-            if (type != null && !types.contains(type)) types.add(type);
-        } 
+        if (selNode == null) return actions;
+        
+        addActionOpeners(actions, lookupOpeners("formActions"));
+        
+        List<String> types = new ArrayList(); 
+        if ("search".equals(selNode.getPropertyString("name"))) {
+            //do nothing
+        } else { 
+            types.add(getType()); 
+        }
+        
+        String type = selNode.getPropertyString("type");
+        if (type != null && !types.contains(type)) types.add(type);
 
         while (!types.isEmpty()) {
-            String type = types.remove(0);
+            type = types.remove(0);
             if (type == null || type.length() == 0) continue;
             
             try { 
@@ -214,8 +219,19 @@ public abstract class ExplorerListViewController implements ExplorerListViewMode
                 params.put("item", node.getItem()); 
             
             params.put("root", (node.getParent() == null));
-            params.put("caption", node.getCaption()); 
-            return root.getNodes(params);
+            params.put("caption", node.getCaption());             
+            List<Map> nodes = root.getNodes(params);
+            if (node.getParent() == null && root.isAllowSearch()) {
+                Map search = new HashMap();
+                search.put("name", "search");
+                search.put("caption", "Search"); 
+                search.put("type", "search"); 
+                if (nodes.isEmpty())
+                    nodes.add(search);
+                else 
+                    nodes.add(0, search); 
+            }
+            return nodes; 
         }
         
         public Object openFolder(Node node) {
