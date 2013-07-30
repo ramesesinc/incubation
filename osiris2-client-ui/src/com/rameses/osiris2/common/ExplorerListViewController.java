@@ -9,6 +9,7 @@ import com.rameses.rcp.common.Action;
 import com.rameses.rcp.common.Node;
 import com.rameses.rcp.common.Opener;
 import com.rameses.rcp.common.TreeNodeModel;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,6 +23,7 @@ public abstract class ExplorerListViewController implements ExplorerListViewMode
     protected com.rameses.rcp.framework.Binding binding;
 
     private String name = "explorer";
+    private String type; 
     private String serviceName; 
     private Node selectedNode;
                
@@ -32,6 +34,9 @@ public abstract class ExplorerListViewController implements ExplorerListViewMode
     }
    
     public String getName() { return name; } 
+    
+    public String getType() { return type; } 
+    public void setType(String type) { this.type = type; }
 
     public boolean isRootVisible() { return false; }
     
@@ -75,11 +80,16 @@ public abstract class ExplorerListViewController implements ExplorerListViewMode
     } 
     
     public List<Action> lookupActions(String type) { 
-        List<Action> actions = InvokerUtil.lookupActions(type, new InvokerFilter() {
-            public boolean accept(com.rameses.osiris2.Invoker o) { 
-                return o.getWorkunitid().equals(invoker.getWorkunitid()); 
-            }
-        }); 
+        List<Action> actions = new ArrayList(); 
+        try { 
+            actions = InvokerUtil.lookupActions(type, new InvokerFilter() {
+                public boolean accept(com.rameses.osiris2.Invoker o) { 
+                    return o.getWorkunitid().equals(invoker.getWorkunitid()); 
+                }
+            }); 
+        } catch(Throwable t) {
+            return actions; 
+        }
         
         for (int i=0; i<actions.size(); i++) {
             Action newAction = actions.get(i).clone();
@@ -89,12 +99,51 @@ public abstract class ExplorerListViewController implements ExplorerListViewMode
     }  
     
     public List lookupOpeners(String type) { 
-        return InvokerUtil.lookupOpeners(type, null, new InvokerFilter() {
-            public boolean accept(com.rameses.osiris2.Invoker o) { 
-                return o.getWorkunitid().equals(invoker.getWorkunitid()); 
-            } 
-        }); 
-    }     
+        try { 
+            return InvokerUtil.lookupOpeners(type, null, new InvokerFilter() {
+                public boolean accept(com.rameses.osiris2.Invoker o) { 
+                    return o.getWorkunitid().equals(invoker.getWorkunitid()); 
+                } 
+            }); 
+        } catch(Throwable t) {
+            return new ArrayList(); 
+        }
+    } 
+    
+    public List<Action> getNodeActions() {
+        List<Action> actions = new ArrayList();
+        return getNodeActions(actions); 
+    }
+    
+    public List<Action> getNodeActions(List<Action> actions) {
+        addActionOpeners(actions, lookupOpeners("formActions"));
+
+        List<String> types = new ArrayList(); 
+        types.add(getType()); 
+        
+        Node selNode = getSelectedNode();
+        if (selNode != null) types.add(selNode.getPropertyString("type")); 
+
+        while (!types.isEmpty()) {
+            String type = types.remove(0);
+            if (type == null || type.length() == 0) continue;
+            
+            try { 
+                List openers = InvokerUtil.lookupOpeners(type+":formActions"); 
+                addActionOpeners(actions, openers); 
+            } catch(Throwable t) {;} 
+        }
+        return actions;         
+    }
+    
+    private void addActionOpeners(List<Action> actions, List openers) {
+        if (openers == null || openers.isEmpty()) return;
+        
+        while (!openers.isEmpty()) {
+            Opener o = (Opener) openers.remove(0);
+            actions.add(new ActionOpener(o));
+        }  
+    }
     
     // </editor-fold>    
     
@@ -109,6 +158,7 @@ public abstract class ExplorerListViewController implements ExplorerListViewMode
         
         Map params = new HashMap(); 
         params.put("treeHandler", this); 
+        params.put("selectedNode", getSelectedNode());
 
         String invokerType = getName() + "-listview:open";
         openerObj = InvokerUtil.lookupOpener(invokerType, params); 
@@ -122,6 +172,7 @@ public abstract class ExplorerListViewController implements ExplorerListViewMode
         
         Map params = new HashMap(); 
         params.put("treeHandler", this); 
+        params.put("selectedNode", getSelectedNode());
 
         String invokerType = getName() + "-listview:open";
         openerObj = InvokerUtil.lookupOpener(invokerType, params); 
@@ -170,6 +221,29 @@ public abstract class ExplorerListViewController implements ExplorerListViewMode
 
         public Object openLeaf(Node node) {
             return root.openLeaf(node);
+        }
+    }
+    
+    // </editor-fold>    
+    
+    // <editor-fold defaultstate="collapsed" desc=" ActionOpener (class) "> 
+    
+    private class ActionOpener extends Action 
+    {
+        private Opener opener;
+        
+        ActionOpener(Opener opener) {
+            this.opener = opener;
+            setName(opener.getAction()); 
+            setCaption(opener.getCaption()); 
+        }
+        
+        public Object execute() { 
+            String target = opener.getTarget()+"";
+            if (!target.matches("window|popup|process|_window|_popup|_process")) {
+                opener.setTarget("popup"); 
+            }
+            return opener; 
         }
     }
     

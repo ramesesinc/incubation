@@ -24,7 +24,7 @@ import java.util.Map;
  *
  * @author wflores
  */
-public class ExplorerViewController extends ListController
+public class ExplorerViewController extends ListController 
 {
     @Caller
     private Object caller; 
@@ -106,17 +106,40 @@ public class ExplorerViewController extends ListController
     
     public Opener create() throws Exception 
     {
-        Node node = getSelectedNode();
-        String type = (String) (node == null? null: node.getProperties().get("type")); 
-        return InvokerUtil.lookupOpener("explorer-"+type+":create", new HashMap());
+        String type = getNodeType();
+        if (type == null || type.length() == 0) type = getDefaultNodeType();
+
+        Map params = new HashMap();
+        params.put("treeHandler", getTreeHandler());
+        params.put("selectedNode", getSelectedNode()); 
+        params.put("selectedNodeItem", getSelectedNodeItem()); 
+        Opener opener = InvokerUtil.lookupOpener("explorer-"+type+":create", params); 
+        resolveTargetFromOpener(opener);
+        return opener;
     }
     
     public Object open() throws Exception 
     {
-        Node node = getSelectedNode();
-        String type = (String) (node == null? null: node.getProperties().get("type")); 
-        return InvokerUtil.lookupOpener("explorer-"+type+":open", new HashMap());
-    }    
+        String type = getNodeType();
+        if (type == null || type.length() == 0) type = getDefaultNodeType();
+        
+        Map params = new HashMap();
+        params.put("treeHandler", getTreeHandler());
+        params.put("selectedNode", getSelectedNode()); 
+        params.put("selectedNodeItem", getSelectedNodeItem());         
+        Opener opener = InvokerUtil.lookupOpener("explorer-"+type+":open", params);
+        resolveTargetFromOpener(opener);
+        return opener;        
+    }  
+    
+    private void resolveTargetFromOpener(Opener opener) {
+        if (opener == null) return;
+        
+        String target = opener.getTarget()+"";
+        if (!target.matches("window|popup|process|_window|_popup|_process")) {
+            opener.setTarget("popup"); 
+        }
+    }
     
     // </editor-fold>    
         
@@ -132,55 +155,14 @@ public class ExplorerViewController extends ListController
             formActions.add(a); 
 
             ExplorerListViewModel handler = getTreeHandler();
-            if (handler != null) { 
-                List openers = handler.lookupOpeners("formActions");
-                while (!openers.isEmpty()) {
-                    Opener o = (Opener) openers.remove(0);
-                    formActions.add(new ActionOpener(o));
-                }                
-            }
-            
-            List<Action> xactions = lookupActions("formActions");
-            formActions.addAll(xactions);
-            xactions.clear();
-            
-            Node node = getSelectedNode();
-            String type = (String) (node==null? null: node.getPropertyString("type"));
-            List openers = InvokerUtil.lookupOpeners(type+":formActions"); 
-            while (!openers.isEmpty()) {
-                Opener o = (Opener) openers.remove(0);
-                formActions.add(new ActionOpener(o));
-            }
+            if (handler != null) handler.getNodeActions(formActions);
         } 
         return formActions; 
     }
 
     // </editor-fold>    
-
-    // <editor-fold defaultstate="collapsed" desc=" ActionOpener (class) "> 
     
-    private class ActionOpener extends Action 
-    {
-        private Opener opener;
-        
-        ActionOpener(Opener opener) {
-            this.opener = opener;
-            setName(opener.getAction()); 
-            setCaption(opener.getCaption()); 
-        }
-        
-        public Object execute() { 
-            String target = opener.getTarget()+"";
-            if (!target.matches("window|popup|process|_window|_popup|_process")) {
-                opener.setTarget("popup"); 
-            }
-            return opener; 
-        }
-    }
-    
-    // </editor-fold>
-    
-    // <editor-fold defaultstate="collapsed" desc=" ExplorerListViewModel helper methods "> 
+    // <editor-fold defaultstate="collapsed" desc=" ExplorerListViewModel implementation "> 
     
     private ExplorerListViewModel treeHandler;
     
@@ -197,6 +179,16 @@ public class ExplorerViewController extends ListController
     public void setTreeHandler(ExplorerListViewModel treeHandler) {
         this.treeHandler = treeHandler; 
     }
+    
+    public String getDefaultNodeType() {
+        ExplorerListViewModel handler = getTreeHandler();
+        return (handler == null? null: handler.getType()); 
+    }
+    
+    public String getNodeType() {
+        Node node = getSelectedNode();
+        return (node == null? null: node.getPropertyString("type")); 
+    }    
         
     // </editor-fold> 
 }

@@ -16,6 +16,7 @@
 
         private String name;        
         private String serviceName;
+        private String type;
 
         String getName() {
             if (name == null) name = controller?.workunit?.workunit?.properties?.name;
@@ -29,6 +30,13 @@
                 serviceName = controller?.workunit?.workunit?.properties?.serviceName;
             } 
             return serviceName;
+        } 
+        
+        String getType() {
+            if (type == null) 
+                type = controller?.workunit?.workunit?.properties?.type;
+                
+            return type;     
         } 
     }  
     </code>    

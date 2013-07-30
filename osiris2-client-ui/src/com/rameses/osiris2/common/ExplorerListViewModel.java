@@ -19,6 +19,10 @@ import java.util.List;
  */
 public interface ExplorerListViewModel {
 
+    String getName();
+    
+    String getType();
+    
     String getServiceName();
     
     Node getSelectedNode(); 
@@ -27,7 +31,6 @@ public interface ExplorerListViewModel {
     
     ExplorerListViewService getService(); 
     
-    List<Action> lookupActions(String invokerType); 
-    
-    List lookupOpeners(String invokerType); 
+    List<Action> getNodeActions(); 
+    List<Action> getNodeActions(List<Action> actions); 
 }
