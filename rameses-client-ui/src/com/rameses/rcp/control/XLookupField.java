@@ -602,8 +602,11 @@ public class XLookupField extends IconedTextField implements UIFocusableContaine
             return true; 
         }  
         
-        public void setValue(String name, Object value) 
-        {
+        public void setValue(String name, Object value) {
+            setValue(name, value, null); 
+        }   
+        
+        public void setValue(String name, Object value, JComponent jcomp){
             if (lookupHandlerProxy.hasOnselectCallback()) 
                 lookupHandlerProxy.invokeOnselect(value); 
             else 
@@ -611,7 +614,7 @@ public class XLookupField extends IconedTextField implements UIFocusableContaine
 
             publishUpdates(); 
             dirty = false; 
-        }      
+        }
         
         private void updateBeanValue(String name, Object value) 
         {

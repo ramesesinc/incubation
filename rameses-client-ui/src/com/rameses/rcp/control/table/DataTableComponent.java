@@ -7,11 +7,23 @@
 package com.rameses.rcp.control.table;
 
 import com.rameses.common.ExpressionResolver;
-import com.rameses.rcp.common.*;
+import com.rameses.rcp.common.AbstractListDataProvider;
+import com.rameses.rcp.common.AbstractListModel;
+import com.rameses.rcp.common.Action;
+import com.rameses.rcp.common.Column;
+import com.rameses.rcp.common.EditorListModel;
+import com.rameses.rcp.common.ListItem;
+import com.rameses.rcp.common.ListPageModel;
+import com.rameses.rcp.common.MsgBox;
+import com.rameses.rcp.common.PropertyChangeHandler;
+import com.rameses.rcp.common.TableModelHandler;
+import com.rameses.rcp.control.XCheckBox;
 import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.framework.ChangeLog;
 import com.rameses.rcp.framework.ClientContext;
-import com.rameses.rcp.ui.*;
+import com.rameses.rcp.ui.UIControl;
+import com.rameses.rcp.ui.UIInput;
+import com.rameses.rcp.ui.Validatable;
 import com.rameses.rcp.util.ActionMessage;
 import com.rameses.rcp.util.UICommandUtil;
 import com.rameses.rcp.util.UIControlUtil;
@@ -24,28 +36,38 @@ import java.awt.EventQueue;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionAdapter;
 import java.beans.Beans;
+import javax.swing.JTable;
 import java.util.*;
 import javax.swing.InputVerifier;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
-import javax.swing.JTable;
+import javax.swing.JRootPane;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingUtilities;
+import javax.swing.border.EmptyBorder;
+import javax.swing.event.TableModelEvent;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.text.JTextComponent;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JMenuItem;
-import javax.swing.JRootPane;
-import javax.swing.SwingUtilities;
-import javax.swing.border.EmptyBorder;
-import javax.swing.event.TableModelEvent;
 
 public class DataTableComponent extends JTable implements TableControl 
 {    
@@ -943,6 +965,15 @@ public class DataTableComponent extends JTable implements TableControl
         if (grabFocus) grabFocus(); 
     } 
     
+    public void clearEditors() { 
+        if (currentEditor != null) { 
+            currentEditor.setVisible(false);
+            currentEditor.setInputVerifier(null);
+        } 
+        editingMode = false;        
+        currentEditor = null;
+    }
+    
     private boolean validateRow(int rowIndex) 
     {
         //exit right away if no editor model specified 
@@ -1022,27 +1053,32 @@ public class DataTableComponent extends JTable implements TableControl
             if (!refreshed) ui.refresh();
             
             selectAll(editor, e);
+            if (editor instanceof XCheckBox) {
+                hideEditor(editor, rowIndex, colIndex, true, true); 
+                return;
+            }
         } 
         else if (isPrintableKey(e))  
         {
             char ch = currentKeyEvent.getKeyChar();
             boolean dispatched = false; 
             
-            if (editor instanceof JTextComponent) 
-            {
-                try 
-                {
+            if (editor instanceof JTextComponent) {
+                try {
                     JTextComponent jtxt = (JTextComponent) editor;
                     jtxt.setText(ch+""); 
                     dispatched = true; 
-                } 
-                catch (Exception ex) {;} 
+                } catch (Throwable ex) {;} 
             }
 
-            if (!dispatched && (editor instanceof UIInput)) 
-            {
+            if (!dispatched && (editor instanceof UIInput)) {
                 UIInput uiinput = (UIInput) editor;
                 uiinput.setValue((KeyEvent) e);
+                
+                if (editor instanceof XCheckBox) {
+                    hideEditor(editor, rowIndex, colIndex, true, true); 
+                    return;
+                }  
             }
         } 
         else {
@@ -1092,13 +1128,19 @@ public class DataTableComponent extends JTable implements TableControl
     
     private class EditorInputSupport implements UIInputUtil.Support 
     {       
-        public void setValue(String name, Object value) 
-        {
-            if (currentEditor == null) return;
+        public void setValue(String name, Object value) {
+            setValue(name, value, null); 
+        } 
+        
+        public void setValue(String name, Object value, JComponent jcomp) {
             //temporarily stores the editor value 
-            //the value is committed once the cell selection is about to changed
-            //System.out.println("setValue: name="+name + ", value="+value);
-            currentEditor.putClientProperty("cellEditorValue", value); 
+            //the value is committed once the cell selection is about to changed            
+            if (currentEditor != null) {
+                currentEditor.putClientProperty("cellEditorValue", value); 
+            }
+            else if (jcomp != null) {
+                jcomp.putClientProperty("cellEditorValue", value);
+            }
         } 
     }
     
@@ -1425,12 +1467,17 @@ public class DataTableComponent extends JTable implements TableControl
         DataTableComponent root = DataTableComponent.this; 
 
         public void fireTableCellUpdated(int row, int column) {}
-        public void fireTableDataChanged() {}
         public void fireTableRowsDeleted(int firstRow, int lastRow) {}
         public void fireTableRowsInserted(int firstRow, int lastRow) {}
         public void fireTableRowsUpdated(int firstRow, int lastRow) {}
-        public void fireTableStructureChanged() {}
+        public void fireTableStructureChanged() {
+            root.clearEditors();
+        }
 
+        public void fireTableDataChanged() {
+            root.clearEditors(); 
+        }
+        
         public void fireTableRowSelected(int row, boolean focusOnItemDataOnly) 
         {
             Point sel = (Point) root.getClientProperty("selectionPoint"); 

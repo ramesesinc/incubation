@@ -413,6 +413,7 @@ public class CellRenderers {
             
             boolean selected = false;
             if (value == null) selected = false;
+            else if (value != null && checkValue != null && value.equals(checkValue)) selected = true; 
             else if (value.equals(checkValue+"")) selected = true;
             else if ("true".equals(value+"")) selected = true;
             else if ("yes".equals(value+"")) selected = true;

@@ -60,9 +60,12 @@ public class UIInputUtil {
         try 
         {
             Support support = (Support) ((JComponent) control).getClientProperty(UIInputUtil.Support.class); 
-            if (support != null) 
-            {
-                support.setValue(control.getName(), control.getValue()); 
+            if (support != null) {
+                if (control instanceof JComponent)
+                    support.setValue(control.getName(), control.getValue(), (JComponent)control);
+                else 
+                    support.setValue(control.getName(), control.getValue()); 
+                
                 return;
             }
             
@@ -133,6 +136,8 @@ public class UIInputUtil {
     public static interface Support 
     {
         void setValue(String name, Object value); 
+        
+        void setValue(String name, Object value, JComponent jcomp); 
     }
     
 }

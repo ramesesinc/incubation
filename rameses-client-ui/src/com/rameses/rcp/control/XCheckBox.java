@@ -110,6 +110,7 @@ public class XCheckBox extends JCheckBox implements UIInput, ActiveControl
     {
         boolean selected = false; 
         if (value == null) { /* do nothing */ }
+        else if (value != null && checkValue != null && checkValue.equals(value)) selected = true; 
         else if ((checkValue+"").equals(value+"")) selected = true; 
         else if ("true".equals(value+"")) selected = true; 
         else if ("yes".equals(value+"")) selected = true; 
@@ -137,7 +138,8 @@ public class XCheckBox extends JCheckBox implements UIInput, ActiveControl
         else 
         {
             boolean selected = false; 
-            if ((checkValue+"").equals(value+"")) selected = true; 
+            if (value != null && checkValue != null && checkValue.equals(value)) selected = true; 
+            else if ((checkValue+"").equals(value+"")) selected = true; 
             else if ("true".equals(value+"")) selected = true; 
             else if ("1".equals(value+"")) selected = true; 
             
