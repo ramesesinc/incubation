@@ -122,7 +122,10 @@ public abstract class ExplorerListViewController implements ExplorerListViewMode
         types.add(getType()); 
         
         Node selNode = getSelectedNode();
-        if (selNode != null) types.add(selNode.getPropertyString("type")); 
+        if (selNode != null) {
+            String type = selNode.getPropertyString("type");
+            if (type != null && !types.contains(type)) types.add(type);
+        } 
 
         while (!types.isEmpty()) {
             String type = types.remove(0);
