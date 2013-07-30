@@ -233,20 +233,23 @@ public abstract class ExplorerListViewController implements ExplorerListViewMode
     
     private class ActionOpener extends Action 
     {
-        private Opener opener;
+        private com.rameses.osiris2.Invoker invoker;
         
         ActionOpener(Opener opener) {
-            this.opener = opener;
+            this.invoker = (com.rameses.osiris2.Invoker) opener.getProperties().get("_INVOKER_");
             setName(opener.getAction()); 
             setCaption(opener.getCaption()); 
         }
         
         public Object execute() { 
-            String target = opener.getTarget()+"";
+            Opener o = InvokerUtil.createOpener(invoker);
+            if (o == null) return null;
+            
+            String target = o.getTarget()+"";
             if (!target.matches("window|popup|process|_window|_popup|_process")) {
-                opener.setTarget("popup"); 
+                o.setTarget("popup"); 
             }
-            return opener; 
+            return o;  
         }
     }
     
