@@ -32,6 +32,7 @@ public class XComboBoxBeanInfo extends ComponentBeanInfo.Support
     {
         return new PropertyDescriptor[] {
             new PropertyDescriptor("allowNull", getBeanClass(), "isAllowNull", "setAllowNull"),
+            new PropertyDescriptor("border", getBeanClass()), 
                         
             new PropertyDescriptor("caption", getBeanClass()),
             new PropertyDescriptor("captionFont", getBeanClass()),

@@ -33,6 +33,8 @@ public class XPasswordFieldBeanInfo extends ComponentBeanInfo.Support
         return new PropertyDescriptor[] {
             new PropertyDescriptor("text", getBeanClass()),
             new PropertyDescriptor("editable", getBeanClass(), "isEditable", "setEditable"),
+            new PropertyDescriptor("border", getBeanClass()),
+            new PropertyDescriptor("margin", getBeanClass()),            
             
             new PropertyDescriptor("caption", getBeanClass()),
             new PropertyDescriptor("captionFont", getBeanClass()),
