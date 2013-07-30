@@ -421,6 +421,7 @@ public class CellRenderers {
             else if ("y".equals(value+"")) selected = true;
             else if ("1".equals(value+"")) selected = true;
             
+            //System.out.println("renderer: name="+oColumn.getName() + ", value="+value + ", selected="+selected);
             return selected;
         }
     }

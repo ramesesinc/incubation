@@ -1027,17 +1027,16 @@ public class DataTableComponent extends JTable implements TableControl
         editor.setBounds(bounds); 
         
         UIControl ui = (UIControl) editor;
-        boolean refreshed = false;
+        Object bean = dataProvider.getListItemData(rowIndex); 
+        itemBinding.setBean(bean); 
+        boolean refreshed = false;         
         if ( !editorBeanLoaded ) 
         {
             itemBinding.update(); //clear change log
             itemBinding.setRoot(binding); 
             itemBinding.setTableModel(tableModel);
             itemBinding.setRowIndex(rowIndex);
-            itemBinding.setColumnIndex(colIndex); 
-            
-            Object bean = dataProvider.getListItemData(rowIndex); 
-            itemBinding.setBean(bean);
+            itemBinding.setColumnIndex(colIndex);             
             itemBinding.refresh();
             refreshed = true;
             editorBeanLoaded = true;
@@ -1052,6 +1051,7 @@ public class DataTableComponent extends JTable implements TableControl
         {
             if (!refreshed) ui.refresh();
             
+            UIInput uiinput = (UIInput) editor;
             selectAll(editor, e);
             if (editor instanceof XCheckBox) {
                 hideEditor(editor, rowIndex, colIndex, true, true); 
