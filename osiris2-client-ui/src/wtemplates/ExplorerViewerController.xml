@@ -9,19 +9,19 @@
     import com.rameses.osiris2.client.*;
     import com.rameses.osiris2.common.*;
 
-    class DefaultExplorerListViewController extends ExplorerListViewController
+    class DefaultExplorerListViewController extends ExplorerViewerController
     {
         @Controller
         def controller;
 
-        private String name;        
+        private String scheme;        
         private String serviceName;
 
-        String getName() {
-            if (name == null) name = controller?.workunit?.workunit?.properties?.name;
-            if (name == null) name = super.getName(); 
+        String getScheme() {
+            if (scheme == null) scheme = controller?.workunit?.workunit?.properties?.scheme;
+            if (scheme == null) scheme = super.getScheme(); 
             
-            return name;
+            return scheme;
         } 
         
         String getServiceName() {

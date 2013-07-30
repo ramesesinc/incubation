@@ -21,8 +21,9 @@ import java.util.Map;
  */
 public class Node 
 {
+    private Object item;    
     private String id = "NODE" + new UID();
-    private Object item;
+    private String nodeType;
     private String caption;
     private String tooltip;
     private String mnemonic;
@@ -30,7 +31,6 @@ public class Node
     private boolean dynamic;
     private boolean leaf;
     private boolean loaded;
-    private boolean hideItems;
         
     private List<NodeListener> listeners = new ArrayList();
     private Map properties = new HashMap(); 
@@ -69,7 +69,7 @@ public class Node
         this.icon = removeString(properties, "icon");
         this.dynamic = "true".equals(properties.remove("dynamic")+"");
         this.leaf = "true".equals(properties.remove("leaf")+"");
-        this.hideItems = "true".equals(properties.remove("hideItems")+"");
+        this.nodeType = removeString(properties, "nodetype"); 
     }
     
     // <editor-fold defaultstate="collapsed" desc=" Getters/Setters ">
@@ -78,6 +78,9 @@ public class Node
     public void setId(String id) { 
         this.id = (id == null? "NODE"+new UID(): id); 
     }
+    
+    public String getNodeType() { return nodeType; }
+    public void setNodeType(String nodeType) { this.nodeType = nodeType; }
     
     public String getCaption() {
         return (caption == null? id: caption); 
@@ -119,9 +122,6 @@ public class Node
     public void setLoaded(boolean loaded) { 
         this.loaded = loaded; 
     }
-    
-    public boolean isHideItems() { return hideItems; } 
-    public void setHideItems(boolean hideItems) { this.hideItems = hideItems; }
     
     public Map getProperties() { return properties; }
     public void setProperties(Map properties) { 

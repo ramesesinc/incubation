@@ -9,13 +9,10 @@
 
 package com.rameses.osiris2.common;
 
-import com.rameses.osiris2.client.InvokerUtil;
 import com.rameses.rcp.annotations.Caller;
-import com.rameses.rcp.common.Action;
 import com.rameses.rcp.common.Column;
 import com.rameses.rcp.common.Node;
 import com.rameses.rcp.common.Opener;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,9 +45,14 @@ public class ExplorerViewController extends ListController
     }
     
     public Object getSelectedNodeItem() {
-        ExplorerListViewModel handler = getTreeHandler();
-        return (handler==null? null: handler.getSelectedNodeItem()); 
+        Node node = getSelectedNode();
+        return (node == null? null: node.getItem()); 
     } 
+    
+    public String getSelectedNodeType() {
+        Node node = getSelectedNode();
+        return (node == null? null: node.getNodeType()); 
+    }
     
     public String getTitle() {
         Node selNode = getSelectedNode(); 
@@ -113,32 +115,18 @@ public class ExplorerViewController extends ListController
     
     // <editor-fold defaultstate="collapsed" desc=" Action Methods ">        
     
-    public Opener create() throws Exception 
-    {
-        String type = getNodeType();
-        if (type == null || type.length() == 0) type = getDefaultNodeType();
-
-        Map params = new HashMap();
-        params.put("treeHandler", getTreeHandler());
-        params.put("selectedNode", getSelectedNode()); 
-        params.put("selectedNodeItem", getSelectedNodeItem()); 
-        Opener opener = InvokerUtil.lookupOpener("explorer-"+type+":create", params); 
-        resolveTargetFromOpener(opener);
-        return opener;
-    }
-    
     public Object open() throws Exception 
     {
-        String type = getNodeType();
-        if (type == null || type.length() == 0) type = getDefaultNodeType();
-        
-        Map params = new HashMap();
-        params.put("treeHandler", getTreeHandler());
-        params.put("selectedNode", getSelectedNode()); 
-        params.put("selectedNodeItem", getSelectedNodeItem());         
-        Opener opener = InvokerUtil.lookupOpener("explorer-"+type+":open", params);
-        resolveTargetFromOpener(opener);
-        return opener;        
+//        String type = getNodeType();
+//        if (type == null || type.length() == 0) type = getDefaultNodeType();
+//        
+//        Map params = new HashMap();
+//        params.put("treeHandler", getTreeHandler());
+//        params.put("node", getSelectedNodeItem());
+//        Opener opener = InvokerUtil.lookupOpener("explorer-"+type+":open", params);
+//        resolveTargetFromOpener(opener);
+//        return opener;
+        return null; 
     }  
     
     private void resolveTargetFromOpener(Opener opener) {
@@ -155,18 +143,8 @@ public class ExplorerViewController extends ListController
     // <editor-fold defaultstate="collapsed" desc=" Form and Navigation Actions ">  
 
     public List getFormActions() {
-        if (formActions == null) {
-            formActions = new ArrayList();
-            formActions.add(createAction("create", "New", "images/toolbars/create.png", "ctrl N", 'n', null, true));       
-
-            Action a = createAction("open", "Open", "images/toolbars/open.png", "ctrl O", 'o', "#{selectedEntity != null}", true);
-            a.getProperties().put("depends", "selectedEntity");
-            formActions.add(a); 
-
-            ExplorerListViewModel handler = getTreeHandler();
-            if (handler != null) handler.getNodeActions(formActions);
-        } 
-        return formActions; 
+        ExplorerListViewModel handler = getTreeHandler();
+        return (handler == null? null: handler.getNodeActions());
     }
 
     // </editor-fold>    
@@ -187,11 +165,6 @@ public class ExplorerViewController extends ListController
     
     public void setTreeHandler(ExplorerListViewModel treeHandler) {
         this.treeHandler = treeHandler; 
-    }
-    
-    public String getDefaultNodeType() {
-        ExplorerListViewModel handler = getTreeHandler();
-        return (handler == null? null: handler.getType()); 
     }
     
     public String getNodeType() {

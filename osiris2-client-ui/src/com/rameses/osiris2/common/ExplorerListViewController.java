@@ -22,7 +22,7 @@ public abstract class ExplorerListViewController implements ExplorerListViewMode
     @Binding
     protected com.rameses.rcp.framework.Binding binding;
 
-    private String name = "explorer";
+    private String scheme = "explorer";
     private String type; 
     private String serviceName; 
     private Node selectedNode;
@@ -33,16 +33,12 @@ public abstract class ExplorerListViewController implements ExplorerListViewMode
         return (invoker == null? null: invoker.getCaption());
     }
    
-    public String getName() { return name; } 
-    
-    public String getType() { return type; } 
-    public void setType(String type) { this.type = type; }
+    public String getScheme() { return scheme; }     
+    public String getIcon() { return "Tree.closedIcon"; } 
 
     public boolean isRootVisible() { return false; } 
     public boolean isAllowSearch() { return true; } 
-    
-    public String getIcon() { return "Tree.closedIcon"; } 
-    
+        
     public Object getNodeModel() { 
         return getTreeNodeModel(); 
     }
@@ -99,9 +95,9 @@ public abstract class ExplorerListViewController implements ExplorerListViewMode
         return actions;  
     }  
     
-    public List lookupOpeners(String type) { 
+    public List lookupOpeners(String type, Map params) { 
         try { 
-            return InvokerUtil.lookupOpeners(type, null, new InvokerFilter() {
+            return InvokerUtil.lookupOpeners(type, params, new InvokerFilter() {
                 public boolean accept(com.rameses.osiris2.Invoker o) { 
                     return o.getWorkunitid().equals(invoker.getWorkunitid()); 
                 } 
@@ -120,28 +116,23 @@ public abstract class ExplorerListViewController implements ExplorerListViewMode
         Node selNode = getSelectedNode();
         if (selNode == null) return actions;
         
-        addActionOpeners(actions, lookupOpeners("formActions"));
+        Map params = new HashMap();
+        params.put("node", selNode.getItem()); 
+        addActionOpeners(actions, lookupOpeners("formActions", params));
         
-        List<String> types = new ArrayList(); 
-        if ("search".equals(selNode.getPropertyString("name"))) {
-            //do nothing
-        } else { 
-            types.add(getType()); 
-        }
+        try {
+            List openers = InvokerUtil.lookupOpeners(getScheme()+":formActions", params); 
+            addActionOpeners(actions, openers); 
+        } catch(Throwable t) {;} 
         
-        String type = selNode.getPropertyString("type");
-        if (type != null && !types.contains(type)) types.add(type);
-
-        while (!types.isEmpty()) {
-            type = types.remove(0);
-            if (type == null || type.length() == 0) continue;
-            
+        String type = selNode.getNodeType();
+        if (type != null || type.length() > 0) {
             try { 
-                List openers = InvokerUtil.lookupOpeners(type+":formActions"); 
+                List openers = InvokerUtil.lookupOpeners(type+":formActions", params); 
                 addActionOpeners(actions, openers); 
             } catch(Throwable t) {;} 
-        }
-        return actions;         
+        } 
+        return actions; 
     }
     
     private void addActionOpeners(List<Action> actions, List openers) {
@@ -165,10 +156,9 @@ public abstract class ExplorerListViewController implements ExplorerListViewMode
         if (node == null) return null;
         
         Map params = new HashMap(); 
-        params.put("treeHandler", this); 
-        params.put("selectedNode", getSelectedNode());
+        params.put("node", getSelectedNode());
 
-        String invokerType = getName() + "-listview:open";
+        String invokerType = "explorer-listview:open";
         openerObj = InvokerUtil.lookupOpener(invokerType, params); 
         if (binding != null) binding.refresh("subform");         
 
@@ -182,7 +172,7 @@ public abstract class ExplorerListViewController implements ExplorerListViewMode
         params.put("treeHandler", this); 
         params.put("selectedNode", getSelectedNode());
 
-        String invokerType = getName() + "-listview:open";
+        String invokerType = "explorer-listview:open";
         openerObj = InvokerUtil.lookupOpener(invokerType, params); 
         if (binding != null) binding.refresh("subform"); 
 
@@ -250,22 +240,26 @@ public abstract class ExplorerListViewController implements ExplorerListViewMode
     private class ActionOpener extends Action 
     {
         private com.rameses.osiris2.Invoker invoker;
+        private Opener opener;
         
         ActionOpener(Opener opener) {
+            this.opener = opener;
             this.invoker = (com.rameses.osiris2.Invoker) opener.getProperties().get("_INVOKER_");
             setName(opener.getAction()); 
-            setCaption(opener.getCaption()); 
+            setCaption(opener.getCaption());
+            getProperties().putAll(opener.getProperties());
+            setVisibleWhen((String) opener.getProperties().get("visibleWhen")); 
         }
         
         public Object execute() { 
-            Opener o = InvokerUtil.createOpener(invoker);
-            if (o == null) return null;
+//            Opener o = InvokerUtil.createOpener(invoker);
+//            if (o == null) return null;
             
-            String target = o.getTarget()+"";
+            String target = opener.getTarget()+"";
             if (!target.matches("window|popup|process|_window|_popup|_process")) {
-                o.setTarget("popup"); 
+                opener.setTarget("popup"); 
             }
-            return o;  
+            return opener;  
         }
     }
     

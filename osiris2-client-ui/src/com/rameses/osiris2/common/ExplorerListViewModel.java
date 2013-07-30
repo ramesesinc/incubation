@@ -19,10 +19,6 @@ import java.util.List;
  */
 public interface ExplorerListViewModel {
 
-    String getName();
-    
-    String getType();
-    
     String getServiceName();
     
     Node getSelectedNode(); 
