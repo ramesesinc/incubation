@@ -183,8 +183,7 @@ public class XTree extends JTree implements UIControl
         else {
             setRootVisible(nodeModel.isRootVisible()); 
         }
-
-        rootNode.setId("root");
+        
         root = new DefaultNode(rootNode); 
         model = new DefaultTreeModel(root, true);
         //treat items w/ no children as folders unless explicitly defined as leaf
@@ -209,7 +208,7 @@ public class XTree extends JTree implements UIControl
             if (SwingUtilities.isLeftMouseButton(me)) {
                 if (me.getClickCount() == 2) {
                     fireOpenSelectedNode();
-                } else { 
+                } else if (nodeModel != null && nodeModel.isAllowOpenOnSingleClick()) { 
                     fireOpenSelectedNode(); 
                 } 
             } 
