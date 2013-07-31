@@ -18,6 +18,7 @@ public abstract class AbstractTreeNodeModel
     public String getIcon() { return null; } 
     
     public boolean isRootVisible() { return true; } 
+    public boolean isAllowOpenOnSingleClick() { return true; } 
     
     public Node getRootNode() {
         return new Node("root", "All");
