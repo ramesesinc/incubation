@@ -582,7 +582,8 @@ public class DataTableComponent extends JTable implements TableControl
         {
             //Point point = (Point) currentEditor.getClientProperty(COLUMN_POINT);
             if (rowIndex != oldRowIndex || columnIndex != oldColIndex) {
-                hideEditor(currentEditor, oldRowIndex, oldColIndex, true, true);
+                boolean success = hideEditor(currentEditor, oldRowIndex, oldColIndex, true, true);
+                if (!success) return; 
             }            
         }
 
@@ -924,7 +925,7 @@ public class DataTableComponent extends JTable implements TableControl
         hideEditor(currentEditor, point.y, point.x, commit, grabFocus);
     }
     
-    private void hideEditor(JComponent editor, int rowIndex, int colIndex, boolean commit, boolean grabFocus) 
+    private boolean hideEditor(JComponent editor, int rowIndex, int colIndex, boolean commit, boolean grabFocus) 
     {
         if (editor instanceof SelectionCellEditor) commit = false;        
         /*
@@ -936,33 +937,45 @@ public class DataTableComponent extends JTable implements TableControl
             UIInput uiinput = (UIInput) editor;
             uiinput.putClientProperty("cellEditorValue", uiinput.getValue()); 
         }
-                
+        
+        InputVerifier inputVerifier = editor.getInputVerifier();
         editor.setVisible(false);
         editor.setInputVerifier(null);
         editingMode = false;        
         currentEditor = null;
         
-        if (commit) 
-        {
+        if (commit) {
             Object value = editor.getClientProperty("cellEditorValue"); 
             tableModel.setBinding(itemBinding); 
             tableModel.setValueAt(value, rowIndex, colIndex); 
 
-            try 
-            {
-                if (editorModel != null) 
-                {
+            boolean hasErrors = false;
+            try {
+                if (editorModel != null) {
                     ListItem oListItem = editorModel.getListItem(editingRow);
                     editorModel.fireColumnUpdate(oListItem);
                 }
             } 
             catch(Exception ex) {
-                MsgBox.alert(ex);
+                hasErrors = true;
+                MsgBox.err(ex);
             }
+            
+            if (hasErrors) { 
+                itemBinding.getChangeLog().undo();                 
+                editor.setVisible(true);
+                editor.setInputVerifier(inputVerifier); 
+                editingMode = true;
+                currentEditor = editor; 
+                currentEditor.grabFocus(); 
+                return false; 
+            }            
         }
         
         tableModel.fireTableRowsUpdated(rowIndex, rowIndex); 
         if (grabFocus) grabFocus(); 
+        
+        return true;
     } 
     
     public void clearEditors() { 
