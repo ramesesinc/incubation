@@ -341,7 +341,8 @@ public class XTree extends JTree implements UIControl
             Node[] nodes = nodeModel.fetchNodes(node);            
             if (nodes == null) return;
 
-            super.removeAllChildren();             
+            super.removeAllChildren(); 
+            nodeModel.initChildNodes(nodes); 
             for (Node n: nodes) { 
                 if (n == null) continue; 
                 
