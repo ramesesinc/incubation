@@ -29,6 +29,7 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Map;
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
@@ -184,6 +185,7 @@ public class XTree extends JTree implements UIControl
             setRootVisible(nodeModel.isRootVisible()); 
         }
         
+        rootNode.setNodemask(Node.ROOT); 
         root = new DefaultNode(rootNode); 
         model = new DefaultTreeModel(root, true);
         //treat items w/ no children as folders unless explicitly defined as leaf
@@ -338,10 +340,35 @@ public class XTree extends JTree implements UIControl
             Node node = getNode();
             if (node != null && node.isLeaf()) return;
             
-            Node[] nodes = nodeModel.fetchNodes(node);            
+            Node[] nodes = null;
+            Object onodes = node.getProperties().remove("childnodes");
+            if (onodes instanceof List) {
+                List list = (List) onodes; 
+                int index = 0;
+                nodes = new Node[list.size()];
+                while (!list.isEmpty()) {
+                    nodes[index] = new Node((Map) list.remove(0)); 
+                    nodes[index].getProperties().put("Node.static", true); 
+                    index++;
+                }
+            }
+            
+            if (nodes == null) nodes = nodeModel.fetchNodes(node); 
             if (nodes == null) return;
 
             super.removeAllChildren(); 
+            List<Node> qualifiedNodes = new ArrayList();
+            for (Node child: nodes) { 
+                int cnodemask = child.getNodemask(); 
+                if ((cnodemask & Node.ROOT)==Node.ROOT && node.getParent() == null) {
+                    qualifiedNodes.add(child); 
+                }
+                else {
+                    qualifiedNodes.add(child);
+                }
+            } 
+            
+            nodes = qualifiedNodes.toArray(new Node[]{}); 
             nodeModel.initChildNodes(nodes); 
             for (Node n: nodes) { 
                 if (n == null) continue; 

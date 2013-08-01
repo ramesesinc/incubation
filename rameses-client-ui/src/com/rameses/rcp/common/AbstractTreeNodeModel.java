@@ -53,8 +53,6 @@ public abstract class AbstractTreeNodeModel
         return (provider == null? new ArrayList(): provider.children()); 
     }
     
-    
-    
     public static interface Provider 
     {
         Node getSelectedNode(); 
