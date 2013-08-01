@@ -23,7 +23,6 @@ public class Node
 {
     private Object item;    
     private String id = "NODE" + new UID();
-    private String nodeType;
     private String caption;
     private String tooltip;
     private String mnemonic;
@@ -69,7 +68,6 @@ public class Node
         this.icon = removeString(properties, "icon");
         this.dynamic = "true".equals(properties.remove("dynamic")+"");
         this.leaf = "true".equals(properties.remove("leaf")+"");
-        this.nodeType = removeString(properties, "nodetype"); 
     }
     
     // <editor-fold defaultstate="collapsed" desc=" Getters/Setters ">
@@ -78,9 +76,6 @@ public class Node
     public void setId(String id) { 
         this.id = (id == null? "NODE"+new UID(): id); 
     }
-    
-    public String getNodeType() { return nodeType; }
-    public void setNodeType(String nodeType) { this.nodeType = nodeType; }
     
     public String getCaption() {
         return (caption == null? id: caption); 

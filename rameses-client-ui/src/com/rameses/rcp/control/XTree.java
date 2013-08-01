@@ -335,6 +335,9 @@ public class XTree extends JTree implements UIControl
         }
         
         public void loadChildren() {
+            Node node = getNode();
+            if (node != null && node.isLeaf()) return;
+            
             Node[] nodes = nodeModel.fetchNodes(node);            
             if (nodes == null) return;
 
