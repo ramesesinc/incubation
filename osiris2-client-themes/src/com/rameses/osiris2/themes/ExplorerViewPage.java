@@ -46,7 +46,7 @@ public class ExplorerViewPage extends javax.swing.JPanel {
         add(jPanel1, java.awt.BorderLayout.NORTH);
 
         jSplitPane1.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        jSplitPane1.setDividerLocation(150);
+        jSplitPane1.setDividerLocation(250);
         jSplitPane1.setName("body");
         pnlView.setLayout(new java.awt.BorderLayout());
 
