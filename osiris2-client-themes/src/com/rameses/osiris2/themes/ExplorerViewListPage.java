@@ -79,6 +79,7 @@ public class ExplorerViewListPage extends javax.swing.JPanel {
         jPanel2.add(jPanel3, java.awt.BorderLayout.NORTH);
 
         xActionBar2.setDepends(new String[] {"selectedEntity"});
+        xActionBar2.setDynamic(true);
         xActionBar2.setName("formActions");
         jPanel2.add(xActionBar2, java.awt.BorderLayout.SOUTH);
 
