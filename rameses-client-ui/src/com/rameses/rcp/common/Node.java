@@ -9,7 +9,6 @@
 
 package com.rameses.rcp.common;
 
-import com.rameses.common.NodeMask;
 import java.rmi.server.UID;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,7 +19,7 @@ import java.util.Map;
  *
  * @author elmo
  */
-public class Node implements NodeMask
+public class Node 
 {
     private Object item;    
     private String id = "NODE" + new UID();
@@ -31,7 +30,6 @@ public class Node implements NodeMask
     private boolean dynamic;
     private boolean leaf;
     private boolean loaded;
-    private int nodemask = CHILD;
     
     private List<NodeListener> listeners = new ArrayList();
     private Map properties = new HashMap(); 
@@ -62,26 +60,19 @@ public class Node implements NodeMask
             throw new NullPointerException("props parameter is required in the Node object");
             
         properties.putAll(props);
-        Object childnodes = props.remove("childnodes"); 
-        if (!(childnodes instanceof List)) {
-            if (childnodes != null) 
-                props.put("childnodes", childnodes); 
-        }
-        
         this.item = props; 
         this.id = resolveId(properties.remove("id")); 
         this.caption = removeString(properties, "caption");
         this.mnemonic = removeString(properties, "mnemonic");
         this.tooltip = removeString(properties, "tooltip");
         this.icon = removeString(properties, "icon");
-        this.dynamic = "true".equals(properties.remove("dynamic")+"");
-        this.leaf = "true".equals(properties.remove("leaf")+"");
+        this.dynamic = "true".equals(removeString(properties,"dynamic"));
         
-        int mask = removeInt(properties, "nodemask"); 
-        if (mask > 0) {
-            this.nodemask = mask;
-            this.leaf = (mask & LEAF)>0;
-        } 
+        Object value = properties.get("folder");
+        this.leaf = (value == null? false: !"true".equals(value.toString())); 
+        
+        String sleaf = removeString(properties,"leaf");
+        if (sleaf != null && "true".equals(sleaf)) this.leaf = true; 
     } 
     
     // <editor-fold defaultstate="collapsed" desc=" Getters/Setters ">
@@ -149,9 +140,6 @@ public class Node implements NodeMask
         Object o = getProperties().get(name); 
         return (o == null? null: o.toString()); 
     }
-    
-    public int getNodemask() { return nodemask; } 
-    public void setNodemask(int nodemask) { this.nodemask = nodemask; } 
     
     // </editor-fold>    
             

@@ -60,7 +60,11 @@ public class UIControllerContext {
     
     public UIViewPanel getView(String name) {
         if ( !viewCache.containsKey(name) ) {
-            viewCache.put(name, buildViewPanel( viewSource.get(name) ));
+            View view = viewSource.get(name);
+            if (view == null) 
+                throw new NullPointerException("'"+name+"' page view not found");
+            
+            viewCache.put(name, buildViewPanel(view));
         }
         return viewCache.get(name);
     }
