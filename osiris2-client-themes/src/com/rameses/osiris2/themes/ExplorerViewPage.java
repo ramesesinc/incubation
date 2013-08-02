@@ -1,22 +1,24 @@
 /*
- * ExplorerViewContentPage.java
+ * ListPage.java
  *
- * Created on July 25, 2013, 5:25 PM
+ * Created on April 24, 2013, 12:44 PM
  */
 
 package com.rameses.osiris2.themes;
 
-import com.rameses.rcp.control.border.XToolbarBorder;
 import java.awt.Font;
 
-
+/**
+ *
+ * @author  wflores
+ */
 public class ExplorerViewPage extends javax.swing.JPanel {
     
     public ExplorerViewPage() {
         initComponents();
-        lblTitle.setFont(Font.decode("-bold-18"));
+        //lblTitle.setFont(Font.decode("-bold-18"));
     }
-    
+
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -25,53 +27,61 @@ public class ExplorerViewPage extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
         jPanel1 = new javax.swing.JPanel();
-        lblTitle = new com.rameses.rcp.control.XLabel();
-        xHorizontalPanel1 = new com.rameses.rcp.control.XHorizontalPanel();
-        xabFormActions = new com.rameses.rcp.control.XActionBar();
-        xabNavActions = new com.rameses.rcp.control.XActionBar();
-        xDataTable1 = new com.rameses.rcp.control.XDataTable();
+        jPanel2 = new javax.swing.JPanel();
+        jSplitPane1 = new javax.swing.JSplitPane();
+        pnlView = new javax.swing.JPanel();
+        xSubFormPanel1 = new com.rameses.rcp.control.XSubFormPanel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        xTree1 = new com.rameses.rcp.control.XTree();
 
         setLayout(new java.awt.BorderLayout());
 
         jPanel1.setLayout(new java.awt.BorderLayout());
 
-        lblTitle.setBackground(new java.awt.Color(255, 255, 255));
-        lblTitle.setExpression("#{title}");
-        lblTitle.setOpaque(true);
-        lblTitle.setPadding(new java.awt.Insets(5, 7, 5, 5));
-        jPanel1.add(lblTitle, java.awt.BorderLayout.NORTH);
+        jPanel1.setName("header");
+        jPanel2.setLayout(new java.awt.BorderLayout());
 
-        xHorizontalPanel1.setBorder(new XToolbarBorder());
-        xabFormActions.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 5, 0, 5));
-        xabFormActions.setDepends(new String[] {"selectedEntity"});
-        xabFormActions.setName("formActions");
-        xabFormActions.setShowCaptions(false);
-        xHorizontalPanel1.add(xabFormActions);
-
-        xabNavActions.setBorder(null);
-        xabNavActions.setDepends(new String[] {"selectedEntity"});
-        xabNavActions.setName("navActions");
-        xabNavActions.setShowCaptions(false);
-        xHorizontalPanel1.add(xabNavActions);
-
-        jPanel1.add(xHorizontalPanel1, java.awt.BorderLayout.SOUTH);
+        jPanel1.add(jPanel2, java.awt.BorderLayout.NORTH);
 
         add(jPanel1, java.awt.BorderLayout.NORTH);
 
-        xDataTable1.setHandler("listHandler");
-        xDataTable1.setName("selectedEntity");
-        add(xDataTable1, java.awt.BorderLayout.CENTER);
+        jSplitPane1.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        jSplitPane1.setDividerLocation(150);
+        jSplitPane1.setName("body");
+        pnlView.setLayout(new java.awt.BorderLayout());
+
+        pnlView.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        xSubFormPanel1.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        xSubFormPanel1.setDynamic(true);
+        xSubFormPanel1.setHandler("openerObject");
+        xSubFormPanel1.setName("subform");
+        pnlView.add(xSubFormPanel1, java.awt.BorderLayout.CENTER);
+
+        jSplitPane1.setRightComponent(pnlView);
+
+        com.rameses.rcp.control.border.XLineBorder xLineBorder1 = new com.rameses.rcp.control.border.XLineBorder();
+        xLineBorder1.setLineColor(java.awt.SystemColor.controlShadow);
+        jScrollPane1.setBorder(xLineBorder1);
+        xTree1.setHandler("nodeModel");
+        xTree1.setName("selectedNode");
+        jScrollPane1.setViewportView(xTree1);
+
+        jSplitPane1.setLeftComponent(jScrollPane1);
+
+        add(jSplitPane1, java.awt.BorderLayout.CENTER);
 
     }// </editor-fold>//GEN-END:initComponents
+
     
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel jPanel1;
-    private com.rameses.rcp.control.XLabel lblTitle;
-    private com.rameses.rcp.control.XDataTable xDataTable1;
-    private com.rameses.rcp.control.XHorizontalPanel xHorizontalPanel1;
-    private com.rameses.rcp.control.XActionBar xabFormActions;
-    private com.rameses.rcp.control.XActionBar xabNavActions;
+    private javax.swing.JPanel jPanel2;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JSplitPane jSplitPane1;
+    private javax.swing.JPanel pnlView;
+    private com.rameses.rcp.control.XSubFormPanel xSubFormPanel1;
+    private com.rameses.rcp.control.XTree xTree1;
     // End of variables declaration//GEN-END:variables
     
 }
