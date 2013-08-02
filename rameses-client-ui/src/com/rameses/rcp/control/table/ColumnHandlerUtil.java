@@ -15,6 +15,7 @@ import com.rameses.rcp.common.ComboBoxColumnHandler;
 import com.rameses.rcp.common.DateColumnHandler;
 import com.rameses.rcp.common.DecimalColumnHandler;
 import com.rameses.rcp.common.DoubleColumnHandler;
+import com.rameses.rcp.common.IconColumnHandler;
 import com.rameses.rcp.common.IntegerColumnHandler;
 import com.rameses.rcp.common.LookupColumnHandler;
 import com.rameses.rcp.common.TextColumnHandler;
@@ -103,6 +104,13 @@ class ColumnHandlerUtil
             oHandler.setExpression(oColumn.getExpression()); 
             return oHandler;
         } 
+        else if ("icon".equals(stype)) 
+        {
+            IconColumnHandler oHandler = new IconColumnHandler();
+            oColumn.setEditable(false);
+            oColumn.setEditableWhen(null); 
+            return oHandler;
+        }        
         else 
         {
             TextColumnHandler oHandler = new TextColumnHandler(); 
@@ -119,6 +127,18 @@ class ColumnHandlerUtil
             oColumn.setMinWidth(30);
             oColumn.setMaxWidth(30);
             oColumn.setEditable(true);
+        }
+        else if (handler instanceof IconColumnHandler) {
+            oColumn.setEditable(false);
+            oColumn.setEditableWhen(null);
+        }
+        
+        if (!oColumn.isResizable()) {
+            int width = oColumn.getWidth();
+            if (width > 0) {
+                oColumn.setMinWidth(width);
+                oColumn.setMaxWidth(width); 
+            }
         }
     }
     

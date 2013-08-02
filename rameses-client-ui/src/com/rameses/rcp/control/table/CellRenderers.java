@@ -35,6 +35,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -364,14 +365,18 @@ public class CellRenderers {
                 label.setText(oTextCase.convert(columnValue.toString()));
             
             label.setHorizontalAlignment( SwingConstants.LEFT );
-            if ( columnValue != null && oColumn.isHtmlDisplay() )
-                columnValue = "<html>" + columnValue + "</html>";
-            
-            label.setText((columnValue == null ? "" : columnValue.toString()));
-            
             //set alignment if it is specified in the Column model
             if ( oColumn.getAlignment() != null )
                 getComponentSupport().alignText(label, oColumn.getAlignment());
+            
+            setValue(label, oColumn, columnValue);
+        }
+        
+        protected void setValue(JLabel label, Column oColumn, Object value) {
+            if ( value != null && oColumn.isHtmlDisplay() )
+                value = "<html>" + value + "</html>";
+                        
+            label.setText((value == null ? "" : value.toString()));
         }
     }
     
@@ -597,4 +602,17 @@ public class CellRenderers {
     }
     
     // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc="  IconRenderer (class)  ">
+    
+    public static class IconRenderer extends TextRenderer {        
+        protected void setValue(JLabel label, Column oColumn, Object value) {
+            label.setText("");
+            String sicon = (value==null? null: value.toString());
+            ImageIcon iicon = ControlSupport.getImageIcon(sicon); 
+            label.setIcon(iicon); 
+        }
+    }
+    
+    // </editor-fold>    
 }

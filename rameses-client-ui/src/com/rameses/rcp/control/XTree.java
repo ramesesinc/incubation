@@ -354,6 +354,19 @@ public class XTree extends JTree implements UIControl
                 }                
                 this.add(new DefaultNode(n, pnode)); 
             } 
+            
+//            if (getParent() == null && nodes.length > 0) {
+//                //autofocus on the first node
+//                EventQueue.invokeLater(new Runnable() {
+//                    public void run() {
+//                        try { 
+//                            DefaultNode.this.nodes[0].open(); 
+//                        } catch(Throwable t) {
+//                            MsgBox.err(t);
+//                        }
+//                    }
+//                });
+//            }
         }
         
         public void reload() {
