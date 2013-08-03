@@ -12,6 +12,7 @@ import com.rameses.util.IgnoreException;
 import com.rameses.util.ValueUtil;
 import java.beans.Beans;
 import java.lang.reflect.Method;
+import java.util.List;
 import javax.swing.JComponent;
 
 /**
@@ -57,8 +58,17 @@ public class UICommandUtil {
             } 
             else if ( action != null ) 
             {
-                if ( !action.startsWith("_")) 
-                {
+                Action oAction = (Action) btn.getClientProperty(Action.class); 
+                Object value = (oAction == null? null: oAction.getProperties().get("Action.menus")); 
+                if (value instanceof List) {
+                    List<Action> actionList = (List) value;
+                    if (actionList.size() > 0) {
+                        if (actionList.size() == 1) {
+                            outcome = actionList.get(0).execute(); 
+                        }
+                    }
+                }
+                else if ( !action.startsWith("_")) {
                     Object[] actionParams = new Object[]{};
                     Object actionInvoker = btn.getClientProperty("Action.Invoker");
                     if (actionInvoker != null) actionParams = new Object[]{ actionInvoker };

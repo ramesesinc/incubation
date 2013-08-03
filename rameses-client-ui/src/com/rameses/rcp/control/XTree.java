@@ -461,6 +461,7 @@ public class XTree extends JTree implements UIControl
     private class NodeTreeRenderer extends DefaultTreeCellRenderer 
     {  
         XTree root = XTree.this;
+        private Icon defaultIcon;
 
         public Component getTreeCellRendererComponent(JTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) 
         {
@@ -470,14 +471,16 @@ public class XTree extends JTree implements UIControl
             super.setBorder( BorderFactory.createEmptyBorder(2,2,2,5) );
             if (root.nodeModel == null) return this;
             
-            Icon oIcon = lookupIcon(root.nodeModel.getIcon());
-            if (oIcon != null) setIcon(oIcon);
+            if (defaultIcon == null) 
+                defaultIcon = lookupIcon(root.nodeModel.getIcon());
+            
+            if (defaultIcon != null) setIcon(defaultIcon);
             
             if (value != null && (value instanceof DefaultNode)) {
                 Node n = ((DefaultNode)value).getNode();
                 if (n != null) {
                     if (n.getIcon() != null) {
-                        oIcon = lookupIcon(n.getIcon());
+                        Icon oIcon = lookupIcon(n.getIcon());
                         if (oIcon != null) super.setIcon(oIcon);
                     }
                     

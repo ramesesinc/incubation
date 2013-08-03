@@ -35,6 +35,7 @@ public class Action implements Comparable<Action>
     private String domain;
     private boolean showCaption;
 
+    private ActionHandler actionHandler;
     private Action parent;    
     private Map properties = new Hashtable();    
     private Map parameters = new HashMap();
@@ -211,6 +212,10 @@ public class Action implements Comparable<Action>
         this.showCaption = showCaption;
     }     
     
+    public void setActionHandler(ActionHandler actionHandler) {
+        this.actionHandler = actionHandler; 
+    }
+    
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" clone utility "> 
@@ -261,6 +266,14 @@ public class Action implements Comparable<Action>
         map.put("showCaption", isShowCaption());
         map.put("parent", getParent());
         return map;
+    }
+    
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" ActionHandler interface "> 
+    
+    public static interface ActionHandler {
+        Object execute(Action action); 
     }
     
     // </editor-fold>

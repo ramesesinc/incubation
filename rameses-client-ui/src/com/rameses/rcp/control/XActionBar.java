@@ -187,6 +187,7 @@ public class XActionBar extends JPanel implements UIComposite
                 XButton btn = createButton(action);
                 Object actionInvoker = action.getProperties().get("Action.Invoker");
                 btn.putClientProperty("Action.Invoker", actionInvoker); 
+                btn.putClientProperty(Action.class, action); 
                 buttons.add(btn); 
             }
         }
@@ -308,6 +309,7 @@ public class XActionBar extends JPanel implements UIComposite
     private void buildToolbar() 
     {
         if ( dirty ) toolbarComponent.removeAll();
+        if (isDynamic()) buildButtons(); 
         
         ExpressionResolver expResolver = ExpressionResolver.getInstance();
         for (XButton btn: buttons) 

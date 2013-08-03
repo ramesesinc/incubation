@@ -173,6 +173,15 @@ public final class ControlSupport {
         nh.navigate(navPanel, source, outcome);
     }
     
+    public static boolean isResourceExist( String name ) {
+        try {
+            InputStream is = ClientContext.getCurrentContext().getResourceProvider().getResource(name);
+            return (is != null); 
+        } catch(Throwable t) {
+            return false; 
+        }
+    }
+    
     public static byte[] getByteFromResource( String name ) {
         if(name==null || name.trim().length()==0)
             return null;
@@ -212,6 +221,7 @@ public final class ControlSupport {
     
     public static Opener initOpener( Opener opener, UIController caller, boolean invokeOpenerAction ) 
     {
+        Object invoker = opener.getProperties().get("_INVOKER_");        
         if ( caller != null && ValueUtil.isEmpty(opener.getName()) ) 
         {
             opener.setController( caller );
@@ -234,7 +244,6 @@ public final class ControlSupport {
                 injectCaller( callee, callee.getClass(), caller.getCodeBean());
             }
             
-            Object invoker = opener.getProperties().get("_INVOKER_");
             if (invoker != null) {
                 injectInvoker(callee, callee.getClass(), invoker); 
             }
@@ -245,8 +254,8 @@ public final class ControlSupport {
             {
                 Object[] actionParams = new Object[]{};
                 if (invoker != null) actionParams = new Object[]{ invoker };
-                
-                Object o = controller.init(opener.getParams(), opener.getAction(), actionParams);
+
+                Object o = opener.getController().init(opener.getParams(), opener.getAction(), actionParams);
                 if ( o == null ) {;} 
                 else if ( o instanceof String ) {
                     opener.setOutcome( (String)o );
@@ -258,7 +267,7 @@ public final class ControlSupport {
                     Opener oo = (Opener) o;
                     opener = initOpener(oo, oo.getController(), invokeOpenerAction);
                 }
-            }
+            }            
         }
         
         UIController controller = opener.getController();

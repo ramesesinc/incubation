@@ -189,6 +189,15 @@ public class Node
         }
     }    
     
+    protected void finalize() throws Throwable {
+        super.finalize();        
+        properties.clear();
+        properties = null;
+        listeners.clear();
+        listeners = null; 
+        item = null; 
+    } 
+    
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc=" proxying Provider methods ">   
