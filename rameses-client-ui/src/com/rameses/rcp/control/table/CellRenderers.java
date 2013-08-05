@@ -16,6 +16,7 @@ import com.rameses.rcp.common.Column;
 import com.rameses.rcp.common.ComboBoxColumnHandler;
 import com.rameses.rcp.common.DateColumnHandler;
 import com.rameses.rcp.common.DecimalColumnHandler;
+import com.rameses.rcp.common.IconColumnHandler;
 import com.rameses.rcp.common.IntegerColumnHandler;
 import com.rameses.rcp.common.LookupColumnHandler;
 import com.rameses.rcp.common.OpenerColumnHandler;
@@ -608,9 +609,23 @@ public class CellRenderers {
     public static class IconRenderer extends TextRenderer {        
         protected void setValue(JLabel label, Column oColumn, Object value) {
             label.setText("");
-            String sicon = (value==null? null: value.toString());
-            ImageIcon iicon = ControlSupport.getImageIcon(sicon); 
-            label.setIcon(iicon); 
+            Object itemData = getContext().getItemData();
+            if (itemData == null) {
+                label.setIcon(null); 
+            }
+            else if (value != null) {
+                ImageIcon iicon = ControlSupport.getImageIcon(value.toString()); 
+                label.setIcon(iicon);                 
+            }
+            else { 
+                IconColumnHandler ich = (IconColumnHandler) oColumn.getTypeHandler(); 
+                Object ichvalue = ich.getValue(itemData);
+                if (ichvalue instanceof ImageIcon) {
+                    label.setIcon((ImageIcon) ichvalue); 
+                } else { 
+                    label.setIcon(null); 
+                }
+            } 
         }
     }
     

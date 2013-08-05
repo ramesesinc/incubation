@@ -32,6 +32,7 @@ public class AbstractTestCase extends TestCase {
         map.put("cluster", "osiris3");
         server = new CustomOsirisServer(getRootUrl(),map);
         OsirisServer.setInstance(server);
+        
     }
     
     

@@ -20,6 +20,8 @@ public class IconColumnHandler extends Column.TypeHandler implements PropertySup
     public IconColumnHandler(){
     } 
     
-    public String getType() { return "icon"; }    
+    public String getType() { return "icon"; }   
+    
+    public Object getValue(Object item) { return null; } 
     
 }

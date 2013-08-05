@@ -25,6 +25,7 @@ public class FieldToMap {
     
     public static Map convert( Map source, String excludeFields  ) {
         Map target = new LinkedHashMap();
+        if(source==null)return target;
         Map<String, Map> embeddedFields = new LinkedHashMap();
         for(Object o: source.entrySet() ) {
             Map.Entry me = (Map.Entry)o;

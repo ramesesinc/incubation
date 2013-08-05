@@ -19,24 +19,31 @@ import java.lang.reflect.Method;
  */
 public class ClassParser {
     
-      public static void parse( Class sc, Handler handler ) {
-        boolean proxyMethodExist = false;
+    public static void parse( Class sc, Handler handler ) {
+        //boolean proxyMethodExist = false;
         handler.start(sc);
-        
-        for( Method m : sc.getDeclaredMethods() ) {
+        parseMethods(sc, handler);
+        handler.end();
+    }
+    
+    
+    private static void parseMethods(Class clazz, Handler handler )  {
+        for( Method m : clazz.getDeclaredMethods() ) {
             if( m.isAnnotationPresent(ProxyMethod.class)) {
                 boolean isAsync = m.isAnnotationPresent(Async.class);
                 handler.handleMethod(  m.getName(), m.getParameterTypes(), m.getReturnType(), isAsync  );
             }
         }
-        handler.end();
+        //lookup superclass if any
+        if(clazz.getSuperclass()!=null && !clazz.getSuperclass().equals(java.lang.Object.class)) {
+            parseMethods( clazz.getSuperclass(), handler  );
+        }
     }
     
-      
     public static interface Handler {
         void start(Class c);
         void handleMethod(String methodName, Class[] paramTypes, Class returnType, boolean async);
-        void end();        
-    }  
+        void end();
+    }
     
 }

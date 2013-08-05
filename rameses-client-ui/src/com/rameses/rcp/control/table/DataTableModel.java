@@ -107,6 +107,7 @@ public class DataTableModel extends AbstractTableModel implements TableControlMo
             for (int i=0; i<list.size(); i++) { 
                 columns[i] = new Column(list.get(i)); 
             } 
+            columns = dataProvider.initColumns(columns); 
         }
         
         for (Column col : columns) {

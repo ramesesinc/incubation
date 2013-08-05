@@ -1,5 +1,6 @@
 package com.rameses.rcp.control.barcode;
 
+
 import com.rameses.util.ValueUtil;
 import java.awt.Image;
 import java.net.URL;
@@ -22,6 +23,7 @@ public class BarcodeModel {
     private String drawText = "false";
     
     public BarcodeModel() {
+        
     }
     
     //<editor-fold defaultstate="collapsed" desc=" Setter/Getter ">

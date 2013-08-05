@@ -70,7 +70,11 @@ public abstract class AbstractListDataProvider
     public List<Map> getColumnList() { return null; }
         
     public Column[] getColumns() { return columns; } 
-    public void setColumns(Column[] columns) { this.columns = columns; }    
+    public void setColumns(Column[] columns) { this.columns = columns; }   
+    
+    public Column[] initColumns(Column[] columns) {
+        return columns; 
+    }    
     
     // the data for the popup menu
     public List<Map> getContextMenu(Object item, String columnName) { 
@@ -558,6 +562,7 @@ public abstract class AbstractListDataProvider
         else
             return getSelectedItem().getItem(); 
     } 
+
     
     // </editor-fold>
     

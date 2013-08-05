@@ -23,16 +23,30 @@ public final class ClassDef {
         methods = new ArrayList<Method>();
         
         //parse annotated fields
+        scanFields(clazz);
+        scanMethods(clazz);
+    }
+    
+    private void scanFields( Class clazz ) {
         for(Field f: clazz.getDeclaredFields() ) {
             for(Annotation a: f.getAnnotations()) {
                 annotatedFields.add(new AnnotationField(f, a));
             }
+        }    
+        if( clazz.getSuperclass()!=null && !clazz.equals(java.lang.Object.class) ) {
+            scanFields( clazz.getSuperclass() );
         }
+    }
+    
+    private void scanMethods( Class clazz ) {
         for( Method m : clazz.getDeclaredMethods()) {
             for(Annotation a: m.getAnnotations()) {
                 annotatedMethods.add(new AnnotationMethod( m, a));
             }
             methods.add( m );
+        }
+        if( clazz.getSuperclass()!=null && !clazz.equals(java.lang.Object.class) ) {
+            scanMethods(clazz.getSuperclass());
         }
     }
     
