@@ -1,7 +1,7 @@
 /*
- * CrudService.java
+ * AbstractCrudListService.java
  *
- * Created on August 5, 2013, 9:36 AM
+ * Created on August 5, 2013, 12:26 PM
  *
  * To change this template, choose Tools | Template Manager
  * and open the template in the editor.
@@ -17,10 +17,7 @@ import java.util.List;
  *
  * @author Elmo
  */
-public abstract class AbstractListService implements IListListener {
-    
-    protected abstract Object getEm();
-    protected abstract String getSchemaName();
+public abstract class AbstractCrudListService extends AbstractCrudService  implements IListListener{
     
     public void beforeList(Object data){;}
     public void afterList(Object data, List list){;}
@@ -30,9 +27,12 @@ public abstract class AbstractListService implements IListListener {
     }
     
     @ProxyMethod
-    public Object getList(Object params) throws Exception {
-        return getListHelper().getList( params );
+    public Object getList(Object params) {
+        try {
+            return getListHelper().getList( params );
+        } catch(Exception ign){
+            throw new RuntimeException(ign);
+        }
     }
-    
     
 }
