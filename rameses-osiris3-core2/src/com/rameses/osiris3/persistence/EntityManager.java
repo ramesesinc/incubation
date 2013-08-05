@@ -39,6 +39,10 @@ public class EntityManager {
     private boolean debug;
     private boolean transactionOpen = false;
     
+    //if true, complex fields are separated by underscores.
+    //example : person.firstname will be person_firstname in db
+    private boolean resolveNested = true;
+    
     public EntityManager(SchemaManager scm, SqlContext sqlContext) {
         this.sqlContext= sqlContext;
         this.schemaManager = scm;
@@ -61,6 +65,9 @@ public class EntityManager {
     public Object create(String schemaName, Object data, Map vars) {
         Queue queue = null;
         try {
+            if(resolveNested) {
+                data = MapToField.convert( (Map) data);
+            }
             SchemaScanner scanner = schemaManager.newScanner();
             CreatePersistenceHandler handler = new CreatePersistenceHandler(schemaManager,sqlContext,data);
             Schema schema = schemaManager.getSchema( schemaName );
@@ -70,6 +77,9 @@ public class EntityManager {
             EntityManagerUtil.executeQueue(queue,sqlContext,vars,transactionOpen,debug);
         } catch(Exception ex) {
             throw new RuntimeException(ex);
+        }
+        if(resolveNested) {
+            data = FieldToMap.convert((Map)data);
         }
         return data;
     }
@@ -163,7 +173,7 @@ public class EntityManager {
                     }
                 }
             }
-            if(map.size()==0)
+            if(map.isEmpty())
                 data = null;
             else
                 data = map;
@@ -175,6 +185,10 @@ public class EntityManager {
             if(!transactionOpen) {
                 sqlContext.closeConnection();
             }
+        }
+        
+        if(data!=null && resolveNested) {
+            data = FieldToMap.convert((Map)data);
         }
         return data;
     }
@@ -204,7 +218,14 @@ public class EntityManager {
             vhandler.handle(changes);
         }
         
+        
+        
         oldData.putAll( (Map)data );
+        
+        if(resolveNested) {
+            oldData = MapToField.convert( (Map) oldData);
+        }
+        
         try {
             SchemaScanner scanner = schemaManager.newScanner();
             UpdatePersistenceHandler handler = new UpdatePersistenceHandler(schemaManager,sqlContext,oldData);
@@ -213,6 +234,10 @@ public class EntityManager {
             scanner.scan(schema,element,oldData,handler);
             Queue queue = handler.getQueue();
             EntityManagerUtil.executeQueue(queue,sqlContext,vars,transactionOpen,debug);
+            
+            if(resolveNested) {
+                oldData = FieldToMap.convert((Map)oldData);
+            }
             return oldData;
         } catch(Exception ex) {
             throw new RuntimeException(ex);
@@ -336,7 +361,7 @@ public class EntityManager {
     public Object save( String schemaName, Object data, boolean create, boolean update, Map vars, UpdateChangeHandler vhandler) {
         if(create==true && update==true) {
             Object test = read(schemaName, data, vars);
-            if(test==null) {
+            if(test==null ||  ((test instanceof Map) &&  ((Map)test).isEmpty() )) {
                 return create(schemaName, data, vars );
             } else {
                 return update(schemaName, data, vars, vhandler);
@@ -360,7 +385,7 @@ public class EntityManager {
     public Map mapToField(Map data) {
         return MapToField.convert( data, null );
     }
-
+    
     public Map mapToField(Map data, String excludeFields) {
         return MapToField.convert( data, excludeFields );
     }
@@ -371,6 +396,14 @@ public class EntityManager {
     
     public Map fieldToMap(Map data, String excludeFields) {
         return FieldToMap.convert( data, excludeFields );
+    }
+    
+    public boolean isResolveNested() {
+        return resolveNested;
+    }
+    
+    public void setResolveNested(boolean convertComplex) {
+        this.resolveNested = resolveNested;
     }
     
 }

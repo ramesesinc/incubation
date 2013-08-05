@@ -16,13 +16,12 @@ import com.rameses.osiris3.script.ExecutionInfo;
 import com.rameses.osiris3.script.ManagedScriptExecutor;
 import com.rameses.osiris3.script.ScriptInfo;
 import com.rameses.osiris3.core.TransactionContext;
+import com.rameses.osiris3.script.ScriptInvocation;
 import com.rameses.osiris3.script.ScriptTransactionManager;
 import com.rameses.osiris3.script.messaging.ScriptConnection;
 import com.rameses.osiris3.xconnection.XConnection;
 import com.rameses.util.ExceptionManager;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
 /**
@@ -33,20 +32,6 @@ public class ServiceDependencyHandler extends DependencyHandler {
     
     public Class getAnnotation() {
         return com.rameses.annotations.Service.class;
-    }
-    
-    
-    private class MyInvocation implements  InvocationHandler {
-        private ManagedScriptExecutor executor;
-        private boolean managed;
-        public MyInvocation(ManagedScriptExecutor executor, boolean managed) {
-            this.executor = executor;
-            this.managed = managed;
-        }
-        public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-            if( method.getName().equals("toString")) return executor.toString();
-            return executor.execute( method.getName(), args, managed );
-        }
     }
     
     public Object getResource(Annotation c, ExecutionInfo einfo) {
@@ -70,7 +55,7 @@ public class ServiceDependencyHandler extends DependencyHandler {
                 final ManagedScriptExecutor executor = smr.create( serviceName );
                 final boolean managed = s.managed();
                 ScriptInfo sinfo = executor.getScriptInfo();
-                return Proxy.newProxyInstance( sinfo.getInterfaceClass().getClassLoader(), new Class[]{sinfo.getInterfaceClass()}, new MyInvocation(executor,managed));
+                return Proxy.newProxyInstance( sinfo.getInterfaceClass().getClassLoader(), new Class[]{sinfo.getInterfaceClass()}, new ScriptInvocation(executor,managed));
             }
             else {
                 Class localIntf = s.localInterface();

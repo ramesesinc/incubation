@@ -65,8 +65,9 @@ public class StringInterface {
         public String toString() {
             if(!hasMethod)
                 return null;
-            else
+            else {
                 return sb.toString();
+            }    
         }
     }
     

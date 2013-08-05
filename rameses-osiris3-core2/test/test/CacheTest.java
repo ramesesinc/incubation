@@ -43,5 +43,6 @@ public class CacheTest extends AbstractTestCase{
         } finally {
             c.close();
         }
+        
     }
 }

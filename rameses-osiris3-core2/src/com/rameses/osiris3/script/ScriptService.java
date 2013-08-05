@@ -42,20 +42,31 @@ public class ScriptService extends ContextService {
     
     
     public ScriptInfo findScriptInfo( String name) {
-        if( context instanceof AppContext ) {
-            SharedContext sctx = ((AppContext)context).getSharedContext();
-            try {
-                if(sctx!=null)
-                    return sctx.getResource( ScriptInfo.class, name );
-                else
+        //if script info cannot be found, select in service provider
+        
+        try {
+            if( context instanceof AppContext ) {
+                SharedContext sctx = ((AppContext)context).getSharedContext();
+                try {
+                    if(sctx!=null)
+                        return sctx.getResource( ScriptInfo.class, name );
+                    else
+                        return context.getResource( ScriptInfo.class, name );
+                } catch(ResourceNotFoundException nfe) {
                     return context.getResource( ScriptInfo.class, name );
-            } catch(ResourceNotFoundException nfe) {
+                } catch(Exception e) {
+                    throw e;
+                }
+            } else {
                 return context.getResource( ScriptInfo.class, name );
-            } catch(Exception e) {
-                throw new RuntimeException(e);
             }
-        } else {
-            return context.getResource( ScriptInfo.class, name );
+        } 
+        catch(ResourceNotFoundException nfe) {
+            ScriptInfoScriptProviderService spe = new ScriptInfoScriptProviderService();
+            return spe.findResource( name );
+        } 
+        catch(Exception e) {
+            throw new RuntimeException(e.getMessage(), e);
         }
     }
     
@@ -64,7 +75,7 @@ public class ScriptService extends ContextService {
         return sinfo.newInstance();
     }
     
-  
+    
     
     
     public DependencyInjector getDependencyInjector() {
@@ -78,7 +89,7 @@ public class ScriptService extends ContextService {
     public InterceptorSet findInterceptors(AbstractContext ctx, String name) {
         return ctx.getResource(InterceptorSet.class, name);
     }
- 
+    
     
     
 }

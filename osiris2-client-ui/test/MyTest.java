@@ -1,6 +1,5 @@
 import com.rameses.custom.impl.GroovyExpressionResolver;
-import java.util.HashMap;
-import java.util.Map;
+import com.rameses.osiris2.common.ExplorerViewController;
 import junit.framework.*;
 /*
  * MyTest.java
@@ -27,11 +26,14 @@ public class MyTest extends TestCase {
     
     // TODO add test methods here. The name must begin with 'test'. For example:
     public void testHello() throws Exception {
+        /*
         GroovyExpressionResolver gr = new GroovyExpressionResolver();
         System.out.println("hi->"+com.rameses.functions.StringFunc.substr("cat is back",0,3));
         Map map = new HashMap();
         map.put( "x", 1 );
         System.out.println("->"+gr.evalString( "${ @substr('cat is back', 0, 3) }", map  ));
+         */
     }
 
+  
 }

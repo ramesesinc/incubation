@@ -30,6 +30,12 @@ public class ScriptInfoContextResource extends ContextResource {
         return ScriptInfo.class;
     }
     
+    public ScriptInfo parseScript(String name, InputStream is, URL u, AbstractContext ctx ) throws Exception {
+        GroovyClassLoader gc = (GroovyClassLoader)ctx.getClassLoader();
+        Class clazz = gc.parseClass( is );
+        return new ScriptInfo(name, u, clazz,  ctx, gc);
+    }
+    
     public ScriptInfo findResource(String name) {
         InputStream is = null;
         try {
@@ -38,9 +44,7 @@ public class ScriptInfoContextResource extends ContextResource {
                 throw new ResourceNotFoundException("File " + name + " not found" );
             
             is = u.openStream();
-            GroovyClassLoader gc = (GroovyClassLoader)context.getClassLoader();
-            Class clazz = gc.parseClass( is );
-            return new ScriptInfo(name, u, clazz,  context, gc);
+            return parseScript(name, is, u, context);
         } catch(ResourceNotFoundException rnfe) {
             throw rnfe;
         } catch(Exception e) {

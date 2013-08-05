@@ -395,7 +395,7 @@ public class Column implements Serializable
         private static final long serialVersionUID = 1L; 
         
         public abstract String getType(); 
-
+        
         public boolean equals(Object o) 
         {
             if (super.equals(o)) return true;
