@@ -142,7 +142,7 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
         setGridColor(new Color(235, 240, 244)); 
         setOddBackground(new Color(235, 240, 244)); 
         setEvenBackground(new Color(251, 251, 251)); 
-        setShowRowHeader(false); 
+        setShowRowHeader(true); 
         setShowHorizontalLines(true); 
         setShowVerticalLines(true);        
         setAutoResize(true);
