@@ -1,6 +1,10 @@
 package com.rameses.rcp.control;
 
+import com.rameses.rcp.common.MsgBox;
+import com.rameses.rcp.common.Opener;
+import com.rameses.rcp.common.PopupMenuOpener;
 import com.rameses.rcp.common.PropertySupport;
+import com.rameses.rcp.support.ImageIconSupport;
 import com.rameses.rcp.ui.ActiveControl;
 import com.rameses.rcp.ui.ControlProperty;
 import com.rameses.rcp.util.UICommandUtil;
@@ -8,14 +12,20 @@ import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.ui.UICommand;
 import com.rameses.rcp.util.UIControlUtil;
 import com.rameses.util.ValueUtil;
+import java.awt.Dimension;
+import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.Insets;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
 import javax.swing.KeyStroke;
 
 /**
@@ -82,8 +92,24 @@ public class XButton extends JButton implements UICommand, ActionListener, Activ
     }
     
     public void actionPerformed(ActionEvent e) {
-        UICommandUtil.processAction(this);
+        final Object outcome = UICommandUtil.processAction(this); 
+        if (outcome instanceof PopupMenuOpener) {
+            PopupMenuOpener menu = (PopupMenuOpener) outcome;
+            List<Opener> openers = menu.getOpeners(); 
+            if (openers == null || openers.isEmpty()) return;
+            
+            if (openers.size() == 1) {
+                UICommandUtil.processAction(XButton.this, getBinding(), openers.get(0));
+            } else { 
+                EventQueue.invokeLater(new Runnable() {
+                    public void run() { 
+                        show((PopupMenuOpener) outcome); 
+                    } 
+                }); 
+            }
+        }
     }
+    
     
     //<editor-fold defaultstate="collapsed" desc="  Getters/Setters  ">
     
@@ -176,5 +202,63 @@ public class XButton extends JButton implements UICommand, ActionListener, Activ
     public void setPropertyInfo(PropertySupport.PropertyInfo info) {}    
     
     // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" PopupMenu Support ">    
+
+    private JPopupMenu popup;
+    
+    protected void show(PopupMenuOpener menu) { 
+        if (popup == null) 
+            popup = new JPopupMenu(); 
+        else 
+            popup.setVisible(false); 
+        
+        popup.removeAll();         
+        for (Opener opener: menu.getOpeners()) {
+            ActionMenuItem ami = new ActionMenuItem(opener);
+            Dimension dim = ami.getPreferredSize();
+            ami.setPreferredSize(new Dimension(Math.max(dim.width, 100), dim.height)); 
+            popup.add(ami); 
+        } 
+        popup.pack();
+        
+        Rectangle rect = XButton.this.getBounds();
+        popup.show(XButton.this, 0, rect.height); 
+        popup.requestFocus(); 
+    } 
+    
+    private class ActionMenuItem extends JMenuItem 
+    {
+        XButton root = XButton.this;
+        private Opener anOpener;
+        
+        ActionMenuItem(Opener anOpener) {
+            this.anOpener = anOpener;
+            setText(anOpener.getCaption());            
+            addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    invokeAction(e);
+                }
+            });
+            
+            Object ov = anOpener.getProperties().get("mnemonic");
+            if (ov != null && ov.toString().trim().length() > 0) 
+                setMnemonic(ov.toString().trim().charAt(0));
+            
+            ov = anOpener.getProperties().get("icon");
+            if (ov != null && ov.toString().length() > 0) 
+                setIcon(ImageIconSupport.getInstance().getIcon(ov.toString()));
+        }
+        
+        void invokeAction(ActionEvent e) {
+            try {
+                UICommandUtil.processAction(root, root.getBinding(), anOpener); 
+            } catch(Exception ex) {
+                MsgBox.err(ex); 
+            }            
+        } 
+    }
+    
+    // </editor-fold>    
     
 }

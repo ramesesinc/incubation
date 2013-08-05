@@ -1,5 +1,5 @@
 /*
- * AbstractAction.java
+ * Action.java
  *
  * Created on October 19, 2009, 7:59 PM
  *
@@ -35,12 +35,12 @@ public class Action implements Comparable<Action>
     private String domain;
     private boolean showCaption;
 
-    private ActionHandler actionHandler;
-    private Action parent;    
+    private Action parent;   
+    private ActionDelegator actionDelegator;
     private Map properties = new Hashtable();    
     private Map parameters = new HashMap();
     
-    public Action() {        
+    public Action() { 
     }
     
     public Action(String name) {
@@ -76,7 +76,7 @@ public class Action implements Comparable<Action>
     public Object execute() { return null; }
     
     
-    // <editor-fold defaultstate="collapsed" desc="  Getters/Setters  "> 
+    // <editor-fold defaultstate="collapsed" desc=" Getters/Setters "> 
     
     public String getCaption() 
     {
@@ -212,8 +212,9 @@ public class Action implements Comparable<Action>
         this.showCaption = showCaption;
     }     
     
-    public void setActionHandler(ActionHandler actionHandler) {
-        this.actionHandler = actionHandler; 
+    public ActionDelegator getActionDelegator() { return actionDelegator; }
+    public void setActionDelegator(ActionDelegator actionDelegator) {
+        this.actionDelegator = actionDelegator; 
     }
     
     // </editor-fold>
@@ -270,11 +271,12 @@ public class Action implements Comparable<Action>
     
     // </editor-fold>
     
-    // <editor-fold defaultstate="collapsed" desc=" ActionHandler interface "> 
+    // <editor-fold defaultstate="collapsed" desc=" ActionDelegator interface "> 
     
-    public static interface ActionHandler {
+    public static interface ActionDelegator { 
         Object execute(Action action); 
     }
     
     // </editor-fold>
+
 }

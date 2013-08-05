@@ -1,18 +1,19 @@
 package com.rameses.rcp.util;
 
 import com.rameses.common.MethodResolver;
+import com.rameses.rcp.common.PopupMenuOpener;
 import com.rameses.rcp.control.XButton;
 import com.rameses.rcp.framework.*;
 import com.rameses.rcp.ui.UICommand;
 
 import com.rameses.rcp.common.Action;
+import com.rameses.rcp.common.Opener;
 import com.rameses.util.BusinessException;
 import com.rameses.util.ExceptionManager;
 import com.rameses.util.IgnoreException;
 import com.rameses.util.ValueUtil;
 import java.beans.Beans;
 import java.lang.reflect.Method;
-import java.util.List;
 import javax.swing.JComponent;
 
 /**
@@ -21,9 +22,9 @@ import javax.swing.JComponent;
  */
 public class UICommandUtil {
     
-    public static void processAction(UICommand command) 
+    public static Object processAction(UICommand command) 
     {
-        if ( Beans.isDesignTime() ) return;
+        if ( Beans.isDesignTime() ) return null;
 
         ClientContext ctx = ClientContext.getCurrentContext();
         MethodResolver resolver = MethodResolver.getInstance();        
@@ -45,30 +46,18 @@ public class UICommandUtil {
             //set parameters
             XButton btn = (XButton) command;
             ControlSupport.setProperties( binding.getBean(), btn.getParams());
-            
+                        
             //notify handlers who hooked before execution
             binding.getActionHandlerSupport().fireBeforeExecute();
             
             Object outcome = null;
             String action = command.getActionName();
-            if ( btn.getClientProperty(Action.class.getName()) != null ) 
-            {
+            if ( btn.getClientProperty(Action.class.getName()) != null ) {
                 Action a = (Action) btn.getClientProperty(Action.class.getName());
                 outcome = a.execute();                
             } 
-            else if ( action != null ) 
-            {
-                Action oAction = (Action) btn.getClientProperty(Action.class); 
-                Object value = (oAction == null? null: oAction.getProperties().get("Action.menus")); 
-                if (value instanceof List) {
-                    List<Action> actionList = (List) value;
-                    if (actionList.size() > 0) {
-                        if (actionList.size() == 1) {
-                            outcome = actionList.get(0).execute(); 
-                        }
-                    }
-                }
-                else if ( !action.startsWith("_")) {
+            else if ( action != null ) {
+                if ( !action.startsWith("_")) {
                     Object[] actionParams = new Object[]{};
                     Object actionInvoker = btn.getClientProperty("Action.Invoker");
                     if (actionInvoker != null) actionParams = new Object[]{ actionInvoker };
@@ -88,19 +77,25 @@ public class UICommandUtil {
             //notify handlers who hooked after execution
             binding.getActionHandlerSupport().fireAfterExecute(); 
             
+            if (outcome instanceof PopupMenuOpener) return outcome; 
+
             NavigationHandler handler = ctx.getNavigationHandler();
-            if ( handler != null ) handler.navigate(navPanel, command, outcome);
+            if ( handler != null ) handler.navigate(navPanel, command, outcome); 
+
+            return null;
         } 
         catch(Exception ex) 
         {
             Exception e = ExceptionManager.getOriginal(ex); 
-            if (e instanceof IgnoreException) return;
+            if (e instanceof IgnoreException) return null;
             
             if (!ExceptionManager.getInstance().handleError(e))
-                ctx.getPlatform().showError((JComponent) command, ex);
+                ctx.getPlatform().showError((JComponent) command, ex); 
+            
+            return null; 
         }
     }
-    
+        
     public static void processAction(JComponent invoker, Binding binding, Action action) 
     {
         if ( Beans.isDesignTime() ) return;
@@ -131,6 +126,25 @@ public class UICommandUtil {
                 ctx.getPlatform().showError(invoker, ex);
         }        
     }
+    
+    public static void processAction(JComponent invoker, Binding binding, Opener anOpener) 
+    {
+        if ( Beans.isDesignTime() ) return;
+
+        ClientContext ctx = ClientContext.getCurrentContext();
+        try {
+            
+            if (anOpener != null) binding.fireNavigation(anOpener);
+        }
+        catch(Exception ex) 
+        {
+            Exception e = ExceptionManager.getOriginal(ex); 
+            if (e instanceof IgnoreException) return;
+            
+            if (!ExceptionManager.getInstance().handleError(e))
+                ctx.getPlatform().showError(invoker, ex);
+        }        
+    }    
     
     private static void validate(UICommand command, Binding binding) throws BusinessException 
     {

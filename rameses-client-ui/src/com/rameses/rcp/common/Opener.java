@@ -16,11 +16,11 @@ public class Opener {
     private String caption;
     private String name;
     private String action;
-    private Map params = new HashMap();
     private String target;
     private String outcome;
     private String permission;
     private boolean modal = true;
+    private Map params = new HashMap();
     
     private UIController controller;
     private UIController caller;
