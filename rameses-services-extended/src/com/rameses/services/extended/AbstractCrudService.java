@@ -17,71 +17,54 @@ import java.util.Map;
  *
  * @author Elmo
  */
-public abstract class AbstractCrudService {
+public abstract class AbstractCrudService implements ICrudListener{
     
     protected abstract Object getEm();
     protected abstract String getSchemaName();
     
+    public String getSubSchemaName() {
+        return null;
+    }
+    
     public boolean isValidate() {
         return true;
+    }
+    
+    private CrudHelper getCrudHelper() {
+        return new CrudHelper(getSchemaName(), getSubSchemaName(), (EntityManager) getEm(), this, isValidate());
     }
     
     public void beforeCreate(Object data) {;}
     public void afterCreate(Object data) {;}
     public void beforeUpdate(Object data) {;}
     public void afterUpdate(Object data) {;}
-    
     public void beforeOpen(Object data) {;}
     public void afterOpen(Object data) {;}
-     
     public void beforeRemoveEntity(Object data) {;}
     public void afterRemoveEntity(Object data) {;}
     
     @ProxyMethod
     public Object create(Object data) {
-        if(! (data instanceof Map ))
-            throw new RuntimeException("Crud.create parameter must be map");
-        Map map = (Map)data;
-        beforeCreate(map);
-        EntityManager em = (EntityManager)getEm();
-        if(isValidate()) em.validate(getSchemaName(), map);
-        afterCreate(map);
-        return em.create(getSchemaName(), map);
+        return getCrudHelper().create(data);
     }
     
     @ProxyMethod
     public Object update(Object data) {
-        if(! (data instanceof Map ))
-            throw new RuntimeException("Crud.create parameter must be map");
-        Map map = (Map)data;
-        EntityManager em = (EntityManager)getEm();
-        beforeUpdate(map);
-        if(isValidate()) em.validate(getSchemaName(), map);
-        afterUpdate(map);
-        return em.create(getSchemaName(), map);
+        return getCrudHelper().update(data);
     }
     
     @ProxyMethod
      public Object open(Object data) {
-        if(! (data instanceof Map ))
-            throw new RuntimeException("Crud.create parameter must be map");
-        Map map = (Map)data;
-        EntityManager em = (EntityManager)getEm();
-        beforeOpen(map);
-        map = (Map)em.read(getSchemaName(), map);
-        afterOpen(map);
-        return map;
+        Object d = getCrudHelper().open(data);
+        if(d==null || ((Map)d).isEmpty() ) {
+            throw new RuntimeException( getSchemaName() + " does not exist" );
+        }
+        return d;
     }
      
      @ProxyMethod
      public void removeEntity(Object data) {
-        if(! (data instanceof Map ))
-            throw new RuntimeException("Crud.create parameter must be map");
-        Map map = (Map)data;
-        EntityManager em = (EntityManager)getEm();
-        beforeRemoveEntity(map);
-        em.delete(getSchemaName(), map);
-        afterRemoveEntity(map);
+        getCrudHelper().removeEntity(data);
     } 
     
 }
