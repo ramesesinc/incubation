@@ -24,7 +24,8 @@ public class DefaultCallbackHandler implements CallbackHandler
     }
 
     public Object call(Object arg) {
-        return call((arg == null? null: new Object[]{arg}));
+        //return call((arg == null? null: new Object[]{arg}));
+        return call(new Object[]{ arg });
     }
 
     public Object call(Object[] args) { 
