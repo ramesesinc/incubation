@@ -17,17 +17,17 @@ import java.awt.Dimension;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Insets;
 import java.beans.Beans;
 import javax.swing.JLabel;
 import javax.swing.JTable;
+import javax.swing.border.Border;
 import javax.swing.table.TableCellRenderer;
 
 
 public class TableHeaderRenderer extends JLabel implements TableCellRenderer 
 {
     private ComponentSupport componentSupport;
-        
+    
     protected ComponentSupport getComponentSupport() 
     {
         if (componentSupport == null) 
@@ -41,7 +41,8 @@ public class TableHeaderRenderer extends JLabel implements TableCellRenderer
         Graphics2D g2 = (Graphics2D) g.create();
         Color bg = Color.LIGHT_GRAY;
         Dimension d = getSize();
-        GradientPaint gp = new GradientPaint(0, 0, ColorUtil.brighter(bg, 30), 0, (d.height-1)/2, ColorUtil.brighter(bg, 15));
+        //GradientPaint gp = new GradientPaint(0, 0, ColorUtil.brighter(bg, 30), 0, (d.height-1)/2, ColorUtil.brighter(bg, 15));
+        GradientPaint gp = new GradientPaint(0, 0, ColorUtil.brighter(bg,30), 0, (d.height-1)/2, ColorUtil.darker(bg,0));
         g2.setPaint(gp);
         g2.fillRect(0,0,d.width-1,d.height-1);
         g2.dispose();
@@ -61,7 +62,8 @@ public class TableHeaderRenderer extends JLabel implements TableCellRenderer
         }
         
         setText( ValueUtil.isEmpty(value) ? " " : value + "");
-        setBorder( new DataTableHeader.CustomBorder(table, new Insets(2,5,2,5)) );        
+        //setBorder( new DataTableHeader.CustomBorder(table, new Insets(2,5,2,5)) );        
+        super.setBorder(new TableBorders.HeaderBorder()); 
         return this;
     }
 
@@ -71,5 +73,7 @@ public class TableHeaderRenderer extends JLabel implements TableCellRenderer
     public void revalidate() {}
     protected void firePropertyChange(String propertyName, Object oldValue, Object newValue) {}
     public void firePropertyChange(String propertyName, boolean oldValue, boolean newValue) {}
+
+    public void setBorder(Border border) {}
     
 }

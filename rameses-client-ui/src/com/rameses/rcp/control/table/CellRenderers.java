@@ -28,6 +28,9 @@ import com.rameses.rcp.util.ControlSupport;
 import com.rameses.rcp.util.UIControlUtil;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.GradientPaint;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Insets;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
@@ -45,6 +48,7 @@ import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
 import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableModel;
 
 /**
  *
@@ -158,6 +162,75 @@ public class CellRenderers {
     
     // </editor-fold>
     
+    // <editor-fold defaultstate="collapsed" desc="  HeaderRenderer (class)  ">
+    
+    public static class HeaderRenderer extends JLabel implements TableCellRenderer {
+        
+        private ComponentSupport componentSupport; 
+        private TableBorders.HeaderBorder border;
+        
+        public HeaderRenderer() {
+            setBorder(border = new TableBorders.HeaderBorder()); 
+            setBackground(java.awt.SystemColor.control); 
+        }
+        
+        private ComponentSupport getComponentSupport() {
+            if (componentSupport == null) 
+                componentSupport = new ComponentSupport();
+            
+            return componentSupport; 
+        }
+        
+        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int rowIndex, int colIndex) {
+            setFont(table.getFont());
+            setText(value+""); 
+            TableModel tm = table.getModel(); 
+            if (tm instanceof DataTableModel) {
+                DataTableModel dtm = (DataTableModel) tm; 
+                Column oColumn = dtm.getColumn(colIndex); 
+                if (oColumn == null) return this;
+                
+                String alignment = oColumn.getAlignment();
+                getComponentSupport().alignText(this, alignment); 
+            }
+            return this;
+        }      
+                
+        protected Color getHighlightColor() {
+            return getBackground().brighter();
+        }
+
+        protected Color getShadowColor() {
+            return getBackground().darker();
+        }  
+        
+        public void paint(Graphics g) 
+        {
+            int h = getHeight(), w = getWidth(); 
+            Color oldColor = g.getColor();
+            Color shadow = getShadowColor(); 
+            Color bg = ColorUtil.brighter(shadow, 30);
+            Graphics2D g2 = (Graphics2D) g.create();
+            GradientPaint gp = new GradientPaint(0, 0, bg, 0, h/2, ColorUtil.brighter(shadow,25));
+            g2.setPaint(gp);
+            g2.fillRect(0, 0, w, h);
+            g2.setPaint(null);
+            g2.setColor(ColorUtil.brighter(shadow,22));
+            g2.fillRoundRect(0, h/2, w, h, 5, 0);
+            g2.dispose();
+            g.setColor(oldColor); 
+            super.paint(g); 
+        } 
+        
+        // The following methods override the defaults for performance reasons
+        public void validate() {}
+        public void revalidate() {}
+        protected void firePropertyChange(String propertyName, Object oldValue, Object newValue) {}
+        public void firePropertyChange(String propertyName, boolean oldValue, boolean newValue) {}            
+    }
+    
+    // </editor-fold>    
+      
     // <editor-fold defaultstate="collapsed" desc="  AbstractRenderer (class)  ">
     
     public static abstract class AbstractRenderer implements TableCellRenderer {

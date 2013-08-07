@@ -92,6 +92,8 @@ public class ListScrollBar extends JScrollBar implements AdjustmentListener
     }
     
     public final boolean isDynamicallyVisible() {
+        if (dataProvider == null) return false;
+        
         int rowCount = dataProvider.getRowCount();            
         int rows = dataProvider.getRows();
         if (rows == -1) rows = rowCount;

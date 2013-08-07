@@ -45,7 +45,7 @@ public class ComponentSupport
     
     public void alignText(JComponent comp, String textAlignment) 
     {
-        if (comp == null) return;
+        if (comp == null || textAlignment == null) return;
         
         int[] values = alignment_options.get(textAlignment.toUpperCase()); 
         if (values == null) return;

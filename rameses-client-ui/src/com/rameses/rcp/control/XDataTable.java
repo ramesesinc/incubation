@@ -16,15 +16,16 @@ import com.rameses.rcp.common.MsgBox;
 import com.rameses.rcp.common.PropertyChangeHandler;
 import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.common.TableModelHandler;
+import com.rameses.rcp.control.table.CellRenderers;
 import com.rameses.rcp.control.table.DataTableComponent;
-import com.rameses.rcp.control.table.DataTableHeader;
 import com.rameses.rcp.control.table.DataTableModel;
 import com.rameses.rcp.control.table.ListScrollBar;
 import com.rameses.rcp.control.table.RowHeaderView;
-import com.rameses.rcp.control.table.TableBorder;
+import com.rameses.rcp.control.table.TableBorders;
 import com.rameses.rcp.control.table.TableUtil;
 import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.framework.ClientContext;
+import com.rameses.rcp.support.ColorUtil;
 import com.rameses.rcp.ui.*;
 import com.rameses.rcp.util.*;
 import com.rameses.util.ValueUtil;
@@ -66,10 +67,8 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
         
     public XDataTable() 
     {
-        init();
-        
-        if ( !Beans.isDesignTime() ) 
-        {
+        init();        
+        if (!Beans.isDesignTime()) {
             rowChangeNotifier = new RowChangeNotifier(); 
             loader = new ListModelLoader();
         }
@@ -134,7 +133,7 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
         super.setLayout(new BorderLayout());
         add(scrollPane, BorderLayout.CENTER);
         add(new ScrollBarPanel(scrollBar), BorderLayout.EAST);
-        setBorder(new TableBorder());
+        setBorder(new TableBorders.DefaultBorder());        
         
         //--default table properties
         //setGridColor(new Color(217,216,216));
@@ -146,8 +145,9 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
         setShowHorizontalLines(true); 
         setShowVerticalLines(true);        
         setAutoResize(true);
-        setRowMargin(0);         
+        setRowMargin(0); 
         setRowHeight(21);
+        setRowHeaderHeight(getRowHeight()+2); 
         
         if ( table.getEvenBackground() == null ) {
             Color bg = (Color) UIManager.get("Table.evenBackground");
@@ -241,15 +241,18 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
         
         if (newProvider != null)
         {
-            if (getColumns() != null) newProvider.setColumns(getColumns());
-            
+            if (getColumns() != null) newProvider.setColumns(getColumns());            
+            if (newProvider instanceof EditorListModel) 
+                setShowRowHeader(true);
+            else 
+                setShowRowHeader(false);
+                            
             dataProvider = newProvider;
             table.setBinding(binding);
             table.setDataProvider(dataProvider);
             scrollBar.setDataProvider(dataProvider); 
 
-            if ( rowHeaderView != null )
-            {
+            if (rowHeaderView != null) { 
                 table.getModel().removeTableModelListener(rowHeaderView); 
                 rowHeaderView.setRowCount( dataProvider.getRows() );
                 table.getModel().addTableModelListener(rowHeaderView);
@@ -446,15 +449,12 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
     {
         this.showRowHeader = showRowHeader;
         
-        if ( showRowHeader ) 
-        {
-            JComponent leftCorner = new DataTableHeader.CornerBorder(table, JScrollPane.UPPER_LEFT_CORNER).createComponent();
-            scrollPane.setCorner(JScrollPane.UPPER_LEFT_CORNER, leftCorner); 
+        if ( showRowHeader ) {
+            JLabel corner = new CellRenderers.HeaderRenderer();
+            scrollPane.setCorner(JScrollPane.UPPER_LEFT_CORNER, corner); 
             scrollPane.setRowHeaderView( (rowHeaderView = new RowHeaderView(table)) );
             rowHeaderView.setRowCount( table.getRowCount() );
-        } 
-        else 
-        {
+        } else {
             scrollPane.setCorner(JScrollPane.UPPER_LEFT_CORNER, null);
             scrollPane.setRowHeaderView( (rowHeaderView = null) );
         }
@@ -788,6 +788,8 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
         
         protected void onrowChanged() 
         { 
+            if (dataProvider == null) return;
+            
             ListItem selectedItem = dataProvider.getSelectedItem();
 
             Object oldValue = (currentItem == null? null: currentItem.getItem());
@@ -892,7 +894,8 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
     
     private class ViewportImpl extends JViewport
     {
-        XDataTable root = XDataTable.this;        
+        XDataTable root = XDataTable.this;      
+        private Color defaultBgcolor = java.awt.SystemColor.control; 
         private Color bgcolor = Color.WHITE;
         private Rectangle oldBounds = new Rectangle(); 
         
@@ -925,6 +928,17 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
         }
 
         public void setBackground(Color bg) {}
+        
+        public void paint(Graphics g) 
+        {
+            super.paint(g); 
+            
+            Color newColor = ColorUtil.brighter(defaultBgcolor.darker(), 20);
+            Graphics2D g2 = (Graphics2D) g.create();            
+            g2.setColor(newColor);
+            g2.drawLine(0, 0, 0, getHeight()); 
+            g2.dispose(); 
+        }
     }
     
     // </editor-fold>             
