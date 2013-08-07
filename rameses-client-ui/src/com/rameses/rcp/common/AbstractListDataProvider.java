@@ -23,9 +23,10 @@ import java.util.Set;
  */
 public abstract class AbstractListDataProvider 
 {
-    public final static int FETCH_MODE_LOAD     = 0;
-    public final static int FETCH_MODE_REFRESH  = 1;
-    public final static int FETCH_MODE_RELOAD   = 2;
+    public final static int FETCH_MODE_LOAD         = 0;
+    public final static int FETCH_MODE_REFRESH      = 1;
+    public final static int FETCH_MODE_RELOAD       = 2;
+    public final static int FETCH_MODE_RELOAD_ALL   = 3;
         
     protected PropertyChangeSupport propertySupport; 
     protected TableModelSupport tableModelSupport; 
@@ -141,13 +142,15 @@ public abstract class AbstractListDataProvider
         {
             propertySupport.firePropertyChange("loading", true);
             processing = true;
-            boolean forceLoad = (fetchMode == FETCH_MODE_LOAD || fetchMode == FETCH_MODE_RELOAD); 
+            boolean forceLoad = (fetchMode==FETCH_MODE_LOAD || fetchMode==FETCH_MODE_RELOAD || fetchMode==FETCH_MODE_RELOAD_ALL); 
             fetch(forceLoad); 
-            tableModelSupport.fireTableDataChanged(); 
+            if (fetchMode == FETCH_MODE_RELOAD_ALL) 
+                tableModelSupport.fireTableStructureChanged(); 
+            else 
+                tableModelSupport.fireTableDataChanged(); 
             
             int index = (selectedItem == null? 0: selectedItem.getIndex());
             tableModelSupport.fireTableRowSelected(index, false);
-            //fireFocusSelectedItem(); 
         }
         catch(RuntimeException re) {
             throw re;
@@ -288,13 +291,25 @@ public abstract class AbstractListDataProvider
         fetchImpl();
     }
     
+    public void reload() {
+        refresh(true);
+    }
+    
+    public void reloadAll() {
+        refreshImpl(FETCH_MODE_RELOAD_ALL); 
+    }
+    
     public void refresh() { 
         refresh(false); 
     } 
 
-    public void refresh(boolean forceLoad) 
+    public void refresh(boolean forceLoad) {
+        refreshImpl(forceLoad? FETCH_MODE_RELOAD: FETCH_MODE_REFRESH); 
+    } 
+    
+    private void refreshImpl(int fetchMode) 
     {
-        fetchMode = (forceLoad? FETCH_MODE_RELOAD: FETCH_MODE_REFRESH); 
+        this.fetchMode = fetchMode;
         fetchImpl(); 
     } 
     

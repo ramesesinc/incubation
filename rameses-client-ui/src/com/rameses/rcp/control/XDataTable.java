@@ -879,10 +879,11 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
             root.scrollBar.adjustValues(); 
         }
 
+        public void fireTableStructureChanged() {}
+        
         public void fireTableRowsDeleted(int firstRow, int lastRow) {}
         public void fireTableRowsInserted(int firstRow, int lastRow) {}
         public void fireTableRowsUpdated(int firstRow, int lastRow) {}
-        public void fireTableStructureChanged() {}
         public void fireTableRowSelected(int row, boolean focusOnItemDataOnly) {}
     }
     

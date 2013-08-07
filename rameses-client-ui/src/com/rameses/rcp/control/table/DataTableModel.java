@@ -264,4 +264,9 @@ public class DataTableModel extends AbstractTableModel implements TableControlMo
         return support.createProxy(); 
     }     
 
+    public void fireTableStructureChanged() {
+        reIndexColumns();
+        super.fireTableStructureChanged();
+    }
+
 }

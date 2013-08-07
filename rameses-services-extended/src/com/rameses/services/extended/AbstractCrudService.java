@@ -54,17 +54,27 @@ public abstract class AbstractCrudService implements ICrudListener{
     }
     
     @ProxyMethod
-     public Object open(Object data) {
+    public Object open(Object data) {
         Object d = getCrudHelper().open(data);
         if(d==null || ((Map)d).isEmpty() ) {
             throw new RuntimeException( getSchemaName() + " does not exist" );
         }
         return d;
     }
-     
-     @ProxyMethod
-     public void removeEntity(Object data) {
+    
+    @ProxyMethod
+    public void removeEntity(Object data) {
         getCrudHelper().removeEntity(data);
-    } 
+    }
+    
+    @ProxyMethod
+    public void approve(Object data) {
+        getCrudHelper().approve(data);
+    }
+    
+    public void changeState(Object data) {
+        getCrudHelper().changeState(data);
+    }
+    
     
 }
