@@ -10,6 +10,7 @@ package com.rameses.rcp.control;
 import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.framework.ClientContext;
+import com.rameses.rcp.support.FontSupport;
 import com.rameses.rcp.support.ThemeUI;
 import com.rameses.rcp.ui.ActiveControl;
 import com.rameses.rcp.ui.ControlProperty;
@@ -31,6 +32,7 @@ public class XRadio extends JRadioButton implements UIInput, ItemListener, Activ
 {
     private Binding binding;
     private String[] depends;
+    private String fontStyle; 
     private boolean readonly;
     private int index;
     
@@ -194,11 +196,23 @@ public class XRadio extends JRadioButton implements UIInput, ItemListener, Activ
     
     public Font getCaptionFont() {
         return property.getCaptionFont();
-    }
-    
+    }    
     public void setCaptionFont(Font f) {
         property.setCaptionFont(f);
     }
+    
+    public String getCaptionFontStyle() { 
+        return property.getCaptionFontStyle();
+    } 
+    public void setCaptionFontStyle(String captionFontStyle) {
+        property.setCaptionFontStyle(captionFontStyle); 
+    }    
+    
+    public String getFontStyle() { return fontStyle; } 
+    public void setFontStyle(String fontStyle) {
+        this.fontStyle = fontStyle;
+        new FontSupport().applyStyles(this, fontStyle);
+    }      
     
     public Insets getCellPadding() {
         return property.getCellPadding();

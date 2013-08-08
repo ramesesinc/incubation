@@ -323,11 +323,17 @@ public class XLookupField extends IconedTextField implements UIFocusableContaine
     
     public Font getCaptionFont() {
         return property.getCaptionFont();
-    }
-    
+    }    
     public void setCaptionFont(Font font) {
         property.setCaptionFont(font);
     }
+    
+    public String getCaptionFontStyle() { 
+        return property.getCaptionFontStyle();
+    } 
+    public void setCaptionFontStyle(String captionFontStyle) {
+        property.setCaptionFontStyle(captionFontStyle); 
+    }     
     
     public Insets getCellPadding() {
         return property.getCellPadding();

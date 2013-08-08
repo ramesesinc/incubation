@@ -10,6 +10,7 @@ import com.rameses.rcp.constant.UIConstants;
 import com.rameses.rcp.control.border.XUnderlineBorder;
 import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.framework.BindingListener;
+import com.rameses.rcp.support.FontSupport;
 import com.rameses.rcp.ui.ActiveControl;
 import com.rameses.rcp.ui.ControlProperty;
 import com.rameses.rcp.ui.ControlContainer;
@@ -67,6 +68,7 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
     private String captionVAlignment = UIConstants.TOP;
     private String captionHAlignment = UIConstants.LEFT;
     private String captionOrientation = UIConstants.LEFT;
+    private String captionFontStyle;
     private Font captionFont;
     private Color captionForeground;
     private Border captionBorder = new XUnderlineBorder();
@@ -764,14 +766,27 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
     public Font getCaptionFont() { return captionFont; }
     public void setCaptionFont(Font captionFont) {
         this.captionFont = captionFont;
-        updateLabelsFont();
-    }
+        updateLabelsFont(captionFont);
+    } 
     
-    private void updateLabelsFont() {
-        for(Component c: getComponents()) {
-            if ( c instanceof ItemPanel ) {
-                XLabel lbl = ((ItemPanel)c).getLabelComponent();
-                lbl.setFont(captionFont);
+    public String getCaptionFontStyle() { return captionFontStyle; } 
+    public void setCaptionFontStyle(String captionFontStyle) {
+        this.captionFontStyle = captionFontStyle;
+        updateLabelsFont(captionFontStyle);
+    }      
+    
+    private void updateLabelsFont(Object fontObj) {
+        if (fontObj == null) return;
+        
+        FontSupport fontSupport = new FontSupport(); 
+        for (Component c: getComponents()) {
+            if (c instanceof ItemPanel) {
+                JComponent lbl = ((ItemPanel)c).getLabelComponent();
+                if (fontObj instanceof Font) { 
+                    lbl.setFont((Font) fontObj);
+                } else if (fontObj instanceof String) {
+                    fontSupport.applyStyles(lbl, (String) fontObj); 
+                }
             }
         }
     }

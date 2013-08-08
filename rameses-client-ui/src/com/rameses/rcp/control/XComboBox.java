@@ -22,6 +22,7 @@ import com.rameses.rcp.util.UIControlUtil;
 import com.rameses.rcp.util.UIInputUtil;
 import com.rameses.common.ExpressionResolver;
 import com.rameses.rcp.control.table.ExprBeanSupport;
+import com.rameses.rcp.support.FontSupport;
 import com.rameses.util.ValueUtil;
 import java.awt.EventQueue;
 import java.awt.Font;
@@ -48,6 +49,7 @@ public class XComboBox extends JComboBox implements UIInput, Validatable, Active
     
     private int index;
     private String[] depends;
+    private String fontStyle; 
     private String caption;
     private String varName;
     private String items;
@@ -266,6 +268,19 @@ public class XComboBox extends JComboBox implements UIInput, Validatable, Active
     public void setCaptionFont(Font f) {
         property.setCaptionFont(f);
     }
+    
+    public String getCaptionFontStyle() { 
+        return property.getCaptionFontStyle();
+    } 
+    public void setCaptionFontStyle(String captionFontStyle) {
+        property.setCaptionFontStyle(captionFontStyle); 
+    }      
+    
+    public String getFontStyle() { return fontStyle; } 
+    public void setFontStyle(String fontStyle) {
+        this.fontStyle = fontStyle;
+        new FontSupport().applyStyles(this, fontStyle);
+    }    
     
     public Insets getCellPadding() {
         return property.getCellPadding();

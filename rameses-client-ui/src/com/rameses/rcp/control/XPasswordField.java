@@ -3,6 +3,7 @@ package com.rameses.rcp.control;
 import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.framework.ClientContext;
+import com.rameses.rcp.support.FontSupport;
 import com.rameses.rcp.support.TextEditorSupport;
 import com.rameses.rcp.support.ThemeUI;
 import com.rameses.rcp.ui.ActiveControl;
@@ -63,6 +64,7 @@ public class XPasswordField extends JPasswordField implements UIInput, Validatab
     private boolean showHint;    
     private boolean nullWhenEmpty = true;    
     private String hint;
+    private String fontStyle;
     
     public XPasswordField() 
     {
@@ -186,6 +188,12 @@ public class XPasswordField extends JPasswordField implements UIInput, Validatab
     
     public Binding getBinding() { return binding; }    
     public void setBinding(Binding binding) { this.binding = binding; }
+    
+    public String getFontStyle() { return fontStyle; } 
+    public void setFontStyle(String fontStyle) {
+        this.fontStyle = fontStyle;
+        new FontSupport().applyStyles(this, fontStyle);
+    }     
 
     public char getEchoChar() { return passwordChar; }    
     public void setEchoChar(char c) 
@@ -264,11 +272,17 @@ public class XPasswordField extends JPasswordField implements UIInput, Validatab
     
     public Font getCaptionFont() {
         return property.getCaptionFont();
-    }
-    
+    }    
     public void setCaptionFont(Font f) {
         property.setCaptionFont(f);
     }
+    
+    public String getCaptionFontStyle() { 
+        return property.getCaptionFontStyle();
+    } 
+    public void setCaptionFontStyle(String captionFontStyle) {
+        property.setCaptionFontStyle(captionFontStyle); 
+    }     
     
     public Insets getCellPadding() {
         return property.getCellPadding();
