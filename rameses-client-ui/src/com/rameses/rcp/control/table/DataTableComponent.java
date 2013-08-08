@@ -467,7 +467,8 @@ public class DataTableComponent extends JTable implements TableControl
         tableHeader = getTableHeader(); 
         if (tableHeader == null) return;
         
-        tableHeader.setDefaultRenderer(TableUtil.getHeaderRenderer());
+        //tableHeader.setDefaultRenderer(TableUtil.getHeaderRenderer());
+        tableHeader.setDefaultRenderer(new CellRenderers.HeaderRenderer());
         tableHeader.addMouseMotionListener(new MouseMotionAdapter() {
             public void mouseDragged(MouseEvent me) 
             {
@@ -658,7 +659,8 @@ public class DataTableComponent extends JTable implements TableControl
     protected void onrowChanged() {}     
     private void rowSelectionChanged(int index) 
     {
-        dataProvider.setSelectedItem(index);
+        if (dataProvider != null) dataProvider.setSelectedItem(index);
+        
         editorBeanLoaded = false;
         rowCommited = true;
         previousItem = null; 
@@ -1064,7 +1066,7 @@ public class DataTableComponent extends JTable implements TableControl
         {
             if (!refreshed) ui.refresh();
             
-            UIInput uiinput = (UIInput) editor;
+            //UIInput uiinput = (UIInput) editor;
             selectAll(editor, e);
             if (editor instanceof XCheckBox) {
                 hideEditor(editor, rowIndex, colIndex, true, true); 

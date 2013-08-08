@@ -69,7 +69,7 @@ public class Node
         this.dynamic = "true".equals(removeString(properties,"dynamic"));
         
         Object value = properties.get("folder");
-        this.leaf = (value == null? false: !"true".equals(value.toString())); 
+        if (value != null && "false".equals(value.toString())) this.leaf = true;
         
         String sleaf = removeString(properties,"leaf");
         if (sleaf != null && "true".equals(sleaf)) this.leaf = true; 

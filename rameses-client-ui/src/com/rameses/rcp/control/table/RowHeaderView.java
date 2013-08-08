@@ -11,11 +11,14 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Insets;
 import java.awt.LayoutManager;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTable;
+import javax.swing.SwingConstants;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 
@@ -41,13 +44,13 @@ public class RowHeaderView extends JPanel implements TableModelListener
         removeAll();
         JComponent label = null;
         for (int i = 0; i < rowCount; ++i) {
-            add(new RowHeader(table));
+            add(new RowView(table));
         }
     }
     
     public void clearEditing() {
         if ( currentRow != -1 ) {
-            RowHeader rh = (RowHeader) getComponent(currentRow);
+            RowView rh = (RowView) getComponent(currentRow);
             rh.edit(false);
         }
         currentRow = -1;
@@ -57,7 +60,7 @@ public class RowHeaderView extends JPanel implements TableModelListener
         if ( currentRow != row ) {
             clearEditing();
         }
-        RowHeader rh = (RowHeader) getComponent(row);
+        RowView rh = (RowView) getComponent(row);
         rh.edit(true);
         currentRow = row;
     }
@@ -67,6 +70,34 @@ public class RowHeaderView extends JPanel implements TableModelListener
         setRowCount(table.getRowCount());
         repaint();
     }
+    
+    // <editor-fold defaultstate="collapsed" desc="  RowView (class)  ">
+    
+    private class RowView extends JLabel {
+        
+        private Color defaultColor = java.awt.SystemColor.control; 
+        private JTable table;
+        
+        public RowView(JTable table) {
+            this.table = table; 
+            setPreferredSize(new Dimension(23,23));
+            setHorizontalAlignment(SwingConstants.CENTER);
+            setVerticalAlignment(SwingConstants.CENTER);
+            setForeground(Color.BLUE);
+            setFont(new Font("Courier", Font.PLAIN, 11)); 
+        }
+        
+        public void setText(String text) {;}
+
+        public void edit(boolean b) {
+            if (b)
+                super.setText("*");
+            else
+                super.setText("");
+        }          
+    }
+    
+    // </editor-fold>            
     
     // <editor-fold defaultstate="collapsed" desc="  RowHeaderLayout (Class) ">
     
@@ -93,7 +124,7 @@ public class RowHeaderView extends JPanel implements TableModelListener
                 
                 Component[] comps = parent.getComponents();
                 for (int i=0; i<comps.length; i++) {
-                    if (!(comps[i] instanceof RowHeader)) continue;
+                    if (!(comps[i] instanceof RowView)) continue;
                     
                     int rh = table.getRowHeight(i);
                     comps[i].setBounds(x, y, w, rh);
@@ -108,7 +139,7 @@ public class RowHeaderView extends JPanel implements TableModelListener
                 int h = 0;
                 Component[] comps = parent.getComponents();
                 for (int i=0; i<comps.length; i++) {
-                    if (!(comps[i] instanceof RowHeader)) continue;
+                    if (!(comps[i] instanceof RowView)) continue;
                     
                     Dimension dim = comps[i].getPreferredSize();
                     w = Math.max(w, dim.width);

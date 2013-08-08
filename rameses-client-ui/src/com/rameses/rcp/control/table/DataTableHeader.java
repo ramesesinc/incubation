@@ -31,12 +31,13 @@ import javax.swing.table.TableColumnModel;
  */
 public class DataTableHeader extends JTableHeader 
 {
+    private Color control = java.awt.SystemColor.control;
     private JTable table;
     
     public DataTableHeader(JTable table) 
     {
         super(table.getColumnModel());
-        super.setBorder(new CustomBorder(table, null));
+        super.setBorder(new TableBorders.HeaderBorder());
         this.table = table; 
     }
     
@@ -59,13 +60,20 @@ public class DataTableHeader extends JTableHeader
         int nWidth = clip.width - compClip.width;
         if (nWidth <= 0) return;
         
+        Color oldColor = g.getColor();
+        Color shadow = control.darker();
+        Color bg = ColorUtil.brighter(shadow, 30);
         Graphics2D g2 = (Graphics2D) g.create();
-        Color bg = Color.LIGHT_GRAY;
-        GradientPaint gp = new GradientPaint(0, 0, ColorUtil.brighter(bg, 30), 0, (clip.height-1)/2, ColorUtil.brighter(bg, 15));
+        GradientPaint gp = new GradientPaint(0, 0, bg, 0, clip.height/2, ColorUtil.brighter(shadow,25));
         g2.setPaint(gp);
-        g2.fillRect(compClip.x, 0, nWidth, clip.height-1);
+        g2.fillRect(compClip.x, 0, nWidth, clip.height-2);        
+        g2.setPaint(null);
+        g2.setColor(ColorUtil.brighter(shadow,22));
+        g2.fillRoundRect(compClip.x, clip.height/2, nWidth, (clip.height/2)-1, 5, 0);
+        g2.setColor(control.brighter());
+        g2.drawLine(compClip.x, 2, compClip.x, compClip.height-5);        
         g2.dispose();
-    } 
+    }     
     
     // <editor-fold defaultstate="collapsed" desc=" Painter (class) ">    
 
