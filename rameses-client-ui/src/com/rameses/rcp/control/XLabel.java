@@ -4,6 +4,7 @@ import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.control.table.ExprBeanSupport;
 import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.framework.ClientContext;
+import com.rameses.rcp.support.FontSupport;
 import com.rameses.rcp.support.ThemeUI;
 import com.rameses.rcp.ui.ActiveControl;
 import com.rameses.rcp.ui.ControlProperty;
@@ -42,8 +43,9 @@ public class XLabel extends JLabel implements UIOutput, ActiveControl
     private int index;    
     private boolean useHtml;
     
-    private Insets padding;
-    private Format format;    
+    private String fontStyle; 
+    private Insets padding; 
+    private Format format; 
     
     /**
      * ActiveControl support fields/properties
@@ -222,6 +224,12 @@ public class XLabel extends JLabel implements UIOutput, ActiveControl
     
     public Format getFormat() { return format; }
     public void setFormat(Format format) { this.format = format; }
+    
+    public String getFontStyle() { return fontStyle; } 
+    public void setFontStyle(String fontStyle) {
+        this.fontStyle = fontStyle;
+        new FontSupport().applyStyles(this, fontStyle);
+    }
 
     // </editor-fold>    
     
