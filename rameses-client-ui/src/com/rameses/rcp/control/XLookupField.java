@@ -74,6 +74,7 @@ public class XLookupField extends IconedTextField implements UIFocusableContaine
     private Object handlerObject;    
     private Object selectedValue;
     private String expression;
+    private String returnFields;
     private boolean transferFocusOnSelect = true;    
     private boolean dirty;
     private boolean loaded;
@@ -119,7 +120,7 @@ public class XLookupField extends IconedTextField implements UIFocusableContaine
         this.expression = expression;
         super.setText(expression);
     }
-    
+        
     public String getText() 
     {
         if ( Beans.isDesignTime() ) 
@@ -179,6 +180,11 @@ public class XLookupField extends IconedTextField implements UIFocusableContaine
             setHandler(null);
             setHandlerObject(handler); 
         }
+    } 
+    
+    public String getReturnFields() { return returnFields; } 
+    public void setReturnFields(String returnFields) { 
+        this.returnFields = returnFields; 
     } 
    
     // </editor-fold> 
@@ -384,8 +390,9 @@ public class XLookupField extends IconedTextField implements UIFocusableContaine
             }
 
             selectionOption = JOptionPane.CANCEL_OPTION;
-            lookupHandlerProxy.getModel().setSelector(this);   
-            boolean show = lookupHandlerProxy.getModel().show( getText() );            
+            lookupHandlerProxy.getModel().setSelector(this); 
+            lookupHandlerProxy.getModel().setReturnFields(getReturnFields()); 
+            boolean show = lookupHandlerProxy.getModel().show( getText() ); 
             if ( show ) 
             {
                 lookupHandlerProxy.getModel().setSelectedItem(-1);
@@ -425,7 +432,7 @@ public class XLookupField extends IconedTextField implements UIFocusableContaine
     public void select(Object value) 
     {
         selectionOption = JOptionPane.OK_OPTION;
-        selectedValue = value;        
+        selectedValue = value; 
         getInputSupport().setValue(getName(), selectedValue);         
         putClientProperty("updateBeanValue", true); 
         getInputVerifierProxy().setEnabled(true);
