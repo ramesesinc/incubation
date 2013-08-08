@@ -7,7 +7,6 @@
 package com.rameses.osiris2.themes;
 
 import com.rameses.rcp.control.border.XToolbarBorder;
-import java.awt.Font;
 
 /**
  *
@@ -17,7 +16,6 @@ public class FormPage extends javax.swing.JPanel {
     
     public FormPage() {
         initComponents();
-        lblTitle.setFont(Font.decode("-bold-18"));
     }
     
     /** This method is called from within the constructor to
@@ -40,9 +38,14 @@ public class FormPage extends javax.swing.JPanel {
         jPanel1.setLayout(new java.awt.BorderLayout());
 
         lblTitle.setBackground(new java.awt.Color(255, 255, 255));
+        com.rameses.rcp.control.border.XEtchedBorder xEtchedBorder1 = new com.rameses.rcp.control.border.XEtchedBorder();
+        xEtchedBorder1.setHideLeft(true);
+        xEtchedBorder1.setHideRight(true);
+        lblTitle.setBorder(xEtchedBorder1);
         lblTitle.setExpression("#{title}");
+        lblTitle.setFontStyle("font-size:16; font-weight:bold;");
         lblTitle.setOpaque(true);
-        lblTitle.setPadding(new java.awt.Insets(5, 7, 5, 5));
+        lblTitle.setPadding(new java.awt.Insets(2, 7, 2, 5));
         jPanel1.add(lblTitle, java.awt.BorderLayout.NORTH);
 
         xHorizontalPanel1.setBorder(new XToolbarBorder());
