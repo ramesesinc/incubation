@@ -29,6 +29,7 @@ import com.rameses.util.ValueUtil;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Insets;
@@ -40,6 +41,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
@@ -185,6 +187,14 @@ public class XActionBar extends JPanel implements UIComposite
                 if (!allowed) continue;
                 
                 XButton btn = createButton(action);
+                if (!buttonTpl.isContentAreaFilled()) {
+                    btn.setBorder(null);
+                    btn.setOpaque(false); 
+                    btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)); 
+                }
+                btn.setContentAreaFilled(buttonTpl.isContentAreaFilled());
+                btn.setBorderPainted(buttonTpl.isBorderPainted());        
+                
                 Object actionInvoker = action.getProperties().get("Action.Invoker");
                 btn.putClientProperty("Action.Invoker", actionInvoker); 
                 btn.putClientProperty(Action.class, action); 
@@ -205,8 +215,8 @@ public class XActionBar extends JPanel implements UIComposite
         btn.setName(action.getName());        
         btn.setFont(buttonTpl.getFont());
         btn.setForeground(buttonTpl.getForeground());        
-        if ( buttonTpl.isPreferredSizeSet() )
-            btn.setPreferredSize(buttonTpl.getPreferredSize());
+//        if ( buttonTpl.isPreferredSizeSet() )
+//            btn.setPreferredSize(buttonTpl.getPreferredSize());
         
         if ( !ValueUtil.isEmpty(action.getCaption()) ) 
         {
@@ -377,8 +387,7 @@ public class XActionBar extends JPanel implements UIComposite
         this.useToolBar = useToolBar;
         
         super.removeAll();
-        if (useToolBar) 
-        {
+        if (useToolBar) {
             JToolBar tlb = new JToolBar();
             tlb.setFocusable(false); 
             tlb.setFloatable(false);
@@ -403,11 +412,9 @@ public class XActionBar extends JPanel implements UIComposite
     
     public int getHorizontalAlignment() { return 0; }
     public void setHorizontalAlignment(int horizontalAlignment) {}
-    
-    
+        
     public String getTarget() { return target; }
-    public void setTarget(String target) { this.target = target; }
-    
+    public void setTarget(String target) { this.target = target; }    
     
     public String getOrientation() { return orientation; }
     public void setOrientation(String orientation) 
@@ -445,43 +452,68 @@ public class XActionBar extends JPanel implements UIComposite
     }
     
     //button template support
-    public Font getButtonFont()       { return buttonTpl.getFont(); }
-    public void setButtonFont(Font f) { buttonTpl.setFont(f); }
+    private XButton getButtonTemplate() {
+        if (buttonTpl == null) buttonTpl = new XButton(); 
+        
+        return buttonTpl;
+    }
     
-    public boolean getButtonBorderPainted()       { return buttonTpl.isBorderPainted(); }
-    public void setButtonBorderPainted(boolean b) { buttonTpl.setBorderPainted(b); }
+    public Font getButtonFont() { 
+        return getButtonTemplate().getFont(); 
+    }
+    public void setButtonFont(Font font) { 
+        getButtonTemplate().setFont(font);
+    }
     
-    public boolean getButtonContentAreaFilled()       { return buttonTpl.isContentAreaFilled(); }
-    public void setButtonContentAreaFilled(boolean b) { buttonTpl.setContentAreaFilled(b); }
+    public boolean getButtonBorderPainted() { 
+        return getButtonTemplate().isBorderPainted(); 
+    }
+    public void setButtonBorderPainted(boolean borderPainted) { 
+        getButtonTemplate().setBorderPainted(borderPainted);
+    }
     
-    public Dimension getButtonPreferredSize()       { return buttonTpl.getPreferredSize(); }
-    public void setButtonPreferredSize(Dimension d) { buttonTpl.setPreferredSize(d); }
+    public boolean getButtonContentAreaFilled() { 
+        return getButtonTemplate().isContentAreaFilled();
+    }
+    public void setButtonContentAreaFilled(boolean contentAreaFilled) { 
+        getButtonTemplate().setContentAreaFilled(contentAreaFilled);
+    }
+    
+    public Dimension getButtonPreferredSize() { 
+        return getButtonTemplate().getPreferredSize();
+    }
+    public void setButtonPreferredSize(Dimension preferredSize) { 
+        getButtonTemplate().setPreferredSize(preferredSize); 
+    }
     
     public int getButtonCaptionOrientation() { return this.buttonCaptionOrientation; }
     public void setButtonCaptionOrientation(int orientation) {
+        this.buttonCaptionOrientation = orientation;        
         if( orientation == SwingConstants.TOP || orientation == SwingConstants.BOTTOM ) {
-            buttonTpl.setVerticalTextPosition(orientation);
-            buttonTpl.setHorizontalTextPosition(SwingConstants.CENTER);
+            getButtonTemplate().setVerticalTextPosition(orientation);
+            getButtonTemplate().setHorizontalTextPosition(SwingConstants.CENTER);
         } else {
-            buttonTpl.setVerticalTextPosition(SwingConstants.CENTER);
-            buttonTpl.setHorizontalTextPosition(orientation);
+            getButtonTemplate().setVerticalTextPosition(SwingConstants.CENTER);
+            getButtonTemplate().setHorizontalTextPosition(orientation);
         }
-        this.buttonCaptionOrientation = orientation;
     }
     
-    public boolean isButtonTextInHtml() {
-        return buttonTextInHtml;
-    }
-    
+    public boolean isButtonTextInHtml() { return buttonTextInHtml; } 
     public void setButtonTextInHtml(boolean buttonTextInHtml) {
         this.buttonTextInHtml = buttonTextInHtml;
     }
     
-    public Color getButtonForeground()       { return buttonTpl.getForeground(); }
-    public void setButtonForeground(Color f) { buttonTpl.setForeground(f); }
+    public Color getButtonForeground() { 
+        return getButtonTemplate().getForeground();
+    }
+    public void setButtonForeground(Color foreground) { 
+        getButtonTemplate().setForeground(foreground);
+    }
     
-    public boolean isButtonAsHyperlink()                        { return buttonAsHyperlink; }
-    public void setButtonAsHyperlink(boolean buttonAsHyperlink) { this.buttonAsHyperlink = buttonAsHyperlink; }
+    public boolean isButtonAsHyperlink() { return buttonAsHyperlink; }
+    public void setButtonAsHyperlink(boolean buttonAsHyperlink) { 
+        this.buttonAsHyperlink = buttonAsHyperlink; 
+    }
 
     public void setPropertyInfo(PropertySupport.PropertyInfo info) {
     }

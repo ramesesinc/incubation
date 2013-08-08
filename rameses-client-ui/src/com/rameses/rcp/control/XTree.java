@@ -84,7 +84,7 @@ public class XTree extends JTree implements UIControl
         getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "openNode");
         getActionMap().put("openNode", new AbstractAction(){             
             public void actionPerformed(ActionEvent e) {
-                fireOpenSelectedNode();
+                fireOpenSelectedNode(true);
             } 
         });
         
@@ -207,20 +207,20 @@ public class XTree extends JTree implements UIControl
         if (me.getID() == MouseEvent.MOUSE_CLICKED) {
             if (SwingUtilities.isLeftMouseButton(me)) {
                 if (me.getClickCount() == 2) {
-                    fireOpenSelectedNode();
+                    fireOpenSelectedNode(true);
                 } else if (nodeModel != null && nodeModel.isAllowOpenOnSingleClick()) { 
-                    fireOpenSelectedNode(); 
+                    fireOpenSelectedNode(false); 
                 } 
             } 
         }
         super.processMouseEvent(me); 
     }
     
-    private void fireOpenSelectedNode() 
+    private void fireOpenSelectedNode(boolean forcely) 
     {        
         final DefaultNode selNode = getSelectedNode(); 
         if (selNode == null) return;
-        if (!selNode.hasChanged) return;
+        if (!selNode.hasChanged && !forcely) return;
 
         selNode.hasChanged = false;        
         EventQueue.invokeLater(new Runnable() {
