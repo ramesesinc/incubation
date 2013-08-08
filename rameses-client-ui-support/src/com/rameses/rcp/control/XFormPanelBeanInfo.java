@@ -40,6 +40,7 @@ public class XFormPanelBeanInfo extends ComponentBeanInfo.Support
             new PropertyDescriptor("caption", getBeanClass()),
             new PropertyDescriptor("captionBorder", getBeanClass()),
             new PropertyDescriptor("captionFont", getBeanClass()),
+            new PropertyDescriptor("captionFontStyle", getBeanClass()),
             new PropertyDescriptor("captionForeground", getBeanClass()),                        
             new PropertyDescriptor("captionMnemonic", getBeanClass()),
             new PropertyDescriptor("captionOrientation", getBeanClass()),

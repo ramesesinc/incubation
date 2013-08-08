@@ -40,12 +40,14 @@ public class XOpenerFieldBeanInfo extends ComponentBeanInfo.Support
             new PropertyDescriptor("editable", getBeanClass(), "isEditable", "setEditable"),
             new PropertyDescriptor("expression", getBeanClass()),
             new PropertyDescriptor("varName", getBeanClass()),
+            new PropertyDescriptor("fontStyle", getBeanClass()),
 
             installEditor(new PropertyDescriptor("textCase", getBeanClass()), TextCasePropertyEditor.class), 
             installEditor(new PropertyDescriptor("trimSpaceOption", getBeanClass()), TrimSpaceOptionPropertyEditor.class),              
             
             new PropertyDescriptor("caption", getBeanClass()),
             new PropertyDescriptor("captionFont", getBeanClass()),
+            new PropertyDescriptor("captionFontStyle", getBeanClass()),
             new PropertyDescriptor("captionMnemonic", getBeanClass()),
             new PropertyDescriptor("captionWidth", getBeanClass()),
             new PropertyDescriptor("showCaption", getBeanClass(), "isShowCaption", "setShowCaption"),            
