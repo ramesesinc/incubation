@@ -34,18 +34,48 @@ public class ExplorerViewListPage extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
         jPanel1 = new javax.swing.JPanel();
-        xSubFormPanel1 = new com.rameses.rcp.control.XSubFormPanel();
         jPanel2 = new javax.swing.JPanel();
         jPanel3 = new javax.swing.JPanel();
         lblTitle = new com.rameses.rcp.control.XLabel();
-        jPanel4 = new javax.swing.JPanel();
+        xActionBar1 = new com.rameses.rcp.control.XActionBar();
         xActionBar2 = new com.rameses.rcp.control.XActionBar();
+        xSubFormPanel1 = new com.rameses.rcp.control.XSubFormPanel();
         xDataTable1 = new com.rameses.rcp.control.XDataTable();
         navBar = new com.rameses.rcp.control.XActionBar();
 
         setLayout(new java.awt.BorderLayout());
 
         jPanel1.setLayout(new java.awt.BorderLayout());
+
+        jPanel2.setLayout(new java.awt.BorderLayout());
+
+        jPanel3.setLayout(new java.awt.BorderLayout());
+
+        jPanel3.setBackground(new java.awt.Color(255, 255, 255));
+        lblTitle.setBackground(new java.awt.Color(255, 255, 255));
+        lblTitle.setExpression("#{title}");
+        lblTitle.setOpaque(true);
+        lblTitle.setPadding(new java.awt.Insets(5, 7, 5, 5));
+        jPanel3.add(lblTitle, java.awt.BorderLayout.WEST);
+
+        xActionBar1.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        xActionBar1.setButtonBorderPainted(false);
+        xActionBar1.setButtonContentAreaFilled(false);
+        xActionBar1.setDynamic(true);
+        xActionBar1.setName("nodeActions");
+        xActionBar1.setOpaque(false);
+        xActionBar1.setShowCaptions(false);
+        xActionBar1.setUseToolBar(false);
+        jPanel3.add(xActionBar1, java.awt.BorderLayout.CENTER);
+
+        jPanel2.add(jPanel3, java.awt.BorderLayout.NORTH);
+
+        xActionBar2.setDepends(new String[] {"selectedEntity"});
+        xActionBar2.setDynamic(true);
+        xActionBar2.setName("formActions");
+        jPanel2.add(xActionBar2, java.awt.BorderLayout.SOUTH);
+
+        jPanel1.add(jPanel2, java.awt.BorderLayout.NORTH);
 
         xSubFormPanel1.setHandler("queryForm");
         org.jdesktop.layout.GroupLayout xSubFormPanel1Layout = new org.jdesktop.layout.GroupLayout(xSubFormPanel1);
@@ -59,31 +89,6 @@ public class ExplorerViewListPage extends javax.swing.JPanel {
             .add(0, 20, Short.MAX_VALUE)
         );
         jPanel1.add(xSubFormPanel1, java.awt.BorderLayout.SOUTH);
-
-        jPanel2.setLayout(new java.awt.BorderLayout());
-
-        jPanel3.setLayout(new java.awt.BorderLayout());
-
-        jPanel3.setBackground(new java.awt.Color(255, 255, 255));
-        lblTitle.setBackground(new java.awt.Color(255, 255, 255));
-        lblTitle.setExpression("#{title}");
-        lblTitle.setOpaque(true);
-        lblTitle.setPadding(new java.awt.Insets(5, 7, 5, 5));
-        jPanel3.add(lblTitle, java.awt.BorderLayout.WEST);
-
-        jPanel4.setLayout(null);
-
-        jPanel4.setOpaque(false);
-        jPanel3.add(jPanel4, java.awt.BorderLayout.CENTER);
-
-        jPanel2.add(jPanel3, java.awt.BorderLayout.NORTH);
-
-        xActionBar2.setDepends(new String[] {"selectedEntity"});
-        xActionBar2.setDynamic(true);
-        xActionBar2.setName("formActions");
-        jPanel2.add(xActionBar2, java.awt.BorderLayout.SOUTH);
-
-        jPanel1.add(jPanel2, java.awt.BorderLayout.NORTH);
 
         add(jPanel1, java.awt.BorderLayout.NORTH);
 
@@ -102,9 +107,9 @@ public class ExplorerViewListPage extends javax.swing.JPanel {
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
-    private javax.swing.JPanel jPanel4;
     private com.rameses.rcp.control.XLabel lblTitle;
     private com.rameses.rcp.control.XActionBar navBar;
+    private com.rameses.rcp.control.XActionBar xActionBar1;
     private com.rameses.rcp.control.XActionBar xActionBar2;
     private com.rameses.rcp.control.XDataTable xDataTable1;
     private com.rameses.rcp.control.XSubFormPanel xSubFormPanel1;

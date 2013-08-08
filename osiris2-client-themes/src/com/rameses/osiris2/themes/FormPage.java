@@ -32,6 +32,7 @@ public class FormPage extends javax.swing.JPanel {
         xHorizontalPanel1 = new com.rameses.rcp.control.XHorizontalPanel();
         xabFormActions = new com.rameses.rcp.control.XActionBar();
         xabNavActions = new com.rameses.rcp.control.XActionBar();
+        xActionBar1 = new com.rameses.rcp.control.XActionBar();
         xStyleRule1 = new com.rameses.rcp.control.XStyleRule();
 
         setLayout(new java.awt.BorderLayout());
@@ -55,6 +56,10 @@ public class FormPage extends javax.swing.JPanel {
         xabNavActions.setShowCaptions(false);
         xHorizontalPanel1.add(xabNavActions);
 
+        xActionBar1.setBorder(null);
+        xActionBar1.setName("extActions");
+        xHorizontalPanel1.add(xActionBar1);
+
         jPanel1.add(xHorizontalPanel1, java.awt.BorderLayout.SOUTH);
 
         add(jPanel1, java.awt.BorderLayout.NORTH);
@@ -68,6 +73,7 @@ public class FormPage extends javax.swing.JPanel {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel jPanel1;
     private com.rameses.rcp.control.XLabel lblTitle;
+    private com.rameses.rcp.control.XActionBar xActionBar1;
     private com.rameses.rcp.control.XHorizontalPanel xHorizontalPanel1;
     private com.rameses.rcp.control.XStyleRule xStyleRule1;
     private com.rameses.rcp.control.XActionBar xabFormActions;
