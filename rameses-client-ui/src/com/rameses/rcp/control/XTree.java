@@ -344,29 +344,8 @@ public class XTree extends JTree implements UIControl
             super.removeAllChildren(); 
             nodeModel.initChildNodes(nodes); 
             for (Node n: nodes) { 
-                if (n == null) continue; 
-                
-                String sfolder = n.getPropertyString("folder");
-                if (pnode.getParent() == null && sfolder == null) {                    
-                    n.setLeaf(false); 
-                } else if (pnode.getParent() != null && sfolder == null) { 
-                    n.setLeaf(true); 
-                }                
-                this.add(new DefaultNode(n, pnode)); 
+                if (n != null) this.add(new DefaultNode(n, pnode)); 
             } 
-            
-//            if (getParent() == null && nodes.length > 0) {
-//                //autofocus on the first node
-//                EventQueue.invokeLater(new Runnable() {
-//                    public void run() {
-//                        try { 
-//                            DefaultNode.this.nodes[0].open(); 
-//                        } catch(Throwable t) {
-//                            MsgBox.err(t);
-//                        }
-//                    }
-//                });
-//            }
         }
         
         public void reload() {

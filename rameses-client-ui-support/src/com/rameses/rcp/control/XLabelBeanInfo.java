@@ -48,6 +48,7 @@ public class XLabelBeanInfo extends ComponentBeanInfo.Support
             
             new PropertyDescriptor("depends", getBeanClass()),
             new PropertyDescriptor("expression", getBeanClass()),
+            new PropertyDescriptor("fontStyle", getBeanClass()),
             new PropertyDescriptor("for", getBeanClass()),
             new PropertyDescriptor("format", getBeanClass()),
             new PropertyDescriptor("index", getBeanClass()),

@@ -35,6 +35,13 @@
                 <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
                   <Color blue="ff" green="ff" red="ff" type="rgb"/>
                 </Property>
+                <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+                  <PropertyBean type="com.rameses.rcp.control.border.XEtchedBorder">
+                    <Property name="hideBottom" type="boolean" value="true"/>
+                    <Property name="hideLeft" type="boolean" value="true"/>
+                    <Property name="hideRight" type="boolean" value="true"/>
+                  </PropertyBean>
+                </Property>
               </Properties>
               <Constraints>
                 <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
@@ -50,9 +57,10 @@
                       <Color blue="ff" green="ff" red="ff" type="rgb"/>
                     </Property>
                     <Property name="expression" type="java.lang.String" value="#{title}"/>
+                    <Property name="fontStyle" type="java.lang.String" value="font-size: 16; font-weight:bold;"/>
                     <Property name="opaque" type="boolean" value="true"/>
                     <Property name="padding" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
-                      <Insets value="[5, 7, 5, 5]"/>
+                      <Insets value="[2, 7, 2, 5]"/>
                     </Property>
                   </Properties>
                   <Constraints>

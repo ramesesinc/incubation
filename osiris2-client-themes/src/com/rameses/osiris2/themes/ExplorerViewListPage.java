@@ -18,7 +18,6 @@ public class ExplorerViewListPage extends javax.swing.JPanel {
     
     public ExplorerViewListPage() {
         initComponents();
-        lblTitle.setFont(Font.decode("-bold-18"));
         
         Map props = new HashMap();
         props.put("showTopBorder", true); 
@@ -52,10 +51,16 @@ public class ExplorerViewListPage extends javax.swing.JPanel {
         jPanel3.setLayout(new java.awt.BorderLayout());
 
         jPanel3.setBackground(new java.awt.Color(255, 255, 255));
+        com.rameses.rcp.control.border.XEtchedBorder xEtchedBorder1 = new com.rameses.rcp.control.border.XEtchedBorder();
+        xEtchedBorder1.setHideBottom(true);
+        xEtchedBorder1.setHideLeft(true);
+        xEtchedBorder1.setHideRight(true);
+        jPanel3.setBorder(xEtchedBorder1);
         lblTitle.setBackground(new java.awt.Color(255, 255, 255));
         lblTitle.setExpression("#{title}");
+        lblTitle.setFontStyle("font-size: 16; font-weight:bold;");
         lblTitle.setOpaque(true);
-        lblTitle.setPadding(new java.awt.Insets(5, 7, 5, 5));
+        lblTitle.setPadding(new java.awt.Insets(2, 7, 2, 5));
         jPanel3.add(lblTitle, java.awt.BorderLayout.WEST);
 
         xActionBar1.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
