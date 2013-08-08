@@ -39,33 +39,18 @@ public class Invoker implements Serializable, Comparable {
         
     }
     
-    public String getName() {
-        return name;
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+
+    public String getType() { return type; }
+    public void setType(String type) { this.type = type; }
+
+    public String getPermission() { return permission; }
+    public void setPermission(String permission) {
+        this.permission = permission;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    public String getPermission() {
-        return permission;
-    }
-
-    public void setPermission(String permissionKey) {
-        this.permission = permissionKey;
-    }
-
-    public Map getProperties() {
-        return properties;
-    }
+    public Map getProperties() { return properties; }
     
     public int hashCode() {
         StringBuffer sb = new StringBuffer();
@@ -99,21 +84,11 @@ public class Invoker implements Serializable, Comparable {
         this.caption = caption;
     }
 
-    public String getRef() {
-        return ref;
-    }
+    public String getRef() { return ref; }
+    public void setRef(String ref) { this.ref = ref; }
 
-    public void setRef(String ref) {
-        this.ref = ref;
-    }
-
-    public Integer getIndex() {
-        return index;
-    }
-
-    public void setIndex(Integer index) {
-        this.index = index;
-    }
+    public Integer getIndex() { return index; }
+    public void setIndex(Integer index) { this.index = index; }
 
     public int compareTo(Object o ) {
         if( o == null || !(o instanceof Invoker) ) return 0;
@@ -124,55 +99,48 @@ public class Invoker implements Serializable, Comparable {
         return aidx - bidx;
     }
 
-    public String getAction() {
-        return action;
-    }
+    public String getAction() { return action; }
+    public void setAction(String action) { this.action = action; }
 
-    public void setAction(String action) {
-        this.action = action;
-    }
-
-    public String getWorkunitid() {
-        return workunitid;
-    }
-
-    public void setWorkunitid(String workunitid) {
+    public String getWorkunitid() { return workunitid; }
+    public void setWorkunitid(String workunitid) { 
         this.workunitid = workunitid;
     }
 
-    public String getRole() {
-        return role;
-    }
+    public String getRole() { return role; }
+    public void setRole(String roles) { this.role = roles; }
 
-    public void setRole(String roles) {
-        this.role = roles;
-    }
+    public Module getModule() { return module; }
+    public void setModule(Module module) { this.module = module; }
 
-    public Module getModule() {
-        return module;
-    }
-
-    public void setModule(Module module) {
-        this.module = module;
-    }
-
-    public String getWorkunitname() {
-        return workunitname;
-    }
-
+    public String getWorkunitname() { return workunitname; }
     public void setWorkunitname(String workunitname) {
         this.workunitname = workunitname;
     }
 
-    public String getDomain() {
-        return domain;
-    }
-
-    public void setDomain(String domain) {
-        this.domain = domain;
-    }
-
-   
-
+    public String getDomain() { return domain; }
+    public void setDomain(String domain) { this.domain = domain; }
     
+    // <editor-fold defaultstate="collapsed" desc=" clone utility "> 
+    
+    public Invoker clone() 
+    {
+        Invoker clone = new Invoker(); 
+        clone.workunitid = this.workunitid;
+        clone.workunitname = this.workunitname;
+        clone.name = this.name;
+        clone.caption = this.caption;
+        clone.ref = this.ref;
+        clone.type = this.type;
+        clone.index = this.index;
+        clone.action = this.action;
+        clone.module = this.module;
+        clone.role = this.role;
+        clone.domain = this.domain;
+        clone.permission = this.permission;
+        clone.properties.putAll(this.properties); 
+        return clone; 
+    }
+    
+    // </editor-fold>    
 }
