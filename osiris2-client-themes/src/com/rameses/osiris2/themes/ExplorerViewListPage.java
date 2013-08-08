@@ -75,6 +75,11 @@ public class ExplorerViewListPage extends javax.swing.JPanel {
 
         jPanel2.add(jPanel3, java.awt.BorderLayout.NORTH);
 
+        com.rameses.rcp.control.border.XEtchedBorder xEtchedBorder2 = new com.rameses.rcp.control.border.XEtchedBorder();
+        xEtchedBorder2.setHideLeft(true);
+        xEtchedBorder2.setHideRight(true);
+        xEtchedBorder2.setPadding(new java.awt.Insets(0, 5, 0, 0));
+        xActionBar2.setBorder(xEtchedBorder2);
         xActionBar2.setDepends(new String[] {"selectedEntity"});
         xActionBar2.setDynamic(true);
         xActionBar2.setName("formActions");
@@ -102,6 +107,7 @@ public class ExplorerViewListPage extends javax.swing.JPanel {
         xDataTable1.setName("selectedEntity");
         add(xDataTable1, java.awt.BorderLayout.CENTER);
 
+        navBar.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 5, 0, 0));
         navBar.setName("navActions");
         add(navBar, java.awt.BorderLayout.SOUTH);
 

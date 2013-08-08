@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
 <Form version="1.3" type="org.netbeans.modules.form.forminfo.JPanelFormInfo">
+  <Properties>
+    <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+      <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+        <EmptyBorder bottom="0" left="0" right="0" top="2"/>
+      </Border>
+    </Property>
+  </Properties>
   <AuxValues>
     <AuxValue name="FormSettings_generateMnemonicsCode" type="java.lang.Boolean" value="false"/>
     <AuxValue name="FormSettings_layoutCodeTarget" type="java.lang.Integer" value="2"/>
@@ -26,6 +33,11 @@
     </Component>
     <Component class="com.rameses.rcp.control.XActionBar" name="navBar">
       <Properties>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+            <EmptyBorder bottom="0" left="5" right="0" top="0"/>
+          </Border>
+        </Property>
         <Property name="name" type="java.lang.String" value="navActions"/>
       </Properties>
       <Constraints>
@@ -94,6 +106,15 @@
             </Component>
             <Component class="com.rameses.rcp.control.XActionBar" name="xActionBar2">
               <Properties>
+                <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+                  <PropertyBean type="com.rameses.rcp.control.border.XEtchedBorder">
+                    <Property name="hideLeft" type="boolean" value="true"/>
+                    <Property name="hideRight" type="boolean" value="true"/>
+                    <Property name="padding" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+                      <Insets value="[0, 5, 0, 0]"/>
+                    </Property>
+                  </PropertyBean>
+                </Property>
                 <Property name="depends" type="[Ljava.lang.String;" editor="org.netbeans.beaninfo.editors.StringArrayEditor">
                   <StringArray count="1">
                     <StringItem index="0" value="selectedEntity"/>

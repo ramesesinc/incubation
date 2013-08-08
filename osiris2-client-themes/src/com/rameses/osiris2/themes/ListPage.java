@@ -43,11 +43,13 @@ public class ListPage extends javax.swing.JPanel {
 
         setLayout(new java.awt.BorderLayout());
 
+        setBorder(javax.swing.BorderFactory.createEmptyBorder(2, 0, 0, 0));
         xDataTable1.setHandler("listHandler");
         xDataTable1.setImmediate(true);
         xDataTable1.setName("selectedEntity");
         add(xDataTable1, java.awt.BorderLayout.CENTER);
 
+        navBar.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 5, 0, 0));
         navBar.setName("navActions");
         add(navBar, java.awt.BorderLayout.SOUTH);
 
@@ -74,6 +76,11 @@ public class ListPage extends javax.swing.JPanel {
         lblTitle.setPadding(new java.awt.Insets(5, 7, 5, 5));
         jPanel2.add(lblTitle, java.awt.BorderLayout.NORTH);
 
+        com.rameses.rcp.control.border.XEtchedBorder xEtchedBorder1 = new com.rameses.rcp.control.border.XEtchedBorder();
+        xEtchedBorder1.setHideLeft(true);
+        xEtchedBorder1.setHideRight(true);
+        xEtchedBorder1.setPadding(new java.awt.Insets(0, 5, 0, 0));
+        xActionBar2.setBorder(xEtchedBorder1);
         xActionBar2.setDepends(new String[] {"selectedEntity"});
         xActionBar2.setName("formActions");
         jPanel2.add(xActionBar2, java.awt.BorderLayout.SOUTH);

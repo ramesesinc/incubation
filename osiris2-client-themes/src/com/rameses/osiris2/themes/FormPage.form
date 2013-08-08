@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
 <Form version="1.0" type="org.netbeans.modules.form.forminfo.JPanelFormInfo">
+  <Properties>
+    <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+      <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+        <EmptyBorder bottom="0" left="0" right="0" top="2"/>
+      </Border>
+    </Property>
+  </Properties>
   <AuxValues>
     <AuxValue name="FormSettings_generateMnemonicsCode" type="java.lang.Boolean" value="false"/>
     <AuxValue name="FormSettings_layoutCodeTarget" type="java.lang.Integer" value="2"/>
@@ -26,12 +33,6 @@
             <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
               <Color blue="ff" green="ff" red="ff" type="rgb"/>
             </Property>
-            <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-              <PropertyBean type="com.rameses.rcp.control.border.XEtchedBorder">
-                <Property name="hideLeft" type="boolean" value="true"/>
-                <Property name="hideRight" type="boolean" value="true"/>
-              </PropertyBean>
-            </Property>
             <Property name="expression" type="java.lang.String" value="#{title}"/>
             <Property name="fontStyle" type="java.lang.String" value="font-size:16; font-weight:bold;"/>
             <Property name="opaque" type="boolean" value="true"/>
@@ -47,8 +48,11 @@
         </Component>
         <Container class="com.rameses.rcp.control.XHorizontalPanel" name="xHorizontalPanel1">
           <Properties>
-            <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-              <Connection code="new XToolbarBorder()" type="code"/>
+            <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+              <PropertyBean type="com.rameses.rcp.control.border.XEtchedBorder">
+                <Property name="hideLeft" type="boolean" value="true"/>
+                <Property name="hideRight" type="boolean" value="true"/>
+              </PropertyBean>
             </Property>
           </Properties>
           <Constraints>
