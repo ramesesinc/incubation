@@ -18,12 +18,6 @@ public class ListPage extends javax.swing.JPanel {
     
     public ListPage() {
         initComponents();
-        lblTitle.setFont(Font.decode("-bold-18"));
-        
-        Map props = new HashMap();
-        props.put("showTopBorder", true); 
-        props.put("showBottomBorder", false); 
-        navBar.putClientProperty("Border.properties", props);
     }
     
     /** This method is called from within the constructor to
@@ -33,27 +27,18 @@ public class ListPage extends javax.swing.JPanel {
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
-        xDataTable1 = new com.rameses.rcp.control.XDataTable();
-        navBar = new com.rameses.rcp.control.XActionBar();
-        jPanel1 = new javax.swing.JPanel();
+        pnlHeader = new javax.swing.JPanel();
         xSubFormPanel1 = new com.rameses.rcp.control.XSubFormPanel();
         jPanel2 = new javax.swing.JPanel();
         lblTitle = new com.rameses.rcp.control.XLabel();
         xActionBar2 = new com.rameses.rcp.control.XActionBar();
+        pnlBody = new javax.swing.JPanel();
+        xDataTable1 = new com.rameses.rcp.control.XDataTable();
+        navBar = new com.rameses.rcp.control.XActionBar();
 
         setLayout(new java.awt.BorderLayout());
 
-        setBorder(javax.swing.BorderFactory.createEmptyBorder(2, 0, 0, 0));
-        xDataTable1.setHandler("listHandler");
-        xDataTable1.setImmediate(true);
-        xDataTable1.setName("selectedEntity");
-        add(xDataTable1, java.awt.BorderLayout.CENTER);
-
-        navBar.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 5, 0, 0));
-        navBar.setName("navActions");
-        add(navBar, java.awt.BorderLayout.SOUTH);
-
-        jPanel1.setLayout(new java.awt.BorderLayout());
+        pnlHeader.setLayout(new java.awt.BorderLayout());
 
         xSubFormPanel1.setHandler("queryForm");
         org.jdesktop.layout.GroupLayout xSubFormPanel1Layout = new org.jdesktop.layout.GroupLayout(xSubFormPanel1);
@@ -66,14 +51,15 @@ public class ListPage extends javax.swing.JPanel {
             xSubFormPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(0, 20, Short.MAX_VALUE)
         );
-        jPanel1.add(xSubFormPanel1, java.awt.BorderLayout.SOUTH);
+        pnlHeader.add(xSubFormPanel1, java.awt.BorderLayout.SOUTH);
 
         jPanel2.setLayout(new java.awt.BorderLayout());
 
         lblTitle.setBackground(new java.awt.Color(255, 255, 255));
         lblTitle.setExpression("#{title}");
+        lblTitle.setFontStyle("font-size:16; font-weight:bold;");
         lblTitle.setOpaque(true);
-        lblTitle.setPadding(new java.awt.Insets(5, 7, 5, 5));
+        lblTitle.setPadding(new java.awt.Insets(2, 7, 2, 5));
         jPanel2.add(lblTitle, java.awt.BorderLayout.NORTH);
 
         com.rameses.rcp.control.border.XEtchedBorder xEtchedBorder1 = new com.rameses.rcp.control.border.XEtchedBorder();
@@ -85,18 +71,33 @@ public class ListPage extends javax.swing.JPanel {
         xActionBar2.setName("formActions");
         jPanel2.add(xActionBar2, java.awt.BorderLayout.SOUTH);
 
-        jPanel1.add(jPanel2, java.awt.BorderLayout.NORTH);
+        pnlHeader.add(jPanel2, java.awt.BorderLayout.NORTH);
 
-        add(jPanel1, java.awt.BorderLayout.NORTH);
+        add(pnlHeader, java.awt.BorderLayout.NORTH);
+
+        pnlBody.setLayout(new java.awt.BorderLayout());
+
+        pnlBody.setBorder(javax.swing.BorderFactory.createEmptyBorder(2, 2, 0, 2));
+        xDataTable1.setHandler("listHandler");
+        xDataTable1.setImmediate(true);
+        xDataTable1.setName("selectedEntity");
+        pnlBody.add(xDataTable1, java.awt.BorderLayout.CENTER);
+
+        add(pnlBody, java.awt.BorderLayout.CENTER);
+
+        navBar.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 5, 0, 0));
+        navBar.setName("navActions");
+        add(navBar, java.awt.BorderLayout.SOUTH);
 
     }// </editor-fold>//GEN-END:initComponents
     
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private com.rameses.rcp.control.XLabel lblTitle;
     private com.rameses.rcp.control.XActionBar navBar;
+    private javax.swing.JPanel pnlBody;
+    private javax.swing.JPanel pnlHeader;
     private com.rameses.rcp.control.XActionBar xActionBar2;
     private com.rameses.rcp.control.XDataTable xDataTable1;
     private com.rameses.rcp.control.XSubFormPanel xSubFormPanel1;
