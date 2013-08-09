@@ -8,6 +8,7 @@
 package com.rameses.rcp.control;
 
 import com.rameses.rcp.constant.UIConstants;
+import com.rameses.rcp.support.FontSupport;
 import com.rameses.rcp.support.ThemeUI;
 import com.rameses.rcp.ui.ActiveControl;
 import com.rameses.rcp.ui.ControlProperty;
@@ -61,7 +62,8 @@ public class ItemPanel extends JPanel {
         initComponents(parent, editor, container);
     }
     
-    //<editor-fold defaultstate="collapsed" desc="  initComponents  ">
+    // <editor-fold defaultstate="collapsed" desc="  initComponents  ">
+    
     private void initComponents(XFormPanel parent, Component editor, Component container) 
     {
         this.formPanel = parent;
@@ -103,11 +105,13 @@ public class ItemPanel extends JPanel {
         } else {
             label.setFont(parent.getCaptionFont());
         }
-        
+                
         label.setForeground(parent.getCaptionForeground());
         
         if ( !ValueUtil.isEmpty(label.getText()) )
             label.setBorder(parent.getCaptionBorder());
+        
+        new FontSupport().applyStyles(label, property.getCaptionFontStyle()); 
         
         add(label, "label");
         

@@ -613,7 +613,14 @@ public class XOpenerField extends DefaultTextField implements UIInput, UIInputVe
     }    
     public void setCaptionFont(Font f) {
         property.setCaptionFont(f);
-    }    
+    }  
+    
+    public String getCaptionFontStyle() { 
+        return property.getCaptionFontStyle();
+    } 
+    public void setCaptionFontStyle(String captionFontStyle) {
+        property.setCaptionFontStyle(captionFontStyle); 
+    }     
     
     public Insets getCellPadding() {
         return property.getCellPadding();

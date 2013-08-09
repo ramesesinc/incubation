@@ -32,30 +32,27 @@ public class ExplorerViewListPage extends javax.swing.JPanel {
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
-        jPanel1 = new javax.swing.JPanel();
+        pnlHeader = new javax.swing.JPanel();
         jPanel2 = new javax.swing.JPanel();
         jPanel3 = new javax.swing.JPanel();
         lblTitle = new com.rameses.rcp.control.XLabel();
         xActionBar1 = new com.rameses.rcp.control.XActionBar();
         xActionBar2 = new com.rameses.rcp.control.XActionBar();
         xSubFormPanel1 = new com.rameses.rcp.control.XSubFormPanel();
+        pnlBody = new javax.swing.JPanel();
         xDataTable1 = new com.rameses.rcp.control.XDataTable();
         navBar = new com.rameses.rcp.control.XActionBar();
 
         setLayout(new java.awt.BorderLayout());
 
-        jPanel1.setLayout(new java.awt.BorderLayout());
+        pnlHeader.setLayout(new java.awt.BorderLayout());
 
         jPanel2.setLayout(new java.awt.BorderLayout());
 
         jPanel3.setLayout(new java.awt.BorderLayout());
 
         jPanel3.setBackground(new java.awt.Color(255, 255, 255));
-        com.rameses.rcp.control.border.XEtchedBorder xEtchedBorder1 = new com.rameses.rcp.control.border.XEtchedBorder();
-        xEtchedBorder1.setHideBottom(true);
-        xEtchedBorder1.setHideLeft(true);
-        xEtchedBorder1.setHideRight(true);
-        jPanel3.setBorder(xEtchedBorder1);
+        jPanel3.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         lblTitle.setBackground(new java.awt.Color(255, 255, 255));
         lblTitle.setExpression("#{title}");
         lblTitle.setFontStyle("font-size: 16; font-weight:bold;");
@@ -75,12 +72,17 @@ public class ExplorerViewListPage extends javax.swing.JPanel {
 
         jPanel2.add(jPanel3, java.awt.BorderLayout.NORTH);
 
+        com.rameses.rcp.control.border.XEtchedBorder xEtchedBorder1 = new com.rameses.rcp.control.border.XEtchedBorder();
+        xEtchedBorder1.setHideLeft(true);
+        xEtchedBorder1.setHideRight(true);
+        xEtchedBorder1.setPadding(new java.awt.Insets(0, 5, 0, 0));
+        xActionBar2.setBorder(xEtchedBorder1);
         xActionBar2.setDepends(new String[] {"selectedEntity"});
         xActionBar2.setDynamic(true);
         xActionBar2.setName("formActions");
         jPanel2.add(xActionBar2, java.awt.BorderLayout.SOUTH);
 
-        jPanel1.add(jPanel2, java.awt.BorderLayout.NORTH);
+        pnlHeader.add(jPanel2, java.awt.BorderLayout.NORTH);
 
         xSubFormPanel1.setHandler("queryForm");
         org.jdesktop.layout.GroupLayout xSubFormPanel1Layout = new org.jdesktop.layout.GroupLayout(xSubFormPanel1);
@@ -93,15 +95,21 @@ public class ExplorerViewListPage extends javax.swing.JPanel {
             xSubFormPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(0, 20, Short.MAX_VALUE)
         );
-        jPanel1.add(xSubFormPanel1, java.awt.BorderLayout.SOUTH);
+        pnlHeader.add(xSubFormPanel1, java.awt.BorderLayout.SOUTH);
 
-        add(jPanel1, java.awt.BorderLayout.NORTH);
+        add(pnlHeader, java.awt.BorderLayout.NORTH);
 
+        pnlBody.setLayout(new java.awt.BorderLayout());
+
+        pnlBody.setBorder(javax.swing.BorderFactory.createEmptyBorder(2, 2, 0, 2));
         xDataTable1.setHandler("listHandler");
         xDataTable1.setImmediate(true);
         xDataTable1.setName("selectedEntity");
-        add(xDataTable1, java.awt.BorderLayout.CENTER);
+        pnlBody.add(xDataTable1, java.awt.BorderLayout.CENTER);
 
+        add(pnlBody, java.awt.BorderLayout.CENTER);
+
+        navBar.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 5, 0, 0));
         navBar.setName("navActions");
         add(navBar, java.awt.BorderLayout.SOUTH);
 
@@ -109,11 +117,12 @@ public class ExplorerViewListPage extends javax.swing.JPanel {
     
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private com.rameses.rcp.control.XLabel lblTitle;
     private com.rameses.rcp.control.XActionBar navBar;
+    private javax.swing.JPanel pnlBody;
+    private javax.swing.JPanel pnlHeader;
     private com.rameses.rcp.control.XActionBar xActionBar1;
     private com.rameses.rcp.control.XActionBar xActionBar2;
     private com.rameses.rcp.control.XDataTable xDataTable1;

@@ -9,6 +9,7 @@ import com.rameses.rcp.ui.ActiveControl;
 import com.rameses.rcp.ui.ControlProperty;
 import com.rameses.rcp.util.UICommandUtil;
 import com.rameses.rcp.framework.Binding;
+import com.rameses.rcp.support.FontSupport;
 import com.rameses.rcp.ui.UICommand;
 import com.rameses.rcp.util.UIControlUtil;
 import com.rameses.util.ValueUtil;
@@ -50,68 +51,21 @@ public class XButton extends JButton implements UICommand, ActionListener, Activ
     
     private String accelerator;
     private KeyStroke acceleratorKS;
-    
-    
+    private String fontStyle;
+        
     public XButton() {
         setOpaque(false);
         addActionListener(this);
     }
     
-    
-    public void refresh() 
-    {
-        if (!ValueUtil.isEmpty(expression)) 
-        {
-            Object result = UIControlUtil.evaluateExpr(binding.getBean(), expression);
-            setText((result==null? "": result.toString()));
-        }
         
-        if (!ValueUtil.isEmpty(visibleWhen)) 
-        {
-            boolean result = UIControlUtil.evaluateExprBoolean(binding.getBean(), visibleWhen);
-            if ( !result ) 
-                setVisible(false);
-            else if (!isVisible()) 
-                setVisible(true);
-        }
-        
-        if (!ValueUtil.isEmpty(disableWhen)) 
-        {
-            boolean result = UIControlUtil.evaluateExprBoolean(binding.getBean(), disableWhen);
-            if ( !result ) 
-                setEnabled(true);
-            else if (isEnabled()) 
-                setEnabled(false);
-        } 
-    }
+    // <editor-fold defaultstate="collapsed" desc=" Getters/Setters ">
     
-    public void load() {}
-    
-    public int compareTo(Object o) {
-        return UIControlUtil.compare(this, o);
-    }
-    
-    public void actionPerformed(ActionEvent e) {
-        final Object outcome = UICommandUtil.processAction(this); 
-        if (outcome instanceof PopupMenuOpener) {
-            PopupMenuOpener menu = (PopupMenuOpener) outcome;
-            List<Opener> openers = menu.getOpeners(); 
-            if (openers == null || openers.isEmpty()) return;
-            
-            if (openers.size() == 1) {
-                UICommandUtil.processAction(XButton.this, getBinding(), openers.get(0));
-            } else { 
-                EventQueue.invokeLater(new Runnable() {
-                    public void run() { 
-                        show((PopupMenuOpener) outcome); 
-                    } 
-                }); 
-            }
-        }
-    }
-    
-    
-    //<editor-fold defaultstate="collapsed" desc="  Getters/Setters  ">
+    public String getFontStyle() { return fontStyle; } 
+    public void setFontStyle(String fontStyle) {
+        this.fontStyle = fontStyle;
+        new FontSupport().applyStyles(this, fontStyle);
+    }  
     
     public String getAccelerator() { return accelerator; }
     public void setAccelerator(String accelerator) {
@@ -165,6 +119,13 @@ public class XButton extends JButton implements UICommand, ActionListener, Activ
         property.setCaptionFont(f); 
     }
     
+    public String getCaptionFontStyle() { 
+        return property.getCaptionFontStyle();
+    } 
+    public void setCaptionFontStyle(String captionFontStyle) {
+        property.setCaptionFontStyle(captionFontStyle); 
+    }     
+    
     public Insets getCellPadding() { return property.getCellPadding(); }    
     public void setCellPadding(Insets padding) { 
         property.setCellPadding(padding);
@@ -200,6 +161,62 @@ public class XButton extends JButton implements UICommand, ActionListener, Activ
     public void setDisableWhen(String disableWhen) { this.disableWhen = disableWhen; }
     
     public void setPropertyInfo(PropertySupport.PropertyInfo info) {}    
+    
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" UICommand implementation ">
+    
+    public void refresh() 
+    {
+        if (!ValueUtil.isEmpty(expression)) 
+        {
+            Object result = UIControlUtil.evaluateExpr(binding.getBean(), expression);
+            setText((result==null? "": result.toString()));
+        }
+        
+        if (!ValueUtil.isEmpty(visibleWhen)) 
+        {
+            boolean result = UIControlUtil.evaluateExprBoolean(binding.getBean(), visibleWhen);
+            if ( !result ) 
+                setVisible(false);
+            else if (!isVisible()) 
+                setVisible(true);
+        }
+        
+        if (!ValueUtil.isEmpty(disableWhen)) 
+        {
+            boolean result = UIControlUtil.evaluateExprBoolean(binding.getBean(), disableWhen);
+            if ( !result ) 
+                setEnabled(true);
+            else if (isEnabled()) 
+                setEnabled(false);
+        } 
+    }
+    
+    public void load() {}
+    
+    public int compareTo(Object o) {
+        return UIControlUtil.compare(this, o);
+    }
+    
+    public void actionPerformed(ActionEvent e) {
+        final Object outcome = UICommandUtil.processAction(this); 
+        if (outcome instanceof PopupMenuOpener) {
+            PopupMenuOpener menu = (PopupMenuOpener) outcome;
+            List<Opener> openers = menu.getOpeners(); 
+            if (openers == null || openers.isEmpty()) return;
+            
+            if (openers.size() == 1) {
+                UICommandUtil.processAction(XButton.this, getBinding(), openers.get(0));
+            } else { 
+                EventQueue.invokeLater(new Runnable() {
+                    public void run() { 
+                        show((PopupMenuOpener) outcome); 
+                    } 
+                }); 
+            }
+        }
+    }   
     
     // </editor-fold>
     

@@ -169,6 +169,13 @@ public class XIntegerField extends AbstractNumberField implements UIInput, Valid
         property.setCaptionFont(f);
     }
     
+    public String getCaptionFontStyle() { 
+        return property.getCaptionFontStyle();
+    } 
+    public void setCaptionFontStyle(String captionFontStyle) {
+        property.setCaptionFontStyle(captionFontStyle); 
+    }     
+    
     public Insets getCellPadding() { return property.getCellPadding(); }    
     public void setCellPadding(Insets padding) {
         property.setCellPadding(padding);

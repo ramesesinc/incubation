@@ -35,10 +35,12 @@ public class XTextFieldBeanInfo extends ComponentBeanInfo.Support
         return new PropertyDescriptor[] {
             new PropertyDescriptor("text", getBeanClass()),
             new PropertyDescriptor("border", getBeanClass()),
-            new PropertyDescriptor("margin", getBeanClass()),            
+            new PropertyDescriptor("margin", getBeanClass()), 
+            new PropertyDescriptor("fontStyle", getBeanClass()), 
             
             new PropertyDescriptor("caption", getBeanClass()),
             new PropertyDescriptor("captionFont", getBeanClass()),
+            new PropertyDescriptor("captionFontStyle", getBeanClass()),
             new PropertyDescriptor("captionMnemonic", getBeanClass()),
             new PropertyDescriptor("captionWidth", getBeanClass()),
             new PropertyDescriptor("showCaption", getBeanClass(), "isShowCaption", "setShowCaption"),            

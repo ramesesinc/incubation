@@ -296,6 +296,13 @@ public class XTextField extends DefaultTextField implements UIInput, Validatable
         property.setCaptionFont(f);
     }
     
+    public String getCaptionFontStyle() { 
+        return property.getCaptionFontStyle();
+    } 
+    public void setCaptionFontStyle(String captionFontStyle) {
+        property.setCaptionFontStyle(captionFontStyle); 
+    }     
+    
     public Insets getCellPadding() {
         return property.getCellPadding();
     }    

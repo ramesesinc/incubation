@@ -38,17 +38,16 @@ public class FormPage extends javax.swing.JPanel {
         jPanel1.setLayout(new java.awt.BorderLayout());
 
         lblTitle.setBackground(new java.awt.Color(255, 255, 255));
-        com.rameses.rcp.control.border.XEtchedBorder xEtchedBorder1 = new com.rameses.rcp.control.border.XEtchedBorder();
-        xEtchedBorder1.setHideLeft(true);
-        xEtchedBorder1.setHideRight(true);
-        lblTitle.setBorder(xEtchedBorder1);
         lblTitle.setExpression("#{title}");
         lblTitle.setFontStyle("font-size:16; font-weight:bold;");
         lblTitle.setOpaque(true);
         lblTitle.setPadding(new java.awt.Insets(2, 7, 2, 5));
         jPanel1.add(lblTitle, java.awt.BorderLayout.NORTH);
 
-        xHorizontalPanel1.setBorder(new XToolbarBorder());
+        com.rameses.rcp.control.border.XEtchedBorder xEtchedBorder1 = new com.rameses.rcp.control.border.XEtchedBorder();
+        xEtchedBorder1.setHideLeft(true);
+        xEtchedBorder1.setHideRight(true);
+        xHorizontalPanel1.setBorder(xEtchedBorder1);
         xabFormActions.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 5, 0, 5));
         xabFormActions.setName("formActions");
         xabFormActions.setShowCaptions(false);

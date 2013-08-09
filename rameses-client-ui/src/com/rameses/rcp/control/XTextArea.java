@@ -7,6 +7,7 @@ import com.rameses.rcp.constant.TrimSpaceOption;
 import com.rameses.rcp.framework.ActionHandler;
 import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.framework.ClientContext;
+import com.rameses.rcp.support.FontSupport;
 import com.rameses.rcp.support.TextDocument;
 import com.rameses.rcp.support.TextEditorSupport;
 import com.rameses.rcp.support.ThemeUI;
@@ -47,6 +48,7 @@ public class XTextArea extends JTextArea implements UIInput, Validatable, Active
     private boolean readonly;    
     private boolean nullWhenEmpty = true;   
     private String[] depends;
+    private String fontStyle;
     private ControlProperty property = new ControlProperty();
     private ActionMessage actionMessage = new ActionMessage();
     
@@ -242,6 +244,19 @@ public class XTextArea extends JTextArea implements UIInput, Validatable, Active
     public void setCaptionFont(Font f) {
         property.setCaptionFont(f);
     }
+    
+    public String getCaptionFontStyle() { 
+        return property.getCaptionFontStyle();
+    } 
+    public void setCaptionFontStyle(String captionFontStyle) {
+        property.setCaptionFontStyle(captionFontStyle); 
+    } 
+    
+    public String getFontStyle() { return fontStyle; } 
+    public void setFontStyle(String fontStyle) {
+        this.fontStyle = fontStyle;
+        new FontSupport().applyStyles(this, fontStyle);
+    }      
     
     public Insets getCellPadding() {
         return property.getCellPadding();
