@@ -7,7 +7,6 @@ import com.rameses.rcp.support.StyleRuleParser.DefaultParseHandler;
 import com.rameses.rcp.ui.annotations.StyleSheet;
 import com.rameses.rcp.ui.annotations.Template;
 import com.rameses.util.ValueUtil;
-import java.awt.BorderLayout;
 import java.awt.Component;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -130,12 +129,8 @@ public class UIControllerContext {
             
             JComponent smaster = initPagePanel(master, binding);
             JComponent targetPanel = findTargetPanel(master, t.target());
-            if (targetPanel != null) 
-            {
-                if (targetPanel.getLayout() instanceof BorderLayout) 
-                    targetPanel.add(panel, BorderLayout.NORTH); 
-                else 
-                    targetPanel.add(panel); 
+            if (targetPanel != null) {
+                targetPanel.add(panel); 
             }
             else if (master instanceof UIContentPanel) {
                 ((UIContentPanel) master).setContent(panel, t.target()); 
