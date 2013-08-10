@@ -26,28 +26,38 @@ public class ExplorerViewPage extends javax.swing.JPanel {
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
-        jPanel1 = new javax.swing.JPanel();
-        jPanel2 = new javax.swing.JPanel();
+        pnlHeader = new javax.swing.JPanel();
         jSplitPane1 = new javax.swing.JSplitPane();
-        pnlView = new javax.swing.JPanel();
-        xSubFormPanel1 = new com.rameses.rcp.control.XSubFormPanel();
+        pnlTree = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         xTree1 = new com.rameses.rcp.control.XTree();
+        pnlView = new javax.swing.JPanel();
+        xSubFormPanel1 = new com.rameses.rcp.control.XSubFormPanel();
 
         setLayout(new java.awt.BorderLayout());
 
-        jPanel1.setLayout(new java.awt.BorderLayout());
+        pnlHeader.setLayout(new java.awt.BorderLayout());
 
-        jPanel1.setName("header");
-        jPanel2.setLayout(new java.awt.BorderLayout());
-
-        jPanel1.add(jPanel2, java.awt.BorderLayout.NORTH);
-
-        add(jPanel1, java.awt.BorderLayout.NORTH);
+        pnlHeader.setName("header");
+        add(pnlHeader, java.awt.BorderLayout.NORTH);
 
         jSplitPane1.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         jSplitPane1.setDividerLocation(250);
         jSplitPane1.setName("body");
+        pnlTree.setLayout(new java.awt.BorderLayout());
+
+        pnlTree.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 1, 1, 0));
+        com.rameses.rcp.control.border.XLineBorder xLineBorder1 = new com.rameses.rcp.control.border.XLineBorder();
+        xLineBorder1.setLineColor(java.awt.SystemColor.controlShadow);
+        jScrollPane1.setBorder(xLineBorder1);
+        xTree1.setHandler("nodeModel");
+        xTree1.setName("selectedNode");
+        jScrollPane1.setViewportView(xTree1);
+
+        pnlTree.add(jScrollPane1, java.awt.BorderLayout.CENTER);
+
+        jSplitPane1.setLeftComponent(pnlTree);
+
         pnlView.setLayout(new java.awt.BorderLayout());
 
         pnlView.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -59,15 +69,6 @@ public class ExplorerViewPage extends javax.swing.JPanel {
 
         jSplitPane1.setRightComponent(pnlView);
 
-        com.rameses.rcp.control.border.XLineBorder xLineBorder1 = new com.rameses.rcp.control.border.XLineBorder();
-        xLineBorder1.setLineColor(java.awt.SystemColor.controlShadow);
-        jScrollPane1.setBorder(xLineBorder1);
-        xTree1.setHandler("nodeModel");
-        xTree1.setName("selectedNode");
-        jScrollPane1.setViewportView(xTree1);
-
-        jSplitPane1.setLeftComponent(jScrollPane1);
-
         add(jSplitPane1, java.awt.BorderLayout.CENTER);
 
     }// </editor-fold>//GEN-END:initComponents
@@ -75,10 +76,10 @@ public class ExplorerViewPage extends javax.swing.JPanel {
     
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSplitPane jSplitPane1;
+    private javax.swing.JPanel pnlHeader;
+    private javax.swing.JPanel pnlTree;
     private javax.swing.JPanel pnlView;
     private com.rameses.rcp.control.XSubFormPanel xSubFormPanel1;
     private com.rameses.rcp.control.XTree xTree1;
