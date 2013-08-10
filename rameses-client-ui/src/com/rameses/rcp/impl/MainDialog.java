@@ -20,6 +20,7 @@ import java.awt.Insets;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.net.URL;
+import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -130,7 +131,7 @@ public class MainDialog implements MainWindow {
                 dialog.remove(statusbar);
             
             statusbar = comp;
-            comp.setBorder(new StatusbarBorder());
+            comp.setBorder(BorderFactory.createEmptyBorder(2,0,0,0));
             dialog.add(comp, BorderLayout.SOUTH);
         }
         SwingUtilities.updateComponentTreeUI( dialog.getContentPane() );

@@ -30,6 +30,10 @@ public class PopupMenuOpener extends Opener {
 
     public List<Opener> getOpeners() { return openers; } 
     
+    public Opener getFirst() {
+        return (openers.isEmpty()? null: openers.get(0)); 
+    }
+    
     public void removeAll() { openers.clear(); }
     
     public void add(Opener opener) {

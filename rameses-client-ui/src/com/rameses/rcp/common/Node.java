@@ -141,6 +141,22 @@ public class Node
         return (o == null? null: o.toString()); 
     }
     
+    public List getPropertyList(String name) {
+        Object o = getProperties().get(name); 
+        if (o instanceof List) {
+            return (List) o; 
+        } else {
+            return null; 
+        }
+    }
+    
+    public Object getProperty(String name) {
+        return getProperties().get(name);
+    }
+    public void setProperty(String name, Object value) {
+        getProperties().put(name, value); 
+    }
+    
     // </editor-fold>    
             
     // <editor-fold defaultstate="collapsed" desc=" helper methods ">
@@ -211,6 +227,10 @@ public class Node
         Node.Provider provider = getProvider();
         return (provider == null? false: provider.hasItems()); 
     }  
+    
+    public void loadItems() {
+        if (!hasItems()) reloadItems(); 
+    }
     
     public void reloadItems() {
         Node.Provider provider = getProvider();

@@ -13,6 +13,7 @@ import com.rameses.rcp.common.Column;
 import com.rameses.rcp.common.EditorListModel;
 import com.rameses.rcp.common.ListItem;
 import com.rameses.rcp.common.MsgBox;
+import com.rameses.rcp.common.PopupMenuOpener;
 import com.rameses.rcp.common.PropertyChangeHandler;
 import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.common.TableModelHandler;
@@ -818,6 +819,11 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
                     Object outcome = dataProvider.openSelectedItem();
                     if (outcome == null) return; 
 
+                    if (outcome instanceof PopupMenuOpener) {
+                        outcome = ((PopupMenuOpener) outcome).getFirst();
+                        if (outcome == null) return; 
+                    }
+                    
                     binding.fireNavigation(outcome); 
                 }
             } 
