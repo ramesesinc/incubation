@@ -212,6 +212,10 @@ public class Node
         return (provider == null? false: provider.hasItems()); 
     }  
     
+    public void loadItems() {
+        if (!hasItems()) reloadItems(); 
+    }
+    
     public void reloadItems() {
         Node.Provider provider = getProvider();
         if (provider != null) provider.reloadItems();
