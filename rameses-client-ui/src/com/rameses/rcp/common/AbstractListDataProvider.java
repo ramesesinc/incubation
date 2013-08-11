@@ -23,9 +23,10 @@ import java.util.Set;
  */
 public abstract class AbstractListDataProvider 
 {
-    public final static int FETCH_MODE_LOAD     = 0;
-    public final static int FETCH_MODE_REFRESH  = 1;
-    public final static int FETCH_MODE_RELOAD   = 2;
+    public final static int FETCH_MODE_LOAD         = 0;
+    public final static int FETCH_MODE_REFRESH      = 1;
+    public final static int FETCH_MODE_RELOAD       = 2;
+    public final static int FETCH_MODE_RELOAD_ALL   = 3;
         
     protected PropertyChangeSupport propertySupport; 
     protected TableModelSupport tableModelSupport; 
@@ -141,9 +142,13 @@ public abstract class AbstractListDataProvider
         {
             propertySupport.firePropertyChange("loading", true);
             processing = true;
-            boolean forceLoad = (fetchMode == FETCH_MODE_LOAD || fetchMode == FETCH_MODE_RELOAD); 
+            boolean forceLoad = (fetchMode==FETCH_MODE_LOAD || fetchMode==FETCH_MODE_RELOAD || fetchMode==FETCH_MODE_RELOAD_ALL); 
             fetch(forceLoad); 
-            tableModelSupport.fireTableDataChanged(); 
+            
+            if (fetchMode == FETCH_MODE_RELOAD_ALL) 
+                tableModelSupport.fireTableStructureChanged(); 
+            else 
+                tableModelSupport.fireTableDataChanged(); 
             
             int index = (selectedItem == null? 0: selectedItem.getIndex());
             tableModelSupport.fireTableRowSelected(index, false);
@@ -275,10 +280,7 @@ public abstract class AbstractListDataProvider
     public final String getSelectedColumn() { return selectedColumn; }    
     public final void setSelectedColumn(String selectedColumn) {
         this.selectedColumn = selectedColumn;
-    }    
-
-    
-    
+    }     
     
     public void load() 
     {
@@ -287,6 +289,10 @@ public abstract class AbstractListDataProvider
         selectionSupport = null;
         fetchImpl();
     }
+    
+    public void reload() { 
+        refresh(true);  
+    } 
     
     public void refresh() { 
         refresh(false); 
@@ -297,6 +303,11 @@ public abstract class AbstractListDataProvider
         fetchMode = (forceLoad? FETCH_MODE_RELOAD: FETCH_MODE_REFRESH); 
         fetchImpl(); 
     } 
+
+    public void reloadAll() {
+        fetchMode = FETCH_MODE_RELOAD_ALL;
+        fetchImpl();         
+    }
     
     public final int getDataIndexByRownum(int rownum) 
     {
