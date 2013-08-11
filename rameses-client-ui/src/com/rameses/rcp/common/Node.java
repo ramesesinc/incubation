@@ -229,7 +229,8 @@ public class Node
     }  
     
     public void loadItems() {
-        if (!hasItems()) reloadItems(); 
+        Node.Provider provider = getProvider();
+        if (provider != null) provider.loadItems();
     }
     
     public void reloadItems() {
@@ -261,6 +262,7 @@ public class Node
         int getIndex();
         
         boolean hasItems();
+        void loadItems();
         void reloadItems();        
         List<Node> getItems();
         
