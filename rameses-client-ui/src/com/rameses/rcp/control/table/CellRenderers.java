@@ -685,20 +685,15 @@ public class CellRenderers {
             Object itemData = getContext().getItemData();
             if (itemData == null) {
                 label.setIcon(null); 
-            }
-            else if (value != null) {
-                ImageIcon iicon = ControlSupport.getImageIcon(value.toString()); 
-                label.setIcon(iicon);                 
-            }
-            else { 
+            } else {
                 IconColumnHandler ich = (IconColumnHandler) oColumn.getTypeHandler(); 
-                Object ichvalue = ich.getValue(itemData);
-                if (ichvalue instanceof ImageIcon) {
-                    label.setIcon((ImageIcon) ichvalue); 
+                Object retval = ich.getValue(itemData, value);
+                if (retval instanceof ImageIcon) {
+                    label.setIcon((ImageIcon) retval); 
                 } else { 
                     label.setIcon(null); 
-                }
-            } 
+                } 
+            }
         }
     }
     
