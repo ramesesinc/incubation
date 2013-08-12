@@ -24,7 +24,6 @@ public class ListHelper {
     private String schemaName;
     private IListListener listener;
     
-    /** Creates a new instance of CrudHelper */
     public ListHelper(String schemaName, EntityManager em, IListListener listener) {
         this.schemaName = schemaName;
         this.em = em;
@@ -32,23 +31,24 @@ public class ListHelper {
     }
     
     public Object getList(Object data) throws Exception {
-        if(! (data instanceof Map ))
-            throw new RuntimeException("Crud.create parameter must be map");
+        if (!(data instanceof Map))
+            throw new RuntimeException("ListHelper.getList parameter must be a Map");
+        
         Map params = (Map)data;
-        listener.beforeList(params);
-        if(params.containsKey("searchtest")) {
-            String stext = (String)params.get("searchtext");
+        listener.beforeList(params); 
+        if (params.containsKey("searchtext")) {
+            String stext = (String) params.get("searchtext");
             params.put("searchtext", stext+"%" );
         }
         
         SqlQuery sq = em.getSqlContext().createNamedQuery( schemaName+":getList" );
-        sq.setParameters(params);
+        sq.setParameters(params).setVars(params);
         
-        if( params.containsKey("_start")) {
+        if (params.containsKey("_start")) {
             int i = Integer.parseInt(params.get("_start")+"");
             sq.setFirstResult( i );
         }
-        if( params.containsKey("_limit")) {
+        if (params.containsKey("_limit")) {
             int i = Integer.parseInt(params.get("_limit")+"");
             sq.setMaxResults( i );
         }
