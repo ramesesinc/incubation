@@ -146,13 +146,12 @@ public abstract class AbstractListDataProvider
             fetch(forceLoad); 
             
             if (fetchMode == FETCH_MODE_RELOAD_ALL) 
-                tableModelSupport.fireTableStructureChanged(); 
+                tableModelSupport.fireTableDataProviderChanged(); 
             else 
                 tableModelSupport.fireTableDataChanged(); 
             
             int index = (selectedItem == null? 0: selectedItem.getIndex());
             tableModelSupport.fireTableRowSelected(index, false);
-            //fireFocusSelectedItem(); 
         }
         catch(RuntimeException re) {
             throw re;
@@ -282,16 +281,28 @@ public abstract class AbstractListDataProvider
         this.selectedColumn = selectedColumn;
     }     
     
-    public void load() 
-    {
-        checkedItems.clear();        
-        fetchMode = FETCH_MODE_LOAD; 
-        selectionSupport = null;
-        fetchImpl();
+    protected void beforeLoad(){} 
+    protected void afterLoad(){}
+    
+    private void loadImpl(int fetchModeOption) {
+        checkedItems.clear(); 
+        fetchMode = fetchModeOption;  
+        selectionSupport = null; 
+        beforeLoad();        
+        fetchImpl(); 
+        afterLoad(); 
     }
+        
+    public void load() { 
+        loadImpl(FETCH_MODE_LOAD);  
+    } 
     
     public void reload() { 
         refresh(true);  
+    }
+        
+    public void reloadAll() {
+        loadImpl(FETCH_MODE_RELOAD_ALL);  
     } 
     
     public void refresh() { 
@@ -303,11 +314,6 @@ public abstract class AbstractListDataProvider
         fetchMode = (forceLoad? FETCH_MODE_RELOAD: FETCH_MODE_REFRESH); 
         fetchImpl(); 
     } 
-
-    public void reloadAll() {
-        fetchMode = FETCH_MODE_RELOAD_ALL;
-        fetchImpl();         
-    }
     
     public final int getDataIndexByRownum(int rownum) 
     {

@@ -25,16 +25,14 @@ public abstract class PageListModel extends AbstractListDataProvider implements 
         stat.setRecordCount(totalMaxRows);
         stat.setIsLastPage(isLastPage()); 
         return stat;
-    }       
-
-    public void load() 
-    {
+    }      
+    
+    protected void beforeLoad() {
         fetchedRows = 0;
         preferredRows = 0;
         totalMaxRows = 0;
         pageIndex = 1;
         pageCount = 1;
-        super.load();
     }
     
     public String getSearchtext() {  return searchtext; }     

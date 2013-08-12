@@ -261,7 +261,7 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
         }
         hasLoaded = true;
     }
-    
+        
     public Object getValue() 
     {
         if ( Beans.isDesignTime() ) return null;
@@ -881,16 +881,20 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
     {
         XDataTable root = XDataTable.this; 
 
-        public void fireTableCellUpdated(int row, int column) {}
-
         public void fireTableDataChanged() { 
             root.scrollBar.adjustValues(); 
         }
+        
+        public void fireTableDataProviderChanged() { 
+            root.table.setDataProvider(root.dataProvider); 
+        }
+        
+        public void fireTableStructureChanged() {}
 
+        public void fireTableCellUpdated(int row, int column) {}        
         public void fireTableRowsDeleted(int firstRow, int lastRow) {}
         public void fireTableRowsInserted(int firstRow, int lastRow) {}
         public void fireTableRowsUpdated(int firstRow, int lastRow) {}
-        public void fireTableStructureChanged() {}
         public void fireTableRowSelected(int row, boolean focusOnItemDataOnly) {}
     }
     
