@@ -25,7 +25,6 @@ public class CrudHelper {
     private ICrudListener listener;
     private boolean validate = true;
     
-    /** Creates a new instance of CrudHelper */
     public CrudHelper(String schemaName, String subSchemaName, EntityManager em, ICrudListener listener, boolean validate) {
         this.schemaName = schemaName;
         this.mainSchemaName = schemaName;
@@ -42,9 +41,8 @@ public class CrudHelper {
             throw new RuntimeException("Crud.create parameter must be a Map object");
         
         Map map = (Map)data;
-        listener.beforeCreate(map);
-        if (validate) em.validate(schemaName, map);
-        
+        listener.beforeCreate(map);        
+        map = (Map)em.create(schemaName, map);
         listener.afterCreate(map);
         return map;
     }
@@ -54,11 +52,10 @@ public class CrudHelper {
             throw new RuntimeException("Crud.update parameter must be a Map object");
         
         Map map = (Map)data;
-        listener.beforeUpdate(map);
-        if (validate) em.validate(schemaName, map);
-        
+        listener.beforeUpdate(map);        
+        map = (Map)em.update(schemaName, map);
         listener.afterUpdate(map);
-        return em.update(schemaName, map);
+        return map;
     }
     
      public Object open(Object data) {

@@ -32,7 +32,7 @@ public class ListHelper {
     
     public Object getList(Object data) throws Exception {
         if (!(data instanceof Map))
-            throw new RuntimeException("ListHelper.getList parameter must be a Map");
+            throw new RuntimeException("ListHelper.getList parameter must be a Map object");
         
         Map params = (Map)data;
         listener.beforeList(params); 
