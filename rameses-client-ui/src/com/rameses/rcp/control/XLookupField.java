@@ -441,7 +441,9 @@ public class XLookupField extends IconedTextField implements UIFocusableContaine
         selectedValue = value; 
         getInputSupport().setValue(getName(), selectedValue);         
         putClientProperty("updateBeanValue", true); 
-        getInputVerifierProxy().setEnabled(true);
+        getInputVerifierProxy().setEnabled(true);        
+        if (lookupHandlerProxy.hasOnselectCallback()) 
+            putClientProperty("cellEditorValue", "no_updates"); 
         
         if ( transferFocusOnSelect )
             this.transferFocus();
