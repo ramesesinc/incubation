@@ -35,38 +35,44 @@ public class CrudHelper {
     }
     
     public Object create(Object data) {
-        if(! (data instanceof Map ))
-            throw new RuntimeException("Crud.create parameter must be map");
+        if (!(data instanceof Map))
+            throw new RuntimeException("Crud.create parameter must be a Map object");
+        
         Map map = (Map)data;
         listener.beforeCreate(map);
-        if(validate) em.validate(schemaName, map);
+        if (validate) em.validate(schemaName, map);
+        
         listener.afterCreate(map);
         return em.create(schemaName, map);
     }
     
     public Object update(Object data) {
-        if(! (data instanceof Map ))
-            throw new RuntimeException("Crud.update parameter must be map");
+        if (!(data instanceof Map))
+            throw new RuntimeException("Crud.update parameter must be a Map object");
+        
         Map map = (Map)data;
         listener.beforeUpdate(map);
-        if(validate) em.validate(schemaName, map);
+        if (validate) em.validate(schemaName, map);
+        
         listener.afterUpdate(map);
-        return em.create(schemaName, map);
+        return em.update(schemaName, map);
     }
     
      public Object open(Object data) {
-        if(! (data instanceof Map ))
-            throw new RuntimeException("Crud.open parameter must be map");
+        if (!(data instanceof Map))
+            throw new RuntimeException("Crud.open parameter must be a Map object");
+        
         Map map = (Map)data;
         listener.beforeOpen(map);
-        map = (Map)em.read(schemaName, map);
+        map = (Map)em.read(schemaName, map); 
         listener.afterOpen(map);
         return map;
     }
      
      public void removeEntity(Object data) {
-        if(! (data instanceof Map ))
-            throw new RuntimeException("Crud.removeEntity parameter must be map");
+        if (!(data instanceof Map ))
+            throw new RuntimeException("Crud.removeEntity parameter must be a Map object");
+        
         Map map = (Map)data;
         listener.beforeRemoveEntity(map);
         em.delete(schemaName, map);
