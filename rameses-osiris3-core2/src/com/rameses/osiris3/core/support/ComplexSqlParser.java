@@ -102,9 +102,10 @@ public final class ComplexSqlParser {
         statement = sb.toString();
         
         StringBuilder fbuilder = new StringBuilder();
-        fbuilder.append("EM.get(\""+context+"\").sqlContext.createQuery('''" + statement + "''')" );
+        fbuilder.append("EM[\""+context+"\"].sqlContext.createQuery('''\n" + statement + "\n''')" );
         if( paramString.length()>0 ) fbuilder.append( ".setParameters(["+ paramString.toString()+"])" );
-        fbuilder.append( ".resultList" );
+        fbuilder.append( ".dataList" );
+        //System.out.println("final ->"+fbuilder.toString());
         return fbuilder.toString();
     }
     
