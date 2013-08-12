@@ -434,20 +434,20 @@ public class CellRenderers {
             Object columnValue = resolveValue(getContext());
             Column oColumn = getContext().getColumn();
             
-            TextCase oTextCase = oColumn.getTextCase();
+            TextCase oTextCase = (oColumn == null? null: oColumn.getTextCase());
             if (oTextCase != null && columnValue != null)
-                label.setText(oTextCase.convert(columnValue.toString()));
+                label.setText(oTextCase.convert(columnValue.toString())); 
             
             label.setHorizontalAlignment( SwingConstants.LEFT );
             //set alignment if it is specified in the Column model
-            if ( oColumn.getAlignment() != null )
+            if ( oColumn != null && oColumn.getAlignment() != null )
                 getComponentSupport().alignText(label, oColumn.getAlignment());
             
             setValue(label, oColumn, columnValue);
         }
         
         protected void setValue(JLabel label, Column oColumn, Object value) {
-            if ( value != null && oColumn.isHtmlDisplay() )
+            if ( value != null && oColumn != null && oColumn.isHtmlDisplay() )
                 value = "<html>" + value + "</html>";
                         
             label.setText((value == null ? "" : value.toString()));
@@ -685,20 +685,15 @@ public class CellRenderers {
             Object itemData = getContext().getItemData();
             if (itemData == null) {
                 label.setIcon(null); 
-            }
-            else if (value != null) {
-                ImageIcon iicon = ControlSupport.getImageIcon(value.toString()); 
-                label.setIcon(iicon);                 
-            }
-            else { 
+            } else {
                 IconColumnHandler ich = (IconColumnHandler) oColumn.getTypeHandler(); 
-                Object ichvalue = ich.getValue(itemData);
-                if (ichvalue instanceof ImageIcon) {
-                    label.setIcon((ImageIcon) ichvalue); 
+                Object retval = ich.getValue(itemData, value);
+                if (retval instanceof ImageIcon) {
+                    label.setIcon((ImageIcon) retval); 
                 } else { 
                     label.setIcon(null); 
-                }
-            } 
+                } 
+            }
         }
     }
     

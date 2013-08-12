@@ -145,7 +145,7 @@ public abstract class AbstractListDataProvider
             boolean forceLoad = (fetchMode==FETCH_MODE_LOAD || fetchMode==FETCH_MODE_RELOAD || fetchMode==FETCH_MODE_RELOAD_ALL); 
             fetch(forceLoad); 
             if (fetchMode == FETCH_MODE_RELOAD_ALL) 
-                tableModelSupport.fireTableStructureChanged(); 
+                tableModelSupport.fireTableDataProviderChanged(); 
             else 
                 tableModelSupport.fireTableDataChanged(); 
             
@@ -278,27 +278,32 @@ public abstract class AbstractListDataProvider
     public final String getSelectedColumn() { return selectedColumn; }    
     public final void setSelectedColumn(String selectedColumn) {
         this.selectedColumn = selectedColumn;
-    }    
-
+    }     
     
+    protected void beforeLoad(){} 
+    protected void afterLoad(){}
     
-    
-    public void load() 
-    {
-        checkedItems.clear();        
-        fetchMode = FETCH_MODE_LOAD; 
-        selectionSupport = null;
-        fetchImpl();
+    private void loadImpl(int fetchModeOption) {
+        checkedItems.clear(); 
+        fetchMode = fetchModeOption;  
+        selectionSupport = null; 
+        beforeLoad();        
+        fetchImpl(); 
+        afterLoad(); 
     }
+        
+    public void load() { 
+        loadImpl(FETCH_MODE_LOAD);  
+    } 
     
-    public void reload() {
-        refresh(true);
+    public void reload() { 
+        refresh(true);  
     }
-    
+        
     public void reloadAll() {
-        refreshImpl(FETCH_MODE_RELOAD_ALL); 
-    }
-    
+        loadImpl(FETCH_MODE_RELOAD_ALL);  
+    } 
+        
     public void refresh() { 
         refresh(false); 
     } 

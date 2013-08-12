@@ -335,10 +335,15 @@ public class XTree extends JTree implements UIControl
         }
         
         public void loadChildren() {
+            loadChildren(false);
+        }
+        
+        void loadChildren(boolean reload) {
             Node pnode = getNode();
             if (pnode != null && pnode.isLeaf()) return;
             
-            if (nodes == null) nodes = nodeModel.fetchNodes(pnode); 
+            if (nodes == null || reload) 
+                nodes = nodeModel.fetchNodes(pnode); 
             if (nodes == null) return;
 
             super.removeAllChildren(); 
@@ -404,8 +409,13 @@ public class XTree extends JTree implements UIControl
             return (en == null? false: en.hasMoreElements()); 
         } 
         
-        public void reloadItems() { 
+        public void loadItems() { 
             treeNode.loadChildren(); 
+            root.model.nodeStructureChanged(treeNode); 
+        }         
+        
+        public void reloadItems() { 
+            treeNode.loadChildren(true); 
             root.model.nodeStructureChanged(treeNode); 
         } 
         

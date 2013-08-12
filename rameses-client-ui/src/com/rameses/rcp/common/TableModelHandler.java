@@ -15,12 +15,13 @@ package com.rameses.rcp.common;
  */
 public interface TableModelHandler 
 {
-    void fireTableCellUpdated(int row, int column);
     void fireTableDataChanged();
+    void fireTableDataProviderChanged();
+    void fireTableStructureChanged(); 
+    
+    void fireTableCellUpdated(int row, int column);
     void fireTableRowsDeleted(int firstRow, int lastRow);
     void fireTableRowsInserted(int firstRow, int lastRow);
-    void fireTableRowsUpdated(int firstRow, int lastRow);
-    void fireTableStructureChanged();     
-       
+    void fireTableRowsUpdated(int firstRow, int lastRow);       
     void fireTableRowSelected(int row, boolean focusOnItemDataOnly); 
 }

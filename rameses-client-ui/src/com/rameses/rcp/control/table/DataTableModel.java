@@ -82,6 +82,14 @@ public class DataTableModel extends AbstractTableModel implements TableControlMo
         reIndexColumns(); 
     } 
     
+    void dispose() {
+        if (dataProvider == null) return;
+        
+        dataProvider.removeHandler(this);
+        columnList.clear();
+        dataProvider = null; 
+    }
+    
     public void reIndexColumns() 
     {
         columnList.clear(); 
@@ -170,7 +178,8 @@ public class DataTableModel extends AbstractTableModel implements TableControlMo
         ListItem item = getListItem(rowIndex); 
         if (item == null) return null; 
         
-        String name = columnList.get(columnIndex).getName();
+        Column oColumn = getColumn(columnIndex); 
+        String name = (oColumn == null? null: oColumn.getName());
         if (ValueUtil.isEmpty(name)) return null; 
         
         if (varStatus == null) {
@@ -262,7 +271,11 @@ public class DataTableModel extends AbstractTableModel implements TableControlMo
             support.setItem(getVarName(), itemBean); 
         } 
         return support.createProxy(); 
-    }     
+    }   
+
+    public final void fireTableDataProviderChanged() {
+        //do nothing here...
+    }
 
     public void fireTableStructureChanged() {
         reIndexColumns();

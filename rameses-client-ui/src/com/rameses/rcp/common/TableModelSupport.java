@@ -85,4 +85,10 @@ public class TableModelSupport implements TableModelHandler, Cloneable
             handler.fireTableRowSelected(row, focusOnItemDataOnly);
         }          
     }    
+
+    public void fireTableDataProviderChanged() {
+        for (TableModelHandler handler : handlers) {
+            handler.fireTableDataProviderChanged();
+        }         
+    }
 }

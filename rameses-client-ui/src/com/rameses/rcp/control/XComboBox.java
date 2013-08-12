@@ -479,8 +479,7 @@ public class XComboBox extends JComboBox implements UIInput, Validatable, Active
     
     // </editor-fold>    
     
-    public void load() 
-    {
+    public void load() {
         model = new DefaultComboBoxModel();        
         super.setModel(model);
         
@@ -502,46 +501,37 @@ public class XComboBox extends JComboBox implements UIInput, Validatable, Active
         }
     }   
     
-    public void refresh() 
-    {
-        try 
-        {
+    public void refresh() {
+        try {
             if (isEnabled()) setReadonly(isReadonly());
             
-            if ( dynamic ) 
-            {
+            if ( dynamic ) {
                 EventQueue.invokeLater(new Runnable(){
-                    public void run() 
-                    {
+                    public void run() {
                         try {
                             buildList();
-                        }
-                        catch(Exception e) 
-                        {
+                        } catch(Exception e) {
                             if (ClientContext.getCurrentContext().isDebugMode()) 
                                 e.printStackTrace();
                         }
                     }
                 });
             }
-            EventQueue.invokeLater(new Runnable() {
-                public void run() 
-                {
-                    try 
-                    {
-                        Object value = UIControlUtil.getBeanValue(XComboBox.this);
-                        setValue(value);
-                    } 
-                    catch(Exception e) 
-                    {
-                        if (ClientContext.getCurrentContext().isDebugMode())
-                            e.printStackTrace();
+            else {
+                EventQueue.invokeLater(new Runnable() {
+                    public void run() {
+                        try {
+                            Object value = UIControlUtil.getBeanValue(XComboBox.this);
+                            setValue(value);
+                        } catch(Exception e) {
+                            if (ClientContext.getCurrentContext().isDebugMode())
+                                e.printStackTrace();
+                        }
                     }
-                }
-            });            
+                }); 
+            } 
         } 
-        catch(Exception e) 
-        {
+        catch(Exception e) {
             setEnabled(false);
             setFocusable(false);
             
@@ -553,32 +543,25 @@ public class XComboBox extends JComboBox implements UIInput, Validatable, Active
         return UIControlUtil.compare(this, o);
     }
     
-    protected void onItemStateChanged(ItemEvent e) 
-    {
-        if ( e.getStateChange() == ItemEvent.SELECTED && !updating ) 
-        {
-            try 
-            {
+    protected void onItemStateChanged(ItemEvent e) {
+        if ( e.getStateChange() == ItemEvent.SELECTED && !updating ) {
+            try {
                 UIControlUtil.getBeanValue(this); //check if bean is not null
                 UIInputUtil.updateBeanValue(this);
-            } 
-            catch(Exception ex) {;}
+            } catch(Exception ex) {;}
         }
     }
 
-    protected final void fireItemStateChanged(ItemEvent e) 
-    {
+    protected final void fireItemStateChanged(ItemEvent e) {
         if (isReadonly()) return;
         
         onItemStateChanged(e);        
         super.fireItemStateChanged(e); 
     }
-
     
-    // <editor-fold defaultstate="collapsed" desc="  ComboItem (class)  ">
+    // <editor-fold defaultstate="collapsed" desc=" ComboItem (class) ">
     
-    public class ComboItem 
-    {
+    public class ComboItem {
         private String text;
         private Object value;
         
@@ -586,8 +569,7 @@ public class XComboBox extends JComboBox implements UIInput, Validatable, Active
             value = v;
         }
         
-        public ComboItem(Object v , String t) 
-        {
+        public ComboItem(Object v , String t) {
             text = ValueUtil.isEmpty(t)? "": t;
             value = v;
         }
@@ -595,8 +577,7 @@ public class XComboBox extends JComboBox implements UIInput, Validatable, Active
         public String toString() { return text; }        
         public Object getValue() { return value; }
         
-        public boolean equals(Object o) 
-        {
+        public boolean equals(Object o) {
             if (o == null) return false;
             if (!(o instanceof ComboItem)) return false;
             

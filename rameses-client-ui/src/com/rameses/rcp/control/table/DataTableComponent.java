@@ -224,6 +224,10 @@ public class DataTableComponent extends JTable implements TableControl
         if (dataProvider instanceof EditorListModel) 
             this.editorModel = (EditorListModel) dataProvider; 
         
+        //dispose the old table model
+        if (tableModel != null) tableModel.dispose(); 
+        
+        tableModel = new DataTableModel(); 
         tableModel.setDataProvider(dataProvider); 
         if (dataProvider != null) 
         {
@@ -239,7 +243,7 @@ public class DataTableComponent extends JTable implements TableControl
     }
     
     public DataTableModel getDataTableModel() { return tableModel; } 
-        
+            
     public boolean isProcessingRequest() { 
         return (processingRequest || fetching); 
     } 
@@ -1485,6 +1489,11 @@ public class DataTableComponent extends JTable implements TableControl
         public void fireTableRowsDeleted(int firstRow, int lastRow) {}
         public void fireTableRowsInserted(int firstRow, int lastRow) {}
         public void fireTableRowsUpdated(int firstRow, int lastRow) {}
+        
+        public void fireTableDataProviderChanged() {
+            
+        } 
+        
         public void fireTableStructureChanged() {
             root.clearEditors();
         }
