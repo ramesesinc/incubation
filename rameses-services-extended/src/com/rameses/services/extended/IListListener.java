@@ -18,5 +18,5 @@ import java.util.List;
 public interface IListListener {
     
     void beforeList(Object data);
-    void afterList(Object params, List list);
+    void afterList(Object params, Object list);
 }

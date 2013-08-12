@@ -52,6 +52,7 @@ public class ListHelper {
             int i = Integer.parseInt(params.get("_limit")+"");
             sq.setMaxResults( i );
         }
+        sq.setVars( params );
         
         List list = sq.getResultList();
         listener.afterList(params, list);

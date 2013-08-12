@@ -21,12 +21,14 @@ public class CrudHelper {
     
     private EntityManager em;
     private String schemaName;
+    private String mainSchemaName;
     private ICrudListener listener;
     private boolean validate = true;
     
     /** Creates a new instance of CrudHelper */
     public CrudHelper(String schemaName, String subSchemaName, EntityManager em, ICrudListener listener, boolean validate) {
         this.schemaName = schemaName;
+        this.mainSchemaName = schemaName;
         if(subSchemaName!=null && subSchemaName.trim().length()>0) {
             this.schemaName = this.schemaName+":"+subSchemaName;
         }
@@ -40,8 +42,7 @@ public class CrudHelper {
             throw new RuntimeException("Crud.create parameter must be map");
         Map map = (Map)data;
         listener.beforeCreate(map);
-        if(validate) em.validate(schemaName, map);
-        map = (Map)em.create(schemaName, map);
+        map = (Map)em.create(schemaName, map,validate);
         listener.afterCreate(map);
         return map;
     }
@@ -51,8 +52,7 @@ public class CrudHelper {
             throw new RuntimeException("Crud.update parameter must be map");
         Map map = (Map)data;
         listener.beforeUpdate(map);
-        if(validate) em.validate(schemaName, map);
-        map = (Map)em.update(schemaName, map);
+        map = (Map)em.update(schemaName, map,validate);
         listener.afterUpdate(map);
         return map;
     }
@@ -100,7 +100,7 @@ public class CrudHelper {
             throw new RuntimeException("Crud.changeState must have an objid parameter");
         }
         try {
-            String dbName = schemaName + ":changeState-" + newState.toLowerCase();
+            String dbName = mainSchemaName + ":changeState-" + newState.toLowerCase();
             SqlExecutor sqe = em.getSqlContext().createNamedExecutor(dbName).setParameters(map);
             int result = (Integer)sqe.execute();
             if(result==0) {
