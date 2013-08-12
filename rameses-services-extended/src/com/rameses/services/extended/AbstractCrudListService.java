@@ -11,7 +11,6 @@ package com.rameses.services.extended;
 
 import com.rameses.annotations.ProxyMethod;
 import com.rameses.osiris3.persistence.EntityManager;
-import java.util.List;
 
 /**
  *
@@ -20,7 +19,7 @@ import java.util.List;
 public abstract class AbstractCrudListService extends AbstractCrudService  implements IListListener{
     
     public void beforeList(Object data){;}
-    public void afterList(Object data, List list){;}
+    public void afterList(Object data, Object list){;}
     
     private ListHelper getListHelper() {
         return new ListHelper(getSchemaName(), (EntityManager) getEm(), this);

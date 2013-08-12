@@ -69,7 +69,7 @@ public class SchemaValidationHandler implements SchemaHandler {
             try {
                 while(iter.hasNext()) {
                     SimpleFieldValidator d = (com.rameses.osiris3.schema.SimpleFieldValidator)iter.next();
-                    System.out.println("adding validator " + d + " " + d.getClass().getClassLoader());
+                    //System.out.println("adding validator " + d + " " + d.getClass().getClassLoader());
                     fieldValidators.add( d);
                 }
                 fieldValidators.add(new MatchPatternFieldValidator());

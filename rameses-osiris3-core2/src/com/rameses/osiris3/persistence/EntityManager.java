@@ -59,15 +59,20 @@ public class EntityManager {
     }
     
     public Object create(String schemaName, Object data) {
-        return create( schemaName, data, null );
+        return create( schemaName, data, null, true );
     }
     
-    public Object create(String schemaName, Object data, Map vars) {
+    public Object create(String schemaName, Object data, boolean validate) {
+        return create( schemaName, data, null, validate );
+    }
+    
+    public Object create(String schemaName, Object data, Map vars, boolean validate) {
         Queue queue = null;
         try {
             if(resolveNested) {
                 data = MapToField.convert( (Map) data);
             }
+            if(validate) validate(schemaName,data);
             SchemaScanner scanner = schemaManager.newScanner();
             CreatePersistenceHandler handler = new CreatePersistenceHandler(schemaManager,sqlContext,data);
             Schema schema = schemaManager.getSchema( schemaName );
@@ -199,15 +204,19 @@ public class EntityManager {
      *
      */
     public Object update(String schemaName, Object data) {
-        return update(schemaName, data, null, null);
+        return update(schemaName, data, null, null, true);
+    }
+    
+    public Object update(String schemaName, Object data, boolean validate) {
+        return update(schemaName, data, null, null, validate);
     }
     
     public Object update(String schemaName, Object data, Map vars) {
-        return update( schemaName, data, vars, null );
+        return update( schemaName, data, vars, null, true );
     }
     
     //added version handling of changes during updates
-    public Object update(String schemaName, Object data, Map vars, UpdateChangeHandler vhandler) {
+    public Object update(String schemaName, Object data, Map vars, UpdateChangeHandler vhandler, boolean validate) {
         if(!(data instanceof Map))
             throw new RuntimeException("Data that is not a map is not yet supported at this time");
         Map oldData = (Map) read( schemaName, data );
@@ -225,7 +234,9 @@ public class EntityManager {
         if(resolveNested) {
             oldData = MapToField.convert( (Map) oldData);
         }
-        
+        if( validate ) {
+            validate(schemaName, oldData);
+        }
         try {
             SchemaScanner scanner = schemaManager.newScanner();
             UpdatePersistenceHandler handler = new UpdatePersistenceHandler(schemaManager,sqlContext,oldData);
@@ -245,7 +256,7 @@ public class EntityManager {
     }
     
     public Object update(String schemaName, Object data, UpdateChangeHandler h) {
-        return update( schemaName, data, null, h );
+        return update( schemaName, data, null, h, true );
     }
     
     public void delete(String schemaName, Object data) {
@@ -351,28 +362,32 @@ public class EntityManager {
     }
     
     public Object save( String schemaName, Object data, boolean create, boolean update ) {
-        return save( schemaName, data, create, update, null, null);
+        return save( schemaName, data, create, update, null, null,true);
     }
     
     public Object save( String schemaName, Object data, boolean create, boolean update, Map vars) {
-        return save( schemaName, data, create, update, vars, null);
+        return save( schemaName, data, create, update, vars, null, true);
     }
     
-    public Object save( String schemaName, Object data, boolean create, boolean update, Map vars, UpdateChangeHandler vhandler) {
+    public Object save( String schemaName, Object data, boolean create, boolean update, boolean validate ) {
+        return save( schemaName, data, create, update, null, null, validate);
+    }
+    
+    public Object save( String schemaName, Object data, boolean create, boolean update, Map vars, UpdateChangeHandler vhandler, boolean validate) {
         if(create==true && update==true) {
             Object test = read(schemaName, data, vars);
             if(test==null ||  ((test instanceof Map) &&  ((Map)test).isEmpty() )) {
-                return create(schemaName, data, vars );
+                return create(schemaName, data, vars, validate );
             } else {
-                return update(schemaName, data, vars, vhandler);
+                return update(schemaName, data, vars, vhandler, validate);
             }
         } else if(create==true  && update==false) {
-            return create(schemaName, data, vars );
+            return create(schemaName, data, vars,validate );
         } else if(create==false  && update==true) {
             Object test = read(schemaName, data, vars);
             if(test==null)
                 throw new RuntimeException("Record for update does not exist");
-            return update(schemaName, data, vars, vhandler );
+            return update(schemaName, data, vars, vhandler, validate );
         } else {
             return data;
         }

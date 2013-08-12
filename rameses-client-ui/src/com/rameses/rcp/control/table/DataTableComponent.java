@@ -950,8 +950,10 @@ public class DataTableComponent extends JTable implements TableControl
         editingMode = false;        
         currentEditor = null;
         
+        Object value = editor.getClientProperty("cellEditorValue"); 
+        if ("no_updates".equals(value)) commit = false;
+        
         if (commit) {
-            Object value = editor.getClientProperty("cellEditorValue"); 
             tableModel.setBinding(itemBinding); 
             tableModel.setValueAt(value, rowIndex, colIndex); 
 

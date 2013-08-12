@@ -144,7 +144,6 @@ public abstract class AbstractListDataProvider
             processing = true;
             boolean forceLoad = (fetchMode==FETCH_MODE_LOAD || fetchMode==FETCH_MODE_RELOAD || fetchMode==FETCH_MODE_RELOAD_ALL); 
             fetch(forceLoad); 
-            
             if (fetchMode == FETCH_MODE_RELOAD_ALL) 
                 tableModelSupport.fireTableDataProviderChanged(); 
             else 
@@ -304,14 +303,18 @@ public abstract class AbstractListDataProvider
     public void reloadAll() {
         loadImpl(FETCH_MODE_RELOAD_ALL);  
     } 
-    
+        
     public void refresh() { 
         refresh(false); 
     } 
 
-    public void refresh(boolean forceLoad) 
+    public void refresh(boolean forceLoad) {
+        refreshImpl(forceLoad? FETCH_MODE_RELOAD: FETCH_MODE_REFRESH); 
+    } 
+    
+    private void refreshImpl(int fetchMode) 
     {
-        fetchMode = (forceLoad? FETCH_MODE_RELOAD: FETCH_MODE_REFRESH); 
+        this.fetchMode = fetchMode;
         fetchImpl(); 
     } 
     

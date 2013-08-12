@@ -277,4 +277,9 @@ public class DataTableModel extends AbstractTableModel implements TableControlMo
         //do nothing here...
     }
 
+    public void fireTableStructureChanged() {
+        reIndexColumns();
+        super.fireTableStructureChanged();
+    }
+
 }

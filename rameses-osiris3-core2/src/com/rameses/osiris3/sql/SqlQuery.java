@@ -9,12 +9,14 @@
 
 package com.rameses.osiris3.sql;
 
+import com.rameses.util.DataList;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -54,6 +56,11 @@ public class SqlQuery extends AbstractSqlTxn {
      * a NoResultFoundException.
      */
     public List getResultList() throws Exception {
+        return getResultList(null);
+    }
+    
+    //the meta data map will load the metadata
+    public List getResultList(List cols) throws Exception {
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
@@ -76,7 +83,7 @@ public class SqlQuery extends AbstractSqlTxn {
                 fetchHandler = new MapFetchHandler();
                 MapFetchHandler _mf = (MapFetchHandler)fetchHandler;
                 _mf.setExcludeFields(fieldToMapExclude);
-                _mf.setFieldToMap(fieldToMap);                
+                _mf.setFieldToMap(fieldToMap);
             }
             
             if(parameterHandler==null)
@@ -104,8 +111,7 @@ public class SqlQuery extends AbstractSqlTxn {
             
             //do paging here.
             rs = ps.executeQuery();
-            List resultList = new ArrayList();
-
+            List resultList = new LinkedList();
             fetchHandler.start();
             rowsFetched = 0;
             while(rs.next()) {
@@ -119,9 +125,16 @@ public class SqlQuery extends AbstractSqlTxn {
                 if(maxResults>0 && (rowsFetched>=maxResults)) break;
             }
             fetchHandler.end();
+            
+            //store metadata columns
+            if( cols !=null) {
+                cols.addAll( buildMetaData(rs) );
+            }
+            
             return resultList;
             
-        } catch(Exception ex) {
+        } 
+        catch(Exception ex) {
             System.out.println("DEBUG:");
             System.out.println("SQL: " + _sql);
             ex.printStackTrace();
@@ -138,6 +151,13 @@ public class SqlQuery extends AbstractSqlTxn {
             } catch(Exception ign){;}
             clear();
         }
+    }
+    
+    //new addition. This is to get lists that are data aware.
+    public DataList getDataList() throws Exception {
+        List cols = new LinkedList();
+        List results = getResultList(cols);
+        return new DataList(results, cols);
     }
     
     
@@ -262,6 +282,37 @@ public class SqlQuery extends AbstractSqlTxn {
         metaData = null;
     }
     
+    private List<Map> buildMetaData( ResultSet rs ) throws Exception {
+        List metaData = new ArrayList();
+        ResultSetMetaData rsm = rs.getMetaData();
+        for(int i=1; i<=rsm.getColumnCount(); i++) {
+            Map m = new HashMap();
+            m.put("catalogName", rsm.getCatalogName(i));
+            m.put("columnClassName", rsm.getColumnClassName(i));
+            m.put("columnDisplaySize", rsm.getColumnDisplaySize(i));
+            m.put("columnLabel", rsm.getColumnLabel(i));
+            m.put("columnName", rsm.getColumnName(i));
+            m.put("columnType", rsm.getColumnType(i));
+            m.put("columnTypeName", rsm.getColumnTypeName(i));
+            m.put("precision", rsm.getPrecision(i));
+            m.put("scale", rsm.getScale(i));
+            m.put("schemaName", rsm.getSchemaName(i));
+            m.put("tableName", rsm.getTableName(i));
+            //other flags
+            m.put("autoIncrement", rsm.isAutoIncrement(i));
+            m.put("caseSensitive", rsm.isCaseSensitive(i));
+            m.put("currency", rsm.isCurrency(i));
+            m.put("definitelyWritable", rsm.isDefinitelyWritable(i));
+            m.put("nullable", rsm.isNullable(i));
+            m.put("readOnly", rsm.isReadOnly(i));
+            m.put("searchable", rsm.isSearchable(i));
+            m.put("signed", rsm.isSigned(i));
+            m.put("writable", rsm.isWritable(i));
+            metaData.add(m);
+        }
+        return metaData;
+    }
+    
     public List<Map> getMetaData() {
         if(metaData!=null) return metaData;
         Connection conn = null;
@@ -292,34 +343,8 @@ public class SqlQuery extends AbstractSqlTxn {
             
             //do paging here.
             rs = ps.executeQuery();
-            metaData = new ArrayList();
+            metaData = buildMetaData(rs);
             
-            ResultSetMetaData rsm = rs.getMetaData();
-            for(int i=1; i<=rsm.getColumnCount(); i++) {
-                Map m = new HashMap();
-                m.put("catalogName", rsm.getCatalogName(i));
-                m.put("columnClassName", rsm.getColumnClassName(i));
-                m.put("columnDisplaySize", rsm.getColumnDisplaySize(i));
-                m.put("columnLabel", rsm.getColumnLabel(i));
-                m.put("columnName", rsm.getColumnName(i));
-                m.put("columnType", rsm.getColumnType(i));
-                m.put("columnTypeName", rsm.getColumnTypeName(i));
-                m.put("precision", rsm.getPrecision(i));
-                m.put("scale", rsm.getScale(i));
-                m.put("schemaName", rsm.getSchemaName(i));
-                m.put("tableName", rsm.getTableName(i));
-                //other flags
-                m.put("autoIncrement", rsm.isAutoIncrement(i));
-                m.put("caseSensitive", rsm.isCaseSensitive(i));
-                m.put("currency", rsm.isCurrency(i));
-                m.put("definitelyWritable", rsm.isDefinitelyWritable(i));
-                m.put("nullable", rsm.isNullable(i));
-                m.put("readOnly", rsm.isReadOnly(i));
-                m.put("searchable", rsm.isSearchable(i));
-                m.put("signed", rsm.isSigned(i));
-                m.put("writable", rsm.isWritable(i));
-                metaData.add(m);
-            }
             return metaData;
             
         } catch(Exception ex) {
@@ -344,15 +369,15 @@ public class SqlQuery extends AbstractSqlTxn {
     public SqlDialect getDialect() {
         return dialect;
     }
-
+    
     public void setDialect(SqlDialect dialect) {
         this.dialect = dialect;
     }
-
+    
     public String[] getPagingKeys() {
         return pagingKeys;
     }
-
+    
     public void setPagingKeys(String[] pagingIds) {
         this.pagingKeys = pagingIds;
     }
@@ -360,24 +385,23 @@ public class SqlQuery extends AbstractSqlTxn {
     public void setPagingKeys(String pagingIds) {
         if( pagingIds.contains(",") ) {
             this.pagingKeys = pagingIds.split(",");
-        }
-        else {
+        } else {
             this.pagingKeys = new String[]{pagingIds};
         }
     }
-
+    
     public boolean isFieldToMap() {
         return fieldToMap;
     }
-
+    
     public void setFieldToMap(boolean fieldToMap) {
         this.fieldToMap = fieldToMap;
     }
-
+    
     public String getFieldToMapExclude() {
         return fieldToMapExclude;
     }
-
+    
     public void setFieldToMapExclude(String fieldToMapExclude) {
         this.fieldToMapExclude = fieldToMapExclude;
     }
