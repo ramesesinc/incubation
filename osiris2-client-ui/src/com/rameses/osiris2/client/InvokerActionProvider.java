@@ -98,6 +98,19 @@ public class InvokerActionProvider implements ActionProvider
         return actions;
     }
     
+    public List<Action> lookupActions(String actionType) { 
+        try { 
+            List<Invoker> invokers = InvokerUtil.lookup(actionType);
+            List<Action> actions = new ArrayList();
+            for (Invoker invoker: invokers) {
+                actions.add(new ActionInvoker(invoker)); 
+            }
+            return actions; 
+        } catch(Throwable t) { 
+            return new ArrayList(); 
+        } 
+    } 
+    
     private Action createAction(Invoker inv, Object context) 
     {
         Action a = new Action( inv.getName() == null? inv.getCaption()+"" :inv.getName() );
@@ -123,4 +136,59 @@ public class InvokerActionProvider implements ActionProvider
         a.getProperties().put("Action.Invoker", inv);
         return a;
     }    
+    
+    // <editor-fold defaultstate="collapsed" desc=" ActionInvoker (class) "> 
+    
+    private class ActionInvoker extends Action 
+    {
+        private Invoker invoker;
+        
+        ActionInvoker(Invoker invoker) {
+            this.invoker = invoker; 
+            
+            this.setName(invoker.getAction()); 
+            this.setCaption(invoker.getCaption()); 
+            this.setIcon(getString("icon"));
+            this.setVisibleWhen(getString("visibleWhen"));            
+            this.setMnemonic(getChar("mnemonic"));
+            this.setTooltip(getString("tooltip"));
+            
+            Boolean bool = getBoolean("immediate"); 
+            if (bool != null) this.setImmediate(bool.booleanValue());
+            
+            bool = getBoolean("showCaption"); 
+            if (bool != null) this.setShowCaption(bool.booleanValue());
+            
+            this.getProperties().putAll(invoker.getProperties()); 
+        }
+
+        public Object execute() { 
+            Map params = new HashMap(); 
+            return InvokerUtil.createOpener(invoker, params);
+        } 
+        
+        private String getString(String name) {
+            if (invoker == null || invoker.getProperties() == null) return null;
+            
+            Object ov = invoker.getProperties().get(name); 
+            return (ov == null? null: ov.toString()); 
+        }
+        
+        private char getChar(String name) {
+            String sv = getString(name);
+            if (sv == null || sv.trim().length() == 0) return '\u0000';
+            
+            return sv.trim().charAt(0); 
+        } 
+        
+        private Boolean getBoolean(String name) {
+            String sv = getString(name);
+            if (sv == null || sv.length() == 0) return null;
+            
+            return "true".equalsIgnoreCase(sv); 
+        }         
+    }
+    
+    // </editor-fold> 
+    
 }
