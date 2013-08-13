@@ -87,6 +87,7 @@ public class DataTableComponent extends JTable implements TableControl
     private String multiSelectName;    
     private String varName = "item";
     private String varStatus;
+    private String id;
     
     //internal flags
     private int editingRow = -1;
@@ -227,7 +228,7 @@ public class DataTableComponent extends JTable implements TableControl
         //dispose the old table model
         if (tableModel != null) tableModel.dispose(); 
         
-        tableModel = new DataTableModel(); 
+        tableModel = new DataTableModel();         
         tableModel.setDataProvider(dataProvider); 
         if (dataProvider != null) 
         {
@@ -237,6 +238,7 @@ public class DataTableComponent extends JTable implements TableControl
         
         itemBinding.setRoot(getBinding()); 
         tableModel.setBinding(itemBinding); 
+        initDataTableModel();        
         setModel(tableModel);
         buildColumns();
         onTableModelChanged(tableModel); 
@@ -248,12 +250,18 @@ public class DataTableComponent extends JTable implements TableControl
         return (processingRequest || fetching); 
     } 
     
-    public String getId() { 
-        DataTableModel dtm = getDataTableModel();
-        return (dtm == null? null: dtm.getId());
-    } 
-    public void setId(String id) 
-    { 
+    private void initDataTableModel() {
+        if (tableModel == null) return;
+        
+        tableModel.setId(getId());
+        tableModel.setVarName(getVarName());
+        tableModel.setVarStatus(getVarStatus());
+        tableModel.setMultiSelectName(getMultiSelectName()); 
+    }
+    
+    public String getId() { return id; } 
+    public void setId(String id) { 
+        this.id = id;
         DataTableModel dtm = getDataTableModel();
         if (dtm != null) dtm.setId(id);
     }    
