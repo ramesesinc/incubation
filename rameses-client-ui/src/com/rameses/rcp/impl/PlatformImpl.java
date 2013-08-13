@@ -103,8 +103,10 @@ public class PlatformImpl implements Platform {
         d.pack();
         
         Dimension dim = d.getSize();
-        int pWidth = Math.max(dim.width, toInt(properties.get("width")));
-        int pHeight = Math.max(dim.height, toInt(properties.get("height")));
+        int width = toInt(properties.get("width"));
+        int height = toInt(properties.get("height"));
+        int pWidth = (width<=0? dim.width: width);
+        int pHeight = (height<=0? dim.height: height); 
         d.setSize(pWidth, pHeight); 
         d.setLocationRelativeTo(parent);
         d.setSource(actionSource);
