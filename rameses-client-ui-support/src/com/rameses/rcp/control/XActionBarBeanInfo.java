@@ -41,6 +41,7 @@ public class XActionBarBeanInfo extends ComponentBeanInfo.Support
             new PropertyDescriptor("depends", getBeanClass()),
             new PropertyDescriptor("dynamic", getBeanClass(), "isDynamic", "setDynamic"),
             new PropertyDescriptor("index", getBeanClass()),
+            new PropertyDescriptor("formName", getBeanClass()),
 
             installEditor(new PropertyDescriptor("textAlignment", getBeanClass()), TextAlignmentPropertyEditor.class),
             installEditor(new PropertyDescriptor("textPosition", getBeanClass()), TextAlignmentPropertyEditor.class), 
