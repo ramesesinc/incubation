@@ -97,21 +97,22 @@ public class CrudHelper {
         String oldState = (String)map.get("oldstate");
         String objid = (String)map.get("objid");
         
-        if(newState==null) {
+        if (newState == null) 
             throw new RuntimeException("Crud.changeState must have a newstate parameter");
-        }
-        if(objid==null) {
+        if (objid == null) 
             throw new RuntimeException("Crud.changeState must have an objid parameter");
-        }
+
         try {
             String dbName = mainSchemaName + ":changeState-" + newState.toLowerCase();
             SqlExecutor sqe = em.getSqlContext().createNamedExecutor(dbName).setParameters(map);
             int result = (Integer)sqe.execute();
-            if(result==0) {
+            if (result == 0) {
                 throw new Exception("Record change state was unsuccessful. Current state is incorrect");
             }
+        } catch(RuntimeException re) {
+            throw re; 
         } catch(Exception e) {
-            throw new RuntimeException(e.getMessage(),e);
+            throw new RuntimeException(e.getMessage(), e);
         }
     }
     
