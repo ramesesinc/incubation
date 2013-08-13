@@ -15,6 +15,7 @@ import com.rameses.rcp.control.border.XToolbarBorder;
 import com.rameses.rcp.framework.ActionProvider;
 import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.framework.ClientContext;
+import com.rameses.rcp.support.ActionButtonSupport;
 import com.rameses.rcp.support.ComponentSupport;
 import com.rameses.rcp.support.ImageIconSupport;
 import com.rameses.rcp.util.ControlSupport;
@@ -199,27 +200,30 @@ public class XActionBar extends JPanel implements UIComposite {
     
     private XButton createButton(Action action) {
         XButton btn = new XButton();
+        ActionButtonSupport.getInstance().loadDefaults(btn, action.getName(), btn);
+        
         btn.setFocusable(false);
         
         //map properties from the button template
         btn.setName(action.getName());
         btn.setFont(buttonTpl.getFont());
         btn.setForeground(buttonTpl.getForeground());
-//        if ( buttonTpl.isPreferredSizeSet() )
-//            btn.setPreferredSize(buttonTpl.getPreferredSize());
         
-        if ( !ValueUtil.isEmpty(action.getCaption()) ) {
+        String caption = action.getCaption();
+        if ("[no caption]".equalsIgnoreCase(caption+"")) caption = null;
+        
+        if (!ValueUtil.isEmpty(caption)) {
             if ( isButtonAsHyperlink() ) {
                 btn.setContentAreaFilled(false);
                 btn.setBorderPainted(false);
-                btn.setText("<html><a href='#'>" + action.getCaption() + "</a></html>");
+                btn.setText("<html><a href='#'>" + caption + "</a></html>");
             } else if ( isButtonTextInHtml() ) {
                 if ( (getTextAlignment()+"").toUpperCase().indexOf("CENTER") >= 0 )
-                    btn.setText("<html><center>" + action.getCaption() + "</center></html>");
+                    btn.setText("<html><center>" + caption + "</center></html>");
                 else
-                    btn.setText("<html>" + action.getCaption() + "</html>");
+                    btn.setText("<html>" + caption + "</html>");
             } else {
-                btn.setText(action.getCaption());
+                btn.setText(caption);
             }
         }
         
@@ -229,10 +233,13 @@ public class XActionBar extends JPanel implements UIComposite {
         btn.setUpdate(action.isUpdate());
         btn.setImmediate(action.isImmediate());
         btn.setMnemonic(action.getMnemonic());
-        btn.setToolTipText(action.getTooltip());
         
-        ImageIcon icon = ImageIconSupport.getInstance().getIcon(action.getIcon());
-        btn.setIcon(icon);
+        String sicon = action.getIcon();
+        if (sicon != null && sicon.length() > 0) { 
+            ImageIcon icon = ImageIconSupport.getInstance().getIcon(sicon);
+            btn.setIcon(icon);
+        } 
+                
         btn.putClientProperty("visibleWhen", action.getVisibleWhen());
         btn.setBinding(binding);
         
@@ -255,9 +262,10 @@ public class XActionBar extends JPanel implements UIComposite {
                 Map.Entry me = (Map.Entry) entry;
                 if ("action".equals(me.getKey())) continue;
                 if ("type".equals(me.getKey())) continue;
+                
                 try {
                     res.setProperty( btn, (String) me.getKey(), me.getValue());
-                } catch(Exception e){;}
+                } catch(Throwable e){;}
             }
         }
         
@@ -270,15 +278,8 @@ public class XActionBar extends JPanel implements UIComposite {
         
         boolean b = action.isShowCaption();
         if (!b) b = isShowCaptions();
-        
-        //check for forceShowCaption
-//        if ("true".equals(action.getProperties().get("forceShowCaption")+""))
-//        {
-//            action.setShowCaption(true);
-//            b = true;
-//        }
-        
-        if (btn.getIcon() == null || (b && action.getCaption() != null)) {
+                
+        if (btn.getIcon() == null || (b && caption != null)) {
             String s = btn.getText();
             if (s == null) s = "";
             
@@ -290,8 +291,8 @@ public class XActionBar extends JPanel implements UIComposite {
         
         if (action.getTooltip() != null)
             btn.setToolTipText(action.getTooltip());
-        else if (action.getCaption() != null)
-            btn.setToolTipText(action.getCaption());
+        else if (caption != null)
+            btn.setToolTipText(caption);
         
         return btn;
     }
