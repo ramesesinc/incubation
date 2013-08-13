@@ -276,9 +276,9 @@ public class XActionBar extends JPanel implements UIComposite {
             btn.putClientProperty(Action.class.getName(), action);
         }
         
-        boolean b = action.isShowCaption();
-        if (!b) b = isShowCaptions();
-                
+        boolean b = isShowCaptions();
+        if (!b && btn.getIcon() == null) b = true;
+        
         if (btn.getIcon() == null || (b && caption != null)) {
             String s = btn.getText();
             if (s == null) s = "";
