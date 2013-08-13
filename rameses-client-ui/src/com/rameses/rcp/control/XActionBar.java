@@ -41,7 +41,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
@@ -50,8 +49,7 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 
-public class XActionBar extends JPanel implements UIComposite 
-{        
+public class XActionBar extends JPanel implements UIComposite {
     private Binding binding;
     private String[] depends;
     private boolean useToolBar;
@@ -60,10 +58,10 @@ public class XActionBar extends JPanel implements UIComposite
     private int index;
     
     private Insets padding = new Insets(0, 0, 0, 0);
-    private BorderProxy borderProxy = new BorderProxy();        
+    private BorderProxy borderProxy = new BorderProxy();
     private ToolbarLayout toolbarLayout = new ToolbarLayout();
-    private ContainerLayout containerLayout = new ContainerLayout(); 
-    private ComponentSupport componentSupport = new ComponentSupport(); 
+    private ContainerLayout containerLayout = new ContainerLayout();
+    private ComponentSupport componentSupport = new ComponentSupport();
     
     private String orientation = UIConstants.HORIZONTAL;
     private String orientationHAlignment = UIConstants.LEFT;
@@ -71,6 +69,7 @@ public class XActionBar extends JPanel implements UIComposite
     
     //XButton target
     private String target;
+    private String formName;
     
     private List<XButton> buttons = new ArrayList();
     private JComponent toolbarComponent;
@@ -88,10 +87,9 @@ public class XActionBar extends JPanel implements UIComposite
     private boolean buttonAsHyperlink;
     private boolean showCaptions = true;
     
-    public XActionBar() 
-    {
+    public XActionBar() {
         borderProxy.setBorder(new XToolbarBorder());
-        super.setBorder(borderProxy); 
+        super.setBorder(borderProxy);
         super.setLayout(new ContainerLayout());
         setUseToolBar(true);
         
@@ -101,18 +99,17 @@ public class XActionBar extends JPanel implements UIComposite
     }
     
     public void setLayout(LayoutManager mgr) {;}
-
-    public Border getBorder() { 
-        return (borderProxy == null? null: borderProxy.getBorder()); 
+    
+    public Border getBorder() {
+        return (borderProxy == null? null: borderProxy.getBorder());
     }
     
-    public void setBorder(Border border) { 
+    public void setBorder(Border border) {
         if (border instanceof BorderProxy) {
-            //do not accept BorderProxy class 
+            //do not accept BorderProxy class
+        } else if (borderProxy != null) {
+            borderProxy.setBorder(border);
         }
-        else if (borderProxy != null) {
-            borderProxy.setBorder(border); 
-        } 
     }
     
     public void refresh() {
@@ -131,11 +128,9 @@ public class XActionBar extends JPanel implements UIComposite
         return UIControlUtil.compare(this, o);
     }
     
-    
     // <editor-fold defaultstate="collapsed" desc="  helper methods  ">
     
-    private void buildButtons() 
-    {
+    private void buildButtons() {
         buttons.clear();
         List<Action> actions = new ArrayList();
         
@@ -147,34 +142,30 @@ public class XActionBar extends JPanel implements UIComposite
         
         if (value == null) {
             //do nothing
-        } 
-        else if (value.getClass().isArray()) 
-        {
+        } else if (value.getClass().isArray()) {
             for (Action aa: (Action[]) value) {
                 actions.add(aa);
             }
-        } 
-        else if (value instanceof Collection) {
+        } else if (value instanceof Collection) {
             actions.addAll((Collection) value);
         }
         
-        if (actions.isEmpty()) 
-        {
-            //--get actions defined from the action provider
-            ActionProvider actionProvider = ClientContext.getCurrentContext().getActionProvider();
-            if (actionProvider != null) 
-            {
-                UIController controller = binding.getController();
-                List <Action> aa = actionProvider.getActionsByType(getName(), controller);
-                if (aa != null) actions.addAll(aa);
-            }
-        } 
+        ActionProvider actionProvider = ClientContext.getCurrentContext().getActionProvider();
+        if (actions.isEmpty() && actionProvider != null) {
+            UIController controller = binding.getController();
+            List <Action> aa = actionProvider.getActionsByType(getName(), controller);
+            if (aa != null) actions.addAll(aa);
+        }
         
-        if (actions.size() > 0) 
-        {
+        String _formname = getFormName();
+        if (_formname != null && _formname.length() > 0 && actionProvider != null) {
+            List<Action> list = actionProvider.lookupActions(_formname+":formActions");
+            if (list != null) actions.addAll(list); 
+        }
+                
+        if (actions.size() > 0) {
             Collections.sort(actions);
-            for (Action action: actions) 
-            {
+            for (Action action: actions) {
                 //check permission
                 String permission = action.getPermission();
                 String role = action.getRole();
@@ -182,23 +173,23 @@ public class XActionBar extends JPanel implements UIComposite
                 /*
                 if (permission != null && binding.getController().getName() != null)
                     permission = binding.getController().getName() + "." + permission;
-                */
+                 */
                 boolean allowed = ControlSupport.isPermitted(domain, role, permission);
                 if (!allowed) continue;
                 
                 XButton btn = createButton(action);
                 if (!buttonTpl.isContentAreaFilled()) {
                     btn.setBorder(null);
-                    btn.setOpaque(false); 
-                    btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)); 
+                    btn.setOpaque(false);
+                    btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
                 }
                 btn.setContentAreaFilled(buttonTpl.isContentAreaFilled());
-                btn.setBorderPainted(buttonTpl.isBorderPainted());        
+                btn.setBorderPainted(buttonTpl.isBorderPainted());
                 
                 Object actionInvoker = action.getProperties().get("Action.Invoker");
-                btn.putClientProperty("Action.Invoker", actionInvoker); 
-                btn.putClientProperty(Action.class, action); 
-                buttons.add(btn); 
+                btn.putClientProperty("Action.Invoker", actionInvoker);
+                btn.putClientProperty(Action.class, action);
+                buttons.add(btn);
             }
         }
         
@@ -206,34 +197,28 @@ public class XActionBar extends JPanel implements UIComposite
         dirty = true;
     }
     
-    private XButton createButton(Action action) 
-    {
+    private XButton createButton(Action action) {
         XButton btn = new XButton();
         btn.setFocusable(false);
         
         //map properties from the button template
-        btn.setName(action.getName());        
+        btn.setName(action.getName());
         btn.setFont(buttonTpl.getFont());
-        btn.setForeground(buttonTpl.getForeground());        
+        btn.setForeground(buttonTpl.getForeground());
 //        if ( buttonTpl.isPreferredSizeSet() )
 //            btn.setPreferredSize(buttonTpl.getPreferredSize());
         
-        if ( !ValueUtil.isEmpty(action.getCaption()) ) 
-        {
-            if ( isButtonAsHyperlink() ) 
-            {
+        if ( !ValueUtil.isEmpty(action.getCaption()) ) {
+            if ( isButtonAsHyperlink() ) {
                 btn.setContentAreaFilled(false);
                 btn.setBorderPainted(false);
                 btn.setText("<html><a href='#'>" + action.getCaption() + "</a></html>");
-            } 
-            else if ( isButtonTextInHtml() ) 
-            {
+            } else if ( isButtonTextInHtml() ) {
                 if ( (getTextAlignment()+"").toUpperCase().indexOf("CENTER") >= 0 )
                     btn.setText("<html><center>" + action.getCaption() + "</center></html>");
                 else
                     btn.setText("<html>" + action.getCaption() + "</html>");
-            } 
-            else {
+            } else {
                 btn.setText(action.getCaption());
             }
         }
@@ -247,29 +232,26 @@ public class XActionBar extends JPanel implements UIComposite
         btn.setToolTipText(action.getTooltip());
         
         ImageIcon icon = ImageIconSupport.getInstance().getIcon(action.getIcon());
-        btn.setIcon(icon); 
+        btn.setIcon(icon);
         btn.putClientProperty("visibleWhen", action.getVisibleWhen());
         btn.setBinding(binding);
         
         Map props = new HashMap(action.getProperties());
-        Object depends = props.get("depends"); 
-        if (depends != null && !(depends instanceof Object[])) 
-            props.put("depends", new String[]{depends.toString()}); 
+        Object depends = props.get("depends");
+        if (depends != null && !(depends instanceof Object[]))
+            props.put("depends", new String[]{depends.toString()});
         
         if ( props.get("shortcut") != null ) btn.setAccelerator(props.remove("shortcut")+"");
         if ( props.get("target") != null ) btn.setTarget(props.remove("target")+"");
-        if ( props.get("default") != null ) 
-        {
+        if ( props.get("default") != null ) {
             String dfb = props.remove("default")+"";
             if ( dfb.equals("true")) btn.putClientProperty("default.button", true);
         }
         
         //map out other properties
-        if ( !props.isEmpty() ) 
-        {
+        if ( !props.isEmpty() ) {
             PropertyResolver res = PropertyResolver.getInstance();
-            for (Object entry : props.entrySet()) 
-            {
+            for (Object entry : props.entrySet()) {
                 Map.Entry me = (Map.Entry) entry;
                 if ("action".equals(me.getKey())) continue;
                 if ("type".equals(me.getKey())) continue;
@@ -285,55 +267,47 @@ public class XActionBar extends JPanel implements UIComposite
         if ( !action.getClass().getName().equals(Action.class.getName()) ) {
             btn.putClientProperty(Action.class.getName(), action);
         }
-               
+        
         boolean b = action.isShowCaption();
         if (!b) b = isShowCaptions();
         
         //check for forceShowCaption
-//        if ("true".equals(action.getProperties().get("forceShowCaption")+"")) 
+//        if ("true".equals(action.getProperties().get("forceShowCaption")+""))
 //        {
 //            action.setShowCaption(true);
-//            b = true;            
+//            b = true;
 //        }
         
-        if (btn.getIcon() == null || (b && action.getCaption() != null))
-        {
-            String s = btn.getText(); 
-            if (s == null) s = "";    
+        if (btn.getIcon() == null || (b && action.getCaption() != null)) {
+            String s = btn.getText();
+            if (s == null) s = "";
             
-            if (!s.trim().startsWith("<html>")) 
-                btn.setText("<html>"+ s +"</html>"); 
-        } 
-        else {     
+            if (!s.trim().startsWith("<html>"))
+                btn.setText("<html>"+ s +"</html>");
+        } else {
             btn.setText("");
-        } 
-
-        if (action.getTooltip() != null) 
-            btn.setToolTipText(action.getTooltip()); 
-        else if (action.getCaption() != null) 
-            btn.setToolTipText(action.getCaption()); 
+        }
+        
+        if (action.getTooltip() != null)
+            btn.setToolTipText(action.getTooltip());
+        else if (action.getCaption() != null)
+            btn.setToolTipText(action.getCaption());
         
         return btn;
     }
     
-    private void buildToolbar() 
-    {
+    private void buildToolbar() {
         if ( dirty ) toolbarComponent.removeAll();
-        if (isDynamic()) buildButtons(); 
+        if (isDynamic()) buildButtons();
         
         ExpressionResolver expResolver = ExpressionResolver.getInstance();
-        for (XButton btn: buttons) 
-        {
+        for (XButton btn: buttons) {
             String expression = (String) btn.getClientProperty("visibleWhen");
-            if (!ValueUtil.isEmpty(expression)) 
-            {
+            if (!ValueUtil.isEmpty(expression)) {
                 boolean result = UIControlUtil.evaluateExprBoolean(binding.getBean(), expression);
                 btn.setVisible(result);
-            } 
-            else 
-            {
-                if ( btn.getClientProperty("default.button") != null ) 
-                {
+            } else {
+                if ( btn.getClientProperty("default.button") != null ) {
                     if ( getRootPane() != null )
                         getRootPane().setDefaultButton( btn );
                     else
@@ -352,12 +326,15 @@ public class XActionBar extends JPanel implements UIComposite
     
     // <editor-fold defaultstate="collapsed" desc="  Getters/Setters  ">
     
-    public String getTextAlignment() { return this.textAlignment; } 
+    public String getFormName() { return formName; }
+    public void setFormName(String formName) { this.formName = formName; }
+    
+    public String getTextAlignment() { return this.textAlignment; }
     public void setTextAlignment(String textAlignment) {
         this.textAlignment = textAlignment;
     }
     
-    public String getTextPosition() { return this.textPosition; } 
+    public String getTextPosition() { return this.textPosition; }
     public void setTextPosition(String textPosition) {
         this.textPosition = textPosition;
     }
@@ -389,16 +366,15 @@ public class XActionBar extends JPanel implements UIComposite
         super.removeAll();
         if (useToolBar) {
             JToolBar tlb = new JToolBar();
-            tlb.setFocusable(false); 
+            tlb.setFocusable(false);
             tlb.setFloatable(false);
             tlb.setRollover(true);
             toolbarComponent = tlb;
-        } 
-        else {
+        } else {
             toolbarComponent = new JPanel();
         }
-                
-        toolbarComponent.setLayout(toolbarLayout); 
+        
+        toolbarComponent.setLayout(toolbarLayout);
         toolbarComponent.setName("toolbar");
         toolbarComponent.setOpaque(false);
         add(toolbarComponent);
@@ -412,19 +388,18 @@ public class XActionBar extends JPanel implements UIComposite
     
     public int getHorizontalAlignment() { return 0; }
     public void setHorizontalAlignment(int horizontalAlignment) {}
-        
+    
     public String getTarget() { return target; }
-    public void setTarget(String target) { this.target = target; }    
+    public void setTarget(String target) { this.target = target; }
     
     public String getOrientation() { return orientation; }
-    public void setOrientation(String orientation) 
-    {
+    public void setOrientation(String orientation) {
         if ( orientation != null )
             this.orientation = orientation.toUpperCase();
         else
             this.orientation = UIConstants.HORIZONTAL;
         
-        this.toolbarLayout.setOrientation(this.orientation); 
+        this.toolbarLayout.setOrientation(this.orientation);
     }
     
     public String getOrientationHAlignment() { return orientationHAlignment; }
@@ -434,7 +409,7 @@ public class XActionBar extends JPanel implements UIComposite
         else
             this.orientationHAlignment = UIConstants.LEFT;
         
-        this.toolbarLayout.setAlignment(this.orientationHAlignment); 
+        this.toolbarLayout.setAlignment(this.orientationHAlignment);
     }
     
     public String getOrientationVAlignment() { return orientationVAlignment; }
@@ -444,7 +419,7 @@ public class XActionBar extends JPanel implements UIComposite
         else
             this.orientationVAlignment = UIConstants.TOP;
         
-        this.toolbarLayout.setAlignment(this.orientationVAlignment); 
+        this.toolbarLayout.setAlignment(this.orientationVAlignment);
     }
     
     public boolean focusFirstInput() {
@@ -453,42 +428,42 @@ public class XActionBar extends JPanel implements UIComposite
     
     //button template support
     private XButton getButtonTemplate() {
-        if (buttonTpl == null) buttonTpl = new XButton(); 
+        if (buttonTpl == null) buttonTpl = new XButton();
         
         return buttonTpl;
     }
     
-    public Font getButtonFont() { 
-        return getButtonTemplate().getFont(); 
+    public Font getButtonFont() {
+        return getButtonTemplate().getFont();
     }
-    public void setButtonFont(Font font) { 
+    public void setButtonFont(Font font) {
         getButtonTemplate().setFont(font);
     }
     
-    public boolean getButtonBorderPainted() { 
-        return getButtonTemplate().isBorderPainted(); 
+    public boolean getButtonBorderPainted() {
+        return getButtonTemplate().isBorderPainted();
     }
-    public void setButtonBorderPainted(boolean borderPainted) { 
+    public void setButtonBorderPainted(boolean borderPainted) {
         getButtonTemplate().setBorderPainted(borderPainted);
     }
     
-    public boolean getButtonContentAreaFilled() { 
+    public boolean getButtonContentAreaFilled() {
         return getButtonTemplate().isContentAreaFilled();
     }
-    public void setButtonContentAreaFilled(boolean contentAreaFilled) { 
+    public void setButtonContentAreaFilled(boolean contentAreaFilled) {
         getButtonTemplate().setContentAreaFilled(contentAreaFilled);
     }
     
-    public Dimension getButtonPreferredSize() { 
+    public Dimension getButtonPreferredSize() {
         return getButtonTemplate().getPreferredSize();
     }
-    public void setButtonPreferredSize(Dimension preferredSize) { 
-        getButtonTemplate().setPreferredSize(preferredSize); 
+    public void setButtonPreferredSize(Dimension preferredSize) {
+        getButtonTemplate().setPreferredSize(preferredSize);
     }
     
     public int getButtonCaptionOrientation() { return this.buttonCaptionOrientation; }
     public void setButtonCaptionOrientation(int orientation) {
-        this.buttonCaptionOrientation = orientation;        
+        this.buttonCaptionOrientation = orientation;
         if( orientation == SwingConstants.TOP || orientation == SwingConstants.BOTTOM ) {
             getButtonTemplate().setVerticalTextPosition(orientation);
             getButtonTemplate().setHorizontalTextPosition(SwingConstants.CENTER);
@@ -498,23 +473,23 @@ public class XActionBar extends JPanel implements UIComposite
         }
     }
     
-    public boolean isButtonTextInHtml() { return buttonTextInHtml; } 
+    public boolean isButtonTextInHtml() { return buttonTextInHtml; }
     public void setButtonTextInHtml(boolean buttonTextInHtml) {
         this.buttonTextInHtml = buttonTextInHtml;
     }
     
-    public Color getButtonForeground() { 
+    public Color getButtonForeground() {
         return getButtonTemplate().getForeground();
     }
-    public void setButtonForeground(Color foreground) { 
+    public void setButtonForeground(Color foreground) {
         getButtonTemplate().setForeground(foreground);
     }
     
     public boolean isButtonAsHyperlink() { return buttonAsHyperlink; }
-    public void setButtonAsHyperlink(boolean buttonAsHyperlink) { 
-        this.buttonAsHyperlink = buttonAsHyperlink; 
+    public void setButtonAsHyperlink(boolean buttonAsHyperlink) {
+        this.buttonAsHyperlink = buttonAsHyperlink;
     }
-
+    
     public void setPropertyInfo(PropertySupport.PropertyInfo info) {
     }
     
@@ -522,29 +497,23 @@ public class XActionBar extends JPanel implements UIComposite
     
     // <editor-fold defaultstate="collapsed" desc=" ContainerLayout (Class) ">
     
-    private class ContainerLayout implements LayoutManager 
-    {
+    private class ContainerLayout implements LayoutManager {
         public void addLayoutComponent(String name, Component comp) {}
         public void removeLayoutComponent(Component comp) {}
         
-        public Dimension getLayoutSize(Container parent) 
-        {
-            synchronized (parent.getTreeLock()) 
-            {
+        public Dimension getLayoutSize(Container parent) {
+            synchronized (parent.getTreeLock()) {
                 int w=0, h=0;
                 if (toolbarComponent == null) {
                     //do nothing
-                }
-                else if (toolbarComponent.getComponents().length > 0) 
-                {
+                } else if (toolbarComponent.getComponents().length > 0) {
                     Insets margin = parent.getInsets();
                     Dimension dim = toolbarComponent.getPreferredSize();
                     w = (margin.left + dim.width + margin.right);
                     h = (margin.top + dim.height + margin.bottom);
-
+                    
                     Insets pads = getPadding();
-                    if (pads != null) 
-                    {
+                    if (pads != null) {
                         w += (pads.left + pads.right);
                         h += (pads.top + pads.bottom);
                     }
@@ -585,5 +554,5 @@ public class XActionBar extends JPanel implements UIComposite
     }
     
     //</editor-fold>
-                
+        
 }
