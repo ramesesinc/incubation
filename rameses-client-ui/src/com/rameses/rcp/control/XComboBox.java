@@ -517,7 +517,7 @@ public class XComboBox extends JComboBox implements UIInput, Validatable, Active
                     }
                 });
             }
-            else {
+            //else {
                 EventQueue.invokeLater(new Runnable() {
                     public void run() {
                         try {
@@ -529,7 +529,7 @@ public class XComboBox extends JComboBox implements UIInput, Validatable, Active
                         }
                     }
                 }); 
-            } 
+            //} 
         } 
         catch(Exception e) {
             setEnabled(false);
