@@ -635,27 +635,23 @@ public class XLookupField extends IconedTextField implements UIFocusableContaine
         {
             if (name == null) return;
             
-            if (delegate == null) 
-            {
+            if (delegate == null) {
                 //handle the updating of the bean
                 Object bean = binding.getBean();
-                if (bean != null) 
-                {
+                if (bean != null) {
                     PropertyResolver resolver =PropertyResolver.getInstance();
                     resolver.setProperty(binding.getBean(), name, value); 
+                    binding.getValueChangeSupport().notify(name, value);
                 } 
             } 
-            else 
-            {
+            else {
                 //delegate the updating of the bean
                 delegate.setValue(name, value); 
             }
         }
         
-        private void publishUpdates() 
-        {
-            if (delegate == null) 
-            {
+        private void publishUpdates() {
+            if (delegate == null) {
                 //only do refresh and notifications when no delegator is set
                 refresh();
                 binding.notifyDepends(XLookupField.this);
