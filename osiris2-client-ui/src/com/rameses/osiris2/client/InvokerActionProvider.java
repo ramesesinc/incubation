@@ -85,15 +85,15 @@ public class InvokerActionProvider implements ActionProvider
         List<Invoker> invList = InvokerUtil.lookup(type, context);
         List<Action> actions = new ArrayList();
 
-        for (Invoker inv: invList) 
-        {
-            if ( controller instanceof WorkUnitUIController ) 
-            {
-                WorkUnitUIController wuc = (WorkUnitUIController) controller;
-                String wucid = wuc.getWorkunit().getId();                 
-                if ( wucid.equals(inv.getWorkunitid()) )
-                    actions.add(createAction(inv, context));
-            }
+        for (Invoker inv: invList) {
+            if (!(controller instanceof WorkUnitUIController)) continue; 
+            
+            WorkUnitUIController wuc = (WorkUnitUIController) controller;
+            String wucid = wuc.getWorkunit().getId();                 
+            if (!wucid.equals(inv.getWorkunitid())) continue;
+            
+            actions.add(createAction(inv, context));
+            //actions.add(new ActionInvoker(inv)); 
         }
         return actions;
     }
@@ -148,18 +148,26 @@ public class InvokerActionProvider implements ActionProvider
             
             this.setName(invoker.getAction()); 
             this.setCaption(invoker.getCaption()); 
-            this.setIcon(getString("icon"));
+            
+            Integer index = invoker.getIndex();
+            if (index != null) this.setIndex(index); 
+            
+            this.setIcon(getString("icon")); 
             this.setVisibleWhen(getString("visibleWhen"));            
             this.setMnemonic(getChar("mnemonic"));
             this.setTooltip(getString("tooltip"));
             
             Boolean bool = getBoolean("immediate"); 
-            if (bool != null) this.setImmediate(bool.booleanValue());
+            this.setImmediate(bool != null? bool.booleanValue(): true);
+            
+            bool = getBoolean("update"); 
+            if (bool != null) this.setUpdate(bool.booleanValue());
             
             bool = getBoolean("showCaption"); 
             if (bool != null) this.setShowCaption(bool.booleanValue());
             
             this.getProperties().putAll(invoker.getProperties()); 
+            this.getProperties().put("Action.Invoker", invoker);
         }
 
         public Object execute() { 
@@ -186,7 +194,7 @@ public class InvokerActionProvider implements ActionProvider
             if (sv == null || sv.length() == 0) return null;
             
             return "true".equalsIgnoreCase(sv); 
-        }         
+        } 
     }
     
     // </editor-fold> 
