@@ -59,6 +59,7 @@ public class FormPage extends javax.swing.JPanel {
         xHorizontalPanel1.add(xabNavActions);
 
         xActionBar1.setBorder(null);
+        xActionBar1.setFormName("entityName");
         xActionBar1.setName("extActions");
         xHorizontalPanel1.add(xActionBar1);
 
