@@ -9,7 +9,6 @@
 
 package com.rameses.rcp.common;
 
-import com.rameses.util.ValueUtil;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
@@ -78,33 +77,30 @@ public class Action implements Comparable<Action>
     
     // <editor-fold defaultstate="collapsed" desc=" Getters/Setters "> 
     
-    public String getCaption() 
-    {
-        if ( ValueUtil.isEmpty(caption) && !ValueUtil.isEmpty(properties.get("caption")))
-            return properties.get("caption")+"";
-        
-        return caption;
-    }
-    
+    public String getCaption() {
+        String sval = this.caption;
+        if (sval == null || sval.length() == 0) sval = getPropertyString("caption");        
+        if (sval == null || sval.length() == 0) return this.caption; 
+
+        return sval;
+    }    
     public void setCaption(String caption) {
         this.caption = caption;
     }
     
     public String getIcon() {
-        if( ValueUtil.isEmpty(icon) && !ValueUtil.isEmpty(properties.get("icon")))
-            return properties.get("icon")+"";
+        String sval = this.icon;
+        if (sval == null || sval.length() == 0) sval = getPropertyString("icon");         
+        if (sval == null || sval.length() == 0) return this.icon; 
         
-        return icon;
-    }
-    
+        return sval;
+    }    
     public void setIcon(String icon) {
         this.icon = icon;
     }
     
     public Action getParent() { return parent; }    
-    public void setParent(Action parent) {
-        this.parent = parent;
-    }
+    public void setParent(Action parent) { this.parent = parent; }
         
     public String getName() { return name; }    
     public void setName(String name) { this.name = name; }
@@ -126,17 +122,17 @@ public class Action implements Comparable<Action>
     
     public char getMnemonic() 
     {
-        if ( mnemonic == '\u0000' && !ValueUtil.isEmpty(properties.get("mnemonic")))
-            return (properties.get("mnemonic")+"").charAt(0);
+        char sval = this.mnemonic;
+        if (mnemonic == '\u0000') sval = getPropertyChar("mnemonic");
+        if (mnemonic == '\u0000') return this.mnemonic; 
         
-        return mnemonic;
-    }
-    
+        return sval;
+    }    
     public void setMnemonic(char mnemonic) {
         this.mnemonic = mnemonic;
     }
     
-    public boolean isImmediate() { return immediate; }    
+    public boolean isImmediate() { return immediate; }  
     public void setImmediate(boolean immediate) {
         this.immediate = immediate;
     }
@@ -155,8 +151,8 @@ public class Action implements Comparable<Action>
     }
     
     public Map getParams() { return parameters; }    
-    public void setParams(Map params) { 
-        this.parameters = params; 
+    public void setParams(Map parameters) { 
+        this.parameters = parameters; 
     }
     
     public boolean isUpdate() { return update; }    
@@ -165,27 +161,24 @@ public class Action implements Comparable<Action>
     }
     
     public String getTooltip() {
-        if(tooltip==null) {
-            if ( !ValueUtil.isEmpty(properties.get("tooltip")) )
-                return properties.get("tooltip")+"";
-            else
-                return getCaption();
-        }
+        String sval = this.tooltip;
+        if (sval == null || sval.length() == 0) sval = getPropertyString("tooltip");
+        if (sval == null || sval.length() == 0) sval = getCaption();
+        if (sval == null || sval.length() == 0) return this.tooltip;
         
-        return tooltip;
-    }
-    
+        return sval;
+    }    
     public void setTooltip(String tooltip) {
         this.tooltip = tooltip;
     }
     
     public String getVisibleWhen() {
-        if ( ValueUtil.isEmpty(visibleWhen) && !ValueUtil.isEmpty(properties.get("visibleWhen")) ) {
-            return properties.get("visibleWhen")+"";
-        }
-        return visibleWhen;
-    }
-    
+        String sval = this.visibleWhen;
+        if (sval == null || sval.length() == 0) sval = getPropertyString("visibleWhen");
+        if (sval == null || sval.length() == 0) return this.visibleWhen;
+
+        return sval;
+    }    
     public void setVisibleWhen(String visibleWhen) {
         this.visibleWhen = visibleWhen;
     }
@@ -200,23 +193,42 @@ public class Action implements Comparable<Action>
         this.domain = domain;
     }
 
-    //force the showing of captions if icon is null 
     public boolean isShowCaption() 
     {
-        if (icon == null) return true;
+        Boolean bool = getPropertyBoolean("showCaption");
+        if (bool != null) return bool.booleanValue();
         
-        return showCaption;
+        if (this.showCaption) return true;
+        else if (getIcon() == null) return true;
+        else return showCaption;
     }
 
-    public void setShowCaption(boolean showCaption) {
-        this.showCaption = showCaption;
-    }     
+    public void setShowCaption(boolean showCaption) { 
+        this.showCaption = showCaption; 
+    } 
     
     public ActionDelegator getActionDelegator() { return actionDelegator; }
     public void setActionDelegator(ActionDelegator actionDelegator) {
         this.actionDelegator = actionDelegator; 
     }
     
+    public final String getPropertyString(String name) {
+        Object o = properties.get(name); 
+        return (o == null? null: o.toString()); 
+    }
+    
+    public final char getPropertyChar(String name) {
+        Object o = properties.get(name); 
+        return (o == null? '\u0000': o.toString().charAt(0)); 
+    } 
+    
+    public final Boolean getPropertyBoolean(String name) {
+        Object o = properties.get(name); 
+        if (o == null) return null;
+        
+        return "true".equalsIgnoreCase(o.toString()); 
+    } 
+        
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" clone utility "> 
