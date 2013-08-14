@@ -68,6 +68,7 @@ public class ListPage extends javax.swing.JPanel {
         xEtchedBorder1.setPadding(new java.awt.Insets(0, 5, 0, 0));
         xActionBar2.setBorder(xEtchedBorder1);
         xActionBar2.setDepends(new String[] {"selectedEntity"});
+        xActionBar2.setFormName("entityName");
         xActionBar2.setName("formActions");
         jPanel2.add(xActionBar2, java.awt.BorderLayout.SOUTH);
 

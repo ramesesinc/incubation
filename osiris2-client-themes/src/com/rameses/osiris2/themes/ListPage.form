@@ -87,6 +87,7 @@
                     <StringItem index="0" value="selectedEntity"/>
                   </StringArray>
                 </Property>
+                <Property name="formName" type="java.lang.String" value="entityName"/>
                 <Property name="name" type="java.lang.String" value="formActions"/>
               </Properties>
               <Constraints>
