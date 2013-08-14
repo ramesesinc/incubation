@@ -151,8 +151,9 @@ public class XActionBar extends JPanel implements UIComposite {
             actions.addAll((Collection) value);
         }
         
+        String _name = getName();
         ActionProvider actionProvider = ClientContext.getCurrentContext().getActionProvider();
-        if (actions.isEmpty() && actionProvider != null) {
+        if (actions.isEmpty() && actionProvider != null && _name != null) {
             UIController controller = binding.getController();
             List <Action> aa = actionProvider.getActionsByType(getName(), controller);
             if (aa != null) actions.addAll(aa);
@@ -160,10 +161,15 @@ public class XActionBar extends JPanel implements UIComposite {
         
         String _formname = getFormName();
         if (_formname != null && _formname.length() > 0 && actionProvider != null) {
+            Object retval = null;
+            try { retval = UIControlUtil.getBeanValue(getBinding(), _formname); } catch(Throwable t){;} 
+            
+            if (retval != null) _formname = retval.toString();
+            
             List<Action> list = actionProvider.lookupActions(_formname+":formActions");
             if (list != null) actions.addAll(list); 
         }
-                
+
         if (actions.size() > 0) {
             Collections.sort(actions);
             for (Action action: actions) {
