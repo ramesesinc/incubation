@@ -9,6 +9,7 @@
 
 package com.rameses.rcp.common;
 
+import com.rameses.rcp.framework.ClientContext;
 import com.rameses.util.Service;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -50,7 +51,7 @@ public class LookupOpenerSupport
     
     private void initialize() 
     {
-        Iterator itr = Service.providers(LookupOpenerProvider.class, Thread.currentThread().getContextClassLoader()); 
+        Iterator itr = Service.providers(LookupOpenerProvider.class, ClientContext.getCurrentContext().getClassLoader());  
         if (itr.hasNext()) {
             provider = (LookupOpenerProvider) itr.next();
         } 
