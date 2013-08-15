@@ -9,8 +9,10 @@
 
 package com.rameses.rcp.support;
 
+import com.rameses.rcp.framework.ClientContext;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.net.URL;
 import java.util.Enumeration;
 import java.util.Map;
@@ -93,7 +95,7 @@ public class ActionButtonSupport {
         
         void parse() {
             try { 
-                Enumeration en = ClassLoader.getSystemResources("META-INF/action-theme.properties"); 
+                Enumeration en = getResources("META-INF/action-theme.properties"); 
                 while (en.hasMoreElements()) {
                     try {
                         URL url = (URL) en.nextElement();
@@ -115,6 +117,14 @@ public class ActionButtonSupport {
             }
             return results; 
         }         
+        
+        private Enumeration getResources(String name) throws IOException {
+            ClassLoader cloader = ClientContext.getCurrentContext().getClassLoader();
+            if (cloader == null) 
+                return ClassLoader.getSystemResources(name);
+            else  
+                return cloader.getResources(name); 
+        } 
     }
     
     // </editor-fold>
