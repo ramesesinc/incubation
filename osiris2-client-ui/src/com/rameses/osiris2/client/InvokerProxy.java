@@ -21,7 +21,7 @@ import java.util.Map;
 
 public class InvokerProxy  {
     
-    private GroovyClassLoader classLoader = new GroovyClassLoader(ClientContext.getCurrentContext().getClassLoader());
+    private GroovyClassLoader classLoader;
         
     private static InvokerProxy instance;
     private Map env;
@@ -57,6 +57,9 @@ public class InvokerProxy  {
     
     public synchronized Object create(String name, Class localInterface) {
         try {
+            if (classLoader == null) 
+                classLoader = new GroovyClassLoader(ClientContext.getCurrentContext().getClassLoader());
+            
             ScriptServiceContext ect = new ScriptServiceContext(getAppEnv());
             Map _env = OsirisContext.getSessionEnv();
             
