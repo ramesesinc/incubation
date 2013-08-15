@@ -22,8 +22,7 @@ import java.util.Map;
 public class InvokerProxy  {
     
     private GroovyClassLoader classLoader = new GroovyClassLoader(ClientContext.getCurrentContext().getClassLoader());
-    
-    
+        
     private static InvokerProxy instance;
     private Map env;
     
