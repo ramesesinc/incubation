@@ -50,7 +50,6 @@ public class FormPage extends javax.swing.JPanel {
         xHorizontalPanel1.setBorder(xEtchedBorder1);
         xabFormActions.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 5, 0, 5));
         xabFormActions.setName("formActions");
-        xabFormActions.setShowCaptions(false);
         xHorizontalPanel1.add(xabFormActions);
 
         xabNavActions.setBorder(null);

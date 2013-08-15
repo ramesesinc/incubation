@@ -51,7 +51,6 @@ public class FormSelectionPage extends javax.swing.JPanel {
         xabFormActions.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 5, 0, 5));
         xabFormActions.setDepends(new String[] {"selectedEntity"});
         xabFormActions.setName("formActions");
-        xabFormActions.setShowCaptions(false);
         xHorizontalPanel1.add(xabFormActions);
 
         xabNavActions.setBorder(null);

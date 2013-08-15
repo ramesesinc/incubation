@@ -67,7 +67,6 @@
                   </StringArray>
                 </Property>
                 <Property name="name" type="java.lang.String" value="formActions"/>
-                <Property name="showCaptions" type="boolean" value="false"/>
               </Properties>
             </Component>
             <Component class="com.rameses.rcp.control.XActionBar" name="xabNavActions">
