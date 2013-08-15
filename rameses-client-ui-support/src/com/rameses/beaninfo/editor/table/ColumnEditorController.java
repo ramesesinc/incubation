@@ -206,6 +206,7 @@ public class ColumnEditorController
             else if (valueType == double.class || valueType.isAssignableFrom(Double.class)) 
                 value = toDouble(value); 
 
+            //logger.log(Level.INFO, "setValue("+name+", "+value+")"); 
             m.invoke(source, new Object[]{value}); 
             onvalueChanged(name);  
         } 
@@ -362,7 +363,7 @@ public class ColumnEditorController
             setValue(source, input.getName(), value); 
             return true;            
         }
-    }    
+    } 
     
     private class InputVerifierImpl extends InputVerifier
     {

@@ -61,6 +61,12 @@ public class TestPanel extends javax.swing.JPanel {
 
         xCheckBox1.setText("xCheckBox1");
 
+        xDataTable1.setColumns(new com.rameses.rcp.common.Column[]{
+            new com.rameses.rcp.common.Column("text", "Text", 100, 0, 0, false, true, true, false, null, new com.rameses.rcp.common.TextColumnHandler()),
+            new com.rameses.rcp.common.Column("int", "Integer", 100, 0, 0, false, true, true, false, null, new com.rameses.rcp.common.IntegerColumnHandler(null, -1, -1)).set("alignment","CENTER"),
+            new com.rameses.rcp.common.Column("check", "Check", 100, 0, 0, false, true, true, false, null, new com.rameses.rcp.common.CheckBoxColumnHandler(java.lang.Boolean.class, true, false))
+        });
+
         xDateField1.setText("xDateField1");
 
         xFormPanel1.setBorder(new com.rameses.rcp.control.border.XTitledBorder());

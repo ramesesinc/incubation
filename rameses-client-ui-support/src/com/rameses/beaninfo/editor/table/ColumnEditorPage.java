@@ -9,6 +9,7 @@ package com.rameses.beaninfo.editor.table;
 import com.rameses.beaninfo.editor.table.ColumnEditorController.DependHandler;
 import com.rameses.rcp.common.Column;
 import com.rameses.rcp.common.MsgBox;
+import com.rameses.rcp.constant.TextCase;
 import com.rameses.rcp.swingx.CheckField;
 import com.rameses.rcp.swingx.ComboField;
 import com.rameses.rcp.swingx.ComboItem;
@@ -40,6 +41,8 @@ public class ColumnEditorPage extends javax.swing.JPanel
     private ColumnEditorModel model; 
     private JLabel lblAlignment;
     private ComboField cboAlignment;
+    private JLabel lblTextcase;
+    private ComboField cboTextcase;
     
     public ColumnEditorPage() 
     {
@@ -68,6 +71,26 @@ public class ColumnEditorPage extends javax.swing.JPanel
         cboAlignment.setName("alignment");
         cboAlignment.setBounds(244, 195, 176, cboAlignment.getPreferredSize().height); 
         jPanel6.add(cboAlignment); 
+        
+        jLabel9.setVisible(false); 
+        txtEditableWhen.setBounds(138, 132, 284, 19);
+        chkEditable.setBounds(70, 132, 82, 19);
+        
+        lblTextcase = new JLabel("Text Case:");
+        lblTextcase.setBounds(70, 158, 68, 20);
+        jPanel6.add(lblTextcase); 
+        
+        cboTextcase = new ComboField();
+        cboTextcase.setName("textCase");
+        cboTextcase.setBounds(138, 158, 100, cboTextcase.getPreferredSize().height); 
+        cboTextcase.setItems(new ComboItem[]{
+           new ComboItem("(Default)", null), 
+           new ComboItem("UPPER", TextCase.UPPER), 
+           new ComboItem("LOWER", TextCase.LOWER), 
+           new ComboItem("NONE", TextCase.NONE)  
+        });
+        cboAlignment.setUpdateable(true);        
+        jPanel6.add(cboTextcase); 
         
         controller.registerComponents(this);
         controller.addExtendedPage("text", new TextExtendedPage()); 

@@ -20,6 +20,7 @@ import com.rameses.rcp.common.IntegerColumnHandler;
 import com.rameses.rcp.common.LookupColumnHandler;
 import com.rameses.rcp.common.OpenerColumnHandler;
 import com.rameses.rcp.common.TextColumnHandler;
+import com.rameses.rcp.constant.TextCase;
 import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Rectangle;
@@ -48,14 +49,12 @@ public class ColumnPropertyEditor implements PropertyEditor
     public void setValue(Object value) 
     {
         Column[] oldColumns = (Column[]) value; 
-        if (oldColumns != null) 
-        {
+        if (oldColumns != null) {
             this.columns = new Column[oldColumns.length];
             for (int i=0; i<oldColumns.length; i++) { 
                 this.columns[i] = createColumn(oldColumns[i]);
             }
-        }
-        else {
+        } else {
             this.columns = null; 
         }
         support.firePropertyChange("", null, null); 
@@ -83,7 +82,42 @@ public class ColumnPropertyEditor implements PropertyEditor
         support.removePropertyChangeListener(listener); 
     }
     
-    public String getJavaInitializationString() 
+    public String getJavaInitializationString() {
+        if (columns == null || columns.length == 0) return null;
+        
+        StringBuffer sb = new StringBuffer("new " + Column.class.getName() + "[]{");
+        for (int i=0; i<columns.length; i++) 
+        {
+            Column c = columns[i]; 
+            if (i > 0) sb.append(", ");
+            
+            sb.append("\n new " + Column.class.getName() + "(new Object[]{");
+            
+            sb.append("\n new Object[]{\"name\", "+ getStringFormat(c.getName()) +"}");
+            sb.append("\n, new Object[]{\"caption\", "+ getStringFormat(c.getCaption()) +"}");
+            sb.append("\n, new Object[]{\"width\", "+ c.getWidth() +"}");
+            sb.append("\n, new Object[]{\"minWidth\", "+ c.getMinWidth() +"}");
+            sb.append("\n, new Object[]{\"maxWidth\", "+ c.getMaxWidth() +"}");
+            sb.append("\n, new Object[]{\"required\", "+ c.isRequired() +"}");
+            sb.append("\n, new Object[]{\"resizable\", "+ c.isResizable() +"}");
+            sb.append("\n, new Object[]{\"nullWhenEmpty\", "+ c.isNullWhenEmpty() +"}");
+            sb.append("\n, new Object[]{\"editable\", "+ c.isEditable() +"}");
+            if (c.isEditable()) 
+                sb.append("\n, new Object[]{\"editableWhen\", "+ getStringFormat(c.getEditableWhen()) +"}");
+            if (c.getTypeHandler() != null) 
+                sb.append("\n, new Object[]{\"typeHandler\", "+ getInitString(c.getTypeHandler()) +"}");
+            if (c.getAlignment() != null) 
+                sb.append("\n, new Object[]{\"alignment\", "+ getStringFormat(c.getAlignment()) +"}");
+            if (c.getTextCase() != null) 
+                sb.append("\n, new Object[]{\"textCase\", "+ getTextCaseFormat(c.getTextCase()) +"}");
+                        
+            sb.append("\n})");
+        } 
+        sb.append("\n}");
+        return sb.toString(); 
+    }    
+    
+    public String getJavaInitializationStringx() 
     {
         if (columns == null || columns.length == 0) return null;
         
@@ -194,7 +228,15 @@ public class ColumnPropertyEditor implements PropertyEditor
             oldColumn.getEditableWhen(), oldColumn.getTypeHandler() 
         );
         newColumn.setAlignment(oldColumn.getAlignment()); 
+        newColumn.setTextCase(oldColumn.getTextCase()); 
         return newColumn; 
     }
     
+    private String getStringFormat(Object value) {
+        return (value == null? null: "\""+value+"\"");
+    }
+    
+    private String getTextCaseFormat(TextCase value) {
+        return (value == null? null: TextCase.class.getName()+"."+value);
+    } 
 }

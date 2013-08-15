@@ -27,8 +27,33 @@ public class TestDataTable extends javax.swing.JPanel {
         jTable1 = new javax.swing.JTable();
 
         xDataTable1.setColumns(new com.rameses.rcp.common.Column[]{
-            new com.rameses.rcp.common.Column("lastname", "Lastname", 100, 0, 0, false, true, true, true, "#{lastname == null}", new com.rameses.rcp.common.TextColumnHandler()),
-            new com.rameses.rcp.common.Column("firstname", "Firstname", 100, 0, 0, false, true, true, false, null, new com.rameses.rcp.common.TextColumnHandler())
+            new com.rameses.rcp.common.Column(new Object[]{
+                new Object[]{"name", "text"}
+                , new Object[]{"caption", "Text"}
+                , new Object[]{"width", 100}
+                , new Object[]{"minWidth", 0}
+                , new Object[]{"maxWidth", 0}
+                , new Object[]{"required", false}
+                , new Object[]{"resizable", true}
+                , new Object[]{"nullWhenEmpty", true}
+                , new Object[]{"editable", false}
+                , new Object[]{"typeHandler", new com.rameses.rcp.common.TextColumnHandler()}
+                , new Object[]{"alignment", "LEFT"}
+                , new Object[]{"textCase", com.rameses.rcp.constant.TextCase.NONE}
+            }),
+            new com.rameses.rcp.common.Column(new Object[]{
+                new Object[]{"name", null}
+                , new Object[]{"caption", null}
+                , new Object[]{"width", 100}
+                , new Object[]{"minWidth", 0}
+                , new Object[]{"maxWidth", 0}
+                , new Object[]{"required", false}
+                , new Object[]{"resizable", true}
+                , new Object[]{"nullWhenEmpty", true}
+                , new Object[]{"editable", false}
+                , new Object[]{"typeHandler", new com.rameses.rcp.common.TextColumnHandler()}
+                , new Object[]{"textCase", com.rameses.rcp.constant.TextCase.UPPER}
+            })
         });
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
