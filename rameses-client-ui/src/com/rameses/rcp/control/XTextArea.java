@@ -454,6 +454,7 @@ public class XTextArea extends JTextArea implements UIInput, Validatable, Active
          */
         public void onAfterExecute() 
         {
+            if (root.isReadonly() || !root.isEnabled() || !root.isEditable()) return;
             if (!root.textDocument.isDirty()) return;
             
             UIInputUtil.updateBeanValue(root); 
