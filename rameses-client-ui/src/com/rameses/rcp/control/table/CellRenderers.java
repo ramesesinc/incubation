@@ -57,8 +57,7 @@ import javax.swing.table.TableModel;
 public class CellRenderers {
     private static Map<String,Class> renderers;
     
-    static
-    {
+    static {
         renderers = new HashMap();
         renderers.put("text", TextRenderer.class);
         renderers.put("string", TextRenderer.class);
@@ -417,8 +416,7 @@ public class CellRenderers {
         }
         
         private JLabel createComponent() {
-            label = new JLabel(){
-            };
+            label = new JLabel(){};
             return label;
         }
         
