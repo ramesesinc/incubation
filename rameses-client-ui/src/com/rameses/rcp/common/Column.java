@@ -79,8 +79,7 @@ public class Column implements Serializable
         this(name, caption, (Column.TypeHandler) null); 
     }
 
-    public Column(String name, String caption, Column.TypeHandler typeHandler)
-    {
+    public Column(String name, String caption, Column.TypeHandler typeHandler){
         this.name = name;
         this.caption = caption;
         this.typeHandler = typeHandler; 
@@ -104,6 +103,9 @@ public class Column implements Serializable
         this.editable = editable;
         this.editableWhen = editableWhen; 
         this.typeHandler = typeHandler; 
+        
+        if (this.typeHandler != null) 
+            this.typeHandler.setColumn(this);
     }
     
     public Column( String name, String caption, String type, Map props ) {
@@ -133,12 +135,15 @@ public class Column implements Serializable
         init(data); 
     }
     
+    public Column( Object[] dataArray ) { 
+        init(dataArray); 
+    }
+    
     
     /**
      * Do not remove this. This is used by the client support in the ListColumn Property Editor
      */
-    public Column clone() 
-    {
+    public Column clone() {
         Column col = new Column(getName(), getCaption());
         col.typeHandler = typeHandler;
         col.width = width;
@@ -184,7 +189,11 @@ public class Column implements Serializable
     
     public Column.TypeHandler getTypeHandler() { return typeHandler; } 
     public void setTypeHandler(Column.TypeHandler typeHandler) { 
+        Column.TypeHandler oldTypeHandler = this.typeHandler;
+        if (oldTypeHandler != null) oldTypeHandler.setColumn(null); 
+        
         this.typeHandler = typeHandler; 
+        if (this.typeHandler != null) this.typeHandler.setColumn(this); 
     } 
     
     public int getWidth() { return width; }    
@@ -359,30 +368,37 @@ public class Column implements Serializable
        
     // </editor-fold>
     
-    public final Column set(String name, Object value) 
-    {
-        try 
-        {
+    public final Column set(String name, Object value) {
+        try {
             PropertyResolver.getInstance().setProperty(this, name, value); 
             return this;
-        }
-        catch(Exception ex) 
-        {
+        } catch(Exception ex) {
             System.out.println("Unable to set property value on '"+name+"' on Column object");
             return this; 
         }
     } 
     
-    // <editor-fold defaultstate="collapsed" desc=" init(Map) ">    
+    // <editor-fold defaultstate="collapsed" desc=" init( data ) ">    
     
     private void init(Map data) {
         PropertyResolver res = PropertyResolver.getInstance(); 
         Set<Map.Entry<Object,Object>> entries = data.entrySet();
-        for (Map.Entry entry: entries) 
-        {
+        for (Map.Entry entry: entries) {
             String key = entry.getKey().toString();
             Object val = entry.getValue(); 
             res.setProperty(this, key, val); 
+        }
+    }
+    
+    private void init(Object[] dataArray) {
+        if (dataArray == null) return;
+        
+        PropertyResolver res = PropertyResolver.getInstance(); 
+        for (Object o: dataArray) {
+            try {
+                Object[] values = (Object[]) o;    
+                res.setProperty(this, values[0].toString(), values[1]); 
+            } catch(Throwable t){;} 
         }
     }
     
@@ -394,10 +410,14 @@ public class Column implements Serializable
     {    
         private static final long serialVersionUID = 1L; 
         
-        public abstract String getType(); 
+        private Column column;
         
-        public boolean equals(Object o) 
-        {
+        public abstract String getType(); 
+
+        public final Column getColumn() { return column; } 
+        void setColumn(Column column) { this.column = column; } 
+        
+        public boolean equals(Object o) {
             if (super.equals(o)) return true;
             
             return (getType() == o);
