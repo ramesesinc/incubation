@@ -1,6 +1,7 @@
 package com.rameses.rcp.control;
 
 import com.rameses.rcp.common.PropertySupport;
+import com.rameses.rcp.common.TextColumnHandler;
 import com.rameses.rcp.constant.TextCase;
 import com.rameses.rcp.constant.TrimSpaceOption;
 import com.rameses.rcp.control.text.DefaultTextField;
@@ -380,6 +381,13 @@ public class XTextField extends DefaultTextField implements UIInput, Validatable
     public void setSpaceChar(char spaceChar) { this.spaceChar = spaceChar; } 
     
     public void setPropertyInfo(PropertySupport.PropertyInfo info) {
+        if (!(info instanceof TextColumnHandler)) return;
+        
+        TextColumnHandler chandler = (TextColumnHandler) info; 
+        if (chandler.getColumn() == null) return; 
+        
+        TextCase textcase = chandler.getColumn().getTextCase();
+        if (textcase != null) document.setTextCase(textcase); 
     }    
     
     // </editor-fold>
