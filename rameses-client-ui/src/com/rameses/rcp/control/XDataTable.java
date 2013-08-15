@@ -4,7 +4,6 @@
  * Created on January 31, 2011, 10:51 AM
  * @author jaycverg
  */
-
 package com.rameses.rcp.control;
 
 import com.rameses.rcp.common.AbstractListDataProvider;
@@ -56,6 +55,7 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
     private String handler;
     private String caption;
     private String id;
+    private String readonlyWhen;
     private int index;    
     private boolean dynamic;
     private boolean showRowHeader;
@@ -203,6 +203,8 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
         //force to update component status
         if (isEnabled()) setReadonly(isReadonly()); 
         
+        applyExpressions();
+        
         if ( dataProvider != null ) 
         {
             if ( !refreshed || dynamic ) 
@@ -217,6 +219,8 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
     {
         //System.out.println("load: class="+getClass().getName()+"@"+hashCode() + ", loaded="+hasLoaded + ", name="+getName());
         if (hasLoaded) return;
+        
+        applyExpressions();
         
         refreshed = false;
         AbstractListDataProvider newProvider = null;
@@ -279,7 +283,17 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
     public int compareTo(Object o) {
         return UIControlUtil.compare(this, o);
     }
-     
+    
+    private void applyExpressions() {
+        String expr = getReadonlyWhen();
+        if (expr != null && expr.length() > 0) { 
+            try { 
+                boolean b = UIControlUtil.evaluateExprBoolean(getBinding().getBean(), expr); 
+                setReadonly(b); 
+            } catch(Throwable t) {;}
+        } 
+    }
+         
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" UIComplex implementation ">
@@ -496,6 +510,11 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
     
     public boolean isEditable() { return editable; } 
     public void setEditable(boolean editable) { this.editable = editable; }
+    
+    public String getReadonlyWhen() { return readonlyWhen; } 
+    public void setReadonlyWhen(String readonlyWhen) {
+        this.readonlyWhen = readonlyWhen; 
+    }
     
     // </editor-fold>
     
