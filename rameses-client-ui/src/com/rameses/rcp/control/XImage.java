@@ -99,7 +99,8 @@ public class XImage extends JLabel implements UIControl
     public String getIconResource() { return iconResource; } 
     public void setIconResource(String iconResource) { 
         this.iconResource = iconResource; 
-        getImageIcon(); //loads the icon
+        ImageIcon iicon = getImageIcon(); //loads the icon
+        setIcon(iicon);
         repaint(); 
     } 
     

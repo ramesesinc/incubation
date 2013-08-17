@@ -20,6 +20,7 @@ public interface UIConstants {
     static final String VERTICAL = "VERTICAL";
     static final String HORIZONTAL = "HORIZONTAL";
     static final String FLOW = "FLOW";
+    static final String XFLOW = "XFLOW";
     
     //position constants (Menu)
     static final String MOUSE_POSITION = "MOUSE_POSITION";

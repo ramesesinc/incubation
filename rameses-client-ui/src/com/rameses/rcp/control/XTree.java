@@ -20,8 +20,11 @@ import com.rameses.rcp.framework.NavigatablePanel;
 import com.rameses.rcp.framework.NavigationHandler;
 import com.rameses.rcp.ui.UIControl;
 import com.rameses.rcp.util.UIControlUtil;
+import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
@@ -33,11 +36,14 @@ import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JTree;
 import javax.swing.JViewport;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
+import javax.swing.border.Border;
 import javax.swing.event.AncestorEvent;
 import javax.swing.event.AncestorListener;
 import javax.swing.event.TreeSelectionEvent;
@@ -46,6 +52,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.MutableTreeNode;
+import javax.swing.tree.TreeCellRenderer;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
@@ -76,7 +83,8 @@ public class XTree extends JTree implements UIControl
     private void initComponents() 
     {
         getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
-        setCellRenderer(renderer=new NodeTreeRenderer()); 
+        //setCellRenderer(renderer=new NodeTreeRenderer()); 
+        setCellRenderer(new TreeCellRendererImpl()); 
 
         //install listeners
         super.addTreeSelectionListener(eventSupport); 
@@ -493,6 +501,135 @@ public class XTree extends JTree implements UIControl
     }
     
     // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" NodeTreeRenderer (class) ">
+    
+    private class TreeCellRendererImpl implements TreeCellRenderer 
+    {  
+        XTree root = XTree.this;
+        private Icon defaultIcon;
+        private Border defaultBorder;
+        private Border selectionBorder;
+        
+        private JPanel panel;
+        private JLabel lblIcon;
+        private JLabel lblContent;
+        private Icon leafIcon;
+        private Icon closedIcon;
+        private Icon openIcon;
+        private Color selectionForeground;
+        private Color textForeground;
+        private Color selectionBackground;
+        private Color textBackground;
+        private Color selectionBorderColor; 
+        
+        private boolean _inited;
+        
+        TreeCellRendererImpl() {      
+            defaultBorder = BorderFactory.createEmptyBorder(2,2,2,5);
+            
+            lblContent = new JLabel("Content"); 
+            lblIcon = new JLabel();
+            lblIcon.setPreferredSize(new Dimension(16,16));
+            lblIcon.setMinimumSize(new Dimension(16,16));
+            lblIcon.setMaximumSize(new Dimension(16,16));
+            
+            JLabel separator = new JLabel();
+            separator.setBorder(BorderFactory.createEmptyBorder(0,0,0,5));
+            
+            JPanel box = new JPanel(new BorderLayout());
+            box.add(lblIcon, BorderLayout.WEST); 
+            box.add(separator, BorderLayout.EAST);
+            box.setOpaque(false);
+            
+            panel = new JPanel(new BorderLayout());
+            panel.add(box, BorderLayout.WEST);
+            panel.add(lblContent, BorderLayout.EAST); 
+            panel.setOpaque(false);
+            panel.setBorder(BorderFactory.createEmptyBorder(1,1,1,1)); 
+            
+            leafIcon = UIManager.getIcon("Tree.leafIcon");
+            closedIcon = UIManager.getIcon("Tree.closedIcon");
+            openIcon = UIManager.getIcon("Tree.openIcon");
+            selectionForeground = UIManager.getColor("Tree.selectionForeground");
+            textForeground = UIManager.getColor("Tree.textForeground");
+            selectionBackground = UIManager.getColor("Tree.selectionBackground");
+            textBackground = UIManager.getColor("Tree.textBackground");
+            selectionBorderColor = UIManager.getColor("Tree.selectionBorderColor");
+        }
+        
+        public Component getTreeCellRendererComponent(JTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
+            if (!_inited) {
+                _inited = true;                
+                lblContent.setFont(tree.getFont());   
+                panel.setFont(lblContent.getFont());
+                tree.setRowHeight(panel.getPreferredSize().height);
+                
+                Border bin = BorderFactory.createEmptyBorder(1,1,1,4);
+                Border bout = BorderFactory.createLineBorder(selectionBorderColor,1);
+                selectionBorder = BorderFactory.createCompoundBorder(bout, bin);  
+                defaultIcon = lookupIcon(root.nodeModel.getIcon());
+            }
+            
+            lblContent.setText((value == null? "": value.toString()));
+            if (root.nodeModel == null) return panel;
+            
+            if (selected) {
+                lblContent.setForeground(selectionForeground);
+                lblContent.setBackground(selectionBackground);
+                lblContent.setOpaque(true);                 
+            } else {
+                lblContent.setForeground(textForeground);
+                lblContent.setBackground(textBackground);
+                lblContent.setOpaque(false); 
+            }
+
+            if (hasFocus) {
+                lblContent.setBorder(selectionBorder);
+            } else {
+                lblContent.setBorder(defaultBorder); 
+            }
+            
+            lblContent.setEnabled(tree.isEnabled());
+            lblIcon.setEnabled(tree.isEnabled());
+            if (leaf) lblIcon.setIcon(leafIcon);
+            else if (expanded) lblIcon.setIcon(openIcon);
+            else lblIcon.setIcon(closedIcon);
+            
+            if (defaultIcon != null) lblIcon.setIcon(defaultIcon);
+            
+            if (value != null && (value instanceof DefaultNode)) {
+                Node n = ((DefaultNode) value).getNode();
+                if (n != null) {
+                    if (n.getIcon() != null) {
+                        Icon oIcon = (Icon) n.getProperties().get(Icon.class);
+                        if (oIcon == null) { 
+                            oIcon = lookupIcon(n.getIcon());
+                            n.getProperties().put(Icon.class, oIcon); 
+                        }
+                        if (oIcon != null) lblIcon.setIcon(oIcon);
+                    } 
+                    
+                    if (n.getTooltip() !=null) 
+                        lblContent.setToolTipText(n.getTooltip());
+                } 
+            } 
+            return panel;
+        }
+
+        private Icon lookupIcon(String name) {
+            try { 
+                Icon icon = ControlSupport.getImageIcon(name);
+                if (icon == null) icon = UIManager.getIcon(name);
+                
+                return icon;
+            } catch(Throwable t) {
+                return null;
+            }
+        }        
+    }
+    
+    // </editor-fold>    
     
     // <editor-fold defaultstate="collapsed" desc=" DummyTreeNodeModel (class) "> 
     

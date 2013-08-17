@@ -36,6 +36,7 @@ public class ToolbarLayout implements LayoutManager
         layouts.put(UIConstants.HORIZONTAL, new HorizontalLayout()); 
         layouts.put(UIConstants.VERTICAL, new VerticalLayout());
         layouts.put(UIConstants.FLOW, new FlowLayout());
+        layouts.put(UIConstants.XFLOW, new XFlowLayout());
         
         setOrientation(UIConstants.HORIZONTAL);
         setAlignment(UIConstants.LEFT);
@@ -296,6 +297,7 @@ public class ToolbarLayout implements LayoutManager
     //</editor-fold>     
         
     // <editor-fold defaultstate="collapsed" desc=" FlowLayout (Class) ">
+    
     private class FlowLayout implements LayoutManager 
     {
         private int CELL_SIZE = 100;
@@ -358,7 +360,6 @@ public class ToolbarLayout implements LayoutManager
                         else
                             colHeight = dim.height;
                         
-                        System.out.println("dim-> " + dim + ", colheight="+colHeight);                        
                         comp.setBounds(x, y, colWidth, colHeight); 
                         rowHeight = Math.max(rowHeight, colHeight);                         
                         x += colWidth;
@@ -418,5 +419,80 @@ public class ToolbarLayout implements LayoutManager
         }
     }
     
+    //</editor-fold>        
+    
+    // <editor-fold defaultstate="collapsed" desc=" XFlowLayout (Class) ">
+
+    private class XFlowLayout implements LayoutManager 
+    {
+        private int CELL_SIZE = 100;
+
+        public void addLayoutComponent(String name, Component comp) {;}
+        public void removeLayoutComponent(Component comp) {;}
+
+        public Dimension getLayoutSize(Container parent) 
+        {
+            synchronized (parent.getTreeLock()) 
+            {
+                int w = (CELL_SIZE+20) + padding.left + padding.right;
+                int h = (CELL_SIZE-20) + padding.top + padding.bottom;
+                Insets margin = parent.getInsets(); 
+                return new Dimension(w+margin.left+margin.right, w+margin.top+margin.bottom);
+            }
+        }
+
+        public Dimension preferredLayoutSize(Container parent) {
+            return getLayoutSize(parent);
+        }
+
+        public Dimension minimumLayoutSize(Container parent) {
+            return getLayoutSize(parent);
+        }
+
+        public void layoutContainer(Container parent) 
+        {
+            synchronized (parent.getTreeLock()) 
+            {
+                Insets margin = parent.getInsets();                
+                int x = margin.left, y=margin.top, pw=parent.getWidth(), ph=parent.getHeight();
+                int w = pw - (margin.left + margin.right);
+                int h = ph - (margin.top + margin.bottom);
+
+                Component[] comps = parent.getComponents();
+                if (comps.length == 0) return;
+
+                int colWidth = (CELL_SIZE+20) + padding.left + padding.right;
+                int colHeight = (CELL_SIZE-20) + padding.top + padding.bottom;
+                int colCount = w / colWidth; 
+
+                for (int i=0; i<comps.length; i++)
+                {
+                    int colIndex = 0;
+                    boolean found = false;
+                    for (int c=i; c<comps.length; c++) 
+                    {
+                        if (colIndex >= colCount) break;
+
+                        i = c;                        
+                        if (!comps[c].isVisible()) continue;
+
+                        Component comp = comps[c];
+                        Dimension dim = comp.getPreferredSize();
+                        if (found) x += getSpacing();
+
+                        comp.setBounds(x, y, colWidth, colHeight); 
+                        x += colWidth;
+                        colIndex += 1; 
+                        found = true;                          
+                    }
+
+                    x = margin.left;
+                    y += colHeight;
+                    if (found) y += getSpacing();                    
+                }
+            }
+        }
+    }
+
     //</editor-fold>        
 }
