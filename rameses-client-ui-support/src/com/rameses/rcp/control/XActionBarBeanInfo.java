@@ -9,6 +9,7 @@ package com.rameses.rcp.control;
 
 import com.rameses.beaninfo.ComponentBeanInfo;
 import com.rameses.beaninfo.editor.TextAlignmentPropertyEditor;
+import com.rameses.beaninfo.editor.UIConstantsOrientationPropertyEditor;
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
 
@@ -45,9 +46,9 @@ public class XActionBarBeanInfo extends ComponentBeanInfo.Support
 
             installEditor(new PropertyDescriptor("textAlignment", getBeanClass()), TextAlignmentPropertyEditor.class),
             installEditor(new PropertyDescriptor("textPosition", getBeanClass()), TextAlignmentPropertyEditor.class), 
+            installEditor(new PropertyDescriptor("orientation", getBeanClass()), UIConstantsOrientationPropertyEditor.class), 
             
             new PropertyDescriptor("horizontalAlignment", getBeanClass()),
-            new PropertyDescriptor("orientation", getBeanClass()),
             new PropertyDescriptor("orientationHAlignment", getBeanClass()),
             new PropertyDescriptor("orientationVAlignment", getBeanClass()),
             

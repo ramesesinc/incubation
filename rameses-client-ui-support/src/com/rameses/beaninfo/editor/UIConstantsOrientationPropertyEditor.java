@@ -7,8 +7,8 @@ public class UIConstantsOrientationPropertyEditor extends PropertyEditorSupport 
     
     private String[] values = new String[] { 
         
-        UIConstants.VERTICAL, UIConstants.HORIZONTAL, UIConstants.FLOW
-        
+        UIConstants.VERTICAL, UIConstants.HORIZONTAL, 
+        UIConstants.FLOW, UIConstants.XFLOW         
     };
        
     
