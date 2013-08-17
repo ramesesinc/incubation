@@ -27,7 +27,16 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class AnubisResourceServlet extends AbstractAnubisServlet 
 {
-
+    private String basePath;
+    
+    public AnubisResourceServlet() { 
+        this("res");
+    }
+    
+    public AnubisResourceServlet(String basePath) {
+        this.basePath = basePath; 
+    }
+    
     protected void handle(HttpServletRequest hreq, HttpServletResponse hres) throws Exception 
     { 
         AnubisContext ctx = AnubisContext.getCurrentContext();
@@ -46,25 +55,24 @@ public class AnubisResourceServlet extends AbstractAnubisServlet
                 String pathname = arr[1];
                 Module module = project.getModules().get( modulename );
                 is = ContentUtil.getResources(  new String[]{
-                    module.getUrl() + "res" + pathname,
-                    module.getProvider() + "res" + pathname
+                    module.getUrl() + basePath + pathname,
+                    module.getProvider() + basePath + pathname
                 }, path);
             }
             else {
                 is = ContentUtil.getResources( new String[]{
-                    project.getUrl()+"/res"+path,
-                    ctx.getSystemUrl()+"/res"+path
+                    project.getUrl()+ "/" + basePath + path,
+                    ctx.getSystemUrl() + "/"+ basePath + path
                 }, path);
             }
             
             if (is != null) ResponseUtil.write( hreq, hres, mimeType, is );
         } 
         catch(Exception e) {
-            System.out.println("error resource " + e.getMessage());
+            System.out.println("error resource " + e.getMessage()); 
         } 
-        finally 
-        {
+        finally {
             try { is.close(); } catch(Exception ign){;}
-        }        
+        } 
     }    
 }

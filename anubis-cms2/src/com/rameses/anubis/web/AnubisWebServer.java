@@ -84,7 +84,7 @@ public class AnubisWebServer implements ServerLoader  {
         mainctx.setContextPath("/");
         mainctx.setResourceBase(System.getProperty(KEY_LIBRARY_PATH));
         mainctx.addServlet(createServletHolder(AnubisStartupServlet.class, "cms-startup", 1), null);
-        mainctx.addServlet(AnubisResourceServlet.class, "/res/*");
+        mainctx.addServlet(AnubisResourceServlet.class, "/res/*");        
         mainctx.addServlet(AnubisThemeServlet.class, "/themes/*");
         mainctx.addServlet(JsProxyServlet.class, "/js-proxy/*");
         mainctx.addServlet(JsInvokeServlet.class, "/js-invoke/*");
@@ -93,6 +93,7 @@ public class AnubisWebServer implements ServerLoader  {
         mainctx.addServlet(BasicResourceServlet.class, "/js/*");
         mainctx.addServlet(BasicResourceServlet.class, "/images/*");
         mainctx.addServlet(AnubisPollServlet.class, "/poll/*");
+        mainctx.addServlet(AnubisDownloadServlet.class, "/downloads/*");          
         mainctx.addServlet(BasicResourceServlet.class, "/favicon.ico");
         mainctx.addServlet(AnubisMainServlet.class, "/*");
         
