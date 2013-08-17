@@ -245,6 +245,10 @@ public class XActionBar extends JPanel implements UIComposite {
             ImageIcon icon = ImageIconSupport.getInstance().getIcon(sicon);
             btn.setIcon(icon);
         } 
+        if (btn.getIcon() == null) {
+            ImageIcon icon = ImageIconSupport.getInstance().getIcon("com/rameses/rcp/icons/button-separator.png");
+            btn.setIcon(icon); 
+        }
                 
         btn.putClientProperty("visibleWhen", action.getVisibleWhen());
         btn.setBinding(binding);
