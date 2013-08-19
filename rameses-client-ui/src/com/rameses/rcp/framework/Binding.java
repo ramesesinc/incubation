@@ -334,7 +334,8 @@ public class Binding
             UIControl c = controlsIndex.get(focusComponentName);
             if ( c != null ) {
                 Component comp = (Component) c;
-                comp.requestFocusInWindow();
+                if (comp.isEnabled() && comp.isFocusable()) 
+                    comp.requestFocusInWindow(); 
             }
             focusComponentName = null;
         }
