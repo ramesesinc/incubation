@@ -75,8 +75,22 @@ public final class ColorUtil {
         if (s.startsWith("#")) return Color.decode(s); 
 
         try { 
+            if (s.startsWith("rgb(") && s.endsWith(")")) {
+                String[] values = s.substring(s.indexOf('(')+1, s.lastIndexOf(')')).split(",");
+                int r=0, g=0, b=0;
+                try { r = Integer.parseInt(values[0].trim()); } catch(Throwable x){;} 
+                try { g = Integer.parseInt(values[1].trim()); } catch(Throwable x){;}        
+                try { b = Integer.parseInt(values[2].trim()); } catch(Throwable x){;} 
+                return new Color(r, g, b); 
+            } 
+        } catch(Throwable t) {
+            //invalid rgb value
+            return null; 
+        } 
+        
+        try { 
             return Color.decode(COLOR_NAMES.getProperty(s)); 
-        } catch(Exception ex) {
+        } catch(Throwable x) {
             return null; 
         } 
     }
