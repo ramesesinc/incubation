@@ -23,6 +23,19 @@ import javax.swing.JComponent;
 
 public final class ControlSupport {
     
+    private static Object getClientProperty(Component component, Object key) {
+        if (component instanceof JComponent) {
+            return ((JComponent) component).getClientProperty(key);
+        } else {
+            return null; 
+        }
+    }
+    
+    private static void setClientProperty(Component component, Object key, Object value) {
+        if (component instanceof JComponent) {
+            ((JComponent) component).putClientProperty(key, value); 
+        } 
+    }    
     
     public static void setStyles(Map props, Component component) {
         PropertyResolver resolver = PropertyResolver.getInstance();
@@ -34,12 +47,40 @@ public final class ControlSupport {
             try 
             {
                 if ("background".equals(key) || "background-color".equals(key)) {
-                    Color color = ColorUtil.decode(me.getValue()+"");
-                    if (color != null) component.setBackground(color);
+                    Color color = null;
+                    if (me.getValue() instanceof Color) 
+                        color = (Color) me.getValue(); 
+                    else 
+                        color = ColorUtil.decode(me.getValue()+"");
+                    
+                    Color oldColor = (Color) getClientProperty(component, "ControlSupport.background");
+                    if (color != null) {
+                        if (oldColor == null) 
+                            setClientProperty(component, "ControlSupport.background", component.getBackground()); 
+                        
+                        component.setBackground(color);
+                    } 
+                    else if (oldColor != null) {
+                        component.setBackground(oldColor);
+                    }                   
                 }
                 else if ("foreground".equals(key) || "color".equals(key)) {
-                    Color color = ColorUtil.decode(me.getValue()+"");
-                    if (color != null) component.setForeground(color);
+                    Color color = null;
+                    if (me.getValue() instanceof Color) 
+                        color = (Color) me.getValue(); 
+                    else 
+                        color = ColorUtil.decode(me.getValue()+"");
+                    
+                    Color oldColor = (Color) getClientProperty(component, "ControlSupport.foreground");
+                    if (color != null) {
+                        if (oldColor == null) 
+                            setClientProperty(component, "ControlSupport.foreground", component.getForeground()); 
+                        
+                        component.setForeground(color);
+                    }
+                    else if (oldColor != null) {
+                        component.setForeground(oldColor); 
+                    }
                 }
                 else if ("font".equals(key)) {
                     Font oldFont = component.getFont();
