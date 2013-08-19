@@ -16,6 +16,7 @@ import com.rameses.rcp.common.ListItem;
 import com.rameses.rcp.common.ListPageModel;
 import com.rameses.rcp.common.MsgBox;
 import com.rameses.rcp.common.PropertyChangeHandler;
+import com.rameses.rcp.common.StyleRule;
 import com.rameses.rcp.common.TableModelHandler;
 import com.rameses.rcp.control.XCheckBox;
 import com.rameses.rcp.framework.Binding;
@@ -34,6 +35,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Graphics;
+import java.awt.KeyboardFocusManager;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
@@ -75,7 +77,7 @@ public class DataTableComponent extends JTable implements TableControl
 
     private Map<Integer, JComponent> editors = new HashMap();
     private DataTableBinding itemBinding = new DataTableBinding();    
-    
+        
     private DataTableModel tableModel;
     private TableListener tableListener;
     private ListPageModel pageModel;    
@@ -580,7 +582,34 @@ public class DataTableComponent extends JTable implements TableControl
             }
         }
         
-        editItem(rowIndex, colIndex, e); 
+        //evaluate style rule for this column
+        boolean columnEditable = true;
+        StyleRule[] rules = getBinding().getStyleRules();
+        if (rules != null && getId() != null) {
+            String qname = getId()+":"+getVarName()+"."+oColumn.getName(); 
+            Object itemData = editorModel.getListItemData(rowIndex);
+            for (StyleRule r : rules) {
+                String pattern = r.getPattern();
+                String expr = r.getExpression();
+                if (expr != null && qname.matches(pattern)){
+                    try {
+                        boolean matched = UIControlUtil.evaluateExprBoolean(createExpressionBean(itemData), expr);
+                        if (!matched) continue;
+                        
+                        Object oval = r.getProperties().get("editable");
+                        if (oval == null) continue;
+                        
+                        if ("true".equals(oval.toString())) 
+                            columnEditable = true; 
+                        else if ("false".equals(oval.toString())) 
+                            columnEditable = false; 
+                    } catch (Throwable t){;} 
+                }
+            }             
+        } 
+        
+        if (columnEditable) editItem(rowIndex, colIndex, e); 
+        
         return false;
     }
     
@@ -721,19 +750,15 @@ public class DataTableComponent extends JTable implements TableControl
             editorModel.getMessageSupport().getErrorMessage(rowIndex) == null) 
             return;
         
-        try 
-        {
+        try {
             editorModel.setSelectedItem(rowIndex); 
             editorModel.fireRemoveItem(editorModel.getListItem(rowIndex)); 
-        }
-        catch(Exception ex) 
-        {
+        } catch(Exception ex) {
             MsgBox.err(ex); 
         }
     } 
     
-    public Object createExpressionBean(Object itemBean) 
-    {
+    public Object createExpressionBean(Object itemBean) {
         ExprBeanSupport beanSupport = new ExprBeanSupport(binding.getBean());
         beanSupport.setItem(getVarName(), itemBean); 
         return beanSupport.createProxy(); 
@@ -741,8 +766,7 @@ public class DataTableComponent extends JTable implements TableControl
     
     protected void onchangedItem(ListItem item) {} 
     
-    public void editItem(int rowIndex, int colIndex, EventObject e) 
-    {
+    public void editItem(int rowIndex, int colIndex, EventObject e) {
         if (editorModel == null) return;        
         /*
             if ListItem has error messages, 
@@ -758,39 +782,30 @@ public class DataTableComponent extends JTable implements TableControl
         Column col = tableModel.getColumn(colIndex);
         if (col == null || !col.isEditable()) return;
                 
-        try 
-        {
-            if (oListItem.getItem() == null || oListItem.getState() == ListItem.STATE_EMPTY) 
-            {
+        try {
+            if (oListItem.getItem() == null || oListItem.getState() == ListItem.STATE_EMPTY) {
                 editorModel.loadTemporaryItem(oListItem);
                 oListItem.setRoot(binding.getBean()); 
                 tableModel.fireTableRowsUpdated(rowIndex, rowIndex); 
             }       
-        } 
-        catch(Exception ex) 
-        {
+        } catch(Exception ex) {
             MsgBox.err(ex); 
             return; 
         }
         
         // evaluate the editableWhen expression 
-        if ( !ValueUtil.isEmpty(col.getEditableWhen()) ) 
-        {
+        if ( !ValueUtil.isEmpty(col.getEditableWhen()) ) {
             boolean passed = false;
-            ExpressionResolver er = ExpressionResolver.getInstance();
-            try 
-            {
+            
+            try {
                 Object exprBean = createExpressionBean(oListItem.getItem());
                 passed = UIControlUtil.evaluateExprBoolean(exprBean, col.getEditableWhen());
-            } 
-            catch(Exception ex) { 
+            } catch(Exception ex) { 
                 System.out.println("Failed to evaluate expression " + col.getEditableWhen() + " caused by " + ex.getMessage());
             }
             
-            if (!passed) 
-            {
-                if (dataProvider.getListItem(rowIndex+1) == null) 
-                {
+            if (!passed) {
+                if (dataProvider.getListItem(rowIndex+1) == null) {
                     oListItem.loadItem(null, ListItem.STATE_EMPTY);
                     tableModel.fireTableRowsUpdated(rowIndex, rowIndex); 
                 }                
@@ -801,8 +816,15 @@ public class DataTableComponent extends JTable implements TableControl
         JComponent editor = editors.get(colIndex);
         if ( editor == null ) return;
         
-        if (editorModel.isLastItem(oListItem)) 
-            editorModel.addEmptyItem(); 
+        if (editorModel.isLastItem(oListItem)) { 
+            if (editorModel.isAllowAdd()) {
+                editorModel.addEmptyItem(); 
+            } else {
+                //not allowed to add more items
+                oListItem.loadItem(null, ListItem.STATE_EMPTY); 
+                return;
+            }
+        } 
         
         oListItem.setRoot(binding.getBean());
         tableModel.fireTableRowsUpdated(rowIndex, rowIndex); 
@@ -819,7 +841,7 @@ public class DataTableComponent extends JTable implements TableControl
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc="  helper/supporting methods  ">
-    
+        
     protected void onfocusGained(FocusEvent e) {} 
     protected void onfocusLost(FocusEvent e) {}    
     protected final void processFocusEvent(FocusEvent e) 
@@ -892,14 +914,13 @@ public class DataTableComponent extends JTable implements TableControl
         int nextCol = findNextEditableColFrom(colIndex);
         int firstEditable = findNextEditableColFrom(-1);
         
-        if (nextCol >= 0) 
+        if (nextCol >= 0) {
             this.changeSelection(rowIndex, nextCol, false, false);
-        
-        else if (rowIndex+1 < tableModel.getRowCount()) 
-            this.changeSelection(rowIndex+1, firstEditable, false, false);
-        
-        else 
-        {
+        } 
+        else if (rowIndex+1 < tableModel.getRowCount()) { 
+            this.changeSelection(rowIndex+1, firstEditable, false, false); 
+        } 
+        else {
             ListItem item = dataProvider.getSelectedItem();
             /*
             boolean lastRow = !(rowIndex + dataProvider.getTopRow() < dataProvider.getMaxRows());
@@ -953,7 +974,7 @@ public class DataTableComponent extends JTable implements TableControl
         }
         
         InputVerifier inputVerifier = editor.getInputVerifier();
-        editor.setVisible(false);
+        editor.setVisible(false);                  
         editor.setInputVerifier(null);
         editingMode = false;        
         currentEditor = null;
@@ -989,7 +1010,7 @@ public class DataTableComponent extends JTable implements TableControl
         }
         
         tableModel.fireTableRowsUpdated(rowIndex, rowIndex); 
-        if (grabFocus) grabFocus(); 
+        if (grabFocus) grabFocus();
         
         return true;
     } 
@@ -1739,4 +1760,38 @@ public class DataTableComponent extends JTable implements TableControl
     
     // </editor-fold>
 
+    // <editor-fold defaultstate="collapsed" desc=" FocusGrabber "> 
+    
+    private class FocusGrabber implements Runnable {
+        
+        DataTableComponent root = DataTableComponent.this; 
+        private int rowIndex;
+        private int colIndex;
+        
+        FocusGrabber(int rowIndex, int colIndex) {
+            this.rowIndex = rowIndex;
+            this.colIndex = colIndex;
+        }
+
+        void focus() {
+            EventQueue.invokeLater(this);
+        }
+        
+        public void run() {
+            Component pfo = KeyboardFocusManager.getCurrentKeyboardFocusManager().getPermanentFocusOwner(); 
+            if (root.equals(pfo)) return;
+            
+            //if (root.hasFocus()) return;             
+            System.out.println("grabbing focus...");
+            root.grabFocus();
+            root.requestFocusInWindow(); 
+            
+            try { Thread.sleep(200); } catch(Throwable t){;} 
+            EventQueue.invokeLater(this);
+        }
+        
+    }
+    
+    // </editor-fold>
+    
 }
