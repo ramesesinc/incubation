@@ -75,6 +75,7 @@ public class XLookupField extends IconedTextField implements UIFocusableContaine
     private Object selectedValue;
     private String expression;
     private String returnFields;
+    private String disableWhen;
     private boolean transferFocusOnSelect = true;    
     private boolean dirty;
     private boolean loaded;
@@ -186,6 +187,11 @@ public class XLookupField extends IconedTextField implements UIFocusableContaine
     public void setReturnFields(String returnFields) { 
         this.returnFields = returnFields; 
     } 
+    
+    public String getDisableWhen() { return disableWhen; } 
+    public void setDisableWhen(String disableWhen) {
+        this.disableWhen = disableWhen;
+    }
    
     // </editor-fold> 
     
@@ -201,6 +207,15 @@ public class XLookupField extends IconedTextField implements UIFocusableContaine
         
         dirty = true; 
     }        
+    
+    public boolean requestFocusInWindow() { 
+        if (!isEnabled()) { 
+            transferFocus(); 
+            return false; 
+        } 
+        
+        return super.requestFocusInWindow();
+    }
     
     // </editor-fold>
        
@@ -223,23 +238,31 @@ public class XLookupField extends IconedTextField implements UIFocusableContaine
     public void refresh() 
     {
         //force to update the component status
-        updateBackground();
+        updateBackground(); 
         
-        Object expval = null;
-        if ( !ValueUtil.isEmpty(expression) ) 
-        {
-            Object itemBean = null; 
-            if ( !ValueUtil.isEmpty(getName()) ) 
-            { 
-                try {
-                    itemBean = UIControlUtil.getBeanValue(this);
-                } catch(Exception ign){;} 
+        Object itemBean = null; 
+        if ( !ValueUtil.isEmpty(getName()) ) { 
+            try {
+                itemBean = UIControlUtil.getBeanValue(this);
+            } catch(NullPointerException npe) {
+                npe.printStackTrace();
+            } catch(Throwable t) {
+                System.out.println("[WARN] error caused by " + t.getMessage());
+            } 
+        }
+
+        Object expval = null;        
+        Object bean = binding.getBean(); 
+        if (bean != null) {
+            Object exprBean = createExpressionBean(itemBean); 
+            String sval = getDisableWhen();
+            if (sval != null && sval.length() > 0) {
+                setEnabled(!UIControlUtil.evaluateExprBoolean(exprBean, sval)); 
+                if (!isEnabled() && hasFocus()) transferFocus(); 
             }
             
-            Object bean = binding.getBean(); 
-            if (bean != null) 
-            {
-                Object exprBean = createExpressionBean(itemBean); 
+            sval = getExpression();
+            if (sval != null && sval.length() > 0) {
                 expval = UIControlUtil.evaluateExpr(exprBean, expression); 
             }
         }

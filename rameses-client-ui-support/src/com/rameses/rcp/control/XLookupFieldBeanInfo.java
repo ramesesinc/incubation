@@ -46,6 +46,7 @@ public class XLookupFieldBeanInfo extends ComponentBeanInfo.Support
             new PropertyDescriptor("cellPadding", getBeanClass()),
                         
             new PropertyDescriptor("depends", getBeanClass()),
+            new PropertyDescriptor("disableWhen", getBeanClass()),
             new PropertyDescriptor("expression", getBeanClass()),
             new PropertyDescriptor("hint", getBeanClass()),
             new PropertyDescriptor("handler", getBeanClass()),
