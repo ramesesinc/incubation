@@ -24,6 +24,8 @@ public class EditorListModel extends AbstractListDataProvider
     
     public List fetchList(Map params) { return DEFAULT_LIST; }    
     public Object createItem() { return new HashMap(); } 
+    
+    public boolean isAllowAdd() { return true; } 
         
     /*
      *  Needs to be implemented. This method is invoked when: 
