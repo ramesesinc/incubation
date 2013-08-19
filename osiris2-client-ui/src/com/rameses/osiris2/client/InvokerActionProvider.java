@@ -4,6 +4,7 @@ import com.rameses.osiris2.Folder;
 import com.rameses.osiris2.Invoker;
 import com.rameses.osiris2.SessionContext;
 import com.rameses.rcp.common.Action;
+import com.rameses.rcp.common.Opener;
 import com.rameses.rcp.framework.ActionProvider;
 import com.rameses.rcp.framework.UIController;
 import com.rameses.util.ValueUtil;
@@ -172,7 +173,14 @@ public class InvokerActionProvider implements ActionProvider
 
         public Object execute() { 
             Map params = new HashMap(); 
-            return InvokerUtil.createOpener(invoker, params);
+            Opener opener = InvokerUtil.createOpener(invoker, params);
+            String target = opener.getTarget();
+            if (target == null || target.length() == 0) {
+                Object oval = getProperties().get("target"); 
+                if (oval != null) opener.setTarget(oval.toString());
+            } 
+              
+            return opener;
         } 
         
         private String getString(String name) {
