@@ -12,6 +12,7 @@ package com.rameses.osiris2.client;
 import com.rameses.osiris2.SessionContext;
 import com.rameses.osiris2.Folder;
 import com.rameses.osiris2.Invoker;
+import com.rameses.rcp.support.ImageIconSupport;
 import com.rameses.rcp.util.ControlSupport;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
@@ -148,12 +149,12 @@ public final class MenuUtil {
             setText(menu.getCaption());
             Object mnemonic = menu.getProperties().get("mnemonic");
             if (mnemonic != null) setMnemonic(getFirstChar(mnemonic.toString()));
+            
             invoker = menu.getInvoker();
             
             String icon = (String)invoker.getProperties().get("icon");
-            if( icon !=null) {
-                setIcon(ControlSupport.getImageIcon(icon));
-            }
+            if (icon != null) setIcon(ImageIconSupport.getInstance().getIcon(icon)); 
+            
             setActionCommand(invoker.getAction());
             addActionListener(this);
         }
