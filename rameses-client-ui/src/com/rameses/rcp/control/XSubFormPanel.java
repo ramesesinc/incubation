@@ -41,6 +41,7 @@ public class XSubFormPanel extends JPanel implements UISubControl, ActiveControl
 {    
     private String handler;
     private String[] depends;
+    private String visibleWhen;
     private int index;
     private boolean dynamic;
     
@@ -115,6 +116,14 @@ public class XSubFormPanel extends JPanel implements UISubControl, ActiveControl
     public void refresh() {
         if ( dynamic ) {
             buildForm();
+        }
+        
+        String sval = getVisibleWhen(); 
+        if (sval != null && sval.length() > 0) {
+            try { 
+                boolean bool = UIControlUtil.evaluateExprBoolean(getBinding().getBean(), sval);
+                setVisible(bool); 
+            } catch(Throwable t) {;} 
         }
     }
     
@@ -365,8 +374,12 @@ public class XSubFormPanel extends JPanel implements UISubControl, ActiveControl
         return property;
     }
 
-    public void setPropertyInfo(PropertySupport.PropertyInfo info) 
-    {
+    public void setPropertyInfo(PropertySupport.PropertyInfo info) {
+    }
+    
+    public String getVisibleWhen() { return visibleWhen; } 
+    public void setVisibleWhen(String visibleWhen) {
+        this.visibleWhen = visibleWhen; 
     }
     
     // </editor-fold>
