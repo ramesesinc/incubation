@@ -7,7 +7,7 @@
 package com.rameses.rcp.control;
 
 import com.rameses.rcp.common.AbstractListDataProvider;
-import com.rameses.rcp.common.BasicListModel;
+import com.rameses.rcp.common.DataListModel;
 import com.rameses.rcp.common.Column;
 import com.rameses.rcp.common.EditorListModel;
 import com.rameses.rcp.common.ListItem;
@@ -550,7 +550,7 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
         
     // <editor-fold defaultstate="collapsed" desc="  ReadonlyListModel (class)  ">
     
-    private class ReadonlyListModel extends BasicListModel 
+    private class ReadonlyListModel extends DataListModel 
     {
         private java.util.List userDefinedList;
         private String name;
@@ -598,7 +598,7 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
     
     // <editor-fold defaultstate="collapsed" desc=" DesignTimeListModel (class) ">
     
-    private class DesignTimeListModel extends BasicListModel 
+    private class DesignTimeListModel extends DataListModel 
     {
         public Column[] getColumns() {
             return new Column[]{
