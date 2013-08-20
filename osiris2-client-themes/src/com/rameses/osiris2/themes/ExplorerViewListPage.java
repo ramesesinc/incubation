@@ -85,6 +85,7 @@ public class ExplorerViewListPage extends javax.swing.JPanel {
         pnlHeader.add(jPanel2, java.awt.BorderLayout.NORTH);
 
         xSubFormPanel1.setHandler("queryForm");
+        xSubFormPanel1.setVisibleWhen("#{queryFormVisible == true}");
         org.jdesktop.layout.GroupLayout xSubFormPanel1Layout = new org.jdesktop.layout.GroupLayout(xSubFormPanel1);
         xSubFormPanel1.setLayout(xSubFormPanel1Layout);
         xSubFormPanel1Layout.setHorizontalGroup(
