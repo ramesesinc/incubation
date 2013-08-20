@@ -228,12 +228,17 @@ public abstract class AbstractListDataProvider
     } 
     
     protected Object onOpenItem(Object item, String columnName) { return null; }
+    protected Object lookupOpener(Object item) { return null; }
     
     public final Object openSelectedItem() 
     { 
-        if (selectedItem == null || selectedItem.getItem() == null) return null;
+        Object item = (selectedItem == null? null: selectedItem.getItem());
+        if (item == null) return null;
+
+        Object opener = lookupOpener(item); 
+        if (opener != null) return opener; 
         
-        return onOpenItem(selectedItem.getItem(), selectedColumn); 
+        return onOpenItem(item, selectedColumn); 
     } 
     
     public final void removeSelectedItem() 
