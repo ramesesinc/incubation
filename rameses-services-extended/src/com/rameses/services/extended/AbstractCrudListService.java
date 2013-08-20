@@ -29,8 +29,10 @@ public abstract class AbstractCrudListService extends AbstractCrudService  imple
     public Object getList(Object params) {
         try {
             return getListHelper().getList( params );
-        } catch(Exception ign){
-            throw new RuntimeException(ign);
+        } catch(RuntimeException re) {
+            throw re; 
+        } catch(Exception ex){
+            throw new RuntimeException(ex.getMessage(), ex);
         }
     }
     
