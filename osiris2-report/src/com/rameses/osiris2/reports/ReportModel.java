@@ -27,16 +27,25 @@ import net.sf.jasperreports.engine.JasperReport;
  */
 public abstract class ReportModel {
     
+    private boolean allowSave = false;
+    private boolean allowPrint = true;
+        
     public abstract Object getReportData();
     public abstract String getReportName();
     
-    public SubReport[] getSubReports() {
-        return null;
+    public boolean isAllowSave() { return allowSave; } 
+    public void setAllowSave(boolean allowSave) { 
+        this.allowSave = allowSave; 
     }
     
-    public Map getParameters() {
-        return null;
+    public boolean isAllowPrint() { return allowPrint; } 
+    public void setAllowPrint(boolean allowPrint) {
+        this.allowPrint = allowPrint;
     }
+    
+    public SubReport[] getSubReports() { return null; }    
+    
+    public Map getParameters() { return null; }
     
     private JasperPrint reportOutput;
     
@@ -44,34 +53,35 @@ public abstract class ReportModel {
     
     private JasperPrint createReport() {
         try {
-            if(mainReport==null) {
+            if (mainReport == null) {
                 mainReport = ReportUtil.getJasperReport(getReportName());
             }
             
             Map conf = new HashMap();
             SubReport[] subReports = getSubReports();
             
-            if( subReports !=null) {
-                for(SubReport sr: subReports) {
+            if (subReports != null) {
+                for (SubReport sr: subReports) {
                     conf.put( sr.getName(), sr.getReport() );
                 }
             }
             Map params = getParameters();
-            if(params!=null) {
-                conf.putAll(params);
-            }
+            if (params != null) conf.putAll(params);
             
             JRDataSource ds = null;
             Object data = getReportData();
-            if( data!=null ) {
+            if (data != null) {
                 ds = new ReportDataSource(data);
             } else {
                 ds = new JREmptyDataSource();
             }
-            return JasperFillManager.fillReport(mainReport,conf,ds);
+            return JasperFillManager.fillReport(mainReport, conf, ds);
+        } 
+        catch (RuntimeException re) {
+            throw re; 
         } catch (JRException ex) {
             ex.printStackTrace();
-            throw new IllegalStateException(ex);
+            throw new IllegalStateException(ex.getMessage(), ex);
         }
     }
     
@@ -80,16 +90,17 @@ public abstract class ReportModel {
         return "report";
     }
     
-    public JasperPrint getReport() {
+    public JasperPrint getReport() { 
         return reportOutput;
     }
-    
-    
+        
     public List getReportActions() {
         List list = new ArrayList();
         list.add( new Action("_close", "Close", null));
         return list;
-    }
+    } 
     
+    //this method is invoked by the back button
+    public Object back() { return null; } 
     
 }
