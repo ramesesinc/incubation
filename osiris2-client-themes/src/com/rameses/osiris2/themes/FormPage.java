@@ -53,11 +53,14 @@ public class FormPage extends javax.swing.JPanel {
         xEtchedBorder1.setHideRight(true);
         pnToolbar.setBorder(xEtchedBorder1);
 
+        xHorizontalPanel2.setBorderSeparator(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         xabFormActions.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 5, 0, 5));
+        xabFormActions.setDepends(new String[] {"entity"});
         xabFormActions.setName("formActions");
         xHorizontalPanel2.add(xabFormActions);
 
         xActionBar1.setBorder(null);
+        xActionBar1.setDepends(new String[] {"entity"});
         xActionBar1.setFormName("entityName");
         xActionBar1.setName("extActions");
         xHorizontalPanel2.add(xActionBar1);
@@ -67,6 +70,7 @@ public class FormPage extends javax.swing.JPanel {
         xHorizontalPanel1.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 5, 0, 5));
         xHorizontalPanel1.setShowLeftSeparator(true);
         xabNavActions.setBorder(null);
+        xabNavActions.setDepends(new String[] {"entity"});
         xabNavActions.setName("navActions");
         xabNavActions.setShowCaptions(false);
         xHorizontalPanel1.add(xabNavActions);
