@@ -101,6 +101,6 @@ public abstract class ReportModel {
     } 
     
     //this method is invoked by the back button
-    public Object back() { return null; } 
+    public Object back() { return "_close"; } 
     
 }

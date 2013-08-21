@@ -113,6 +113,9 @@ public class XReportPanel extends JPanel implements UIControl {
     private void doBack() {
         try {
             Object outcome = (model == null? null: model.back()); 
+            if (outcome == null) return;
+            
+            getBinding().fireNavigation(outcome); 
         } catch(Throwable t) {
             MsgBox.alert(t); 
         }
