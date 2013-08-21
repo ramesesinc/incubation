@@ -45,7 +45,7 @@ public class UICommandUtil {
             
             //set parameters
             XButton btn = (XButton) command;
-            ControlSupport.setProperties( binding.getBean(), btn.getParams());
+            ControlSupport.setProperties(binding.getBean(), btn.getParams());
                         
             //notify handlers who hooked before execution
             binding.getActionHandlerSupport().fireBeforeExecute();
@@ -77,7 +77,18 @@ public class UICommandUtil {
             //notify handlers who hooked after execution
             binding.getActionHandlerSupport().fireAfterExecute(); 
             
-            if (outcome instanceof PopupMenuOpener) return outcome; 
+            if (outcome instanceof PopupMenuOpener) { 
+                return outcome; 
+            } 
+            else if (outcome instanceof Opener) { 
+                try { 
+                    Object handle = ((Opener) outcome).getHandle(); 
+                    Object bean = binding.getBean(); 
+                    if (handle != null && !handle.equals(bean)) { 
+                        resolver.invoke(bean, "initOpenerHandle", new Object[]{handle}); 
+                    } 
+                } catch(Throwable t){;} 
+            } 
 
             NavigationHandler handler = ctx.getNavigationHandler();
             if ( handler != null ) handler.navigate(navPanel, command, outcome); 
