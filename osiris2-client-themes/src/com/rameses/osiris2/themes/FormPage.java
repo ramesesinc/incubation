@@ -27,10 +27,12 @@ public class FormPage extends javax.swing.JPanel {
     private void initComponents() {
         jPanel1 = new javax.swing.JPanel();
         lblTitle = new com.rameses.rcp.control.XLabel();
-        xHorizontalPanel1 = new com.rameses.rcp.control.XHorizontalPanel();
+        pnToolbar = new javax.swing.JPanel();
+        xHorizontalPanel2 = new com.rameses.rcp.control.XHorizontalPanel();
         xabFormActions = new com.rameses.rcp.control.XActionBar();
-        xabNavActions = new com.rameses.rcp.control.XActionBar();
         xActionBar1 = new com.rameses.rcp.control.XActionBar();
+        xHorizontalPanel1 = new com.rameses.rcp.control.XHorizontalPanel();
+        xabNavActions = new com.rameses.rcp.control.XActionBar();
         xStyleRule1 = new com.rameses.rcp.control.XStyleRule();
 
         setLayout(new java.awt.BorderLayout());
@@ -44,25 +46,34 @@ public class FormPage extends javax.swing.JPanel {
         lblTitle.setPadding(new java.awt.Insets(2, 7, 2, 5));
         jPanel1.add(lblTitle, java.awt.BorderLayout.NORTH);
 
+        pnToolbar.setLayout(new java.awt.BorderLayout());
+
         com.rameses.rcp.control.border.XEtchedBorder xEtchedBorder1 = new com.rameses.rcp.control.border.XEtchedBorder();
         xEtchedBorder1.setHideLeft(true);
         xEtchedBorder1.setHideRight(true);
-        xHorizontalPanel1.setBorder(xEtchedBorder1);
+        pnToolbar.setBorder(xEtchedBorder1);
+
         xabFormActions.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 5, 0, 5));
         xabFormActions.setName("formActions");
-        xHorizontalPanel1.add(xabFormActions);
+        xHorizontalPanel2.add(xabFormActions);
 
+        xActionBar1.setBorder(null);
+        xActionBar1.setFormName("entityName");
+        xActionBar1.setName("extActions");
+        xHorizontalPanel2.add(xActionBar1);
+
+        pnToolbar.add(xHorizontalPanel2, java.awt.BorderLayout.WEST);
+
+        xHorizontalPanel1.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 5, 0, 5));
+        xHorizontalPanel1.setShowLeftSeparator(true);
         xabNavActions.setBorder(null);
         xabNavActions.setName("navActions");
         xabNavActions.setShowCaptions(false);
         xHorizontalPanel1.add(xabNavActions);
 
-        xActionBar1.setBorder(null);
-        xActionBar1.setFormName("entityName");
-        xActionBar1.setName("extActions");
-        xHorizontalPanel1.add(xActionBar1);
+        pnToolbar.add(xHorizontalPanel1, java.awt.BorderLayout.EAST);
 
-        jPanel1.add(xHorizontalPanel1, java.awt.BorderLayout.SOUTH);
+        jPanel1.add(pnToolbar, java.awt.BorderLayout.SOUTH);
 
         add(jPanel1, java.awt.BorderLayout.NORTH);
 
@@ -75,8 +86,10 @@ public class FormPage extends javax.swing.JPanel {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel jPanel1;
     private com.rameses.rcp.control.XLabel lblTitle;
+    private javax.swing.JPanel pnToolbar;
     private com.rameses.rcp.control.XActionBar xActionBar1;
     private com.rameses.rcp.control.XHorizontalPanel xHorizontalPanel1;
+    private com.rameses.rcp.control.XHorizontalPanel xHorizontalPanel2;
     private com.rameses.rcp.control.XStyleRule xStyleRule1;
     private com.rameses.rcp.control.XActionBar xabFormActions;
     private com.rameses.rcp.control.XActionBar xabNavActions;
