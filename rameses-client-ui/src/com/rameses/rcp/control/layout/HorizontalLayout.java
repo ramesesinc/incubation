@@ -29,6 +29,7 @@ import javax.swing.border.Border;
 public class HorizontalLayout implements LayoutManager 
 {
     private Border separator;
+    private boolean showLeftSeparator;
     
     public HorizontalLayout() {
         setSeparator(new SeparatorBorder()); 
@@ -38,6 +39,10 @@ public class HorizontalLayout implements LayoutManager
     public void setSeparator(Border separator) { 
         this.separator = separator; 
     } 
+    
+    public void setShowLeftSeparator(boolean showLeftSeparator) {
+        this.showLeftSeparator = showLeftSeparator; 
+    }    
     
     public void addLayoutComponent(String name, Component comp) {}
     public void removeLayoutComponent(Component comp) {}
@@ -82,13 +87,28 @@ public class HorizontalLayout implements LayoutManager
         synchronized (parent.getTreeLock()) 
         {
             int w = 0, h = 0;
+            Component sep = createSeparatorComponent(); 
+            Dimension sepdim = (sep == null? new Dimension(0,0): sep.getPreferredSize());
+            
             List<Component> list = getVisibleComponents(parent); 
-            while (!list.isEmpty()) 
-            {
+            if (showLeftSeparator && !list.isEmpty()) {
+                w += sepdim.width; 
+                h = Math.max(h, sepdim.height); 
+            } 
+            
+            boolean found = false;                        
+            while (!list.isEmpty()) {                
                 Component comp = list.remove(0); 
                 Dimension dim = comp.getPreferredSize(); 
+                
+                if (found) { 
+                    w += sepdim.width; 
+                    h = Math.max(h, sepdim.height); 
+                }
+                
                 w += dim.width;
                 h = Math.max(h, dim.height); 
+                found = true;
             }            
             Insets margin = parent.getInsets(); 
             return new Dimension(w+margin.left+margin.right, h+margin.top+margin.bottom);
@@ -115,19 +135,26 @@ public class HorizontalLayout implements LayoutManager
             
             boolean found = false;            
             List<Component> list = getVisibleComponents(parent); 
-            while (!list.isEmpty())
-            {
+            if (showLeftSeparator && !list.isEmpty()) {
+                Component sep = createSeparatorComponent(); 
+                if (sep != null) { 
+                    Dimension sepDim = sep.getPreferredSize();
+                    parent.add(sep); 
+                    sep.setBounds(x, y, sepDim.width, h); 
+                    x += sepDim.width; 
+                }                
+            }
+            
+            while (!list.isEmpty()) { 
                 Component comp = list.remove(0); 
                 Dimension dim = comp.getPreferredSize();
                 int pwidth = dim.width;
                 if (list.isEmpty()) 
                     pwidth = Math.max(dim.width, w-x); 
                 
-                if (found) 
-                {
+                if (found) {
                     Component sep = createSeparatorComponent(); 
-                    if (sep != null)
-                    {
+                    if (sep != null){
                         Dimension sepDim = sep.getPreferredSize();
                         parent.add(sep); 
                         sep.setBounds(x, y, sepDim.width, h); 

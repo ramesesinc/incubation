@@ -22,6 +22,7 @@ public class XHorizontalPanel extends JPanel
 {
     private HorizontalLayout layoutMgr;
     private Border borderSeparator;
+    private boolean showLeftSeparator;
     
     public XHorizontalPanel() 
     {
@@ -40,5 +41,11 @@ public class XHorizontalPanel extends JPanel
     {
         this.borderSeparator = borderSeparator; 
         this.layoutMgr.setSeparator(this.borderSeparator); 
+    }
+    
+    public boolean isShowLeftSeparator() { return showLeftSeparator; } 
+    public void setShowLeftSeparator(boolean showLeftSeparator) {
+        this.showLeftSeparator = showLeftSeparator; 
+        this.layoutMgr.setShowLeftSeparator(showLeftSeparator); 
     }
 }
