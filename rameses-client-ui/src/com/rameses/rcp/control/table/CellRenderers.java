@@ -18,6 +18,7 @@ import com.rameses.rcp.common.DateColumnHandler;
 import com.rameses.rcp.common.DecimalColumnHandler;
 import com.rameses.rcp.common.IconColumnHandler;
 import com.rameses.rcp.common.IntegerColumnHandler;
+import com.rameses.rcp.common.LabelColumnHandler;
 import com.rameses.rcp.common.LookupColumnHandler;
 import com.rameses.rcp.common.OpenerColumnHandler;
 import com.rameses.rcp.common.StyleRule;
@@ -69,6 +70,7 @@ public class CellRenderers {
         renderers.put("decimal", DecimalRenderer.class);
         renderers.put("double", DecimalRenderer.class);
         renderers.put("integer", IntegerRenderer.class);
+        renderers.put("label", LabelRenderer.class);
         renderers.put("lookup", LookupRenderer.class);
         renderers.put("opener", OpenerRenderer.class);
     }
@@ -626,6 +628,68 @@ public class CellRenderers {
     }
     
     // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc="  LabelRenderer (class)  ">
+    
+    public static class LabelRenderer extends AbstractRenderer {
+        private JLabel label;
+        
+        public LabelRenderer() {
+            label = createComponent();
+            label.setVerticalAlignment(SwingConstants.CENTER);
+        }
+        
+        private JLabel createComponent() {
+            if (label == null) {
+                label = new JLabel();
+            }
+            return label;
+        }
+        
+        public JComponent getComponent(JTable table, int rowIndex, int columnIndex) {
+            return label;
+        }
+        
+        protected Object resolveValue(CellRenderers.Context ctx) {
+            return ctx.getValue();
+        }
+        
+        public void refresh(JTable table, Object value, boolean selected, boolean focus, int rowIndex, int columnIndex) {
+            Object columnValue = resolveValue(getContext());
+            Column oColumn = getContext().getColumn();
+            
+            TextCase oTextCase = (oColumn == null? null: oColumn.getTextCase());
+            if (oTextCase != null && columnValue != null)
+                label.setText(oTextCase.convert(columnValue.toString())); 
+            
+            label.setHorizontalAlignment( SwingConstants.LEFT );
+            //set alignment if it is specified in the Column model
+            if ( oColumn != null && oColumn.getAlignment() != null )
+                getComponentSupport().alignText(label, oColumn.getAlignment());
+            
+            setValue(label, oColumn, columnValue);
+        }
+        
+        protected void setValue(JLabel label, Column oColumn, Object value) {
+            Object cellValue = value;            
+            Column.TypeHandler handler = (oColumn==null? null: oColumn.getTypeHandler()); 
+            
+            try {
+                String expression = ((LabelColumnHandler) handler).getExpression();
+                if (expression != null && expression.length() > 0) {
+                    Object exprBean = getContext().createExpressionBean(); 
+                    cellValue = UIControlUtil.evaluateExpr(exprBean, expression);
+                }                
+            } catch(Throwable t){;} 
+            
+            if (oColumn != null && cellValue != null && oColumn.isHtmlDisplay() )
+                cellValue = "<html>" + cellValue + "</html>";
+            
+            label.setText((cellValue == null? "": cellValue.toString()));
+        }
+    }
+    
+    // </editor-fold>    
     
     // <editor-fold defaultstate="collapsed" desc="  LookupRenderer (class)  ">
     
