@@ -108,7 +108,17 @@ public class InvokerActionProvider implements ActionProvider
             }
             return actions; 
         } catch(Throwable t) { 
+            System.out.println("[WARN] failed to lookup actions '"+actionType+"' caused by " + t.getMessage());
             return new ArrayList(); 
+        } 
+    } 
+    
+    public Opener lookupOpener(String actionType, Map params) {
+        try {
+            return InvokerUtil.lookupOpener(actionType, params); 
+        } catch(Throwable t) {
+            System.out.println("[WARN] failed to lookup opener '"+actionType+"' caused by " + t.getMessage());
+            return null; 
         } 
     } 
     
@@ -172,8 +182,7 @@ public class InvokerActionProvider implements ActionProvider
         }
 
         public Object execute() { 
-            Map params = new HashMap(); 
-            Opener opener = InvokerUtil.createOpener(invoker, params);
+            Opener opener = InvokerUtil.createOpener(invoker, null);
             String target = opener.getTarget();
             if (target == null || target.length() == 0) {
                 Object oval = getProperties().get("target"); 
