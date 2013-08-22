@@ -17,6 +17,7 @@ import com.rameses.rcp.common.DateColumnHandler;
 import com.rameses.rcp.common.DecimalColumnHandler;
 import com.rameses.rcp.common.DoubleColumnHandler;
 import com.rameses.rcp.common.IntegerColumnHandler;
+import com.rameses.rcp.common.LabelColumnHandler;
 import com.rameses.rcp.common.LookupColumnHandler;
 import com.rameses.rcp.common.OpenerColumnHandler;
 import com.rameses.rcp.common.TextColumnHandler;
@@ -104,14 +105,14 @@ public class ColumnPropertyEditor implements PropertyEditor
             sb.append("\n, new Object[]{\"editable\", "+ c.isEditable() +"}");
             if (c.isEditable()) 
                 sb.append("\n, new Object[]{\"editableWhen\", "+ getStringFormat(c.getEditableWhen()) +"}");
-            if (c.getTypeHandler() != null) 
-                sb.append("\n, new Object[]{\"typeHandler\", "+ getInitString(c.getTypeHandler()) +"}");
             if (c.getAlignment() != null) 
                 sb.append("\n, new Object[]{\"alignment\", "+ getStringFormat(c.getAlignment()) +"}");
             if (c.getTextCase() != null) 
                 sb.append("\n, new Object[]{\"textCase\", "+ getTextCaseFormat(c.getTextCase()) +"}");
             if (c.getExpression() != null) 
                 sb.append("\n, new Object[]{\"expression\", "+ getStringFormat(c.getExpression()) +"}");
+            if (c.getTypeHandler() != null) 
+                sb.append("\n, new Object[]{\"typeHandler\", "+ getInitString(c.getTypeHandler()) +"}");
             
             sb.append("\n})");
         } 
@@ -119,36 +120,35 @@ public class ColumnPropertyEditor implements PropertyEditor
         return sb.toString(); 
     }    
     
-    public String getJavaInitializationStringx() 
-    {
-        if (columns == null || columns.length == 0) return null;
-        
-        StringBuffer sb = new StringBuffer("new " + Column.class.getName() + "[]{");
-        for (int i=0; i<columns.length; i++) 
-        {
-            Column c = columns[i]; 
-            if (i > 0) sb.append(", ");
-            
-            sb.append("\n");
-            sb.append("new " + Column.class.getName() + "("+ convertString(c.getName()) +", "+ convertString(c.getCaption()) +"");
-            sb.append(", " + c.getWidth() + ", " + c.getMinWidth() + ", " + c.getMaxWidth());
-            sb.append(", " + c.isRequired() + ", " + c.isResizable() + ", " + c.isNullWhenEmpty() + ", " + c.isEditable());
-            sb.append(", " + convertString(c.getEditableWhen())); 
-            sb.append(", " + getInitString(c.getTypeHandler())); 
-            sb.append(")");
-            
-            if (c.getAlignment() != null) 
-                sb.append(".set(\"alignment\",\""+c.getAlignment()+"\")");
-        }
-        sb.append("\n}");
-        return sb.toString(); 
-    }
+//    public String getJavaInitializationStringx() 
+//    {
+//        if (columns == null || columns.length == 0) return null;
+//        
+//        StringBuffer sb = new StringBuffer("new " + Column.class.getName() + "[]{");
+//        for (int i=0; i<columns.length; i++) 
+//        {
+//            Column c = columns[i]; 
+//            if (i > 0) sb.append(", ");
+//            
+//            sb.append("\n");
+//            sb.append("new " + Column.class.getName() + "("+ convertString(c.getName()) +", "+ convertString(c.getCaption()) +"");
+//            sb.append(", " + c.getWidth() + ", " + c.getMinWidth() + ", " + c.getMaxWidth());
+//            sb.append(", " + c.isRequired() + ", " + c.isResizable() + ", " + c.isNullWhenEmpty() + ", " + c.isEditable());
+//            sb.append(", " + convertString(c.getEditableWhen())); 
+//            sb.append(", " + getInitString(c.getTypeHandler())); 
+//            sb.append(")");
+//            
+//            if (c.getAlignment() != null) 
+//                sb.append(".set(\"alignment\",\""+c.getAlignment()+"\")");
+//        }
+//        sb.append("\n}");
+//        return sb.toString(); 
+//    }
 
     private String getInitString(Column.TypeHandler typeHandler) 
     {
         StringBuffer sb = new StringBuffer();
-        if (typeHandler instanceof CheckBoxColumnHandler) 
-        {
+        if (typeHandler instanceof CheckBoxColumnHandler) {
             CheckBoxColumnHandler chk = (CheckBoxColumnHandler) typeHandler;
             sb.append("new " + chk.getClass().getName() + "(");
             if (chk.getValueType() == Integer.class) 
@@ -160,50 +160,47 @@ public class ColumnPropertyEditor implements PropertyEditor
 
             sb.append(")");
         }
-        else if (typeHandler instanceof ComboBoxColumnHandler) 
-        {
+        else if (typeHandler instanceof ComboBoxColumnHandler) {
             ComboBoxColumnHandler combo = (ComboBoxColumnHandler) typeHandler;
             sb.append("new " + combo.getClass().getName() + "(");
             sb.append(convertString(combo.getItems()) + ", " + convertString(combo.getItemKey()) + ", " + convertString(combo.getExpression()));
             sb.append(")");
         }
-        else if (typeHandler instanceof DateColumnHandler) 
-        {
+        else if (typeHandler instanceof DateColumnHandler) {
             DateColumnHandler date = (DateColumnHandler) typeHandler;
             sb.append("new " + date.getClass().getName() + "(");
             sb.append(convertString(date.getInputFormat()) + ", " + convertString(date.getOutputFormat()) + ", " + convertString(date.getValueFormat())); 
             sb.append(")");
         }    
-        else if (typeHandler instanceof DecimalColumnHandler) 
-        {
+        else if (typeHandler instanceof DecimalColumnHandler) {
             DecimalColumnHandler dec = (DecimalColumnHandler) typeHandler;
             sb.append("new " + dec.getClass().getName() + "(");
             sb.append(convertString(dec.getFormat()) + ", " + dec.getMinValue() + ", " + dec.getMaxValue() + ", " + dec.isUsePrimitiveValue()); 
             sb.append(")");
         }           
-        else if (typeHandler instanceof DoubleColumnHandler) 
-        {
+        else if (typeHandler instanceof DoubleColumnHandler) {
             DoubleColumnHandler num = (DoubleColumnHandler) typeHandler;
             sb.append("new " + num.getClass().getName() + "(");
             sb.append(convertString(num.getFormat()) + ", " + num.getMinValue() + ", " + num.getMaxValue()); 
             sb.append(")");
         }                 
-        else if (typeHandler instanceof IntegerColumnHandler) 
-        {
+        else if (typeHandler instanceof IntegerColumnHandler) {
             IntegerColumnHandler num = (IntegerColumnHandler) typeHandler;
             sb.append("new " + num.getClass().getName() + "(");
             sb.append(convertString(num.getFormat()) + ", " + num.getMinValue() + ", " + num.getMaxValue()); 
             sb.append(")");
-        }  
-        else if (typeHandler instanceof LookupColumnHandler) 
-        {
+        } 
+        else if (typeHandler instanceof LabelColumnHandler) {
+            LabelColumnHandler lch = (LabelColumnHandler) typeHandler;
+            sb.append("new " + lch.getClass().getName() + "()");
+        }         
+        else if (typeHandler instanceof LookupColumnHandler) {
             LookupColumnHandler lkp = (LookupColumnHandler) typeHandler;
             sb.append("new " + lkp.getClass().getName() + "(");
             sb.append(convertString(lkp.getExpression()) + ", " + convertString(lkp.getHandler())); 
             sb.append(")");
         } 
-        else if (typeHandler instanceof OpenerColumnHandler) 
-        {
+        else if (typeHandler instanceof OpenerColumnHandler) {
             OpenerColumnHandler handler = (OpenerColumnHandler) typeHandler;
             sb.append("new " + handler.getClass().getName() + "(");
             sb.append(convertString(handler.getExpression()) + ", " + convertString(handler.getHandler())); 

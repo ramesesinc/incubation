@@ -58,6 +58,7 @@ public class ColumnEditorPage2 extends javax.swing.JPanel {
         controller.addExtendedPage("date", new DateExtendedPage()); 
         controller.addExtendedPage("double", new DecimalExtendedPage()); 
         controller.addExtendedPage("decimal", new DecimalExtendedPage()); 
+        controller.addExtendedPage("label", new LabelExtendedPage()); 
         controller.addExtendedPage("lookup", new LookupExtendedPage()); 
         controller.addExtendedPage("opener", new OpenerExtendedPage());         
         controller.setEnableComponents(false); 
@@ -92,6 +93,7 @@ public class ColumnEditorPage2 extends javax.swing.JPanel {
            new ComboItem("date"),
            new ComboItem("double"),
            new ComboItem("decimal"),
+           new ComboItem("label"),
            new ComboItem("lookup"),
            new ComboItem("opener")
         });
@@ -396,7 +398,7 @@ public class ColumnEditorPage2 extends javax.swing.JPanel {
         pnlInfo.add(txtExpression);
         txtExpression.setBounds(86, 206, 332, 19);
 
-        cbotype.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "text", "integer", "checkbox", "combobox", "date", "double", "decimal", "lookup" }));
+        cbotype.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "text", "integer", "checkbox", "combobox", "date", "double", "decimal", "label", "lookup", "opener" }));
         cbotype.setName("typeHandler");
         pnlInfo.add(cbotype);
         cbotype.setBounds(85, 250, 108, 22);
