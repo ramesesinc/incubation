@@ -581,7 +581,7 @@ public class DataTableComponent extends JTable implements TableControl
                 return false; 
             }
         }
-        
+                
         //evaluate style rule for this column
         boolean columnEditable = true;
         StyleRule[] rules = getBinding().getStyleRules();
@@ -812,6 +812,14 @@ public class DataTableComponent extends JTable implements TableControl
                 return;
             }
         }
+        
+        try { 
+            boolean editable = editorModel.isColumnEditable(oListItem.getItem(), col.getName());
+            if (!editable) return; 
+        } catch(Throwable t) {  
+            System.out.println("[WARN] error caused by " + t.getMessage());
+            return; 
+        } 
         
         JComponent editor = editors.get(colIndex);
         if ( editor == null ) return;
