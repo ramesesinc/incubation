@@ -104,6 +104,7 @@ public final class TableUtil
         renderers.put("double", new CellRenderers.DecimalRenderer());
         renderers.put("decimal", new CellRenderers.DecimalRenderer());
         renderers.put("integer", new CellRenderers.IntegerRenderer());        
+        renderers.put("label", new CellRenderers.LabelRenderer());
         renderers.put("lookup", new CellRenderers.LookupRenderer());
         renderers.put("opener", new CellRenderers.OpenerRenderer());
         renderers.put("icon", new CellRenderers.IconRenderer());
@@ -127,13 +128,11 @@ public final class TableUtil
         oColumn.setType(oColumn.getTypeHandler().getType()); 
         Class editorClass = editors.get(oColumn.getType()); 
         JComponent editor = null;
-        try 
-        { 
-            editor = (JComponent) editorClass.newInstance();
-            customize(editor, oColumn);            
-        } 
-        catch (Exception ex) {
-            ex.printStackTrace();
+        try { 
+            editor = (editorClass==null? null: (JComponent) editorClass.newInstance());
+            if (editor != null) customize(editor, oColumn);            
+        } catch (Throwable t) {
+            t.printStackTrace();
         }
         return editor;
     }
