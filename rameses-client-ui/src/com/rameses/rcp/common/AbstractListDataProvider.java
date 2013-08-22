@@ -8,6 +8,7 @@
  */
 package com.rameses.rcp.common;
 
+import com.rameses.rcp.framework.ActionProvider;
 import com.rameses.rcp.framework.ClientContext;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -49,6 +50,7 @@ public abstract class AbstractListDataProvider
     private ListItem selectedItem; 
 
     private ListSelectionSupport selectionSupport;
+    private ActionProvider actionProvider;
     
     public AbstractListDataProvider() 
     {
@@ -227,16 +229,48 @@ public abstract class AbstractListDataProvider
         fireSelectedItemChanged();  
     } 
     
+    protected ActionProvider getActionProvider() {
+        if (actionProvider == null)
+            actionProvider = ClientContext.getCurrentContext().getActionProvider();  
+        
+        return actionProvider; 
+    }
+    
     protected Object onOpenItem(Object item, String columnName) { return null; }
-    protected Object lookupOpener(Object item) { return null; }
+    protected Map getOpenerParams(Object item) { return null; } 
+    protected Object lookupOpener(String actionType, Object item) { 
+        if (actionType == null || actionType.length() == 0) return null;
+        
+        ActionProvider aprovider = getActionProvider();        
+        if (aprovider == null) return null;
+            
+        Map actionParams = new HashMap();
+        Map udfParams = getOpenerParams(item);
+        if (udfParams != null) actionParams.putAll(udfParams);
+        
+        actionParams.put("entity", item);
+        Opener opener = aprovider.lookupOpener(actionType, actionParams); 
+        if (opener == null) return null;
+        
+        String target = opener.getTarget(); 
+        if (target == null) opener.setTarget("popup"); 
+        
+        return opener; 
+    }
     
     public final Object openSelectedItem() 
     { 
         Object item = (selectedItem == null? null: selectedItem.getItem());
         if (item == null) return null;
-
-        Object opener = lookupOpener(item); 
-        if (opener != null) return opener; 
+        
+        if (item instanceof Map) {
+            Object ov = ((Map)item).get("_filetype");
+            String sv = (ov == null? null: ov.toString()); 
+            if (sv != null && sv.length() > 0) {
+                Object opener = lookupOpener(sv.toLowerCase()+":open", item); 
+                if (opener != null) return opener; 
+            }
+        }
         
         return onOpenItem(item, selectedColumn); 
     } 
