@@ -152,7 +152,8 @@ public abstract class AbstractListDataProvider
                 tableModelSupport.fireTableDataChanged(); 
             
             int index = (selectedItem == null? 0: selectedItem.getIndex());
-            tableModelSupport.fireTableRowSelected(index, false);
+            tableModelSupport.fireTableRowSelected(index, false);            
+            tableModelSupport.fireTableRowsUpdated(index, index); 
         }
         catch(RuntimeException re) {
             throw re;
