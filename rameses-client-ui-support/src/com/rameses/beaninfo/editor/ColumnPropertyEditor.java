@@ -9,7 +9,7 @@
 
 package com.rameses.beaninfo.editor;
 
-import com.rameses.beaninfo.editor.table.ColumnEditorPage;
+import com.rameses.beaninfo.editor.table.ColumnEditorPage2;
 import com.rameses.rcp.common.CheckBoxColumnHandler;
 import com.rameses.rcp.common.Column;
 import com.rameses.rcp.common.ComboBoxColumnHandler;
@@ -35,13 +35,13 @@ import java.beans.PropertyEditor;
 public class ColumnPropertyEditor implements PropertyEditor 
 {
     private PropertyChangeSupport support; 
-    private ColumnEditorPage page;
+    private ColumnEditorPage2 page;
     private Column[] columns;
     
     public ColumnPropertyEditor() 
     {
         support = new PropertyChangeSupport(this); 
-        page = new ColumnEditorPage();
+        page = new ColumnEditorPage2();
         page.setPropertyEditor(this);          
     }
 
@@ -110,7 +110,9 @@ public class ColumnPropertyEditor implements PropertyEditor
                 sb.append("\n, new Object[]{\"alignment\", "+ getStringFormat(c.getAlignment()) +"}");
             if (c.getTextCase() != null) 
                 sb.append("\n, new Object[]{\"textCase\", "+ getTextCaseFormat(c.getTextCase()) +"}");
-                        
+            if (c.getExpression() != null) 
+                sb.append("\n, new Object[]{\"expression\", "+ getStringFormat(c.getExpression()) +"}");
+            
             sb.append("\n})");
         } 
         sb.append("\n}");
@@ -229,6 +231,7 @@ public class ColumnPropertyEditor implements PropertyEditor
         );
         newColumn.setAlignment(oldColumn.getAlignment()); 
         newColumn.setTextCase(oldColumn.getTextCase()); 
+        newColumn.setExpression(oldColumn.getExpression()); 
         return newColumn; 
     }
     

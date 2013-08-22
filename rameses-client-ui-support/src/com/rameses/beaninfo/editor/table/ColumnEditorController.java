@@ -92,16 +92,16 @@ public class ColumnEditorController
         }         
     }
     
-    Column getColumn() { return column; } 
-    void setColumn(Column column) { this.column = column; }
+    public Column getColumn() { return column; } 
+    public void setColumn(Column column) { this.column = column; }
         
-    void setEnableComponents(boolean enable) {
+    public void setEnableComponents(boolean enable) {
         for (JComponent jc : components) {
             jc.setEnabled(enable); 
         }        
     } 
     
-    void refresh() 
+    public void refresh() 
     {
         for (JComponent jc : components) 
         {
@@ -211,7 +211,7 @@ public class ColumnEditorController
             onvalueChanged(name);  
         } 
         catch(Throwable ex) {
-            System.out.println("[ERROR] setValue: " + ex.getMessage());
+            System.out.println("[ERROR] setValue: ("+name+") " + ex.getMessage());
         }
     }
     

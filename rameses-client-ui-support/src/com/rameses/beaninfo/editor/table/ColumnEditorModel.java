@@ -62,9 +62,7 @@ public class ColumnEditorModel extends AbstractTableModel
         }
     }
     
-    Column getItem(int index) 
-    {
-        System.out.println("getItem: index="+index + ", rows="+rows);
+    public Column getItem(int index) {
         try {
             return rows.get(index); 
         } catch(Exception ex) {
