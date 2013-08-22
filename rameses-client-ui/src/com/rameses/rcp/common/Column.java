@@ -415,7 +415,12 @@ public class Column implements Serializable
         public abstract String getType(); 
 
         public final Column getColumn() { return column; } 
-        void setColumn(Column column) { this.column = column; } 
+        void setColumn(Column column) { 
+            this.column = column; 
+            columnChanged();
+        } 
+        
+        protected void columnChanged(){}
         
         public boolean equals(Object o) {
             if (super.equals(o)) return true;
