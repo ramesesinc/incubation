@@ -17,6 +17,7 @@ import com.rameses.rcp.common.DecimalColumnHandler;
 import com.rameses.rcp.common.DoubleColumnHandler;
 import com.rameses.rcp.common.IconColumnHandler;
 import com.rameses.rcp.common.IntegerColumnHandler;
+import com.rameses.rcp.common.LabelColumnHandler;
 import com.rameses.rcp.common.LookupColumnHandler;
 import com.rameses.rcp.common.TextColumnHandler;
 
@@ -37,11 +38,16 @@ class ColumnHandlerUtil
         if (oColumn == null) return null;
         
         Column.TypeHandler handler = oColumn.getTypeHandler(); 
-        if (handler != null) return handler;
+        if (handler != null) {
+            if (handler instanceof LabelColumnHandler) {
+                oColumn.setEditable(false); 
+                oColumn.setEditableWhen(null); 
+            } 
+            return handler;
+        }
         
         String stype = oColumn.getType();
-        if ("boolean".equals(stype) || "checkbox".equals(stype)) 
-        {
+        if ("boolean".equals(stype) || "checkbox".equals(stype)) {
             CheckBoxColumnHandler oHandler = new CheckBoxColumnHandler(); 
             oHandler.setValueType(oColumn.getFieldType()); 
             oHandler.setCheckValue(oColumn.getCheckValue());
@@ -51,8 +57,7 @@ class ColumnHandlerUtil
             
             return oHandler;
         }
-        else if ("combo".equals(stype) || "combobox".equals(stype)) 
-        {
+        else if ("combo".equals(stype) || "combobox".equals(stype)) {
             ComboBoxColumnHandler oHandler = new ComboBoxColumnHandler(); 
             oHandler.setItems(oColumn.getItems()); 
             oHandler.setExpression(oColumn.getExpression()); 
@@ -61,8 +66,7 @@ class ColumnHandlerUtil
             oHandler.setItemKey((itemKey == null? null: itemKey.toString()));
             return oHandler;
         }
-        else if ("date".equals(stype)) 
-        {
+        else if ("date".equals(stype)) {
             DateColumnHandler oHandler = new DateColumnHandler();
             Object oFormat = oColumn.getProperties().get("inputFormat");
             if (oFormat != null) oHandler.setInputFormat(oFormat.toString()); 
@@ -75,44 +79,44 @@ class ColumnHandlerUtil
             
             return oHandler;
         }
-        else if ("double".equals(stype)) 
-        {
+        else if ("double".equals(stype)) {
             DoubleColumnHandler oHandler = new DoubleColumnHandler(); 
             if (oColumn.getFormat() != null) oHandler.setFormat(oColumn.getFormat());
             
             oHandler.setUsePrimitiveValue(true);
             return oHandler;
         }
-        else if ("decimal".equals(stype)) 
-        {
+        else if ("decimal".equals(stype)) {
             DecimalColumnHandler oHandler = new DecimalColumnHandler(); 
             if (oColumn.getFormat() != null) oHandler.setFormat(oColumn.getFormat());
 
             return oHandler;
         } 
-        else if ("integer".equals(stype)) 
-        {
+        else if ("integer".equals(stype)) {
             IntegerColumnHandler oHandler = new IntegerColumnHandler(); 
             if (oColumn.getFormat() != null) oHandler.setFormat(oColumn.getFormat());            
 
             return oHandler;
         } 
-        else if ("lookup".equals(stype)) 
-        {
+        else if ("label".equals(stype)) {
+            LabelColumnHandler oHandler = new LabelColumnHandler(); 
+            oColumn.setEditable(false);
+            oColumn.setEditableWhen(null); 
+            return oHandler;
+        } 
+        else if ("lookup".equals(stype)) {
             LookupColumnHandler oHandler = new LookupColumnHandler(); 
             oHandler.setHandler(oColumn.getHandler());
             oHandler.setExpression(oColumn.getExpression()); 
             return oHandler;
         } 
-        else if ("icon".equals(stype)) 
-        {
+        else if ("icon".equals(stype)) {
             IconColumnHandler oHandler = new IconColumnHandler();
             oColumn.setEditable(false);
             oColumn.setEditableWhen(null); 
             return oHandler;
         }        
-        else 
-        {
+        else {
             TextColumnHandler oHandler = new TextColumnHandler(); 
             return oHandler; 
         }
