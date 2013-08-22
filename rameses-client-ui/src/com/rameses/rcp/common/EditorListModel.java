@@ -51,7 +51,9 @@ public class EditorListModel extends AbstractListDataProvider
      */
     protected void onColumnUpdate(Object item, String columnName) {}
     
-    
+    public boolean isColumnEditable(Object item, String columnName) { 
+        return true;
+    }
     
     public boolean isAllowedForEditing(ListItem li) 
     {
@@ -160,4 +162,5 @@ public class EditorListModel extends AbstractListDataProvider
             if (dataIndex < 0 && itemIndex == index) refresh(false); 
         }
     }
+
 }
