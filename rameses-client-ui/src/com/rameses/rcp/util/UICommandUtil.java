@@ -14,6 +14,8 @@ import com.rameses.util.IgnoreException;
 import com.rameses.util.ValueUtil;
 import java.beans.Beans;
 import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
 import javax.swing.JComponent;
 
 /**
@@ -81,13 +83,19 @@ public class UICommandUtil {
                 return outcome; 
             } 
             else if (outcome instanceof Opener) { 
-//                try { 
-//                    Object handle = ((Opener) outcome).getHandle(); 
-//                    Object bean = binding.getBean(); 
-//                    if (handle != null && !handle.equals(bean)) { 
-//                        resolver.invoke(bean, "initOpenerHandle", new Object[]{handle}); 
-//                    } 
-//                } catch(Throwable t){;} 
+                try { 
+                    Object bean = binding.getBean(); 
+                    //invoke a callback method getOpenerParams to get the extended opener parameters 
+                    Map params = (Map) resolver.invoke(bean, "getOpenerParams", new Object[]{});
+                    if (params != null) {
+                        Opener opener = (Opener) outcome;
+                        Map openerParams = opener.getParams();
+                        if (openerParams == null) openerParams = new HashMap(); 
+                        
+                        openerParams.putAll(params); 
+                        opener.setParams(openerParams); 
+                    } 
+                } catch(Throwable t){;} 
             } 
 
             NavigationHandler handler = ctx.getNavigationHandler();
