@@ -81,13 +81,13 @@ public class UICommandUtil {
                 return outcome; 
             } 
             else if (outcome instanceof Opener) { 
-                try { 
-                    Object handle = ((Opener) outcome).getHandle(); 
-                    Object bean = binding.getBean(); 
-                    if (handle != null && !handle.equals(bean)) { 
-                        resolver.invoke(bean, "initOpenerHandle", new Object[]{handle}); 
-                    } 
-                } catch(Throwable t){;} 
+//                try { 
+//                    Object handle = ((Opener) outcome).getHandle(); 
+//                    Object bean = binding.getBean(); 
+//                    if (handle != null && !handle.equals(bean)) { 
+//                        resolver.invoke(bean, "initOpenerHandle", new Object[]{handle}); 
+//                    } 
+//                } catch(Throwable t){;} 
             } 
 
             NavigationHandler handler = ctx.getNavigationHandler();
