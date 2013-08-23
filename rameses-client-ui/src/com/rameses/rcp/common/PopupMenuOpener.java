@@ -19,7 +19,8 @@ import java.util.List;
  */
 public class PopupMenuOpener extends Opener {
     
-    private List<Opener> openers = new ArrayList(); 
+    private List items = new ArrayList(); 
+    private boolean executeOnSingleResult;
     
     public PopupMenuOpener() {
         super();
@@ -28,17 +29,31 @@ public class PopupMenuOpener extends Opener {
     
     public final String getTarget() { return "popupmenu"; }   
 
-    public List<Opener> getOpeners() { return openers; } 
-    
-    public Opener getFirst() {
-        return (openers.isEmpty()? null: openers.get(0)); 
+    public boolean isExecuteOnSingleResult() { return executeOnSingleResult; } 
+    public void setExecuteOnSingleResult(boolean executeOnSingleResult) {
+        this.executeOnSingleResult = executeOnSingleResult; 
     }
     
-    public void removeAll() { openers.clear(); }
+    public List getItems() { return items; } 
     
-    public void add(Opener opener) {
-        if (opener != null && !openers.contains(opener)) 
-            openers.add(opener); 
+    public Object getFirst() { 
+        return (items.isEmpty()? null: items.get(0)); 
+    } 
+    
+    public void removeAll() { items.clear(); }
+    
+    public void add(Object item) {
+        if (item instanceof Opener || item instanceof Action) {
+            if (!items.contains(item)) items.add(item); 
+        }
+    }
+    
+    public void addAll(List collection) {
+        if (collection == null) return;
+        
+        for (Object o: collection) {
+            add(o); 
+        }
     }
     
 }
