@@ -96,8 +96,10 @@ public class UICommandUtil {
                     Map openerParams = opener.getParams();
                     if (openerParams == null) openerParams = new HashMap();
                     
-                    Map params = (Map) resolver.invoke(bean, "getOpenerParams", new Object[]{});
-                    if (params != null) openerParams.putAll(params); 
+                    try { 
+                        Map params = (Map) resolver.invoke(bean, "getOpenerParams", new Object[]{});
+                        if (params != null) openerParams.putAll(params); 
+                    } catch(Throwable t) {;} 
                     
                     if (paramEntity != null && !openerParams.containsKey("entity")) 
                         openerParams.put("entity", paramEntity);
