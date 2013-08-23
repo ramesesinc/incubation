@@ -568,7 +568,8 @@ public class XTree extends JTree implements UIControl
                 Border bin = BorderFactory.createEmptyBorder(1,1,1,4);
                 Border bout = BorderFactory.createLineBorder(selectionBorderColor,1);
                 selectionBorder = BorderFactory.createCompoundBorder(bout, bin);  
-                defaultIcon = lookupIcon(root.nodeModel.getIcon());
+                if (root.nodeModel != null) 
+                    defaultIcon = lookupIcon(root.nodeModel.getIcon());
             }
             
             lblContent.setText((value == null? "": value.toString()));
