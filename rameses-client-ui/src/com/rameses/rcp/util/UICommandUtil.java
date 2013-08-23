@@ -1,6 +1,7 @@
 package com.rameses.rcp.util;
 
 import com.rameses.common.MethodResolver;
+import com.rameses.common.PropertyResolver;
 import com.rameses.rcp.common.PopupMenuOpener;
 import com.rameses.rcp.control.XButton;
 import com.rameses.rcp.framework.*;
@@ -29,7 +30,7 @@ public class UICommandUtil {
         if ( Beans.isDesignTime() ) return null;
 
         ClientContext ctx = ClientContext.getCurrentContext();
-        MethodResolver resolver = MethodResolver.getInstance();        
+        MethodResolver resolver = MethodResolver.getInstance();  
         try 
         {
             Binding binding = command.getBinding();
@@ -86,15 +87,22 @@ public class UICommandUtil {
                 try { 
                     Object bean = binding.getBean(); 
                     //invoke a callback method getOpenerParams to get the extended opener parameters 
+                    Object paramEntity = null;
+                    try { 
+                        paramEntity = PropertyResolver.getInstance().getProperty(bean, "entity");
+                    } catch(Throwable t) {;} 
+                    
+                    Opener opener = (Opener) outcome;
+                    Map openerParams = opener.getParams();
+                    if (openerParams == null) openerParams = new HashMap();
+                    
                     Map params = (Map) resolver.invoke(bean, "getOpenerParams", new Object[]{});
-                    if (params != null) {
-                        Opener opener = (Opener) outcome;
-                        Map openerParams = opener.getParams();
-                        if (openerParams == null) openerParams = new HashMap(); 
-                        
-                        openerParams.putAll(params); 
-                        opener.setParams(openerParams); 
-                    } 
+                    if (params != null) openerParams.putAll(params); 
+                    
+                    if (paramEntity != null && !openerParams.containsKey("entity")) 
+                        openerParams.put("entity", paramEntity);
+                    
+                    opener.setParams(openerParams); 
                 } catch(Throwable t){;} 
             } 
 
