@@ -1,0 +1,46 @@
+package com.rameses.rcp.support;
+
+import java.awt.Insets;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+import javax.swing.UIManager;
+import javax.swing.text.JTextComponent;
+
+public class TextEditorSupport 
+{    
+    public static TextEditorSupport install(JTextComponent component) 
+    {
+        TextEditorSupport s = new TextEditorSupport(component);
+        component.putClientProperty(TextEditorSupport.class, s);
+        return s;
+    }
+    
+    
+    
+    private JTextComponent component;
+    
+    private TextEditorSupport(JTextComponent component) 
+    {
+        this.component = component;
+        
+        Insets margin = UIManager.getInsets("TextField.margin");
+        if (margin != null) 
+        {
+            Insets ins = new Insets(margin.top, margin.left, margin.bottom, margin.right);
+            component.setMargin(ins);
+        }
+
+        component.addFocusListener(new SupportFocusListener()); 
+        component.putClientProperty("TextField.focusBackground", ThemeUI.getColor("XTextField.focusBackground"));
+    }
+    
+    private class SupportFocusListener implements FocusListener 
+    {
+        public void focusGained(FocusEvent focusEvent) {
+            component.selectAll();
+        }
+        
+        public void focusLost(FocusEvent focusEvent) {
+        }
+    }
+}
