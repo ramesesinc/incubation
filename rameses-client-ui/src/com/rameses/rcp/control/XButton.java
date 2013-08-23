@@ -304,7 +304,9 @@ public class XButton extends JButton implements UICommand, ActionListener, Activ
         
         void invokeAction(ActionEvent e) {
             try { 
-                ((Action) source).execute(); 
+                Object outcome = ((Action) source).execute(); 
+                if (outcome instanceof Opener) 
+                    UICommandUtil.processAction(root, root.getBinding(), (Opener)outcome); 
             } catch(Exception ex) { 
                 MsgBox.err(ex); 
             } 
