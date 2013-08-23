@@ -346,8 +346,9 @@ public final class InvokerUtil {
     
     public static Opener lookupOpener( String invType, Map params ) {
         List<Invoker> list = lookup( invType );
-        if ( list.size() ==0 ) {
-            throw new RuntimeException("No invokers found for type [" + invType + "]");
+        if ( list.size() == 0 ) {
+            System.out.println("[WARN] No invokers found for type [" + invType + "]");
+            throw new RuntimeException("No access privilege for this item. Please contact your administrator.");
         }
         return createOpener(list.get(0), params);
     }
@@ -362,8 +363,9 @@ public final class InvokerUtil {
         
     public static List lookupOpeners( String invType, Map params, InvokerFilter filter ) {
         List<Invoker> list = lookup( invType, null, filter );
-        if ( list.size() ==0 ) {
-            throw new RuntimeException("No invokers found for type [" + invType + "]");
+        if ( list.size() ==0 ) { 
+            System.out.println("[WARN] No invokers found for type [" + invType + "]");
+            throw new RuntimeException("No access privilege for this item. Please contact your administrator.");            
         }
         List openers = new ArrayList();
         for(Invoker inv: list) {
