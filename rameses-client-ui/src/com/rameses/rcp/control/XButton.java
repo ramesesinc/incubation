@@ -1,5 +1,6 @@
 package com.rameses.rcp.control;
 
+import com.rameses.rcp.common.Action;
 import com.rameses.rcp.common.MsgBox;
 import com.rameses.rcp.common.Opener;
 import com.rameses.rcp.common.PopupMenuOpener;
@@ -203,12 +204,17 @@ public class XButton extends JButton implements UICommand, ActionListener, Activ
         final Object outcome = UICommandUtil.processAction(this); 
         if (outcome instanceof PopupMenuOpener) {
             PopupMenuOpener menu = (PopupMenuOpener) outcome;
-            List<Opener> openers = menu.getOpeners(); 
-            if (openers == null || openers.isEmpty()) return;
+            List items = menu.getItems();
+            if (items == null || items.isEmpty()) return;
             
-            if (openers.size() == 1) {
-                UICommandUtil.processAction(XButton.this, getBinding(), openers.get(0));
-            } else { 
+            if (items.size() == 1 && menu.isExecuteOnSingleResult()) { 
+                Object o = menu.getFirst(); 
+                if (o instanceof Opener) 
+                    UICommandUtil.processAction(XButton.this, getBinding(), (Opener)o); 
+                else 
+                    ((Action)o).execute(); 
+            } 
+            else { 
                 EventQueue.invokeLater(new Runnable() {
                     public void run() { 
                         show((PopupMenuOpener) outcome); 
@@ -231,8 +237,13 @@ public class XButton extends JButton implements UICommand, ActionListener, Activ
             popup.setVisible(false); 
         
         popup.removeAll();         
-        for (Opener opener: menu.getOpeners()) {
-            ActionMenuItem ami = new ActionMenuItem(opener);
+        for (Object o: menu.getItems()) {
+            ActionMenuItem ami = null; 
+            if (o instanceof Opener) 
+                ami = new ActionMenuItem((Opener)o);
+            else 
+                ami = new ActionMenuItem((Action)o);
+            
             Dimension dim = ami.getPreferredSize();
             ami.setPreferredSize(new Dimension(Math.max(dim.width, 100), dim.height)); 
             popup.add(ami); 
@@ -247,14 +258,14 @@ public class XButton extends JButton implements UICommand, ActionListener, Activ
     private class ActionMenuItem extends JMenuItem 
     {
         XButton root = XButton.this;
-        private Opener anOpener;
+        private Object source;
         
         ActionMenuItem(Opener anOpener) {
-            this.anOpener = anOpener;
+            this.source = anOpener;
             setText(anOpener.getCaption());            
             addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                    invokeAction(e);
+                    invokeOpener(e);
                 }
             });
             
@@ -267,13 +278,37 @@ public class XButton extends JButton implements UICommand, ActionListener, Activ
                 setIcon(ImageIconSupport.getInstance().getIcon(ov.toString()));
         }
         
-        void invokeAction(ActionEvent e) {
+        ActionMenuItem(Action anAction) {
+            this.source = anAction;
+            setText(anAction.getCaption());            
+            addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    invokeAction(e);
+                }
+            });
+            
+            setMnemonic(anAction.getMnemonic()); 
+            
+            String sicon = anAction.getIcon();
+            if (sicon != null && sicon.length() > 0) 
+                setIcon(ImageIconSupport.getInstance().getIcon(sicon));
+        }        
+        
+        void invokeOpener(ActionEvent e) {
             try {
-                UICommandUtil.processAction(root, root.getBinding(), anOpener); 
-            } catch(Exception ex) {
+                UICommandUtil.processAction(root, root.getBinding(), (Opener) source); 
+            } catch(Exception ex) { 
                 MsgBox.err(ex); 
-            }            
+            } 
         } 
+        
+        void invokeAction(ActionEvent e) {
+            try { 
+                ((Action) source).execute(); 
+            } catch(Exception ex) { 
+                MsgBox.err(ex); 
+            } 
+        }         
     }
     
     // </editor-fold>    
