@@ -89,9 +89,8 @@ public class LookupModel extends ScrollListModel
     
     
     //invoked when the lookup screen is shown
-    public boolean show(String t) 
-    {
-        setSearchtext(t);
+    public boolean show(String searchtext) {        
+        setSearchtext(searchtext);        
         load();
         
         if (errorOnEmpty() && getDataList().size() == 0) 
