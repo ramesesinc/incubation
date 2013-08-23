@@ -112,6 +112,11 @@ public abstract class PropertySupport
         void setHandler(Object handler); 
     }      
     
+    public static interface LabelPropertyInfo extends PropertyInfo 
+    {
+        String getExpression();
+    } 
+    
     public static interface TextPropertyInfo extends PropertyInfo 
     {
     }       
