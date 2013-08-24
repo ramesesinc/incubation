@@ -358,15 +358,20 @@ public final class ControlSupport {
     
     public static boolean isPermitted(String domain, String role, String permission ) {
         //check if not permitted, block this
-        if(permission!=null && permission.trim().length()>0) {
-            ClientContext ctx = ClientContext.getCurrentContext();
-            if( ctx.getSecurityProvider()==null ) {
-                return  true;
-            }
-            return ctx.getSecurityProvider().checkPermission(domain, role, permission);
-        } else {
-            return true;
-        }
+        ClientContext ctx = ClientContext.getCurrentContext();
+        if (ctx.getSecurityProvider() == null) return  true;
+        
+        return ctx.getSecurityProvider().checkPermission(domain, role, permission); 
+
+//        if(permission!=null && permission.trim().length()>0) {
+//            ClientContext ctx = ClientContext.getCurrentContext();
+//            if( ctx.getSecurityProvider()==null ) {
+//                return  true;
+//            }
+//            return ctx.getSecurityProvider().checkPermission(domain, role, permission);
+//        } else {
+//            return true;
+//        }
     }
     
 }
