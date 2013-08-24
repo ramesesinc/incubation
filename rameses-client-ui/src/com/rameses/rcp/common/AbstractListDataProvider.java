@@ -322,16 +322,23 @@ public abstract class AbstractListDataProvider
     
     protected void beforeLoad(){} 
     protected void afterLoad(){}
+    protected void dataChanged(Object stat){}
+    
+    private void fireDataChanged() { 
+        ListItemStatus stat = createListItemStatus(null);
+        dataChanged(stat); 
+    }
     
     private void loadImpl(int fetchModeOption) {
         checkedItems.clear(); 
         fetchMode = fetchModeOption;  
         selectionSupport = null; 
-        beforeLoad();        
+        beforeLoad();  
         fetchImpl(); 
+        fireDataChanged();
         afterLoad(); 
-    }
-        
+    } 
+    
     public void load() { 
         loadImpl(FETCH_MODE_LOAD);  
     } 
@@ -356,6 +363,7 @@ public abstract class AbstractListDataProvider
     {
         this.fetchMode = fetchMode;
         fetchImpl(); 
+        fireDataChanged();
     } 
     
     public final int getDataIndexByRownum(int rownum) 
@@ -364,6 +372,10 @@ public abstract class AbstractListDataProvider
         if (li == null || li.getItem() == null) return -1;
         
         return dataList.indexOf(li.getItem()); 
+    }
+
+    public final int getDataListSize() {
+        return (dataList == null? 0: dataList.size()); 
     }
     
     public final List getDataList() { return dataList; }
@@ -453,13 +465,10 @@ public abstract class AbstractListDataProvider
     
     public ListItemStatus createListItemStatus(ListItem oListItem) 
     { 
-        if (oListItem == null) return null;
-        
         ListItemStatus stat = new ListItemStatus(oListItem); 
         stat.setPageIndex(1);
         stat.setPageCount(1);
-        stat.setIsLastPage(true);
-        
+        stat.setIsLastPage(true);      
         if (dataList != null) 
             stat.setRecordCount(dataList.size());
         
