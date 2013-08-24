@@ -409,8 +409,14 @@ public class XLookupField extends IconedTextField implements UIFocusableContaine
         try 
         {
             getInputVerifierProxy().setEnabled(false);    
-            loadHandler();
+            Object obj = loadHandler();
             loaded = true;
+            
+            if (obj instanceof Exception) {
+                MsgBox.err((Exception)obj);
+                getInputVerifierProxy().setEnabled(true);
+                return; 
+            }
             
             if (lookupHandlerProxy.getModel() == null)
             {
@@ -481,40 +487,38 @@ public class XLookupField extends IconedTextField implements UIFocusableContaine
         this.requestFocus();         
     }    
     
-    private void loadHandler()
+    private Object loadHandler()
     {
         Object o = null;
-        if ( !ValueUtil.isEmpty(handler) ) 
-        {
-            if ( handler.matches(".+:.+") ) //handler is a module:workunit name
-            {
+        if ( !ValueUtil.isEmpty(handler) ) {
+            if (handler.matches(".+:.+")) {
+                //handler is a module:workunit name                
                 o = LookupOpenerSupport.lookupOpener(handler, new HashMap()); 
             }
-            else 
-            {
+            else {
                 //check if there is a binding object passed by the JTable
-                Binding tableBinding = (Binding) getClientProperty(Binding.class); 
-                if (tableBinding == null) tableBinding = getBinding(); 
+                Binding oBinding = (Binding) getClientProperty(Binding.class); 
+                if (oBinding == null) oBinding = getBinding(); 
                 
-                o = UIControlUtil.getBeanValue(tableBinding, handler);
+                o = UIControlUtil.getBeanValue(oBinding, handler);
+                if (o instanceof Exception) return o;
             }
         } 
         else if ( handlerObject != null ) { 
             o = handlerObject;
         } 
 
-        if (o == null) return;
+        if (o == null) return null;
         
         if (o instanceof LookupHandler) { 
             lookupHandlerProxy.setHandler((LookupHandler) o); 
-        } 
-        else if (o instanceof Opener)
-        {
+        } else if (o instanceof Opener) { 
             Opener opener = (Opener) o;             
             opener = ControlSupport.initOpener( opener, getBinding().getController() );
             lookupHandlerProxy.setOpener(opener); 
         }
-    }
+        return null;
+    } 
 
     // </editor-fold> 
 
@@ -618,10 +622,9 @@ public class XLookupField extends IconedTextField implements UIFocusableContaine
             /*
              *  workaround fix when called by the JTable
              */
-            if (!loaded) 
-            {
+            if (!loaded) {
                 loadHandler();
-                loaded = true;
+                loaded = true; 
             }             
             
             String text = getText(); 
