@@ -32,6 +32,7 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Map;
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
@@ -357,8 +358,25 @@ public class XTree extends JTree implements UIControl
             super.removeAllChildren(); 
             nodeModel.initChildNodes(nodes); 
             for (Node n: nodes) { 
-                if (n != null) this.add(new DefaultNode(n, pnode)); 
+                if (n == null) continue;
+
+                boolean passed = true;
+                Object item = n.getItem();
+                if (item instanceof Map) {
+                    Map map = (Map)item;
+                    String domain = getString(map, "domain"); 
+                    String role = getString(map, "role"); 
+                    String permission = getString(map, "permission"); 
+                    passed = ControlSupport.isPermitted(domain, role, permission); 
+                } 
+                
+                if (passed) this.add(new DefaultNode(n, pnode));
             } 
+        } 
+        
+        private String getString(Map data, String name) {
+            Object ov = (data == null? null: data.get(name)); 
+            return (ov == null? null: ov.toString()); 
         }
         
         public void reload() {
@@ -502,7 +520,7 @@ public class XTree extends JTree implements UIControl
     
     // </editor-fold>
     
-    // <editor-fold defaultstate="collapsed" desc=" NodeTreeRenderer (class) ">
+    // <editor-fold defaultstate="collapsed" desc=" TreeCellRendererImpl (class) ">
     
     private class TreeCellRendererImpl implements TreeCellRenderer 
     {  
