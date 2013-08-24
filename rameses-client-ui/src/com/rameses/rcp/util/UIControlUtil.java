@@ -49,15 +49,15 @@ public class UIControlUtil
     
     public static Object getBeanValue(Object bean, String property) 
     {
-        if ( ValueUtil.isEmpty(property) ) return null;
+        if (property == null || property.length() == 0) return null;
         
         PropertyResolver resolver = PropertyResolver.getInstance();
         try { 
             return resolver.getProperty(bean, property); 
-        } catch(NullPointerException npe) { 
+        } catch(Throwable t) {  
             return null; 
         } 
-    }
+    } 
     
     public static Class getValueType(UIControl control, String property) 
     {
