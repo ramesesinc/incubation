@@ -39,7 +39,10 @@ public class InboxPage extends javax.swing.JPanel {
         xTree2 = new com.rameses.rcp.control.XTree();
         jPanel1 = new javax.swing.JPanel();
         xDataTable1 = new com.rameses.rcp.control.XDataTable();
+        xHorizontalPanel2 = new com.rameses.rcp.control.XHorizontalPanel();
         navBar = new com.rameses.rcp.control.XActionBar();
+        jPanel3 = new javax.swing.JPanel();
+        xLabel1 = new com.rameses.rcp.control.XLabel();
 
         setLayout(new java.awt.BorderLayout());
 
@@ -102,11 +105,24 @@ public class InboxPage extends javax.swing.JPanel {
         xDataTable1.setHandler("listHandler");
         xDataTable1.setImmediate(true);
         xDataTable1.setName("selectedEntity");
+        xDataTable1.setVarStatus("itemStat");
         jPanel1.add(xDataTable1, java.awt.BorderLayout.CENTER);
 
-        navBar.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 5, 0, 0));
+        navBar.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 5, 0, 50));
         navBar.setName("navActions");
-        jPanel1.add(navBar, java.awt.BorderLayout.SOUTH);
+        xHorizontalPanel2.add(navBar);
+
+        jPanel3.setLayout(new java.awt.BorderLayout());
+
+        jPanel3.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 10, 0, 0));
+        xLabel1.setDepends(new String[] {"selectedEntity"});
+        xLabel1.setExpression("#{footerInfo}");
+        xLabel1.setUseHtml(true);
+        jPanel3.add(xLabel1, java.awt.BorderLayout.CENTER);
+
+        xHorizontalPanel2.add(jPanel3);
+
+        jPanel1.add(xHorizontalPanel2, java.awt.BorderLayout.SOUTH);
 
         jSplitPane1.setRightComponent(jPanel1);
 
@@ -120,6 +136,7 @@ public class InboxPage extends javax.swing.JPanel {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSplitPane jSplitPane1;
     private com.rameses.rcp.control.XLabel lblTitle;
@@ -129,6 +146,8 @@ public class InboxPage extends javax.swing.JPanel {
     private com.rameses.rcp.control.XActionBar xActionBar2;
     private com.rameses.rcp.control.XDataTable xDataTable1;
     private com.rameses.rcp.control.XHorizontalPanel xHorizontalPanel1;
+    private com.rameses.rcp.control.XHorizontalPanel xHorizontalPanel2;
+    private com.rameses.rcp.control.XLabel xLabel1;
     private com.rameses.rcp.control.XSubFormPanel xSubFormPanel1;
     private com.rameses.rcp.control.XTree xTree2;
     // End of variables declaration//GEN-END:variables
