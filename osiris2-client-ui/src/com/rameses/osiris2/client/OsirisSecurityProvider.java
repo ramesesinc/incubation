@@ -44,7 +44,7 @@ public class OsirisSecurityProvider implements SecurityProvider, ClientSecurityP
 //            return true;
         } 
         
-        if (roles != null) { 
+        if (roles != null && name != null && name.length() > 0) { 
             String allowed = (String)roles.get("ALLOWED");
             if (allowed != null && name.matches(allowed)) 
                 return true; 
