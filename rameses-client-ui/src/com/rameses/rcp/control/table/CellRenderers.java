@@ -719,13 +719,13 @@ public class CellRenderers {
     
     public static class OpenerRenderer extends TextRenderer {
         protected Object resolveValue(CellRenderers.Context ctx) {
-            String expression = null;
             Column oColumn = ctx.getColumn();
-            if (oColumn.getTypeHandler() instanceof OpenerColumnHandler)
-                expression = ((OpenerColumnHandler) oColumn.getTypeHandler()).getExpression();
-            else
-                expression = oColumn.getExpression();
-            
+            String expression = oColumn.getExpression();             
+            if (expression == null || expression.length() == 0) {
+                if (oColumn.getTypeHandler() instanceof OpenerColumnHandler)
+                    expression = ((OpenerColumnHandler) oColumn.getTypeHandler()).getExpression();
+            }
+                        
             Object cellValue = ctx.getValue();
             if (expression != null) {
                 try {
