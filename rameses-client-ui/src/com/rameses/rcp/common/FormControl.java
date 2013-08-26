@@ -34,7 +34,7 @@ public class FormControl
         init(type, data, categoryid);
     }    
     
-    private void init(String type, Map props, String categoryid) {
+    protected void init(String type, Map props, String categoryid) {
         this.type = type;
         this.properties = (props == null? new HashMap(): props);
         this.categoryid = categoryid;
@@ -57,5 +57,5 @@ public class FormControl
     public String toString() {
         return "type:" + type + ", categoryid:" + categoryid + ", properties:" + properties;
     }
-    
+        
 }

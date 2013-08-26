@@ -83,12 +83,10 @@ public class FormControlUtil {
             Class clazz = ctx.getClassLoader().loadClass(className);
             UIControl uic = (UIControl) clazz.newInstance();
             setProperties(uic, fc.getProperties());
-            
-            return uic;
-            
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
+            return uic;             
+        } catch (Exception ex) { 
+            ex.printStackTrace(); 
+        } 
         
         return null;
     }

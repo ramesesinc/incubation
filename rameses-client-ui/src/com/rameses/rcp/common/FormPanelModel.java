@@ -18,11 +18,7 @@ public class FormPanelModel {
     
     private Listener listener;
     
-    public FormPanelModel() {
-    }
-    
-    public Object getFormControls() { return null; }
-    
+    public Object getFormControls() { return null; }    
     public List<Map> getControlList() { return null; } 
     
     public void setProperty(String name, Object value) {
@@ -32,10 +28,10 @@ public class FormPanelModel {
     }
     
     public void setProperties(Map props) {
-        if( listener != null ) {
-            for(Map.Entry<String, Object> me : (Set<Map.Entry>) props.entrySet()) {
-                listener.onPropertyUpdated(me.getKey()+"", me.getValue());
-            }
+        if ( listener == null ) return;
+        
+        for(Map.Entry<String, Object> me : (Set<Map.Entry>) props.entrySet()) {
+            listener.onPropertyUpdated(me.getKey()+"", me.getValue());
         }
     }
     
@@ -44,16 +40,14 @@ public class FormPanelModel {
     public String getHtmlFormat() {
         if( listener != null ) {
             return listener.getHtmlFormat(false);
-        }
-        
+        }        
         return "";
     }
     
     public String getPartialHtmlFormat() {
         if( listener != null ) {
             return listener.getHtmlFormat(true);
-        }
-        
+        }        
         return "";
     }
     
@@ -67,11 +61,32 @@ public class FormPanelModel {
         this.listener = listener;
     }
     
-    public static interface Listener {
+    public void setValue(String name, Object value, Object item) {
+        if (provider != null) provider.updateBeanValue();
+    } 
         
-        void onPropertyUpdated(String name, Object value);
-        String getHtmlFormat(boolean partial);
-        void onReload();        
-    }
+        
+    // <editor-fold defaultstate="collapsed" desc=" Listener interface ">
     
+    public static interface Listener {
+        String getHtmlFormat(boolean partial);         
+        void onPropertyUpdated(String name, Object value);
+        void onReload(); 
+    }  
+    
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" Provider interface and its helper methods ">
+
+    private FormPanelModel.Provider provider; 
+
+    public final void setProvider(FormPanelModel.Provider provider) {
+        this.provider = provider; 
+    } 
+    
+    public static interface Provider {
+        void updateBeanValue();
+    }  
+    
+    // </editor-fold>    
 }
