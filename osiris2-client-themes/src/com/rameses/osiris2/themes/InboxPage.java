@@ -34,7 +34,7 @@ public class InboxPage extends javax.swing.JPanel {
         xSubFormPanel1 = new com.rameses.rcp.control.XSubFormPanel();
         xActionBar2 = new com.rameses.rcp.control.XActionBar();
         pnlBody = new javax.swing.JPanel();
-        jSplitPane1 = new javax.swing.JSplitPane();
+        xSplitView1 = new com.rameses.rcp.control.XSplitView();
         jScrollPane1 = new javax.swing.JScrollPane();
         xTree2 = new com.rameses.rcp.control.XTree();
         jPanel1 = new javax.swing.JPanel();
@@ -90,14 +90,15 @@ public class InboxPage extends javax.swing.JPanel {
 
         pnlBody.setLayout(new java.awt.BorderLayout());
 
-        pnlBody.setBorder(javax.swing.BorderFactory.createEmptyBorder(2, 2, 0, 2));
-        jSplitPane1.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        jSplitPane1.setDividerLocation(200);
+        pnlBody.setBorder(javax.swing.BorderFactory.createEmptyBorder(2, 2, 2, 2));
+
+        xSplitView1.setDividerLocation(200);
+        jScrollPane1.setName("leftview");
         xTree2.setHandler("nodeModel");
         xTree2.setName("selectedNode");
         jScrollPane1.setViewportView(xTree2);
 
-        jSplitPane1.setLeftComponent(jScrollPane1);
+        xSplitView1.add(jScrollPane1);
 
         jPanel1.setLayout(new java.awt.BorderLayout());
 
@@ -124,9 +125,9 @@ public class InboxPage extends javax.swing.JPanel {
 
         jPanel1.add(xHorizontalPanel2, java.awt.BorderLayout.SOUTH);
 
-        jSplitPane1.setRightComponent(jPanel1);
+        xSplitView1.add(jPanel1);
 
-        pnlBody.add(jSplitPane1, java.awt.BorderLayout.CENTER);
+        pnlBody.add(xSplitView1, java.awt.BorderLayout.CENTER);
 
         add(pnlBody, java.awt.BorderLayout.CENTER);
 
@@ -138,7 +139,6 @@ public class InboxPage extends javax.swing.JPanel {
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JSplitPane jSplitPane1;
     private com.rameses.rcp.control.XLabel lblTitle;
     private com.rameses.rcp.control.XActionBar navBar;
     private javax.swing.JPanel pnlBody;
@@ -148,6 +148,7 @@ public class InboxPage extends javax.swing.JPanel {
     private com.rameses.rcp.control.XHorizontalPanel xHorizontalPanel1;
     private com.rameses.rcp.control.XHorizontalPanel xHorizontalPanel2;
     private com.rameses.rcp.control.XLabel xLabel1;
+    private com.rameses.rcp.control.XSplitView xSplitView1;
     private com.rameses.rcp.control.XSubFormPanel xSubFormPanel1;
     private com.rameses.rcp.control.XTree xTree2;
     // End of variables declaration//GEN-END:variables

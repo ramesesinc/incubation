@@ -52,7 +52,10 @@ public class ExplorerViewListPage extends javax.swing.JPanel {
         jPanel3.setLayout(new java.awt.BorderLayout());
 
         jPanel3.setBackground(new java.awt.Color(255, 255, 255));
-        jPanel3.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        com.rameses.rcp.control.border.XEtchedBorder xEtchedBorder1 = new com.rameses.rcp.control.border.XEtchedBorder();
+        xEtchedBorder1.setHideBottom(true);
+        xEtchedBorder1.setHideRight(true);
+        jPanel3.setBorder(xEtchedBorder1);
         lblTitle.setBackground(new java.awt.Color(255, 255, 255));
         lblTitle.setExpression("#{title}");
         lblTitle.setFontStyle("font-size: 16; font-weight:bold;");
@@ -72,11 +75,10 @@ public class ExplorerViewListPage extends javax.swing.JPanel {
 
         jPanel2.add(jPanel3, java.awt.BorderLayout.NORTH);
 
-        com.rameses.rcp.control.border.XEtchedBorder xEtchedBorder1 = new com.rameses.rcp.control.border.XEtchedBorder();
-        xEtchedBorder1.setHideLeft(true);
-        xEtchedBorder1.setHideRight(true);
-        xEtchedBorder1.setPadding(new java.awt.Insets(0, 5, 0, 0));
-        xActionBar2.setBorder(xEtchedBorder1);
+        com.rameses.rcp.control.border.XEtchedBorder xEtchedBorder2 = new com.rameses.rcp.control.border.XEtchedBorder();
+        xEtchedBorder2.setHideRight(true);
+        xEtchedBorder2.setPadding(new java.awt.Insets(0, 5, 0, 0));
+        xActionBar2.setBorder(xEtchedBorder2);
         xActionBar2.setDepends(new String[] {"selectedEntity"});
         xActionBar2.setDynamic(true);
         xActionBar2.setName("formActions");
@@ -102,7 +104,7 @@ public class ExplorerViewListPage extends javax.swing.JPanel {
 
         pnlBody.setLayout(new java.awt.BorderLayout());
 
-        pnlBody.setBorder(javax.swing.BorderFactory.createEmptyBorder(2, 2, 0, 2));
+        pnlBody.setBorder(javax.swing.BorderFactory.createEmptyBorder(2, 0, 0, 2));
         xDataTable1.setHandler("listHandler");
         xDataTable1.setImmediate(true);
         xDataTable1.setName("selectedEntity");
