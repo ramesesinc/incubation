@@ -1077,7 +1077,7 @@ public class DataTableComponent extends JTable implements TableControl
         return msg;
     }
     
-    private void showEditor(final JComponent editor, int rowIndex, int colIndex, EventObject e) 
+    private synchronized void showEditor(final JComponent editor, int rowIndex, int colIndex, EventObject e) 
     {
         Rectangle bounds = getCellRect(rowIndex, colIndex, false);
         editor.putClientProperty(COLUMN_POINT, new Point(colIndex, rowIndex));
