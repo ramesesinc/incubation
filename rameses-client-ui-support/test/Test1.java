@@ -1,5 +1,5 @@
 
-import com.rameses.beaninfo.editor.table.ColumnEditorPage;
+import com.rameses.beaninfo.editor.table.ColumnEditorPage2;
 import com.rameses.rcp.common.TextColumnHandler;
 import com.rameses.rcp.swingx.ComboItem;
 import javax.swing.JDialog;
@@ -27,7 +27,7 @@ public class Test1 extends TestCase {
         JDialog d = new JDialog();
         d.setTitle("Test");
         d.setModal(true);
-        d.setContentPane(new ColumnEditorPage());
+        d.setContentPane(new ColumnEditorPage2());
         d.pack();
         d.setVisible(true); 
     }
