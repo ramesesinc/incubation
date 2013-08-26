@@ -81,6 +81,7 @@ public class InboxPage extends javax.swing.JPanel {
         xHorizontalPanel1.add(xSubFormPanel1);
 
         xActionBar1.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        xActionBar1.setDepends(new String[] {"selectedEntity"});
         xActionBar1.setName("defaultFormActions");
         xHorizontalPanel1.add(xActionBar1);
 
@@ -112,6 +113,7 @@ public class InboxPage extends javax.swing.JPanel {
         jPanel1.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         lblTitle1.setBackground(new java.awt.Color(255, 255, 255));
         lblTitle1.setBorder(new com.rameses.rcp.control.border.XEtchedBorder());
+        lblTitle1.setDepends(new String[] {"selectedNode"});
         lblTitle1.setExpression("#{listTitle}");
         lblTitle1.setFontStyle("font-size:16; font-weight:bold;");
         lblTitle1.setOpaque(true);

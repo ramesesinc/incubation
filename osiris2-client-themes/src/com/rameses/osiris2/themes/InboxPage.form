@@ -100,6 +100,11 @@
                     <EmptyBorder bottom="0" left="0" right="0" top="0"/>
                   </Border>
                 </Property>
+                <Property name="depends" type="[Ljava.lang.String;" editor="org.netbeans.beaninfo.editors.StringArrayEditor">
+                  <StringArray count="1">
+                    <StringItem index="0" value="selectedEntity"/>
+                  </StringArray>
+                </Property>
                 <Property name="name" type="java.lang.String" value="defaultFormActions"/>
               </Properties>
             </Component>
@@ -186,6 +191,11 @@
                     </Property>
                     <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
                         <PropertyBean type="com.rameses.rcp.control.border.XEtchedBorder"/>
+                    </Property>
+                    <Property name="depends" type="[Ljava.lang.String;" editor="org.netbeans.beaninfo.editors.StringArrayEditor">
+                      <StringArray count="1">
+                        <StringItem index="0" value="selectedNode"/>
+                      </StringArray>
                     </Property>
                     <Property name="expression" type="java.lang.String" value="#{listTitle}"/>
                     <Property name="fontStyle" type="java.lang.String" value="font-size:16; font-weight:bold;"/>
