@@ -59,22 +59,21 @@ public class XLineBorder extends AbstractBorder
     public void setHideRight(boolean hideRight) { this.hideRight = hideRight; }    
             
     public Insets getBorderInsets(Component c) {
-        return getBorderInsets(c, new Insets(0,0,0,0));
+        Insets ins = new Insets(0,0,0,0);
+        return getBorderInsets(c, ins);
     }
     
     public Insets getBorderInsets(Component c, Insets ins) {
         if (ins == null) ins = new Insets(0, 0, 0, 0);
                 
         ins.top = ins.left = ins.bottom = ins.right = 0;
-        Color color0 = getLineColor();        
-        int thickness0 = getThickness();
-        sourceBorder = BorderFactory.createLineBorder(color0, thickness0); 
-        if (thickness0 > 0) 
+        int thickness = getThickness();
+        if (thickness > 0) 
         {
-            if (!isHideTop()) ins.top+=thickness0;
-            if (!isHideLeft()) ins.left+=thickness0;
-            if (!isHideBottom()) ins.bottom+=thickness0;
-            if (!isHideRight()) ins.right+=thickness0;
+            if (!isHideTop()) ins.top+=thickness;
+            if (!isHideLeft()) ins.left+=thickness;
+            if (!isHideBottom()) ins.bottom+=thickness;
+            if (!isHideRight()) ins.right+=thickness;
         }        
                 
         ins.top += padding.top;
@@ -85,36 +84,36 @@ public class XLineBorder extends AbstractBorder
     }    
     
     public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
-        int thickness0 = getThickness();
-        if (thickness0 <= 0) return;
-        if (sourceBorder == null) return;
+        int thickness = getThickness();
+        if (thickness <= 0) return;
         
-        Color oldColor = g.getColor();        
+        Color color = getLineColor();
+        if (color == null) return;
+        
         Graphics2D g2 = (Graphics2D) g.create();        
-        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-        sourceBorder.paintBorder(c, g, x, y, width, height);         
-        g.setColor(oldColor);
-        if (isHideTop()) {
-            for (int i=0; i<thickness0; i++) {
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);        
+        g2.setColor(color);
+        
+        if (!isHideTop()) {
+            for (int i=0; i<thickness; i++) {
                 g2.drawLine(x, y+i, width, y+i);
             } 
-        }        
-        if (isHideLeft()) {
-            for (int i=0; i<thickness0; i++) {
+        }      
+        if (!isHideLeft()) {
+            for (int i=0; i<thickness; i++) {
                 g2.drawLine(x+i, y, x+i, height);
             }
         } 
-        if (isHideBottom()) {
-            for (int i=1; i<=thickness0; i++) {
+        if (!isHideBottom()) {
+            for (int i=1; i<=thickness; i++) {
                 g2.drawLine(x, height-i, width, height-i);
             }
         } 
-        if (isHideRight()) {
-            for (int i=1; i<=thickness0; i++) {
+        if (!isHideRight()) {
+            for (int i=1; i<=thickness; i++) {
                 g2.drawLine(width-i, y, width-i, height);
             }
-        }         
+        } 
         g2.dispose();
     }    
 }

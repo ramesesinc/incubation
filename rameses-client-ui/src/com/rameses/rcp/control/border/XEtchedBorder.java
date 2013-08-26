@@ -91,30 +91,30 @@ public class XEtchedBorder extends AbstractBorder
         Color oldColor = g.getColor(); 
         Color shadColor = getShadowColor(c);
         Color highColor = getHighlightColor(c); 
+        if (!isHideLeft()) {
+            g2.setColor(shadColor); 
+            g2.drawLine(x, y, x, height); 
+            g2.setColor(highColor); 
+            g2.drawLine(x+1, y+1, x+1, height); 
+        } 
+        if (!isHideRight()) {
+            g2.setColor(shadColor); 
+            g2.drawLine(width-2, y, width-2, height); 
+            g2.setColor(highColor); 
+            g2.drawLine(width-1, y, width-1, height); 
+        }                 
         if (!isHideTop()) {
             g2.setColor(shadColor); 
             g2.drawLine(x, y, width, y); 
             g2.setColor(highColor); 
             g2.drawLine(x+1, y+1, width, y+1); 
         } 
-        if (!isHideLeft()) {
-            g2.setColor(shadColor); 
-            g2.drawLine(x, y, x, height-2); 
-            g2.setColor(highColor); 
-            g2.drawLine(x+1, y+1, x+1, height-3); 
-        }         
         if (!isHideBottom()) {
             g2.setColor(shadColor); 
             g2.drawLine(x, height-2, width, height-2); 
             g2.setColor(highColor); 
             g2.drawLine(x, height-1, width, height-1); 
         } 
-        if (!isHideRight()) {
-            g2.setColor(shadColor); 
-            g2.drawLine(width-2, y, width-2, height-2); 
-            g2.setColor(highColor); 
-            g2.drawLine(width-1, y, width-1, height-1); 
-        }         
         g2.dispose();
     }    
     
