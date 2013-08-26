@@ -21,8 +21,12 @@ public abstract class AbstractCrudListService extends AbstractCrudService  imple
     public void beforeList(Object data){;}
     public void afterList(Object data, Object list){;}
     
+    public String getListMethod() {
+        return "getList";
+    }
+    
     private ListHelper getListHelper() {
-        return new ListHelper(getSchemaName(), (EntityManager) getEm(), this);
+        return new ListHelper(getSchemaName(), (EntityManager) getEm(), this, this.getListMethod());
     }
     
     @ProxyMethod

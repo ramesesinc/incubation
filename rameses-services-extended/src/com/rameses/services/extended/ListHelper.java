@@ -24,10 +24,15 @@ public class ListHelper {
     private String schemaName;
     private IListListener listener;
     
-    public ListHelper(String schemaName, EntityManager em, IListListener listener) {
+    private String listMethod = "getList";
+    
+    public ListHelper(String schemaName, EntityManager em, IListListener listener, String listMethod) {
         this.schemaName = schemaName;
         this.em = em;
         this.listener = listener;
+        if(listMethod!=null) {
+            this.listMethod = listMethod;
+        }
     }
     
     public Object getList(Object data) throws Exception {
@@ -40,8 +45,7 @@ public class ListHelper {
             String stext = (String) params.get("searchtext");
             params.put("searchtext", stext+"%" );
         }
-        
-        SqlQuery sq = em.getSqlContext().createNamedQuery( schemaName+":getList" );
+        SqlQuery sq = em.getSqlContext().createNamedQuery( schemaName+":"+listMethod );
         sq.setParameters(params).setVars(params);
         
         if (params.containsKey("_start")) {
@@ -58,5 +62,6 @@ public class ListHelper {
         listener.afterList(params, list);
         return list;
     }
+
     
 }
