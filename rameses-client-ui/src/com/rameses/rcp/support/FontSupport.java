@@ -36,20 +36,10 @@ public class FontSupport
         
     public void applyStyles(JComponent component, String styles) {
         if (component == null || styles == null || styles.trim().length() == 0) {
-            return;
+            return; 
         }
         
-        //firstly, store the original font of the component 
-        Font origFont = (Font) component.getClientProperty("Component.originalFont"); 
-        if (origFont == null) { 
-            origFont = component.getFont(); 
-            component.putClientProperty("Component.originalFont", origFont); 
-        } 
-        
-        //second, restore the original font before applying styles 
-        component.setFont(origFont);  
-        
-        //third, apply the styles 
+        Font oldFont = component.getFont();        
         String[] values = styles.trim().split(";");
         for (String str: values) { 
             int idx = str.indexOf(':');
@@ -62,12 +52,12 @@ public class FontSupport
             if (val.length() == 0) continue;
             
             if ("font".equals(key)) { 
-                component.setFont(origFont.decode(val)); 
+                component.setFont(oldFont.decode(val)); 
             }
             else if ("font-family".equals(key)) {
                 Map attrs = new HashMap(); 
                 attrs.put(TextAttribute.FAMILY, val);
-                component.setFont(origFont.deriveFont(attrs)); 
+                component.setFont(oldFont.deriveFont(attrs)); 
             } 
             else if ("font-style".equals(key)) {
                 Map attrs = new HashMap(); 
@@ -78,7 +68,7 @@ public class FontSupport
                 else if ("oblique".equalsIgnoreCase(val))
                     attrs.put(TextAttribute.POSTURE, TextAttribute.POSTURE_OBLIQUE);
 
-                if (!attrs.isEmpty()) component.setFont(origFont.deriveFont(attrs)); 
+                if (!attrs.isEmpty()) component.setFont(oldFont.deriveFont(attrs)); 
             } 
             else if ("font-weight".equals(key)) {
                 Map attrs = new HashMap(); 
@@ -113,14 +103,14 @@ public class FontSupport
                     } catch(Throwable t) {;} 
                 }
                 
-                if (!attrs.isEmpty()) component.setFont(origFont.deriveFont(attrs)); 
+                if (!attrs.isEmpty()) component.setFont(oldFont.deriveFont(attrs)); 
             } 
             else if ("font-size".equals(key)) {
                 try { 
                     float size = Float.parseFloat(val); 
                     Map attrs = new HashMap(); 
                     attrs.put(TextAttribute.SIZE, size);
-                    component.setFont(origFont.deriveFont(attrs)); 
+                    component.setFont(oldFont.deriveFont(attrs)); 
                 } catch(Throwable t) {;} 
             } 
             else if ("text-decoration".equals(key)) {
@@ -144,7 +134,7 @@ public class FontSupport
                 else if ("subscript".equalsIgnoreCase(val)) 
                     attrs.put(TextAttribute.SUPERSCRIPT, TextAttribute.SUPERSCRIPT_SUB);
 
-                if (!attrs.isEmpty()) component.setFont(origFont.deriveFont(attrs)); 
+                if (!attrs.isEmpty()) component.setFont(oldFont.deriveFont(attrs)); 
             }   
         }
     }
