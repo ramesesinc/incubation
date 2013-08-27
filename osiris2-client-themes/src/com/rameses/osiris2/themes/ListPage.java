@@ -57,7 +57,7 @@ public class ListPage extends javax.swing.JPanel {
 
         lblTitle.setBackground(new java.awt.Color(255, 255, 255));
         lblTitle.setExpression("#{title}");
-        lblTitle.setFontStyle("font-size:16; font-weight:bold;");
+        lblTitle.setFontStyle("font-weight:bold; font-size:16;");
         lblTitle.setOpaque(true);
         lblTitle.setPadding(new java.awt.Insets(2, 7, 2, 5));
         jPanel2.add(lblTitle, java.awt.BorderLayout.NORTH);
