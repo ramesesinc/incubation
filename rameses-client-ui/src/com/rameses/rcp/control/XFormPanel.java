@@ -18,6 +18,7 @@ import com.rameses.rcp.ui.UIComposite;
 import com.rameses.rcp.ui.UIFocusableContainer;
 import com.rameses.rcp.ui.UIControl;
 import com.rameses.rcp.ui.UIInput;
+import com.rameses.rcp.ui.UILookup;
 import com.rameses.rcp.ui.Validatable;
 import com.rameses.rcp.util.ActionMessage;
 import com.rameses.rcp.util.UIControlUtil;
@@ -51,6 +52,7 @@ import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
+import javax.swing.text.JTextComponent;
 
 
 /**
@@ -406,7 +408,7 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
                 uic.putClientProperty("UIControl.userObject", fcm.getData()); 
             } 
             
-            //uic.putClientProperty(UIInputUtil.Support.class, inputSupport); 
+            uic.putClientProperty(UIInputUtil.Support.class, inputSupport); 
             uic.setBinding(binding);
             uic.load();
             
@@ -1175,17 +1177,59 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
     private class EditorInputSupport implements UIInputUtil.Support 
     {       
         XFormPanel root = XFormPanel.this;
+        PropertyResolver propertyResolver = PropertyResolver.getInstance();
         
         public void setValue(String name, Object value) {
             setValue(name, value, null); 
         } 
         
         public void setValue(String name, Object value, JComponent jcomp) {
-            if (root.model == null) 
-                throw new NullPointerException("No available FormPanelModel attached");
+            if (root.model == null) {
+                System.out.println("[WARN] No available FormPanelModel attached"); 
+                return; 
+            }
             
-            Object userObj = (jcomp == null? null: jcomp.getClientProperty("UIControl.userObject")); 
-            root.model.setValue(name, value, userObj); 
+            UIControl uic = null;
+            if (jcomp instanceof UIInput) 
+                uic = (UIControl)jcomp;
+            else if (jcomp instanceof UILookup) 
+                uic = (UIControl)jcomp;
+            else { 
+                System.out.println("[WARN] EditorInputSupport does not support this type of component"); 
+                return;
+            }
+            
+            Binding binding = uic.getBinding();
+            Object bean = binding.getBean();
+            Object userObj = uic.getClientProperty("UIControl.userObject"); 
+            try { propertyResolver.setProperty(userObj, "value", value); } catch(Throwable t){;}             
+            try {
+                root.model.setBinding(binding); 
+                root.model.updateBean(name, value, userObj); 
+            } catch(Throwable t){;} 
+            
+            binding.getValueChangeSupport().notify(name, value);  
+            if (jcomp instanceof JTextComponent) 
+            {
+                JTextComponent jtxt = (JTextComponent) jcomp;
+                int oldCaretPos = jtxt.getCaretPosition(); 
+
+                try { 
+                    uic.refresh(); 
+                } catch(RuntimeException re) {
+                    throw re; 
+                } catch(Exception e) {
+                    throw new RuntimeException(e.getMessage(), e); 
+                } finally {
+                    try {
+                        jtxt.setCaretPosition(oldCaretPos); 
+                    } catch(Exception ign) {;} 
+                }
+
+                jtxt.putClientProperty("CaretPosition", oldCaretPos); 
+            }
+
+            binding.notifyDepends(uic);            
         } 
     }
     
@@ -1194,8 +1238,7 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
     // <editor-fold defaultstate="collapsed" desc=" ModelProviderSupport (class) ">
     
     private class ModelProviderSupport implements FormPanelModel.Provider {
-        public void updateBeanValue() { 
-        } 
+        
     } 
     
     // </editor-fold>

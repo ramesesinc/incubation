@@ -105,12 +105,11 @@ public class UIInputUtil {
                     
                     try { 
                         control.refresh(); 
-                    } 
-                    catch(Exception e) {
+                    } catch(RuntimeException re) {
+                        throw re;
+                    } catch(Exception e) {
                         throw new RuntimeException(e.getMessage(), e); 
-                    } 
-                    finally 
-                    {
+                    } finally {
                         try {
                             jtxt.setCaretPosition(oldCaretPos); 
                         } catch(Exception ign) {;} 
@@ -135,9 +134,7 @@ public class UIInputUtil {
     
     public static interface Support 
     {
-        void setValue(String name, Object value); 
-        
+        void setValue(String name, Object value);         
         void setValue(String name, Object value, JComponent jcomp); 
-    }
-    
+    }    
 }

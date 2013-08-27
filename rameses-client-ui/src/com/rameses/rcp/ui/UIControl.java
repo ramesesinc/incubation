@@ -9,7 +9,8 @@ import com.rameses.rcp.framework.*;
  */
 public interface UIControl extends Comparable 
 {
-    static final long serialVersionUID = 1L;
+    static final long serialVersionUID = 1L; 
+    static final String KEY_USER_OBJECT = "UIControl.userObject"; 
     
     int getIndex();
     

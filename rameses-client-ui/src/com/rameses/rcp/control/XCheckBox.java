@@ -282,7 +282,7 @@ public class XCheckBox extends JCheckBox implements UIInput, ActiveControl
     
     // </editor-fold>
         
-    // <editor-fold defaultstate="collapsed" desc="  ItemListenerImpl (Class)  ">
+    // <editor-fold defaultstate="collapsed" desc=" ItemListenerImpl (Class) ">
     
     private class ItemListenerImpl implements ItemListener
     {

@@ -304,30 +304,24 @@ public class XLabel extends JLabel implements UIOutput, ActiveControl
             if (hasName) beanValue = UIControlUtil.getBeanValue(this);
             
             Object value = null;
-            if ( !ValueUtil.isEmpty(expression) )  
-            {
+            if (!ValueUtil.isEmpty(expression)) {
                 Object exprBean = binding.getBean(); 
-                if (getVarName() != null) exprBean = createExpressionBean(beanValue);
-
-                value = UIControlUtil.evaluateExpr(exprBean, expression);
-            }
-            else if ( hasName ) 
-            {
+                Object userObj = getClientProperty(UIControl.KEY_USER_OBJECT); 
+                value = UIControlUtil.evaluateExpr(createExpressionBean(userObj), expression);
+            } else if ( hasName ) {
                 value = beanValue;
                 if (beanValue != null && format != null)
                     value = format.format(beanValue);
-            } 
-            else { 
+            } else { 
                 value = super.getText();
             } 
             
             setTextValue((value == null? "": value.toString()));            
         } 
-        catch(Exception e) 
-        {
+        catch(Throwable e) { 
             setTextValue("");
             
-            if ( ClientContext.getCurrentContext().isDebugMode() ) e.printStackTrace();
+            if (ClientContext.getCurrentContext().isDebugMode()) e.printStackTrace();
         }
     }   
     

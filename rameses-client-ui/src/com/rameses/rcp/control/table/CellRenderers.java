@@ -25,6 +25,7 @@ import com.rameses.rcp.common.StyleRule;
 import com.rameses.rcp.constant.TextCase;
 import com.rameses.rcp.support.ColorUtil;
 import com.rameses.rcp.support.ComponentSupport;
+import com.rameses.rcp.support.FontSupport;
 import com.rameses.rcp.util.ControlSupport;
 import com.rameses.rcp.util.UIControlUtil;
 import java.awt.Color;
@@ -257,7 +258,6 @@ public class CellRenderers {
         
         public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int rowIndex, int columnIndex) {
             ctx = new CellRenderers.Context(table, value, rowIndex, columnIndex);
-            
             TableControl tc = ctx.getTableControl();
             TableControlModel tcm = ctx.getTableControlModel();
             
@@ -297,7 +297,7 @@ public class CellRenderers {
             }
             
             try {
-                if (!hasFocus) applyStyles(comp);
+                applyStyles(comp, hasFocus);
             } catch(Throwable ex) {;}
             
             AbstractListDataProvider ldp = ctx.getDataProvider();
@@ -332,8 +332,8 @@ public class CellRenderers {
             refresh(table, value, isSelected, hasFocus, rowIndex, columnIndex);
             return comp;
         }
-        
-        private void applyStyles(JComponent comp) {
+                
+        private void applyStyles(JComponent comp, boolean hasFocus) {
             TableControl tc = getContext().getTableControl();
             if (tc.getVarName() == null || tc.getVarName().length() == 0) return;
             if (tc.getId() == null || tc.getId().length() == 0) return;
@@ -344,6 +344,7 @@ public class CellRenderers {
             String colName = getContext().getColumn().getName();
             String sname = tc.getId()+":"+tc.getVarName()+"."+colName;
             ExpressionResolver res = ExpressionResolver.getInstance();
+            FontSupport fontSupport = new FontSupport();
             
             //apply style rules
             for (StyleRule r : styles) {
@@ -351,9 +352,16 @@ public class CellRenderers {
                 String expr = r.getExpression();
                 if (expr != null && sname.matches(pattern)){
                     try {
-                        boolean matched = res.evalBoolean(expr, getContext().createExpressionBean());
-                        if (matched) ControlSupport.setStyles(r.getProperties(), comp);
-                    } catch (Throwable ign){;}
+                        Object exprBean = getContext().createExpressionBean();
+                        boolean matched = res.evalBoolean(expr, exprBean); 
+                        if (!matched) continue;
+                        
+                        if (hasFocus) 
+                            fontSupport.applyStyles(comp, r.getProperties()); 
+                        else 
+                            ControlSupport.setStyles(r.getProperties(), comp);
+                    } 
+                    catch (Throwable ign){;}
                 }
             }
         }

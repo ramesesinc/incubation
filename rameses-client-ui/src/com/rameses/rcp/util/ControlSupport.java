@@ -5,16 +5,14 @@ import com.rameses.rcp.common.Opener;
 import com.rameses.common.PropertyResolver;
 import com.rameses.rcp.framework.*;
 import com.rameses.rcp.support.ColorUtil;
+import com.rameses.rcp.support.FontSupport;
 import com.rameses.rcp.ui.UIControl;
 import com.rameses.util.ValueUtil;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Font;
-import java.awt.font.TextAttribute;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.lang.reflect.Field;
-import java.util.HashMap;
 import java.util.Map;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
@@ -44,8 +42,7 @@ public final class ControlSupport {
             if (me.getKey() == null) continue;
             
             String key = me.getKey().toString();
-            try 
-            {
+            try {
                 if ("background".equals(key) || "background-color".equals(key)) {
                     Color color = null;
                     if (me.getValue() instanceof Color) 
@@ -77,98 +74,20 @@ public final class ControlSupport {
                             setClientProperty(component, "ControlSupport.foreground", component.getForeground()); 
                         
                         component.setForeground(color);
-                    }
-                    else if (oldColor != null) {
+                    } else if (oldColor != null) {
                         component.setForeground(oldColor); 
                     }
-                }
-                else if ("font".equals(key)) {
-                    Font oldFont = component.getFont();
-                    component.setFont(oldFont.decode(me.getValue().toString())); 
-                }
-                else if ("font-family".equals(key)) {
-                    String sval = me.getValue().toString();
-                    Map attrs = new HashMap(); 
-                    attrs.put(TextAttribute.FAMILY, sval);
-                    Font oldFont = component.getFont();
-                    component.setFont(oldFont.deriveFont(attrs)); 
-                } 
-                else if ("font-style".equals(key)) {
-                    String sval = me.getValue().toString();
-                    Map attrs = new HashMap(); 
-                    if ("normal".equalsIgnoreCase(sval) || "regular".equalsIgnoreCase(sval))
-                        attrs.put(TextAttribute.WEIGHT, TextAttribute.WEIGHT_REGULAR);
-                    else if ("bold".equalsIgnoreCase(sval))
-                        attrs.put(TextAttribute.WEIGHT, TextAttribute.WEIGHT_BOLD);
-                    else if ("demibold".equalsIgnoreCase(sval))
-                        attrs.put(TextAttribute.WEIGHT, TextAttribute.WEIGHT_DEMIBOLD);
-                    else if ("demilight".equalsIgnoreCase(sval))
-                        attrs.put(TextAttribute.WEIGHT, TextAttribute.WEIGHT_DEMILIGHT);
-                    else if ("extrabold".equalsIgnoreCase(sval))
-                        attrs.put(TextAttribute.WEIGHT, TextAttribute.WEIGHT_EXTRABOLD);
-                    else if ("extralight".equalsIgnoreCase(sval))
-                        attrs.put(TextAttribute.WEIGHT, TextAttribute.WEIGHT_EXTRA_LIGHT);
-                    else if ("heavy".equalsIgnoreCase(sval))
-                        attrs.put(TextAttribute.WEIGHT, TextAttribute.WEIGHT_HEAVY);
-                    else if ("light".equalsIgnoreCase(sval))
-                        attrs.put(TextAttribute.WEIGHT, TextAttribute.WEIGHT_LIGHT);
-                    else if ("medium".equalsIgnoreCase(sval))
-                        attrs.put(TextAttribute.WEIGHT, TextAttribute.WEIGHT_MEDIUM);
-                    else if ("semibold".equalsIgnoreCase(sval))
-                        attrs.put(TextAttribute.WEIGHT, TextAttribute.WEIGHT_SEMIBOLD);
-                    else if ("ultrabold".equalsIgnoreCase(sval))
-                        attrs.put(TextAttribute.WEIGHT, TextAttribute.WEIGHT_ULTRABOLD);
-                    else if ("ultrabold".equalsIgnoreCase(sval))
-                        attrs.put(TextAttribute.WEIGHT, TextAttribute.WEIGHT_ULTRABOLD);
-                    else if ("italic".equalsIgnoreCase(sval))
-                        attrs.put(TextAttribute.POSTURE, TextAttribute.POSTURE_REGULAR);
-                    else if ("oblique".equalsIgnoreCase(sval))
-                        attrs.put(TextAttribute.POSTURE, TextAttribute.POSTURE_OBLIQUE);
-                    
-                    if (!attrs.isEmpty()) component.setFont(component.getFont().deriveFont(attrs)); 
-                } 
-                else if ("font-weight".equals(key)) {
-                    float weight = Float.parseFloat(me.getValue().toString()); 
-                    Map attrs = new HashMap(); 
-                    attrs.put(TextAttribute.WEIGHT, weight);
-                    component.setFont(component.getFont().deriveFont(attrs)); 
-                } 
-                else if ("font-size".equals(key)) {
-                    float size = Float.parseFloat(me.getValue().toString()); 
-                    Map attrs = new HashMap(); 
-                    attrs.put(TextAttribute.SIZE, size);
-                    component.setFont(component.getFont().deriveFont(attrs)); 
-                } 
-                else if ("text-decoration".equals(key)) {
-                    String sval = me.getValue().toString();
-                    Map attrs = new HashMap(); 
-                    if ("underline".equalsIgnoreCase(sval)) 
-                        attrs.put(TextAttribute.UNDERLINE, TextAttribute.UNDERLINE_ON);
-                    else if ("underline-dashed".equalsIgnoreCase(sval)) 
-                        attrs.put(TextAttribute.UNDERLINE, TextAttribute.UNDERLINE_LOW_DASHED);
-                    else if ("underline-dotted".equalsIgnoreCase(sval)) 
-                        attrs.put(TextAttribute.UNDERLINE, TextAttribute.UNDERLINE_LOW_DOTTED);
-                    else if ("underline-gray".equalsIgnoreCase(sval)) 
-                        attrs.put(TextAttribute.UNDERLINE, TextAttribute.UNDERLINE_LOW_GRAY);
-                    else if ("underline-one-pixel".equalsIgnoreCase(sval)) 
-                        attrs.put(TextAttribute.UNDERLINE, TextAttribute.UNDERLINE_LOW_ONE_PIXEL);
-                    else if ("underline-two-pixel".equalsIgnoreCase(sval)) 
-                        attrs.put(TextAttribute.UNDERLINE, TextAttribute.UNDERLINE_LOW_TWO_PIXEL);
-                    else if ("strikethrough".equalsIgnoreCase(sval)) 
-                        attrs.put(TextAttribute.STRIKETHROUGH, TextAttribute.STRIKETHROUGH_ON);
-                    else if ("superscript".equalsIgnoreCase(sval)) 
-                        attrs.put(TextAttribute.SUPERSCRIPT, TextAttribute.SUPERSCRIPT_SUPER);
-                    else if ("subscript".equalsIgnoreCase(sval)) 
-                        attrs.put(TextAttribute.SUPERSCRIPT, TextAttribute.SUPERSCRIPT_SUB);
-                    
-                    if (!attrs.isEmpty()) component.setFont(component.getFont().deriveFont(attrs)); 
-                }                 
-                else {
+                } else {
                     resolver.setProperty(component, key, me.getValue()); 
                 }
             } 
             catch(Throwable ign) {;}   
         }
+        
+        try { 
+            if (component instanceof JComponent) 
+                new FontSupport().applyStyles((JComponent) component, props); 
+        } catch(Throwable t){;} 
     }
     
     public static Object init(Object bean, Map params, String action ) {
