@@ -36,7 +36,8 @@ public class XCheckBox extends JCheckBox implements UIInput, ActiveControl
     private boolean readonly;
     private boolean inited;
     private int index;
-    
+
+    private Font sourceFont;
     private Class valueType = Boolean.class; 
     private Object uncheckValue = false;    
     private Object checkValue = true;
@@ -195,6 +196,11 @@ public class XCheckBox extends JCheckBox implements UIInput, ActiveControl
     public String getFontStyle() { return fontStyle; } 
     public void setFontStyle(String fontStyle) {
         this.fontStyle = fontStyle;
+        if (sourceFont == null) {
+            sourceFont = super.getFont();
+        } else {
+            super.setFont(sourceFont); 
+        } 
         new FontSupport().applyStyles(this, fontStyle);
     }    
     

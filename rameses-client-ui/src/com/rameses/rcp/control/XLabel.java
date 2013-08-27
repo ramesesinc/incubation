@@ -43,6 +43,7 @@ public class XLabel extends JLabel implements UIOutput, ActiveControl
     private int index;    
     private boolean useHtml;
     
+    private Font sourceFont;
     private String fontStyle; 
     private Insets padding; 
     private Format format; 
@@ -228,6 +229,11 @@ public class XLabel extends JLabel implements UIOutput, ActiveControl
     public String getFontStyle() { return fontStyle; } 
     public void setFontStyle(String fontStyle) {
         this.fontStyle = fontStyle;
+        if (sourceFont == null) {
+            sourceFont = super.getFont();
+        } else {
+            super.setFont(sourceFont); 
+        } 
         new FontSupport().applyStyles(this, fontStyle);
     }
 

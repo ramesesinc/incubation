@@ -49,6 +49,7 @@ public class XTextArea extends JTextArea implements UIInput, Validatable, Active
     private boolean nullWhenEmpty = true;   
     private String[] depends;
     private String fontStyle;
+    private Font sourceFont;
     private ControlProperty property = new ControlProperty();
     private ActionMessage actionMessage = new ActionMessage();
     
@@ -255,6 +256,11 @@ public class XTextArea extends JTextArea implements UIInput, Validatable, Active
     public String getFontStyle() { return fontStyle; } 
     public void setFontStyle(String fontStyle) {
         this.fontStyle = fontStyle;
+        if (sourceFont == null) {
+            sourceFont = super.getFont();
+        } else {
+            super.setFont(sourceFont); 
+        } 
         new FontSupport().applyStyles(this, fontStyle);
     }      
     

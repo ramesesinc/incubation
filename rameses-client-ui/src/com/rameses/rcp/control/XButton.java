@@ -52,6 +52,7 @@ public class XButton extends JButton implements UICommand, ActionListener, Activ
     
     private String accelerator;
     private KeyStroke acceleratorKS;
+    private Font sourceFont;    
     private String fontStyle;
         
     public XButton() {
@@ -65,6 +66,11 @@ public class XButton extends JButton implements UICommand, ActionListener, Activ
     public String getFontStyle() { return fontStyle; } 
     public void setFontStyle(String fontStyle) {
         this.fontStyle = fontStyle;
+        if (sourceFont == null) {
+            sourceFont = super.getFont();
+        } else {
+            super.setFont(sourceFont); 
+        } 
         new FontSupport().applyStyles(this, fontStyle);
     }  
     

@@ -65,6 +65,7 @@ public class XPasswordField extends JPasswordField implements UIInput, Validatab
     private boolean nullWhenEmpty = true;    
     private String hint;
     private String fontStyle;
+    private Font sourceFont;
     
     public XPasswordField() 
     {
@@ -192,6 +193,11 @@ public class XPasswordField extends JPasswordField implements UIInput, Validatab
     public String getFontStyle() { return fontStyle; } 
     public void setFontStyle(String fontStyle) {
         this.fontStyle = fontStyle;
+        if (sourceFont == null) {
+            sourceFont = super.getFont();
+        } else {
+            super.setFont(sourceFont); 
+        } 
         new FontSupport().applyStyles(this, fontStyle);
     }     
 

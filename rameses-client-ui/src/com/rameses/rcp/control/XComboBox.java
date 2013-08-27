@@ -66,6 +66,7 @@ public class XComboBox extends JComboBox implements UIInput, Validatable, Active
     
     private ControlProperty property = new ControlProperty();
     private ActionMessage actionMessage = new ActionMessage();
+    private Font sourceFont;
     
     protected DefaultComboBoxModel model;
     private Class fieldType;    
@@ -279,6 +280,11 @@ public class XComboBox extends JComboBox implements UIInput, Validatable, Active
     public String getFontStyle() { return fontStyle; } 
     public void setFontStyle(String fontStyle) {
         this.fontStyle = fontStyle;
+        if (sourceFont == null) {
+            sourceFont = super.getFont();
+        } else {
+            super.setFont(sourceFont); 
+        } 
         new FontSupport().applyStyles(this, fontStyle);
     }    
     
