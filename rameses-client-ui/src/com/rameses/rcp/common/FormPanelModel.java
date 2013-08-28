@@ -7,7 +7,6 @@
 package com.rameses.rcp.common;
 
 import com.rameses.common.PropertyResolver;
-import com.rameses.rcp.framework.Binding;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -20,13 +19,9 @@ import java.util.Set;
 public class FormPanelModel {
     
     private Listener listener;
-    private Binding binding; 
     
     public Object getFormControls() { return null; }    
     public List<Map> getControlList() { return null; } 
-    
-    public Binding getBinding() { return binding; } 
-    public void setBinding(Binding binding) { this.binding = binding; } 
     
     public void setProperty(String name, Object value) {
         if( listener != null ) {
@@ -70,12 +65,15 @@ public class FormPanelModel {
     
     //This method can be overridden, if custom updating of value is necessary 
     public void updateBean(String name, Object value, Object userObject) {
-        Binding binding = getBinding();
-        Object bean = (binding == null? null: binding.getBean()); 
-        if (bean == null) return;
-        
-        PropertyResolver.getInstance().setProperty(bean, name, value); 
+        Object bean = (provider == null? null: provider.getBindingBean()); 
+        if (bean != null) { 
+            PropertyResolver.getInstance().setProperty(bean, name, value); 
+        }
     } 
+    
+    public Object getBinding() {
+        return (provider == null? null: provider.getBinding()); 
+    }
     
         
     // <editor-fold defaultstate="collapsed" desc=" Listener interface ">
@@ -92,14 +90,14 @@ public class FormPanelModel {
 
     private FormPanelModel.Provider provider; 
 
-    public final FormPanelModel.Provider getProvider() { return provider; } 
     public final void setProvider(FormPanelModel.Provider provider) {
         this.provider = provider; 
     } 
     
     
     public static interface Provider {
-        //reserved. no methods yet at the moment 
+        Object getBinding(); 
+        Object getBindingBean(); 
     }  
     
     // </editor-fold>    

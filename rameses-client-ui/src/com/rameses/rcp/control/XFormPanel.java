@@ -1203,10 +1203,7 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
             Object bean = binding.getBean();
             Object userObj = uic.getClientProperty("UIControl.userObject"); 
             try { propertyResolver.setProperty(userObj, "value", value); } catch(Throwable t){;}             
-            try {
-                root.model.setBinding(binding); 
-                root.model.updateBean(name, value, userObj); 
-            } catch(Throwable t){;} 
+            try { root.model.updateBean(name, value, userObj); } catch(Throwable t){;} 
             
             binding.getValueChangeSupport().notify(name, value);  
             if (jcomp instanceof JTextComponent) 
@@ -1237,8 +1234,18 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
     
     // <editor-fold defaultstate="collapsed" desc=" ModelProviderSupport (class) ">
     
-    private class ModelProviderSupport implements FormPanelModel.Provider {
+    private class ModelProviderSupport implements FormPanelModel.Provider 
+    {
+        XFormPanel root = XFormPanel.this; 
         
+        public Object getBinding() {
+            return root.getBinding(); 
+        }
+
+        public Object getBindingBean() {
+            Binding binding = root.getBinding(); 
+            return (binding == null? null: binding.getBean()); 
+        }        
     } 
     
     // </editor-fold>

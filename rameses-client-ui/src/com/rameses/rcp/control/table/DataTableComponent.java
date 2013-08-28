@@ -209,11 +209,13 @@ public class DataTableComponent extends JTable implements TableControl
             return; 
         }
         
-        if (this.dataProvider != null) 
+        AbstractListDataProvider oldDataProvider = this.dataProvider;
+        if (oldDataProvider != null) 
         { 
-            this.dataProvider.removeHandler(propertyHandler); 
-            this.dataProvider.removeHandler(tableModelHandler);
-            uninstall(this.dataProvider); 
+            oldDataProvider.removeHandler(propertyHandler); 
+            oldDataProvider.removeHandler(tableModelHandler);
+            oldDataProvider.setUIProvider(null); 
+            uninstall(oldDataProvider); 
         }
         
         this.dataProvider = dataProvider; 
@@ -235,6 +237,7 @@ public class DataTableComponent extends JTable implements TableControl
         if (dataProvider != null) 
         {
             dataProvider.addHandler(tableModelHandler); 
+            dataProvider.setUIProvider(new DefaultUIProvider());             
             install(dataProvider);
         } 
         
@@ -1767,7 +1770,7 @@ public class DataTableComponent extends JTable implements TableControl
     }
     
     // </editor-fold>
-
+        
     // <editor-fold defaultstate="collapsed" desc=" FocusGrabber "> 
     
     private class FocusGrabber implements Runnable {
@@ -1802,4 +1805,16 @@ public class DataTableComponent extends JTable implements TableControl
     
     // </editor-fold>
     
+    // <editor-fold defaultstate="collapsed" desc=" DefaultUIProvider ">  
+    
+    private class DefaultUIProvider implements AbstractListDataProvider.UIProvider 
+    {
+        DataTableComponent root = DataTableComponent.this; 
+        
+        public Object getBinding() { 
+            return root.getBinding(); 
+        }         
+    }
+    
+    // </editor-fold>
 }

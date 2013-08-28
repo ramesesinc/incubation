@@ -53,8 +53,8 @@ public abstract class ScrollListModel extends AbstractListDataProvider implement
         ListItemStatus stat = super.createListItemStatus(oListItem); 
         stat.setPageIndex(pageIndex); 
         stat.setPageCount(maxPageCount);
-        stat.setRecordCount(maxRecordCount);
         stat.setIsLastPage(isLastPage()); 
+        stat.setHasNextPage(fetchedRows > preferredRows); 
         return stat;
     }    
     

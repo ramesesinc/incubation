@@ -11,6 +11,7 @@ public abstract class PageListModel extends AbstractListDataProvider implements 
     private int fetchedRows;
     private int preferredRows;
     private int totalMaxRows;
+    private int totalRowCount;
     private int pageIndex = 1;
     private int pageCount = 1;    
     private String searchtext;
@@ -22,8 +23,9 @@ public abstract class PageListModel extends AbstractListDataProvider implements 
         ListItemStatus stat = super.createListItemStatus(oListItem); 
         stat.setPageIndex(pageIndex); 
         stat.setPageCount(pageCount);
-        stat.setRecordCount(totalMaxRows);
+        stat.setTotalRows(totalRowCount); 
         stat.setIsLastPage(isLastPage()); 
+        stat.setHasNextPage(fetchedRows > preferredRows); 
         return stat;
     }      
     
@@ -31,6 +33,7 @@ public abstract class PageListModel extends AbstractListDataProvider implements 
         fetchedRows = 0;
         preferredRows = 0;
         totalMaxRows = 0;
+        totalRowCount = 0;
         pageIndex = 1;
         pageCount = 1;
     }
@@ -83,6 +86,11 @@ public abstract class PageListModel extends AbstractListDataProvider implements 
             setDataList(dataList); 
         }
 
+        if (pageIndex >= pageCount) {
+            int nrows = Math.max(pageCount-1, 0) * preferredRows;
+            totalRowCount = nrows + dataList.size(); 
+        }
+        
         totalMaxRows = Math.max(totalMaxRows, (pageIndex*getRows())+Math.min(fetchedRows, preferredRows));
         
         fillListItems(dataList, 0);         

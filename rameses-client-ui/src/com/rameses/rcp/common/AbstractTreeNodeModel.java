@@ -23,7 +23,7 @@ public abstract class AbstractTreeNodeModel
     public Node getRootNode() {
         return new Node("root", "All");
     }
-    
+        
     public Node getSelectedNode() {
         return (provider == null? null: provider.getSelectedNode());
     } 
@@ -53,8 +53,13 @@ public abstract class AbstractTreeNodeModel
         return (provider == null? new ArrayList(): provider.children()); 
     }
     
+    public final Object getBinding() {
+        return (provider == null? null: provider.getBinding()); 
+    }
+    
     public static interface Provider 
     {
+        Object getBinding(); 
         Node getSelectedNode(); 
         
         Node findNode(NodeFilter filter);        

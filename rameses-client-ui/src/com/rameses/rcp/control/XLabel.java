@@ -291,24 +291,25 @@ public class XLabel extends JLabel implements UIOutput, ActiveControl
     {
         try 
         {
-            String expr = getVisibleWhen();
-            if ( !ValueUtil.isEmpty(expr) ) 
-            {
-                boolean result = UIControlUtil.evaluateExprBoolean(binding.getBean(), expr);
+            String name = getName();
+            boolean hasName = (name != null && name.length() > 0); 
+            
+            Object beanValue = null;             
+            if (hasName) beanValue = UIControlUtil.getBeanValue(getBinding(), name); 
+
+            Object exprBean = createExpressionBean(beanValue);             
+            String exprWhen = getVisibleWhen();
+            if (exprWhen != null && exprWhen.length() > 0) {
+                boolean result = UIControlUtil.evaluateExprBoolean(exprBean, exprWhen);
                 setVisible(result); 
                 if (!result) return;
             }
-            
-            Object beanValue = null; 
-            boolean hasName = !ValueUtil.isEmpty(getName());
-            if (hasName) beanValue = UIControlUtil.getBeanValue(this);
-            
-            Object value = null;
-            if (!ValueUtil.isEmpty(expression)) {
-                Object exprBean = binding.getBean(); 
-                Object userObj = getClientProperty(UIControl.KEY_USER_OBJECT); 
-                value = UIControlUtil.evaluateExpr(createExpressionBean(userObj), expression);
-            } else if ( hasName ) {
+
+            Object value = null;            
+            String exprStr = getExpression(); 
+            if (exprStr != null && exprStr.length() > 0) {
+                value = UIControlUtil.evaluateExpr(exprBean, exprStr);
+            } else if (hasName) {
                 value = beanValue;
                 if (beanValue != null && format != null)
                     value = format.format(beanValue);

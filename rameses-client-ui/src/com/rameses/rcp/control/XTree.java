@@ -669,6 +669,10 @@ public class XTree extends JTree implements UIControl
     {
         XTree root = XTree.this; 
         
+        public Object getBinding() { 
+            return root.getBinding(); 
+        } 
+        
         public Node getSelectedNode() 
         {
             DefaultNode defNode = root.getSelectedNode(); 

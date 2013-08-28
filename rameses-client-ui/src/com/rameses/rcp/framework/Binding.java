@@ -285,7 +285,7 @@ public class Binding
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc="  control update/refresh  "> 
-    
+
     public void notifyDepends( final UIControl u ) {
         notifyDepends(u, u.getName()); 
     }
@@ -311,8 +311,36 @@ public class Binding
             EventQueue.invokeLater(process);
         else 
             process.run(); 
-    }
+    } 
     
+    public void notifyDepends( String name ) {
+        if (name == null || name.length() == 0) return;
+        
+        Set<UIControl> refreshed = new HashSet();
+        if (depends.containsKey(name)) {
+            for (UIControl uic : depends.get(name)) {
+                _doRefresh(uic, refreshed);
+            }
+        }
+        refreshed.clear();
+        refreshed = null;        
+        
+        //find which control 
+        UIControl selUI = null; 
+        for (UIControl uic: controls) {
+            if (name.equals(uic.getName())) {
+                selUI = uic;
+                break; 
+            } 
+        } 
+        
+        if (selUI != null) {
+            for (BindingListener bl : listeners) {
+                bl.notifyDepends(selUI, this);
+            }
+        }
+    } 
+        
     private void doNotifyDepends( UIControl u, String name ) 
     {
         Set<UIControl> refreshed = new HashSet();
