@@ -45,6 +45,8 @@ public class InboxPage extends javax.swing.JPanel {
         navBar = new com.rameses.rcp.control.XActionBar();
         jPanel3 = new javax.swing.JPanel();
         xLabel1 = new com.rameses.rcp.control.XLabel();
+        jPanel4 = new javax.swing.JPanel();
+        xLabel2 = new com.rameses.rcp.control.XLabel();
 
         setLayout(new java.awt.BorderLayout());
 
@@ -100,7 +102,7 @@ public class InboxPage extends javax.swing.JPanel {
 
         pnlBody.setBorder(javax.swing.BorderFactory.createEmptyBorder(2, 2, 2, 2));
 
-        xSplitView1.setDividerLocation(200);
+        xSplitView1.setDividerLocation(250);
         jScrollPane1.setName("leftview");
         xTree2.setHandler("nodeModel");
         xTree2.setName("selectedNode");
@@ -111,13 +113,17 @@ public class InboxPage extends javax.swing.JPanel {
         jPanel1.setLayout(new java.awt.BorderLayout());
 
         jPanel1.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        lblTitle1.setBackground(new java.awt.Color(255, 255, 255));
-        lblTitle1.setBorder(new com.rameses.rcp.control.border.XEtchedBorder());
-        lblTitle1.setDepends(new String[] {"selectedNode"});
+        lblTitle1.setBackground(new java.awt.Color(160, 160, 160));
+        com.rameses.rcp.control.border.XEtchedBorder xEtchedBorder2 = new com.rameses.rcp.control.border.XEtchedBorder();
+        xEtchedBorder2.setHideRight(true);
+        lblTitle1.setBorder(xEtchedBorder2);
+        lblTitle1.setForeground(new java.awt.Color(255, 255, 255));
         lblTitle1.setExpression("#{listTitle}");
-        lblTitle1.setFontStyle("font-size:16; font-weight:bold;");
+        lblTitle1.setFontStyle("font-size:14; font-weight:bold;");
+        lblTitle1.setName("selectedOpenNode");
         lblTitle1.setOpaque(true);
         lblTitle1.setPadding(new java.awt.Insets(2, 7, 2, 5));
+        lblTitle1.setVisibleWhen("#{selectedOpenNode != null}");
         jPanel1.add(lblTitle1, java.awt.BorderLayout.NORTH);
 
         xDataTable1.setHandler("listHandler");
@@ -126,19 +132,29 @@ public class InboxPage extends javax.swing.JPanel {
         xDataTable1.setVarStatus("itemStat");
         jPanel1.add(xDataTable1, java.awt.BorderLayout.CENTER);
 
-        navBar.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 5, 0, 50));
+        navBar.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 5, 0, 25));
         navBar.setName("navActions");
         xHorizontalPanel2.add(navBar);
 
         jPanel3.setLayout(new java.awt.BorderLayout());
 
-        jPanel3.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 10, 0, 0));
+        jPanel3.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 5, 0, 10));
         xLabel1.setDepends(new String[] {"selectedEntity"});
-        xLabel1.setExpression("#{footerInfo}");
+        xLabel1.setExpression("#{recordCountInfo}");
         xLabel1.setUseHtml(true);
         jPanel3.add(xLabel1, java.awt.BorderLayout.CENTER);
 
         xHorizontalPanel2.add(jPanel3);
+
+        jPanel4.setLayout(new java.awt.BorderLayout());
+
+        jPanel4.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 5, 0, 10));
+        xLabel2.setDepends(new String[] {"selectedEntity"});
+        xLabel2.setExpression("#{pageCountInfo}");
+        xLabel2.setUseHtml(true);
+        jPanel4.add(xLabel2, java.awt.BorderLayout.CENTER);
+
+        xHorizontalPanel2.add(jPanel4);
 
         jPanel1.add(xHorizontalPanel2, java.awt.BorderLayout.SOUTH);
 
@@ -155,6 +171,7 @@ public class InboxPage extends javax.swing.JPanel {
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel4;
     private javax.swing.JScrollPane jScrollPane1;
     private com.rameses.rcp.control.XLabel lblTitle;
     private com.rameses.rcp.control.XLabel lblTitle1;
@@ -167,6 +184,7 @@ public class InboxPage extends javax.swing.JPanel {
     private com.rameses.rcp.control.XHorizontalPanel xHorizontalPanel1;
     private com.rameses.rcp.control.XHorizontalPanel xHorizontalPanel2;
     private com.rameses.rcp.control.XLabel xLabel1;
+    private com.rameses.rcp.control.XLabel xLabel2;
     private com.rameses.rcp.control.XSplitView xSplitView1;
     private com.rameses.rcp.control.XSubFormPanel xSubFormPanel1;
     private com.rameses.rcp.control.XTree xTree2;

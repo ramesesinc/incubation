@@ -147,7 +147,7 @@
       <SubComponents>
         <Container class="com.rameses.rcp.control.XSplitView" name="xSplitView1">
           <Properties>
-            <Property name="dividerLocation" type="int" value="200"/>
+            <Property name="dividerLocation" type="int" value="250"/>
           </Properties>
           <Constraints>
             <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
@@ -187,22 +187,24 @@
                 <Component class="com.rameses.rcp.control.XLabel" name="lblTitle1">
                   <Properties>
                     <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-                      <Color blue="ff" green="ff" red="ff" type="rgb"/>
+                      <Color blue="a0" green="a0" red="a0" type="rgb"/>
                     </Property>
                     <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-                        <PropertyBean type="com.rameses.rcp.control.border.XEtchedBorder"/>
+                      <PropertyBean type="com.rameses.rcp.control.border.XEtchedBorder">
+                        <Property name="hideRight" type="boolean" value="true"/>
+                      </PropertyBean>
                     </Property>
-                    <Property name="depends" type="[Ljava.lang.String;" editor="org.netbeans.beaninfo.editors.StringArrayEditor">
-                      <StringArray count="1">
-                        <StringItem index="0" value="selectedNode"/>
-                      </StringArray>
+                    <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+                      <Color blue="ff" green="ff" red="ff" type="rgb"/>
                     </Property>
                     <Property name="expression" type="java.lang.String" value="#{listTitle}"/>
-                    <Property name="fontStyle" type="java.lang.String" value="font-size:16; font-weight:bold;"/>
+                    <Property name="fontStyle" type="java.lang.String" value="font-size:14; font-weight:bold;"/>
+                    <Property name="name" type="java.lang.String" value="selectedOpenNode"/>
                     <Property name="opaque" type="boolean" value="true"/>
                     <Property name="padding" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
                       <Insets value="[2, 7, 2, 5]"/>
                     </Property>
+                    <Property name="visibleWhen" type="java.lang.String" value="#{selectedOpenNode != null}"/>
                   </Properties>
                   <Constraints>
                     <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
@@ -234,7 +236,7 @@
                       <Properties>
                         <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
                           <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
-                            <EmptyBorder bottom="0" left="5" right="50" top="0"/>
+                            <EmptyBorder bottom="0" left="5" right="25" top="0"/>
                           </Border>
                         </Property>
                         <Property name="name" type="java.lang.String" value="navActions"/>
@@ -244,7 +246,7 @@
                       <Properties>
                         <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
                           <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
-                            <EmptyBorder bottom="0" left="10" right="0" top="0"/>
+                            <EmptyBorder bottom="0" left="5" right="10" top="0"/>
                           </Border>
                         </Property>
                       </Properties>
@@ -258,7 +260,36 @@
                                 <StringItem index="0" value="selectedEntity"/>
                               </StringArray>
                             </Property>
-                            <Property name="expression" type="java.lang.String" value="#{footerInfo}"/>
+                            <Property name="expression" type="java.lang.String" value="#{recordCountInfo}"/>
+                            <Property name="useHtml" type="boolean" value="true"/>
+                          </Properties>
+                          <Constraints>
+                            <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
+                              <BorderConstraints direction="Center"/>
+                            </Constraint>
+                          </Constraints>
+                        </Component>
+                      </SubComponents>
+                    </Container>
+                    <Container class="javax.swing.JPanel" name="jPanel4">
+                      <Properties>
+                        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+                          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+                            <EmptyBorder bottom="0" left="5" right="10" top="0"/>
+                          </Border>
+                        </Property>
+                      </Properties>
+
+                      <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout"/>
+                      <SubComponents>
+                        <Component class="com.rameses.rcp.control.XLabel" name="xLabel2">
+                          <Properties>
+                            <Property name="depends" type="[Ljava.lang.String;" editor="org.netbeans.beaninfo.editors.StringArrayEditor">
+                              <StringArray count="1">
+                                <StringItem index="0" value="selectedEntity"/>
+                              </StringArray>
+                            </Property>
+                            <Property name="expression" type="java.lang.String" value="#{pageCountInfo}"/>
                             <Property name="useHtml" type="boolean" value="true"/>
                           </Properties>
                           <Constraints>

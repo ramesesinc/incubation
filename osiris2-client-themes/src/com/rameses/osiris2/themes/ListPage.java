@@ -34,7 +34,12 @@ public class ListPage extends javax.swing.JPanel {
         xActionBar2 = new com.rameses.rcp.control.XActionBar();
         pnlBody = new javax.swing.JPanel();
         xDataTable1 = new com.rameses.rcp.control.XDataTable();
-        navBar = new com.rameses.rcp.control.XActionBar();
+        xHorizontalPanel2 = new com.rameses.rcp.control.XHorizontalPanel();
+        navBar1 = new com.rameses.rcp.control.XActionBar();
+        jPanel3 = new javax.swing.JPanel();
+        xLabel1 = new com.rameses.rcp.control.XLabel();
+        jPanel4 = new javax.swing.JPanel();
+        xLabel2 = new com.rameses.rcp.control.XLabel();
 
         setLayout(new java.awt.BorderLayout());
 
@@ -86,21 +91,48 @@ public class ListPage extends javax.swing.JPanel {
 
         add(pnlBody, java.awt.BorderLayout.CENTER);
 
-        navBar.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 5, 0, 0));
-        navBar.setName("navActions");
-        add(navBar, java.awt.BorderLayout.SOUTH);
+        navBar1.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 5, 0, 25));
+        navBar1.setName("navActions");
+        xHorizontalPanel2.add(navBar1);
+
+        jPanel3.setLayout(new java.awt.BorderLayout());
+
+        jPanel3.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 5, 0, 10));
+        xLabel1.setDepends(new String[] {"selectedEntity"});
+        xLabel1.setExpression("#{recordCountInfo}");
+        xLabel1.setUseHtml(true);
+        jPanel3.add(xLabel1, java.awt.BorderLayout.CENTER);
+
+        xHorizontalPanel2.add(jPanel3);
+
+        jPanel4.setLayout(new java.awt.BorderLayout());
+
+        jPanel4.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 5, 0, 10));
+        xLabel2.setDepends(new String[] {"selectedEntity"});
+        xLabel2.setExpression("#{pageCountInfo}");
+        xLabel2.setUseHtml(true);
+        jPanel4.add(xLabel2, java.awt.BorderLayout.CENTER);
+
+        xHorizontalPanel2.add(jPanel4);
+
+        add(xHorizontalPanel2, java.awt.BorderLayout.SOUTH);
 
     }// </editor-fold>//GEN-END:initComponents
     
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel4;
     private com.rameses.rcp.control.XLabel lblTitle;
-    private com.rameses.rcp.control.XActionBar navBar;
+    private com.rameses.rcp.control.XActionBar navBar1;
     private javax.swing.JPanel pnlBody;
     private javax.swing.JPanel pnlHeader;
     private com.rameses.rcp.control.XActionBar xActionBar2;
     private com.rameses.rcp.control.XDataTable xDataTable1;
+    private com.rameses.rcp.control.XHorizontalPanel xHorizontalPanel2;
+    private com.rameses.rcp.control.XLabel xLabel1;
+    private com.rameses.rcp.control.XLabel xLabel2;
     private com.rameses.rcp.control.XSubFormPanel xSubFormPanel1;
     // End of variables declaration//GEN-END:variables
     
