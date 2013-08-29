@@ -44,10 +44,17 @@ public class DateParser {
             return currentDate; 
         } 
         else { 
-            String sval = text.replaceAll("\\s{2,}"," ").replaceAll(" ","-").replaceAll("/","-").trim();
+            String sval = text.trim().replaceAll("\\s{2,}"," ").replaceAll(" ","-").replaceAll("/","-");
             if (sval.matches("[\\d]{4,4}-[\\d]{1,2}-[\\d]{1,2}")) {
                 //year-month-day
                 return java.sql.Date.valueOf(sval); 
+            } else if (sval.matches("[\\d]{4,4}-[\\d]{1,2}")) {
+                //year-month
+                String[] arr = sval.split("-");
+                String syear = arr[0];
+                String smonth = fillLeadingZeros(arr[1], 2);
+                String sday = currentDate.toString().split("-")[2];
+                return java.sql.Date.valueOf(syear + "-" + smonth + "-" + sday);
             } else if (sval.matches("[\\d]{1,2}-[\\d]{1,2}-[\\d]{4,4}")) {
                 //month-day-year
                 String[] arr = sval.split("-");
