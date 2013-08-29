@@ -381,13 +381,32 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
     
     // <editor-fold defaultstate="collapsed" desc="  helper method  ">
     
+    private Component getClosestFormItemPanel(JComponent jc) {
+        if (jc == null) return null;
+        
+        Container con = jc.getParent();
+        while (true) {
+            if (con == null) break;
+            if (con instanceof FormItemPanel) return con; 
+
+            con = con.getParent(); 
+        }
+        return null; 
+    }
+    
     private void build() 
     {
         if ( ValueUtil.isEmpty(getName()) ) return;
         
         //remove only dynamic controls
         for (UIControl u: controls) { 
-            remove((Component) u);
+            JComponent jc = (JComponent)u;
+            Component c = getClosestFormItemPanel(jc);
+            if (c == null) { 
+                remove(jc); 
+            } else {
+                remove(c); 
+            } 
             u = null;
         }
         
@@ -1162,9 +1181,9 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
             Map props = new HashMap();
             if (data != null) props.putAll(data); 
 
-            String type = (String) data.remove("type");
-            String categoryid = (String) data.remove("categoryid");
-            init(type, props, categoryid);            
+            String type = (String) data.get("type");
+            String categoryid = (String) data.get("categoryid");
+            init(type, props, categoryid);      
         }
 
         Map getData() { return data; } 
