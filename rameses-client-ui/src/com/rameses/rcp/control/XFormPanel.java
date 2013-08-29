@@ -18,9 +18,11 @@ import com.rameses.rcp.ui.UIComposite;
 import com.rameses.rcp.ui.UIFocusableContainer;
 import com.rameses.rcp.ui.UIControl;
 import com.rameses.rcp.ui.UIInput;
+import com.rameses.rcp.ui.UILookup;
 import com.rameses.rcp.ui.Validatable;
 import com.rameses.rcp.util.ActionMessage;
 import com.rameses.rcp.util.UIControlUtil;
+import com.rameses.rcp.util.UIInputUtil;
 import com.rameses.util.ValueUtil;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -33,6 +35,7 @@ import java.awt.LayoutManager;
 import java.beans.Beans;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -49,6 +52,7 @@ import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
+import javax.swing.text.JTextComponent;
 
 
 /**
@@ -382,8 +386,7 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
         if ( ValueUtil.isEmpty(getName()) ) return;
         
         //remove only dynamic controls
-        for (UIControl u: controls) 
-        {
+        for (UIControl u: controls) { 
             remove((Component) u);
             u = null;
         }
@@ -393,12 +396,19 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
         boolean htmlView = HTML_VIEW.equals(viewType);
         
         List<FormControl> list = getFormControls();
-        FormControlUtil fcUtil = FormControlUtil.getInstance();
-        for (FormControl fc: list) 
-        {
+        FormControlUtil fcUtil = FormControlUtil.getInstance(); 
+        EditorInputSupport inputSupport = new EditorInputSupport();
+        
+        for (FormControl fc: list) {
             UIControl uic = fcUtil.getControl(fc);
-            if ( uic == null ) continue;
+            if (uic == null) continue;
             
+            if (fc instanceof FormControlMap) {
+                FormControlMap fcm = (FormControlMap) fc; 
+                uic.putClientProperty("UIControl.userObject", fcm.getData()); 
+            } 
+            
+            uic.putClientProperty(UIInputUtil.Support.class, inputSupport); 
             uic.setBinding(binding);
             uic.load();
             
@@ -612,42 +622,48 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
     
     private List getFormControls() 
     {
-        List list = new ArrayList();
-        
         Object value = null;
         try {
             value = UIControlUtil.getBeanValue(this);
-        } catch(Exception e) {;}
+        } catch(Throwable t) {;}
+
+        FormPanelModel formModel = null;
+        if (value instanceof FormPanelModel) { 
+            formModel = (FormPanelModel) value;
+        } else {
+            DefaultFormPanelModel dpm = new DefaultFormPanelModel();  
+            dpm.setValue(value); 
+            formModel = dpm;
+        }
         
-        if (value instanceof FormPanelModel) 
-        {
-            if ( model != null ) 
-            {
-                model.setListener(null);
-                model = null;
-            }
-            
-            model = (FormPanelModel) value;
-            if ( defaultListener == null ) defaultListener = new ModelListener();
-            
-            model.setListener(defaultListener);
-            value = model.getFormControls();
-            if (value == null) value = model.getControlList();
-        } 
+        if (defaultListener == null) 
+            defaultListener = new ModelListener(); 
         
+        value = formModel.getFormControls();
+        if (value == null) value = formModel.getControlList();
+        
+        List list = new ArrayList();        
         if (value == null) {
             //do nothing
-        }
-        else if (value.getClass().isArray()) {
+        } else if (value.getClass().isArray()) {
             for (Object o: (Object[]) value) {
                 if (o != null) list.add(toFormControl(o));
             }
-        } 
-        else if (value instanceof Collection) {
+        } else if (value instanceof Collection) {
             for (Object o: (Collection) value) {
                 if (o != null) list.add(toFormControl(o));
             }
-        }        
+        } 
+        
+        FormPanelModel oldModel = this.model;
+        if (oldModel != null) {
+            oldModel.setListener(null);
+            oldModel.setProvider(null);
+        } 
+
+        formModel.setListener(defaultListener);
+        formModel.setProvider(new ModelProviderSupport()); 
+        this.model = formModel; 
         return list;
     }
     
@@ -655,14 +671,14 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
         if (value instanceof FormControl) 
             return (FormControl) value;
         else if (value instanceof Map) 
-            return new FormControl((Map) value);
+            return new FormControlMap((Map) value);
 
         throw new IllegalStateException("The form controls must be an instance of FormControl or Map"); 
     }
     
     // </editor-fold>
     
-    // <editor-fold defaultstate="collapsed" desc="  Getters/Setters  ">
+    // <editor-fold defaultstate="collapsed" desc=" Getters/Setters ">
     
     public ControlProperty getControlProperty() {
         return property;
@@ -1106,4 +1122,131 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
     
     // </editor-fold>
 
+    // <editor-fold defaultstate="collapsed" desc=" DefaultFormPanelModel (class) ">
+    
+    private class DefaultFormPanelModel extends FormPanelModel {
+        
+        XFormPanel root = XFormPanel.this;
+        private List<FormControl> controls = new ArrayList();
+                       
+        void setValue(Object value) { 
+            controls.clear(); 
+            if (value == null) {
+                //do nothing
+            } else if (value.getClass().isArray()) {
+                for (Object o: (Object[]) value) {
+                    if (o != null) controls.add(root.toFormControl(o));
+                }
+            } else if (value instanceof Collection) {
+                for (Object o: (Collection) value) {
+                    if (o != null) controls.add(root.toFormControl(o));
+                }
+            }            
+        }
+
+        public Object getFormControls() { return controls; }
+        
+    }
+    
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" FormControlMap (class) ">    
+
+    private class FormControlMap extends FormControl 
+    {
+        private Map data;
+
+        FormControlMap(Map data) {
+            this.data = data; 
+
+            Map props = new HashMap();
+            if (data != null) props.putAll(data); 
+
+            String type = (String) data.remove("type");
+            String categoryid = (String) data.remove("categoryid");
+            init(type, props, categoryid);            
+        }
+
+        Map getData() { return data; } 
+    } 
+
+    // </editor-fold>     
+    
+    // <editor-fold defaultstate="collapsed" desc=" EditorInputSupport (class) ">
+    
+    private class EditorInputSupport implements UIInputUtil.Support 
+    {       
+        XFormPanel root = XFormPanel.this;
+        PropertyResolver propertyResolver = PropertyResolver.getInstance();
+        
+        public void setValue(String name, Object value) {
+            setValue(name, value, null); 
+        } 
+        
+        public void setValue(String name, Object value, JComponent jcomp) {
+            if (root.model == null) {
+                System.out.println("[WARN] No available FormPanelModel attached"); 
+                return; 
+            }
+            
+            UIControl uic = null;
+            if (jcomp instanceof UIInput) 
+                uic = (UIControl)jcomp;
+            else if (jcomp instanceof UILookup) 
+                uic = (UIControl)jcomp;
+            else { 
+                System.out.println("[WARN] EditorInputSupport does not support this type of component"); 
+                return;
+            }
+            
+            Binding binding = uic.getBinding();
+            Object bean = binding.getBean();
+            Object userObj = uic.getClientProperty("UIControl.userObject"); 
+            try { propertyResolver.setProperty(userObj, "value", value); } catch(Throwable t){;}             
+            try { root.model.updateBean(name, value, userObj); } catch(Throwable t){;} 
+            
+            binding.getValueChangeSupport().notify(name, value);  
+            if (jcomp instanceof JTextComponent) 
+            {
+                JTextComponent jtxt = (JTextComponent) jcomp;
+                int oldCaretPos = jtxt.getCaretPosition(); 
+
+                try { 
+                    uic.refresh(); 
+                } catch(RuntimeException re) {
+                    throw re; 
+                } catch(Exception e) {
+                    throw new RuntimeException(e.getMessage(), e); 
+                } finally {
+                    try {
+                        jtxt.setCaretPosition(oldCaretPos); 
+                    } catch(Exception ign) {;} 
+                }
+
+                jtxt.putClientProperty("CaretPosition", oldCaretPos); 
+            }
+
+            binding.notifyDepends(uic);            
+        } 
+    }
+    
+    // </editor-fold>    
+    
+    // <editor-fold defaultstate="collapsed" desc=" ModelProviderSupport (class) ">
+    
+    private class ModelProviderSupport implements FormPanelModel.Provider 
+    {
+        XFormPanel root = XFormPanel.this; 
+        
+        public Object getBinding() {
+            return root.getBinding(); 
+        }
+
+        public Object getBindingBean() {
+            Binding binding = root.getBinding(); 
+            return (binding == null? null: binding.getBean()); 
+        }        
+    } 
+    
+    // </editor-fold>
 }

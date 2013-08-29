@@ -43,6 +43,7 @@ public class XLabel extends JLabel implements UIOutput, ActiveControl
     private int index;    
     private boolean useHtml;
     
+    private Font sourceFont;
     private String fontStyle; 
     private Insets padding; 
     private Format format; 
@@ -228,6 +229,11 @@ public class XLabel extends JLabel implements UIOutput, ActiveControl
     public String getFontStyle() { return fontStyle; } 
     public void setFontStyle(String fontStyle) {
         this.fontStyle = fontStyle;
+        if (sourceFont == null) {
+            sourceFont = super.getFont();
+        } else {
+            super.setFont(sourceFont); 
+        } 
         new FontSupport().applyStyles(this, fontStyle);
     }
 
@@ -285,43 +291,38 @@ public class XLabel extends JLabel implements UIOutput, ActiveControl
     {
         try 
         {
-            String expr = getVisibleWhen();
-            if ( !ValueUtil.isEmpty(expr) ) 
-            {
-                boolean result = UIControlUtil.evaluateExprBoolean(binding.getBean(), expr);
+            String name = getName();
+            boolean hasName = (name != null && name.length() > 0); 
+            
+            Object beanValue = null;             
+            if (hasName) beanValue = UIControlUtil.getBeanValue(getBinding(), name); 
+
+            Object exprBean = createExpressionBean(beanValue);             
+            String exprWhen = getVisibleWhen();
+            if (exprWhen != null && exprWhen.length() > 0) {
+                boolean result = UIControlUtil.evaluateExprBoolean(exprBean, exprWhen);
                 setVisible(result); 
                 if (!result) return;
             }
-            
-            Object beanValue = null; 
-            boolean hasName = !ValueUtil.isEmpty(getName());
-            if (hasName) beanValue = UIControlUtil.getBeanValue(this);
-            
-            Object value = null;
-            if ( !ValueUtil.isEmpty(expression) )  
-            {
-                Object exprBean = binding.getBean(); 
-                if (getVarName() != null) exprBean = createExpressionBean(beanValue);
 
-                value = UIControlUtil.evaluateExpr(exprBean, expression);
-            }
-            else if ( hasName ) 
-            {
+            Object value = null;            
+            String exprStr = getExpression(); 
+            if (exprStr != null && exprStr.length() > 0) {
+                value = UIControlUtil.evaluateExpr(exprBean, exprStr);
+            } else if (hasName) {
                 value = beanValue;
                 if (beanValue != null && format != null)
                     value = format.format(beanValue);
-            } 
-            else { 
+            } else { 
                 value = super.getText();
             } 
             
             setTextValue((value == null? "": value.toString()));            
         } 
-        catch(Exception e) 
-        {
+        catch(Throwable e) { 
             setTextValue("");
             
-            if ( ClientContext.getCurrentContext().isDebugMode() ) e.printStackTrace();
+            if (ClientContext.getCurrentContext().isDebugMode()) e.printStackTrace();
         }
     }   
     

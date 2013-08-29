@@ -22,7 +22,9 @@ public class ListItemStatus
     private int pageIndex;
     private int pageCount;
     private int recordCount;
+    private int totalRows;
     private boolean isLastPage;
+    private boolean hasNextPage;
     
     public ListItemStatus(ListItem oListItem) 
     {
@@ -65,4 +67,12 @@ public class ListItemStatus
     public void setIsLastPage(boolean isLastPage) {
         this.isLastPage = isLastPage;
     }
+    
+    public boolean isHasNextPage() { return hasNextPage; } 
+    public void setHasNextPage(boolean hasNextPage) {
+        this.hasNextPage = hasNextPage; 
+    }
+    
+    public int getTotalRows() { return totalRows; } 
+    public void setTotalRows(int totalRows) { this.totalRows = totalRows; }
 }

@@ -72,7 +72,18 @@ public final class ColorUtil {
         if (text == null || text.trim().length() == 0) return null;
         
         String s = text.trim().toLowerCase();
-        if (s.startsWith("#")) return Color.decode(s); 
+        if (s.startsWith("#")) { 
+            if (s.length() <= 1) return null;
+            else if (s.length() == 7) return Color.decode(s); 
+            else if (s.length() == 4) return Color.decode("#" + s.substring(1) + s.substring(1)); 
+            else {
+                int rem = 7-s.substring(1).length(); 
+                StringBuffer sb = new StringBuffer(s); 
+                for (int i=0; i<rem; i++) sb.append("0");
+                
+                return Color.decode(sb.toString()); 
+            }
+        } 
 
         try { 
             if (s.startsWith("rgb(") && s.endsWith(")")) {
@@ -84,7 +95,7 @@ public final class ColorUtil {
                 return new Color(r, g, b); 
             } 
         } catch(Throwable t) {
-            //invalid rgb value
+            System.out.println("[WARN] invalid rgb value: " + s);
             return null; 
         } 
         

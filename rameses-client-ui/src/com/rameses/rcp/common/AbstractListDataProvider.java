@@ -41,6 +41,7 @@ public abstract class AbstractListDataProvider
     private Column[] columns;
     private List dataList;
     private int fetchedRows;
+    private int totalRows; 
     private boolean processing;
         
     private boolean multiSelect;
@@ -132,6 +133,7 @@ public abstract class AbstractListDataProvider
             fetchedRows = (dataList == null? 0: dataList.size()); 
         }
 
+        totalRows = fetchedRows; 
         fillListItems(dataList, 0); 
 
         if (selectedItem != null) setSelectedItem(selectedItem.getIndex());
@@ -330,10 +332,11 @@ public abstract class AbstractListDataProvider
     }
     
     private void loadImpl(int fetchModeOption) {
+        beforeLoad();          
         checkedItems.clear(); 
         fetchMode = fetchModeOption;  
         selectionSupport = null; 
-        beforeLoad();  
+        totalRows = 0; 
         fetchImpl(); 
         fireDataChanged();
         afterLoad(); 
@@ -468,10 +471,9 @@ public abstract class AbstractListDataProvider
         ListItemStatus stat = new ListItemStatus(oListItem); 
         stat.setPageIndex(1);
         stat.setPageCount(1);
-        stat.setIsLastPage(true);      
-        if (dataList != null) 
-            stat.setRecordCount(dataList.size());
-        
+        stat.setIsLastPage(true);  
+        stat.setHasNextPage(false); 
+        stat.setTotalRows(totalRows); 
         return stat; 
     } 
     
@@ -797,4 +799,24 @@ public abstract class AbstractListDataProvider
     }
     
     // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" UIProvider interface and proxy methods ">        
+
+    public static interface UIProvider {
+        Object getBinding(); 
+    } 
+    
+    
+    private UIProvider _uiprovider; 
+    
+    public void setUIProvider(UIProvider uiprovider) { 
+        this._uiprovider = uiprovider; 
+    }
+    
+    public final Object getBindingObject() {
+        return (_uiprovider == null? null: _uiprovider.getBinding()); 
+    }
+    
+    // </editor-fold>
+    
 }

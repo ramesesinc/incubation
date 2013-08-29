@@ -12,6 +12,7 @@ package com.rameses.rcp.control.text;
 import com.rameses.rcp.support.FontSupport;
 import com.rameses.rcp.support.ThemeUI;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.event.FocusEvent;
 import java.awt.event.KeyEvent;
 import java.beans.Beans;
@@ -31,6 +32,8 @@ public class DefaultTextField extends JTextField
     private Color enabledBackground;
     private String fontStyle; 
     private boolean readonly;
+    
+    private Font sourceFont; 
     
     public DefaultTextField() 
     {
@@ -77,6 +80,11 @@ public class DefaultTextField extends JTextField
     public String getFontStyle() { return fontStyle; } 
     public void setFontStyle(String fontStyle) {
         this.fontStyle = fontStyle;
+        if (sourceFont == null) {
+            sourceFont = super.getFont();
+        } else {
+            super.setFont(sourceFont); 
+        } 
         new FontSupport().applyStyles(this, fontStyle);
     }    
     

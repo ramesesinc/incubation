@@ -283,15 +283,12 @@ public class XFormulaEditor extends JTextPane implements UIInput
         public String getText() { 
             return root.getText(); 
         }
-
         public void setText(String text) 
         {
-            if (text == null) return;
-            
-            root.setText(text); 
+            root.setText((text == null? "": text)); 
             root.repaint();
         }
-
+        
         public void insertText(String text) 
         {
             if (text == null) return;

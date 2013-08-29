@@ -13,56 +13,7 @@ package com.rameses.rcp.common;
  *
  * @author wflores
  */
-public class TextDocumentModel 
+public class TextDocumentModel extends DocViewModel 
 {
-    private Provider provider;
-    
-    public TextDocumentModel() {
-    }
-    
-    public boolean hasProvider() { 
-        return (provider != null); 
-    }
-    
-    public void setProvider(Provider provider) {
-        this.provider = provider; 
-    }
-        
-    public String getText() { 
-        return provider.getText(); 
-    } 
-    
-    public void setText(String text) {
-        provider.setText(text); 
-    }
-    
-    public void insertText(String text) {
-        provider.insertText(text); 
-    }
 
-    public void requestFocus() { 
-        provider.requestFocus();
-    }
-    
-    public void load() { 
-        provider.load(); 
-    } 
-    
-    public void refresh() {
-        provider.refresh(); 
-    }
-    
-    
-    
-    public static interface Provider 
-    {
-        void insertText(String text); 
-        
-        String getText(); 
-        void setText(String text);
-                        
-        void load();
-        void refresh();
-        void requestFocus();        
-    }
 }

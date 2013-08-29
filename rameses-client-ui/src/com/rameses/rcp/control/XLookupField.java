@@ -23,7 +23,7 @@ import com.rameses.rcp.support.TextDocument;
 import com.rameses.rcp.support.TextEditorSupport;
 import com.rameses.rcp.ui.ActiveControl;
 import com.rameses.rcp.ui.ControlProperty;
-import com.rameses.rcp.ui.UIFocusableContainer;
+import com.rameses.rcp.ui.UILookup;
 import com.rameses.rcp.ui.UISelector;
 import com.rameses.rcp.ui.Validatable;
 import com.rameses.rcp.util.ActionMessage;
@@ -54,7 +54,7 @@ import javax.swing.event.AncestorListener;
  *
  * @author wflores
  */
-public class XLookupField extends IconedTextField implements UIFocusableContainer, UISelector, Validatable, ActiveControl, ActionListener, LookupSelector   
+public class XLookupField extends IconedTextField implements UILookup, UISelector, Validatable, ActiveControl, ActionListener, LookupSelector   
 {
     protected ControlProperty property = new ControlProperty();
     protected ActionMessage actionMessage = new ActionMessage();
@@ -219,7 +219,7 @@ public class XLookupField extends IconedTextField implements UIFocusableContaine
     
     // </editor-fold>
        
-    // <editor-fold defaultstate="collapsed" desc="  UIFocusableContainer implementation  ">
+    // <editor-fold defaultstate="collapsed" desc="  UILookup implementation  ">
     
     public boolean focusFirstInput() {
         requestFocusInWindow(); 
@@ -672,7 +672,7 @@ public class XLookupField extends IconedTextField implements UIFocusableContaine
             } 
             else {
                 //delegate the updating of the bean
-                delegate.setValue(name, value); 
+                delegate.setValue(name, value, XLookupField.this); 
             }
         }
         

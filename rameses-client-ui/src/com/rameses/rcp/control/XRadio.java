@@ -36,6 +36,7 @@ public class XRadio extends JRadioButton implements UIInput, ItemListener, Activ
     private boolean readonly;
     private int index;
     
+    private Font sourceFont;
     private Object optionValue;
     private ButtonGroup buttonGroup;
     private ControlProperty property = new ControlProperty();
@@ -211,6 +212,11 @@ public class XRadio extends JRadioButton implements UIInput, ItemListener, Activ
     public String getFontStyle() { return fontStyle; } 
     public void setFontStyle(String fontStyle) {
         this.fontStyle = fontStyle;
+        if (sourceFont == null) {
+            sourceFont = super.getFont();
+        } else {
+            super.setFont(sourceFont); 
+        } 
         new FontSupport().applyStyles(this, fontStyle);
     }      
     

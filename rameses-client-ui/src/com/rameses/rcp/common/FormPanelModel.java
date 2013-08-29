@@ -6,6 +6,7 @@
 
 package com.rameses.rcp.common;
 
+import com.rameses.common.PropertyResolver;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -13,16 +14,13 @@ import java.util.Set;
 /**
  *
  * @author jaycverg
+ * @modifiedby wflores
  */
 public class FormPanelModel {
     
     private Listener listener;
     
-    public FormPanelModel() {
-    }
-    
-    public Object getFormControls() { return null; }
-    
+    public Object getFormControls() { return null; }    
     public List<Map> getControlList() { return null; } 
     
     public void setProperty(String name, Object value) {
@@ -32,10 +30,10 @@ public class FormPanelModel {
     }
     
     public void setProperties(Map props) {
-        if( listener != null ) {
-            for(Map.Entry<String, Object> me : (Set<Map.Entry>) props.entrySet()) {
-                listener.onPropertyUpdated(me.getKey()+"", me.getValue());
-            }
+        if ( listener == null ) return;
+        
+        for(Map.Entry<String, Object> me : (Set<Map.Entry>) props.entrySet()) {
+            listener.onPropertyUpdated(me.getKey()+"", me.getValue());
         }
     }
     
@@ -44,16 +42,14 @@ public class FormPanelModel {
     public String getHtmlFormat() {
         if( listener != null ) {
             return listener.getHtmlFormat(false);
-        }
-        
+        }        
         return "";
     }
     
     public String getPartialHtmlFormat() {
         if( listener != null ) {
             return listener.getHtmlFormat(true);
-        }
-        
+        }        
         return "";
     }
     
@@ -67,11 +63,42 @@ public class FormPanelModel {
         this.listener = listener;
     }
     
-    public static interface Listener {
-        
-        void onPropertyUpdated(String name, Object value);
-        String getHtmlFormat(boolean partial);
-        void onReload();        
+    //This method can be overridden, if custom updating of value is necessary 
+    public void updateBean(String name, Object value, Object userObject) {
+        Object bean = (provider == null? null: provider.getBindingBean()); 
+        if (bean != null) { 
+            PropertyResolver.getInstance().setProperty(bean, name, value); 
+        }
+    } 
+    
+    public Object getBinding() {
+        return (provider == null? null: provider.getBinding()); 
     }
     
+        
+    // <editor-fold defaultstate="collapsed" desc=" Listener interface ">
+    
+    public static interface Listener {
+        String getHtmlFormat(boolean partial);         
+        void onPropertyUpdated(String name, Object value);
+        void onReload(); 
+    }  
+    
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" Provider interface and its helper methods ">
+
+    private FormPanelModel.Provider provider; 
+
+    public final void setProvider(FormPanelModel.Provider provider) {
+        this.provider = provider; 
+    } 
+    
+    
+    public static interface Provider {
+        Object getBinding(); 
+        Object getBindingBean(); 
+    }  
+    
+    // </editor-fold>    
 }

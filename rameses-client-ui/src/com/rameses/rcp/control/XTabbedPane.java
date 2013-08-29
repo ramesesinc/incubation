@@ -7,7 +7,7 @@
 
 package Templates.Classes;
 
-import com.rameses.rcp.common.Opener;
+import com.rameses.rcp.common.Opener; 
 import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.control.XSubFormPanel;
 import com.rameses.rcp.control.tabbedpane.LoadingPanel;

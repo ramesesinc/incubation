@@ -40,6 +40,14 @@ public class UIControlUtil
     }
     
     public static Object getBeanValue(UIControl control, String property) {
+        Binding binding = control.getBinding();         
+        Object userObj = control.getClientProperty(UIControl.KEY_USER_OBJECT);
+        try {
+            if (userObj != null) {
+                return PropertyResolver.getInstance().getProperty(userObj, "value"); 
+            }
+        } catch(Throwable t){;} 
+
         return getBeanValue(control.getBinding(), property); 
     } 
     
@@ -47,9 +55,8 @@ public class UIControlUtil
         return getBeanValue(binding.getBean(), property); 
     } 
     
-    public static Object getBeanValue(Object bean, String property) 
-    {
-        if (property == null || property.length() == 0) return null;
+    public static Object getBeanValue(Object bean, String property) {
+        if (bean == null || property == null || property.length() == 0) return null;
         
         PropertyResolver resolver = PropertyResolver.getInstance();
         try { 
