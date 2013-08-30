@@ -9,6 +9,7 @@
 
 package com.rameses.osiris3.custom;
 
+import com.rameses.osiris3.activedb.ActiveDBTransactionManager;
 import com.rameses.osiris3.data.ConnectionTransactionManager;
 import com.rameses.osiris3.core.MainContext;
 import com.rameses.osiris3.core.OsirisServer;
@@ -34,7 +35,8 @@ public class CustomTransactionManagerProvider implements TransactionManagerProvi
     public TransactionManager[] getManagers() {
         return new TransactionManager[]{
             new ScriptTransactionManager(context),
-            new ConnectionTransactionManager(server)
+            new ConnectionTransactionManager(server),
+            new ActiveDBTransactionManager(context)
         };
     }
     
