@@ -75,10 +75,10 @@ public abstract class ActiveCrudService {
     public Object open(Object data) {
         beforeOpen(data);
         if(getSubSchemaName()!=null) {
-            data = getObj().invokeMethod("open",new Object[]{data, getSubSchemaName()});    
+            data = getObj().invokeMethod("read",new Object[]{data, getSubSchemaName()});    
         }
         else {
-            data = getObj().invokeMethod("open",new Object[]{data});    
+            data = getObj().invokeMethod("read",new Object[]{data});    
         }
         afterOpen(data);
         if(data==null || ((Map)data).isEmpty() ) {
