@@ -72,7 +72,7 @@ public class ActiveDBInvoker {
                 }
                 return sq.getResultList();
             }
-            else if(methodName.startsWith("findAll")) {
+            else if(methodName.startsWith("find")) {
                 SqlQuery sq = em.getSqlContext().createNamedQuery( n+":"+methodName );    
                 if(m!=null) {
                     sq.setVars(m).setParameters(m);
