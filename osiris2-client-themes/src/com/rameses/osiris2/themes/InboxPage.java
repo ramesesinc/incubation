@@ -32,7 +32,6 @@ public class InboxPage extends javax.swing.JPanel {
         lblTitle = new com.rameses.rcp.control.XLabel();
         xHorizontalPanel1 = new com.rameses.rcp.control.XHorizontalPanel();
         xSubFormPanel1 = new com.rameses.rcp.control.XSubFormPanel();
-        xActionBar1 = new com.rameses.rcp.control.XActionBar();
         xActionBar2 = new com.rameses.rcp.control.XActionBar();
         pnlBody = new javax.swing.JPanel();
         xSplitView1 = new com.rameses.rcp.control.XSplitView();
@@ -81,11 +80,6 @@ public class InboxPage extends javax.swing.JPanel {
             .add(0, 0, Short.MAX_VALUE)
         );
         xHorizontalPanel1.add(xSubFormPanel1);
-
-        xActionBar1.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        xActionBar1.setDepends(new String[] {"selectedEntity"});
-        xActionBar1.setName("defaultFormActions");
-        xHorizontalPanel1.add(xActionBar1);
 
         xActionBar2.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         xActionBar2.setDepends(new String[] {"selectedEntity"});
@@ -178,7 +172,6 @@ public class InboxPage extends javax.swing.JPanel {
     private com.rameses.rcp.control.XActionBar navBar;
     private javax.swing.JPanel pnlBody;
     private javax.swing.JPanel pnlHeader;
-    private com.rameses.rcp.control.XActionBar xActionBar1;
     private com.rameses.rcp.control.XActionBar xActionBar2;
     private com.rameses.rcp.control.XDataTable xDataTable1;
     private com.rameses.rcp.control.XHorizontalPanel xHorizontalPanel1;
