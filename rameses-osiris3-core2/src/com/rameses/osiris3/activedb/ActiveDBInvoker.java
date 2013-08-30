@@ -35,7 +35,9 @@ public class ActiveDBInvoker {
             
             Map m = null;
             if( args!=null ) {
-                m = (Map)args[0];    
+                if( args.length > 0 ) {
+                    m = (Map)args[0];        
+                }
                 //used for subschema for entity managers. 
                 if(args.length>1) {
                     subSchema = ":"+args[1];
