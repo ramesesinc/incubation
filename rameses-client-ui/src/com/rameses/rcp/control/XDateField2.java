@@ -100,8 +100,9 @@ public class XDateField2 extends AbstractDateField implements UIInput, ActiveCon
         try 
         {
             updateBackground(); 
+            reloadDocument();
             
-            Object value = UIControlUtil.getBeanValue(this);
+            Object value = UIControlUtil.getBeanValue(this);            
             setValue(value); 
         } 
         catch(Exception e) 

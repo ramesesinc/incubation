@@ -15,6 +15,7 @@ import java.awt.event.ActionListener;
 import java.beans.Beans;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.PlainDocument;
@@ -27,6 +28,9 @@ public abstract class AbstractDateField extends DefaultTextField
 {
     private IDateDocument document;
     private String outputFormat;
+    private String inputFormat;
+    private String valueFormat;
+    private String inputMask;
     
     protected final void initDefaults() 
     {
@@ -49,6 +53,21 @@ public abstract class AbstractDateField extends DefaultTextField
         this.outputFormat = outputFormat; 
     }
     
+    public String getInputFormat() { return inputFormat; } 
+    public void setInputFormat(String inputFormat) {
+        this.inputFormat = inputFormat; 
+    }   
+    
+    public String getValueFormat() { return valueFormat; } 
+    public void setValueFormat(String valueFormat) {
+        this.valueFormat = valueFormat; 
+    } 
+    
+    public String getInputMask() { return inputMask; } 
+    public void setInputMask(String inputMask) {
+        this.inputMask = inputMask; 
+    }
+    
     public Object getValue() {
         return (document == null? null: document.getValue()); 
     }
@@ -64,6 +83,14 @@ public abstract class AbstractDateField extends DefaultTextField
     
     // <editor-fold defaultstate="collapsed" desc=" helper and supporting methods "> 
     
+    protected void reloadDocument() {
+        String mask = getInputMask();
+        if (mask == null || mask.length() == 0) 
+            setDocumentImpl(new BasicDateDocument()); 
+        else 
+            setDocumentImpl(new MaskDateDocument(mask)); 
+    } 
+    
     private void setDocumentImpl(Document document) {
         super.setDocument(document); 
         if (document instanceof IDateDocument) {
@@ -75,7 +102,6 @@ public abstract class AbstractDateField extends DefaultTextField
     
     private void actionPerformedImpl(ActionEvent e) {         
         transferFocus(); 
-        if (document != null) document.showFormattedValue(); 
     }
     
     // </editor-fold>
@@ -85,7 +111,6 @@ public abstract class AbstractDateField extends DefaultTextField
     private interface IDateDocument {
         Object getValue(); 
         void setValue(Object value); 
-        void showFormattedValue(); 
     }
     
     // </editor-fold>
@@ -96,6 +121,7 @@ public abstract class AbstractDateField extends DefaultTextField
     {        
         AbstractDateField root = AbstractDateField.this; 
         private SimpleDateFormat outputFormatter; 
+        private SimpleDateFormat valueFormatter;
         private boolean dirty;
 
         public Object getValue() { 
@@ -105,7 +131,7 @@ public abstract class AbstractDateField extends DefaultTextField
             Date dt = new DateParser().parse(sval); 
             if (dt == null) return null; 
             
-            return getOutputFormatter().format(dt); 
+            return getValueFormatter().format(dt); 
         } 
 
         public void setValue(Object value) {
@@ -128,10 +154,6 @@ public abstract class AbstractDateField extends DefaultTextField
                 dirty = false; 
             }
         }    
-
-        public void showFormattedValue() { 
-
-        }
         
         private String getText() {
             try {
@@ -151,7 +173,206 @@ public abstract class AbstractDateField extends DefaultTextField
             } 
             return outputFormatter; 
         } 
+        
+        private SimpleDateFormat getValueFormatter() {
+            if (valueFormatter == null) {
+                String format = root.getValueFormat();
+                if (format == null || format.length() == 0) format = "yyyy-MM-dd"; 
+                
+                valueFormatter = new SimpleDateFormat(format); 
+            } 
+            return valueFormatter; 
+        }         
     }
+    
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" MaskDateDocument class ">
+    
+    private class MaskDateDocument extends PlainDocument implements IDateDocument  
+    {        
+        AbstractDateField root = AbstractDateField.this; 
+        private SimpleDateFormat valueFormatter;
+        private MaskChar[] maskDefs;
+        private MaskChar[] masks;
+
+        MaskDateDocument(String mask) {
+            char[] chars = mask.toCharArray();
+            masks = new MaskChar[chars.length];
+            for (int i=0; i<chars.length; i++) {
+                masks[i] = getWhichMaskChar(chars[i]); 
+            }
+        }
+        
+        public Object getValue() { 
+            char[] chars = new char[masks.length];
+            for (int i=0; i<chars.length; i++) {
+                chars[i] = masks[i].getValue(); 
+            } 
+            try {
+                String sval = new String(chars);
+                java.sql.Date.valueOf(sval); 
+                return sval; 
+            } catch(Throwable t) {
+                return null; 
+            }
+        } 
+
+        public void setValue(Object value) {
+            char[] chars = (value == null? new char[]{}: value.toString().toCharArray()); 
+            for (MaskChar mc: masks) mc.reset();            
+            for (int i=0; i<chars.length; i++) {
+                if (i >= masks.length) break; 
+                
+                masks[i].setValue(chars[i]); 
+            }
+            
+            chars = getMaskValues(); 
+            try {
+                super.remove(0, getLength());
+                super.insertString(0, new String(chars), null); 
+            } catch (BadLocationException ex) {
+                throw new RuntimeException(ex.getMessage(), ex);
+            }            
+        } 
+        
+        private MaskChar getWhichMaskChar(char ch) {
+            if (maskDefs == null) {
+                maskDefs = new MaskChar[]{
+                    new PatternMaskChar(), 
+                    new LiteralMaskChar()                     
+                };
+            }
+            
+            for (MaskChar mc: maskDefs) {
+                if (mc.accept(ch)) 
+                    return mc.createMaskChar(ch); 
+            }
+            return null; 
+        }
+        
+        private char[] getMaskValues() {
+            char[] chars = new char[masks.length];
+            for (int i=0; i<chars.length; i++) {
+                chars[i] = masks[i].getValue(); 
+                if (chars[i] == '\u0000') chars[i] = '_';
+            }
+            return chars;
+        }
+        
+        private String getText() {
+            try {
+                return new StringBuffer(getText(0, getLength())).toString();
+            } catch (BadLocationException ex) {
+                ex.printStackTrace(); 
+                return null; 
+            }
+        }
+        
+        private SimpleDateFormat getValueFormatter() {
+            if (valueFormatter == null) {
+                String format = root.getValueFormat();
+                if (format == null || format.length() == 0) format = "yyyy-MM-dd"; 
+                
+                valueFormatter = new SimpleDateFormat(format); 
+            } 
+            return valueFormatter; 
+        }     
+
+        public void insertString(int offs, String str, AttributeSet a) throws BadLocationException {
+            if (offs >= masks.length) return;
+
+            int index = 0, updatedIndex = 0; 
+            char[] chars = str.toCharArray();
+            for (int i=offs; i<masks.length; i++) {
+                if (index >= chars.length) break;
+                if (!masks[i].isAllowInput()) continue; 
+                
+                masks[i].setValue(chars[index]);
+                char ch = masks[i].getValue();
+                if (ch == '\u0000') ch = '_';
+                
+                updatedIndex = i;
+                super.remove(i, 1); 
+                super.insertString(i, ch+"", a);                
+                index++;
+            }
+            
+            index = getNextUpdatableIndex(updatedIndex+1); 
+            if (index < 0) return;
+            
+            try { 
+                root.setCaretPosition(index); 
+            } catch(Throwable t) {;} 
+        }
+        
+        private int getNextUpdatableIndex(int start) {
+            for (int i=start; i<masks.length; i++) {
+                if (masks[i].isAllowInput()) return i;
+            }
+            return -1; 
+        }
+    }
+    
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" MaskChar implementation ">
+    
+    private interface MaskChar {
+        boolean accept(char value);        
+        MaskChar createMaskChar(char value); 
+        
+        boolean isAllowInput(); 
+        char getValue();
+        void setValue(char value);
+        void reset();
+    }
+    
+    private class LiteralMaskChar implements MaskChar 
+    {
+        private char value;
+        
+        public boolean accept(char value) { return true; }
+
+        public AbstractDateField.MaskChar createMaskChar(char value) {
+            LiteralMaskChar mc = new LiteralMaskChar();
+            mc.value = value;
+            return mc; 
+        } 
+
+        public boolean isAllowInput() { return false; }    
+        public char getValue() { return value; } 
+        public void setValue(char value) {}
+        public void reset(){}
+    }
+    
+    private class PatternMaskChar implements MaskChar 
+    {
+        private char pattern;
+        private char value;
+        
+        public boolean accept(char value) { 
+            return (value=='y' || value=='M' || value=='d' || value=='H' || value=='m' || value=='s');
+        } 
+
+        public AbstractDateField.MaskChar createMaskChar(char value) {
+            PatternMaskChar mc = new PatternMaskChar();
+            mc.pattern = value;
+            return mc; 
+        }        
+
+        public boolean isAllowInput() { return true; }
+
+        public char getValue() { return value; }
+        
+        public void setValue(char value) {
+            this.value = (Character.isDigit(value)? value: '\u0000');
+        }
+        
+        public void reset() {
+            this.value = '\u0000'; 
+        }
+    }    
     
     // </editor-fold>
 }
