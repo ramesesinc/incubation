@@ -10,27 +10,42 @@
 package com.rameses.rcp.control;
 
 import com.rameses.common.MethodResolver;
+import com.rameses.rcp.common.Action;
 import com.rameses.rcp.common.DocViewModel;
 import com.rameses.rcp.common.HtmlViewModel;
+import com.rameses.rcp.common.MsgBox;
 import com.rameses.rcp.common.Opener;
+import com.rameses.rcp.common.PopupMenuOpener;
 import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.common.Task;
 import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.framework.ClientContext;
 import com.rameses.rcp.support.FontSupport;
+import com.rameses.rcp.support.ImageIconSupport;
 import com.rameses.rcp.ui.ActiveControl;
 import com.rameses.rcp.ui.ControlProperty;
 import com.rameses.rcp.ui.UIControl;
+import com.rameses.rcp.util.UICommandUtil;
 import com.rameses.rcp.util.UIControlUtil;
 import java.awt.Dimension;
+import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.Insets;
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.beans.Beans;
 import java.net.URL;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javax.swing.JEditorPane;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
 import javax.swing.UIManager;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
@@ -49,6 +64,7 @@ public class XHtmlView extends JEditorPane implements UIControl, ActiveControl
     
     private String fontStyle;
     private DocViewModel docModel; 
+    private Point mousePoint; 
     
     public XHtmlView() {
         super(); 
@@ -59,6 +75,15 @@ public class XHtmlView extends JEditorPane implements UIControl, ActiveControl
                 hyperlinkUpdateImpl(e); 
             }
         });
+        addMouseListener(new MouseListener() {
+            public void mouseClicked(MouseEvent e) {}
+            public void mouseEntered(MouseEvent e) {}
+            public void mouseExited(MouseEvent e) {}
+            public void mousePressed(MouseEvent e) {}
+            public void mouseReleased(MouseEvent e) {
+                mousePoint = e.getPoint(); 
+            } 
+        }); 
         
         try { 
             Font font = UIManager.getLookAndFeelDefaults().getFont("TextField.font"); 
@@ -247,7 +272,28 @@ public class XHtmlView extends JEditorPane implements UIControl, ActiveControl
         } 
         
         if (outcome instanceof Opener) {
-            getBinding().fireNavigation((Opener)outcome); 
+            if (outcome instanceof PopupMenuOpener) {
+                final PopupMenuOpener menu = (PopupMenuOpener) outcome;
+                List items = menu.getItems();
+                if (items == null || items.isEmpty()) return;
+
+                if (items.size() == 1 && menu.isExecuteOnSingleResult()) { 
+                    Object o = menu.getFirst(); 
+                    if (o instanceof Opener) 
+                        getBinding().fireNavigation((Opener)o); 
+                    else 
+                        ((Action)o).execute(); 
+                } 
+                else { 
+                    EventQueue.invokeLater(new Runnable() {
+                        public void run() { 
+                            show(menu); 
+                        } 
+                    }); 
+                }
+            } else { 
+                getBinding().fireNavigation((Opener)outcome); 
+            } 
         } 
     }
     
@@ -312,4 +358,96 @@ public class XHtmlView extends JEditorPane implements UIControl, ActiveControl
     }
     
     // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" PopupMenu Support ">
+    
+    private JPopupMenu popup;
+    
+    protected void show(PopupMenuOpener menu) {
+        if (popup == null)
+            popup = new JPopupMenu();
+        else
+            popup.setVisible(false);
+        
+        popup.removeAll();
+        for (Object o: menu.getItems()) {
+            ActionMenuItem ami = null;
+            if (o instanceof Opener)
+                ami = new ActionMenuItem((Opener)o);
+            else
+                ami = new ActionMenuItem((Action)o);
+            
+            Dimension dim = ami.getPreferredSize();
+            ami.setPreferredSize(new Dimension(Math.max(dim.width, 100), dim.height));
+            popup.add(ami);
+        }
+        popup.pack();
+        
+        Rectangle rect = XHtmlView.this.getBounds();
+        int x = rect.x + (mousePoint == null? 0: mousePoint.x); 
+        int y = rect.y + (mousePoint == null? 0: mousePoint.y); 
+        popup.show(XHtmlView.this, x, y);
+        popup.requestFocus();
+        mousePoint = null; 
+    }
+    
+    private class ActionMenuItem extends JMenuItem
+{
+        XHtmlView root = XHtmlView.this;
+        private Object source;
+        
+        ActionMenuItem(Opener anOpener) {
+            this.source = anOpener;
+            setText(anOpener.getCaption());
+            addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    invokeOpener(e);
+                }
+            });
+            
+            Object ov = anOpener.getProperties().get("mnemonic");
+            if (ov != null && ov.toString().trim().length() > 0)
+                setMnemonic(ov.toString().trim().charAt(0));
+            
+            ov = anOpener.getProperties().get("icon");
+            if (ov != null && ov.toString().length() > 0)
+                setIcon(ImageIconSupport.getInstance().getIcon(ov.toString()));
+        }
+        
+        ActionMenuItem(Action anAction) {
+            this.source = anAction;
+            setText(anAction.getCaption());
+            addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    invokeAction(e);
+                }
+            });
+            
+            setMnemonic(anAction.getMnemonic());
+            
+            String sicon = anAction.getIcon();
+            if (sicon != null && sicon.length() > 0)
+                setIcon(ImageIconSupport.getInstance().getIcon(sicon));
+        }
+        
+        void invokeOpener(ActionEvent e) {
+            try {
+                UICommandUtil.processAction(root, root.getBinding(), (Opener) source);
+            } catch(Exception ex) {
+                MsgBox.err(ex);
+            }
+        }
+        
+        void invokeAction(ActionEvent e) {
+            try {
+                Object outcome = ((Action) source).execute();
+                if (outcome instanceof Opener)
+                    UICommandUtil.processAction(root, root.getBinding(), (Opener)outcome);
+            } catch(Exception ex) {
+                MsgBox.err(ex);
+            }
+        }
+    }
+    
+    // </editor-fold>        
 }
