@@ -11,6 +11,7 @@ import com.rameses.rcp.framework.UIControllerContext;
 import com.rameses.rcp.framework.UIControllerPanel;
 import com.rameses.rcp.ui.BindingConnector;
 import com.rameses.rcp.ui.ControlProperty;
+import com.rameses.rcp.ui.UIControl;
 import com.rameses.rcp.ui.UISubControl;
 import com.rameses.rcp.util.UIControlUtil;
 import com.rameses.util.ValueUtil;
@@ -26,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
@@ -149,10 +151,11 @@ public class XSubFormPanel extends JPanel implements UISubControl, ActiveControl
         else if ( !ValueUtil.isEmpty(getHandler()) ) 
         {
             String shandler = getHandler();
-            if ( shandler.matches(".+:.+") ) 
+            if ( shandler.matches(".+:.+") ) {
                 handlerObj = LookupOpenerSupport.lookupOpener(shandler, new HashMap()); 
-            else 
-                handlerObj = UIControlUtil.getBeanValue(this, shandler);
+            } else {
+                handlerObj = UIControlUtil.getBeanValue(getBinding().getBean(), shandler); 
+            }
         }
         
         multiForm = true; //reset, check based on passed value        
@@ -218,6 +221,19 @@ public class XSubFormPanel extends JPanel implements UISubControl, ActiveControl
     }
     
     private void addOpener(Opener opener) {
+        Map openerParams = opener.getParams();
+        if (openerParams == null) {
+            openerParams = new HashMap();
+            opener.setParams(openerParams); 
+        }
+        Object userObj = getClientProperty(UIControl.KEY_USER_OBJECT); 
+        if (userObj instanceof Map) {
+            Object props = ((Map)userObj).get("properties"); 
+            if (props instanceof Map) {
+                openerParams.putAll((Map)props);    
+            }
+        }
+        
         UIController caller = binding.getController();
         opener.setCaller( caller );
         opener = ControlSupport.initOpener( opener, caller );
