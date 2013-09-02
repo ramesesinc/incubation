@@ -543,23 +543,27 @@ public class XLookupField extends IconedTextField implements UILookup, UISelecto
         void setHandler(LookupHandler handler) { this.handler = handler; }
         void setOpener(Opener opener) 
         { 
-            if (opener.getParams() != null) 
-            {
-                onselectCallback = opener.getParams().get("onselect");
-                onemptyCallback = opener.getParams().get("onempty");
+            if (opener != null) {
+                if (opener.getParams() != null) {
+                    onselectCallback = opener.getParams().get("onselect");
+                    onemptyCallback = opener.getParams().get("onempty");
+                }
+
+                UIController controller = opener.getController(); 
+                if (controller == null) 
+                    throw new IllegalStateException("'"+opener.getName()+"' opener must have a controller");
+
+                if (!(controller.getCodeBean() instanceof LookupModel))
+                    throw new IllegalStateException("'"+opener.getName()+"' opener controller must be an instance of LookupModel");
+
+                controller.setId(opener.getId());
+                controller.setName(opener.getName());
+                controller.setTitle(opener.getCaption());            
+                model = (LookupModel) controller.getCodeBean();                 
+            } else {
+                model = null; 
             }
             
-            UIController controller = opener.getController(); 
-            if (controller == null) 
-                throw new IllegalStateException("'"+opener.getName()+"' opener must have a controller");
-            
-            if (!(controller.getCodeBean() instanceof LookupModel))
-                throw new IllegalStateException("'"+opener.getName()+"' opener controller must be an instance of LookupModel");
-                  
-            controller.setId(opener.getId());
-            controller.setName(opener.getName());
-            controller.setTitle(opener.getCaption());            
-            model = (LookupModel) controller.getCodeBean(); 
             this.opener = opener; 
         }
         
