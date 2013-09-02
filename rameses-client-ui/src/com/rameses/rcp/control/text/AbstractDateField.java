@@ -9,7 +9,6 @@
 
 package com.rameses.rcp.control.text;
 
-import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.Beans;
@@ -34,7 +33,6 @@ public abstract class AbstractDateField extends DefaultTextField
     
     protected final void initDefaults() 
     {
-        setPreferredSize(new Dimension(100, getPreferredSize().height));  
         addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) { 
                 actionPerformedImpl(e);
