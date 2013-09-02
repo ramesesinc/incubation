@@ -1,357 +1,195 @@
+/*
+ * XDateField.java
+ *
+ * Created on August 28, 2013, 11:16 AM
+ *
+ * To change this template, choose Tools | Template Manager
+ * and open the template in the editor.
+ */
+
 package com.rameses.rcp.control;
 
 import com.rameses.rcp.common.PropertySupport;
-import com.rameses.rcp.common.PropertySupport.PropertyInfo;
-import com.rameses.rcp.control.date.DatePickerModel;
+import com.rameses.rcp.control.text.AbstractDateField;
+import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.framework.ClientContext;
+import com.rameses.rcp.support.TextEditorSupport;
+import com.rameses.rcp.support.ThemeUI;
+import com.rameses.rcp.ui.ActiveControl;
 import com.rameses.rcp.ui.ControlProperty;
+import com.rameses.rcp.ui.UIInput;
 import com.rameses.rcp.util.UIControlUtil;
 import com.rameses.rcp.util.UIInputUtil;
-import com.rameses.util.ValueUtil;
 import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
+import java.awt.Font;
+import java.awt.Insets;
 import java.beans.Beans;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import javax.swing.ImageIcon;
+import javax.swing.InputVerifier;
 
 /**
  *
- * @author Windhel
+ * @author wflores
  */
+public class XDateField extends AbstractDateField implements UIInput, ActiveControl 
+{
+    private Binding binding; 
+    private String[] depends; 
+    private int index;
+    private boolean nullWhenEmpty;
+    private boolean immediate;
 
-public class XDateField extends AbstractIconedTextField 
-{    
-    private SimpleDateFormat inputFormatter;
-    private SimpleDateFormat outputFormatter;
-    private SimpleDateFormat valueFormatter;
-    private String valueFormat;
-    private String outputFormat;
-    private String inputFormat;
-    private Date date;
-    private String formattedString;
-    private int txtYPos;
-    private int txtXPos;
-    private String guideFormat;
-    private char dateSeparator;
-    private boolean useDatePickerModel = false;
-    private DatePickerModel dpm;
+    private ControlProperty controlProperty;    
     
-    public XDateField() 
-    {
-        setOutputFormat("yyyy-MM-dd");
-        setInputFormat("yyyy-MM-dd");
-        setValueFormat("yyyy-MM-dd");
-        DateFieldSupport dateFieldSupport = new DateFieldSupport();
-        addFocusListener(dateFieldSupport);
-        addKeyListener(dateFieldSupport);
-        guideFormat = getInputFormat();
-    }
-    
-    
-    // <editor-fold defaultstate="collapsed" desc="  Getter / Setter  ">
-    
-    public Object getValue() {
-        if(Beans.isDesignTime())
-            return "";
+    public XDateField() {
+        TextEditorSupport.install(this);
         
-        try {
-            if(!ValueUtil.isEmpty(getText())) {
-                if(hasFocus()) {
-                    date = inputFormatter.parse(getText());
-                    
-                    //validation
-                    String validation = inputFormatter.format(date);
-                    if( !ValueUtil.isEqual(validation, getText())) {
-                        actionMessage.addMessage("", "Invalid date entered for {0}.", new Object[] {getCaption()});
-                    }
-                    
-                } else {
-                    date = outputFormatter.parse(getText());
-                }
-                
-                formattedString = valueFormatter.format(date);
-            }
-        } catch(Exception e) {
-            actionMessage.addMessage("", "Expected format for {0} is " + inputFormat, new Object[] {getCaption()});
-        }
+        //set default font
+        Font font = ThemeUI.getFont("XTextField.font");
+        if (font != null) setFont(font);
         
-        if(actionMessage.hasMessages())  {
-            formattedString = null;
-            setText("");
-            ControlProperty controlProperty = getControlProperty();
-            controlProperty.setErrorMessage(actionMessage.toString());
-        }
-        
-        return formattedString;
+        Color disableTextColor = ThemeUI.getColor("XTextField.disabledTextColor");
+        if (disableTextColor != null) setDisabledTextColor(disableTextColor);        
     }
     
-    public void setValue(Object value) {
-        if (value instanceof KeyEvent ){
-            String text = ((KeyEvent) value).getKeyChar()+"";
-            if (text.matches("[\\d]")) {
-                setText( text );
-            }
-        } else {
-            if (value != null) {
-                try{
-                    if(value instanceof String) {
-                        Date d = valueFormatter.parse(value.toString());
-                        value = outputFormatter.format(d);
-                        date = d;
-                    } else if( value instanceof Date) {
-                        date = (Date) value;
-                        value = outputFormatter.format( value );
-                        
-                    } else  {
-                        throw new Exception("class conversion to date not yet supported");
-                    }
-                }catch(Exception ex) { ex.printStackTrace(); }
-            }
-            setText(value==null? "" : value + "");
-        }
+    // <editor-fold defaultstate="collapsed" desc=" Getters / Setters ">
+    
+    public void setName(String name) {
+        super.setName(name); 
+        if (Beans.isDesignTime()) 
+            super.setText((name == null? "": name)); 
     }
     
-    public String getOutputFormat() {
-        return outputFormat;
-    }
-    
-    public void setOutputFormat(String pattern) {
-        this.outputFormat = pattern;
-        if(!ValueUtil.isEmpty(pattern))
-            outputFormatter = new SimpleDateFormat(pattern);
-        else
-            outputFormatter = null;
-    }
-    
-    public String getInputFormat() {
-        return inputFormat;
-    }
-    
-    public void setInputFormat(String inputFormat) {
-        this.inputFormat = inputFormat;
-        if(!ValueUtil.isEmpty(inputFormat))
-            inputFormatter = new SimpleDateFormat(inputFormat);
-        else
-            inputFormatter = null;
-    }
-    
-    public String getValueFormat() {
-        return valueFormat;
-    }
-    
-    public void setValueFormat(String valueFormat) {
-        this.valueFormat = valueFormat;
-        if(!ValueUtil.isEmpty(valueFormat))
-            valueFormatter = new SimpleDateFormat(valueFormat);
-        else
-            valueFormatter = null;
-    }
-    
-    public boolean isUseDatePickerModel() {
-        return useDatePickerModel;
-    }
-    
-    public void setUseDatePickerModel(boolean useDatePickerModel) {
-        this.useDatePickerModel = useDatePickerModel;
-        if ( useDatePickerModel )
-            setIcon("com/rameses/rcp/icons/calendar.png");
-        else
-            setIcon((ImageIcon)null);
-    }
-
-    public void setPropertyInfo(PropertyInfo info) 
-    {
-        if (info == null) return;
-        
-        PropertyInfoWrapper pi = new PropertyInfoWrapper(info);
-        setInputFormat(pi.getInputFormat()); 
-        setOutputFormat(pi.getOutputFormat());
-        setValueFormat(pi.getValueFormat()); 
-    }
+    protected InputVerifier getChildInputVerifier() {
+        return UIInputUtil.VERIFIER; 
+    }    
     
     // </editor-fold>
+
+    // <editor-fold defaultstate="collapsed" desc=" UIInput implementation ">
+
+    public Binding getBinding() { return binding; }
+    public void setBinding(Binding binding) { this.binding = binding; }
     
-    public void refresh() 
-    {
+    public String[] getDepends() { return depends; }
+    public void setDepends(String[] depends) { this.depends = depends; }
+    
+    public int getIndex() { return index; }
+    public void setIndex(int index) { this.index = index; }
+        
+    public boolean isNullWhenEmpty() { return nullWhenEmpty; }
+    public void setNullWhenEmpty(boolean nullWhenEmpty) {
+        this.nullWhenEmpty = nullWhenEmpty;
+    }
+
+    public boolean isImmediate() { return immediate; }
+    public void setImmediate(boolean immediate) {
+        this.immediate = immediate; 
+    }
+    
+    public int compareTo(Object o) { 
+        return UIControlUtil.compare(this, o);
+    }
+    
+    public void setRequestFocus(boolean focus) {
+    }
+
+    public void load() {
+    }
+
+    public void refresh() {
         try 
         {
-            //force to update component status
             updateBackground(); 
+            reloadDocument();
             
-            Object value = UIControlUtil.getBeanValue(this);
-            setValue(value);
+            Object value = UIControlUtil.getBeanValue(this);            
+            setValue(value); 
         } 
         catch(Exception e) 
         {
-            setText("");
+            setValue(null);
             
-            if (ClientContext.getCurrentContext().isDebugMode()) e.printStackTrace();
-        }
-        
+            if (ClientContext.getCurrentContext().isDebugMode()) e.printStackTrace(); 
+        }         
     }
-    
-    public void load() 
-    {
-        setInputVerifier(UIInputUtil.VERIFIER);
-        if (getInputFormat() == null) setInputFormat("yyyy-MM-dd");
-        if (getOutputFormat() == null) setOutputFormat("yyyy-MM-dd");
-        if (getValueFormat() == null) setValueFormat("yyyy-MM-dd");
-        
-        guideFormat = getInputFormat();
-        for (char c : getInputFormat().toCharArray()) 
-        {
-            if (c != 'y' && c != 'M' && c != 'd') 
-            {
-                dateSeparator = c;
-                break;
-            }
-        }
-        
-        if (isUseDatePickerModel()) dpm = new DatePickerModel(this);
+
+    public void setPropertyInfo(PropertySupport.PropertyInfo info) {
     }
-    
-    private final void showFormattedValue(boolean formatted) {
-        try{
-            if( formatted && outputFormatter !=null && !ValueUtil.isEmpty(getText())) {
-                setText(outputFormatter.format(date));
-                date = outputFormatter.parse( getText() );
-            } else {
-                
-                if(ValueUtil.isEmpty(getText()))
-                    setText("");
-                else {
-                    setText(inputFormatter.format(date));
-                    date = inputFormatter.parse( getText() );
-                }
-            }
-        }catch(Exception ex) {}
-        
-        if ( !formatted ) selectAll();
+
+    public Object getValue() { 
+        return super.getValue(); 
     }
+    public void setValue(Object value) {
+        super.setValue(value); 
+    }  
     
-    public void calculatePosition() {
-        txtYPos = (int)(getHeight() /2) + (getInsets().top + (int)(getInsets().bottom / 2));
-        
-        if(super.getText().length() <= getInputFormat().length())
-            guideFormat = getInputFormat().substring(super.getText().length());
-        txtXPos = getInsets().left;
-        for(int i = 0 ; i < super.getText().length() ; i++) {
-            txtXPos = txtXPos + (getFontMetrics(getFont()).charWidth(super.getText().charAt(i)));
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" ActiveControl implementation "> 
+
+    public ControlProperty getControlProperty() { 
+        if (controlProperty == null) {
+            controlProperty = new ControlProperty();
         }
-        
-        guideFormat = guideFormat.toUpperCase();
+        return controlProperty; 
+    }   
+
+    public boolean isRequired() { 
+        return getControlProperty().isRequired(); 
+    }    
+    public void setRequired(boolean required) {
+        getControlProperty().setRequired(required);
     }
-    
-    public void paintComponent(Graphics g) {
-        super.paintComponent(g);
-        
-        if(Beans.isDesignTime())
-            return;
-        
-        g.setColor(Color.LIGHT_GRAY);
-        g.setFont(getFont());
-        calculatePosition();
-        g.drawString(guideFormat, txtXPos, txtYPos);
+
+    public String getCaption() { 
+        return getControlProperty().getCaption(); 
+    }    
+    public void setCaption(String caption) { 
+        getControlProperty().setCaption(caption); 
+    } 
+
+    public char getCaptionMnemonic() { 
+        return getControlProperty().getCaptionMnemonic();
+    }    
+    public void setCaptionMnemonic(char c) {
+        getControlProperty().setCaptionMnemonic(c);
     }
-    
-    public void actionPerformed() {
-        if(isUseDatePickerModel() && !Beans.isDesignTime()) {
-            dpm.showCalendar();
-        }
+
+    public int getCaptionWidth() {
+        return getControlProperty().getCaptionWidth();
+    }    
+    public void setCaptionWidth(int width) {
+        getControlProperty().setCaptionWidth(width);
+    }    
+
+    public boolean isShowCaption() {
+        return getControlProperty().isShowCaption();
+    }    
+    public void setShowCaption(boolean showCaption) {
+        getControlProperty().setShowCaption(showCaption);
     }
-        
-    //<editor-fold defaultstate="collapsed" desc="  DateFieldSupport (class)  ">
-    private class DateFieldSupport implements FocusListener, KeyListener {
-        
-        public void focusGained(FocusEvent e){
-            try {
-                showFormattedValue(false);
-            }catch(Exception ex) { ex.printStackTrace(); }
-        }
-        
-        public void focusLost(FocusEvent e) {
-            if ( e.isTemporary() ) return;
-            
-            try{
-                showFormattedValue(true);
-                guideFormat = "";
-                if(ValueUtil.isEmpty(getText())) {
-                    setText(null);
-                    setValue(null);
-                }
-            }catch(Exception ex) { ex.printStackTrace(); }
-        }
-        
-        public void keyTyped(KeyEvent e) {}
-        
-        public void keyPressed(KeyEvent e) {
-            if(e.getKeyChar() != dateSeparator &&
-                    e.getKeyChar() != KeyEvent.VK_BACK_SPACE &&
-                    e.getKeyChar() != KeyEvent.VK_HOME &&
-                    e.getKeyChar() != KeyEvent.VK_END &&
-                    e.getKeyChar() != KeyEvent.VK_LEFT &&
-                    e.getKeyChar() != KeyEvent.VK_KP_RIGHT &&
-                    e.getKeyChar() != KeyEvent.VK_KP_LEFT &&
-                    e.getKeyCode() != 37 &&
-                    e.getKeyCode() != 39) {
-                if(getInputFormat().length() > getText().length()) {
-                    if(getInputFormat().charAt(getText().length()) == dateSeparator)
-                        setText(getText() + dateSeparator);
-                }
-            }
-        }
-        
-        public void keyReleased(KeyEvent e) {}
-        
+
+    public Font getCaptionFont() {
+        return getControlProperty().getCaptionFont();
+    }    
+    public void setCaptionFont(Font f) {
+        getControlProperty().setCaptionFont(f);
     }
-    //</editor-fold>
-    
-    // <editor-fold defaultstate="collapsed" desc=" PropertyInfoWrapper (Class)  "> 
-    
-    private class PropertyInfoWrapper 
-    {
-        private PropertySupport.DatePropertyInfo property;
-        private Map map = new HashMap();
-        
-        PropertyInfoWrapper(PropertySupport.PropertyInfo info) 
-        {
-            if (info instanceof Map) map = (Map) info;            
-            if (info instanceof PropertySupport.DatePropertyInfo)
-                property = (PropertySupport.DatePropertyInfo) info;
-        }
-        
-        public String getInputFormat() 
-        {
-            Object value = map.get("inputFormat");
-            if (value == null && property != null) 
-                value = property.getInputFormat();
-            
-            return (value == null? null: value.toString());
-        }  
-        public String getOutputFormat() 
-        {
-            Object value = map.get("outputFormat");
-            if (value == null && property != null) 
-                value = property.getOutputFormat();
-            
-            return (value == null? null: value.toString());            
-        }  
-        public String getValueFormat() 
-        {
-            Object value = map.get("valueFormat");
-            if (value == null && property != null) 
-                value = property.getValueFormat();
-            
-            return (value == null? null: value.toString());
-        } 
-    }
-    
-    // </editor-fold>        
+
+    public String getCaptionFontStyle() { 
+        return getControlProperty().getCaptionFontStyle();
+    } 
+    public void setCaptionFontStyle(String captionFontStyle) {
+        getControlProperty().setCaptionFontStyle(captionFontStyle); 
+    }     
+
+    public Insets getCellPadding() {
+        return getControlProperty().getCellPadding();
+    }    
+    public void setCellPadding(Insets padding) {
+        getControlProperty().setCellPadding(padding);
+    }    
+
+    // </editor-fold>
+
 }
