@@ -28,9 +28,9 @@ public abstract class AbstractDateField extends DefaultTextField
 {
     private IDateDocument document;
     private String outputFormat;
-    private String inputFormat;
     private String valueFormat;
     private String inputMask;
+    private int advanceYearLimit = 15;
     
     protected final void initDefaults() 
     {
@@ -48,16 +48,18 @@ public abstract class AbstractDateField extends DefaultTextField
     
     // <editor-fold defaultstate="collapsed" desc=" Getters / Setters "> 
     
+    public String getInputFormat() {  
+        return getInputMask(); 
+    } 
+    public void setInputFormat(String inputFormat) {
+        setInputMask(inputFormat); 
+    } 
+    
     public String getOutputFormat() { return outputFormat; } 
     public void setOutputFormat(String outputFormat) {
         this.outputFormat = outputFormat; 
     }
-    
-    public String getInputFormat() { return inputFormat; } 
-    public void setInputFormat(String inputFormat) {
-        this.inputFormat = inputFormat; 
-    }   
-    
+        
     public String getValueFormat() { return valueFormat; } 
     public void setValueFormat(String valueFormat) {
         this.valueFormat = valueFormat; 
@@ -66,6 +68,11 @@ public abstract class AbstractDateField extends DefaultTextField
     public String getInputMask() { return inputMask; } 
     public void setInputMask(String inputMask) {
         this.inputMask = inputMask; 
+    }
+    
+    public int getAdvanceYearLimit() { return advanceYearLimit; } 
+    public void setAdvanceYearLimit(int advanceYearLimit) {
+        this.advanceYearLimit = advanceYearLimit; 
     }
     
     public Object getValue() {
@@ -104,6 +111,12 @@ public abstract class AbstractDateField extends DefaultTextField
         transferFocus(); 
     }
     
+    private DateParser createDateParser() {
+        DateParser parser = new DateParser();
+        parser.setAdvanceYearLimit(getAdvanceYearLimit()); 
+        return parser; 
+    }
+    
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" IDateDocument interface "> 
@@ -128,10 +141,14 @@ public abstract class AbstractDateField extends DefaultTextField
             String sval = getText();
             if (sval == null || sval.length() == 0) return null;
             
-            Date dt = new DateParser().parse(sval); 
-            if (dt == null) return null; 
-            
-            return getValueFormatter().format(dt); 
+            try {
+                Date dt = createDateParser().parse(sval); 
+                if (dt == null) return null; 
+
+                return getValueFormatter().format(dt); 
+            } catch(Throwable t) {
+                return null; 
+            }            
         } 
 
         public void setValue(Object value) {
@@ -141,7 +158,7 @@ public abstract class AbstractDateField extends DefaultTextField
             } else if (value instanceof Date) {
                 sval = getOutputFormatter().format((Date) value); 
             } else {
-                Date dt = new DateParser().parse(value.toString()); 
+                Date dt = createDateParser().parse(value.toString()); 
                 if (dt != null) sval = getOutputFormatter().format(dt); 
             } 
             
@@ -211,8 +228,10 @@ public abstract class AbstractDateField extends DefaultTextField
             } 
             try {
                 String sval = new String(chars);
-                java.sql.Date.valueOf(sval); 
-                return sval; 
+                String dtval = java.sql.Date.valueOf(sval).toString(); 
+                if (sval.equals(dtval)) return sval; 
+                
+                return null; 
             } catch(Throwable t) {
                 return null; 
             }
@@ -282,6 +301,7 @@ public abstract class AbstractDateField extends DefaultTextField
         public void insertString(int offs, String str, AttributeSet a) throws BadLocationException {
             if (offs >= masks.length) return;
 
+            boolean hasChanges = false;            
             int index = 0, updatedIndex = 0; 
             char[] chars = str.toCharArray();
             for (int i=offs; i<masks.length; i++) {
@@ -290,29 +310,66 @@ public abstract class AbstractDateField extends DefaultTextField
                 
                 masks[i].setValue(chars[index]);
                 char ch = masks[i].getValue();
-                if (ch == '\u0000') ch = '_';
+                if (ch == '\u0000') break;
                 
                 updatedIndex = i;
+                hasChanges = true;                 
                 super.remove(i, 1); 
-                super.insertString(i, ch+"", a);                
+                super.insertString(i, ch+"", a); 
                 index++;
             }
             
-            index = getNextUpdatableIndex(updatedIndex+1); 
-            if (index < 0) return;
+            if (!hasChanges) return;
             
-            try { 
-                root.setCaretPosition(index); 
-            } catch(Throwable t) {;} 
+            int caretPos = getNextUpdatableIndex(updatedIndex+1); 
+            if (caretPos < 0) {
+                if (updatedIndex+1 == masks.length) 
+                    caretPos = masks.length;
+                else 
+                    caretPos = offs;
+            }
+            
+            try { root.setCaretPosition(caretPos); } catch(Throwable t) {;} 
         }
-        
+                
         private int getNextUpdatableIndex(int start) {
             for (int i=start; i<masks.length; i++) {
                 if (masks[i].isAllowInput()) return i;
             }
             return -1; 
         }
-    }
+
+        public void remove(int offs, int len) throws BadLocationException {
+            super.remove(offs, len);
+            StringBuffer sb = new StringBuffer(); 
+            int limit = offs + len;
+            for (int i=offs; i<limit; i++) {
+                if (i >= masks.length) break; 
+                
+                masks[i].reset();
+                char ch = masks[i].getValue(); 
+                sb.append(ch == '\u0000'? '_': ch);
+            }
+            super.insertString(offs, sb.toString(), null); 
+            int caretPos = offs;
+            try { root.setCaretPosition(caretPos); } catch(Throwable t) {;}        
+        }
+        
+        private int getUpdatableIndexBefore(int start) {
+            for (int i=start-1; i>0; i--) {
+                if (i >= masks.length) break;                
+                if (masks[i].isAllowInput()) return i;
+            }
+            return -1; 
+        }
+        
+        private boolean isUpdatableIndex(int index) { 
+            if (index >= 0 && index < masks.length) 
+                return masks[index].isAllowInput(); 
+            else 
+                return false; 
+        } 
+    } 
     
     // </editor-fold>
     

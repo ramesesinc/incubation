@@ -20,6 +20,7 @@ import java.util.Map;
 public class DateParser {
     
     private Map<String,String> months = new HashMap();
+    private int advanceYearLimit = 15;
     
     public DateParser() { 
         months.put("jan", "01"); 
@@ -36,8 +37,16 @@ public class DateParser {
         months.put("dec", "12"); 
     } 
     
+    public int getAdvanceYearLimit() { return advanceYearLimit; } 
+    public void setAdvanceYearLimit(int advanceYearLimit) {
+        this.advanceYearLimit = advanceYearLimit; 
+    }
+    
     public Date parse(String text) {
         if (text == null || text.length() == 0) return null; 
+        
+        int _advanceYearLimit = getAdvanceYearLimit();
+        _advanceYearLimit = (_advanceYearLimit < 0? 0: _advanceYearLimit+1);
         
         java.sql.Date currentDate = new java.sql.Date(System.currentTimeMillis()); 
         if (text.trim().matches("now|today")) {
@@ -67,7 +76,12 @@ public class DateParser {
                 String syear = arr[2];
                 if (syear.length() <= 2) {
                     String curyear = currentDate.toString().split("-")[0];
-                    syear = curyear.substring(0,2) + fillLeadingZeros(syear, 2);  
+                    int num1 = Integer.parseInt(curyear.substring(0,2));
+                    int num2 = Integer.parseInt(curyear.substring(2,4));
+                    int num = Integer.parseInt(syear);
+                    if (num > num2+_advanceYearLimit) num1--; 
+                    
+                    syear = fillLeadingZeros(num1+"", 2) + fillLeadingZeros(syear, 2);  
                 } 
                 return java.sql.Date.valueOf(syear + "-" + smonth + "-" + sday); 
             } else if (sval.matches("[\\d]{1,2}-[\\d]{1,2}")) {
@@ -84,14 +98,19 @@ public class DateParser {
                 String syear = currentDate.toString().split("-")[0];
                 return java.sql.Date.valueOf(syear + "-" + smonth + "-" + sday);
             } else if (sval.matches("[a-zA-Z]{3,3}-[\\d]{1,2}-[\\d]{1,2}")) {
-                //jan 1, jan 01
+                //jan 1 98, jan 01 98
                 String[] arr = sval.split("-");
                 String smonth = months.get(arr[0]);
                 String sday = fillLeadingZeros(arr[1], 2);
                 String syear = arr[2];
                 if (syear.length() <= 2) {
                     String curyear = currentDate.toString().split("-")[0];
-                    syear = curyear.substring(0,2) + fillLeadingZeros(syear, 2);  
+                    int num1 = Integer.parseInt(curyear.substring(0,2));
+                    int num2 = Integer.parseInt(curyear.substring(2,4));
+                    int num = Integer.parseInt(syear);
+                    if (num > num2+_advanceYearLimit) num1--; 
+                    
+                    syear = fillLeadingZeros(num1+"", 2) + fillLeadingZeros(syear, 2);  
                 }                 
                 return java.sql.Date.valueOf(syear + "-" + smonth + "-" + sday);
             }
