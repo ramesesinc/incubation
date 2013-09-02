@@ -12,6 +12,7 @@ package com.rameses.rcp.control.text;
 import com.rameses.rcp.support.FontSupport;
 import com.rameses.rcp.support.ThemeUI;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.FocusEvent;
 import java.awt.event.KeyEvent;
@@ -38,6 +39,7 @@ public class DefaultTextField extends JTextField
     public DefaultTextField() 
     {
         super();
+        setPreferredSize(new Dimension(100,20)); 
         initDefaults(); 
         resetInputVerifierProxy(); 
         
