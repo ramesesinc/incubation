@@ -83,23 +83,20 @@ public class UIInputUtil {
             Object inputValue = control.getValue();
             Object beanValue = resolver.getProperty(bean, name);
             boolean forceUpdate = false;
-            if (control instanceof JComponent) 
-            {
+            if (control instanceof JComponent) {
                 //if the input is a JTable check for the flag
                 Object value = ((JComponent) control).getClientProperty(JTable.class);
                 forceUpdate = (value != null);
             }
             
-            if (forceUpdate || !ValueUtil.isEqual(inputValue, beanValue)) 
-            {
+            if (forceUpdate || !ValueUtil.isEqual(inputValue, beanValue)) {
                 resolver.setProperty(bean, name, inputValue);
                 if ( addLog )  
                     binding.getChangeLog().addEntry(bean, name, beanValue, inputValue);
                 
                 binding.getValueChangeSupport().notify(name, inputValue);
                 
-                if ( refresh && control instanceof JTextComponent ) 
-                {
+                if ( refresh && control instanceof JTextComponent ) {
                     JTextComponent jtxt = (JTextComponent) control;
                     int oldCaretPos = jtxt.getCaretPosition(); 
                     
@@ -120,7 +117,9 @@ public class UIInputUtil {
                 
                 binding.notifyDepends(control);
             }
-            
+            else {
+                control.refresh(); 
+            }
         } 
         catch(Exception e) 
         {
