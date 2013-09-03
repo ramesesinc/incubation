@@ -11,23 +11,23 @@ public interface UIControl extends Comparable
 {
     static final long serialVersionUID = 1L; 
     static final String KEY_USER_OBJECT = "UIControl.userObject"; 
-    
-    int getIndex();
-    
-    String getName();
-    
-    /**
-     * specify the names or pattern of names of the controls when updated
-     * can affect the value of this control
-     */
-    String[] getDepends();
-        
+
     /**
      * happens when the control is added to a UIViewPanel
      * occurs one time only per page
      */
     Binding getBinding();    
     void setBinding(Binding binding);
+
+    /**
+     * specify the names or pattern of names of the controls when updated
+     * can affect the value of this control
+     */
+    String[] getDepends();
+        
+    String getName();
+    
+    int getIndex();        
     
     /**
      * fires after Binding's code bean has been set
@@ -38,8 +38,6 @@ public interface UIControl extends Comparable
      * fires when binding.refesh is invoked
      */
     void refresh();
-
-        
     
     /*
      *  added the following methods below to be part of the standard property 
