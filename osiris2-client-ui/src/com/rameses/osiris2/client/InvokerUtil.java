@@ -23,7 +23,6 @@ import com.rameses.rcp.framework.UIControllerPanel;
 import com.rameses.common.ExpressionResolver;
 import com.rameses.rcp.common.Action;
 import com.rameses.rcp.common.Opener;
-import com.rameses.rcp.common.Opener.OpenerLoader;
 import com.rameses.util.ExceptionManager;
 import com.rameses.util.ValueUtil;
 import java.util.ArrayList;
@@ -392,33 +391,8 @@ public final class InvokerUtil {
         return createOpener(inv, params, null);
     }
     
-    public static Opener createOpener(Invoker inv, Map params, String caption ) 
-    {
-        String target = (String)inv.getProperties().get("target");
-        Opener opener = new Opener(inv.getWorkunitid());
-        if (caption == null) caption = inv.getCaption();
-        if (caption == null) caption = inv.getWorkunitid();
-        
-        opener.setId( createInvokerId(inv) );
-        opener.setCaption(caption);
-        opener.setAction(inv.getAction());
-        
-        if (target != null) target = target.replaceAll("^([^_])", "_$1");
-        
-        opener.setTarget( target );
-        if (params != null) opener.setParams( params );
-        
-        if (inv.getProperties().size() > 0)
-            opener.getProperties().putAll( inv.getProperties() );
-
-        opener.getProperties().put("_INVOKER_", inv);
-        //set this as loader so it can automatically load the handler
-        opener.setLoader( new OpenerLoader() {
-            public void load(Opener o) {
-                InvokerUtil.invokeOpener( o );
-            }
-        });        
-        return opener;
+    public static Opener createOpener(Invoker inv, Map params, String caption ) {
+        return new InvokerOpener(inv, params, caption);
     }
     
     private static String createInvokerId(Invoker inv) {
