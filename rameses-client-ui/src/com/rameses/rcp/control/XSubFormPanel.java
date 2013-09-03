@@ -144,12 +144,10 @@ public class XSubFormPanel extends JPanel implements UISubControl, ActiveControl
         
         //this is usually set by XTabbedPane or
         //other controls that used XSubForm internally
-        if ( getOpeners().size() > 0 ) 
-        {
+        if (getOpeners().size() > 0) {
             handlerObj = getOpeners();
         } 
-        else if ( !ValueUtil.isEmpty(getHandler()) ) 
-        {
+        else if (!ValueUtil.isEmpty(getHandler())) {
             String shandler = getHandler();
             if ( shandler.matches(".+:.+") ) {
                 handlerObj = LookupOpenerSupport.lookupOpener(shandler, new HashMap()); 
@@ -158,25 +156,22 @@ public class XSubFormPanel extends JPanel implements UISubControl, ActiveControl
             }
         }
         
-        multiForm = true; //reset, check based on passed value        
         List<Opener> openers = new ArrayList();        
         if ( handlerObj == null ) {
             //do nothing
-        } 
-        else if ( handlerObj instanceof Collection ) {
+        } else if ( handlerObj instanceof Collection ) {
             for (Object o: (Collection) handlerObj) {
                 openers.add( (Opener)o );
             }            
-        } 
-        else if ( handlerObj.getClass().isArray() ) {
+        } else if ( handlerObj.getClass().isArray() ) {
             for (Object o: (Object[]) handlerObj) {
                 openers.add( (Opener)o );
             }            
-        } 
-        else if ( handlerObj instanceof Opener ) {
+        } else if ( handlerObj instanceof Opener ) {
             openers.add( (Opener)handlerObj );
-            multiForm = false;
         }
+
+        multiForm = (openers.size() > 1);
         
         //-- display support
         Set<Binding> connectorBindings = bindingConnector.getSubBindings();
