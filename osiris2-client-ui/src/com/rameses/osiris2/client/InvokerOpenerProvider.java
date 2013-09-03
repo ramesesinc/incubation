@@ -37,4 +37,22 @@ public class InvokerOpenerProvider implements OpenerProvider {
         return openers;
     }
     
+    public Opener lookupOpener(String invokerType, Map params) {
+        try {
+            return InvokerUtil.lookupOpener(invokerType, params); 
+        } catch(Throwable t) {
+            System.out.println("[WARN] failed to lookup opener '"+invokerType+"' caused by " + t.getMessage());
+            return null; 
+        } 
+    } 
+    
+    public List<Opener> lookupOpeners(String invokerType, Map params) {
+        try {
+            return InvokerUtil.lookupOpeners(invokerType, params); 
+        } catch(Throwable t) {
+            System.out.println("[WARN] failed to lookup openers '"+invokerType+"' caused by " + t.getMessage());
+            return new ArrayList(); 
+        } 
+    }
+    
 }
