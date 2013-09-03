@@ -12,7 +12,7 @@ import java.util.Map;
  *    immediately return a result without popping the lookup
  *    dialog. null null is the default
  */
-public class LookupModel extends ScrollListModel 
+public class LookupModel extends ScrollListModel implements ILookupModel 
 {    
     private List DEFAULT_LIST = new ArrayList(); 
     private Map properties = new HashMap(); 
@@ -42,6 +42,9 @@ public class LookupModel extends ScrollListModel
         this.returnFields = returnFields; 
     }     
 
+    public Object getValue() { 
+        return getSelectedValue(); 
+    }
     
     public boolean selectSingleResult() { return false; }    
     public boolean errorOnEmpty() { return false; }    
@@ -89,7 +92,7 @@ public class LookupModel extends ScrollListModel
     
     
     //invoked when the lookup screen is shown
-    public boolean show(String searchtext) {        
+    public boolean show(String searchtext) { 
         setSearchtext(searchtext);        
         load();
         
@@ -103,7 +106,7 @@ public class LookupModel extends ScrollListModel
             
             return false;
         } 
-        else {
+        else { 
             return true;
         }
     }

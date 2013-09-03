@@ -1,5 +1,5 @@
 /*
- * ItemSelection.java
+ * LookupSelector.java
  *
  * Created on August 28, 2009, 10:38 AM
  *
@@ -15,6 +15,6 @@ package com.rameses.rcp.common;
  */
 public interface LookupSelector 
 {
-    void select(Object o);
-    void cancelSelection();
+    void select(Object o); 
+    void cancelSelection();  
 }
