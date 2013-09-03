@@ -29,6 +29,7 @@ public abstract class AbstractDateField extends DefaultTextField
     private String outputFormat;
     private String valueFormat;
     private String inputMask;
+    private String hint;
     private int advanceYearLimit = 15;
     
     protected final void initDefaults() 
@@ -45,6 +46,9 @@ public abstract class AbstractDateField extends DefaultTextField
     }
     
     // <editor-fold defaultstate="collapsed" desc=" Getters / Setters "> 
+    
+    public String getHint() { return hint; } 
+    public void setHint(String hint) { this.hint = hint; }
     
     public String getInputFormat() {  
         return getInputMask(); 
