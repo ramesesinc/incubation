@@ -103,8 +103,8 @@ public final class ControlSupport {
                 Map.Entry me = (Map.Entry)oo;
                 try {
                     resolver.setProperty(bean, me.getKey()+"", me.getValue() );
-                } catch(Exception e) {
-                    e.printStackTrace();
+                } catch(Throwable t) {
+                    t.printStackTrace();
                 }
             }
         }
