@@ -48,7 +48,7 @@ public class MainDialog implements MainWindow {
     public MainDialog() {
         dialog = new JFrame();
         dialog.setTitle("Main Dialog");
-        dialog.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        dialog.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
         try {
             URL ico = getClass().getResource("/com/rameses/rcp/icons/os2-icon.png");
