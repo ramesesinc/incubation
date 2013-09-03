@@ -5,126 +5,109 @@
  * @author jaycverg
  */
 
-package Templates.Classes;
+package com.rameses.rcp.control; 
 
 import com.rameses.rcp.common.Opener; 
 import com.rameses.rcp.common.PropertySupport;
-import com.rameses.rcp.control.XSubFormPanel;
+import com.rameses.rcp.common.TabbedPaneModel;
 import com.rameses.rcp.control.tabbedpane.LoadingPanel;
 import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.framework.ClientContext;
 import com.rameses.rcp.framework.OpenerProvider;
-import com.rameses.rcp.framework.UIController;
+import com.rameses.rcp.support.ImageIconSupport;
 import com.rameses.rcp.support.ThemeUI;
 import com.rameses.rcp.ui.UIControl;
-import com.rameses.rcp.util.ControlSupport;
 import com.rameses.rcp.util.UIControlUtil;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.beans.Beans;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.swing.Icon;
+import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
-
 
 public class XTabbedPane extends JTabbedPane implements UIControl 
 {    
     private Binding binding;
     private String[] depends;
     private int index;
+    
     private boolean dynamic;
     
     private int oldIndex;
     private List<Opener> openers = new ArrayList();
-    private boolean nameAutoLookupAsOpener = true;
-    
-    
+    private boolean nameAutoLookupAsOpener = false;
+    private TabbedPaneModel model;
+        
     public XTabbedPane() 
     {
         super();
         initComponents();
     }
     
-    //<editor-fold defaultstate="collapsed" desc="  initComponents  ">
+    // <editor-fold defaultstate="collapsed" desc=" initComponents ">
     
     private void initComponents() 
     {
-        if ( Beans.isDesignTime() ) 
+        if (Beans.isDesignTime()) {
             addTab("Tab 1", new JPanel());
-        
+            addTab("Tab 2", new JPanel());
+        }
+
+        setPreferredSize(new Dimension(100,50)); 
         Font f = ThemeUI.getFont("XTabbedPane.font");
         if ( f != null ) setFont( f );        
     }
     
     //</editor-fold>
+        
+    // <editor-fold defaultstate="collapsed" desc=" Getters / Setters ">
     
-    public void refresh() 
-    {
-        if ( dynamic ) loadTabs();
-    }
+    public boolean isNameAutoLookupAsOpener() { return nameAutoLookupAsOpener; }    
+    public void setNameAutoLookupAsOpener(boolean nameAutoLookupAsOpener) {
+        this.nameAutoLookupAsOpener = nameAutoLookupAsOpener;
+    }        
+        
+    public boolean isDynamic() { return dynamic; }
+    public void setDynamic(boolean dynamic) { this.dynamic = dynamic; }
+        
+    // </editor-fold>
     
-    public void load() 
-    {
+    // <editor-fold defaultstate="collapsed" desc=" UIControl implementation ">    
+    
+    public void setBinding(Binding binding) { this.binding = binding; }
+    public Binding getBinding() { return binding; }
+    
+    public String[] getDepends() { return depends; }
+    public void setDepends(String[] depends) { this.depends = depends; }
+    
+    public int getIndex() { return index; }
+    public void setIndex(int index) { this.index = index; }
+        
+    public void load() {
         if ( !dynamic ) loadTabs();
     }
     
-    //<editor-fold defaultstate="collapsed" desc="  helper methods  ">
-    private void loadTabs() {
-        loadOpeners();
-        removeAll();
-        if ( openers.size() > 0 ) {
-            for (Opener o: openers) {
-                super.addTab(o.getCaption(), getOpenerIcon(o), new LoadingPanel());
-            }
-            setSelectedIndex(0);
-        }
+    public void refresh() {
+        if ( dynamic ) loadTabs();
     }
     
-    private Icon getOpenerIcon(Opener o) {
-        if ( o.getProperties().get("icon") != null ) {
-            return ControlSupport.getImageIcon(o.getProperties().get("icon")+"");
-        }
-        return null;
+    public void setPropertyInfo(PropertySupport.PropertyInfo info) {
     }
-    
-    private void loadOpeners() {
-        openers.clear();
-        
-        if( nameAutoLookupAsOpener ) {
-            //--get openers defined from the opener provider
-            OpenerProvider openerProvider = ClientContext.getCurrentContext().getOpenerProvider();
-            if (openerProvider != null) {
-                UIController controller = binding.getController();
-                List<Opener> oo = openerProvider.getOpeners(getName(), null);
-                if (oo != null) openers.addAll(oo);
-            }
-        } else {
-            //--get openers defined from the code bean
-            Object value = null;
-            try {
-                value = UIControlUtil.getBeanValue(this);
-            } catch(Exception e) {;}
-            
-            if (value == null) {
-                //do nothing
-            } else if (value.getClass().isArray()) {
-                for (Opener o: (Opener[]) value) {
-                    openers.add(o);
-                }
-            } else if (value instanceof Collection) {
-                openers.addAll((Collection) value);
-            }
-        }
-        
-    }
-    //</editor-fold>
-    
+
     public int compareTo(Object o) {
         return UIControlUtil.compare(this, o);
     }
+    
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" helper methods ">
     
     public void setSelectedIndex(int index) {
         Component c = getComponentAt(index);
@@ -140,28 +123,144 @@ public class XTabbedPane extends JTabbedPane implements UIControl
         super.setSelectedIndex(index);
     }
     
-    
-    // <editor-fold defaultstate="collapsed" desc="  Getters/Setters  ">
-    
-    public String[] getDepends() { return depends; }
-    public void setDepends(String[] depends) { this.depends = depends; }
-    
-    public int getIndex() { return index; }
-    public void setIndex(int index) { this.index = index; }
-    
-    public void setBinding(Binding binding) { this.binding = binding; }
-    public Binding getBinding() { return binding; }
-    
-    public boolean isDynamic() { return dynamic; }
-    public void setDynamic(boolean dynamic) { this.dynamic = dynamic; }
-    
-    public void setPropertyInfo(PropertySupport.PropertyInfo info) {
+    private void loadTabs() {
+        loadOpeners();
+        removeAll();
+        if ( openers.size() > 0 ) {
+            for (Opener o: openers) {
+                super.addTab(o.getCaption(), getOpenerIcon(o), new LoadingPanel());
+            }
+            setSelectedIndex(0);
+        }
     }
+    
+    private Icon getOpenerIcon(Opener o) {
+        Object ov = o.getProperties().get("icon");
+        if (ov != null) { 
+            return ImageIconSupport.getInstance().getIcon(ov.toString());
+        } else { 
+            return null; 
+        }
+    }
+    
+    private void loadOpeners() {
+        openers.clear();
+        
+        OpenerProvider openerProvider = ClientContext.getCurrentContext().getOpenerProvider(); 
+        if (openerProvider == null) {
+            System.out.println("[WARN] opener provider is not set in ClientContext");
+            return;
+        }
+        
+        Object value = null;
+        String name = getName();
+        if (name != null && name.length() > 0) {
+            if (name.matches(".+:.+")) {
+                value = openerProvider.lookupOpeners(name, new HashMap()); 
+            } else {
+                try { 
+                    value = UIControlUtil.getBeanValue(this); 
+                } catch(Throwable t){;}
+            }
+        }
+        
+        TabbedPaneModel newModel = null;
+        if (value instanceof TabbedPaneModel) {
+            newModel = (TabbedPaneModel)value; 
+            newModel.setProvider(getProviderImpl()); 
+            value = newModel.getOpeners(); 
+        } 
+
+        if (value == null) {
+            //do nothing
+        } else if (value.getClass().isArray()) {
+            Opener[] arrays = (Opener[]) value;
+            for (Opener o: arrays) openers.add(o); 
+            
+        } else if (value instanceof Collection) {
+            openers.addAll((Collection) value);
+        } 
+        
+        if (this.model != null) this.model.setProvider(null);
+        
+        this.model = newModel; 
+    } 
     
     // </editor-fold>
     
-    //<editor-fold defaultstate="collapsed" desc="  BindingRunnable  ">
-    private class BindingRunnable implements Runnable {
+    // <editor-fold defaultstate="collapsed" desc=" ProviderImpl ">
+    
+    private ProviderImpl providerImpl; 
+    
+    private ProviderImpl getProviderImpl() {
+        if (providerImpl == null) {
+            providerImpl = new ProviderImpl();
+        } 
+        return providerImpl;
+    }
+    
+    private class ProviderImpl implements TabbedPaneModel.Provider 
+    {
+        XTabbedPane root = XTabbedPane.this;
+        
+        public Object getBinding() {
+            return root.getBinding(); 
+        }        
+
+        public Object lookupOpener(String invokerType, Map params) { 
+            OpenerProvider openerProvider = ClientContext.getCurrentContext().getOpenerProvider(); 
+            if (openerProvider == null) {
+                System.out.println("[WARN] opener provider is not set in ClientContext");
+                return new ArrayList(); 
+            }              
+            return openerProvider.lookupOpener(invokerType, params); 
+        } 
+        
+        public List lookupOpeners(String invokerType, Map params) { 
+            OpenerProvider openerProvider = ClientContext.getCurrentContext().getOpenerProvider(); 
+            if (openerProvider == null) {
+                System.out.println("[WARN] opener provider is not set in ClientContext");
+                return new ArrayList(); 
+            }              
+            return openerProvider.lookupOpeners(invokerType, params); 
+        } 
+
+        public void reload() { 
+            Component comp = root.getSelectedComponent(); 
+            if (!(comp instanceof JComponent)) return;
+
+            Object ov = ((JComponent) comp).getClientProperty("TabbedPane.opener");
+            if (!(ov instanceof Opener)) return;
+            
+            Opener opener = ((Opener)ov).createInstance(null, null); 
+            if (opener == null) opener = (Opener)ov;
+            
+            if (root.model != null) {
+                Map udfParams = root.model.getOpenerParams(null);
+                Map openerParams = opener.getParams();
+                if (openerParams == null) {
+                    openerParams = new HashMap();
+                    opener.setParams(openerParams); 
+                }
+                if (udfParams != null) openerParams.putAll(udfParams); 
+            }
+            
+            int index = root.getSelectedIndex();             
+            XSubFormPanel xsf = new XSubFormPanel(opener);
+            xsf.setBinding(binding);
+            xsf.load();
+            xsf.putClientProperty("TabbedPane.opener", opener); 
+            root.setComponentAt(index, xsf); 
+        }
+    } 
+    
+    // </editor-fold> 
+    
+    // <editor-fold defaultstate="collapsed" desc=" BindingRunnable "> 
+    
+    private class BindingRunnable implements Runnable 
+    {        
+        XTabbedPane root = XTabbedPane.this;
         
         private int index;
         private Opener opener;
@@ -171,26 +270,32 @@ public class XTabbedPane extends JTabbedPane implements UIControl
             this.opener = opener;
         }
         
-        public void run() {
+        public void run() {            
             try {
-                XSubFormPanel xsf = new XSubFormPanel(opener);
-                xsf.setBinding(binding);
-                xsf.load();
-                XTabbedPane.this.setComponentAt(index, xsf);
-                
-            }catch(Exception e) {
-                e.printStackTrace();
-            }
-        }
+                runImpl();
+            } catch(Throwable t) {
+                t.printStackTrace();
+            } 
+        } 
         
+        private void runImpl() {
+            if (root.model != null) {
+                Map udfParams = root.model.getOpenerParams(null);
+                Map openerParams = opener.getParams();
+                if (openerParams == null) {
+                    openerParams = new HashMap();
+                    opener.setParams(openerParams); 
+                }
+                if (udfParams != null) openerParams.putAll(udfParams); 
+            }
+
+            XSubFormPanel xsf = new XSubFormPanel(opener);
+            xsf.setBinding(binding);
+            xsf.load();
+            xsf.putClientProperty("TabbedPane.opener", opener); 
+            root.setComponentAt(index, xsf);  
+        }
     }
-    //</editor-fold>
     
-    public boolean isNameAutoLookupAsOpener() {
-        return nameAutoLookupAsOpener;
-    }
-    
-    public void setNameAutoLookupAsOpener(boolean nameAutoLookupAsOpener) {
-        this.nameAutoLookupAsOpener = nameAutoLookupAsOpener;
-    }    
+    // </editor-fold>    
 }
