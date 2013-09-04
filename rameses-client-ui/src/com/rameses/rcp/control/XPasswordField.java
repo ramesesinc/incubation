@@ -9,6 +9,7 @@ import com.rameses.rcp.support.ThemeUI;
 import com.rameses.rcp.ui.ActiveControl;
 import com.rameses.rcp.ui.ControlProperty;
 import com.rameses.rcp.ui.UIInput;
+import com.rameses.rcp.ui.UIKeyBinding;
 import com.rameses.rcp.ui.Validatable;
 import com.rameses.rcp.util.ActionMessage;
 import com.rameses.rcp.util.UIControlUtil;
@@ -133,7 +134,10 @@ public class XPasswordField extends JPasswordField implements UIInput, Validatab
     
     public int compareTo(Object o) {
         return UIControlUtil.compare(this, o);
-    }
+    } 
+    
+    public void processKeyBinding(UIKeyBinding aKeyBinding) {        
+    }    
     
     public void paintComponent(Graphics g) 
     {

@@ -284,6 +284,9 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
         return UIControlUtil.compare(this, o);
     }
     
+    public void processKeyBinding(UIKeyBinding aKeyBinding) {        
+    }
+    
     private void applyExpressions() {
         String expr = getReadonlyWhen();
         if (expr != null && expr.length() > 0) { 

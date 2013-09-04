@@ -1,6 +1,7 @@
 package com.rameses.rcp.control;
 
 import com.rameses.rcp.framework.ClientContext;
+import com.rameses.rcp.ui.UIKeyBinding;
 import com.rameses.rcp.util.UIControlUtil;
 import com.rameses.rcp.util.UIInputUtil;
 import java.awt.event.FocusEvent;
@@ -59,6 +60,9 @@ public class XNumberField extends XTextField
         //calculate field type if not specified
         getFieldType();
     }
+    
+    public void processKeyBinding(UIKeyBinding aKeyBinding) {        
+    }    
     
     //<editor-fold defaultstate="collapsed" desc="  helper methods  ">
     private static String NON_NUMBER = "[^\\-\\+\\d.eE]";

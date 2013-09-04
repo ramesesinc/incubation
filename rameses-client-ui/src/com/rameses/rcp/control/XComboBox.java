@@ -23,6 +23,7 @@ import com.rameses.rcp.util.UIInputUtil;
 import com.rameses.common.ExpressionResolver;
 import com.rameses.rcp.control.table.ExprBeanSupport;
 import com.rameses.rcp.support.FontSupport;
+import com.rameses.rcp.ui.UIKeyBinding;
 import com.rameses.util.ValueUtil;
 import java.awt.EventQueue;
 import java.awt.Font;
@@ -548,6 +549,9 @@ public class XComboBox extends JComboBox implements UIInput, Validatable, Active
     public int compareTo(Object o) {
         return UIControlUtil.compare(this, o);
     }
+    
+    public void processKeyBinding(UIKeyBinding aKeyBinding) {        
+    }    
     
     protected void onItemStateChanged(ItemEvent e) {
         if ( e.getStateChange() == ItemEvent.SELECTED && !updating ) {

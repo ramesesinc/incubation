@@ -12,7 +12,8 @@ import com.rameses.rcp.support.TextEditorSupport;
 import com.rameses.rcp.support.ThemeUI;
 import com.rameses.rcp.ui.ActiveControl;
 import com.rameses.rcp.ui.ControlProperty;
-import com.rameses.rcp.ui.UIInput;
+import com.rameses.rcp.ui.UIKeyBinding;
+import com.rameses.rcp.ui.UIText;
 import com.rameses.rcp.ui.Validatable;
 import com.rameses.rcp.util.ActionMessage;
 import com.rameses.rcp.util.UIControlUtil;
@@ -33,7 +34,7 @@ import javax.swing.InputVerifier;
  *
  * @author jaycverg
  */
-public class XTextField extends DefaultTextField implements UIInput, Validatable, ActiveControl 
+public class XTextField extends DefaultTextField implements UIText, Validatable, ActiveControl 
 {    
     protected Binding binding;
     protected ControlProperty property = new ControlProperty();
@@ -181,6 +182,10 @@ public class XTextField extends DefaultTextField implements UIInput, Validatable
             property.setErrorMessage( actionMessage.toString() );
         }
     }
+    
+    public void processKeyBinding(UIKeyBinding aKeyBinding) {   
+        
+    }    
     
     // </editor-fold>
     

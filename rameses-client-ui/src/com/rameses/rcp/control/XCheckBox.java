@@ -8,6 +8,7 @@ import com.rameses.rcp.support.ThemeUI;
 import com.rameses.rcp.ui.ActiveControl;
 import com.rameses.rcp.ui.ControlProperty;
 import com.rameses.rcp.ui.UIInput;
+import com.rameses.rcp.ui.UIKeyBinding;
 import com.rameses.rcp.util.UIControlUtil;
 import com.rameses.rcp.util.UIInputUtil;
 import java.awt.Font;
@@ -97,6 +98,9 @@ public class XCheckBox extends JCheckBox implements UIInput, ActiveControl
     public int compareTo(Object o) {
         return UIControlUtil.compare(this, o);
     }
+    
+    public void processKeyBinding(UIKeyBinding aKeyBinding) {        
+    }    
     
     private void resolveValues()
     {

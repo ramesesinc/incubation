@@ -29,6 +29,7 @@ import com.rameses.rcp.ui.ActiveControl;
 import com.rameses.rcp.ui.ControlProperty;
 import com.rameses.rcp.ui.UIInput;
 import com.rameses.rcp.ui.UIInputVerifier;
+import com.rameses.rcp.ui.UIKeyBinding;
 import com.rameses.rcp.ui.Validatable;
 import com.rameses.rcp.util.ActionMessage;
 import com.rameses.rcp.util.ControlSupport;
@@ -515,6 +516,9 @@ public class XOpenerField extends DefaultTextField implements UIInput, UIInputVe
             setHandlerObject(handler);
         }
     }
+    
+    public void processKeyBinding(UIKeyBinding aKeyBinding) {        
+    }    
 
     // </editor-fold>
     

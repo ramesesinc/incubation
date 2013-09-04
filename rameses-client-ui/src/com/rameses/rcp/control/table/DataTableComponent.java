@@ -852,6 +852,13 @@ public class DataTableComponent extends JTable implements TableControl
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc="  helper/supporting methods  ">
+    
+    private KeyBinding keyBinding; 
+    
+    protected boolean processKeyBinding(KeyStroke ks, KeyEvent ke, int condition, boolean pressed) {
+        this.keyBinding = new KeyBinding(ks, ke, condition, pressed); 
+        return super.processKeyBinding(ks, ke, condition, pressed); 
+    }
         
     protected void onfocusGained(FocusEvent e) {} 
     protected void onfocusLost(FocusEvent e) {}    
@@ -1123,19 +1130,22 @@ public class DataTableComponent extends JTable implements TableControl
         {
             char ch = currentKeyEvent.getKeyChar();
             boolean dispatched = false; 
-            
-            if (editor instanceof JTextComponent) {
-                try {
-                    JTextComponent jtxt = (JTextComponent) editor;
-                    jtxt.setText(ch+""); 
-                    dispatched = true; 
-                } catch (Throwable ex) {;} 
-            }
 
+            
+//            if (editor instanceof JTextComponent) {
+//                try {
+//                    JTextComponent jtxt = (JTextComponent) editor;
+//                    jtxt.setText(ch+""); 
+//                    dispatched = true; 
+//                } catch (Throwable ex) {;} 
+//            }
+            
+            
+            
             if (!dispatched && (editor instanceof UIInput)) {
                 UIInput uiinput = (UIInput) editor;
-                uiinput.setValue((KeyEvent) e);
-                
+                uiinput.setValue(ch+"");
+                            
                 if (editor instanceof XCheckBox) {
                     hideEditor(editor, rowIndex, colIndex, true, true); 
                     return;
@@ -1817,4 +1827,29 @@ public class DataTableComponent extends JTable implements TableControl
     }
     
     // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" KeyBinding ">  
+    
+    private class KeyBinding 
+    {
+        private KeyStroke ks;
+        private KeyEvent ke;
+        private int condition;
+        private boolean pressed;
+        
+        KeyBinding(KeyStroke ks, KeyEvent ke, int condition, boolean pressed) {
+            this.ks = ks;
+            this.ke = ke; 
+            this.condition = condition;
+            this.pressed = pressed; 
+        }
+        
+        public KeyStroke getKeyStroke() { return ks; } 
+        public KeyEvent getKeyEvent() { return ke; } 
+        public int getCondition() { return condition; } 
+        public boolean isPressed() { return pressed; } 
+    }
+    
+    // </editor-fold>
+    
 }

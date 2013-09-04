@@ -15,4 +15,6 @@ public interface UIInput extends UIOutput
     void setRequestFocus(boolean focus);
     boolean isImmediate();
     
+    void processKeyBinding(UIKeyBinding aKeyBinding); 
+    
 }

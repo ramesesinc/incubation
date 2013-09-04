@@ -14,6 +14,7 @@ import com.rameses.rcp.framework.ClientContext;
 import com.rameses.rcp.ui.ActiveControl;
 import com.rameses.rcp.ui.ControlProperty;
 import com.rameses.rcp.ui.UIInput;
+import com.rameses.rcp.ui.UIKeyBinding;
 import com.rameses.rcp.util.ControlSupport;
 import com.rameses.rcp.util.UIControlUtil;
 import com.rameses.rcp.util.UIInputUtil;
@@ -130,6 +131,9 @@ public class XEditorPane extends JEditorPane implements UIInput, ActiveControl {
     public int compareTo(Object o) {
         return UIControlUtil.compare(this, o);
     }
+    
+    public void processKeyBinding(UIKeyBinding aKeyBinding) {        
+    }    
     
     // <editor-fold defaultstate="collapsed" desc="  Getters/Setters  ">
     

@@ -8,6 +8,7 @@
 package com.rameses.rcp.control;
 
 import com.rameses.rcp.framework.ClientContext;
+import com.rameses.rcp.ui.UIKeyBinding;
 import com.rameses.rcp.util.UIControlUtil;
 import com.rameses.rcp.util.UIInputUtil;
 import com.rameses.util.ValueUtil;
@@ -68,6 +69,9 @@ public class XFileBrowser extends AbstractIconedTextField {
     public int compareTo(Object o) {
         return UIControlUtil.compare(this, o);
     }
+    
+    public void processKeyBinding(UIKeyBinding aKeyBinding) {        
+    }    
     
     //<editor-fold defaultstate="collapsed" desc="  refresh/load  ">
     public void refresh() {
@@ -184,8 +188,7 @@ public class XFileBrowser extends AbstractIconedTextField {
     public boolean isImmediate() {
         return true;
     }
-    //</editor-fold>
-    
+    //</editor-fold>    
     
     //<editor-fold defaultstate="collapsed" desc="  XFileBrowserFiler (class)  ">
     private class XFileBrowserFiler extends FileFilter {
