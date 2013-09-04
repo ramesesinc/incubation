@@ -90,8 +90,6 @@ public class Opener {
     public Object getHandle() {
         if (controller == null) {
             if (loader != null) loader.load(this);
-            
-            return null; 
         }
         return controller.getCodeBean();
     }
