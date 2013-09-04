@@ -253,6 +253,11 @@ public class Node
         return (provider == null? null: provider.open());
     }
     
+    public void refresh() {
+        Node.Provider provider = getProvider();
+        if (provider != null) provider.refresh();
+    }    
+    
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" Provider interface for additional information ">
@@ -268,6 +273,8 @@ public class Node
         
         void select();
         Object open();
+        
+        void refresh(); 
     } 
     
     // </editor-fold>

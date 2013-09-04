@@ -65,6 +65,8 @@ public abstract class AbstractTreeNodeModel
         Node findNode(NodeFilter filter);        
         List<Node> findNodes(NodeFilter filter);
         List<Node> children();
+        
+        void refresh();
     }
     
 }

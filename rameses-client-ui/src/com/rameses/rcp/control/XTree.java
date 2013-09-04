@@ -467,6 +467,10 @@ public class XTree extends JTree implements UIControl
             else 
                 return nodeModel.openFolder(userNode); 
         } 
+        
+        public void refresh() {
+            //treeNode.
+        }
     }
     
     // </editor-fold>
@@ -713,7 +717,15 @@ public class XTree extends JTree implements UIControl
             return list; 
         }
         
-        
+        public void refresh() {
+            XTree.DefaultNode selNode = root.getSelectedNode(); 
+            if (selNode == null) { 
+                XTree.DefaultNode rootNode = (DefaultNode) root.root; 
+                rootNode.loadChildren(true); 
+            } else {
+                root.model.nodeChanged(selNode);
+            }
+        }
     }
             
     // </editor-fold>
