@@ -35,19 +35,15 @@ public class InboxDocBlankPage extends javax.swing.JPanel {
     private void initComponents() {
 
         setBackground(new java.awt.Color(255, 255, 255));
-        com.rameses.rcp.control.border.XLineBorder xLineBorder1 = new com.rameses.rcp.control.border.XLineBorder();
-        xLineBorder1.setHideRight(true);
-        xLineBorder1.setLineColor(new java.awt.Color(150, 150, 150));
-        setBorder(xLineBorder1);
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(0, 278, Short.MAX_VALUE)
+            .add(0, 279, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(0, 167, Short.MAX_VALUE)
+            .add(0, 169, Short.MAX_VALUE)
         );
     }// </editor-fold>//GEN-END:initComponents
     
