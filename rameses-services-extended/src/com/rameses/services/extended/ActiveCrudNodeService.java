@@ -27,7 +27,8 @@ public abstract class ActiveCrudNodeService extends ActiveCrudListService {
     }
     
     @ProxyMethod
-    public List getNodes( Map selectedNode ) throws Exception {
+    public Object getNodes( Object node ) throws Exception {
+        Map selectedNode  = (Map)node;
         boolean root = false;
         if(selectedNode.containsKey("root")) {
             root = Boolean.parseBoolean(selectedNode.get("root")+"");
