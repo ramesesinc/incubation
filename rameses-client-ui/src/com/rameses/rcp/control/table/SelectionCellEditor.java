@@ -15,7 +15,6 @@ import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.framework.ClientContext;
 import com.rameses.rcp.ui.UIInput;
-import com.rameses.rcp.ui.UIKeyBinding;
 import com.rameses.rcp.util.UIControlUtil;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
@@ -74,10 +73,7 @@ public class SelectionCellEditor extends JCheckBox implements UIInput, Immediate
     }
     
     public void setPropertyInfo(PropertySupport.PropertyInfo info) {
-    }
-    
-    public void processKeyBinding(UIKeyBinding aKeyBinding) {        
-    }    
+    }      
 
     public void load() {
     }

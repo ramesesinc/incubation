@@ -18,7 +18,6 @@ import com.rameses.rcp.support.ThemeUI;
 import com.rameses.rcp.ui.ActiveControl;
 import com.rameses.rcp.ui.ControlProperty;
 import com.rameses.rcp.ui.UIInput;
-import com.rameses.rcp.ui.UIKeyBinding;
 import com.rameses.rcp.util.UIControlUtil;
 import com.rameses.rcp.util.UIInputUtil;
 import java.awt.Color;
@@ -122,10 +121,7 @@ public class XDateField extends AbstractDateField implements UIInput, ActiveCont
     }
     public void setValue(Object value) {
         super.setValue(value); 
-    }  
-    
-    public void processKeyBinding(UIKeyBinding aKeyBinding) {        
-    }
+    }      
     
     // </editor-fold>
     

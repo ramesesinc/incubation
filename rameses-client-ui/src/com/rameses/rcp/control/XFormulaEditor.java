@@ -16,7 +16,6 @@ import com.rameses.rcp.framework.ActionHandler;
 import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.framework.ClientContext;
 import com.rameses.rcp.ui.UIInput;
-import com.rameses.rcp.ui.UIKeyBinding;
 import com.rameses.rcp.util.UIControlUtil;
 import com.rameses.rcp.util.UIInputUtil;
 import com.rameses.util.ValueUtil;
@@ -226,10 +225,7 @@ public class XFormulaEditor extends JTextPane implements UIInput
         if (focus) requestFocus();
     }
 
-    public boolean isImmediate() { return false; }    
-    
-    public void processKeyBinding(UIKeyBinding aKeyBinding) {        
-    }    
+    public boolean isImmediate() { return false; }          
     
     // </editor-fold>
     

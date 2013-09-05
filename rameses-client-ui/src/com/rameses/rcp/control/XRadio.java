@@ -15,7 +15,6 @@ import com.rameses.rcp.support.ThemeUI;
 import com.rameses.rcp.ui.ActiveControl;
 import com.rameses.rcp.ui.ControlProperty;
 import com.rameses.rcp.ui.UIInput;
-import com.rameses.rcp.ui.UIKeyBinding;
 import com.rameses.rcp.util.UIControlUtil;
 import com.rameses.rcp.util.UIInputUtil;
 import com.rameses.util.ValueUtil;
@@ -84,10 +83,7 @@ public class XRadio extends JRadioButton implements UIInput, ItemListener, Activ
             buttonGroup = m.get(name);
             buttonGroup.add(this);
         }
-    } 
-    
-    public void processKeyBinding(UIKeyBinding aKeyBinding) {        
-    }    
+    }      
     
     public void itemStateChanged(ItemEvent e) {
         if ( e.getStateChange() == ItemEvent.SELECTED ) {

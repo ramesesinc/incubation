@@ -1,8 +1,10 @@
 package com.rameses.rcp.control;
 
 import com.rameses.common.PropertyResolver;
+import com.rameses.rcp.common.CallbackHandlerProxy;
 import com.rameses.rcp.common.FormControl;
 import com.rameses.rcp.common.FormPanelModel;
+import com.rameses.rcp.common.MsgBox;
 import com.rameses.rcp.common.PropertyChangeSupport;
 import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.common.ValidatorEvent;
@@ -1224,6 +1226,13 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
             try { propertyResolver.setProperty(userObj, "value", value); } catch(Throwable t){;}             
             try { root.model.updateBean(name, value, userObj); } catch(Throwable t){;} 
             
+            //fire onchange handle on the item if available 
+            try { 
+                fireOnChangeEvent(userObj, value); 
+            } catch(Throwable t) { 
+                MsgBox.err(t); 
+            } 
+            
             binding.getValueChangeSupport().notify(name, value);  
             if (jcomp instanceof JTextComponent) 
             {
@@ -1247,6 +1256,17 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
 
             binding.notifyDepends(uic);            
         } 
+        
+        private void fireOnChangeEvent(Object userObj, Object value) {
+            Object onchangeHandler = null; 
+            try { 
+                onchangeHandler = propertyResolver.getProperty(userObj, "onchange"); 
+            } catch(Throwable t){;} 
+            
+            if (onchangeHandler == null) return;
+            
+            new CallbackHandlerProxy(onchangeHandler).call(value); 
+        }
     }
     
     // </editor-fold>    

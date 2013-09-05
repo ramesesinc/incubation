@@ -853,13 +853,6 @@ public class DataTableComponent extends JTable implements TableControl
     
     // <editor-fold defaultstate="collapsed" desc="  helper/supporting methods  ">
     
-    private KeyBinding keyBinding; 
-    
-    protected boolean processKeyBinding(KeyStroke ks, KeyEvent ke, int condition, boolean pressed) {
-        this.keyBinding = new KeyBinding(ks, ke, condition, pressed); 
-        return super.processKeyBinding(ks, ke, condition, pressed); 
-    }
-        
     protected void onfocusGained(FocusEvent e) {} 
     protected void onfocusLost(FocusEvent e) {}    
     protected final void processFocusEvent(FocusEvent e) 
@@ -1093,6 +1086,7 @@ public class DataTableComponent extends JTable implements TableControl
         editor.putClientProperty(COLUMN_POINT, new Point(colIndex, rowIndex));
         editor.putClientProperty("cellEditorValue", null); 
         editor.setBounds(bounds); 
+        editor.validate(); 
         
         UIControl ui = (UIControl) editor;
         Object bean = dataProvider.getListItemData(rowIndex); 
@@ -1126,26 +1120,14 @@ public class DataTableComponent extends JTable implements TableControl
                 return;
             }
         } 
-        else if (isPrintableKey(e))  
-        {
+        else if (isPrintableKey(e))  {
             char ch = currentKeyEvent.getKeyChar();
             boolean dispatched = false; 
-
-            
-//            if (editor instanceof JTextComponent) {
-//                try {
-//                    JTextComponent jtxt = (JTextComponent) editor;
-//                    jtxt.setText(ch+""); 
-//                    dispatched = true; 
-//                } catch (Throwable ex) {;} 
-//            }
-            
-            
             
             if (!dispatched && (editor instanceof UIInput)) {
                 UIInput uiinput = (UIInput) editor;
-                uiinput.setValue(ch+"");
-                            
+                uiinput.setValue(currentKeyEvent);
+                
                 if (editor instanceof XCheckBox) {
                     hideEditor(editor, rowIndex, colIndex, true, true); 
                     return;
@@ -1175,7 +1157,7 @@ public class DataTableComponent extends JTable implements TableControl
 
         editor.setInputVerifier( verifier );
         editor.setVisible(true);
-        editor.grabFocus(); 
+        editor.requestFocus();
         
         editingRow = rowIndex; 
         editingMode = true;
@@ -1803,7 +1785,6 @@ public class DataTableComponent extends JTable implements TableControl
             if (root.equals(pfo)) return;
             
             //if (root.hasFocus()) return;             
-            System.out.println("grabbing focus...");
             root.grabFocus();
             root.requestFocusInWindow(); 
             
@@ -1824,30 +1805,6 @@ public class DataTableComponent extends JTable implements TableControl
         public Object getBinding() { 
             return root.getBinding(); 
         }         
-    }
-    
-    // </editor-fold>
-    
-    // <editor-fold defaultstate="collapsed" desc=" KeyBinding ">  
-    
-    private class KeyBinding 
-    {
-        private KeyStroke ks;
-        private KeyEvent ke;
-        private int condition;
-        private boolean pressed;
-        
-        KeyBinding(KeyStroke ks, KeyEvent ke, int condition, boolean pressed) {
-            this.ks = ks;
-            this.ke = ke; 
-            this.condition = condition;
-            this.pressed = pressed; 
-        }
-        
-        public KeyStroke getKeyStroke() { return ks; } 
-        public KeyEvent getKeyEvent() { return ke; } 
-        public int getCondition() { return condition; } 
-        public boolean isPressed() { return pressed; } 
     }
     
     // </editor-fold>
