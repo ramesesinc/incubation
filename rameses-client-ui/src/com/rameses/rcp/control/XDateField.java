@@ -121,7 +121,7 @@ public class XDateField extends AbstractDateField implements UIInput, ActiveCont
     }
     public void setValue(Object value) {
         super.setValue(value); 
-    }  
+    }      
     
     // </editor-fold>
     

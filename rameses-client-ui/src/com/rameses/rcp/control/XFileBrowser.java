@@ -67,7 +67,7 @@ public class XFileBrowser extends AbstractIconedTextField {
     
     public int compareTo(Object o) {
         return UIControlUtil.compare(this, o);
-    }
+    }       
     
     //<editor-fold defaultstate="collapsed" desc="  refresh/load  ">
     public void refresh() {
@@ -184,8 +184,7 @@ public class XFileBrowser extends AbstractIconedTextField {
     public boolean isImmediate() {
         return true;
     }
-    //</editor-fold>
-    
+    //</editor-fold>    
     
     //<editor-fold defaultstate="collapsed" desc="  XFileBrowserFiler (class)  ">
     private class XFileBrowserFiler extends FileFilter {

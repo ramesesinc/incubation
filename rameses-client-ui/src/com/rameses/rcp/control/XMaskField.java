@@ -121,7 +121,7 @@ public class XMaskField extends AbstractMaskField implements UIInput, ActiveCont
     }
     public void setValue(Object value) {
         super.setValue(value); 
-    }  
+    }         
     
     // </editor-fold>
     

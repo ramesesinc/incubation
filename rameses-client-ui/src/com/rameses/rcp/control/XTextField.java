@@ -180,7 +180,7 @@ public class XTextField extends DefaultTextField implements UIInput, Validatable
         if ( actionMessage.hasMessages() ) {
             property.setErrorMessage( actionMessage.toString() );
         }
-    }
+    } 
     
     // </editor-fold>
     
@@ -217,22 +217,18 @@ public class XTextField extends DefaultTextField implements UIInput, Validatable
         return txtValue;
     }
     
+    private KeyEvent keValue;
+    
     public void setValue(Object value) 
     {
-        if ( value instanceof EventObject ) 
-        {
-            if (value instanceof KeyEvent)
-            {
+        if ( value instanceof EventObject ) {
+            if (value instanceof KeyEvent) { 
                 KeyEvent ke = (KeyEvent) value;
-                setText( ke.getKeyChar()+"" );
-            }
-        } 
-        else 
-        {
-            if ( value == null ) 
-                setText("");
-            else if ( !ValueUtil.isEqual(value, getText()) )
-                setText(value.toString());
+                String sval = ke.getKeyChar()+"";
+                super.setText(sval); 
+            } 
+        } else {
+            setText((value == null? "": value.toString())); 
         }
     }
     

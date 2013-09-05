@@ -133,7 +133,7 @@ public class XPasswordField extends JPasswordField implements UIInput, Validatab
     
     public int compareTo(Object o) {
         return UIControlUtil.compare(this, o);
-    }
+    }    
     
     public void paintComponent(Graphics g) 
     {

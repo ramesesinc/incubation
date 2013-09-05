@@ -514,7 +514,7 @@ public class XOpenerField extends DefaultTextField implements UIInput, UIInputVe
             setHandler(null); 
             setHandlerObject(handler);
         }
-    }
+    }   
 
     // </editor-fold>
     

@@ -282,7 +282,7 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
     
     public int compareTo(Object o) {
         return UIControlUtil.compare(this, o);
-    }
+    }   
     
     private void applyExpressions() {
         String expr = getReadonlyWhen();

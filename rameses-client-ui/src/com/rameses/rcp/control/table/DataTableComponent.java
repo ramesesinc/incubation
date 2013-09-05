@@ -852,7 +852,7 @@ public class DataTableComponent extends JTable implements TableControl
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc="  helper/supporting methods  ">
-        
+    
     protected void onfocusGained(FocusEvent e) {} 
     protected void onfocusLost(FocusEvent e) {}    
     protected final void processFocusEvent(FocusEvent e) 
@@ -1086,6 +1086,7 @@ public class DataTableComponent extends JTable implements TableControl
         editor.putClientProperty(COLUMN_POINT, new Point(colIndex, rowIndex));
         editor.putClientProperty("cellEditorValue", null); 
         editor.setBounds(bounds); 
+        editor.validate(); 
         
         UIControl ui = (UIControl) editor;
         Object bean = dataProvider.getListItemData(rowIndex); 
@@ -1119,22 +1120,13 @@ public class DataTableComponent extends JTable implements TableControl
                 return;
             }
         } 
-        else if (isPrintableKey(e))  
-        {
+        else if (isPrintableKey(e))  {
             char ch = currentKeyEvent.getKeyChar();
             boolean dispatched = false; 
             
-            if (editor instanceof JTextComponent) {
-                try {
-                    JTextComponent jtxt = (JTextComponent) editor;
-                    jtxt.setText(ch+""); 
-                    dispatched = true; 
-                } catch (Throwable ex) {;} 
-            }
-
             if (!dispatched && (editor instanceof UIInput)) {
                 UIInput uiinput = (UIInput) editor;
-                uiinput.setValue((KeyEvent) e);
+                uiinput.setValue(currentKeyEvent);
                 
                 if (editor instanceof XCheckBox) {
                     hideEditor(editor, rowIndex, colIndex, true, true); 
@@ -1165,7 +1157,7 @@ public class DataTableComponent extends JTable implements TableControl
 
         editor.setInputVerifier( verifier );
         editor.setVisible(true);
-        editor.grabFocus(); 
+        editor.requestFocus();
         
         editingRow = rowIndex; 
         editingMode = true;
@@ -1793,7 +1785,6 @@ public class DataTableComponent extends JTable implements TableControl
             if (root.equals(pfo)) return;
             
             //if (root.hasFocus()) return;             
-            System.out.println("grabbing focus...");
             root.grabFocus();
             root.requestFocusInWindow(); 
             
@@ -1817,4 +1808,5 @@ public class DataTableComponent extends JTable implements TableControl
     }
     
     // </editor-fold>
+    
 }

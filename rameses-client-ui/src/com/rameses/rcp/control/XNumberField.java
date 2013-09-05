@@ -58,7 +58,7 @@ public class XNumberField extends XTextField
         
         //calculate field type if not specified
         getFieldType();
-    }
+    }  
     
     //<editor-fold defaultstate="collapsed" desc="  helper methods  ">
     private static String NON_NUMBER = "[^\\-\\+\\d.eE]";
