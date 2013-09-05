@@ -384,7 +384,8 @@ public class XLabel extends JLabel implements UIOutput, ActiveControl
     private Object createExpressionBean(Object itemBean) 
     {
         ExprBeanSupport beanSupport = new ExprBeanSupport(binding.getBean());
-        beanSupport.setItem(getVarName(), itemBean); 
+        if (itemBean != null) beanSupport.setItem(getVarName(), itemBean); 
+        
         return beanSupport.createProxy(); 
     }  
     
