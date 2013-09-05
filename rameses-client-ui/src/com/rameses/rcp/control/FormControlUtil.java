@@ -37,6 +37,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.swing.JComponent;
 
 public class FormControlUtil {
     
@@ -83,7 +84,22 @@ public class FormControlUtil {
             Class clazz = ctx.getClassLoader().loadClass(className);
             UIControl uic = (UIControl) clazz.newInstance();
             setProperties(uic, fc.getProperties());
-            return uic;             
+
+            int width=0, height=0;
+            Object ov = fc.getProperties().get("preferredSize");
+            String[] vals = (ov == null? null: ov.toString().split(",")); 
+            if (vals != null) {
+                try { width = Integer.parseInt(vals[0].trim()); } catch(Throwable t){;} 
+                try { height = Integer.parseInt(vals[1].trim()); } catch(Throwable t){;} 
+            }            
+            
+            if (fc.getType().matches("decimal|integer|date|mask")) {
+                width = (width == 0? 100: width);
+            }
+
+            height = (height == 0? 20: height);             
+            ((JComponent) uic).setPreferredSize(new Dimension(width, height));            
+            return uic; 
         } catch (Exception ex) { 
             ex.printStackTrace(); 
         } 
