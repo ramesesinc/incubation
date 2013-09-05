@@ -57,16 +57,26 @@ public abstract class AbstractTreeNodeModel
         return (provider == null? null: provider.getBinding()); 
     }
     
+    public final void reloadTree() {
+        if (provider != null) provider.reloadTree(); 
+    }
+    
+    public final Node getRoot() {
+        return (provider == null? null: provider.getRoot()); 
+    }
+    
     public static interface Provider 
     {
         Object getBinding(); 
         Node getSelectedNode(); 
+        Node getRoot();
         
         Node findNode(NodeFilter filter);        
         List<Node> findNodes(NodeFilter filter);
         List<Node> children();
         
         void refresh();
+        void reloadTree();
     }
     
 }
