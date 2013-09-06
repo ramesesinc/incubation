@@ -1080,7 +1080,21 @@ public class DataTableComponent extends JTable implements TableControl
         return msg;
     }
     
-    private synchronized void showEditor(final JComponent editor, int rowIndex, int colIndex, EventObject e) 
+    private void showEditor(JComponent editor, int rowIndex, int colIndex, EventObject e) 
+    {
+        final JComponent _editor = editor;
+        final int _rowIndex = rowIndex;
+        final int _colIndex = colIndex;
+        final EventObject _eventObject = e;
+        
+        EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                showEditorImpl(_editor, _rowIndex, _colIndex, _eventObject); 
+            }
+        }); 
+    }
+    
+    private void showEditorImpl(final JComponent editor, int rowIndex, int colIndex, EventObject e) 
     {
         Rectangle bounds = getCellRect(rowIndex, colIndex, false);
         editor.putClientProperty(COLUMN_POINT, new Point(colIndex, rowIndex));
@@ -1156,7 +1170,7 @@ public class DataTableComponent extends JTable implements TableControl
         }
 
         editor.setInputVerifier( verifier );
-        editor.setVisible(true);
+        editor.setVisible(true);        
         editor.requestFocus();
         
         editingRow = rowIndex; 
