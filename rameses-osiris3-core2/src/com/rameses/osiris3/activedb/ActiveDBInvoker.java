@@ -69,6 +69,15 @@ public class ActiveDBInvoker {
                         int l = Integer.parseInt(m.get("_limit")+"");
                         sq.setMaxResults( l );
                     }
+                    if(m.containsKey("_pagingKeys")) {
+                        Object p = m.get("_pagingKeys");
+                        if(p.getClass().isArray()) {
+                            sq.setPagingKeys( (String[])p );    
+                        }
+                        else {
+                            sq.setPagingKeys((String)p);
+                        }
+                    }
                 }
                 return sq.getResultList();
             }
