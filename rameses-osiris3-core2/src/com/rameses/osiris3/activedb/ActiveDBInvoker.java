@@ -57,6 +57,9 @@ public class ActiveDBInvoker {
                 em.delete(n+subSchema, m);
                 return null;
             }
+            else if(methodName.equals("save")) {
+                return em.save(n+subSchema, m);
+            }
             else if(methodName.startsWith("get") || methodName.startsWith("findAll")) {
                 SqlQuery sq = em.getSqlContext().createNamedQuery( n+":"+methodName );    
                 if(m!=null) {
