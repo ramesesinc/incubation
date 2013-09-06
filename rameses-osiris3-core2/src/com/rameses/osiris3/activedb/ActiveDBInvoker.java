@@ -51,7 +51,7 @@ public class ActiveDBInvoker {
                 return em.update(n+subSchema, m);
             }
             else if(methodName.equals("read")) {
-                return em.update(n+subSchema, m);
+                return em.read(n+subSchema, m);
             }
             else if(methodName.equals("delete")) {
                 em.delete(n+subSchema, m);
