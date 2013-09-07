@@ -11,6 +11,7 @@ package com.rameses.services.extended;
 
 import com.rameses.annotations.ProxyMethod;
 import com.rameses.osiris3.persistence.EntityManager;
+import java.util.Map;
 
 /**
  *
@@ -24,6 +25,10 @@ public abstract class AbstractListService implements IListListener {
     public void beforeList(Object data){;}
     public void afterList(Object data, Object list){;}
     
+    public String getPagingKeys() {
+        return null;
+    }
+    
     public String getListMethod() {
         return "getList";
     }
@@ -34,6 +39,9 @@ public abstract class AbstractListService implements IListListener {
     
     @ProxyMethod
     public Object getList(Object params) throws Exception {
+        if(getPagingKeys()!=null) {
+            ((Map)params).put("_pagingKeys", getPagingKeys());
+        }
         return getListHelper().getList( params );
     }
     

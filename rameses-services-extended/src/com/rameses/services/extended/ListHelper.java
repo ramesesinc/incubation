@@ -58,6 +58,13 @@ public class ListHelper {
         }
         sq.setVars( params );
         
+        
+        if(params.containsKey("_pagingKeys")) {
+            String s = (String)params.get("_pagingKeys");
+            String[] arr = s.split(",");
+            sq.setPagingKeys( arr );
+        }
+        
         List list = sq.getResultList();
         listener.afterList(params, list);
         return list;

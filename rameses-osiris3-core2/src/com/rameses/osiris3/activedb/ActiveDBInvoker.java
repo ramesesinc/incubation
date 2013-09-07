@@ -78,7 +78,9 @@ public class ActiveDBInvoker {
                             sq.setPagingKeys( (String[])p );    
                         }
                         else {
-                            sq.setPagingKeys((String)p);
+                            String s = (String)p;
+                            String[] arr = s.split(",");
+                            sq.setPagingKeys(arr);
                         }
                     }
                 }

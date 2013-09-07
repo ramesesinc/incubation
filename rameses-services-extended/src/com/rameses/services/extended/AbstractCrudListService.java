@@ -11,6 +11,7 @@ package com.rameses.services.extended;
 
 import com.rameses.annotations.ProxyMethod;
 import com.rameses.osiris3.persistence.EntityManager;
+import java.util.Map;
 
 /**
  *
@@ -25,6 +26,10 @@ public abstract class AbstractCrudListService extends AbstractCrudService  imple
         return "getList";
     }
     
+    public String getPagingKeys() {
+        return null;
+    }
+    
     private ListHelper getListHelper() {
         return new ListHelper(getSchemaName(), (EntityManager) getEm(), this, this.getListMethod());
     }
@@ -32,6 +37,9 @@ public abstract class AbstractCrudListService extends AbstractCrudService  imple
     @ProxyMethod
     public Object getList(Object params) {
         try {
+            if(getPagingKeys()!=null) {
+                ((Map)params).put("_pagingKeys", getPagingKeys());
+            }
             return getListHelper().getList( params );
         } catch(RuntimeException re) {
             throw re; 
