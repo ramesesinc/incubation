@@ -13,6 +13,9 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.math.BigDecimal;
 import java.net.URL;
+import java.sql.NClob;
+import java.sql.RowId;
+import java.sql.SQLXML;
 import java.sql.Timestamp;
 import java.sql.Array;
 import java.sql.Blob;
@@ -656,27 +659,235 @@ public class DBServiceResultSet implements ResultSet {
     }
     
     public void updateRef(int columnIndex, Ref x) throws SQLException {
+        throw new SQLException("not supported");
     }
     
     public void updateRef(String columnName, Ref x) throws SQLException {
+        throw new SQLException("not supported");
     }
     
     public void updateBlob(int columnIndex, Blob x) throws SQLException {
+        throw new SQLException("not supported");
     }
     
     public void updateBlob(String columnName, Blob x) throws SQLException {
+        throw new SQLException("not supported");
     }
     
     public void updateClob(int columnIndex, Clob x) throws SQLException {
+        throw new SQLException("not supported");
     }
     
     public void updateClob(String columnName, Clob x) throws SQLException {
+        throw new SQLException("not supported");
     }
     
     public void updateArray(int columnIndex, Array x) throws SQLException {
+        throw new SQLException("not supported");
     }
     
     public void updateArray(String columnName, Array x) throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public RowId getRowId(int columnIndex) throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public RowId getRowId(String columnLabel) throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public void updateRowId(int columnIndex, RowId x) throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public void updateRowId(String columnLabel, RowId x) throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public int getHoldability() throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public boolean isClosed() throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public void updateNString(int columnIndex, String nString) throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public void updateNString(String columnLabel, String nString) throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public void updateNClob(int columnIndex, NClob nClob) throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public void updateNClob(String columnLabel, NClob nClob) throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public NClob getNClob(int columnIndex) throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public NClob getNClob(String columnLabel) throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public SQLXML getSQLXML(int columnIndex) throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public SQLXML getSQLXML(String columnLabel) throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public void updateSQLXML(int columnIndex, SQLXML xmlObject) throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public void updateSQLXML(String columnLabel, SQLXML xmlObject) throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public String getNString(int columnIndex) throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public String getNString(String columnLabel) throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public Reader getNCharacterStream(int columnIndex) throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public Reader getNCharacterStream(String columnLabel) throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public void updateNCharacterStream(int columnIndex, Reader x, long length) throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public void updateNCharacterStream(String columnLabel, Reader reader, long length) throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public void updateAsciiStream(int columnIndex, InputStream x, long length) throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public void updateBinaryStream(int columnIndex, InputStream x, long length) throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public void updateCharacterStream(int columnIndex, Reader x, long length) throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public void updateAsciiStream(String columnLabel, InputStream x, long length) throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public void updateBinaryStream(String columnLabel, InputStream x, long length) throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public void updateCharacterStream(String columnLabel, Reader reader, long length) throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public void updateBlob(int columnIndex, InputStream inputStream, long length) throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public void updateBlob(String columnLabel, InputStream inputStream, long length) throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public void updateClob(int columnIndex, Reader reader, long length) throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public void updateClob(String columnLabel, Reader reader, long length) throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public void updateNClob(int columnIndex, Reader reader, long length) throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public void updateNClob(String columnLabel, Reader reader, long length) throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public void updateNCharacterStream(int columnIndex, Reader x) throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public void updateNCharacterStream(String columnLabel, Reader reader) throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public void updateAsciiStream(int columnIndex, InputStream x) throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public void updateBinaryStream(int columnIndex, InputStream x) throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public void updateCharacterStream(int columnIndex, Reader x) throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public void updateAsciiStream(String columnLabel, InputStream x) throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public void updateBinaryStream(String columnLabel, InputStream x) throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public void updateCharacterStream(String columnLabel, Reader reader) throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public void updateBlob(int columnIndex, InputStream inputStream) throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public void updateBlob(String columnLabel, InputStream inputStream) throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public void updateClob(int columnIndex, Reader reader) throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public void updateClob(String columnLabel, Reader reader) throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public void updateNClob(int columnIndex, Reader reader) throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public void updateNClob(String columnLabel, Reader reader) throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public <T> T unwrap(Class<T> iface) throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public boolean isWrapperFor(Class<?> iface) throws SQLException {
+        throw new SQLException("not supported");
     }
     
 }
