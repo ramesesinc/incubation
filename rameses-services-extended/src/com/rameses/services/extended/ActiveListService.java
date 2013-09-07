@@ -12,6 +12,7 @@ package com.rameses.services.extended;
 import com.rameses.annotations.ProxyMethod;
 import groovy.lang.GroovyObject;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -28,8 +29,15 @@ public abstract class ActiveListService  {
     public void beforeList(Object data){;}
     public void afterList(Object data, Object list){;}
     
+    public String getPagingKeys() {
+        return null;
+    }
+    
     @ProxyMethod
     public Object getList(Object params) throws Exception {
+        if(getPagingKeys()!=null) {
+            ((Map)params).put("_pagingKeys", getPagingKeys());
+        }
         beforeList(params);
         List list = (List) getObj().invokeMethod("getList", new Object[]{params});
         afterList(params, list);

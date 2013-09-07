@@ -83,7 +83,7 @@ public class XRadio extends JRadioButton implements UIInput, ItemListener, Activ
             buttonGroup = m.get(name);
             buttonGroup.add(this);
         }
-    }
+    }      
     
     public void itemStateChanged(ItemEvent e) {
         if ( e.getStateChange() == ItemEvent.SELECTED ) {

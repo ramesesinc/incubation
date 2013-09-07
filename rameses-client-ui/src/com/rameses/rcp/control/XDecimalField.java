@@ -261,7 +261,7 @@ public class XDecimalField extends AbstractNumberField implements UIInput, Valid
 
     public int compareTo(Object o) { 
         return UIControlUtil.compare(this, o);
-    }
+    }    
 
     // </editor-fold>
     

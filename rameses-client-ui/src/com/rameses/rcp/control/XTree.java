@@ -7,6 +7,7 @@
 
 package com.rameses.rcp.control;
 
+import com.rameses.rcp.common.MapObject;
 import com.rameses.rcp.common.MsgBox;
 import com.rameses.rcp.common.Node;
 import com.rameses.rcp.common.NodeFilter;
@@ -467,6 +468,46 @@ public class XTree extends JTree implements UIControl
             else 
                 return nodeModel.openFolder(userNode); 
         } 
+        
+        public void refresh() {
+            MapObject mo = new MapObject(treeNode.getNode().getItem()); 
+            String caption = mo.getString("caption"); 
+            if (caption != null) {
+                treeNode.getNode().setCaption(caption);            
+                treeNode.setUserObject(caption); 
+            } 
+            root.model.nodeChanged(treeNode); 
+        }
+        
+        public void reload() {
+            treeNode.loadChildren(true); 
+            root.model.nodeStructureChanged(treeNode);             
+        }
+        
+        public void remove() {
+            TreeNode parent = treeNode.getParent();
+            if (parent == null) return; 
+
+            XTree.DefaultNode parentTreeNode = (DefaultNode)parent; 
+            TreeNode tn = parentTreeNode.getChildAfter(treeNode); 
+            if (tn == null) tn = parentTreeNode.getChildBefore(treeNode); 
+            
+            parentTreeNode.remove(treeNode); 
+            root.model.nodeStructureChanged(parentTreeNode); 
+            if (tn != null) {                
+                XTree.DefaultNode selNode = (XTree.DefaultNode) tn;
+                TreeNode[] treeNodes = selNode.getPath(); 
+                root.setSelectionPath(new TreePath(treeNodes)); 
+                
+                Node userNode = selNode.getNode();
+                if (userNode == null) return;
+                    
+                if (userNode.isLeaf())
+                    root.nodeModel.openLeaf(userNode);
+                else 
+                    root.nodeModel.openFolder(userNode);                 
+            } 
+        }
     }
     
     // </editor-fold>
@@ -679,6 +720,11 @@ public class XTree extends JTree implements UIControl
             return (defNode == null? null: defNode.getNode()); 
         }
         
+        public Node getRoot() {
+            XTree.DefaultNode rdn = (DefaultNode) root.root; 
+            return (rdn == null? null: rdn.getNode()); 
+        }
+        
         public Node findNode(NodeFilter filter) 
         {
             DefaultNode parent = (DefaultNode) root.model.getRoot();
@@ -713,7 +759,21 @@ public class XTree extends JTree implements UIControl
             return list; 
         }
         
+        public void refresh() {
+            XTree.DefaultNode selNode = root.getSelectedNode(); 
+            if (selNode == null) { 
+                XTree.DefaultNode rootNode = (DefaultNode) root.root; 
+                rootNode.loadChildren(true); 
+            } else {
+                root.model.nodeChanged(selNode);
+            }
+        }
         
+        public void reloadTree() {
+            XTree.DefaultNode rootNode = (DefaultNode) root.root;
+            rootNode.loadChildren(true);
+            root.model.nodeStructureChanged(rootNode); 
+        }
     }
             
     // </editor-fold>

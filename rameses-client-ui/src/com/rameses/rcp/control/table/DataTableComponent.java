@@ -852,7 +852,7 @@ public class DataTableComponent extends JTable implements TableControl
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc="  helper/supporting methods  ">
-        
+    
     protected void onfocusGained(FocusEvent e) {} 
     protected void onfocusLost(FocusEvent e) {}    
     protected final void processFocusEvent(FocusEvent e) 
@@ -1080,12 +1080,27 @@ public class DataTableComponent extends JTable implements TableControl
         return msg;
     }
     
-    private synchronized void showEditor(final JComponent editor, int rowIndex, int colIndex, EventObject e) 
+    private void showEditor(JComponent editor, int rowIndex, int colIndex, EventObject e) 
+    {
+        final JComponent _editor = editor;
+        final int _rowIndex = rowIndex;
+        final int _colIndex = colIndex;
+        final EventObject _eventObject = e;
+        
+        EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                showEditorImpl(_editor, _rowIndex, _colIndex, _eventObject); 
+            }
+        }); 
+    }
+    
+    private void showEditorImpl(final JComponent editor, int rowIndex, int colIndex, EventObject e) 
     {
         Rectangle bounds = getCellRect(rowIndex, colIndex, false);
         editor.putClientProperty(COLUMN_POINT, new Point(colIndex, rowIndex));
         editor.putClientProperty("cellEditorValue", null); 
         editor.setBounds(bounds); 
+        editor.validate(); 
         
         UIControl ui = (UIControl) editor;
         Object bean = dataProvider.getListItemData(rowIndex); 
@@ -1119,22 +1134,13 @@ public class DataTableComponent extends JTable implements TableControl
                 return;
             }
         } 
-        else if (isPrintableKey(e))  
-        {
+        else if (isPrintableKey(e))  {
             char ch = currentKeyEvent.getKeyChar();
             boolean dispatched = false; 
             
-            if (editor instanceof JTextComponent) {
-                try {
-                    JTextComponent jtxt = (JTextComponent) editor;
-                    jtxt.setText(ch+""); 
-                    dispatched = true; 
-                } catch (Throwable ex) {;} 
-            }
-
             if (!dispatched && (editor instanceof UIInput)) {
                 UIInput uiinput = (UIInput) editor;
-                uiinput.setValue((KeyEvent) e);
+                uiinput.setValue(currentKeyEvent);
                 
                 if (editor instanceof XCheckBox) {
                     hideEditor(editor, rowIndex, colIndex, true, true); 
@@ -1164,8 +1170,8 @@ public class DataTableComponent extends JTable implements TableControl
         }
 
         editor.setInputVerifier( verifier );
-        editor.setVisible(true);
-        editor.grabFocus(); 
+        editor.setVisible(true);        
+        editor.requestFocus();
         
         editingRow = rowIndex; 
         editingMode = true;
@@ -1793,7 +1799,6 @@ public class DataTableComponent extends JTable implements TableControl
             if (root.equals(pfo)) return;
             
             //if (root.hasFocus()) return;             
-            System.out.println("grabbing focus...");
             root.grabFocus();
             root.requestFocusInWindow(); 
             
@@ -1817,4 +1822,5 @@ public class DataTableComponent extends JTable implements TableControl
     }
     
     // </editor-fold>
+    
 }

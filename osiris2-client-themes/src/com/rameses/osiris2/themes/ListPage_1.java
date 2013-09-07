@@ -14,9 +14,9 @@ import java.util.Map;
  *
  * @author  wflores
  */
-public class ListPage extends javax.swing.JPanel {
+public class ListPage_1 extends javax.swing.JPanel {
     
-    public ListPage() {
+    public ListPage_1() {
         initComponents();
     }
     
@@ -28,9 +28,9 @@ public class ListPage extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
         pnlHeader = new javax.swing.JPanel();
-        lblTitle = new com.rameses.rcp.control.XLabel();
-        xHorizontalPanel1 = new com.rameses.rcp.control.XHorizontalPanel();
         xSubFormPanel1 = new com.rameses.rcp.control.XSubFormPanel();
+        jPanel2 = new javax.swing.JPanel();
+        lblTitle = new com.rameses.rcp.control.XLabel();
         xActionBar2 = new com.rameses.rcp.control.XActionBar();
         pnlBody = new javax.swing.JPanel();
         xDataTable1 = new com.rameses.rcp.control.XDataTable();
@@ -45,37 +45,39 @@ public class ListPage extends javax.swing.JPanel {
 
         pnlHeader.setLayout(new java.awt.BorderLayout());
 
-        lblTitle.setBackground(new java.awt.Color(255, 255, 255));
-        lblTitle.setExpression("#{title}");
-        lblTitle.setFontStyle("font-weight:bold; font-size:16;");
-        lblTitle.setOpaque(true);
-        lblTitle.setPadding(new java.awt.Insets(2, 7, 2, 5));
-        pnlHeader.add(lblTitle, java.awt.BorderLayout.NORTH);
-
-        com.rameses.rcp.control.border.XEtchedBorder xEtchedBorder1 = new com.rameses.rcp.control.border.XEtchedBorder();
-        xEtchedBorder1.setHideLeft(true);
-        xEtchedBorder1.setHideRight(true);
-        xHorizontalPanel1.setBorder(xEtchedBorder1);
         xSubFormPanel1.setHandler("queryForm");
         org.jdesktop.layout.GroupLayout xSubFormPanel1Layout = new org.jdesktop.layout.GroupLayout(xSubFormPanel1);
         xSubFormPanel1.setLayout(xSubFormPanel1Layout);
         xSubFormPanel1Layout.setHorizontalGroup(
             xSubFormPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(0, 40, Short.MAX_VALUE)
+            .add(0, 587, Short.MAX_VALUE)
         );
         xSubFormPanel1Layout.setVerticalGroup(
             xSubFormPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(0, 25, Short.MAX_VALUE)
+            .add(0, 20, Short.MAX_VALUE)
         );
-        xHorizontalPanel1.add(xSubFormPanel1);
+        pnlHeader.add(xSubFormPanel1, java.awt.BorderLayout.SOUTH);
 
-        xActionBar2.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        jPanel2.setLayout(new java.awt.BorderLayout());
+
+        lblTitle.setBackground(new java.awt.Color(255, 255, 255));
+        lblTitle.setExpression("#{title}");
+        lblTitle.setFontStyle("font-weight:bold; font-size:16;");
+        lblTitle.setOpaque(true);
+        lblTitle.setPadding(new java.awt.Insets(2, 7, 2, 5));
+        jPanel2.add(lblTitle, java.awt.BorderLayout.NORTH);
+
+        com.rameses.rcp.control.border.XEtchedBorder xEtchedBorder1 = new com.rameses.rcp.control.border.XEtchedBorder();
+        xEtchedBorder1.setHideLeft(true);
+        xEtchedBorder1.setHideRight(true);
+        xEtchedBorder1.setPadding(new java.awt.Insets(0, 5, 0, 0));
+        xActionBar2.setBorder(xEtchedBorder1);
         xActionBar2.setDepends(new String[] {"selectedEntity"});
         xActionBar2.setFormName("formName");
         xActionBar2.setName("formActions");
-        xHorizontalPanel1.add(xActionBar2);
+        jPanel2.add(xActionBar2, java.awt.BorderLayout.SOUTH);
 
-        pnlHeader.add(xHorizontalPanel1, java.awt.BorderLayout.SOUTH);
+        pnlHeader.add(jPanel2, java.awt.BorderLayout.NORTH);
 
         add(pnlHeader, java.awt.BorderLayout.NORTH);
 
@@ -119,6 +121,7 @@ public class ListPage extends javax.swing.JPanel {
     
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
     private com.rameses.rcp.control.XLabel lblTitle;
@@ -127,7 +130,6 @@ public class ListPage extends javax.swing.JPanel {
     private javax.swing.JPanel pnlHeader;
     private com.rameses.rcp.control.XActionBar xActionBar2;
     private com.rameses.rcp.control.XDataTable xDataTable1;
-    private com.rameses.rcp.control.XHorizontalPanel xHorizontalPanel1;
     private com.rameses.rcp.control.XHorizontalPanel xHorizontalPanel2;
     private com.rameses.rcp.control.XLabel xLabel1;
     private com.rameses.rcp.control.XLabel xLabel2;

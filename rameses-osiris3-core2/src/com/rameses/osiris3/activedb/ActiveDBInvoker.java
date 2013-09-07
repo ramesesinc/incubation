@@ -51,11 +51,14 @@ public class ActiveDBInvoker {
                 return em.update(n+subSchema, m);
             }
             else if(methodName.equals("read")) {
-                return em.update(n+subSchema, m);
+                return em.read(n+subSchema, m);
             }
             else if(methodName.equals("delete")) {
                 em.delete(n+subSchema, m);
                 return null;
+            }
+            else if(methodName.equals("save")) {
+                return em.save(n+subSchema, m);
             }
             else if(methodName.startsWith("get") || methodName.startsWith("findAll")) {
                 SqlQuery sq = em.getSqlContext().createNamedQuery( n+":"+methodName );    
@@ -68,6 +71,17 @@ public class ActiveDBInvoker {
                     if(m.containsKey("_limit")) {
                         int l = Integer.parseInt(m.get("_limit")+"");
                         sq.setMaxResults( l );
+                    }
+                    if(m.containsKey("_pagingKeys")) {
+                        Object p = m.get("_pagingKeys");
+                        if(p.getClass().isArray()) {
+                            sq.setPagingKeys( (String[])p );    
+                        }
+                        else {
+                            String s = (String)p;
+                            String[] arr = s.split(",");
+                            sq.setPagingKeys(arr);
+                        }
                     }
                 }
                 return sq.getResultList();

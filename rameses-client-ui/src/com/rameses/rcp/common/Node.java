@@ -200,6 +200,9 @@ public class Node
     
     public void reload() 
     {
+        Node.Provider provider = getProvider();
+        if (provider != null) provider.reload();
+        
         for (NodeListener nl: listeners) {
             nl.reload();
         }
@@ -253,6 +256,16 @@ public class Node
         return (provider == null? null: provider.open());
     }
     
+    public void refresh() {
+        Node.Provider provider = getProvider();
+        if (provider != null) provider.refresh();
+    }    
+    
+    public void remove() {
+        Node.Provider provider = getProvider();
+        if (provider != null) provider.remove();
+    }  
+    
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" Provider interface for additional information ">
@@ -268,6 +281,10 @@ public class Node
         
         void select();
         Object open();
+        
+        void refresh(); 
+        void reload();
+        void remove();
     } 
     
     // </editor-fold>

@@ -547,7 +547,7 @@ public class XComboBox extends JComboBox implements UIInput, Validatable, Active
     
     public int compareTo(Object o) {
         return UIControlUtil.compare(this, o);
-    }
+    }      
     
     protected void onItemStateChanged(ItemEvent e) {
         if ( e.getStateChange() == ItemEvent.SELECTED && !updating ) {

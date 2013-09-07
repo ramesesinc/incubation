@@ -225,7 +225,7 @@ public class XFormulaEditor extends JTextPane implements UIInput
         if (focus) requestFocus();
     }
 
-    public boolean isImmediate() { return false; }    
+    public boolean isImmediate() { return false; }          
     
     // </editor-fold>
     

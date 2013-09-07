@@ -24,12 +24,12 @@ public class ExplorerViewListPage extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
         pnlHeader = new javax.swing.JPanel();
-        jPanel2 = new javax.swing.JPanel();
         jPanel3 = new javax.swing.JPanel();
         lblTitle = new com.rameses.rcp.control.XLabel();
         xActionBar1 = new com.rameses.rcp.control.XActionBar();
-        xActionBar2 = new com.rameses.rcp.control.XActionBar();
+        xHorizontalPanel1 = new com.rameses.rcp.control.XHorizontalPanel();
         xSubFormPanel1 = new com.rameses.rcp.control.XSubFormPanel();
+        xActionBar2 = new com.rameses.rcp.control.XActionBar();
         pnlBody = new javax.swing.JPanel();
         xDataTable1 = new com.rameses.rcp.control.XDataTable();
         xHorizontalPanel2 = new com.rameses.rcp.control.XHorizontalPanel();
@@ -42,8 +42,6 @@ public class ExplorerViewListPage extends javax.swing.JPanel {
         setLayout(new java.awt.BorderLayout());
 
         pnlHeader.setLayout(new java.awt.BorderLayout());
-
-        jPanel2.setLayout(new java.awt.BorderLayout());
 
         jPanel3.setLayout(new java.awt.BorderLayout());
 
@@ -70,32 +68,32 @@ public class ExplorerViewListPage extends javax.swing.JPanel {
         xActionBar1.setUseToolBar(false);
         jPanel3.add(xActionBar1, java.awt.BorderLayout.CENTER);
 
-        jPanel2.add(jPanel3, java.awt.BorderLayout.NORTH);
+        pnlHeader.add(jPanel3, java.awt.BorderLayout.NORTH);
 
         com.rameses.rcp.control.border.XEtchedBorder xEtchedBorder2 = new com.rameses.rcp.control.border.XEtchedBorder();
         xEtchedBorder2.setHideRight(true);
-        xEtchedBorder2.setPadding(new java.awt.Insets(0, 5, 0, 0));
-        xActionBar2.setBorder(xEtchedBorder2);
-        xActionBar2.setDepends(new String[] {"selectedEntity"});
-        xActionBar2.setDynamic(true);
-        xActionBar2.setName("formActions");
-        jPanel2.add(xActionBar2, java.awt.BorderLayout.SOUTH);
-
-        pnlHeader.add(jPanel2, java.awt.BorderLayout.NORTH);
-
+        xHorizontalPanel1.setBorder(xEtchedBorder2);
         xSubFormPanel1.setHandler("queryForm");
         xSubFormPanel1.setVisibleWhen("#{queryFormVisible == true}");
         org.jdesktop.layout.GroupLayout xSubFormPanel1Layout = new org.jdesktop.layout.GroupLayout(xSubFormPanel1);
         xSubFormPanel1.setLayout(xSubFormPanel1Layout);
         xSubFormPanel1Layout.setHorizontalGroup(
             xSubFormPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(0, 587, Short.MAX_VALUE)
+            .add(0, 40, Short.MAX_VALUE)
         );
         xSubFormPanel1Layout.setVerticalGroup(
             xSubFormPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(0, 20, Short.MAX_VALUE)
+            .add(0, 25, Short.MAX_VALUE)
         );
-        pnlHeader.add(xSubFormPanel1, java.awt.BorderLayout.SOUTH);
+        xHorizontalPanel1.add(xSubFormPanel1);
+
+        xActionBar2.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        xActionBar2.setDepends(new String[] {"selectedEntity"});
+        xActionBar2.setDynamic(true);
+        xActionBar2.setName("formActions");
+        xHorizontalPanel1.add(xActionBar2);
+
+        pnlHeader.add(xHorizontalPanel1, java.awt.BorderLayout.SOUTH);
 
         add(pnlHeader, java.awt.BorderLayout.NORTH);
 
@@ -139,7 +137,6 @@ public class ExplorerViewListPage extends javax.swing.JPanel {
     
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
@@ -150,6 +147,7 @@ public class ExplorerViewListPage extends javax.swing.JPanel {
     private com.rameses.rcp.control.XActionBar xActionBar1;
     private com.rameses.rcp.control.XActionBar xActionBar2;
     private com.rameses.rcp.control.XDataTable xDataTable1;
+    private com.rameses.rcp.control.XHorizontalPanel xHorizontalPanel1;
     private com.rameses.rcp.control.XHorizontalPanel xHorizontalPanel2;
     private com.rameses.rcp.control.XLabel xLabel1;
     private com.rameses.rcp.control.XLabel xLabel2;

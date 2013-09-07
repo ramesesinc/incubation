@@ -11,9 +11,11 @@ package com.rameses.rcp.control.text;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.beans.Beans;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.EventObject;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
@@ -155,6 +157,17 @@ public abstract class AbstractDateField extends DefaultTextField
 
         public void setValue(Object value) {
             String sval = null;
+            if (value == null) {
+                //do nothing 
+            } else if (value instanceof EventObject) {
+                if (value instanceof KeyEvent) { 
+                    char ch = ((KeyEvent) value).getKeyChar(); 
+                    root.setText(ch+""); 
+                } 
+                //exit
+                return;
+            }
+            
             if (value == null) {
                 //do nothing 
             } else if (value instanceof Date) {

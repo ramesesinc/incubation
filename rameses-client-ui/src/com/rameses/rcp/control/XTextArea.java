@@ -144,7 +144,7 @@ public class XTextArea extends JTextArea implements UIInput, Validatable, Active
     
     public int compareTo(Object o) {
         return UIControlUtil.compare(this, o);
-    }
+    }    
     
     public void validateInput() 
     {

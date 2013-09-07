@@ -47,8 +47,8 @@ public abstract class PageListModel extends AbstractListDataProvider implements 
 
     public int getRows() { return 10; }
     public int getRowCount() { return getRows(); }
-    public int getMaxRows() { return getRows(); }    
-    public Map getQuery() { return query; }     
+    public int getMaxRows() { return getRows(); }            
+    public Map getQuery() { return query; } 
         
     protected void onbeforeFetchList(Map params) 
     {

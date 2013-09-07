@@ -32,6 +32,7 @@ public class XTabbedPaneBeanInfo extends ComponentBeanInfo.Support
     {
         return new PropertyDescriptor[] {
             new PropertyDescriptor("depends", getBeanClass()), 
+            new PropertyDescriptor("disableWhen", getBeanClass()), 
             new PropertyDescriptor("dynamic", getBeanClass(), "isDynamic", "setDynamic"),
             new PropertyDescriptor("index", getBeanClass()), 
             new PropertyDescriptor("nameAutoLookupAsOpener", getBeanClass(), "isNameAutoLookupAsOpener", "setNameAutoLookupAsOpener") 

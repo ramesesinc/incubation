@@ -3,6 +3,7 @@ package com.rameses.rcp.control;
 import com.rameses.common.PropertyResolver;
 import com.rameses.platform.interfaces.Platform;
 import com.rameses.platform.interfaces.SubWindow;
+import com.rameses.rcp.common.ILookupModel;
 import com.rameses.rcp.common.LookupHandler;
 import com.rameses.rcp.common.LookupModel;
 import com.rameses.rcp.common.LookupOpenerSupport;
@@ -428,9 +429,13 @@ public class XLookupField extends IconedTextField implements UILookup, UISelecto
             lookupHandlerProxy.getModel().setSelector(this); 
             lookupHandlerProxy.getModel().setReturnFields(getReturnFields()); 
             boolean show = lookupHandlerProxy.getModel().show( getText() ); 
-            if ( show ) 
+            if (show) 
             {
-                lookupHandlerProxy.getModel().setSelectedItem(-1);
+                ILookupModel ilm = lookupHandlerProxy.getModel();
+                if (ilm instanceof LookupModel) {
+                    ((LookupModel) ilm).setSelectedItem(-1);
+                }
+
                 UIController c =  lookupHandlerProxy.getController(); 
                 if ( c == null ) return; //should use a default lookup handler
                 
@@ -526,13 +531,14 @@ public class XLookupField extends IconedTextField implements UILookup, UISelecto
     
     private class LookupHandlerProxy implements LookupHandler 
     {
-        private LookupModel model;
+        private ILookupModel model;
         private LookupHandler handler;
         private Opener opener;
         private Object onselectCallback;
         private Object onemptyCallback;
         
-        LookupModel getModel() { return model; }
+        ILookupModel getModel() { return model; }
+        
         UIController getController() { 
             return (opener == null? null: opener.getController()); 
         } 

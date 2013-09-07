@@ -73,7 +73,7 @@ public class SelectionCellEditor extends JCheckBox implements UIInput, Immediate
     }
     
     public void setPropertyInfo(PropertySupport.PropertyInfo info) {
-    }
+    }      
 
     public void load() {
     }

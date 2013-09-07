@@ -129,7 +129,7 @@ public class XEditorPane extends JEditorPane implements UIInput, ActiveControl {
     
     public int compareTo(Object o) {
         return UIControlUtil.compare(this, o);
-    }
+    }   
     
     // <editor-fold defaultstate="collapsed" desc="  Getters/Setters  ">
     

@@ -7,6 +7,7 @@
 
 package com.rameses.rcp.control; 
 
+import com.rameses.common.ExpressionResolver;
 import com.rameses.rcp.common.Opener; 
 import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.common.TabbedPaneModel;
@@ -39,6 +40,7 @@ public class XTabbedPane extends JTabbedPane implements UIControl
     private int index;
     
     private boolean dynamic;
+    private String disableWhen;
     
     private int oldIndex;
     private List<Opener> openers = new ArrayList();
@@ -76,6 +78,11 @@ public class XTabbedPane extends JTabbedPane implements UIControl
         
     public boolean isDynamic() { return dynamic; }
     public void setDynamic(boolean dynamic) { this.dynamic = dynamic; }
+    
+    public String getDisableWhen() { return disableWhen; } 
+    public void setDisableWhen(String disableWhen) {
+        this.disableWhen = disableWhen;
+    }
         
     // </editor-fold>
     
@@ -96,6 +103,15 @@ public class XTabbedPane extends JTabbedPane implements UIControl
     
     public void refresh() {
         if ( dynamic ) loadTabs();
+        
+        String expr = getDisableWhen();
+        if (expr != null && expr.length() > 0) {
+            try {
+                ExpressionResolver er = ExpressionResolver.getInstance();
+                boolean b = er.evalBoolean(expr, getBinding().getBean()); 
+                setEnabled(!b); 
+            } catch(Throwable t){;} 
+        } 
     }
     
     public void setPropertyInfo(PropertySupport.PropertyInfo info) {
@@ -126,12 +142,23 @@ public class XTabbedPane extends JTabbedPane implements UIControl
     private void loadTabs() {
         loadOpeners();
         removeAll();
-        if ( openers.size() > 0 ) {
-            for (Opener o: openers) {
-                super.addTab(o.getCaption(), getOpenerIcon(o), new LoadingPanel());
+                
+        ExpressionResolver expRes = ExpressionResolver.getInstance();
+        for (Opener op: openers) {
+            Object ov = op.getProperties().get("visibleWhen");
+            String sv = (ov == null? null: ov.toString()); 
+            boolean allowed = true;
+            if (sv != null && sv.length() > 0) {
+                try {
+                    allowed = expRes.evalBoolean(sv, getBinding().getBean()); 
+                } catch(Throwable t){;} 
             }
-            setSelectedIndex(0);
+            
+            if (allowed) 
+                super.addTab(op.getCaption(), getOpenerIcon(op), new LoadingPanel());
         }
+        
+        if (getTabCount() > 0) setSelectedIndex(0);        
     }
     
     private Icon getOpenerIcon(Opener o) {
