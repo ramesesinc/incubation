@@ -9,16 +9,24 @@
 
 package com.rameses.service.jdbc;
 
+import java.sql.Array;
+import java.sql.Blob;
 import java.sql.CallableStatement;
+import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
+import java.sql.NClob;
 import java.sql.PreparedStatement;
+import java.sql.SQLClientInfoException;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
+import java.sql.SQLXML;
 import java.sql.Savepoint;
 import java.sql.Statement;
+import java.sql.Struct;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 /**
  *
@@ -193,5 +201,57 @@ public class DBServiceConnection implements Connection {
     
     public PreparedStatement prepareStatement(String sql, String[] columnNames) throws SQLException {
         throw new SQLException("Not supported.");
+    }
+
+    public Clob createClob() throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public Blob createBlob() throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public NClob createNClob() throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public SQLXML createSQLXML() throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public boolean isValid(int timeout) throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public void setClientInfo(String name, String value) throws SQLClientInfoException {
+        //do nothing
+    }
+
+    public void setClientInfo(Properties properties) throws SQLClientInfoException {
+        //do nothing
+    }
+
+    public String getClientInfo(String name) throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public Properties getClientInfo() throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public Array createArrayOf(String typeName, Object[] elements) throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public Struct createStruct(String typeName, Object[] attributes) throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public <T> T unwrap(Class<T> iface) throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public boolean isWrapperFor(Class<?> iface) throws SQLException {
+        throw new SQLException("not supported");
     }
 }

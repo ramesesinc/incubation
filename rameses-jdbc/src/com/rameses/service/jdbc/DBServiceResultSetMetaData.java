@@ -125,5 +125,13 @@ public class DBServiceResultSetMetaData implements ResultSetMetaData {
     public String getColumnClassName(int column) throws SQLException {
         return  getStringValue(column, "columnClassName");
     }
+
+    public <T> T unwrap(Class<T> iface) throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public boolean isWrapperFor(Class<?> iface) throws SQLException {
+        throw new SQLException("not supported");
+    }
     
 }

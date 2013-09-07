@@ -13,6 +13,9 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.math.BigDecimal;
 import java.net.URL;
+import java.sql.NClob;
+import java.sql.RowId;
+import java.sql.SQLXML;
 import java.sql.Timestamp;
 import java.sql.Array;
 import java.sql.Blob;
@@ -368,5 +371,97 @@ public class DBServiceStatement implements PreparedStatement {
     
     public int getResultSetHoldability() throws SQLException {
         throw new SQLException("Method not supported. getResultSetHoldability");
+    }
+
+    public void setRowId(int parameterIndex, RowId x) throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public void setNString(int parameterIndex, String value) throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public void setNCharacterStream(int parameterIndex, Reader value, long length) throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public void setNClob(int parameterIndex, NClob value) throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public void setClob(int parameterIndex, Reader reader, long length) throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public void setBlob(int parameterIndex, InputStream inputStream, long length) throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public void setNClob(int parameterIndex, Reader reader, long length) throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public void setSQLXML(int parameterIndex, SQLXML xmlObject) throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public void setAsciiStream(int parameterIndex, InputStream x, long length) throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public void setBinaryStream(int parameterIndex, InputStream x, long length) throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public void setCharacterStream(int parameterIndex, Reader reader, long length) throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public void setAsciiStream(int parameterIndex, InputStream x) throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public void setBinaryStream(int parameterIndex, InputStream x) throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public void setCharacterStream(int parameterIndex, Reader reader) throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public void setNCharacterStream(int parameterIndex, Reader value) throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public void setClob(int parameterIndex, Reader reader) throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public void setBlob(int parameterIndex, InputStream inputStream) throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public void setNClob(int parameterIndex, Reader reader) throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public boolean isClosed() throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public void setPoolable(boolean poolable) throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public boolean isPoolable() throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public <T> T unwrap(Class<T> iface) throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public boolean isWrapperFor(Class<?> iface) throws SQLException {
+        throw new SQLException("not supported");
     }
 }
