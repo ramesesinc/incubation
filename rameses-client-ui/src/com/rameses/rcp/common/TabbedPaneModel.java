@@ -40,8 +40,7 @@ public class TabbedPaneModel {
         if (provider != null) provider.reload(); 
     }
     
-    
-    
+        
     // <editor-fold defaultstate="collapsed" desc=" Provider interface ">
 
     private TabbedPaneModel.Provider provider; 
