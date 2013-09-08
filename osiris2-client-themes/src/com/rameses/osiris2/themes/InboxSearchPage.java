@@ -36,6 +36,7 @@ public class InboxSearchPage extends javax.swing.JPanel {
         xActionTextField1.setActionName("search");
         xActionTextField1.setCaption("Search");
         xActionTextField1.setFocusAccelerator('s');
+        xActionTextField1.setFocusKeyStroke("F3");
         xActionTextField1.setName("query.searchtext");
         xActionTextField1.setPreferredSize(new java.awt.Dimension(250, 22));
 
