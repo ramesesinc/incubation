@@ -14,11 +14,15 @@ import com.rameses.rcp.support.ThemeUI;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.KeyEvent;
 import java.beans.Beans;
 import javax.swing.InputVerifier;
+import javax.swing.JComponent;
 import javax.swing.JTextField;
+import javax.swing.KeyStroke;
 import javax.swing.UIManager;
 
 /**
@@ -31,10 +35,12 @@ public class DefaultTextField extends JTextField
     private Color focusBackground;
     private Color disabledBackground;
     private Color enabledBackground;
-    private String fontStyle; 
     private boolean readonly;
     
     private Font sourceFont; 
+    private String fontStyle;     
+    private String focusKeyStroke;
+    private KeyStroke focusKeyStrokeObject;
     
     public DefaultTextField() 
     {
@@ -104,6 +110,29 @@ public class DefaultTextField extends JTextField
     {
         super.setEnabled(enabled);
         setEditable((enabled? !isReadonly(): enabled));    
+    }
+    
+    public String getFocusKeyStroke() { return focusKeyStroke; }
+    public void setFocusKeyStroke(String focusKeyStroke) {
+        this.focusKeyStroke = focusKeyStroke;        
+        
+        KeyStroke oldKeyStroke = this.focusKeyStrokeObject;
+        if (oldKeyStroke != null) unregisterKeyboardAction(oldKeyStroke); 
+        
+        try {
+            this.focusKeyStrokeObject = KeyStroke.getKeyStroke(focusKeyStroke); 
+        } catch(Throwable t){
+            this.focusKeyStrokeObject = null; 
+        } 
+        
+        if (this.focusKeyStrokeObject != null) {
+            ActionListener actionL = new ActionListener(){
+                public void actionPerformed(ActionEvent e) {
+                    invokeFocusAction(e); 
+                }                
+            };
+            registerKeyboardAction(actionL, this.focusKeyStrokeObject, JComponent.WHEN_IN_FOCUSED_WINDOW);
+        }
     }
     
     protected void resetInputVerifierProxy() 
@@ -183,5 +212,9 @@ public class DefaultTextField extends JTextField
     }
     
     protected void onprocessKeyEvent(KeyEvent e){
-    }     
+    }    
+    
+    private void invokeFocusAction(ActionEvent e) {
+        if (isEnabled() && isFocusable()) requestFocus();
+    }
 }
