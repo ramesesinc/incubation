@@ -51,11 +51,14 @@ public class ActiveDBInvoker {
                 return em.update(n+subSchema, m);
             }
             else if(methodName.equals("read")) {
-                return em.update(n+subSchema, m);
+                return em.read(n+subSchema, m);
             }
             else if(methodName.equals("delete")) {
                 em.delete(n+subSchema, m);
                 return null;
+            }
+            else if(methodName.equals("save")) {
+                return em.save(n+subSchema, m);
             }
             else if(methodName.startsWith("get") || methodName.startsWith("findAll")) {
                 SqlQuery sq = em.getSqlContext().createNamedQuery( n+":"+methodName );    
@@ -75,7 +78,9 @@ public class ActiveDBInvoker {
                             sq.setPagingKeys( (String[])p );    
                         }
                         else {
-                            sq.setPagingKeys((String)p);
+                            String s = (String)p;
+                            String[] arr = s.split(",");
+                            sq.setPagingKeys(arr);
                         }
                     }
                 }
