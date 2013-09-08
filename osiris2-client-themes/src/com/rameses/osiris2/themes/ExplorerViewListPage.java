@@ -27,9 +27,9 @@ public class ExplorerViewListPage extends javax.swing.JPanel {
         jPanel3 = new javax.swing.JPanel();
         lblTitle = new com.rameses.rcp.control.XLabel();
         xActionBar1 = new com.rameses.rcp.control.XActionBar();
-        xHorizontalPanel1 = new com.rameses.rcp.control.XHorizontalPanel();
-        xSubFormPanel1 = new com.rameses.rcp.control.XSubFormPanel();
+        jPanel1 = new javax.swing.JPanel();
         xActionBar2 = new com.rameses.rcp.control.XActionBar();
+        xSubFormPanel1 = new com.rameses.rcp.control.XSubFormPanel();
         pnlBody = new javax.swing.JPanel();
         xDataTable1 = new com.rameses.rcp.control.XDataTable();
         xHorizontalPanel2 = new com.rameses.rcp.control.XHorizontalPanel();
@@ -70,9 +70,17 @@ public class ExplorerViewListPage extends javax.swing.JPanel {
 
         pnlHeader.add(jPanel3, java.awt.BorderLayout.NORTH);
 
+        jPanel1.setLayout(new java.awt.BorderLayout());
+
         com.rameses.rcp.control.border.XEtchedBorder xEtchedBorder2 = new com.rameses.rcp.control.border.XEtchedBorder();
         xEtchedBorder2.setHideRight(true);
-        xHorizontalPanel1.setBorder(xEtchedBorder2);
+        jPanel1.setBorder(xEtchedBorder2);
+        xActionBar2.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        xActionBar2.setDepends(new String[] {"selectedEntity"});
+        xActionBar2.setDynamic(true);
+        xActionBar2.setName("formActions");
+        jPanel1.add(xActionBar2, java.awt.BorderLayout.WEST);
+
         xSubFormPanel1.setHandler("queryForm");
         xSubFormPanel1.setVisibleWhen("#{queryFormVisible == true}");
         org.jdesktop.layout.GroupLayout xSubFormPanel1Layout = new org.jdesktop.layout.GroupLayout(xSubFormPanel1);
@@ -85,15 +93,9 @@ public class ExplorerViewListPage extends javax.swing.JPanel {
             xSubFormPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(0, 25, Short.MAX_VALUE)
         );
-        xHorizontalPanel1.add(xSubFormPanel1);
+        jPanel1.add(xSubFormPanel1, java.awt.BorderLayout.EAST);
 
-        xActionBar2.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        xActionBar2.setDepends(new String[] {"selectedEntity"});
-        xActionBar2.setDynamic(true);
-        xActionBar2.setName("formActions");
-        xHorizontalPanel1.add(xActionBar2);
-
-        pnlHeader.add(xHorizontalPanel1, java.awt.BorderLayout.SOUTH);
+        pnlHeader.add(jPanel1, java.awt.BorderLayout.CENTER);
 
         add(pnlHeader, java.awt.BorderLayout.NORTH);
 
@@ -137,6 +139,7 @@ public class ExplorerViewListPage extends javax.swing.JPanel {
     
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
@@ -147,7 +150,6 @@ public class ExplorerViewListPage extends javax.swing.JPanel {
     private com.rameses.rcp.control.XActionBar xActionBar1;
     private com.rameses.rcp.control.XActionBar xActionBar2;
     private com.rameses.rcp.control.XDataTable xDataTable1;
-    private com.rameses.rcp.control.XHorizontalPanel xHorizontalPanel1;
     private com.rameses.rcp.control.XHorizontalPanel xHorizontalPanel2;
     private com.rameses.rcp.control.XLabel xLabel1;
     private com.rameses.rcp.control.XLabel xLabel2;
