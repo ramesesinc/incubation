@@ -2,9 +2,9 @@ package com.rameses.rcp.control;
 
 import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.control.table.ExprBeanSupport;
+import com.rameses.rcp.control.text.DefaultLabel;
 import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.framework.ClientContext;
-import com.rameses.rcp.support.FontSupport;
 import com.rameses.rcp.support.ThemeUI;
 import com.rameses.rcp.ui.ActiveControl;
 import com.rameses.rcp.ui.ControlProperty;
@@ -23,7 +23,6 @@ import java.beans.PropertyChangeListener;
 import java.text.Format;
 import java.util.logging.Logger;
 import javax.swing.JComponent;
-import javax.swing.JLabel;
 import javax.swing.UIManager;
 import javax.swing.border.AbstractBorder;
 import javax.swing.border.Border;
@@ -32,7 +31,7 @@ import javax.swing.border.Border;
  *
  * @author jaycverg
  */
-public class XLabel extends JLabel implements UIOutput, ActiveControl 
+public class XLabel extends DefaultLabel implements UIOutput, ActiveControl 
 {
     private ControlProperty property = new ControlProperty();
     private Binding binding; 
@@ -43,8 +42,6 @@ public class XLabel extends JLabel implements UIOutput, ActiveControl
     private int index;    
     private boolean useHtml;
     
-    private Font sourceFont;
-    private String fontStyle; 
     private Insets padding; 
     private Format format; 
     
@@ -224,18 +221,7 @@ public class XLabel extends JLabel implements UIOutput, ActiveControl
     }
     
     public Format getFormat() { return format; }
-    public void setFormat(Format format) { this.format = format; }
-    
-    public String getFontStyle() { return fontStyle; } 
-    public void setFontStyle(String fontStyle) {
-        this.fontStyle = fontStyle;
-        if (sourceFont == null) {
-            sourceFont = super.getFont();
-        } else {
-            super.setFont(sourceFont); 
-        } 
-        new FontSupport().applyStyles(this, fontStyle);
-    }
+    public void setFormat(Format format) { this.format = format; }    
 
     // </editor-fold>    
     
