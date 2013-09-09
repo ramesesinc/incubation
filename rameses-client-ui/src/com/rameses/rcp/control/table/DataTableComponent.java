@@ -24,6 +24,7 @@ import com.rameses.rcp.framework.ChangeLog;
 import com.rameses.rcp.framework.ClientContext;
 import com.rameses.rcp.ui.UIControl;
 import com.rameses.rcp.ui.UIInput;
+import com.rameses.rcp.ui.UILookup;
 import com.rameses.rcp.ui.Validatable;
 import com.rameses.rcp.util.ActionMessage;
 import com.rameses.rcp.util.UICommandUtil;
@@ -1135,18 +1136,17 @@ public class DataTableComponent extends JTable implements TableControl
             }
         } 
         else if (isPrintableKey(e))  {
-            char ch = currentKeyEvent.getKeyChar();
-            boolean dispatched = false; 
-            
-            if (!dispatched && (editor instanceof UIInput)) {
-                UIInput uiinput = (UIInput) editor;
-                uiinput.setValue(currentKeyEvent);
-                
-                if (editor instanceof XCheckBox) {
-                    hideEditor(editor, rowIndex, colIndex, true, true); 
-                    return;
-                }  
+            if (editor instanceof UIInput) {
+                ((UIInput) editor).setValue(currentKeyEvent);
+            } 
+            else if (editor instanceof UILookup) {
+                ((UILookup) editor).setValue(currentKeyEvent); 
             }
+
+            if (editor instanceof XCheckBox) {
+                hideEditor(editor, rowIndex, colIndex, true, true); 
+                return;
+            }  
         } 
         else {
             return;

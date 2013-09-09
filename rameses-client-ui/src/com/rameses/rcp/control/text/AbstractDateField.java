@@ -36,11 +36,11 @@ public abstract class AbstractDateField extends DefaultTextField
     
     protected final void initDefaults() 
     {
-        addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) { 
-                actionPerformedImpl(e);
-            } 
-        });
+//        addActionListener(new ActionListener() {
+//            public void actionPerformed(ActionEvent e) {
+//                actionPerformedImpl(e);
+//            }
+//        });
 
         if (!Beans.isDesignTime()) 
             setDocumentImpl(new BasicDateDocument()); 
@@ -111,9 +111,9 @@ public abstract class AbstractDateField extends DefaultTextField
         }
     }
     
-    private void actionPerformedImpl(ActionEvent e) {         
-        transferFocus(); 
-    }
+//    private void actionPerformedImpl(ActionEvent e) {         
+//        transferFocus(); 
+//    }
     
     private DateParser createDateParser() {
         DateParser parser = new DateParser();

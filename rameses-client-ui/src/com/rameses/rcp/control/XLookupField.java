@@ -42,6 +42,7 @@ import java.beans.Beans;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.lang.reflect.Method;
+import java.util.EventObject;
 import java.util.HashMap;
 import java.util.Map;
 import javax.swing.InputVerifier;
@@ -293,17 +294,16 @@ public class XLookupField extends IconedTextField implements UILookup, UISelecto
     
     public void setValue(Object value) 
     {
-        if ( value instanceof KeyEvent ) {
-            setText( ((KeyEvent) value).getKeyChar()+"" );
-        } 
-        else 
-        {
+        if ( value instanceof EventObject ) {
+            if (value instanceof KeyEvent) {
+                setText(((KeyEvent) value).getKeyChar()+"");    
+            }
+        } else {
             if ( value != null )
                 setText(value.toString());
             else
                 setText("");
-        }
-        
+        }         
         this.dirty = false; 
     } 
     

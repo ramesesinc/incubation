@@ -15,4 +15,6 @@ package com.rameses.rcp.ui;
  */
 public interface UILookup extends UIFocusableContainer {
     
+    void setValue(Object value);
+    
 }
