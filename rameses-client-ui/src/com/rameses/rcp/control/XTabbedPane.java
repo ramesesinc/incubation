@@ -11,7 +11,7 @@ import com.rameses.common.ExpressionResolver;
 import com.rameses.rcp.common.Opener; 
 import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.common.TabbedPaneModel;
-import com.rameses.rcp.control.tabbedpane.LoadingPanel;
+import com.rameses.rcp.control.tabbedpane.TabbedItemPanel;
 import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.framework.ClientContext;
 import com.rameses.rcp.framework.OpenerProvider;
@@ -29,7 +29,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.swing.Icon;
-import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
@@ -102,7 +101,8 @@ public class XTabbedPane extends JTabbedPane implements UIControl
     }
     
     public void refresh() {
-        if ( dynamic ) loadTabs();
+        boolean dynamic = isDynamic();
+        if (dynamic) loadTabs();
         
         String expr = getDisableWhen();
         if (expr != null && expr.length() > 0) {
@@ -112,6 +112,14 @@ public class XTabbedPane extends JTabbedPane implements UIControl
                 setEnabled(!b); 
             } catch(Throwable t){;} 
         } 
+        
+        if (!dynamic) {
+            Component comp = getSelectedComponent(); 
+            if (comp instanceof TabbedItemPanel) {
+                TabbedItemPanel itemPanel = (TabbedItemPanel)comp;
+                itemPanel.refreshContent(); 
+            }
+        }
     }
     
     public void setPropertyInfo(PropertySupport.PropertyInfo info) {
@@ -127,11 +135,12 @@ public class XTabbedPane extends JTabbedPane implements UIControl
     
     public void setSelectedIndex(int index) {
         Component c = getComponentAt(index);
-        if ( c instanceof LoadingPanel ) {
-            JPanel p = (JPanel) c;
-            if ( p.getClientProperty("BINDED") == null ) {
-                new Thread(new BindingRunnable(index, openers.get(index))).start();
-                p.putClientProperty("BINDED", true);
+        if (c instanceof TabbedItemPanel) {
+            TabbedItemPanel itemPanel = (TabbedItemPanel)c; 
+            if (!itemPanel.hasContent()) {
+                itemPanel.loadContent(); 
+            } else {
+                itemPanel.refreshContent(); 
             }
         }
         
@@ -153,9 +162,11 @@ public class XTabbedPane extends JTabbedPane implements UIControl
                     allowed = expRes.evalBoolean(sv, getBinding().getBean()); 
                 } catch(Throwable t){;} 
             }
-            
-            if (allowed) 
-                super.addTab(op.getCaption(), getOpenerIcon(op), new LoadingPanel());
+            if (!allowed) continue;
+
+            TabbedItemPanel itemPanel = new TabbedItemPanel(op);
+            itemPanel.setProvider(new TabbedItemProvider()); 
+            super.addTab(op.getCaption(), getOpenerIcon(op), itemPanel);
         }
         
         if (getTabCount() > 0) setSelectedIndex(0);        
@@ -254,75 +265,39 @@ public class XTabbedPane extends JTabbedPane implements UIControl
 
         public void reload() { 
             Component comp = root.getSelectedComponent(); 
-            if (!(comp instanceof JComponent)) return;
-
-            Object ov = ((JComponent) comp).getClientProperty("TabbedPane.opener");
-            if (!(ov instanceof Opener)) return;
+            if (!(comp instanceof TabbedItemPanel)) return;
             
-            Opener opener = ((Opener)ov).createInstance(null, null); 
-            if (opener == null) opener = (Opener)ov;
-            
-            if (root.model != null) {
-                Map udfParams = root.model.getOpenerParams(null);
-                Map openerParams = opener.getParams();
-                if (openerParams == null) {
-                    openerParams = new HashMap();
-                    opener.setParams(openerParams); 
-                }
-                if (udfParams != null) openerParams.putAll(udfParams); 
-            }
-            
-            int index = root.getSelectedIndex();             
-            XSubFormPanel xsf = new XSubFormPanel(opener);
-            xsf.setBinding(binding);
-            xsf.load();
-            xsf.putClientProperty("TabbedPane.opener", opener); 
-            root.setComponentAt(index, xsf); 
+            TabbedItemPanel itemPanel = (TabbedItemPanel)comp;
+            itemPanel.reloadContent(); 
         }
+        
+        public void refresh() { 
+            Component comp = root.getSelectedComponent(); 
+            if (!(comp instanceof TabbedItemPanel)) return;
+            
+            TabbedItemPanel itemPanel = (TabbedItemPanel)comp;
+            itemPanel.refreshContent(); 
+        }        
     } 
     
     // </editor-fold> 
     
-    // <editor-fold defaultstate="collapsed" desc=" BindingRunnable "> 
+    // <editor-fold defaultstate="collapsed" desc=" TabbedItemProvider ">
     
-    private class BindingRunnable implements Runnable 
-    {        
+    private class TabbedItemProvider implements TabbedItemPanel.Provider
+    {
         XTabbedPane root = XTabbedPane.this;
-        
-        private int index;
-        private Opener opener;
-        
-        BindingRunnable(int index, Opener opener) {
-            this.index = index;
-            this.opener = opener;
-        }
-        
-        public void run() {            
-            try {
-                runImpl();
-            } catch(Throwable t) {
-                t.printStackTrace();
-            } 
-        } 
-        
-        private void runImpl() {
-            if (root.model != null) {
-                Map udfParams = root.model.getOpenerParams(null);
-                Map openerParams = opener.getParams();
-                if (openerParams == null) {
-                    openerParams = new HashMap();
-                    opener.setParams(openerParams); 
-                }
-                if (udfParams != null) openerParams.putAll(udfParams); 
-            }
 
-            XSubFormPanel xsf = new XSubFormPanel(opener);
-            xsf.setBinding(binding);
-            xsf.load();
-            xsf.putClientProperty("TabbedPane.opener", opener); 
-            root.setComponentAt(index, xsf);  
+        public Binding getBinding() {
+            return root.getBinding(); 
+        }
+
+        public Map getOpenerParams(Object o) {
+            if (root.model == null) return null;
+            
+            return root.model.getOpenerParams(o); 
         }
     }
     
-    // </editor-fold>    
+    // </editor-fold>
 }

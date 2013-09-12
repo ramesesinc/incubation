@@ -16,7 +16,9 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Insets;
+import java.awt.RenderingHints;
 import java.beans.Beans;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -52,6 +54,7 @@ public class XLabel extends DefaultLabel implements UIOutput, ActiveControl
     private String labelFor;
     private boolean addCaptionColon = true;
     private boolean forceUseActiveCaption;
+    private boolean antiAliasOn;
     private ControlProperty activeProperty;
     private JComponent activeComponent;
     private ActiveControlSupport activeControlSupport;
@@ -223,6 +226,11 @@ public class XLabel extends DefaultLabel implements UIOutput, ActiveControl
     public Format getFormat() { return format; }
     public void setFormat(Format format) { this.format = format; }    
 
+    public boolean isAntiAliasOn() { return antiAliasOn; } 
+    public void setAntiAliasOn(boolean antiAliasOn) {
+        this.antiAliasOn = antiAliasOn;
+    }
+    
     // </editor-fold>    
     
     // <editor-fold defaultstate="collapsed" desc=" UIOutput implementation ">    
@@ -328,7 +336,18 @@ public class XLabel extends DefaultLabel implements UIOutput, ActiveControl
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" Owned and helper methods ">   
-       
+   
+    public void paint(Graphics g) {
+        if (isAntiAliasOn()) {
+            Graphics2D g2 = (Graphics2D) g.create();        
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);        
+            super.paint(g2); 
+            g2.dispose(); 
+        } else {
+            super.paint(g); 
+        }
+    }
+    
     private void showDesignTimeValue() 
     {
         if (!Beans.isDesignTime()) return;

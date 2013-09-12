@@ -71,7 +71,6 @@ public class XLookupField extends IconedTextField implements UILookup, UISelecto
     private int index;
     
     private String varName = "item";
-    private String hint;
     private String handler;    
     private Object handlerObject;    
     private Object selectedValue;
@@ -106,9 +105,6 @@ public class XLookupField extends IconedTextField implements UILookup, UISelecto
     public void setNullWhenEmpty(boolean nullWhenEmpty) { 
         this.nullWhenEmpty = nullWhenEmpty; 
     }
-    
-    public String getHint() { return hint; } 
-    public void setHint(String hint) { this.hint = hint; }    
     
     public String getHandler() { return handler; }    
     public void setHandler(String handler) { this.handler = handler; }

@@ -14,6 +14,7 @@ import com.rameses.rcp.support.ThemeUI;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
@@ -37,10 +38,12 @@ public class DefaultTextField extends JTextField
     private Color enabledBackground;
     private boolean readonly;
     
-    private Font sourceFont; 
-    private String fontStyle;     
+    private String fontStyle; 
+    private Font sourceFont;     
     private String focusKeyStroke;
     private KeyStroke focusKeyStrokeObject;
+    private String hint;
+    private boolean inFocus;
     
     public DefaultTextField() 
     {
@@ -135,6 +138,9 @@ public class DefaultTextField extends JTextField
         }
     }
     
+    public String getHint() { return hint; } 
+    public void setHint(String hint) { this.hint = hint; }
+    
     protected void resetInputVerifierProxy() 
     {
         inputVerifierProxy = new InputVerifierProxy(getMainInputVerifier()); 
@@ -154,6 +160,7 @@ public class DefaultTextField extends JTextField
     {
         if (e.getID() == FocusEvent.FOCUS_GAINED) 
         {
+            inFocus = true;
             updateBackground();
             
             resetInputVerifierProxy(); 
@@ -164,8 +171,11 @@ public class DefaultTextField extends JTextField
         } 
         else if (e.getID() == FocusEvent.FOCUS_LOST) 
         { 
-            if (!e.isTemporary()) updateBackground(); 
-            
+            if (!e.isTemporary()) {
+                inFocus = false;
+                updateBackground();
+            } 
+
             try { onfocusLost(e); } catch(Exception ex) {;} 
             
             inputVerifierProxy.setEnabled(false);
@@ -216,5 +226,25 @@ public class DefaultTextField extends JTextField
     
     private void invokeFocusAction(ActionEvent e) {
         if (isEnabled() && isFocusable()) requestFocus();
+    }
+
+    protected final boolean isInFocus() { return inFocus; } 
+    
+    public void paint(Graphics g) {
+        super.paint(g); 
+        
+        String hint = getHint();
+        if (hint == null || hint.length() == 0) return;
+        
+        String text = getText();
+        if (text == null || text.length() == 0) {
+            if (inFocus) return;
+            
+            Color oldColor = g.getColor();
+            Color newColor = new Color(150, 150, 150);
+            g.setColor(newColor);
+            g.drawString(hint, 0, 0);
+            g.setColor(oldColor); 
+        }
     }
 }

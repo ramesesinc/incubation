@@ -7,11 +7,14 @@
 package com.rameses.rcp.control;
 
 import com.rameses.common.MethodResolver;
+import com.rameses.rcp.common.ListPaneModel;
+import com.rameses.rcp.common.MapObject;
 import com.rameses.rcp.common.MsgBox;
 import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.control.table.ExprBeanSupport;
 import com.rameses.rcp.framework.Binding;
-import com.rameses.rcp.framework.ClientContext;
+import com.rameses.rcp.support.FontSupport;
+import com.rameses.rcp.support.ImageIconSupport;
 import com.rameses.rcp.ui.UIControl;
 import com.rameses.rcp.util.UIControlUtil;
 import com.rameses.util.ValueUtil;
@@ -29,6 +32,7 @@ import java.util.Collection;
 import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
+import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -37,6 +41,7 @@ import javax.swing.ListCellRenderer;
 import javax.swing.ListModel;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
+import javax.swing.UIManager;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
@@ -50,10 +55,12 @@ public class XList extends JList implements UIControl
     private String varStatus;
     private String expression;
     private String items;
-    private String openAction;    
+    private String handler;
+    private String openAction;  
     private boolean dynamic;
     private int index;    
 
+    private ListPaneModel listPaneModel;
     private DefaultListModel model;
     private Insets padding = new Insets(1,3,1,3);    
     private int cellVerticalAlignment = SwingConstants.CENTER;
@@ -86,9 +93,12 @@ public class XList extends JList implements UIControl
         }        
     }
     
-    // <editor-fold defaultstate="collapsed" desc="  Getters/Setters  ">
+    // <editor-fold defaultstate="collapsed" desc=" Getters/Setters ">
     
     public final void setModel(ListModel model) {;}    
+    
+    public String getHandler() { return handler; } 
+    public void setHandler(String handler) { this.handler = handler; } 
     
     public String getVarName() { return varName; } 
     public void setVarName(String varName) { this.varName = varName; }
@@ -161,14 +171,17 @@ public class XList extends JList implements UIControl
         model = new DefaultListModel();
         super.setModel(model);
         
-        if ( !dynamic ) buildList();
+        if (!dynamic) buildList();
     }
     
-    public void refresh() 
-    {
-        if ( dynamic ) buildList();
+    public void refresh() { 
+        refresh(dynamic);  
+    } 
         
-        selectSelectedItems();
+    private void refresh(boolean reload) {
+        if (reload) buildList();
+        
+        selectSelectedItems();        
     }    
     
     public int compareTo(Object o) {
@@ -177,7 +190,7 @@ public class XList extends JList implements UIControl
     
     // </editor-fold>
    
-    // <editor-fold defaultstate="collapsed" desc="  Owned / helper methods  ">
+    // <editor-fold defaultstate="collapsed" desc=" Owned / helper methods ">
 
     public void addListSelectionListener(ListSelectionListener listener) {
         getSelectionSupport().add(listener); 
@@ -186,7 +199,7 @@ public class XList extends JList implements UIControl
     public void removeListSelectionListener(ListSelectionListener listener) {
         getSelectionSupport().remove(listener); 
     }
-     
+    
     private ListSelectionSupport getSelectionSupport() 
     {
         if (selectionSupport == null) 
@@ -235,53 +248,82 @@ public class XList extends JList implements UIControl
     
     private void buildList() 
     {
-        if (ValueUtil.isEmpty(items)) return;
+        String strHandler = getHandler();
+        String strItems = getItems();        
+        boolean hasHandler = (strHandler != null && strHandler.length() > 0);
+        boolean hasItems = (strItems != null && strItems.length() > 0);         
+        if (!hasHandler && !hasItems) return; 
         
-        model.clear();
-        
-        List list = new ArrayList();
-        try 
-        {
-            Object value = UIControlUtil.getBeanValue(this, items);
-            if (value == null) return;
-            
-            if (value instanceof Collection)
-                list.addAll((Collection) value);
-            
-            else if (value.getClass().isArray()) 
-            {
-                for (Object o: (Object[]) value) {
-                    list.add( o );
-                }
+        ListPaneModel newModel = null;
+        if (hasHandler) {            
+            Object value = null; 
+            try { 
+                value = UIControlUtil.getBeanValue(this, strHandler); 
+            } catch(Throwable t) {
+                System.out.println("[WARN] error get bean value caused by " + t.getMessage());
             }
-            
-            if (list.size() == 0) return;
-        } 
-        catch(Exception e) {;}
-        
-        int i = 0;
+            //--
+            if (value instanceof ListPaneModel) {
+                newModel = (ListPaneModel)value;
+            }        
+        } else if (hasItems) {
+            Object value = null; 
+            try { 
+                value = UIControlUtil.getBeanValue(this, strItems); 
+            } catch(Throwable t) {
+                System.out.println("[WARN] error get bean value caused by " + t.getMessage());
+            }
+            //--
+            newModel = new DefaultListPaneModel(value); 
+        }
+        loadItems(newModel);         
+    } 
+    
+    private void loadItems(ListPaneModel newModel) {
+        if (newModel == null) return;
+
+        List list = new ArrayList();        
+        Object value = newModel.getItems();
+        if (value == null) {
+            //do nothing 
+        } else if (value instanceof Collection) {
+            list.addAll((Collection) value);
+        } else if (value.getClass().isArray()) {
+            for (Object o: (Object[]) value) {
+                list.add(o);
+            }
+        }
+        //--
+        model.clear(); 
+        int i = 0; 
         for (Object o: list) { 
             model.add(i++, o); 
         } 
-    }
-    
+        
+        ListPaneModel oldModel = listPaneModel;
+        if (oldModel != null) oldModel.setProvider(null);
+        
+        listPaneModel = newModel;
+        newModel.setProvider(new ProviderImpl()); 
+        newModel.afterLoadItems(); 
+    } 
+        
     private void selectSelectedItems() 
     {
-        if ( ValueUtil.isEmpty(getName()) ) return;
-        
         Object value = null;
-        try {
-            value = UIControlUtil.getBeanValue(this);
-        } catch(Exception e) {
-            if( ClientContext.getCurrentContext().isDebugMode() ) {
-                e.printStackTrace();
-            }
+        String name = getName();
+        if (name != null && name.length() > 0) {
+            try {
+                value = UIControlUtil.getBeanValue(this);
+            } catch(Throwable e) {
+                System.out.println("[WARN] error get bean value caused by " + e.getMessage());
+            }            
         }
-        
-        if ( value == null ) return;
-        
-        //set selected item(s)
-        if ( isMultiselect() ) {
+
+        if (value == null) {
+            setSelectedIndex(0); 
+            
+        } else if ( isMultiselect() ) {
             List list = new ArrayList();
             if ( value instanceof Collection )
                 list.addAll( (Collection) value );
@@ -315,58 +357,71 @@ public class XList extends JList implements UIControl
     
     // </editor-fold>
     
-    // <editor-fold defaultstate="collapsed" desc="  DefaultCellRenderer (class)  ">
+    // <editor-fold defaultstate="collapsed" desc=" DefaultCellRenderer (class) ">
     
     private class DefaultCellRenderer implements ListCellRenderer 
     {
+        XList root = XList.this; 
         private JLabel cellLabel;
+        private FontSupport fontSupport; 
         
         DefaultCellRenderer() 
         {
             cellLabel = new JLabel();
             cellLabel.setOpaque(true);
-            cellLabel.setBorder(BorderFactory.createEmptyBorder(padding.top, padding.left, padding.bottom, padding.right));            
+            fontSupport = new FontSupport(); 
         }
         
         public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) 
         {
+            Insets pads = root.getPadding();
+            if (pads == null) pads = new Insets(1,3,1,3); 
+            
+            cellLabel.setBorder(BorderFactory.createEmptyBorder(pads.top, pads.left, pads.bottom, pads.right)); 
             cellLabel.setComponentOrientation(list.getComponentOrientation());
-            cellLabel.setSize( list.getFixedCellWidth(), list.getFixedCellHeight() );
+            cellLabel.setSize(list.getFixedCellWidth(), list.getFixedCellHeight());
             cellLabel.setEnabled(list.isEnabled());
             cellLabel.setFont(list.getFont());
-            cellLabel.setVerticalAlignment( getCellVerticalAlignment() );
-            cellLabel.setHorizontalAlignment( getCellHorizontalAlignment() );
+            cellLabel.setVerticalAlignment(getCellVerticalAlignment());
+            cellLabel.setHorizontalAlignment(getCellHorizontalAlignment());
             
-            if (isSelected) 
-            {
+            if (isSelected) {
                 cellLabel.setBackground(list.getSelectionBackground());
                 cellLabel.setForeground(list.getSelectionForeground());
-            } 
-            else 
-            {
+                fontSupport.applyStyles(cellLabel, "font-weight:bold;");
+            } else {
                 cellLabel.setBackground(list.getBackground());
                 cellLabel.setForeground(list.getForeground());
             }
             
-            if ( Beans.isDesignTime() ) 
-            {
+            if (Beans.isDesignTime()) {
                 cellLabel.setText( value+"" );
                 return cellLabel;
             }
             
             Object cellValue = value;
             String expr = getExpression();
-            if (expr != null) 
-            {
-                try 
-                {
+            if (expr != null) {
+                try {
                     Object exprBean = createExpressionBean(value);
                     cellValue = UIControlUtil.evaluateExpr(exprBean, expr); 
-                } 
-                catch(Exception e) {;}
+                } catch(Throwable e) {;}
             } 
             
-            cellLabel.setText((cellValue == null? " " : cellValue.toString()));            
+            cellLabel.setText((cellValue == null? " ": cellValue.toString()));            
+            
+            String strIcon = new MapObject(value).getString("icon");
+            if (strIcon == null || strIcon.length() == 0) 
+                strIcon = (root.listPaneModel == null? null: root.listPaneModel.getDefaultIcon()); 
+            if (strIcon != null && strIcon.length() > 0) {
+                Icon anIcon = ImageIconSupport.getInstance().getIcon(strIcon);
+                if (anIcon == null) {
+                    try { 
+                        anIcon = UIManager.getLookAndFeelDefaults().getIcon(strIcon); 
+                    } catch(Throwable t){;} 
+                }
+                cellLabel.setIcon(anIcon); 
+            }
             return cellLabel;
         }
         
@@ -421,6 +476,18 @@ public class XList extends JList implements UIControl
                         UIControlUtil.setBeanValue(root.getBinding(), root.getVarStatus(), stat); 
                     }
 
+                    EventQueue.invokeLater(new Runnable(){
+                        public void run() {
+                            try { 
+                                if (root.listPaneModel == null) return;
+
+                                root.listPaneModel.onselect(root.getSelectedValue()); 
+                            } catch(Throwable e) {
+                                System.out.println("[WARN] error onselect caused by " + e.getMessage()); 
+                            } 
+                        } 
+                    });
+                    
                     EventQueue.invokeLater(new Runnable() {
                         public void run() {
                             binding.notifyDepends(XList.this);                    
@@ -446,7 +513,7 @@ public class XList extends JList implements UIControl
     
     // </editor-fold>
     
-    // <editor-fold defaultstate="collapsed" desc="  ItemStatus (class)  ">
+    // <editor-fold defaultstate="collapsed" desc=" ItemStatus (class) ">
     
     public class ItemStatus 
     {
@@ -462,4 +529,52 @@ public class XList extends JList implements UIControl
     }
     
     // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" DefaultListPaneModel ">
+    
+    private class DefaultListPaneModel extends ListPaneModel 
+    {
+        private Object items;
+        
+        DefaultListPaneModel(Object items) {
+            this.items = items;
+        }
+        
+        public Object getItems() { return items; } 
+    }
+    
+    // </editor-fold> 
+    
+    // <editor-fold defaultstate="collapsed" desc=" ProviderImpl ">
+    
+    private class ProviderImpl implements ListPaneModel.Provider 
+    {
+        XList root = XList.this; 
+        
+        public Object getBinding() {
+            return root.getBinding(); 
+        }
+
+        public void refresh() {
+            root.refresh();
+        }
+
+        public void reload() {
+            root.refresh(true); 
+        }        
+
+        public void setSelectedIndex(int index) {
+            int size = root.getModel().getSize();
+            if (index >= 0 && index < size) {
+                root.setSelectedIndex(index); 
+            }
+        }
+    }
+    
+    // </editor-fold>
+
+    public void setSelectionInterval(int anchor, int lead) {
+        super.setSelectionInterval(anchor, lead); 
+    }
+   
 }

@@ -40,6 +40,10 @@ public class TabbedPaneModel {
         if (provider != null) provider.reload(); 
     }
     
+    public void refresh() {
+        if (provider != null) provider.refresh(); 
+    }
+    
         
     // <editor-fold defaultstate="collapsed" desc=" Provider interface ">
 
@@ -55,6 +59,7 @@ public class TabbedPaneModel {
         List lookupOpeners(String invokerType, Map params);
         
         void reload();
+        void refresh();
     } 
     
     // </editor-fold>     
