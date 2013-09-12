@@ -77,16 +77,19 @@ public class MsSqlDialect implements SqlDialect  {
         StringBuilder currentBuilder = null;
         Stack stack = new Stack();
         int currentState = STATE_SELECT;
-
+        boolean hasDistinct = false;
+        
         StringTokenizer st = new StringTokenizer(sql.trim());
         while(st.hasMoreElements()) {
             String s = (String)st.nextElement(); 
-
             if( s.equalsIgnoreCase("select") && currentState <= STATE_SELECT  ) 
             {
                 selectBuilder.append( s  );
                 currentBuilder = columnBuilder;
                 currentState = STATE_COLUMNS;
+            }
+            else if( s.equalsIgnoreCase("distinct")) {
+               selectBuilder.append( " DISTINCT " );
             }
             else if( s.equalsIgnoreCase("from") && currentState == STATE_COLUMNS && stack.empty()  ) 
             {
