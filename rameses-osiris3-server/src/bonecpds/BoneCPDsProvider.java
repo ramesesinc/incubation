@@ -19,6 +19,7 @@ import com.rameses.osiris3.data.DsProvider;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  *
@@ -39,8 +40,8 @@ public class BoneCPDsProvider implements DsProvider {
             init(map);
         }
         
-        public void init(Map map) 
-        {
+        public void init(Map map) {
+            
             super.init(map);
             try 
             {
@@ -52,6 +53,15 @@ public class BoneCPDsProvider implements DsProvider {
                 config.setMinConnectionsPerPartition(getMinPoolSize());
                 config.setMaxConnectionsPerPartition(getMaxPoolSize());
                 config.setPartitionCount(1);
+                //idle time to be released.
+                config.setIdleMaxAgeInMinutes(5);
+                if(map.containsKey("idleMaxAge")) {
+                    config.setIdleMaxAgeInMinutes( Integer.parseInt(map.get("idleMaxAge")+"") );
+                }
+                config.setMaxConnectionAge(30, TimeUnit.MINUTES);
+                if(map.containsKey("maxConnectionAge")) {
+                    config.setMaxConnectionAge( Long.parseLong(map.get("maxConnectionAge")+"") );
+                }
                 connectionPool = new BoneCP(config);                
             }
             catch(RuntimeException re) {
