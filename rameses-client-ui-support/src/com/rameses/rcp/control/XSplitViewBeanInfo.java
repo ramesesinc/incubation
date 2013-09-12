@@ -33,7 +33,8 @@ public class XSplitViewBeanInfo extends ComponentBeanInfo.Support
         return new PropertyDescriptor[] {
             new PropertyDescriptor("border", getBeanClass()),
             new PropertyDescriptor("dividerLocation", getBeanClass()),
-            new PropertyDescriptor("dividerSize", getBeanClass())
+            new PropertyDescriptor("dividerSize", getBeanClass()),
+            new PropertyDescriptor("orientation", getBeanClass())
         }; 
     }
 }

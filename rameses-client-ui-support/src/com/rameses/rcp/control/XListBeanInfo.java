@@ -39,6 +39,7 @@ public class XListBeanInfo extends ComponentBeanInfo.Support
             new PropertyDescriptor("depends", getBeanClass()),
             new PropertyDescriptor("dynamic", getBeanClass(), "isDynamic", "setDynamic"),
             new PropertyDescriptor("expression", getBeanClass()),
+            new PropertyDescriptor("handler", getBeanClass()),
             new PropertyDescriptor("index", getBeanClass()),
             new PropertyDescriptor("items", getBeanClass()),
             new PropertyDescriptor("multiselect", getBeanClass(), "isMultiselect", "setMultiselect"),
