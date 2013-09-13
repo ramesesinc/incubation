@@ -70,6 +70,15 @@ public class BoneCPDsProvider implements DsProvider {
                     partitionCount = Integer.parseInt( map.get("partitionCount")+"" );
                 }
                 config.setPartitionCount(partitionCount);
+                config.setConnectionTestStatement("SELECT 1");
+                
+                System.out.println("Bone CP config:");
+                System.out.println("partition count:"+config.getPartitionCount());
+                System.out.println("idle max age:"+config.getIdleMaxAgeInMinutes());
+                System.out.println("max conn. age:"+config.getMaxConnectionAge(TimeUnit.MINUTES));
+                System.out.println("max pool per partition:"+config.getMaxConnectionsPerPartition());
+                System.out.println("min pool per partition:"+config.getMinConnectionsPerPartition());
+                
                 
                 connectionPool = new BoneCP(config);                
             }
