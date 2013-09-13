@@ -2,9 +2,9 @@ package com.rameses.rcp.control;
 
 import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.control.table.ExprBeanSupport;
+import com.rameses.rcp.control.text.DefaultLabel;
 import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.framework.ClientContext;
-import com.rameses.rcp.support.FontSupport;
 import com.rameses.rcp.support.ThemeUI;
 import com.rameses.rcp.ui.ActiveControl;
 import com.rameses.rcp.ui.ControlProperty;
@@ -16,14 +16,15 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Insets;
+import java.awt.RenderingHints;
 import java.beans.Beans;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.text.Format;
 import java.util.logging.Logger;
 import javax.swing.JComponent;
-import javax.swing.JLabel;
 import javax.swing.UIManager;
 import javax.swing.border.AbstractBorder;
 import javax.swing.border.Border;
@@ -32,7 +33,7 @@ import javax.swing.border.Border;
  *
  * @author jaycverg
  */
-public class XLabel extends JLabel implements UIOutput, ActiveControl 
+public class XLabel extends DefaultLabel implements UIOutput, ActiveControl 
 {
     private ControlProperty property = new ControlProperty();
     private Binding binding; 
@@ -43,8 +44,6 @@ public class XLabel extends JLabel implements UIOutput, ActiveControl
     private int index;    
     private boolean useHtml;
     
-    private Font sourceFont;
-    private String fontStyle; 
     private Insets padding; 
     private Format format; 
     
@@ -55,6 +54,7 @@ public class XLabel extends JLabel implements UIOutput, ActiveControl
     private String labelFor;
     private boolean addCaptionColon = true;
     private boolean forceUseActiveCaption;
+    private boolean antiAliasOn;
     private ControlProperty activeProperty;
     private JComponent activeComponent;
     private ActiveControlSupport activeControlSupport;
@@ -224,19 +224,13 @@ public class XLabel extends JLabel implements UIOutput, ActiveControl
     }
     
     public Format getFormat() { return format; }
-    public void setFormat(Format format) { this.format = format; }
-    
-    public String getFontStyle() { return fontStyle; } 
-    public void setFontStyle(String fontStyle) {
-        this.fontStyle = fontStyle;
-        if (sourceFont == null) {
-            sourceFont = super.getFont();
-        } else {
-            super.setFont(sourceFont); 
-        } 
-        new FontSupport().applyStyles(this, fontStyle);
-    }
+    public void setFormat(Format format) { this.format = format; }    
 
+    public boolean isAntiAliasOn() { return antiAliasOn; } 
+    public void setAntiAliasOn(boolean antiAliasOn) {
+        this.antiAliasOn = antiAliasOn;
+    }
+    
     // </editor-fold>    
     
     // <editor-fold defaultstate="collapsed" desc=" UIOutput implementation ">    
@@ -342,7 +336,18 @@ public class XLabel extends JLabel implements UIOutput, ActiveControl
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" Owned and helper methods ">   
-       
+   
+    public void paint(Graphics g) {
+        if (isAntiAliasOn()) {
+            Graphics2D g2 = (Graphics2D) g.create();        
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);        
+            super.paint(g2); 
+            g2.dispose(); 
+        } else {
+            super.paint(g); 
+        }
+    }
+    
     private void showDesignTimeValue() 
     {
         if (!Beans.isDesignTime()) return;

@@ -25,29 +25,42 @@ public class DefaultQueryFormPanel extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
         xActionTextField1 = new com.rameses.rcp.control.XActionTextField();
+        defaultLabel1 = new com.rameses.rcp.control.text.DefaultLabel();
 
-        setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 5, 5, 0));
+        setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 5, 5, 5));
         xActionTextField1.setActionName("search");
         xActionTextField1.setCaption("Search");
+        xActionTextField1.setFocusAccelerator('s');
+        xActionTextField1.setFocusKeyStroke("F3");
         xActionTextField1.setName("query.searchtext");
         xActionTextField1.setPreferredSize(new java.awt.Dimension(250, 22));
+
+        defaultLabel1.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 5));
+        defaultLabel1.setDisplayedMnemonic('s');
+        defaultLabel1.setForeground(new java.awt.Color(80, 80, 80));
+        defaultLabel1.setText("Search");
+        defaultLabel1.setFontStyle("font-weight:bold;");
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
-                .add(xActionTextField1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 207, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(10, Short.MAX_VALUE))
+                .add(defaultLabel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(xActionTextField1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 207, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(xActionTextField1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 22, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+            .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                .add(xActionTextField1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 22, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(defaultLabel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
         );
     }// </editor-fold>//GEN-END:initComponents
     
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private com.rameses.rcp.control.text.DefaultLabel defaultLabel1;
     private com.rameses.rcp.control.XActionTextField xActionTextField1;
     // End of variables declaration//GEN-END:variables
     

@@ -38,8 +38,9 @@ public class XDecimalField extends AbstractNumberField implements UIInput, Valid
     private boolean nullWhenEmpty;
     private String[] depends; 
     private String pattern;  
+    private int scale = 2;
     private int index;
-        
+    
     public XDecimalField() 
     {
         super();
@@ -122,13 +123,18 @@ public class XDecimalField extends AbstractNumberField implements UIInput, Valid
         setUsePrimitiveValue(pi.isUsePrimitiveValue()); 
     }    
     
+    public int getScale() { return scale; } 
+    public void setScale(int scale) { 
+        this.scale = scale; 
+    }
+    
     // </editor-fold>     
     
     // <editor-fold defaultstate="collapsed" desc="  DecimalDocument (Class)  "> 
     
     private class DecimalDocument extends AbstractNumberDocument
     {
-        int scale = 2;      
+        XDecimalField root = XDecimalField.this; 
         
         public Number decode(String value) 
         {
@@ -147,12 +153,12 @@ public class XDecimalField extends AbstractNumberField implements UIInput, Valid
             else 
                 bd = new BigDecimal(value.doubleValue());  
             
-            return bd.setScale(scale, RoundingMode.HALF_UP); 
+            return bd.setScale(root.getScale(), RoundingMode.HALF_UP); 
         }
         
         protected Number getPrimitiveValue(Number value) {
             return value; 
-        }        
+        } 
         
         public void refresh() 
         {

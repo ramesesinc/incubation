@@ -2,6 +2,7 @@ package com.rameses.rcp.control;
 
 import com.rameses.rcp.common.LookupOpenerSupport;
 import com.rameses.rcp.common.PropertySupport;
+import com.rameses.rcp.common.SubFormPanelModel;
 import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.ui.ActiveControl;
 import com.rameses.rcp.util.ControlSupport;
@@ -49,6 +50,7 @@ public class XSubFormPanel extends JPanel implements UISubControl, ActiveControl
     
     private boolean multiForm;
     private JPanel multiPanel;
+    private SubFormPanelModel model; 
     
     /** this can be set when you want to add openers
      *  directly to this component
@@ -115,11 +117,64 @@ public class XSubFormPanel extends JPanel implements UISubControl, ActiveControl
         }
     }
     
+    private Map createOpenerParams(Opener opener) {
+        Map openerParams = opener.getParams();
+        if (openerParams == null) {
+            openerParams = new HashMap();
+            opener.setParams(openerParams); 
+        }
+        Map props = new HashMap();
+        props.putAll(openerParams);   
+
+        Object userObj = getClientProperty(UIControl.KEY_USER_OBJECT); 
+        if (userObj instanceof Map) {
+            Object o = ((Map)userObj).get("properties"); 
+            if (o instanceof Map) props.putAll((Map)o);    
+        }
+
+        Map udfParams = (model == null? null: model.getOpenerParams(opener));
+        if (udfParams != null) props.putAll(udfParams); 
+        
+        return props; 
+    } 
+            
+    public void refreshViews() {
+        if (subFormItems == null || subFormItems.isEmpty()) return;
+        
+        for (SubFormContext ctx: subFormItems) {
+            UIControllerContext uictx = ctx.getCurrentController();
+            if (uictx == null) continue; 
+            
+            Opener opener = ctx.getOpener(); 
+            if (opener == null || opener.getController() == null) continue; 
+           
+            Object o = opener.getHandle();
+            ControlSupport.setProperties(o, createOpenerParams(opener)); 
+            
+            try { 
+                Binding viewBinding = uictx.getCurrentView().getBinding();
+                if (viewBinding != null) {
+                    viewBinding.refresh();
+                    SwingUtilities.updateComponentTreeUI(ctx); 
+                } 
+            } catch(Throwable t) { 
+                System.out.println("[WARN] error on binding refresh caused by " + t.getMessage());
+            } 
+                        
+            
+        }
+    }
+    
     public void refresh() {
-        if ( dynamic ) {
+        refreshImpl(isDynamic()); 
+    }
+    
+    private void refreshImpl(boolean dynamic) {
+        if (dynamic) { 
+            model = new DefaultSubFormPanelModel(null);
             buildForm();
         }
-        
+     
         String sval = getVisibleWhen(); 
         if (sval != null && sval.length() > 0) {
             try { 
@@ -140,23 +195,35 @@ public class XSubFormPanel extends JPanel implements UISubControl, ActiveControl
     
     protected void buildForm() 
     {
-        handlerObj = null;
-        
+        Object value = null; 
         //this is usually set by XTabbedPane or
         //other controls that used XSubForm internally
-        if (getOpeners().size() > 0) {
-            handlerObj = getOpeners();
+        if (getOpeners().size() > 0) { 
+            value = getOpeners(); 
         } 
         else if (!ValueUtil.isEmpty(getHandler())) {
             String shandler = getHandler();
-            if ( shandler.matches(".+:.+") ) {
-                handlerObj = LookupOpenerSupport.lookupOpener(shandler, new HashMap()); 
-            } else {
-                handlerObj = UIControlUtil.getBeanValue(getBinding().getBean(), shandler); 
-            }
+            if ( shandler.matches(".+:.+") ) { 
+                value = LookupOpenerSupport.lookupOpener(shandler, new HashMap()); 
+            } else { 
+                value = UIControlUtil.getBeanValue(getBinding().getBean(), shandler); 
+            } 
         }
         
-        List<Opener> openers = new ArrayList();        
+        SubFormPanelModel newModel = null;
+        if (value instanceof SubFormPanelModel) {
+            newModel = (SubFormPanelModel) value;
+        } else { 
+            newModel = new DefaultSubFormPanelModel(value); 
+        } 
+        
+        if (model != null && model.equals(newModel)) {
+            refreshViews(); 
+            return;  
+        } 
+
+        List<Opener> openers = new ArrayList();         
+        handlerObj = newModel.getOpener();
         if ( handlerObj == null ) {
             //do nothing
         } else if ( handlerObj instanceof Collection ) {
@@ -177,6 +244,9 @@ public class XSubFormPanel extends JPanel implements UISubControl, ActiveControl
         Set<Binding> connectorBindings = bindingConnector.getSubBindings();
         connectorBindings.clear();
         
+        newModel.setProvider(new DefaultProviderImpl()); 
+        this.model = newModel; 
+        
         if ( openers.size() == 0 ) {
             removeAll();
             subFormItems.clear();
@@ -190,6 +260,7 @@ public class XSubFormPanel extends JPanel implements UISubControl, ActiveControl
             
             //register new subBindings
             connectorBindings.addAll(getSubBindings());
+            
         } else {
             removeAll();
             subFormItems.clear();
@@ -241,11 +312,12 @@ public class XSubFormPanel extends JPanel implements UISubControl, ActiveControl
         if ( !ValueUtil.isEmpty(opener.getOutcome()) ) {
             uic.setCurrentView(opener.getOutcome());
         }
-        SubFormContext sfc = new SubFormContext( uic );
+        SubFormContext sfc = new SubFormContext(uic, opener);
         subFormItems.add( sfc );
         add( sfc );
     }
-    //</editor-fold>
+    
+    // </editor-fold>
     
     public int compareTo(Object o) {
         return UIControlUtil.compare(this, o);
@@ -397,13 +469,19 @@ public class XSubFormPanel extends JPanel implements UISubControl, ActiveControl
         
     // <editor-fold defaultstate="collapsed" desc="  SubFormContext (class)  ">
     
-    protected class SubFormContext extends UIControllerPanel {
+    protected class SubFormContext extends UIControllerPanel 
+    {
+        private Opener opener;
         
-        SubFormContext(UIControllerContext controller) {
+        SubFormContext(UIControllerContext controller, Opener opener) {
             super(controller);
+            this.opener = opener;
+            
             setOpaque(false);
             setName(XSubFormPanel.this.getName());
         }
+        
+        public Opener getOpener() { return opener; } 
         
         public void renderView() {
             super.renderView();
@@ -411,9 +489,46 @@ public class XSubFormPanel extends JPanel implements UISubControl, ActiveControl
             Set<Binding> connectorBindings = bindingConnector.getSubBindings();
             connectorBindings.clear();
             connectorBindings.addAll(getSubBindings());
-        }
-        
+        }        
     }
     
     // </editor-fold>     
+    
+    // <editor-fold defaultstate="collapsed" desc=" DefaultSubFormPanelModel ">
+    
+    private class DefaultSubFormPanelModel extends SubFormPanelModel 
+    {
+        private Object value; 
+        
+        DefaultSubFormPanelModel(Object value) {
+            this.value = value;
+        }
+
+        public Object getOpener() { return value; }
+    }
+    
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" DefaultProviderImpl ">
+    
+    private class DefaultProviderImpl implements SubFormPanelModel.Provider 
+    {
+        XSubFormPanel root = XSubFormPanel.this;
+        
+        public Object getBinding() {
+            return root.getBinding(); 
+        }
+
+        public void refresh() {
+            root.refresh();
+            
+            if (!root.isDynamic()) root.refreshViews(); 
+        }
+
+        public void reload() {
+            root.refreshImpl(true); 
+        }
+    }
+    
+    // </editor-fold>
 }

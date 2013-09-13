@@ -50,6 +50,7 @@ public class XDecimalFieldBeanInfo extends ComponentBeanInfo.Support
             new PropertyDescriptor("minValue", getBeanClass()),
             new PropertyDescriptor("maxValue", getBeanClass()),
             new PropertyDescriptor("pattern", getBeanClass()),
+            new PropertyDescriptor("scale", getBeanClass()),
             
             new PropertyDescriptor("usePrimitiveValue", getBeanClass(), "isUsePrimitiveValue", "setUsePrimitiveValue"),
             new PropertyDescriptor("readonly", getBeanClass(), "isReadonly", "setReadonly"),

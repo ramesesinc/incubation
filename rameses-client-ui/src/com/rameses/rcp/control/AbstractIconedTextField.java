@@ -170,7 +170,7 @@ public abstract class AbstractIconedTextField extends XTextField implements Acti
         }
     }
         
-    // <editor-fold defaultstate="collapsed" desc="  IconedTextFieldSupport (class)  ">
+    // <editor-fold defaultstate="collapsed" desc=" IconedTextFieldSupport (class) ">
     
     private class IconedTextFieldSupport implements MouseListener, MouseMotionListener 
     {

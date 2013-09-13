@@ -24,6 +24,11 @@ public class TabbedPaneModel {
     
     public List<Opener> getOpeners() { return null; } 
     
+    public boolean beforeSelect(Opener opener) { return true; } 
+    public boolean beforeSelect(Opener opener, int index) {
+        return beforeSelect(opener); 
+    } 
+    
     public Object getBinding() {
         return (provider == null? null: provider.getBinding());
     }
@@ -40,7 +45,9 @@ public class TabbedPaneModel {
         if (provider != null) provider.reload(); 
     }
     
-    
+    public void refresh() {
+        if (provider != null) provider.refresh(); 
+    }
     
     // <editor-fold defaultstate="collapsed" desc=" Provider interface ">
 
@@ -56,6 +63,7 @@ public class TabbedPaneModel {
         List lookupOpeners(String invokerType, Map params);
         
         void reload();
+        void refresh();
     } 
     
     // </editor-fold>     

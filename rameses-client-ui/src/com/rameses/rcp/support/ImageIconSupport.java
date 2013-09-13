@@ -62,7 +62,7 @@ public class ImageIconSupport
                 cache.put(path, icon.getImage());
                 return icon;
             } 
-            catch(Exception ex) {
+            catch(Throwable ex) {
                 return null; 
             } 
         }

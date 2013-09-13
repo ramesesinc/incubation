@@ -42,6 +42,7 @@ import java.beans.Beans;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.lang.reflect.Method;
+import java.util.EventObject;
 import java.util.HashMap;
 import java.util.Map;
 import javax.swing.InputVerifier;
@@ -70,7 +71,6 @@ public class XLookupField extends IconedTextField implements UILookup, UISelecto
     private int index;
     
     private String varName = "item";
-    private String hint;
     private String handler;    
     private Object handlerObject;    
     private Object selectedValue;
@@ -105,9 +105,6 @@ public class XLookupField extends IconedTextField implements UILookup, UISelecto
     public void setNullWhenEmpty(boolean nullWhenEmpty) { 
         this.nullWhenEmpty = nullWhenEmpty; 
     }
-    
-    public String getHint() { return hint; } 
-    public void setHint(String hint) { this.hint = hint; }    
     
     public String getHandler() { return handler; }    
     public void setHandler(String handler) { this.handler = handler; }
@@ -293,17 +290,16 @@ public class XLookupField extends IconedTextField implements UILookup, UISelecto
     
     public void setValue(Object value) 
     {
-        if ( value instanceof KeyEvent ) {
-            setText( ((KeyEvent) value).getKeyChar()+"" );
-        } 
-        else 
-        {
+        if ( value instanceof EventObject ) {
+            if (value instanceof KeyEvent) {
+                setText(((KeyEvent) value).getKeyChar()+"");    
+            }
+        } else {
             if ( value != null )
                 setText(value.toString());
             else
                 setText("");
-        }
-        
+        }         
         this.dirty = false; 
     } 
     

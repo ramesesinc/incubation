@@ -135,7 +135,7 @@ public class XSubControl extends XSubFormPanel {
         if ( !ValueUtil.isEmpty(opener.getOutcome()) ) {
             uic.setCurrentView(opener.getOutcome());
         }
-        SubFormContext sfc = new SubFormContext( uic );
+        SubFormContext sfc = new SubFormContext( uic, opener );
         subFormItems.add( sfc );
         
         add( sfc );
