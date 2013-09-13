@@ -52,16 +52,25 @@ public class BoneCPDsProvider implements DsProvider {
                 config.setPassword(getPwd());
                 config.setMinConnectionsPerPartition(getMinPoolSize());
                 config.setMaxConnectionsPerPartition(getMaxPoolSize());
-                config.setPartitionCount(1);
                 //idle time to be released.
                 config.setIdleMaxAgeInMinutes(5);
+                int maxAgeInMinutes = 5;
                 if(map.containsKey("idleMaxAge")) {
-                    config.setIdleMaxAgeInMinutes( Integer.parseInt(map.get("idleMaxAge")+"") );
+                     maxAgeInMinutes = Integer.parseInt(map.get("idleMaxAge")+"");
                 }
-                config.setMaxConnectionAge(30, TimeUnit.MINUTES);
+                config.setIdleMaxAgeInMinutes(maxAgeInMinutes);
+                
+                long maxConnectionAge = 30;
                 if(map.containsKey("maxConnectionAge")) {
-                    config.setMaxConnectionAge( Long.parseLong(map.get("maxConnectionAge")+"") );
+                    maxConnectionAge = Long.parseLong(map.get("maxConnectionAge")+"");
                 }
+                config.setMaxConnectionAge(maxConnectionAge, TimeUnit.MINUTES);
+                int partitionCount = 1;
+                if(map.containsKey("partitionCount")) {
+                    partitionCount = Integer.parseInt( map.get("partitionCount")+"" );
+                }
+                config.setPartitionCount(partitionCount);
+                
                 connectionPool = new BoneCP(config);                
             }
             catch(RuntimeException re) {
