@@ -174,10 +174,10 @@ public class XTabbedPane extends JTabbedPane implements UIControl
                     if (!b) return; 
                 } 
                 
-                if (!itemPanel.hasContent()) {
-                    itemPanel.loadContent(); 
-                } else {
+                if (itemPanel.hasContent()) {
                     itemPanel.refreshContent(); 
+                } else {
+                    itemPanel.loadContent();                     
                 }
             }
         } catch(Throwable t) {
