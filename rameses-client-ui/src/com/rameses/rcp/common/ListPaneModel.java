@@ -19,11 +19,10 @@ public class ListPaneModel
     public ListPaneModel() {
     }
 
-    public void afterLoadItems() {
-    }
+    public void afterLoadItems() {}
     
-    public void onselect(Object item) {
-    }
+    public boolean beforeSelect(Object item) { return false; }    
+    public void onselect(Object item) {}
     
     public Object getItems() { return null; }
     public String getDefaultIcon() { return null; } 

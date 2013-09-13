@@ -8,6 +8,7 @@
 package com.rameses.rcp.control; 
 
 import com.rameses.common.ExpressionResolver;
+import com.rameses.rcp.common.MsgBox;
 import com.rameses.rcp.common.Opener; 
 import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.common.TabbedPaneModel;
@@ -19,6 +20,7 @@ import com.rameses.rcp.support.ImageIconSupport;
 import com.rameses.rcp.support.ThemeUI;
 import com.rameses.rcp.ui.UIControl;
 import com.rameses.rcp.util.UIControlUtil;
+import com.rameses.util.Warning;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -44,7 +46,9 @@ public class XTabbedPane extends JTabbedPane implements UIControl
     private int oldIndex;
     private List<Opener> openers = new ArrayList();
     private boolean nameAutoLookupAsOpener = false;
+    
     private TabbedPaneModel model;
+    private boolean noSelectionAllowed;
         
     public XTabbedPane() 
     {
@@ -96,18 +100,26 @@ public class XTabbedPane extends JTabbedPane implements UIControl
     public int getIndex() { return index; }
     public void setIndex(int index) { this.index = index; }
         
-    public void load() {
-        if ( !dynamic ) loadTabs();
+    public void load() { 
+        try {
+            if ( !dynamic ) loadTabs();
+        } catch(Throwable t) {
+            System.out.println("[WARN] error loading tabs caused by " + t.getMessage());
+        }
     }
     
     public void refresh() {
         boolean dynamic = isDynamic();
-        if (dynamic) loadTabs();
-        
+        try {
+            if (dynamic) loadTabs();
+        } catch(Throwable t) {
+            System.out.println("[WARN] error loading tabs caused by " + t.getMessage()); 
+        } 
+
+        ExpressionResolver er = ExpressionResolver.getInstance();
         String expr = getDisableWhen();
         if (expr != null && expr.length() > 0) {
             try {
-                ExpressionResolver er = ExpressionResolver.getInstance();
                 boolean b = er.evalBoolean(expr, getBinding().getBean()); 
                 setEnabled(!b); 
             } catch(Throwable t){;} 
@@ -119,6 +131,22 @@ public class XTabbedPane extends JTabbedPane implements UIControl
                 TabbedItemPanel itemPanel = (TabbedItemPanel)comp;
                 itemPanel.refreshContent(); 
             }
+        }
+        
+        int tabCount = getTabCount();
+        for (int i=0; i<tabCount; i++) {
+            Component c = getComponentAt(i);
+            if (!(c instanceof TabbedItemPanel)) continue;
+            
+            Opener op = ((TabbedItemPanel) c).getOpener(); 
+            Object ov = op.getProperties().get("disableWhen");
+            String disableWhen = (ov == null? null: ov.toString()); 
+            if (disableWhen == null || disableWhen.length() == 0) continue;
+            
+            try {
+                boolean b = er.evalBoolean(disableWhen, getBinding().getBean()); 
+                setEnabledAt(i, !b); 
+            } catch(Throwable t){;} 
         }
     }
     
@@ -133,15 +161,32 @@ public class XTabbedPane extends JTabbedPane implements UIControl
     
     // <editor-fold defaultstate="collapsed" desc=" helper methods ">
     
-    public void setSelectedIndex(int index) {
-        Component c = getComponentAt(index);
-        if (c instanceof TabbedItemPanel) {
-            TabbedItemPanel itemPanel = (TabbedItemPanel)c; 
-            if (!itemPanel.hasContent()) {
-                itemPanel.loadContent(); 
-            } else {
-                itemPanel.refreshContent(); 
+    public void setSelectedIndex(int index) { 
+        if (noSelectionAllowed) return; 
+        
+        try { 
+            Component c = getComponentAt(index);
+            if (c instanceof TabbedItemPanel) {
+                TabbedItemPanel itemPanel = (TabbedItemPanel)c; 
+                Opener opener = itemPanel.getOpener(); 
+                if (model != null) { 
+                    boolean b = model.beforeSelect(opener, index);  
+                    if (!b) return; 
+                } 
+                
+                if (!itemPanel.hasContent()) {
+                    itemPanel.loadContent(); 
+                } else {
+                    itemPanel.refreshContent(); 
+                }
             }
+        } catch(Throwable t) {
+            if (t instanceof Warning) {
+                MsgBox.alert(t.getMessage()); 
+            } else { 
+                MsgBox.err(t); 
+            } 
+            return;
         }
         
         this.oldIndex = getSelectedIndex();
@@ -166,7 +211,14 @@ public class XTabbedPane extends JTabbedPane implements UIControl
 
             TabbedItemPanel itemPanel = new TabbedItemPanel(op);
             itemPanel.setProvider(new TabbedItemProvider()); 
-            super.addTab(op.getCaption(), getOpenerIcon(op), itemPanel);
+            try {
+                noSelectionAllowed = true;
+                super.addTab(op.getCaption(), getOpenerIcon(op), itemPanel); 
+            } catch(Throwable t) {
+                //do nothing 
+            } finally {
+                noSelectionAllowed = false;
+            }            
         }
         
         if (getTabCount() > 0) setSelectedIndex(0);        

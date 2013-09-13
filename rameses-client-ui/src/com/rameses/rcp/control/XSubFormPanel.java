@@ -489,8 +489,7 @@ public class XSubFormPanel extends JPanel implements UISubControl, ActiveControl
             Set<Binding> connectorBindings = bindingConnector.getSubBindings();
             connectorBindings.clear();
             connectorBindings.addAll(getSubBindings());
-        }
-        
+        }        
     }
     
     // </editor-fold>     

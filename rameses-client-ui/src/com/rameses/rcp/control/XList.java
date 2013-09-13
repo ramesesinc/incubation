@@ -574,7 +574,14 @@ public class XList extends JList implements UIControl
     // </editor-fold>
 
     public void setSelectionInterval(int anchor, int lead) {
+        if (listPaneModel != null) {
+            try {
+                Object o = (lead < 0? null: getModel().getElementAt(lead)); 
+                if (!listPaneModel.beforeSelect(o)) return;
+            } catch(Throwable t) { 
+                MsgBox.err(t); 
+            }
+        }
         super.setSelectionInterval(anchor, lead); 
     }
-   
 }

@@ -92,7 +92,7 @@ public class TabbedItemPanel extends JPanel
         }
         Map udfParams = (provider == null? null: provider.getOpenerParams(newOpener));
         if (udfParams != null) openerParams.putAll(udfParams); 
-        
+
         setContent(newOpener);
     }
     
