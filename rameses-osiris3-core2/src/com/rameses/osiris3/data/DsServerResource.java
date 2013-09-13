@@ -68,6 +68,7 @@ public class DsServerResource extends ServerResource {
             } else {
                 dsProvider = new SimpleAbstractDsProvider();
             }
+            System.out.println("*Datasource connection pool provider: " + dsProvider);
         }
         return dsProvider.createDataSource(name, info );
     }
