@@ -175,7 +175,9 @@ public class ColumnPropertyEditor implements PropertyEditor
         else if (typeHandler instanceof DecimalColumnHandler) {
             DecimalColumnHandler dec = (DecimalColumnHandler) typeHandler;
             sb.append("new " + dec.getClass().getName() + "(");
-            sb.append(convertString(dec.getFormat()) + ", " + dec.getMinValue() + ", " + dec.getMaxValue() + ", " + dec.isUsePrimitiveValue()); 
+            sb.append(convertString(dec.getFormat()));
+            sb.append(", " + dec.getMinValue() + ", " + dec.getMaxValue());
+            sb.append(", " + dec.isUsePrimitiveValue() + ", " + dec.getScale()); 
             sb.append(")");
         }           
         else if (typeHandler instanceof DoubleColumnHandler) {

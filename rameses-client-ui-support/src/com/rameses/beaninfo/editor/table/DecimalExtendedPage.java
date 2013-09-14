@@ -8,8 +8,6 @@ package com.rameses.beaninfo.editor.table;
 
 import com.rameses.rcp.common.Column;
 import com.rameses.rcp.common.DecimalColumnHandler;
-import com.rameses.rcp.swingx.CheckField;
-import com.rameses.rcp.swingx.TextField;
 
 /**
  *
@@ -34,6 +32,7 @@ public class DecimalExtendedPage extends javax.swing.JPanel implements IExtended
             this.typeHandler.setMinValue(old.getMinValue());
             this.typeHandler.setMaxValue(old.getMaxValue()); 
             this.typeHandler.setUsePrimitiveValue(old.isUsePrimitiveValue()); 
+            this.typeHandler.setScale(old.getScale()); 
         }
     }      
     
@@ -47,6 +46,8 @@ public class DecimalExtendedPage extends javax.swing.JPanel implements IExtended
         jLabel1 = new javax.swing.JLabel();
         txtFormat = new com.rameses.rcp.swingx.TextField();
         chkPrimitive = new com.rameses.rcp.swingx.CheckField();
+        integerField1 = new com.rameses.rcp.swingx.IntegerField();
+        jLabel2 = new javax.swing.JLabel();
 
         jLabel1.setText("Format:");
 
@@ -57,17 +58,25 @@ public class DecimalExtendedPage extends javax.swing.JPanel implements IExtended
         chkPrimitive.setMargin(new java.awt.Insets(0, 0, 0, 0));
         chkPrimitive.setName("usePrimitiveValue");
 
+        integerField1.setText("integerField1");
+        integerField1.setName("scale");
+
+        jLabel2.setText("Scale:");
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .add(29, 29, 29)
-                .add(jLabel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 66, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(jLabel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 66, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(jLabel2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 66, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(chkPrimitive, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 134, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(txtFormat, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 150, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(txtFormat, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 150, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(integerField1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(86, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -76,17 +85,23 @@ public class DecimalExtendedPage extends javax.swing.JPanel implements IExtended
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel1)
-                    .add(txtFormat, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .add(22, 22, 22)
+                    .add(txtFormat, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 20, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(integerField1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 20, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(jLabel2))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(chkPrimitive, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(26, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
     
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private com.rameses.rcp.swingx.CheckField chkPrimitive;
+    private com.rameses.rcp.swingx.IntegerField integerField1;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
     private com.rameses.rcp.swingx.TextField txtFormat;
     // End of variables declaration//GEN-END:variables
     
