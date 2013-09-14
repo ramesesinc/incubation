@@ -47,6 +47,7 @@ public class XPasswordFieldBeanInfo extends ComponentBeanInfo.Support
             
             new PropertyDescriptor("depends", getBeanClass()),
             new PropertyDescriptor("echoChar", getBeanClass()),
+            new PropertyDescriptor("focusAccelerator", getBeanClass()),
             new PropertyDescriptor("hint", getBeanClass()),  
             new PropertyDescriptor("index", getBeanClass()),
             new PropertyDescriptor("nullWhenEmpty", getBeanClass(), "isNullWhenEmpty", "setNullWhenEmpty"),

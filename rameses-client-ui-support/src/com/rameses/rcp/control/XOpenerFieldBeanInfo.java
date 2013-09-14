@@ -54,6 +54,8 @@ public class XOpenerFieldBeanInfo extends ComponentBeanInfo.Support
             new PropertyDescriptor("cellPadding", getBeanClass()),
             
             new PropertyDescriptor("depends", getBeanClass()),
+            new PropertyDescriptor("focusAccelerator", getBeanClass()),
+            new PropertyDescriptor("focusKeyStroke", getBeanClass()),            
             new PropertyDescriptor("index", getBeanClass()),
             new PropertyDescriptor("nullWhenEmpty", getBeanClass(), "isNullWhenEmpty", "setNullWhenEmpty"),
             new PropertyDescriptor("readonly", getBeanClass(), "isReadonly", "setReadonly"),

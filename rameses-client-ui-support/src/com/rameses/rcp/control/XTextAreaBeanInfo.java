@@ -45,6 +45,7 @@ public class XTextAreaBeanInfo extends ComponentBeanInfo.Support
             new PropertyDescriptor("cellPadding", getBeanClass()),
             
             new PropertyDescriptor("depends", getBeanClass()),
+            new PropertyDescriptor("focusAccelerator", getBeanClass()),
             new PropertyDescriptor("handler", getBeanClass()),
             new PropertyDescriptor("hint", getBeanClass()),
             new PropertyDescriptor("index", getBeanClass()),

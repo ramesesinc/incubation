@@ -81,7 +81,7 @@ public class XPasswordField extends JPasswordField implements UIInput, Validatab
             setBorder(BorderFactory.createCompoundBorder(borderOut, borderIn));
         }
         
-        focusBackground = ThemeUI.getColor("XTextField.focusBackground");        
+        focusBackground = ThemeUI.getColor("XTextField.focusBackground");  
     }
         
     public void paint(Graphics origGraphics) 

@@ -48,6 +48,8 @@ public class XLookupFieldBeanInfo extends ComponentBeanInfo.Support
             new PropertyDescriptor("depends", getBeanClass()),
             new PropertyDescriptor("disableWhen", getBeanClass()),
             new PropertyDescriptor("expression", getBeanClass()),
+            new PropertyDescriptor("focusAccelerator", getBeanClass()),
+            new PropertyDescriptor("focusKeyStroke", getBeanClass()),            
             new PropertyDescriptor("hint", getBeanClass()),
             new PropertyDescriptor("handler", getBeanClass()),
             new PropertyDescriptor("handlerObject", getBeanClass()),

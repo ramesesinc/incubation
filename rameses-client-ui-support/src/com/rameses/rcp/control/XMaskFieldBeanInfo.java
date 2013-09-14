@@ -46,6 +46,8 @@ public class XMaskFieldBeanInfo extends ComponentBeanInfo.Support
             new PropertyDescriptor("cellPadding", getBeanClass()),
             
             new PropertyDescriptor("depends", getBeanClass()),
+            new PropertyDescriptor("focusAccelerator", getBeanClass()),
+            new PropertyDescriptor("focusKeyStroke", getBeanClass()),            
             new PropertyDescriptor("index", getBeanClass()),
             new PropertyDescriptor("includeLiteral", getBeanClass()),
             new PropertyDescriptor("mask", getBeanClass()),

@@ -47,6 +47,8 @@ public class XIntegerFieldBeanInfo extends ComponentBeanInfo.Support
             new PropertyDescriptor("cellPadding", getBeanClass()),
             
             new PropertyDescriptor("depends", getBeanClass()),
+            new PropertyDescriptor("focusAccelerator", getBeanClass()),
+            new PropertyDescriptor("focusKeyStroke", getBeanClass()),            
             new PropertyDescriptor("index", getBeanClass()),
             new PropertyDescriptor("minValue", getBeanClass()),
             new PropertyDescriptor("maxValue", getBeanClass()),
