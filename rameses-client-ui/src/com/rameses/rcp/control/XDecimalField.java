@@ -131,10 +131,11 @@ public class XDecimalField extends AbstractNumberField implements UIInput, Valid
         
         PropertyInfoWrapper pi = new PropertyInfoWrapper(info);
         setPattern(pi.getFormat()); 
-        setMinValue(pi.getMinValue());
-        setMaxValue(pi.getMaxValue());
+        setMinValue(pi.getMinValue()); 
+        setMaxValue(pi.getMaxValue()); 
         setUsePrimitiveValue(pi.isUsePrimitiveValue()); 
-    }    
+        setScale(pi.getScale());         
+    } 
     
     public int getScale() { return scale; } 
     public void setScale(int scale) { this.scale = scale; }
@@ -326,6 +327,8 @@ public class XDecimalField extends AbstractNumberField implements UIInput, Valid
     
     private class PropertyInfoWrapper 
     {
+        XDecimalField root = XDecimalField.this;
+        
         private PropertySupport.DecimalPropertyInfo property;
         private Map map = new HashMap(); 
         
@@ -374,6 +377,20 @@ public class XDecimalField extends AbstractNumberField implements UIInput, Valid
             Boolean bool = convertBoolean(value);
             return (bool == null? false: bool.booleanValue()); 
         }     
+        
+        public int getScale() {
+            Object value = map.get("scale");
+            if (value == null && property != null) 
+                value = property.getScale(); 
+            if (value == null) 
+                return root.getScale(); 
+            
+            try {                
+                return Integer.parseInt(value.toString()); 
+            } catch(Throwable t) {
+                return root.getScale();
+            }
+        }   
         
         private Number convertNumber(Object value) 
         {

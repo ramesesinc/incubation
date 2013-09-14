@@ -68,6 +68,9 @@ public abstract class PropertySupport
         
         boolean isUsePrimitiveValue();
         void setUsePrimitiveValue(boolean usePrimitiveValue);
+        
+        int getScale();
+        void setScale(int scale); 
     }    
     
     public static interface DoublePropertyInfo extends PropertyInfo 
