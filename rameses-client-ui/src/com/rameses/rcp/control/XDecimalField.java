@@ -20,6 +20,7 @@ import java.awt.event.KeyEvent;
 import java.beans.Beans;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Map;
 import javax.swing.InputVerifier;
@@ -37,13 +38,16 @@ public class XDecimalField extends AbstractNumberField implements UIInput, Valid
     private DecimalDocument model = new DecimalDocument(); 
     private boolean nullWhenEmpty;
     private String[] depends; 
-    private String pattern;  
-    private int scale = 2;
     private int index;
-    
+
+    private DecimalFormat formatter; 
+    private String pattern;      
+    private int scale = 2;
+        
     public XDecimalField() 
     {
         super();
+        
         TextEditorSupport.install(this); 
         
         if (Beans.isDesignTime()) 
@@ -55,8 +59,10 @@ public class XDecimalField extends AbstractNumberField implements UIInput, Valid
 
     protected AbstractNumberDocument createDocument() 
     {
-        if (model == null) model = new DecimalDocument(); 
-        
+        if (model == null) {
+            model = new DecimalDocument();
+            pattern = "#,##0.00";
+        }         
         return model; 
     } 
 
@@ -109,8 +115,15 @@ public class XDecimalField extends AbstractNumberField implements UIInput, Valid
         repaint(); 
     }
     
-    public String getPattern() { return model.getFormat(); }     
-    public void setPattern(String pattern) { model.setFormat(pattern); } 
+    public String getPattern() { return pattern; }     
+    public void setPattern(String pattern) { 
+        this.pattern = pattern; 
+        try {
+            this.formatter = new DecimalFormat(pattern.toString()); 
+        } catch(Throwable t) {
+            this.formatter = null; 
+        }
+    } 
     
     public void setPropertyInfo(PropertySupport.PropertyInfo info) 
     {
@@ -124,9 +137,7 @@ public class XDecimalField extends AbstractNumberField implements UIInput, Valid
     }    
     
     public int getScale() { return scale; } 
-    public void setScale(int scale) { 
-        this.scale = scale; 
-    }
+    public void setScale(int scale) { this.scale = scale; }
     
     // </editor-fold>     
     
@@ -159,6 +170,14 @@ public class XDecimalField extends AbstractNumberField implements UIInput, Valid
         protected Number getPrimitiveValue(Number value) {
             return value; 
         } 
+        
+        protected String formatValue(Number value) {
+            if (value == null) return ""; 
+            if (root.formatter == null) 
+                return value.toString(); 
+            else 
+                return root.formatter.format(value); 
+        }
         
         public void refresh() 
         {
