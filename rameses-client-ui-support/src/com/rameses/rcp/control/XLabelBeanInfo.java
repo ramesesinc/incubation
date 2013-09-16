@@ -41,6 +41,7 @@ public class XLabelBeanInfo extends ComponentBeanInfo.Support
             
             new PropertyDescriptor("caption", getBeanClass()),
             new PropertyDescriptor("captionFont", getBeanClass()),
+            new PropertyDescriptor("captionFontStyle", getBeanClass()),
             new PropertyDescriptor("captionMnemonic", getBeanClass()),
             new PropertyDescriptor("captionWidth", getBeanClass()),
             new PropertyDescriptor("showCaption", getBeanClass(), "isShowCaption", "setShowCaption"),              
