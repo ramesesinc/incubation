@@ -216,7 +216,8 @@ public class XActionBar extends JPanel implements UIComposite {
         btn.setForeground(buttonTpl.getForeground());
         
         String caption = action.getCaption();
-        if ("[no caption]".equalsIgnoreCase(caption+"")) caption = null;
+        if ("[no caption]".equalsIgnoreCase(caption+"")) caption = btn.getText();
+        if (caption != null && caption.length() == 0) caption = null;
         
         if (!ValueUtil.isEmpty(caption)) {
             if ( isButtonAsHyperlink() ) {

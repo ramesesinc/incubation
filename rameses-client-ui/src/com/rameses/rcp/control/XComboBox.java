@@ -133,25 +133,20 @@ public class XComboBox extends JComboBox implements UIInput, Validatable, Active
     {
         if ( Beans.isDesignTime() ) return;
         
-        if ( value instanceof KeyEvent ) 
-        {
+        if ( value instanceof KeyEvent ) {
             processKeyEventValue((KeyEvent)value);
             return;
         }
         
-        if ( value == null && !allowNull ) 
-        {
+        if ( value == null && !allowNull ) {
             ComboItem c = (ComboItem) getItemAt(0);
             model.setSelectedItem( c );
             UIInputUtil.updateBeanValue(this);
-        } 
-        else 
-        {
-            for (int i=0; i< getItemCount();i++) 
-            {
+            
+        } else {
+            for (int i=0; i< getItemCount();i++) {
                 ComboItem ci = (ComboItem) getItemAt(i);
-                if ( isSelected(ci, value) ) 
-                {
+                if ( isSelected(ci, value) ) {
                     model.setSelectedItem(ci);
                     break;
                 }

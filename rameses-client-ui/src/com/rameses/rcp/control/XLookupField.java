@@ -3,7 +3,7 @@ package com.rameses.rcp.control;
 import com.rameses.common.PropertyResolver;
 import com.rameses.platform.interfaces.Platform;
 import com.rameses.platform.interfaces.SubWindow;
-import com.rameses.rcp.common.ILookupModel;
+import com.rameses.rcp.common.LookupDataSource;
 import com.rameses.rcp.common.LookupHandler;
 import com.rameses.rcp.common.LookupModel;
 import com.rameses.rcp.common.LookupOpenerSupport;
@@ -42,8 +42,10 @@ import java.beans.Beans;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.EventObject;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javax.swing.InputVerifier;
 import javax.swing.JComponent;
@@ -427,9 +429,9 @@ public class XLookupField extends IconedTextField implements UILookup, UISelecto
             boolean show = lookupHandlerProxy.getModel().show( getText() ); 
             if (show) 
             {
-                ILookupModel ilm = lookupHandlerProxy.getModel();
-                if (ilm instanceof LookupModel) {
-                    ((LookupModel) ilm).setSelectedItem(-1);
+                Object oModel = lookupHandlerProxy.getModel();
+                if (oModel instanceof LookupModel) {
+                    ((LookupModel) oModel).setSelectedItem(-1);
                 }
 
                 UIController c =  lookupHandlerProxy.getController(); 
@@ -469,6 +471,17 @@ public class XLookupField extends IconedTextField implements UILookup, UISelecto
     {
         selectionOption = JOptionPane.OK_OPTION;
         selectedValue = value; 
+        LookupDataSource lds = lookupHandlerProxy.getModel();
+        String flds = lds.getReturnFields();
+        if (flds != null && flds.length() > 0) {
+            selectedValue = new ResultFieldsMapper().parse(flds, value); 
+            
+        } else {
+            String itemKey = lds.getReturnItemKey();
+            String itemVal = lds.getReturnItemValue();
+            selectedValue = new ResultKeyValueMapper().parse(itemKey, itemVal, value);
+        }
+         
         getInputSupport().setValue(getName(), selectedValue);         
         putClientProperty("updateBeanValue", true); 
         getInputVerifierProxy().setEnabled(true);        
@@ -513,6 +526,7 @@ public class XLookupField extends IconedTextField implements UILookup, UISelecto
         
         if (o instanceof LookupHandler) { 
             lookupHandlerProxy.setHandler((LookupHandler) o); 
+            
         } else if (o instanceof Opener) { 
             Opener opener = (Opener) o;             
             opener = ControlSupport.initOpener( opener, getBinding().getController() );
@@ -527,13 +541,13 @@ public class XLookupField extends IconedTextField implements UILookup, UISelecto
     
     private class LookupHandlerProxy implements LookupHandler 
     {
-        private ILookupModel model;
+        private LookupDataSource model;
         private LookupHandler handler;
         private Opener opener;
         private Object onselectCallback;
         private Object onemptyCallback;
         
-        ILookupModel getModel() { return model; }
+        LookupDataSource getModel() { return model; }
         
         UIController getController() { 
             return (opener == null? null: opener.getController()); 
@@ -555,13 +569,17 @@ public class XLookupField extends IconedTextField implements UILookup, UISelecto
                 if (controller == null) 
                     throw new IllegalStateException("'"+opener.getName()+"' opener must have a controller");
 
-                if (!(controller.getCodeBean() instanceof LookupModel))
-                    throw new IllegalStateException("'"+opener.getName()+"' opener controller must be an instance of LookupModel");
-
-                controller.setId(opener.getId());
-                controller.setName(opener.getName());
-                controller.setTitle(opener.getCaption());            
-                model = (LookupModel) controller.getCodeBean();                 
+                Object codeBean = controller.getCodeBean();
+                if (codeBean instanceof LookupDataSource) {
+                    controller.setId(opener.getId());
+                    controller.setName(opener.getName());
+                    controller.setTitle(opener.getCaption());            
+                    model = (LookupDataSource) codeBean;
+                    
+                } else {
+                    model = null;                     
+                    throw new IllegalStateException("'"+opener.getName()+"' opener controller must be an instance of LookupDataSource");
+                }
             } else {
                 model = null; 
             }
@@ -612,7 +630,7 @@ public class XLookupField extends IconedTextField implements UILookup, UISelecto
     }
     
     // </editor-fold> 
-    
+            
     // <editor-fold defaultstate="collapsed" desc="  LookupInputSupport (Class)  ">
     
     private class LookupInputSupport extends InputVerifier implements UIInputUtil.Support 
@@ -770,4 +788,91 @@ public class XLookupField extends IconedTextField implements UILookup, UISelecto
     }
     
     // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" ResultKeyValueMapper (class) ">  
+
+    private class ResultKeyValueMapper 
+    {      
+        PropertyResolver res = PropertyResolver.getInstance();
+
+        public Object parse(String itemKey, String itemVal, Object value) 
+        {
+            if (value == null) return null;
+            if (itemKey == null && itemVal == null) return value;  
+            
+            if (itemKey != null && itemVal == null) { 
+                itemVal = itemKey; 
+            } else if (itemKey == null && itemVal != null) {
+                itemKey = itemVal;
+            }
+
+            if (value instanceof List) {                
+                List results = new ArrayList();                 
+                for (Object o : (List)value) {
+                    Object xo = extract(itemKey, itemVal, o);
+                    if (xo != null) results.add(xo); 
+                } 
+                return results;
+                
+            } else if (value != null) {
+                return extract(itemKey, itemVal, value); 
+                
+            } else { 
+                return null; 
+            } 
+        }
+
+        private Object extract(String itemKey, String itemVal, Object o) {
+            Map map = new HashMap(); 
+            if (itemKey != null) 
+                map.put("key", res.getProperty(o, itemKey)); 
+            if (itemVal != null) 
+                map.put("value", res.getProperty(o, itemVal)); 
+
+            return map; 
+        } 
+    }
+
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" ResultFieldsMapper (class) ">  
+    
+    private class ResultFieldsMapper 
+    {       
+        PropertyResolver res = PropertyResolver.getInstance();
+        
+        public Object parse(String fields, Object value) 
+        {
+            if (value == null || fields == null) return value;
+            
+            String[] fldnames = fields.split(",");
+            
+            if (value instanceof List) {
+                List results = new ArrayList();                 
+                for (Object o : (List)value) {
+                    Object xo = extract(fldnames, o);
+                    if (xo != null) results.add(xo); 
+                } 
+                return results;
+                
+            } else if (value != null) {
+                return extract(fldnames, value); 
+                
+            } else {
+                return null; 
+            }
+        }
+        
+        private Object extract(String[] fldnames, Object o) {
+            Map map = new HashMap(); 
+            for (String name : fldnames) { 
+                if (name == null || name.length() == 0) continue;
+                
+                map.put(name, res.getProperty(o, name)); 
+            }
+            return map; 
+        }
+    }
+    
+    // </editor-fold>    
 }

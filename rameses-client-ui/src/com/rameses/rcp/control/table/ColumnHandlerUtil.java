@@ -90,6 +90,7 @@ class ColumnHandlerUtil
             DecimalColumnHandler oHandler = new DecimalColumnHandler(); 
             if (oColumn.getFormat() != null) oHandler.setFormat(oColumn.getFormat());
 
+            oHandler.putAll(oColumn.getProperties());             
             return oHandler;
         } 
         else if ("integer".equals(stype)) {

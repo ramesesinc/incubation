@@ -118,11 +118,7 @@ public class XDecimalField extends AbstractNumberField implements UIInput, Valid
     public String getPattern() { return pattern; }     
     public void setPattern(String pattern) { 
         this.pattern = pattern; 
-        try {
-            this.formatter = new DecimalFormat(pattern.toString()); 
-        } catch(Throwable t) {
-            this.formatter = null; 
-        }
+        this.formatter = null;
     } 
     
     public void setPropertyInfo(PropertySupport.PropertyInfo info) 
@@ -174,17 +170,24 @@ public class XDecimalField extends AbstractNumberField implements UIInput, Valid
         
         protected String formatValue(Number value) {
             if (value == null) return ""; 
-            if (root.formatter == null) 
-                return value.toString(); 
-            else 
-                return root.formatter.format(value); 
+            
+            return getFormatter().format(value); 
         }
         
-        public void refresh() 
-        {
+        public void refresh() {
             revalidate();
             repaint(); 
         } 
+        
+        private DecimalFormat getFormatter() {
+            if (root.formatter == null) {
+                String pattern = root.getPattern();
+                if (pattern == null || pattern.length() == 0) pattern = "#,##0.00"; 
+                
+                root.formatter = new DecimalFormat(pattern);
+            }
+            return root.formatter;
+        }
     }
     
     // </editor-fold>

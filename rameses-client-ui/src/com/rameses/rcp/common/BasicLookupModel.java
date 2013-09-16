@@ -13,7 +13,7 @@ package com.rameses.rcp.common;
  *
  * @author wflores
  */
-public class BasicLookupModel implements ILookupModel 
+public class BasicLookupModel implements LookupDataSource  
 {
     private LookupSelector selector; 
     private String returnItemKey;
@@ -23,13 +23,8 @@ public class BasicLookupModel implements ILookupModel
     public BasicLookupModel() {
     }
     
-    // <editor-fold defaultstate="collapsed" desc=" Getters / Setters ">  
-    
-    public Object getValue() { 
-        //This method needs to be overidden by the implementors 
-        return null; 
-    } 
-    
+    // <editor-fold defaultstate="collapsed" desc=" LookupDataSource implementation ">  
+
     public LookupSelector getSelector() { return selector; }    
     public void setSelector(LookupSelector selector) { 
         this.selector = selector; 
@@ -49,20 +44,26 @@ public class BasicLookupModel implements ILookupModel
     public void setReturnFields(String returnFields) { 
         this.returnFields = returnFields; 
     }   
-        
-    // </editor-fold>
-        
-    // <editor-fold defaultstate="collapsed" desc=" helper/owner methods ">
+    
+    public Object getValue() { 
+        //This method needs to be overidden by the implementors 
+        return null; 
+    } 
     
     public boolean show(String searchtext) { 
         //This method is invoked by the XLookupField control before showing the popup form. 
         //return true will open the popup dialog 
         return true; 
     } 
+      
+    // </editor-fold>
+        
+    // <editor-fold defaultstate="collapsed" desc=" helper/owner methods ">
         
     protected void onselect(Object item) {} 
+    protected void oncancel() {}
     
-    public Object doSelect() { 
+    public Object select() { 
         Object value = getValue();
         onselect(value); 
         
@@ -72,7 +73,7 @@ public class BasicLookupModel implements ILookupModel
         return "_close";
     } 
     
-    public Object doCancel() { 
+    public Object cancel() { 
         LookupSelector selector = getSelector();
         if (selector != null) selector.cancelSelection(); 
         

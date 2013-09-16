@@ -1,6 +1,5 @@
 package com.rameses.rcp.common;
 
-import com.rameses.common.PropertyResolver;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -12,7 +11,7 @@ import java.util.Map;
  *    immediately return a result without popping the lookup
  *    dialog. null null is the default
  */
-public class LookupModel extends ScrollListModel implements ILookupModel 
+public class LookupModel extends ScrollListModel implements LookupDataSource 
 {    
     private List DEFAULT_LIST = new ArrayList(); 
     private Map properties = new HashMap(); 
@@ -57,19 +56,19 @@ public class LookupModel extends ScrollListModel implements ILookupModel
         if (selector != null) 
         {
             Object selectedValue = getSelectedValue(); 
-            String rItemVal = getReturnItemValue();            
-            String rItemKey = getReturnItemKey();
-            String rFields = getReturnFields();
-            if (rItemKey != null || rItemVal != null) 
-            {
-                ResultKeyValueMapper kvm = new ResultKeyValueMapper();
-                selectedValue = kvm.parse(rItemKey, rItemVal, selectedValue); 
-            }
-            else if (rFields != null) 
-            {
-                ResultFieldsMapper fm = new ResultFieldsMapper();
-                selectedValue = fm.parse(rFields, selectedValue); 
-            }
+//            String rItemVal = getReturnItemValue();            
+//            String rItemKey = getReturnItemKey();
+//            String rFields = getReturnFields();
+//            if (rItemKey != null || rItemVal != null) 
+//            {
+//                ResultKeyValueMapper kvm = new ResultKeyValueMapper();
+//                selectedValue = kvm.parse(rItemKey, rItemVal, selectedValue); 
+//            }
+//            else if (rFields != null) 
+//            {
+//                ResultFieldsMapper fm = new ResultFieldsMapper();
+//                selectedValue = fm.parse(rFields, selectedValue); 
+//            }
             
             selector.select( selectedValue ); 
         }
@@ -116,7 +115,7 @@ public class LookupModel extends ScrollListModel implements ILookupModel
     }
 
     public void moveLastPage() {}   
-    
+    /*
     // <editor-fold defaultstate="collapsed" desc=" ResultKeyValueMapper (class) ">  
     
     private class ResultKeyValueMapper 
@@ -205,5 +204,5 @@ public class LookupModel extends ScrollListModel implements ILookupModel
     }
     
     // </editor-fold>    
-
+    */
 }

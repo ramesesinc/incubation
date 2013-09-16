@@ -388,6 +388,7 @@ public class Column implements Serializable
             Object val = entry.getValue(); 
             res.setProperty(this, key, val); 
         }
+        getProperties().putAll(data); 
     }
     
     private void init(Object[] dataArray) {

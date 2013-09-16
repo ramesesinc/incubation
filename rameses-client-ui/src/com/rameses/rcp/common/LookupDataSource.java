@@ -1,7 +1,7 @@
 /*
- * ILookupModel.java
+ * LookupDataSource.java
  *
- * Created on September 3, 2013, 1:05 PM
+ * Created on September 15, 2013, 9:35 PM
  *
  * To change this template, choose Tools | Template Manager
  * and open the template in the editor.
@@ -13,13 +13,11 @@ package com.rameses.rcp.common;
  *
  * @author wflores
  */
-public interface ILookupModel {
-
-    Object getValue();
-    
+public interface LookupDataSource 
+{
     LookupSelector getSelector(); 
     void setSelector(LookupSelector selector);
-    
+        
     String getReturnItemKey();
     void setReturnItemKey(String returnItemKey);
 
@@ -29,5 +27,7 @@ public interface ILookupModel {
     String getReturnFields();
     void setReturnFields(String returnFields);
     
-    boolean show(String searchtext);
-}
+    Object getValue();
+    
+    boolean show(String searchtext); 
+} 
