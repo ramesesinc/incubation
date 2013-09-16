@@ -9,60 +9,34 @@
 
 package com.rameses.rcp.control;
 
-import com.rameses.rcp.common.PropertySupport;
-import com.rameses.rcp.framework.Binding;
-import com.rameses.rcp.ui.UIControl;
-import com.rameses.rcp.util.UIControlUtil;
+import java.awt.Component;
 import java.awt.KeyboardFocusManager;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import javax.swing.JComponent;
 import javax.swing.JScrollPane;
+import javax.swing.JViewport;
 
 /**
  *
  * @author wflores
  */
-public class XScrollPane extends JScrollPane implements UIControl 
+public class XScrollPane extends JScrollPane 
 {
-    private Binding binding;
-    private String[] depends; 
-    private int index;
     
     private FocusChangeListener focusChangeListener;
     
     public XScrollPane() {
         this.focusChangeListener = new FocusChangeListener(); 
     }
-    
-    // <editor-fold defaultstate="collapsed" desc=" UIControl implementation "> 
-
-    public Binding getBinding() { return binding; }
-    public void setBinding(Binding binding) { this.binding = binding; }
-    
-    public String[] getDepends() { return depends; }
-    public void setDepends(String[] depends) { this.depends = depends; }
-    
-    public int getIndex() { return index; }
-    public void setIndex(int index) { this.index = index; }
-
-    public void load() { 
+        
+    public void setViewportView(Component view) {
+        super.setViewportView(view); 
+        
         KeyboardFocusManager kfm = KeyboardFocusManager.getCurrentKeyboardFocusManager();
         kfm.removePropertyChangeListener("focusOwner", focusChangeListener);
-        kfm.addPropertyChangeListener("focusOwner", focusChangeListener); 
+        if (view != null) kfm.addPropertyChangeListener("focusOwner", focusChangeListener);         
     }
-
-    public void refresh() { 
-    }
-
-    public int compareTo(Object o) { 
-        return UIControlUtil.compare(this, o);
-    }
-
-    public void setPropertyInfo(PropertySupport.PropertyInfo info) {
-    }
-    
-    // </editor-fold>    
     
     // <editor-fold defaultstate="collapsed" desc=" FocusChangeListener ">
     
@@ -79,7 +53,12 @@ public class XScrollPane extends JScrollPane implements UIControl
             
             JComponent focused = (JComponent) newValue;
             if (view.isAncestorOf(focused)) {
-                view.scrollRectToVisible(focused.getBounds());
+                JComponent jparent = (JComponent) focused.getParent(); 
+                if (jparent instanceof JViewport) {
+                    jparent = (JComponent) ((JViewport)jparent).getParent().getParent();
+                }
+                if (jparent != null) 
+                    jparent.scrollRectToVisible(focused.getBounds());
             }
         } 
     }
