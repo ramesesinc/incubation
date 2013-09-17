@@ -63,8 +63,14 @@ public class TabbedItemPanel extends JPanel
     {
         if (content == null) {
             processing = true;
-            repaint();            
-            new Thread(new ContentLoader()).start();
+            Runnable runnable = new Runnable(){
+                public void run() {
+                    TabbedItemPanel.this.repaint(); 
+                } 
+            }; 
+            new Thread(runnable).start(); 
+            
+            EventQueue.invokeLater(new ContentLoader());
         }
     }
     
