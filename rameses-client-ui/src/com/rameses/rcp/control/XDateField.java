@@ -18,8 +18,11 @@ import com.rameses.rcp.support.ThemeUI;
 import com.rameses.rcp.ui.ActiveControl;
 import com.rameses.rcp.ui.ControlProperty;
 import com.rameses.rcp.ui.UIInput;
+import com.rameses.rcp.ui.Validatable;
+import com.rameses.rcp.util.ActionMessage;
 import com.rameses.rcp.util.UIControlUtil;
 import com.rameses.rcp.util.UIInputUtil;
+import com.rameses.util.ValueUtil;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Insets;
@@ -30,7 +33,7 @@ import javax.swing.InputVerifier;
  *
  * @author wflores
  */
-public class XDateField extends AbstractDateField implements UIInput, ActiveControl 
+public class XDateField extends AbstractDateField implements UIInput, ActiveControl, Validatable 
 {
     private Binding binding; 
     private String[] depends; 
@@ -39,6 +42,7 @@ public class XDateField extends AbstractDateField implements UIInput, ActiveCont
     private boolean immediate;
 
     private ControlProperty controlProperty;    
+    private ActionMessage actionMessage;
     
     public XDateField() {
         TextEditorSupport.install(this);
@@ -192,4 +196,31 @@ public class XDateField extends AbstractDateField implements UIInput, ActiveCont
 
     // </editor-fold>
 
+    // <editor-fold defaultstate="collapsed" desc="  Validatable implementations  ">
+    
+    public ActionMessage getActionMessage() { 
+        if (actionMessage == null) {
+            actionMessage = new ActionMessage(); 
+        }
+        return actionMessage; 
+    }
+    
+    
+    public void validateInput() 
+    { 
+        ActionMessage actionMessage = getActionMessage();
+        ControlProperty property = getControlProperty();
+        actionMessage.clearMessages();
+        property.setErrorMessage(null);
+        if ( ValueUtil.isEmpty(getText()) ) 
+        {
+            if (isRequired()) 
+                actionMessage.addMessage("1001", "{0} is required.", new Object[] { getCaption() });
+        } 
+        
+        if ( actionMessage.hasMessages() ) 
+            property.setErrorMessage( actionMessage.toString() );
+    }
+    
+    // </editor-fold>     
 }
