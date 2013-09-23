@@ -13,7 +13,9 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.math.BigDecimal;
 import java.net.URL;
-
+import java.sql.NClob;
+import java.sql.RowId;
+import java.sql.SQLXML;
 import java.sql.Timestamp;
 import java.sql.Array;
 import java.sql.Blob;
@@ -371,11 +373,9 @@ public class DBServiceStatement implements PreparedStatement {
         throw new SQLException("Method not supported. getResultSetHoldability");
     }
 
-    /*    
     public void setRowId(int parameterIndex, RowId x) throws SQLException {
         throw new SQLException("not supported");
     }
-     */
 
     public void setNString(int parameterIndex, String value) throws SQLException {
         throw new SQLException("not supported");
@@ -385,11 +385,9 @@ public class DBServiceStatement implements PreparedStatement {
         throw new SQLException("not supported");
     }
 
-    /*
     public void setNClob(int parameterIndex, NClob value) throws SQLException {
         throw new SQLException("not supported");
     }
-     */
 
     public void setClob(int parameterIndex, Reader reader, long length) throws SQLException {
         throw new SQLException("not supported");
@@ -403,11 +401,9 @@ public class DBServiceStatement implements PreparedStatement {
         throw new SQLException("not supported");
     }
 
-    /*
     public void setSQLXML(int parameterIndex, SQLXML xmlObject) throws SQLException {
         throw new SQLException("not supported");
     }
-     */
 
     public void setAsciiStream(int parameterIndex, InputStream x, long length) throws SQLException {
         throw new SQLException("not supported");

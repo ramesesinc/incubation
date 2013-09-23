@@ -13,7 +13,9 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.math.BigDecimal;
 import java.net.URL;
-
+import java.sql.NClob;
+import java.sql.RowId;
+import java.sql.SQLXML;
 import java.sql.Timestamp;
 import java.sql.Array;
 import java.sql.Blob;
@@ -688,7 +690,6 @@ public class DBServiceResultSet implements ResultSet {
         throw new SQLException("not supported");
     }
 
-    /*
     public RowId getRowId(int columnIndex) throws SQLException {
         throw new SQLException("not supported");
     }
@@ -745,7 +746,6 @@ public class DBServiceResultSet implements ResultSet {
         throw new SQLException("not supported");
     }
 
-    
     public void updateSQLXML(int columnIndex, SQLXML xmlObject) throws SQLException {
         throw new SQLException("not supported");
     }
@@ -753,8 +753,7 @@ public class DBServiceResultSet implements ResultSet {
     public void updateSQLXML(String columnLabel, SQLXML xmlObject) throws SQLException {
         throw new SQLException("not supported");
     }
-    */
-    
+
     public String getNString(int columnIndex) throws SQLException {
         throw new SQLException("not supported");
     }

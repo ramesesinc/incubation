@@ -12,7 +12,7 @@ package com.rameses.service.jdbc;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
-
+import java.sql.RowIdLifetime;
 import java.sql.SQLException;
 import java.util.Map;
 import javax.swing.JOptionPane;
@@ -828,11 +828,10 @@ public class DBServiceDatabaseMetaData implements DatabaseMetaData {
         return getBoolean("supportsStatementPooling");
     }
 
-    /*
     public RowIdLifetime getRowIdLifetime() throws SQLException {
         throw new SQLException("not supported");
     }
-    */
+
     public ResultSet getSchemas(String catalog, String schemaPattern) throws SQLException {
         throw new SQLException("not supported");
     }
