@@ -630,7 +630,7 @@ public class DataTableComponent extends JTable implements TableControl
             if (rowIndex != oldRowIndex || columnIndex != oldColIndex) {
                 boolean success = hideEditor(currentEditor, oldRowIndex, oldColIndex, true, true);
                 if (!success) return; 
-            }            
+            } 
         }
 
         if (rowIndex != oldRowIndex && editorModel != null && editingRow >= 0) 
@@ -993,6 +993,18 @@ public class DataTableComponent extends JTable implements TableControl
         
         Object value = editor.getClientProperty("cellEditorValue"); 
         if ("no_updates".equals(value)) commit = false;
+            
+        if (editor instanceof UILookup && editorModel != null) {
+            UILookup lkp = (UILookup) editor;
+            Object lkpval = lkp.getClientProperty("UIControl.value"); 
+            if (lkpval instanceof Object[]) {
+                ListItem oListItem = editorModel.getListItem(editingRow);
+                Object[] objs = (Object[])lkpval;                    
+                if (objs.length > 0 && oListItem.getState() != ListItem.STATE_DRAFT) {
+                    oListItem.setState(ListItem.STATE_EDIT); 
+                }
+            }
+        } 
         
         if (commit) {
             tableModel.setBinding(itemBinding); 
@@ -1019,7 +1031,7 @@ public class DataTableComponent extends JTable implements TableControl
                 currentEditor.grabFocus(); 
                 return false; 
             }            
-        }
+        } 
         
         tableModel.fireTableRowsUpdated(rowIndex, rowIndex); 
         if (grabFocus) grabFocus();
@@ -1032,7 +1044,7 @@ public class DataTableComponent extends JTable implements TableControl
             currentEditor.setVisible(false);
             currentEditor.setInputVerifier(null);
         } 
-        editingMode = false;        
+        editingMode = false; 
         currentEditor = null;
     }
     
@@ -1140,7 +1152,9 @@ public class DataTableComponent extends JTable implements TableControl
                 ((UIInput) editor).setValue(currentKeyEvent);
             } 
             else if (editor instanceof UILookup) {
-                ((UILookup) editor).setValue(currentKeyEvent); 
+                UILookup lkp = (UILookup) editor;
+                lkp.setValue(currentKeyEvent); 
+                lkp.putClientProperty("UIControl.value", null); 
             }
 
             if (editor instanceof XCheckBox) {
