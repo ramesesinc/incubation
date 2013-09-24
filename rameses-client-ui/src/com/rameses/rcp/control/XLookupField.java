@@ -650,16 +650,20 @@ public class XLookupField extends IconedTextField implements UILookup, UISelecto
                 loadHandler();
                 loaded = true; 
             }             
+
+            JComponent jcomp = XLookupField.this;
+            jcomp.putClientProperty("UIControl.value", null); 
             
-            String text = getText(); 
-            if ( !ValueUtil.isEmpty(getExpression()) && ValueUtil.isEmpty(text) )  
+            String text = getText();             
+            if (!ValueUtil.isEmpty(getExpression()) && ValueUtil.isEmpty(text)) 
             {
                 Object value = isNullWhenEmpty()? null: new HashMap(); 
-                if (lookupHandlerProxy.hasOnemptyCallback()) 
+                if (lookupHandlerProxy.hasOnemptyCallback()) {
                     lookupHandlerProxy.invokeOnempty(value); 
-                else 
+                } else {
                     updateBeanValue(input.getName(), value); 
-                    
+                }
+                jcomp.putClientProperty("UIControl.value", new Object[]{value}); 
                 selectedValue = null;
             } 
             
@@ -672,11 +676,15 @@ public class XLookupField extends IconedTextField implements UILookup, UISelecto
         }   
         
         public void setValue(String name, Object value, JComponent jcomp){
+            JComponent xlkp = XLookupField.this;
+            xlkp.putClientProperty("UIControl.value", null); 
+            
             if (lookupHandlerProxy.hasOnselectCallback()) 
                 lookupHandlerProxy.invokeOnselect(value); 
             else 
                 updateBeanValue(name, value);
 
+            xlkp.putClientProperty("UIControl.value", new Object[]{value}); 
             publishUpdates(); 
             dirty = false; 
         }
