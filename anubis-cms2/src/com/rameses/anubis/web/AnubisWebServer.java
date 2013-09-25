@@ -47,7 +47,6 @@ public class AnubisWebServer implements ServerLoader  {
     }
     
     public void init(String baseUrl,  Map conf) throws Exception {
-        System.out.println("URL OF ANUBIS IS ->"+getClass().getClassLoader().getResource( "" ));
         this.conf  = conf;
         System.out.println("**************************************************");
         System.out.println("  STARTING ANUBIS CMS WEB SERVER ");
@@ -93,7 +92,6 @@ public class AnubisWebServer implements ServerLoader  {
         mainctx.addServlet(BasicResourceServlet.class, "/js/*");
         mainctx.addServlet(BasicResourceServlet.class, "/images/*");
         mainctx.addServlet(AnubisPollServlet.class, "/poll/*");
-        mainctx.addServlet(AnubisDownloadServlet.class, "/downloads/*");          
         mainctx.addServlet(BasicResourceServlet.class, "/favicon.ico");
         mainctx.addServlet(AnubisMainServlet.class, "/*");
         
