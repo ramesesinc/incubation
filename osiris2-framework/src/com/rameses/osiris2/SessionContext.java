@@ -104,7 +104,7 @@ public class SessionContext {
                     String domain = inv.getDomain();
                     if(applySecurity && (role!=null || permission!=null)) {
                         showIt = checkPermission(domain, role, permission );
-                    }
+                    } 
                     if(showIt) showIt = checkInvoker(inv);
                     if (showIt) list.add(inv);
                 }
