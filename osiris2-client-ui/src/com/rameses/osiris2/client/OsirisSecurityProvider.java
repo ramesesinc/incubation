@@ -52,6 +52,6 @@ public class OsirisSecurityProvider implements SecurityProvider, ClientSecurityP
                 return false;
         }
         
-        return (name == null? true: false);
+        return (role == null && name == null? true: false);
     }
 }
