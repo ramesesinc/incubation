@@ -21,7 +21,7 @@ public class ListPaneModel
 
     public void afterLoadItems() {}
     
-    public boolean beforeSelect(Object item) { return false; }    
+    public boolean beforeSelect(Object item) { return true; }    
     public void onselect(Object item) {}
     
     public Object getItems() { return null; }
