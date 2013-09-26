@@ -35,7 +35,8 @@ public class XDateFieldBeanInfo extends ComponentBeanInfo.Support
             new PropertyDescriptor("editable", getBeanClass(), "isEditable", "setEditable"),
             new PropertyDescriptor("border", getBeanClass()), 
             new PropertyDescriptor("margin", getBeanClass()), 
-            new PropertyDescriptor("fontStyle", getBeanClass()), 
+            new PropertyDescriptor("fontStyle", getBeanClass()),
+            new PropertyDescriptor("disabledTextColor", getBeanClass()), 
             
             new PropertyDescriptor("caption", getBeanClass()),
             new PropertyDescriptor("captionFont", getBeanClass()),

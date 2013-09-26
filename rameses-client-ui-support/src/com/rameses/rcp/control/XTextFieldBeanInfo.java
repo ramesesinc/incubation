@@ -37,6 +37,7 @@ public class XTextFieldBeanInfo extends ComponentBeanInfo.Support
             new PropertyDescriptor("border", getBeanClass()),
             new PropertyDescriptor("margin", getBeanClass()), 
             new PropertyDescriptor("fontStyle", getBeanClass()), 
+            new PropertyDescriptor("disabledTextColor", getBeanClass()), 
             
             new PropertyDescriptor("caption", getBeanClass()),
             new PropertyDescriptor("captionFont", getBeanClass()),
