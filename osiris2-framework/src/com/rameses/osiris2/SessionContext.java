@@ -107,6 +107,8 @@ public class SessionContext {
                     } 
                     if(showIt) showIt = checkInvoker(inv);
                     if (showIt) list.add(inv);
+                    
+                    //System.out.println("checkpermission: showit="+showIt + ", caption="+inv.getCaption() + ", domain="+domain + ", role="+role + ", permissino="+permission);
                 }
             }
            
