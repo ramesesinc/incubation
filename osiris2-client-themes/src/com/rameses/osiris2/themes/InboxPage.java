@@ -30,9 +30,9 @@ public class InboxPage extends javax.swing.JPanel {
         pnlHeader = new javax.swing.JPanel();
         jPanel2 = new javax.swing.JPanel();
         lblTitle = new com.rameses.rcp.control.XLabel();
-        xHorizontalPanel1 = new com.rameses.rcp.control.XHorizontalPanel();
-        xSubFormPanel1 = new com.rameses.rcp.control.XSubFormPanel();
+        jPanel5 = new javax.swing.JPanel();
         xActionBar2 = new com.rameses.rcp.control.XActionBar();
+        xSubFormPanel1 = new com.rameses.rcp.control.XSubFormPanel();
         pnlBody = new javax.swing.JPanel();
         xSplitView1 = new com.rameses.rcp.control.XSplitView();
         jScrollPane1 = new javax.swing.JScrollPane();
@@ -62,33 +62,34 @@ public class InboxPage extends javax.swing.JPanel {
 
         pnlHeader.add(jPanel2, java.awt.BorderLayout.NORTH);
 
+        jPanel5.setLayout(new java.awt.BorderLayout());
+
         com.rameses.rcp.control.border.XEtchedBorder xEtchedBorder1 = new com.rameses.rcp.control.border.XEtchedBorder();
         xEtchedBorder1.setHideLeft(true);
         xEtchedBorder1.setHideRight(true);
-        xHorizontalPanel1.setBorder(xEtchedBorder1);
-        xHorizontalPanel1.setBorderSeparator(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        jPanel5.setBorder(xEtchedBorder1);
+        xActionBar2.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        xActionBar2.setDepends(new String[] {"selectedEntity"});
+        xActionBar2.setDynamic(true);
+        xActionBar2.setFormName("formName");
+        xActionBar2.setName("formActions");
+        jPanel5.add(xActionBar2, java.awt.BorderLayout.WEST);
+
         xSubFormPanel1.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 5));
         xSubFormPanel1.setHandler("queryForm");
         org.jdesktop.layout.GroupLayout xSubFormPanel1Layout = new org.jdesktop.layout.GroupLayout(xSubFormPanel1);
         xSubFormPanel1.setLayout(xSubFormPanel1Layout);
         xSubFormPanel1Layout.setHorizontalGroup(
             xSubFormPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(0, 0, Short.MAX_VALUE)
+            .add(0, 35, Short.MAX_VALUE)
         );
         xSubFormPanel1Layout.setVerticalGroup(
             xSubFormPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(0, 0, Short.MAX_VALUE)
+            .add(0, 25, Short.MAX_VALUE)
         );
-        xHorizontalPanel1.add(xSubFormPanel1);
+        jPanel5.add(xSubFormPanel1, java.awt.BorderLayout.EAST);
 
-        xActionBar2.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        xActionBar2.setDepends(new String[] {"selectedEntity"});
-        xActionBar2.setDynamic(true);
-        xActionBar2.setFormName("formName");
-        xActionBar2.setName("formActions");
-        xHorizontalPanel1.add(xActionBar2);
-
-        pnlHeader.add(xHorizontalPanel1, java.awt.BorderLayout.SOUTH);
+        pnlHeader.add(jPanel5, java.awt.BorderLayout.CENTER);
 
         add(pnlHeader, java.awt.BorderLayout.NORTH);
 
@@ -166,6 +167,7 @@ public class InboxPage extends javax.swing.JPanel {
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
+    private javax.swing.JPanel jPanel5;
     private javax.swing.JScrollPane jScrollPane1;
     private com.rameses.rcp.control.XLabel lblTitle;
     private com.rameses.rcp.control.XLabel lblTitle1;
@@ -174,7 +176,6 @@ public class InboxPage extends javax.swing.JPanel {
     private javax.swing.JPanel pnlHeader;
     private com.rameses.rcp.control.XActionBar xActionBar2;
     private com.rameses.rcp.control.XDataTable xDataTable1;
-    private com.rameses.rcp.control.XHorizontalPanel xHorizontalPanel1;
     private com.rameses.rcp.control.XHorizontalPanel xHorizontalPanel2;
     private com.rameses.rcp.control.XLabel xLabel1;
     private com.rameses.rcp.control.XLabel xLabel2;
