@@ -68,7 +68,7 @@ public class XComboBox extends JComboBox implements UIInput, Validatable, Active
     private ActionMessage actionMessage = new ActionMessage();
     private Font sourceFont;
     
-    protected DefaultComboBoxModel model;
+    protected ComboBoxModelImpl model;
     private Class fieldType;    
     private boolean updating;    
         
@@ -83,7 +83,7 @@ public class XComboBox extends JComboBox implements UIInput, Validatable, Active
     {
         if ( Beans.isDesignTime() ) 
         {
-            model = new DefaultComboBoxModel(new Object[]{"Item 1"});
+            model = new ComboBoxModelImpl(new Object[]{"Item 1"});
             super.setModel( model );
         }
 
@@ -138,18 +138,28 @@ public class XComboBox extends JComboBox implements UIInput, Validatable, Active
             return;
         }
         
-        if ( value == null && !allowNull ) {
+        ComboItem selObj = (ComboItem) getSelectedItem();
+        if (isSelected(selObj, value)) return;
+        
+        if ( value == null && !isAllowNull() ) {
             ComboItem c = (ComboItem) getItemAt(0);
             model.setSelectedItem( c );
             UIInputUtil.updateBeanValue(this);
             
         } else {
-            for (int i=0; i< getItemCount();i++) {
+            boolean has_selection = false;
+            for (int i=0; i<getItemCount(); i++) {
                 ComboItem ci = (ComboItem) getItemAt(i);
-                if ( isSelected(ci, value) ) {
-                    model.setSelectedItem(ci);
-                    break;
-                }
+                if (!isSelected(ci, value)) continue;
+
+                model.setSelectedItem(ci);
+                has_selection = true;
+                break; 
+            } 
+            
+            if (!has_selection && getItemCount() > 0) {
+                ComboItem ci = (ComboItem) getItemAt(0);
+                model.setSelectedItem(ci); 
             }
         }
     }
@@ -481,7 +491,7 @@ public class XComboBox extends JComboBox implements UIInput, Validatable, Active
     // </editor-fold>    
     
     public void load() {
-        model = new DefaultComboBoxModel();        
+        model = new ComboBoxModelImpl();        
         super.setModel(model);
         
         if ( !dynamic ) buildList();
@@ -547,9 +557,8 @@ public class XComboBox extends JComboBox implements UIInput, Validatable, Active
     protected void onItemStateChanged(ItemEvent e) {
         if ( e.getStateChange() == ItemEvent.SELECTED && !updating ) {
             try {
-                UIControlUtil.getBeanValue(this); //check if bean is not null
                 UIInputUtil.updateBeanValue(this);
-            } catch(Exception ex) {;}
+            } catch(Throwable ex) {;}
         }
     }
 
@@ -559,6 +568,36 @@ public class XComboBox extends JComboBox implements UIInput, Validatable, Active
         onItemStateChanged(e);        
         super.fireItemStateChanged(e); 
     }
+    
+    // <editor-fold defaultstate="collapsed" desc=" ComboBoxModelImpl ">
+    
+    private class ComboBoxModelImpl extends DefaultComboBoxModel 
+    {
+        XComboBox root = XComboBox.this;
+        
+        ComboBoxModelImpl() {
+            super();
+        }
+        
+        ComboBoxModelImpl(Object[] items) {
+            super(items);
+        }        
+        
+        void fireSelectionChanged() {
+            fireContentsChanged(this, -1, -1); 
+        }
+
+        ItemEvent createItemStateChangedEvent(Object value) {
+            return new ItemEvent(
+                root, 
+                ItemEvent.ITEM_STATE_CHANGED, 
+                value, 
+                ItemEvent.SELECTED
+            );             
+        }
+    }
+    
+    // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" ComboItem (class) ">
     
