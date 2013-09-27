@@ -103,7 +103,7 @@ public class XReportPanel extends JPanel implements UIControl {
             throw new IllegalStateException("No report found at " + getName());
         
         JRViewer jrv = new JRViewer(jasperPrint); 
-        new Customizer(jrv, value).customize(); 
+        //new Customizer(jrv, value).customize(); 
         
         removeAll(); 
         add(jrv); 
