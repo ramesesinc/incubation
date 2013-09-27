@@ -64,14 +64,18 @@ public class BasicLookupModel implements LookupDataSource
     protected void oncancel() {}
     
     public Object select() { 
-        Object value = getValue();
+        Object value = getValue(); 
+        return select(value); 
+    } 
+    
+    public Object select(Object value) {
         onselect(value); 
         
         LookupSelector selector = getSelector();
         if (selector != null) selector.select(value); 
         
         return "_close";
-    } 
+    }
     
     public Object cancel() { 
         LookupSelector selector = getSelector();
