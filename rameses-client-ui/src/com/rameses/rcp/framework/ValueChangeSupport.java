@@ -23,21 +23,20 @@ import java.util.Set;
 public class ValueChangeSupport 
 {
     private Map<String,List> handlers = new HashMap();  
-    private Map extended;
+    private List<Map> extendedHandlers = new ArrayList();
             
     ValueChangeSupport() {}
 
-    public void setExtendedHandler(Map extended) { 
-        this.extended = extended; 
-    }
+    public void addExtendedHandler(Map extended) { 
+        if (extended != null) extendedHandlers.add(extended); 
+    } 
     
     public void add(String property, Object callbackListener) 
     {
         if (property == null || callbackListener == null) return;
         
         List list = handlers.get(property); 
-        if (list == null) 
-        {
+        if (list == null) {
             list = new ArrayList();
             handlers.put(property, list); 
         }
@@ -50,8 +49,7 @@ public class ValueChangeSupport
         if (property == null || callbackListener == null) return;
         
         List list = handlers.get(property); 
-        if (list != null) 
-        {
+        if (list != null) {
             list.remove(callbackListener);
             if (list.isEmpty()) handlers.remove(property);
         }         
@@ -60,8 +58,9 @@ public class ValueChangeSupport
     public void removeAll() 
     {
         for (List list : handlers.values()) list.clear(); 
-        
+                
         handlers.clear(); 
+        extendedHandlers.clear();
     }
     
     public void notify(String property, Object value) 
@@ -82,16 +81,20 @@ public class ValueChangeSupport
             }
         }
         
-        if (extended == null) return;
+        if (extendedHandlers.isEmpty()) return;
         
-        Set<Map.Entry> sets = extended.entrySet(); 
-        for (Map.Entry entry: sets) 
-        {
-            String regex = (entry.getKey() == null? null: entry.getKey().toString()); 
-            if (!match(property, regex)) continue;
+        for (Map map : extendedHandlers) {
+            if (map.isEmpty()) continue; 
             
-            invokeCallback(entry.getValue(), value);
-        }
+            Set<Map.Entry> sets = map.entrySet(); 
+            for (Map.Entry entry: sets) 
+            {
+                String regex = (entry.getKey() == null? null: entry.getKey().toString()); 
+                if (!match(property, regex)) continue;
+
+                invokeCallback(entry.getValue(), value);
+            }            
+        }        
     }
     
     private boolean match(String name, String regex) 
