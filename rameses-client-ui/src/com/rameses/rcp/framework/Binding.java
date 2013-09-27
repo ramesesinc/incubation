@@ -584,17 +584,15 @@ public class Binding
     
     public boolean close() 
     {
-        if ( closeMethod == null ) return true;
+        if (closeMethod == null) return true;
         
-        try 
-        {
+        try {
             MethodResolver mr = MethodResolver.getInstance();
             Object o = mr.invoke(bean, closeMethod, new Class[]{}, new Object[]{});
             if ( "false".equals(o+"") ) return false;
-        } 
-        catch(Exception e) {
+        } catch(Throwable e) {
             e.printStackTrace();
-        }
+        } 
         
         return true;
     }
@@ -877,7 +875,7 @@ public class Binding
                 f.setAccessible(true);
                 try {
                     Map map = (Map) f.get(getBean());
-                    getValueChangeSupport().setExtendedHandler(map); 
+                    getValueChangeSupport().addExtendedHandler(map); 
                 } catch(Throwable ex) {
                     System.out.println("ERROR injecting @PropertyChangeListener caused by " + ex.getMessage());
                 } 
