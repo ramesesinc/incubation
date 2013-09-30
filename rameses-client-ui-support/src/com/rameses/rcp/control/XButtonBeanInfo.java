@@ -37,6 +37,8 @@ public class XButtonBeanInfo extends ComponentBeanInfo.Support
             new PropertyDescriptor("mnemonic", getBeanClass()),
             new PropertyDescriptor("text", getBeanClass()),     
             new PropertyDescriptor("fontStyle", getBeanClass()),
+            new PropertyDescriptor("icon", getBeanClass()),
+            new PropertyDescriptor("iconResource", getBeanClass()),
             
             new PropertyDescriptor("caption", getBeanClass()),
             new PropertyDescriptor("captionFont", getBeanClass()),
