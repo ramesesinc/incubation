@@ -49,6 +49,7 @@ public class XButton extends JButton implements UICommand, ActionListener, Activ
     private String permission;
     private String visibleWhen;
     private String disableWhen;
+    private String iconResource; 
     
     private String accelerator;
     private KeyStroke acceleratorKS;
@@ -166,6 +167,12 @@ public class XButton extends JButton implements UICommand, ActionListener, Activ
     
     public String getDisableWhen() { return disableWhen; }
     public void setDisableWhen(String disableWhen) { this.disableWhen = disableWhen; }
+    
+    public String getIconResource() { return iconResource; } 
+    public void setIconResource(String iconResource) {
+        this.iconResource = iconResource; 
+        setIcon(ImageIconSupport.getInstance().getIcon(iconResource)); 
+    }
     
     public void setPropertyInfo(PropertySupport.PropertyInfo info) {}    
     
