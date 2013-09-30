@@ -376,7 +376,7 @@ public class XList extends JList implements UIControl
         {
             Insets pads = root.getPadding();
             if (pads == null) pads = new Insets(1,3,1,3); 
-            
+
             cellLabel.setBorder(BorderFactory.createEmptyBorder(pads.top, pads.left, pads.bottom, pads.right)); 
             cellLabel.setComponentOrientation(list.getComponentOrientation());
             cellLabel.setSize(list.getFixedCellWidth(), list.getFixedCellHeight());
@@ -389,7 +389,7 @@ public class XList extends JList implements UIControl
                 cellLabel.setBackground(list.getSelectionBackground());
                 cellLabel.setForeground(list.getSelectionForeground());
                 fontSupport.applyStyles(cellLabel, "font-weight:bold;");
-            } else {
+            } else {                
                 cellLabel.setBackground(list.getBackground());
                 cellLabel.setForeground(list.getForeground());
             }
