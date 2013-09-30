@@ -126,8 +126,22 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
                 
                 if (rotation < 0)
                     dataProvider.moveBackRecord();
-                else
-                    dataProvider.moveNextRecord(true);
+                else 
+                    dataProvider.moveNextRecord(true); 
+                
+                int scrollPolicy = scrollPane.getVerticalScrollBarPolicy();
+                try { 
+                    int selRow = table.getSelectedRow();
+                    int selCol = table.getSelectedColumn(); 
+                    Rectangle rect = table.getCellRect(selRow, selCol, true);                    
+                    if (scrollPolicy == JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED) {
+                        table.scrollRectToVisible(rect);
+                        
+                    } else { 
+                        scrollBar.adjustValues(); 
+                        table.scrollRectToVisible(rect);
+                    }
+                } catch(Throwable ex) {;} 
             }
         });
         
@@ -948,8 +962,7 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
                     boolean dynamic = root.scrollBar.isDynamicallyVisible();
                     if (rect.height < root.table.getBounds().height && !dynamic) {
                         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED); 
-                    }
-                    else { 
+                    } else { 
                         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER); 
                     }
                 } 
