@@ -36,6 +36,12 @@ public class ActiveDBService extends ContextService {
         builder.append( "    public Object invokeMethod(String string, Object args) { \n");
         builder.append( "        return invoker.invokeMethod(string, args); \n" );
         builder.append( "    } \n");
+        builder.append( "    public Object getSerializer() { \n");
+        builder.append( "        return invoker.getSerializer(); \n" );
+        builder.append( "    } \n");
+        builder.append( "    public Object getEntityManager() { \n");
+        builder.append( "        return invoker.getEntityManager(); \n" );
+        builder.append( "    } \n");
         builder.append(" } ");
         metaClass = classLoader.parseClass( builder.toString() );
     }
