@@ -40,14 +40,13 @@ public class PropertyResolverImpl extends PropertyResolver  {
     
     public boolean setProperty(Object bean, String propertyName, Object value) 
     {
-        try 
-        {
+        boolean debug = "true".equals(System.getProperty("PropertyResolver.debug", "false"));        
+        try {
             PropertyUtils.setProperty(bean, fixPropertyName(bean, propertyName), value);
             return true;
-        } 
-        catch (Exception ex) 
-        {
-            //System.out.println("error setProperty '" + propertyName + "': "+ ex.getMessage() );
+        } catch (Exception ex) {
+            if (debug) ex.printStackTrace();
+            
             return false;
         }
     }
@@ -66,16 +65,19 @@ public class PropertyResolverImpl extends PropertyResolver  {
         if ( bean == null ) return null; 
         if ( ValueUtil.isEmpty(propertyName) ) return null;
 
+        boolean debug = "true".equals(System.getProperty("PropertyResolver.debug", "false"));
         String name = fixPropertyName(bean, propertyName); 
+        
         try {
             return PropertyUtils.getProperty(bean, name);
-        } 
-        catch (InvocationTargetException ite) { 
+            
+        } catch (InvocationTargetException ite) { 
+            if (debug) ite.printStackTrace();
+            
             return null; 
-        }
-        catch (Exception e) 
-        {
-            //System.out.println("error getProperty " + propertyName + "-> " + e.getMessage() );
+            
+        } catch (Exception e) {
+            if (debug) e.printStackTrace();
             if (e instanceof MissingPropertyException) return null; 
             
             return null;
