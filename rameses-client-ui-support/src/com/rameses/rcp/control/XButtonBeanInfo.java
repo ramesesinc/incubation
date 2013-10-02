@@ -39,6 +39,8 @@ public class XButtonBeanInfo extends ComponentBeanInfo.Support
             new PropertyDescriptor("fontStyle", getBeanClass()),
             new PropertyDescriptor("icon", getBeanClass()),
             new PropertyDescriptor("iconResource", getBeanClass()),
+            new PropertyDescriptor("borderPainted", getBeanClass(), "isBorderPainted", "setBorderPainted"),
+            new PropertyDescriptor("contentAreaFilled", getBeanClass(), "isContentAreaFilled", "setContentAreaFilled"),
             
             new PropertyDescriptor("caption", getBeanClass()),
             new PropertyDescriptor("captionFont", getBeanClass()),
