@@ -57,9 +57,10 @@ public class IconedTextField extends DefaultTextField implements ActionListener
         super();
         FieldSupport support = new FieldSupport();
         addMouseMotionListener(support);
-        addMouseListener(support);        
-        addActionListener(this);         
-        setIcon(icon);
+        addMouseListener(support); 
+        setIcon(icon); 
+        
+        addActionMapping(ACTION_MAPPING_KEY_ENTER, this); 
     }    
     
     public void paint(Graphics g) 

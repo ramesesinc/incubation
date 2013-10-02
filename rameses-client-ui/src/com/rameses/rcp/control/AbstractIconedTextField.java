@@ -55,7 +55,7 @@ public abstract class AbstractIconedTextField extends XTextField implements Acti
         IconedTextFieldSupport support = new IconedTextFieldSupport();
         addMouseListener(support);
         addMouseMotionListener(support);
-        addActionListener(this);
+        addActionMapping(ACTION_MAPPING_KEY_ENTER, this); 
     }
         
     public abstract void actionPerformed();
