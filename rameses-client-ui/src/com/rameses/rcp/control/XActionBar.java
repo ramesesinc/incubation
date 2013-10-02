@@ -239,7 +239,6 @@ public class XActionBar extends JPanel implements UIComposite {
         btn.setIndex(action.getIndex());
         btn.setUpdate(action.isUpdate());
         btn.setImmediate(action.isImmediate());
-        btn.setMnemonic(action.getMnemonic());
         
         String sicon = action.getIcon();
         if (sicon != null && sicon.length() > 0) { 
@@ -305,6 +304,7 @@ public class XActionBar extends JPanel implements UIComposite {
         else if (caption != null)
             btn.setToolTipText(caption);
         
+        btn.setMnemonic(action.getMnemonic());        
         return btn;
     }
     

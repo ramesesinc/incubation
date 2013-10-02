@@ -169,32 +169,42 @@ public class XButton extends JButton implements UICommand, ActionListener, Activ
         super.setMnemonic(aChar);
         if (aChar == '\u0000') return; 
         
-        String text = getText().toLowerCase();        
-        char[] chars = text.toCharArray();
-        for (int i=0; i<chars.length; i++) {
-            if (chars[i] == aChar) {
-                setDisplayedMnemonicIndex(i); 
-                return; 
-            }
-        } 
+        String text = getText();
+        if (text == null) return;
         
-        Pattern p = Pattern.compile("<.*?>");
-        Matcher m = p.matcher(text); 
-        int startindex = 0;
-        while (m.find()) {
-            int start = m.start();
-            int end = m.end();
-            if (start > startindex) {
-                chars = text.substring(startindex, start).toCharArray();
-                for (int i=0; i<chars.length; i++) {
-                    if (chars[i] == aChar) {
-                        setDisplayedMnemonicIndex(startindex+i); 
-                        return; 
-                    }
-                }
-            }
-            startindex = end;
-        }   
+        char cval = Character.toLowerCase(aChar);
+        String stext = text.toLowerCase();
+        if (stext.trim().matches("<html>.*</html>")) {
+            Pattern p = Pattern.compile("<.*?>");
+            Matcher m = p.matcher(text); 
+            int startindex = 0;
+            int locIndex = -1;
+            while (m.find()) {
+                int start = m.start();
+                int end = m.end();
+                if (start > startindex) {
+                    char[] chars = stext.substring(startindex, start).toCharArray();
+                    for (int i=0; i<chars.length; i++) {
+                        if (chars[i] == cval) {
+                            locIndex = startindex+i; 
+                            break; 
+                        } 
+                    } 
+                } 
+                
+                if (locIndex >= 0) break; 
+
+                startindex = end;
+            } 
+            
+            if (locIndex < 0) return;
+            
+            StringBuffer sb = new StringBuffer(); 
+            sb.append(text.substring(0, locIndex));
+            sb.append("<u>" + text.charAt(locIndex) + "</u>"); 
+            sb.append(text.substring(locIndex+1));
+            super.setText(sb.toString()); 
+        } 
     }    
     
     // </editor-fold>
