@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.swing.AbstractAction;
+import javax.swing.InputMap;
 import javax.swing.InputVerifier;
 import javax.swing.JComponent;
 import javax.swing.JTextField;
@@ -39,6 +40,7 @@ import javax.swing.UIManager;
 public class DefaultTextField extends JTextField 
 {
     public final String ACTION_MAPPING_KEY_ESCAPE = "ACTION_MAPPING_KEY_ESCAPE";
+    public final String ACTION_MAPPING_KEY_ENTER = "ACTION_MAPPING_KEY_ENTER";
     
     private InputVerifierProxy inputVerifierProxy;  
     private Color focusBackground;
@@ -48,6 +50,7 @@ public class DefaultTextField extends JTextField
     
     private String focusKeyStroke;
     private KeyStroke focusKeyStrokeObject;
+    private String actionCommand;
     private String hint;
     private boolean inFocus;
     
@@ -61,14 +64,21 @@ public class DefaultTextField extends JTextField
     private void initComponent() { 
         setPreferredSize(new Dimension(100,20));         
         actionMap = new HashMap(); 
-        
-        KeyStroke esc = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, JComponent.WHEN_FOCUSED); 
-        getInputMap(JComponent.WHEN_FOCUSED).put(esc, ACTION_MAPPING_KEY_ESCAPE); 
+                
+        InputMap inputMap = getInputMap(JComponent.WHEN_FOCUSED);
+        KeyStroke escKey = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, JComponent.WHEN_FOCUSED); 
+        inputMap.put(escKey, ACTION_MAPPING_KEY_ESCAPE); 
         getActionMap().put(ACTION_MAPPING_KEY_ESCAPE, new EscapeActionSupport()); 
+        
+        KeyStroke enterKey = KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, JComponent.WHEN_FOCUSED); 
+        inputMap.put(enterKey, ACTION_MAPPING_KEY_ENTER); 
+        getActionMap().put(ACTION_MAPPING_KEY_ENTER, new EnterActionSupport());         
         
         initDefaults(); 
         resetInputVerifierProxy();         
         focusBackground = ThemeUI.getColor("XTextField.focusBackground");
+        
+        this.setActionCommand("");
     }
     
     protected void initDefaults() {
@@ -147,6 +157,11 @@ public class DefaultTextField extends JTextField
     
     public String getHint() { return hint; } 
     public void setHint(String hint) { this.hint = hint; }
+    
+    public String getActionCommand() { return actionCommand; } 
+    public void setActionCommand(String actionCommand) {
+        this.actionCommand = actionCommand; 
+    }
     
     protected void resetInputVerifierProxy() 
     {
@@ -352,4 +367,21 @@ public class DefaultTextField extends JTextField
     
     // </editor-fold>
     
+    // <editor-fold defaultstate="collapsed" desc=" EnterActionSupport ">
+    
+    private class EnterActionSupport extends AbstractAction
+    {
+        DefaultTextField root = DefaultTextField.this;
+        
+        public void actionPerformed(ActionEvent e) {
+            List<ActionListener> listeners = root.actionMap.get(root.ACTION_MAPPING_KEY_ENTER); 
+            if (listeners == null || listeners.isEmpty()) return;
+            
+            for (ActionListener al : listeners) { 
+                al.actionPerformed(e); 
+            } 
+        } 
+    } 
+    
+    // </editor-fold>
 }

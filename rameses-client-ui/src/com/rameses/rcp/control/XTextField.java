@@ -1,5 +1,8 @@
 package com.rameses.rcp.control;
 
+import com.rameses.common.MethodResolver;
+import com.rameses.rcp.common.MsgBox;
+import com.rameses.rcp.common.Opener;
 import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.common.TextColumnHandler;
 import com.rameses.rcp.constant.TextCase;
@@ -55,7 +58,8 @@ public class XTextField extends DefaultTextField implements UIInput, Validatable
     
     private TextDocument document = new TextDocument();
     private TrimSpaceOption trimSpaceOption = TrimSpaceOption.ALL;
-    
+    private ActionCommandInvoker actionCommandInvoker; 
+            
     private String securityPattern;
     private String securityChar;
     private String securedValue; //internal value
@@ -69,7 +73,8 @@ public class XTextField extends DefaultTextField implements UIInput, Validatable
     private void initComponent() {
         document.setTextCase(TextCase.UPPER);
         TextEditorSupport.install(this);
-        
+
+        actionCommandInvoker = new ActionCommandInvoker();        
         addActionMapping(ACTION_MAPPING_KEY_ESCAPE, new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 try { refresh(); } catch(Throwable t) {;} 
@@ -157,6 +162,12 @@ public class XTextField extends DefaultTextField implements UIInput, Validatable
     {
         setDocument(document);
         if (showHint) isHintShown = true;
+
+        String cmd = getActionCommand();
+        if (cmd != null && cmd.length() > 0) {
+            removeActionMapping(ACTION_MAPPING_KEY_ENTER, actionCommandInvoker); 
+            addActionMapping(ACTION_MAPPING_KEY_ENTER, actionCommandInvoker); 
+        }
     }
     
     public int compareTo(Object o) {
@@ -399,6 +410,32 @@ public class XTextField extends DefaultTextField implements UIInput, Validatable
             value = value.replaceAll(" ", String.valueOf(spaceChar)); 
 
         return value;
+    }
+    
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" ActionCommandInvoker ">    
+    
+    private class ActionCommandInvoker implements ActionListener 
+    {
+        XTextField root = XTextField.this; 
+        
+        public void actionPerformed(ActionEvent e) { 
+            try {
+                String cmd = root.getActionCommand(); 
+                if (cmd == null || cmd.length() == 0) return; 
+                
+                UIInputUtil.updateBeanValue(root);                 
+                Object bean = root.getBinding().getBean();
+                Object outcome = MethodResolver.getInstance().invoke(bean, cmd, new Object[]{}); 
+                if (outcome instanceof Opener) { 
+                    root.getBinding().fireNavigation(outcome); 
+                } 
+            } catch(Throwable t) { 
+                MsgBox.err(t); 
+            } 
+        } 
+        
     }
     
     // </editor-fold>

@@ -9,6 +9,9 @@
 
 package com.rameses.rcp.control;
 
+import com.rameses.common.MethodResolver;
+import com.rameses.rcp.common.MsgBox;
+import com.rameses.rcp.common.Opener;
 import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.control.text.AbstractMaskField;
 import com.rameses.rcp.framework.Binding;
@@ -41,6 +44,7 @@ public class XMaskField extends AbstractMaskField implements UIInput, ActiveCont
     private boolean immediate;
 
     private ControlProperty controlProperty;    
+    private ActionCommandInvoker actionCommandInvoker;
     
     public XMaskField() {
         super();
@@ -51,6 +55,7 @@ public class XMaskField extends AbstractMaskField implements UIInput, ActiveCont
         TextEditorSupport.install(this);
         if (Beans.isDesignTime()) return;
         
+        actionCommandInvoker = new ActionCommandInvoker();
         addActionMapping(ACTION_MAPPING_KEY_ESCAPE, new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 try { refresh(); } catch(Throwable t) {;} 
@@ -107,8 +112,14 @@ public class XMaskField extends AbstractMaskField implements UIInput, ActiveCont
     public void setRequestFocus(boolean focus) {
     }
 
-    public void load() {
+    public void load() { 
         updateMask(); 
+        
+        String cmd = getActionCommand();
+        if (cmd != null && cmd.length() > 0) {
+            removeActionMapping(ACTION_MAPPING_KEY_ENTER, actionCommandInvoker); 
+            addActionMapping(ACTION_MAPPING_KEY_ENTER, actionCommandInvoker); 
+        }        
     }
 
     public void refresh() {
@@ -206,4 +217,29 @@ public class XMaskField extends AbstractMaskField implements UIInput, ActiveCont
 
     // </editor-fold>
 
+    // <editor-fold defaultstate="collapsed" desc=" ActionCommandInvoker ">    
+    
+    private class ActionCommandInvoker implements ActionListener 
+    {
+        XMaskField root = XMaskField.this; 
+        
+        public void actionPerformed(ActionEvent e) { 
+            try {
+                String cmd = root.getActionCommand(); 
+                if (cmd == null || cmd.length() == 0) return; 
+                
+                UIInputUtil.updateBeanValue(root);                 
+                Object bean = root.getBinding().getBean();
+                Object outcome = MethodResolver.getInstance().invoke(bean, cmd, new Object[]{}); 
+                if (outcome instanceof Opener) { 
+                    root.getBinding().fireNavigation(outcome); 
+                } 
+            } catch(Throwable t) { 
+                MsgBox.err(t); 
+            } 
+        } 
+        
+    }
+    
+    // </editor-fold>    
 }

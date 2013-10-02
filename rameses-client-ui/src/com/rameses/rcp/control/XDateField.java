@@ -9,6 +9,9 @@
 
 package com.rameses.rcp.control;
 
+import com.rameses.common.MethodResolver;
+import com.rameses.rcp.common.MsgBox;
+import com.rameses.rcp.common.Opener;
 import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.control.text.AbstractDateField;
 import com.rameses.rcp.framework.Binding;
@@ -43,6 +46,7 @@ public class XDateField extends AbstractDateField implements UIInput, ActiveCont
     private boolean nullWhenEmpty;
     private boolean immediate;
 
+    private ActionCommandInvoker actionCommandInvoker;    
     private ControlProperty controlProperty;    
     private ActionMessage actionMessage;
     
@@ -55,6 +59,7 @@ public class XDateField extends AbstractDateField implements UIInput, ActiveCont
         TextEditorSupport.install(this);
         if (Beans.isDesignTime()) return;
         
+        actionCommandInvoker = new ActionCommandInvoker(); 
         addActionMapping(ACTION_MAPPING_KEY_ESCAPE, new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 try { refresh(); } catch(Throwable t) {;} 
@@ -112,6 +117,11 @@ public class XDateField extends AbstractDateField implements UIInput, ActiveCont
     }
 
     public void load() {
+        String cmd = getActionCommand();
+        if (cmd != null && cmd.length() > 0) {
+            removeActionMapping(ACTION_MAPPING_KEY_ENTER, actionCommandInvoker); 
+            addActionMapping(ACTION_MAPPING_KEY_ENTER, actionCommandInvoker); 
+        }        
     }
 
     public void refresh() {
@@ -210,7 +220,7 @@ public class XDateField extends AbstractDateField implements UIInput, ActiveCont
 
     // </editor-fold>
 
-    // <editor-fold defaultstate="collapsed" desc="  Validatable implementations  ">
+    // <editor-fold defaultstate="collapsed" desc=" Validatable implementations ">
     
     public ActionMessage getActionMessage() { 
         if (actionMessage == null) {
@@ -237,4 +247,30 @@ public class XDateField extends AbstractDateField implements UIInput, ActiveCont
     }
     
     // </editor-fold>     
+    
+    // <editor-fold defaultstate="collapsed" desc=" ActionCommandInvoker ">    
+    
+    private class ActionCommandInvoker implements ActionListener 
+    {
+        XDateField root = XDateField.this; 
+        
+        public void actionPerformed(ActionEvent e) { 
+            try {
+                String cmd = root.getActionCommand(); 
+                if (cmd == null || cmd.length() == 0) return; 
+                
+                UIInputUtil.updateBeanValue(root);                 
+                Object bean = root.getBinding().getBean();
+                Object outcome = MethodResolver.getInstance().invoke(bean, cmd, new Object[]{}); 
+                if (outcome instanceof Opener) { 
+                    root.getBinding().fireNavigation(outcome); 
+                } 
+            } catch(Throwable t) { 
+                MsgBox.err(t); 
+            } 
+        } 
+        
+    }
+    
+    // </editor-fold>    
 }
