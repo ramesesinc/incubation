@@ -23,6 +23,8 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.util.EventObject;
 import java.util.regex.Matcher;
@@ -59,11 +61,20 @@ public class XTextField extends DefaultTextField implements UIInput, Validatable
     private String securedValue; //internal value
     
     
-    public XTextField() 
-    {
+    public XTextField() {
         super();
+        initComponent();
+    } 
+    
+    private void initComponent() {
         document.setTextCase(TextCase.UPPER);
         TextEditorSupport.install(this);
+        
+        addActionMapping(ACTION_MAPPING_KEY_ESCAPE, new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                try { refresh(); } catch(Throwable t) {;} 
+            }
+        }); 
         
         //set default font
         Font f = ThemeUI.getFont("XTextField.font");
@@ -73,8 +84,7 @@ public class XTextField extends DefaultTextField implements UIInput, Validatable
         if ( c != null ) setDisabledTextColor(c);
     }
         
-    public void paint(Graphics origGraphics) 
-    {
+    public void paint(Graphics origGraphics) {
         super.paint(origGraphics);
         
         if( showHint && getDocument().getLength() == 0 ) 
@@ -99,38 +109,32 @@ public class XTextField extends DefaultTextField implements UIInput, Validatable
 
     // <editor-fold defaultstate="collapsed" desc="  UIControl implementation  ">
 
-    public void refresh() 
-    {
-        try 
-        {
+    public void refresh() {
+        try {
             updateBackground(); 
             
             Object value = UIControlUtil.getBeanValue(this);
-            if ( isSecured() ) 
-            {
+            if ( isSecured() ) {
                 //keep the actual value
                 securedValue = (String) value;
                 
                 String txtValue = "";
-                if ( value != null ) 
-                {
+                if (value != null) {
                     StringBuffer text = new StringBuffer();
                     Matcher m = Pattern.compile(securityPattern).matcher(value.toString());
-                    while ( m.find() ) {
+                    while (m.find()) {
                         m.appendReplacement(text, repeat(securityChar, m.group().length()));
                     }
                     m.appendTail(text);
                     txtValue = text.toString();
-                }
-                
+                }                
                 super.setText(txtValue); 
-            } 
-            else {
+                
+            } else {
                 setValue(value);
             }
         } 
-        catch(Exception e) 
-        {
+        catch(Exception e) {
             //just block the input when the name is null
             setText("");
             
@@ -219,8 +223,7 @@ public class XTextField extends DefaultTextField implements UIInput, Validatable
     
     private KeyEvent keValue;
     
-    public void setValue(Object value) 
-    {
+    public void setValue(Object value) {
         if ( value instanceof EventObject ) {
             if (value instanceof KeyEvent) { 
                 KeyEvent ke = (KeyEvent) value;

@@ -16,6 +16,8 @@ import com.rameses.rcp.util.UIInputUtil;
 import com.rameses.util.ValueUtil;
 import java.awt.Font;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.beans.Beans;
 import java.util.HashMap;
@@ -38,18 +40,22 @@ public class XIntegerField extends AbstractNumberField implements UIInput, Valid
     private String pattern;  
     private int index;
         
-    public XIntegerField() 
-    {
+    public XIntegerField() {
         super();
-        TextEditorSupport.install(this); 
-        
-        if (Beans.isDesignTime()) 
-        {
-            Font font = (Font) getClientProperty("TextField.font"); 
-            if (font != null) super.setFont(font); 
-        }        
+        initComponent();
     } 
 
+    private void initComponent() {
+        TextEditorSupport.install(this);         
+        if (Beans.isDesignTime()) return;
+        
+        addActionMapping(ACTION_MAPPING_KEY_ESCAPE, new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                try { refresh(); } catch(Throwable t) {;} 
+            }
+        }); 
+    }
+    
     protected AbstractNumberDocument createDocument() 
     {
         if (model == null) model = new IntegerDocument(); 

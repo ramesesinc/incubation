@@ -26,6 +26,7 @@ public class XNumberField extends XTextField
     NumberFieldSupport fieldSupport = new NumberFieldSupport();
         
     public XNumberField() {
+        super();
         setHorizontalAlignment(JTextField.RIGHT);
         addKeyListener(fieldSupport);
         addFocusListener(fieldSupport);

@@ -1,7 +1,7 @@
 /*
- * DefaultTextField.java
+ * DefaultPasswordField.java
  *
- * Created on May 8, 2013, 2:47 PM
+ * Created on October 1, 2013, 1:59 PM
  *
  * To change this template, choose Tools | Template Manager
  * and open the template in the editor.
@@ -13,7 +13,7 @@ import com.rameses.rcp.support.FontSupport;
 import com.rameses.rcp.support.ThemeUI;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Font; 
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -28,7 +28,7 @@ import java.util.Map;
 import javax.swing.AbstractAction;
 import javax.swing.InputVerifier;
 import javax.swing.JComponent;
-import javax.swing.JTextField;
+import javax.swing.JPasswordField;
 import javax.swing.KeyStroke;
 import javax.swing.UIManager;
 
@@ -36,7 +36,7 @@ import javax.swing.UIManager;
  *
  * @author wflores
  */
-public class DefaultTextField extends JTextField 
+public class DefaultPasswordField extends JPasswordField 
 {
     public final String ACTION_MAPPING_KEY_ESCAPE = "ACTION_MAPPING_KEY_ESCAPE";
     
@@ -53,7 +53,7 @@ public class DefaultTextField extends JTextField
     
     private Map<String,List<ActionListener>> actionMap;   
     
-    public DefaultTextField() {
+    public DefaultPasswordField() {
         super();
         initComponent();
     }
@@ -243,8 +243,8 @@ public class DefaultTextField extends JTextField
         String hint = getHint();
         if (hint == null || hint.length() == 0) return;
         
-        String text = getText();
-        if (text == null || text.length() == 0) {
+        char[] chars = getPassword();
+        if (chars == null || chars.length == 0) {
             if (inFocus) return;
             
             Color oldColor = g.getColor();
@@ -338,7 +338,7 @@ public class DefaultTextField extends JTextField
     
     private class EscapeActionSupport extends AbstractAction
     {
-        DefaultTextField root = DefaultTextField.this;
+        DefaultPasswordField root = DefaultPasswordField.this;
         
         public void actionPerformed(ActionEvent e) {
             List<ActionListener> listeners = root.actionMap.get(root.ACTION_MAPPING_KEY_ESCAPE); 
@@ -351,5 +351,4 @@ public class DefaultTextField extends JTextField
     } 
     
     // </editor-fold>
-    
 }

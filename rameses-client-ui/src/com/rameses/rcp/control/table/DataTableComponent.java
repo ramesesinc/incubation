@@ -1008,29 +1008,33 @@ public class DataTableComponent extends JTable implements TableControl
         
         if (commit) {
             tableModel.setBinding(itemBinding); 
-            tableModel.setValueAt(value, rowIndex, colIndex); 
 
-            boolean hasErrors = false;
             try {
-                if (editorModel != null) {
-                    ListItem oListItem = editorModel.getListItem(editingRow);
-                    editorModel.fireColumnUpdate(oListItem);
-                }
+                tableModel.setValueAt(value, rowIndex, colIndex); 
+                //if (editorModel != null) { 
+                //    ListItem oListItem = editorModel.getListItem(editingRow);
+                //    editorModel.fireColumnUpdate(oListItem);
+                //}
             } 
-            catch(Exception ex) {
-                hasErrors = true;
-                MsgBox.err(ex);
-            }
-            
-            if (hasErrors) { 
-                itemBinding.getChangeLog().undo();                 
-                editor.setVisible(true);
-                editor.setInputVerifier(inputVerifier); 
-                editingMode = true;
-                currentEditor = editor; 
-                currentEditor.grabFocus(); 
+            catch(EditorListModel.BeforeColumnUpdateException bcx) {
+                if (bcx.getCause() != null) MsgBox.err(bcx.getCause());
+
+                refocusEditor(editor, inputVerifier); 
+                return false;
+                
+            } 
+            catch(EditorListModel.AfterColumnUpdateException acx) { 
+                if (acx.getCause() != null) MsgBox.err(acx.getCause());  
+
+                itemBinding.getChangeLog().undo(); 
+                refocusEditor(editor, inputVerifier); 
                 return false; 
-            }            
+            }             
+            catch(Exception ex) {
+                MsgBox.err(ex);
+                refocusEditor(editor, inputVerifier); 
+                return false; 
+            }
         } 
         
         tableModel.fireTableRowsUpdated(rowIndex, rowIndex); 
@@ -1038,6 +1042,14 @@ public class DataTableComponent extends JTable implements TableControl
         
         return true;
     } 
+    
+    private void refocusEditor(JComponent editor, InputVerifier inputVerifier) {
+        editor.setVisible(true);
+        editor.setInputVerifier(inputVerifier); 
+        editingMode = true;
+        currentEditor = editor; 
+        currentEditor.grabFocus();         
+    }
     
     public void clearEditors() { 
         if (currentEditor != null) { 

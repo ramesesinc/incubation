@@ -7,6 +7,7 @@
 package com.rameses.rcp.control.table;
 
 import com.rameses.rcp.common.Column;
+import com.rameses.rcp.common.EditorListModel;
 import com.rameses.rcp.common.ListItem;
 import com.rameses.common.PropertyResolver;
 import com.rameses.rcp.common.AbstractListDataProvider;
@@ -28,6 +29,7 @@ public class DataTableModel extends AbstractTableModel implements TableControlMo
     private List<Column> columnList = new ArrayList();    
     
     private AbstractListDataProvider dataProvider; 
+    private EditorListModel editorModel;    
     private DataTableBinding binding;
     private String multiSelectName;    
     private String varName = "item";
@@ -77,8 +79,12 @@ public class DataTableModel extends AbstractTableModel implements TableControlMo
         this.dataProvider = dataProvider;
         if (this.dataProvider != null) {
             this.dataProvider.addHandler(this);
-        } 
-        
+        }           
+        if (this.dataProvider instanceof EditorListModel) {
+            this.editorModel = (EditorListModel) this.dataProvider; 
+        } else {
+            this.editorModel = null; 
+        }        
         reIndexColumns(); 
     } 
     
@@ -227,10 +233,14 @@ public class DataTableModel extends AbstractTableModel implements TableControlMo
             //exit if no changes made
             if (!hasValueChanged(oldValue, value)) return;
 
+            ListItem li = getListItem(rowIndex); 
+            //fire notification before column update
+            if (editorModel != null)  
+                editorModel.fireBeforeColumnUpdate(li, value);
+            
             resolver.setProperty(item, column.getName(), value); 
 
-            ListItem li = getListItem(rowIndex);
-            if (li.getState() == ListItem.STATE_SYNC)
+            if (li.getState() == ListItem.STATE_SYNC) 
                 li.setState(ListItem.STATE_EDIT); 
 
             fireTableRowsUpdated(rowIndex, rowIndex); 
@@ -238,6 +248,9 @@ public class DataTableModel extends AbstractTableModel implements TableControlMo
             try { 
                 binding.getChangeLog().addEntry(item, column.getName(), oldValue, value);
             } catch(Exception ex) {;} 
+            
+            //fire notification after the column has been updated
+            if (editorModel != null) editorModel.fireColumnUpdate(li); 
         }
     }
 

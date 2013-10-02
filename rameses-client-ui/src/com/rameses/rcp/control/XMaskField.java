@@ -23,6 +23,8 @@ import com.rameses.rcp.util.UIInputUtil;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.beans.Beans;
 import javax.swing.InputVerifier;
 
@@ -41,14 +43,26 @@ public class XMaskField extends AbstractMaskField implements UIInput, ActiveCont
     private ControlProperty controlProperty;    
     
     public XMaskField() {
+        super();
+        initComponent();
+    } 
+    
+    private void initComponent() {
         TextEditorSupport.install(this);
+        if (Beans.isDesignTime()) return;
+        
+        addActionMapping(ACTION_MAPPING_KEY_ESCAPE, new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                try { refresh(); } catch(Throwable t) {;} 
+            }
+        });         
         
         //set default font
         Font font = ThemeUI.getFont("XTextField.font");
         if (font != null) setFont(font);
         
         Color disableTextColor = ThemeUI.getColor("XTextField.disabledTextColor");
-        if (disableTextColor != null) setDisabledTextColor(disableTextColor);        
+        if (disableTextColor != null) setDisabledTextColor(disableTextColor);         
     }
     
     // <editor-fold defaultstate="collapsed" desc=" Getters / Setters ">

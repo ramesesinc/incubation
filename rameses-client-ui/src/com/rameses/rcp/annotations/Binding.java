@@ -8,8 +8,8 @@ import java.lang.annotation.Target;
 
 @Retention(value=RetentionPolicy.RUNTIME)
 @Target(value=ElementType.FIELD)
-public @interface Binding {
-    
+public @interface Binding 
+{    
     String[] validators() default {};
-    
+    String onactivate() default "";
 }

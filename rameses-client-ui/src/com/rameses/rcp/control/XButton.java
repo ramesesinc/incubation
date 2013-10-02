@@ -24,6 +24,8 @@ import java.awt.event.ActionListener;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JMenuItem;
@@ -53,8 +55,6 @@ public class XButton extends JButton implements UICommand, ActionListener, Activ
     
     private String accelerator;
     private KeyStroke acceleratorKS;
-    private Font sourceFont;    
-    private String fontStyle;
         
     public XButton() {
         setOpaque(false);
@@ -63,17 +63,6 @@ public class XButton extends JButton implements UICommand, ActionListener, Activ
     
         
     // <editor-fold defaultstate="collapsed" desc=" Getters/Setters ">
-    
-    public String getFontStyle() { return fontStyle; } 
-    public void setFontStyle(String fontStyle) {
-        this.fontStyle = fontStyle;
-        if (sourceFont == null) {
-            sourceFont = super.getFont();
-        } else {
-            super.setFont(sourceFont); 
-        } 
-        new FontSupport().applyStyles(this, fontStyle);
-    }  
     
     public String getAccelerator() { return accelerator; }
     public void setAccelerator(String accelerator) {
@@ -174,7 +163,39 @@ public class XButton extends JButton implements UICommand, ActionListener, Activ
         setIcon(ImageIconSupport.getInstance().getIcon(iconResource)); 
     }
     
-    public void setPropertyInfo(PropertySupport.PropertyInfo info) {}    
+    public void setPropertyInfo(PropertySupport.PropertyInfo info) {}  
+    
+    public void setMnemonic(char aChar) {
+        super.setMnemonic(aChar);
+        if (aChar == '\u0000') return; 
+        
+        String text = getText().toLowerCase();        
+        char[] chars = text.toCharArray();
+        for (int i=0; i<chars.length; i++) {
+            if (chars[i] == aChar) {
+                setDisplayedMnemonicIndex(i); 
+                return; 
+            }
+        } 
+        
+        Pattern p = Pattern.compile("<.*?>");
+        Matcher m = p.matcher(text); 
+        int startindex = 0;
+        while (m.find()) {
+            int start = m.start();
+            int end = m.end();
+            if (start > startindex) {
+                chars = text.substring(startindex, start).toCharArray();
+                for (int i=0; i<chars.length; i++) {
+                    if (chars[i] == aChar) {
+                        setDisplayedMnemonicIndex(startindex+i); 
+                        return; 
+                    }
+                }
+            }
+            startindex = end;
+        }   
+    }    
     
     // </editor-fold>
     
@@ -238,6 +259,46 @@ public class XButton extends JButton implements UICommand, ActionListener, Activ
     }   
     
     // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" Font support implementation ">
+    
+    private FontSupport fontSupport;
+    private Font sourceFont;     
+    private String fontStyle; 
+    
+    private FontSupport getFontSupport() {
+        if (fontSupport == null) 
+            fontSupport = new FontSupport();
+        
+        return fontSupport; 
+    }    
+    
+    public void setFont(Font font) { 
+        sourceFont = font; 
+        if (sourceFont != null) {
+            Map attrs = getFontSupport().createFontAttributes(getFontStyle()); 
+            if (!attrs.isEmpty()) sourceFont = sourceFont.deriveFont(attrs);
+        }
+        
+        super.setFont(sourceFont); 
+    }     
+    
+    public String getFontStyle() { return fontStyle; } 
+    public void setFontStyle(String fontStyle) {
+        this.fontStyle = fontStyle;
+        
+        if (sourceFont == null) sourceFont = super.getFont(); 
+        
+        Font font = sourceFont;
+        if (font == null) return;
+        
+        Map attrs = getFontSupport().createFontAttributes(getFontStyle()); 
+        if (!attrs.isEmpty()) font = font.deriveFont(attrs); 
+        
+        super.setFont(font); 
+    } 
+    
+    // </editor-fold>    
     
     // <editor-fold defaultstate="collapsed" desc=" PopupMenu Support ">    
 

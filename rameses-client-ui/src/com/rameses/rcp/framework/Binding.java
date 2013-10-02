@@ -1,4 +1,3 @@
-
 package com.rameses.rcp.framework;
 
 import com.rameses.common.ExpressionResolver;
@@ -161,6 +160,15 @@ public class Binding
         return actionSupport; 
     }
     
+    protected void finalize() throws Throwable {
+        super.finalize();
+        if (this.controlsIndex != null) this.controlsIndex.clear();
+        if (this.controlsListIndex != null) this.controlsListIndex.clear();
+        if (this._depends != null) this._depends.clear();
+        if (this.depends != null) this.depends.clear();
+        if (this.focusableControls != null) this.focusableControls.clear();
+        if (this.listeners != null) this.listeners.clear();
+    } 
     
     // <editor-fold defaultstate="collapsed" desc="  control binding  ">
     
@@ -489,19 +497,22 @@ public class Binding
         ActionMessage am = new ActionMessage();
         validate(am);
         
-        if ( am.hasMessages() ) 
-        {
-            if ( am.getSource() != null ) am.getSource().requestFocusInWindow();
+        if (am.hasMessages()) {
+            if (am.getSource() != null) 
+                am.getSource().requestFocusInWindow();
             
             throw new BusinessException(am.toString());
         }
+
+        //fire non-immediate field validators
+        getFieldValidatorSupport().fireValidators(getBean()); 
         
         ValidatorEvent evt = new ValidatorEvent(this);
         validateBean(evt);
         
-        if ( evt.hasMessages() ) 
-        {
-            if ( evt.getSource() != null ) evt.getSource().requestFocusInWindow();
+        if (evt.hasMessages()) {
+            if (evt.getSource() != null) 
+                evt.getSource().requestFocusInWindow();
             
             throw new BusinessException(evt.toString());
         }
@@ -850,6 +861,20 @@ public class Binding
                 
                 f.setAccessible(accessible);                
                 bindingField = f; 
+                
+                //execute onactivate method if available
+                String onactivate = b.onactivate(); 
+                if (onactivate != null && onactivate.length() > 0) { 
+                    try { 
+                        MethodResolver.getInstance().invoke(getBean(), onactivate, new Object[]{}); 
+                    } catch(Throwable t) {
+                        System.out.println("ERROR invoking '"+onactivate+"' method caused by "  + t.getMessage()); 
+                        if (t instanceof RuntimeException) 
+                            throw (RuntimeException)t;
+                        else 
+                            throw new RuntimeException(t.getMessage(), t);
+                    } 
+                } 
             } 
             else if (f.isAnnotationPresent(com.rameses.rcp.annotations.ChangeLog.class)) {
                 f.setAccessible(true);                
@@ -868,7 +893,7 @@ public class Binding
                     System.out.println("ERROR injecting @ChangeLog "  + ex.getMessage() );
                 }
                 
-                f.setAccessible(accessible);                
+                f.setAccessible(accessible); 
                 changeLogField = f;
             }
             else if (f.isAnnotationPresent(com.rameses.rcp.annotations.PropertyChangeListener.class)) {
@@ -881,6 +906,18 @@ public class Binding
                 } 
                 f.setAccessible(accessible); 
             }
+            else if (f.isAnnotationPresent(com.rameses.rcp.annotations.Validators.class)) {
+                f.setAccessible(true);
+                try {
+                    Map map = (Map) f.get(getBean());
+                    Object ov = f.getAnnotation(com.rameses.rcp.annotations.Validators.class); 
+                    com.rameses.rcp.annotations.Validators v = (com.rameses.rcp.annotations.Validators)ov; 
+                    getFieldValidatorSupport().add(map, v.immediate()); 
+                } catch(Throwable ex) { 
+                    System.out.println("ERROR injecting @FieldValidators caused by " + ex.getMessage());
+                } 
+                f.setAccessible(accessible); 
+            } 
             else if (f.isAnnotationPresent(com.rameses.rcp.annotations.SubWindow.class)) {
                 f.setAccessible(true);
                 try {
@@ -932,6 +969,20 @@ public class Binding
     public void removeValueListener(String property, Object callbackListener) {
         getValueChangeSupport().remove(property, callbackListener); 
     }
+    
+    // </editor-fold>
+        
+    // <editor-fold defaultstate="collapsed" desc=" FieldValidatorSupport helper methods "> 
+    
+    private FieldValidatorSupport fieldValidatorSupport;
+    
+    public FieldValidatorSupport getFieldValidatorSupport() 
+    {
+        if (fieldValidatorSupport == null) 
+            fieldValidatorSupport = new FieldValidatorSupport(); 
+        
+        return fieldValidatorSupport; 
+    } 
     
     // </editor-fold>
     

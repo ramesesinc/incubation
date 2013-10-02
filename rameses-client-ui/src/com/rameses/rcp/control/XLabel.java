@@ -24,6 +24,8 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.text.Format;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.swing.JComponent;
 import javax.swing.UIManager;
 import javax.swing.border.AbstractBorder;
@@ -344,6 +346,38 @@ public class XLabel extends DefaultLabel implements UIOutput, ActiveControl
     
     // <editor-fold defaultstate="collapsed" desc=" Owned and helper methods ">   
    
+    public void setDisplayedMnemonic(char aChar) {
+        super.setDisplayedMnemonic(aChar); 
+        if (aChar == '\u0000') return; 
+        
+        String text = getText().toLowerCase();        
+        char[] chars = text.toCharArray();
+        for (int i=0; i<chars.length; i++) {
+            if (chars[i] == aChar) {
+                setDisplayedMnemonicIndex(i); 
+                return; 
+            }
+        } 
+        
+        Pattern p = Pattern.compile("<.*?>");
+        Matcher m = p.matcher(text); 
+        int startindex = 0;
+        while (m.find()) {
+            int start = m.start();
+            int end = m.end();
+            if (start > startindex) {
+                chars = text.substring(startindex, start).toCharArray();
+                for (int i=0; i<chars.length; i++) {
+                    if (chars[i] == aChar) {
+                        setDisplayedMnemonicIndex(startindex+i); 
+                        return; 
+                    }
+                }
+            }
+            startindex = end;
+        }   
+    }
+    
     public void paint(Graphics g) {
         if (isAntiAliasOn()) {
             Graphics2D g2 = (Graphics2D) g.create();        
@@ -369,6 +403,7 @@ public class XLabel extends DefaultLabel implements UIOutput, ActiveControl
     }
     
     private String originalText;    
+
     private void setTextValue(String text) 
     {
         this.originalText = text; 
@@ -446,25 +481,26 @@ public class XLabel extends DefaultLabel implements UIOutput, ActiveControl
     
     private class ActiveControlSupport implements PropertyChangeListener 
     {        
+        XLabel root = XLabel.this;
         private Color oldFg;
         
         public void propertyChange(PropertyChangeEvent evt) {
             String propName = evt.getPropertyName();
             Object value = evt.getNewValue();
             
-            if ( "caption".equals(propName) ) {
+            if ("caption".equals(propName)) {
                 String text = (value == null)? "" : value+"";
                 formatText( text, activeProperty.isRequired() );
                 
-            } else if ( "captionMnemonic".equals(propName) ) {
+            } else if ("captionMnemonic".equals(propName)) {
                 setDisplayedMnemonic( (value+"").charAt(0) );
                 formatText( activeProperty.getCaption(), activeProperty.isRequired());
+            
+            } else if ("required".equals(propName)) {
+                boolean required = "true".equals(value+""); 
+                formatText(activeProperty.getCaption(), required);
                 
-            } else if ( "required".equals(propName) ) {
-                boolean req = Boolean.parseBoolean(value+"");
-                formatText( activeProperty.getCaption(), req);
-                
-            } else if ( "errorMessage".equals(propName) ) {
+            } else if ("errorMessage".equals(propName)) {
                 String message = (value != null)? value+"" : null;
                 boolean error = !ValueUtil.isEmpty(message);
                 if ( error ) {

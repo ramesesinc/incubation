@@ -13,7 +13,7 @@ import com.rameses.rcp.common.MsgBox;
 import com.rameses.rcp.framework.ClientContext;
 import com.rameses.util.ValueUtil;
 import java.awt.AlphaComposite;
-import java.awt.Cursor;
+import java.awt.Cursor; 
 import java.awt.EventQueue;
 import java.awt.Graphics;
 import java.awt.Graphics2D;

@@ -32,24 +32,45 @@ public class EditorListModel extends AbstractListDataProvider
      *  1) The ListItem is in a DRAFT state and about to be added in the list 
      *  2) The ListItem is in an EDIT state and about to changed item selection 
      */
-    protected void validate(ListItem li) {}
+    protected void validateItem(Object item) {}
+    
+    protected void validate(ListItem li) {
+        if (li != null) validateItem(li.getItem()); 
+    }
+    
     
     /*
      *  Method is invoked before adding it to the data list
      */
-    protected void onAddItem(Object item) {}
+    protected void addItem(Object item) {}
+    protected void onAddItem(Object item) {
+        addItem(item); 
+    }
     
     protected boolean onRemoveItem(Object item) { return false; }    
     
     /*
      *  Method is invoked before item selection changed
      */
-    protected void onCommitItem(Object item) {}
+    protected void commitItem(Object item) {} 
+    protected void onCommitItem(Object item) {
+        commitItem(item); 
+    }
+    
+    /*
+     *  Method is invoked before the value is set to data bean
+     */
+    protected boolean beforeColumnUpdate(Object item, String columnName, Object newValue) {
+        return true; 
+    } 
     
     /*
      *  Method is invoked after the value has set to data bean
      */
-    protected void onColumnUpdate(Object item, String columnName) {}
+    protected void afterColumnUpdate(Object item, String columnName) {}
+    protected void onColumnUpdate(Object item, String columnName) {
+        afterColumnUpdate(item, columnName); 
+    }
     
     public boolean isColumnEditable(Object item, String columnName) { 
         return true;
@@ -109,11 +130,27 @@ public class EditorListModel extends AbstractListDataProvider
     /*
      *  events
      */
-    public void fireColumnUpdate(ListItem li) 
-    {    
+    public final void fireBeforeColumnUpdate(ListItem li, Object newValue) { 
         if (li == null) return;
         
-        onColumnUpdate(li.getItem(), getSelectedColumn()); 
+        try { 
+            boolean success = beforeColumnUpdate(li.getItem(), getSelectedColumn(), newValue); 
+            if (success == true) return; 
+        } catch(Throwable t) {
+            throw new BeforeColumnUpdateException(t); 
+        } 
+        
+        throw new BeforeColumnUpdateException(); 
+    }
+    
+    public final void fireColumnUpdate(ListItem li) {    
+        if (li == null) return;
+        
+        try { 
+            onColumnUpdate(li.getItem(), getSelectedColumn()); 
+        } catch(Throwable t) {
+            throw new AfterColumnUpdateException(t); 
+        }
     }
 
     public void fireCommitItem(ListItem li) 
@@ -163,4 +200,26 @@ public class EditorListModel extends AbstractListDataProvider
         }
     }
 
+    
+    public static class BeforeColumnUpdateException extends RuntimeException { 
+        
+        BeforeColumnUpdateException() {
+            super(); 
+        }         
+        
+        BeforeColumnUpdateException(Throwable caused) {
+            super(caused); 
+        } 
+    }
+    
+    public static class AfterColumnUpdateException extends RuntimeException { 
+        
+        AfterColumnUpdateException() {
+            super(); 
+        }         
+        
+        AfterColumnUpdateException(Throwable caused) {
+            super(caused); 
+        } 
+    }    
 }

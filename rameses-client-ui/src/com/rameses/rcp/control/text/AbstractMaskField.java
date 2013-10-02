@@ -16,7 +16,7 @@ import javax.swing.text.Document;
 
 /**
  *
- * @author wflores
+ * @author wflores 
  */
 public class AbstractMaskField extends DefaultTextField 
 {

@@ -9,7 +9,6 @@ package com.rameses.rcp.control;
 
 import com.rameses.rcp.constant.UIConstants;
 import com.rameses.rcp.support.FontSupport;
-import com.rameses.rcp.support.ThemeUI;
 import com.rameses.rcp.ui.ActiveControl;
 import com.rameses.rcp.ui.ControlProperty;
 import com.rameses.util.ValueUtil;
@@ -121,8 +120,8 @@ public class ItemPanel extends JPanel {
             add(editor, "editor");
         }
         
-        PropertyChangeListener listener = new ActiveControlPropetyListener();
-        property.addPropertyChangeListener(listener);
+        PropertyChangeListener pcl = new ControlPropetyListener(property);
+        property.addPropertyChangeListener(pcl);
         
         editor.addComponentListener(new ComponentListener() {
             public void componentMoved(ComponentEvent e) {}
@@ -183,48 +182,69 @@ public class ItemPanel extends JPanel {
         return insets;
     }
     
-    //<editor-fold defaultstate="collapsed" desc=" ActiveControlPropetyListener (Class) ">
-    private class ActiveControlPropetyListener implements PropertyChangeListener {
+    // <editor-fold defaultstate="collapsed" desc=" ControlPropetyListener (Class) ">
+    
+    private class ControlPropetyListener implements PropertyChangeListener 
+    {
+        ItemPanel panel = ItemPanel.this;
+        private ControlProperty property;
+        private Font sourceFont;
         
-        private ItemPanel panel;
-        
-        ActiveControlPropetyListener() {
-            this.panel = ItemPanel.this;
+        ControlPropetyListener(ControlProperty property) {
+            this.property = property;
         }
         
         public void propertyChange(PropertyChangeEvent evt) {
             String propName = evt.getPropertyName();
             Object value = evt.getNewValue();
             
-            if ( "captionWidth".equals(propName) ) {
-                panel.revalidate();
-            } else if ( "showCaption".equals(propName)) {
-                panel.revalidate();
-            } else if ( "caption".equals(propName) ) {
+            if ("caption".equals(propName)) {
                 Border b = panel.getLabelComponent().getBorder();
                 if ( ValueUtil.isEmpty(value) && !(b instanceof EmptyBorder)) {
                     panel.getLabelComponent().setBorder(BorderFactory.createEmptyBorder());
                 } else if ( !ValueUtil.isEqual(b, formPanel.getCaptionBorder()) ) {
                     panel.getLabelComponent().setBorder(formPanel.getCaptionBorder());
                 }
-            } else if ( "captionFont".equals(propName) ) {
-                Font f = (Font) value;
-                if( f != null )
-                    panel.getLabelComponent().setFont( f );
-                else
-                    panel.getLabelComponent().setFont( ThemeUI.getFont("XLabel.font") );
+            
+            } else if ("captionFont".equals(propName)) {
+                if (sourceFont == null) 
+                    sourceFont = panel.getLabelComponent().getFont();
                 
-            } else if ( "cellPadding".equals(propName) ) {
-                Insets i = (Insets) value;
-                if( i != null ) {
-                    panel.padding = i;
-                    panel.revalidate();
-                }
+                if (value instanceof Font) {
+                    panel.getLabelComponent().setFont((Font) value);
+                } else { 
+                    panel.getLabelComponent().setFont(sourceFont); 
+                } 
+                
+            } else if ("captionFontStyle".equals(propName)) {
+                String fontStyle = (value == null? null: value.toString()); 
+                panel.getLabelComponent().setFontStyle(fontStyle); 
+                
+            } else if ("captionMnemonic".equals(propName)) { 
+                char ch = '\u0000';
+                String sval = (value == null? null: value.toString()); 
+                if (sval == null || sval.length() == 0) ch = sval.charAt(0);
+                
+                panel.getLabelComponent().setDisplayedMnemonic(ch); 
+            
+            } else if ("captionWidth".equals(propName) ) {
+                panel.revalidate();
+                
+            } else if ("showCaption".equals(propName)) {
+                panel.revalidate();
+                
+            } else if ("cellPadding".equals(propName)) {
+                Insets padding = (value instanceof Insets? (Insets)value: null); 
+                if (padding == null) padding = new Insets(0,0,0,0); 
+                
+                panel.padding = padding; 
+                panel.revalidate();
             }
         }
         
-    }
-    //</editor-fold>
+    } 
+    
+    // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" ItemPanelLayout (Class) ">
     

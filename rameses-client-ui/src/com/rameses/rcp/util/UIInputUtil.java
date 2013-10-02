@@ -13,6 +13,7 @@ import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.framework.ClientContext;
 import com.rameses.rcp.ui.UIInput;
 import com.rameses.common.PropertyResolver;
+import com.rameses.rcp.framework.ValidatorException;
 import com.rameses.util.ExceptionManager;
 import com.rameses.util.ValueUtil;
 import java.beans.Beans;
@@ -45,7 +46,20 @@ public class UIInputUtil {
             if ( input instanceof JTextComponent && !((JTextComponent) input).isEditable() ) return true;
             if ( input.getParent() == null ) return true;
             
-            updateBeanValue(control);
+            try {
+                updateBeanValueImpl(control, true, true); 
+            } catch(Exception e) { 
+                Exception src = ExceptionManager.getOriginal(e);
+                if ( !ExceptionManager.getInstance().handleError(src) ) {
+                    ClientContext.getCurrentContext().getPlatform().showError((JComponent) control, e);
+                }
+                
+                if (e instanceof ValidatorException) {
+                    //since the exception thrown is from the validator 
+                    //do not transfer the focus
+                    return false; 
+                } 
+            } 
             return true;
         }
         
@@ -55,74 +69,10 @@ public class UIInputUtil {
         updateBeanValue(control, true, true);
     }
     
-    public static synchronized void updateBeanValue(UIInput control, boolean addLog, boolean refresh) 
-    {
-        try 
-        {
-            Support support = (Support) ((JComponent) control).getClientProperty(UIInputUtil.Support.class); 
-            if (support != null) {
-                if (control instanceof JComponent)
-                    support.setValue(control.getName(), control.getValue(), (JComponent)control);
-                else 
-                    support.setValue(control.getName(), control.getValue()); 
-                
-                return;
-            }
-            
-            Binding binding = control.getBinding();
-            if (binding == null) return;
-            
-            Object bean = binding.getBean();
-            if (bean == null) return;
-            
-            ClientContext ctx = ClientContext.getCurrentContext();
-            PropertyResolver resolver = PropertyResolver.getInstance();
-            String name = control.getName();
-            if (ValueUtil.isEmpty(name)) return;
-            
-            Object inputValue = control.getValue();
-            Object beanValue = resolver.getProperty(bean, name);
-            boolean forceUpdate = false;
-            if (control instanceof JComponent) {
-                //if the input is a JTable check for the flag
-                Object value = ((JComponent) control).getClientProperty(JTable.class);
-                forceUpdate = (value != null);
-            }
-            
-            if (forceUpdate || !ValueUtil.isEqual(inputValue, beanValue)) {
-                resolver.setProperty(bean, name, inputValue);
-                if ( addLog )  
-                    binding.getChangeLog().addEntry(bean, name, beanValue, inputValue);
-                
-                binding.getValueChangeSupport().notify(name, inputValue);
-                
-                if ( refresh && control instanceof JTextComponent ) {
-                    JTextComponent jtxt = (JTextComponent) control;
-                    int oldCaretPos = jtxt.getCaretPosition(); 
-                    
-                    try { 
-                        control.refresh(); 
-                    } catch(RuntimeException re) {
-                        throw re;
-                    } catch(Exception e) {
-                        throw new RuntimeException(e.getMessage(), e); 
-                    } finally {
-                        try {
-                            jtxt.setCaretPosition(oldCaretPos); 
-                        } catch(Exception ign) {;} 
-                    }
-                    
-                    jtxt.putClientProperty("CaretPosition", oldCaretPos); 
-                }
-                
-                binding.notifyDepends(control);
-            }
-            else {
-                control.refresh(); 
-            }
-        } 
-        catch(Exception e) 
-        {
+    public static synchronized void updateBeanValue(UIInput control, boolean addLog, boolean refresh) {
+        try {
+            updateBeanValueImpl(control, addLog, refresh); 
+        } catch(Exception e) {
             Exception src = ExceptionManager.getOriginal(e);
             if ( !ExceptionManager.getInstance().handleError(src) ) {
                 ClientContext.getCurrentContext().getPlatform().showError((JComponent) control, e);
@@ -130,6 +80,76 @@ public class UIInputUtil {
         }
     }
     
+    private static synchronized void updateBeanValueImpl(UIInput control, boolean addLog, boolean refresh) 
+    {
+        Support support = (Support) ((JComponent) control).getClientProperty(UIInputUtil.Support.class); 
+        if (support != null) {
+            if (control instanceof JComponent)
+                support.setValue(control.getName(), control.getValue(), (JComponent)control);
+            else 
+                support.setValue(control.getName(), control.getValue()); 
+
+            return;
+        }
+
+        Binding binding = control.getBinding();
+        if (binding == null) return;
+
+        Object bean = binding.getBean();
+        if (bean == null) return;
+
+        ClientContext ctx = ClientContext.getCurrentContext();
+        PropertyResolver resolver = PropertyResolver.getInstance();
+        String name = control.getName();
+        if (ValueUtil.isEmpty(name)) return;
+
+        Object inputValue = control.getValue();
+        Object beanValue = resolver.getProperty(bean, name);
+        boolean forceUpdate = false;
+        if (control instanceof JComponent) {
+            //if the input is a JTable check for the flag
+            Object value = ((JComponent) control).getClientProperty(JTable.class);
+            forceUpdate = (value != null);
+        }
+
+        if (forceUpdate || !ValueUtil.isEqual(inputValue, beanValue)) {
+            //fire field validators before committing to the bean 
+            binding.getFieldValidatorSupport().fireImmediateValidators(name, inputValue); 
+            //commit to bean
+            resolver.setProperty(bean, name, inputValue);
+            if (addLog) {
+                //add entry to change log
+                binding.getChangeLog().addEntry(bean, name, beanValue, inputValue);
+            }
+            //notify value change support 
+            binding.getValueChangeSupport().notify(name, inputValue);
+            //refresh the component
+            if ( refresh && control instanceof JTextComponent ) {
+                JTextComponent jtxt = (JTextComponent) control;
+                int oldCaretPos = jtxt.getCaretPosition(); 
+
+                try { 
+                    control.refresh(); 
+                } catch(RuntimeException re) {
+                    throw re;
+                } catch(Exception e) {
+                    throw new RuntimeException(e.getMessage(), e); 
+                } finally {
+                    try {
+                        jtxt.setCaretPosition(oldCaretPos); 
+                    } catch(Exception ign) {;} 
+                }
+
+                jtxt.putClientProperty("CaretPosition", oldCaretPos); 
+            }
+            //notify dependencies
+            binding.notifyDepends(control);
+        }
+        else {
+            //refresh component
+            control.refresh(); 
+        }
+    }    
     
     public static interface Support 
     {

@@ -64,7 +64,7 @@ public class CallbackHandlerProxy implements CallbackHandler
         }
         catch(Throwable t) 
         {
-            System.out.println("[CallbackHandlerProxy.invokeMethod] error: " + t.getMessage());  
+            //System.out.println("[CallbackHandlerProxy.invokeMethod] error: " + t.getMessage());  
             if (t instanceof RuntimeException) 
                 throw (RuntimeException)t;
             

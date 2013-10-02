@@ -35,6 +35,27 @@ public class FontSupport
     
     // </editor-fold>
         
+    public Map createFontAttributes(String styles) {
+        Map attrs = new HashMap();   
+        if (styles == null || styles.length() == 0) 
+            return attrs; 
+        
+        String[] values = styles.trim().split(";");
+        for (String str: values) { 
+            int idx = str.indexOf(':');
+            if (idx <= 0) continue;
+            
+            String key = str.substring(0, idx).trim(); 
+            if (key.length() == 0) continue;
+            
+            String val = str.substring(idx+1).trim();
+            if (val.length() == 0) continue;
+            
+            addAttribute(attrs, key, val); 
+        } 
+        return attrs;
+    }
+    
     public void applyStyles(JComponent component, Map styles) {
         if (component == null || styles == null || styles.isEmpty()) return;
         
@@ -59,24 +80,10 @@ public class FontSupport
             return; 
         }
 
-        Map attrs = new HashMap();         
-        Font oldFont = component.getFont();        
-        String[] values = styles.trim().split(";");
-        for (String str: values) { 
-            int idx = str.indexOf(':');
-            if (idx <= 0) continue;
-            
-            String key = str.substring(0, idx).trim(); 
-            if (key.length() == 0) continue;
-            
-            String val = str.substring(idx+1).trim();
-            if (val.length() == 0) continue;
-            
-            addAttribute(attrs, key, val); 
-        }
-        
+        Font oldFont = component.getFont(); 
+        Map attrs = createFontAttributes(styles); 
         if (!attrs.isEmpty()) component.setFont(oldFont.deriveFont(attrs)); 
-    }
+    } 
     
     private void addAttribute(Map attrs, String key, String val) {
         if (key == null || key.length() == 0) return;

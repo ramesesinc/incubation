@@ -18,89 +18,99 @@ import java.beans.PropertyChangeSupport;
  *
  * @author jaycverg
  */
-public class ControlProperty {
-    
+public class ControlProperty 
+{
     private PropertyChangeSupport support = new PropertyChangeSupport(this);
     
     private String caption = "Caption";
-    private boolean captionSet;
+    private String errorMessage;
+    private String captionFontStyle;     
     private char captionMnemonic;
     private int index;
+    private int captionWidth = 0;    
+    private boolean captionSet;
     private boolean required;
-    private int captionWidth = 0;
     private boolean showCaption = true;
-    private String errorMessage;
-    private Font captionFont;
-    private String captionFontStyle; 
     private Insets cellPadding = new Insets(0,0,0,0);
-    
-    
-    public ControlProperty() {;}
+    private Font captionFont;
     
     public void addPropertyChangeListener(PropertyChangeListener listener) {
+        if (listener == null) return;
+        
+        support.removePropertyChangeListener(listener); 
         support.addPropertyChangeListener(listener);
     }
     
     public String getCaption() { return caption; }    
     public void setCaption(String caption) {
-        support.firePropertyChange("caption", this.caption, caption);
+        String oldvalue = this.caption;
         this.caption = caption;
         this.captionSet = true;
+        support.firePropertyChange("caption", oldvalue, this.caption);        
     }
     
     public boolean isCaptionSet() { return captionSet; }
     
     public char getCaptionMnemonic() { return captionMnemonic; }    
     public void setCaptionMnemonic(char captionMnemonic) {
-        support.firePropertyChange("captionMnemonic", this.captionMnemonic, captionMnemonic);
+        char oldvalue = this.captionMnemonic;
         this.captionMnemonic = captionMnemonic;
+        support.firePropertyChange("captionMnemonic", oldvalue, this.captionMnemonic); 
     }
     
     public int getIndex() { return index; }    
     public void setIndex(int index) {
-        support.firePropertyChange("index", this.index, index);
+        int oldvalue = this.index; 
         this.index = index;
+        support.firePropertyChange("index", oldvalue, this.index);
     }
     
     public boolean isRequired() { return required; }    
     public void setRequired(boolean required) {
-        support.firePropertyChange("required", this.required, required);
+        boolean oldvalue = this.required; 
         this.required = required;
+        support.firePropertyChange("required", oldvalue, this.required);
     }
     
     public int getCaptionWidth() { return captionWidth; }    
     public void setCaptionWidth(int captionWidth) {
-        support.firePropertyChange("captionWidth", this.captionWidth, captionWidth);
+        int oldvalue = this.captionWidth;
         this.captionWidth = captionWidth;
+        support.firePropertyChange("captionWidth", oldvalue, this.captionWidth);
     }
     
     public boolean isShowCaption() { return showCaption; }    
     public void setShowCaption(boolean showCaption) {
-        support.firePropertyChange("showCaption", this.showCaption, showCaption);
+        boolean oldvalue = this.showCaption;
         this.showCaption = showCaption;
+        support.firePropertyChange("showCaption", oldvalue, this.showCaption); 
     }
     
     public String getErrorMessage() { return errorMessage; }    
     public void setErrorMessage(String message) {
-        support.firePropertyChange("errorMessage", this.errorMessage, message);
+        String oldvalue = this.errorMessage;
         this.errorMessage = message;
+        support.firePropertyChange("errorMessage", oldvalue, this.errorMessage);
     }
 
     public Font getCaptionFont() { return captionFont; }
     public void setCaptionFont(Font captionFont) {
-        support.firePropertyChange("captionFont", this.captionFont, captionFont);
+        Font oldvalue = this.captionFont;
         this.captionFont = captionFont;
+        support.firePropertyChange("captionFont", oldvalue, this.captionFont);
     }
     
     public String getCaptionFontStyle() { return captionFontStyle; } 
     public void setCaptionFontStyle(String captionFontStyle) {
+        String oldvalue = this.captionFontStyle;
         this.captionFontStyle = captionFontStyle;
+        support.firePropertyChange("captionFontStyle", oldvalue, this.captionFontStyle);
     }     
 
     public Insets getCellPadding() { return cellPadding; }
     public void setCellPadding(Insets cellPadding) {
-        support.firePropertyChange("cellPadding", this.cellPadding, cellPadding);
+        Insets oldvalue = this.cellPadding;
         this.cellPadding = cellPadding;
-    }
-    
+        support.firePropertyChange("cellPadding", oldvalue, this.cellPadding);
+    }     
 }

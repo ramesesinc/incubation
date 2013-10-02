@@ -87,6 +87,10 @@ public class XLookupField extends IconedTextField implements UILookup, UISelecto
     public XLookupField() 
     {
         super("com/rameses/rcp/icons/search.png");
+        initComponent(); 
+    }    
+    
+    private void initComponent() {
         setOrientation( super.ICON_ON_RIGHT );  
         TextEditorSupport.install(this);
         
@@ -95,8 +99,15 @@ public class XLookupField extends IconedTextField implements UILookup, UISelecto
         
         if (Beans.isDesignTime()) { 
             document.setTextCase(TextCase.NONE); 
+            return;
         } 
-    }    
+        
+        addActionMapping(ACTION_MAPPING_KEY_ESCAPE, new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                try { refresh(); } catch(Throwable t) {;} 
+            }
+        });         
+    }
 
     // <editor-fold defaultstate="collapsed" desc="  Getters/Setters ">
     

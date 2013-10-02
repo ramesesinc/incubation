@@ -39,21 +39,25 @@ public abstract class AbstractIconedTextField extends XTextField implements Acti
     private String orientation = ICON_ON_RIGHT;
     private boolean mouseOverImage = false;
     
-    public AbstractIconedTextField() 
+    public AbstractIconedTextField() {
+        super();
+        initComponent();
+    }
+    
+    public AbstractIconedTextField(String iconPath) 
     {
+        super();
+        initComponent();
+        setIcon(iconPath);
+    }
+    
+    private void initComponent() {
         IconedTextFieldSupport support = new IconedTextFieldSupport();
         addMouseListener(support);
         addMouseMotionListener(support);
         addActionListener(this);
     }
-    
-    public AbstractIconedTextField(String iconPath) 
-    {
-        this();
-        setIcon(iconPath);
-    }
-    
-    
+        
     public abstract void actionPerformed();
     
     

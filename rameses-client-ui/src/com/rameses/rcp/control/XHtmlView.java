@@ -352,8 +352,16 @@ public class XHtmlView extends JEditorPane implements UIControl, ActiveControl
                 
                 if (ClientContext.getCurrentContext().isDebugMode()) t.printStackTrace(); 
             } finally { 
-                done = true; 
+                done = true;                 
             } 
+            
+            Runnable runnable = new Runnable() {
+                public void run() {
+                    root.setCaretPosition(0); 
+                    root.scrollRectToVisible(new Rectangle(0,0,1,1));
+                }
+            };
+            EventQueue.invokeLater(runnable); 
         }    
     }
     

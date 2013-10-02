@@ -95,16 +95,14 @@ public class XOpenerField extends DefaultTextField implements UIInput, UIInputVe
     private Object oldValue;
     private Object value;
 
-    public XOpenerField() 
-    {
+    public XOpenerField() {
         super();
         initComponents();
     }
     
     // <editor-fold defaultstate="collapsed" desc=" initComponents ">  
     
-    private void initComponents() 
-    {
+    private void initComponents() {
         getButtonImpl();        
         super.setDocument(document = new TextDocument());
 
@@ -114,6 +112,12 @@ public class XOpenerField extends DefaultTextField implements UIInput, UIInputVe
 
         document.setTextCase(TextCase.UPPER); 
         trimSpaceOption = TrimSpaceOption.NORMAL;
+        
+        addActionMapping(ACTION_MAPPING_KEY_ESCAPE, new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                try { refresh(); } catch(Throwable t) {;} 
+            }
+        }); 
         
         new KeyboardAction().install(); 
     }

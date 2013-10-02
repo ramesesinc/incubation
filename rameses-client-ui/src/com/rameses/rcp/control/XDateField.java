@@ -26,6 +26,8 @@ import com.rameses.util.ValueUtil;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.beans.Beans;
 import javax.swing.InputVerifier;
 
@@ -45,7 +47,19 @@ public class XDateField extends AbstractDateField implements UIInput, ActiveCont
     private ActionMessage actionMessage;
     
     public XDateField() {
+        super();
+        initComponent(); 
+    }
+    
+    private void initComponent() {
         TextEditorSupport.install(this);
+        if (Beans.isDesignTime()) return;
+        
+        addActionMapping(ACTION_MAPPING_KEY_ESCAPE, new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                try { refresh(); } catch(Throwable t) {;} 
+            }
+        }); 
         
         //set default font
         Font font = ThemeUI.getFont("XTextField.font");
