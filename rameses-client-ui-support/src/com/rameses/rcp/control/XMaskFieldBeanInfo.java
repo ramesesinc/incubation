@@ -37,6 +37,7 @@ public class XMaskFieldBeanInfo extends ComponentBeanInfo.Support
             new PropertyDescriptor("margin", getBeanClass()), 
             new PropertyDescriptor("fontStyle", getBeanClass()), 
             new PropertyDescriptor("disabledTextColor", getBeanClass()), 
+            new PropertyDescriptor("actionCommand", getBeanClass()), 
             
             new PropertyDescriptor("caption", getBeanClass()),
             new PropertyDescriptor("captionFont", getBeanClass()),
