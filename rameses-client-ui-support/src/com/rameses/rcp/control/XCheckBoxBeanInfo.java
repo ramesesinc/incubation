@@ -35,6 +35,8 @@ public class XCheckBoxBeanInfo extends ComponentBeanInfo.Support
             new PropertyDescriptor("border", getBeanClass()),
             new PropertyDescriptor("margin", getBeanClass()),
             new PropertyDescriptor("fontStyle", getBeanClass()),
+            new PropertyDescriptor("margin", getBeanClass()),
+            new PropertyDescriptor("mnemonic", getBeanClass()),
             
             new PropertyDescriptor("caption", getBeanClass()),
             new PropertyDescriptor("captionFont", getBeanClass()),

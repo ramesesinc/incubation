@@ -33,6 +33,8 @@ public class XRadioBeanInfo extends ComponentBeanInfo.Support
         return new PropertyDescriptor[] {
             new PropertyDescriptor("text", getBeanClass()),
             new PropertyDescriptor("fontStyle", getBeanClass()),
+            new PropertyDescriptor("margin", getBeanClass()),
+            new PropertyDescriptor("mnemonic", getBeanClass()),            
             
             new PropertyDescriptor("caption", getBeanClass()),
             new PropertyDescriptor("captionFont", getBeanClass()),
