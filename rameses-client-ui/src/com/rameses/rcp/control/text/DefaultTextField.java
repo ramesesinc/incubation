@@ -9,6 +9,7 @@
 
 package com.rameses.rcp.control.text;
 
+import com.rameses.rcp.common.MsgBox;
 import com.rameses.rcp.support.FontSupport;
 import com.rameses.rcp.support.ThemeUI;
 import java.awt.Color;
@@ -28,7 +29,9 @@ import java.util.Map;
 import javax.swing.AbstractAction;
 import javax.swing.InputMap;
 import javax.swing.InputVerifier;
+import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.JRootPane;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.UIManager;
@@ -66,13 +69,13 @@ public class DefaultTextField extends JTextField
         actionMap = new HashMap(); 
                 
         InputMap inputMap = getInputMap(JComponent.WHEN_FOCUSED);
-        KeyStroke escKey = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, JComponent.WHEN_FOCUSED); 
+        KeyStroke escKey = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0); 
         inputMap.put(escKey, ACTION_MAPPING_KEY_ESCAPE); 
         getActionMap().put(ACTION_MAPPING_KEY_ESCAPE, new EscapeActionSupport()); 
         
-        KeyStroke enterKey = KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, JComponent.WHEN_FOCUSED); 
+        KeyStroke enterKey = KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0); 
         inputMap.put(enterKey, ACTION_MAPPING_KEY_ENTER); 
-        getActionMap().put(ACTION_MAPPING_KEY_ENTER, new EnterActionSupport());         
+        getActionMap().put(ACTION_MAPPING_KEY_ENTER, new EnterActionSupport());     
         
         initDefaults(); 
         resetInputVerifierProxy();         
@@ -375,10 +378,24 @@ public class DefaultTextField extends JTextField
         
         public void actionPerformed(ActionEvent e) {
             List<ActionListener> listeners = root.actionMap.get(root.ACTION_MAPPING_KEY_ENTER); 
-            if (listeners == null || listeners.isEmpty()) return;
+            if (listeners != null) {
+                for (ActionListener al : listeners) { 
+                    try { 
+                        al.actionPerformed(e);  
+                    } catch(Throwable x) {
+                        MsgBox.err(x); 
+                        return; 
+                    }
+                } 
+            }
             
-            for (ActionListener al : listeners) { 
-                al.actionPerformed(e); 
+            //fire the default button if any
+            if (listeners == null || listeners.isEmpty()) { 
+                JRootPane rootPane = root.getRootPane();
+                if (rootPane == null) return;
+
+                JButton btn = rootPane.getDefaultButton(); 
+                if (btn != null) btn.doClick(); 
             } 
         } 
     } 

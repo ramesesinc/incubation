@@ -18,6 +18,8 @@ import java.beans.Beans;
 import java.util.EventObject;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.swing.JCheckBox;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
@@ -278,6 +280,58 @@ public class XCheckBox extends JCheckBox implements UIInput, ActiveControl
         this.valueType = pi.getValueType();
         setCheckValue(pi.getCheckValue());
         setUncheckValue(pi.getUncheckValue()); 
+    } 
+
+    public void setMnemonic(char mnemonic) {
+        super.setMnemonic(mnemonic);
+        resolveDisplayMnemonic();
+    } 
+    
+    public void setText(String text) {
+        super.setText(text); 
+        resolveDisplayMnemonic();
+    }
+    
+    private void resolveDisplayMnemonic() {
+        char mnemonic = (char) getMnemonic();
+        if (mnemonic == '\u0000') return;
+        
+        String text = getText();
+        if (text == null) return;
+                
+        String stext = text.toLowerCase();
+        if (!stext.trim().matches("<html>.*</html>")) return;
+        
+        char cval = Character.toLowerCase(mnemonic);        
+        Pattern p = Pattern.compile("<.*?>");
+        Matcher m = p.matcher(text); 
+        int startindex = 0;
+        int locIndex = -1;
+        while (m.find()) {
+            int start = m.start();
+            int end = m.end();
+            if (start > startindex) {
+                char[] chars = stext.substring(startindex, start).toCharArray();
+                for (int i=0; i<chars.length; i++) {
+                    if (chars[i] == cval) {
+                        locIndex = startindex+i; 
+                        break; 
+                    } 
+                } 
+            } 
+
+            if (locIndex >= 0) break; 
+
+            startindex = end;
+        } 
+
+        if (locIndex < 0) return;
+
+        StringBuffer sb = new StringBuffer(); 
+        sb.append(text.substring(0, locIndex));
+        sb.append("<u>" + text.charAt(locIndex) + "</u>"); 
+        sb.append(text.substring(locIndex+1));
+        super.setText(sb.toString());          
     }
     
     // </editor-fold>

@@ -72,8 +72,7 @@ public class XComboBox extends JComboBox implements UIInput, Validatable, Active
     private Class fieldType;    
     private boolean updating;    
         
-    public XComboBox() 
-    {
+    public XComboBox() {
         initComponents();
     }
     
