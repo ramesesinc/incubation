@@ -20,6 +20,7 @@ import com.rameses.platform.interfaces.ViewContext;
 import com.rameses.rcp.annotations.Close;
 import com.rameses.rcp.common.Validator;
 import com.rameses.rcp.common.ValidatorEvent;
+import com.rameses.rcp.common.ViewHandler;
 import com.rameses.rcp.ui.UIFocusableContainer;
 import com.rameses.util.BusinessException;
 import com.rameses.util.ValueUtil;
@@ -168,6 +169,7 @@ public class Binding
         if (this.depends != null) this.depends.clear();
         if (this.focusableControls != null) this.focusableControls.clear();
         if (this.listeners != null) this.listeners.clear();
+        if (this.viewHandlers != null) this.viewHandlers.clear(); 
     } 
     
     // <editor-fold defaultstate="collapsed" desc="  control binding  ">
@@ -682,7 +684,18 @@ public class Binding
      */
     public void focus(String name) {
         focusComponentName = name;
-    }
+    } 
+    
+    public void requestFocus(String name) {
+        if (name == null) return; 
+
+        UIControl c = controlsIndex.get(name);
+        if (c == null) return;
+
+        Component comp = (Component) c;
+        if (comp.isEnabled() && comp.isFocusable()) 
+            comp.requestFocusInWindow(); 
+    } 
     
     /**
      * returns the UIControl w/ the specified name
@@ -947,6 +960,41 @@ public class Binding
             initAnnotatedMethods( o, superClazz );
         }
     }
+    
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" ViewHandler helper methods ">
+    
+    private List<ViewHandler> viewHandlers = new ArrayList();
+    
+    public void addViewHandler(ViewHandler handler) {
+        if (handler == null) return;
+        
+        viewHandlers.remove(handler); 
+        viewHandlers.add(handler); 
+    } 
+    
+    public void removeViewHandler(ViewHandler handler) {
+        if (handler != null) viewHandlers.remove(handler); 
+    }
+    
+    void fireActivatePage(Object name) {
+        Object bean = getBean();
+        if (bean instanceof ViewHandler) { 
+            addViewHandler((ViewHandler)bean); 
+        } 
+        //notify handlers
+        for (ViewHandler handler: viewHandlers) {
+            handler.activatePage(this, name); 
+        }
+    }
+    
+    void fireAfterRefresh(Object name) {
+        //notify handlers
+        for (ViewHandler handler: viewHandlers) {
+            handler.afterRefresh(this, name); 
+        } 
+    }    
     
     // </editor-fold>
         

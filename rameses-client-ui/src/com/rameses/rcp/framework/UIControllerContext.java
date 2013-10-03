@@ -106,6 +106,8 @@ public class UIControllerContext {
             
             binding.init();
             binding.setController(controller);
+            viewPanel.putClientProperty("View.name", view.getName()); 
+            viewPanel.putClientProperty("View.template", view.getTemplate()); 
         }
         catch(RuntimeException re) {
             throw re;

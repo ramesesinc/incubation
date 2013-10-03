@@ -75,10 +75,19 @@ public class UIControllerPanel extends JPanel implements NavigatablePanel, ViewC
             UIViewPanel p = current.getCurrentView();
             Binding binding = p.getBinding();
             binding.setViewContext(this);
-            add( p );
-            p.refresh();
-            binding.focusFirstInput();
-        }
+            
+            Object viewname = p.getClientProperty("View.name"); 
+            boolean activated = "true".equals(p.getClientProperty("UIViewPanel.activated")+"");
+            if (!activated) {
+                binding.fireActivatePage(viewname); 
+                p.putClientProperty("UIViewPanel.activated", "true"); 
+            } 
+            
+            add(p); 
+            p.refresh(); 
+            binding.focusFirstInput(); 
+            binding.fireAfterRefresh(viewname);  
+        } 
         SwingUtilities.updateComponentTreeUI(this);
     }
     
