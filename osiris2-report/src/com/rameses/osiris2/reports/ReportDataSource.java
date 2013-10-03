@@ -22,8 +22,9 @@ public class ReportDataSource implements JRDataSource
         propertyResolver = PropertyResolver.getInstance();
     }
     
-    public void setSource(Object src) {
-        this.source = src;
+    public Object getSource() { return source; } 
+    public void setSource(Object src) { 
+        this.source = src; 
         if( src == null ) {
             iterator = (new ArrayList()).iterator();
         }

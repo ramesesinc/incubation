@@ -57,7 +57,7 @@ public abstract class ReportModel {
                 mainReport = ReportUtil.getJasperReport(getReportName());
             }
             
-            Map conf = new HashMap();
+            Map conf = new HashMap(); 
             SubReport[] subReports = getSubReports();
             
             if (subReports != null) {
@@ -74,7 +74,9 @@ public abstract class ReportModel {
                 ds = new ReportDataSource(data);
             } else {
                 ds = new JREmptyDataSource();
-            }
+            } 
+            
+            conf.put("REPORT_UTIL", new ReportDataUtil());             
             return JasperFillManager.fillReport(mainReport, conf, ds);
         } 
         catch (RuntimeException re) {
