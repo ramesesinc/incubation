@@ -67,17 +67,20 @@ public class DefaultTextField extends JTextField
     private void initComponent() { 
         setPreferredSize(new Dimension(100,20));         
         actionMap = new HashMap(); 
-                
+
+        initDefaults(); 
+        
         InputMap inputMap = getInputMap(JComponent.WHEN_FOCUSED);
         KeyStroke escKey = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0); 
         inputMap.put(escKey, ACTION_MAPPING_KEY_ESCAPE); 
         getActionMap().put(ACTION_MAPPING_KEY_ESCAPE, new EscapeActionSupport()); 
         
-        KeyStroke enterKey = KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0); 
-        inputMap.put(enterKey, ACTION_MAPPING_KEY_ENTER); 
-        getActionMap().put(ACTION_MAPPING_KEY_ENTER, new EnterActionSupport());     
+        if (isEnabledEnterActionSupport()) { 
+            KeyStroke enterKey = KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0);
+            inputMap.put(enterKey, ACTION_MAPPING_KEY_ENTER);
+            getActionMap().put(ACTION_MAPPING_KEY_ENTER, new EnterActionSupport()); 
+        }
         
-        initDefaults(); 
         resetInputVerifierProxy();         
         focusBackground = ThemeUI.getColor("XTextField.focusBackground");
         
@@ -87,7 +90,9 @@ public class DefaultTextField extends JTextField
     protected void initDefaults() {
         //to be implemented by the sub-class
     }
-        
+
+    protected boolean isEnabledEnterActionSupport() { return true; } 
+    
     protected InputVerifier getMainInputVerifier() { return null; } 
     protected InputVerifier getChildInputVerifier() { return null; } 
     
