@@ -198,8 +198,9 @@ public class EditorListModel extends AbstractListDataProvider
             int dataIndex = getDataList().indexOf(li.getItem());             
             if (dataIndex < 0 && itemIndex == index) refresh(false); 
         }
-    }
+    }        
 
+    // <editor-fold defaultstate="collapsed" desc=" Custom Exceptions ">  
     
     public static class BeforeColumnUpdateException extends RuntimeException { 
         
@@ -222,4 +223,32 @@ public class EditorListModel extends AbstractListDataProvider
             super(caused); 
         } 
     }    
+    
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" UIEditorProvider interface and proxy methods ">        
+
+    public static interface UIEditorProvider {
+        void refreshCurrentEditor(ListItem li);        
+    } 
+    
+    
+    private UIEditorProvider _uiEditorProvider; 
+    
+    public void setUIEditorProvider(UIEditorProvider uiEditorProvider) { 
+        this._uiEditorProvider = uiEditorProvider; 
+    }
+    
+    public final void refreshEditedCell() {
+        refreshCurrentEditor(); 
+    }
+    
+    public final void refreshCurrentEditor() {
+        if (_uiEditorProvider == null) return;
+        
+        ListItem li = getSelectedItem(); 
+        if (li != null) _uiEditorProvider.refreshCurrentEditor(li); 
+    }    
+    
+    // </editor-fold>    
 }

@@ -215,7 +215,10 @@ public class DataTableComponent extends JTable implements TableControl
         { 
             oldDataProvider.removeHandler(propertyHandler); 
             oldDataProvider.removeHandler(tableModelHandler);
-            oldDataProvider.setUIProvider(null); 
+            oldDataProvider.setUIProvider(null);             
+            if (oldDataProvider instanceof EditorListModel) {
+                ((EditorListModel) oldDataProvider).setUIEditorProvider(null); 
+            }
             uninstall(oldDataProvider); 
         }
         
@@ -238,7 +241,10 @@ public class DataTableComponent extends JTable implements TableControl
         if (dataProvider != null) 
         {
             dataProvider.addHandler(tableModelHandler); 
-            dataProvider.setUIProvider(new DefaultUIProvider());             
+            dataProvider.setUIProvider(new DefaultUIProvider()); 
+            if (editorModel != null) { 
+                editorModel.setUIEditorProvider(new DefaultUIEditorProvider()); 
+            } 
             install(dataProvider);
         } 
         
@@ -1849,4 +1855,21 @@ public class DataTableComponent extends JTable implements TableControl
     
     // </editor-fold>
     
+    // <editor-fold defaultstate="collapsed" desc=" DefaultUIEditorProvider "> 
+    
+    private class DefaultUIEditorProvider implements EditorListModel.UIEditorProvider 
+    {
+        DataTableComponent root = DataTableComponent.this;
+        
+        public void refreshCurrentEditor(ListItem li) 
+        {
+            if (currentEditor == null || !currentEditor.isVisible() || !currentEditor.isEnabled()) return; 
+            if (!(currentEditor instanceof UIInput)) return; 
+            
+            UIInput uiinput = (UIInput) currentEditor; 
+            uiinput.refresh(); 
+        } 
+    }
+    
+    // </editor-fold>
 }
