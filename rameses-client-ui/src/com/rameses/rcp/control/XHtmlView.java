@@ -50,6 +50,8 @@ import javax.swing.UIManager;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 import javax.swing.text.AttributeSet;
+import javax.swing.text.Document;
+import javax.swing.text.html.HTMLDocument;
 
 /**
  *
@@ -103,6 +105,18 @@ public class XHtmlView extends JEditorPane implements UIControl, ActiveControl
         new FontSupport().applyStyles(this, fontStyle);
     }
 
+    public void setDocument(Document doc) {
+        try { 
+            if (doc instanceof HTMLDocument) {
+                ClassLoader cloader = ClientContext.getCurrentContext().getClassLoader();
+                URL url = cloader.getResource("images"); 
+                if (url != null) ((HTMLDocument) doc).setBase(url); 
+            } 
+        } catch(Throwable t) {;}
+        
+        super.setDocument(doc); 
+    }
+    
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc=" UIControl implementation "> 
