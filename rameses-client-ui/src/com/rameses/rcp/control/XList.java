@@ -32,6 +32,7 @@ import java.util.Collection;
 import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
+import javax.swing.DefaultListSelectionModel;
 import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -45,7 +46,7 @@ import javax.swing.UIManager;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-public class XList extends JList implements UIControl 
+public class XList extends JList implements UIControl  
 {
     private ListSelectionSupport selectionSupport;    
     
@@ -90,7 +91,7 @@ public class XList extends JList implements UIControl
                     fireOpenItem();
                 }
             }, KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), JComponent.WHEN_FOCUSED);
-        }        
+        }  
     }
     
     // <editor-fold defaultstate="collapsed" desc=" Getters/Setters ">
@@ -357,6 +358,27 @@ public class XList extends JList implements UIControl
     
     // </editor-fold>
     
+    // <editor-fold defaultstate="collapsed" desc=" ListSelectionModelImpl (class) ">
+    
+    private class ListSelectionModelImpl extends DefaultListSelectionModel 
+    {
+        XList root = XList.this;
+        
+        public void moveLeadSelectionIndex(int leadIndex) {
+            if (!root.beforeSelectionIndex(leadIndex)) return;
+            
+            super.moveLeadSelectionIndex(leadIndex);
+        }
+        
+        public void setSelectionInterval(int index0, int index1) { 
+            if (!root.beforeSelectionIndex(index1)) return;
+            
+            super.setSelectionInterval(index0, index1); 
+        }
+    }
+    
+    // </editor-fold>
+    
     // <editor-fold defaultstate="collapsed" desc=" DefaultCellRenderer (class) ">
     
     private class DefaultCellRenderer implements ListCellRenderer 
@@ -573,15 +595,29 @@ public class XList extends JList implements UIControl
     
     // </editor-fold>
 
-    public void setSelectionInterval(int anchor, int lead) {
-        if (listPaneModel != null) {
-            try {
-                Object o = (lead < 0? null: getModel().getElementAt(lead)); 
-                if (!listPaneModel.beforeSelect(o)) return;
-            } catch(Throwable t) { 
-                MsgBox.err(t); 
-            }
-        }
-        super.setSelectionInterval(anchor, lead); 
+    // <editor-fold defaultstate="collapsed" desc=" override methods ">
+
+    protected ListSelectionModel createSelectionModel() { 
+        return new ListSelectionModelImpl(); 
     }
+
+    private boolean beforeSelectionIndex(int lead) {
+        if (listPaneModel == null) return true;
+        
+        try {
+            Object o = (lead < 0? null: getModel().getElementAt(lead)); 
+            if (!listPaneModel.beforeSelect(o)) return false;
+        } catch(Throwable t) { 
+            MsgBox.err(t); 
+        }         
+        return true; 
+    }
+    
+    public void setSelectionInterval(int anchor, int lead) {
+        if (!beforeSelectionIndex(lead)) return;
+        
+        super.setSelectionInterval(anchor, lead); 
+    } 
+    
+    // </editor-fold>
 }
