@@ -50,6 +50,8 @@ import javax.swing.UIManager;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 import javax.swing.text.AttributeSet;
+import javax.swing.text.Document;
+import javax.swing.text.html.HTMLDocument;
 
 /**
  *
@@ -103,6 +105,18 @@ public class XHtmlView extends JEditorPane implements UIControl, ActiveControl
         new FontSupport().applyStyles(this, fontStyle);
     }
 
+    public void setDocument(Document doc) {
+        try { 
+            if (doc instanceof HTMLDocument) {
+                ClassLoader cloader = ClientContext.getCurrentContext().getClassLoader();
+                URL url = cloader.getResource("images"); 
+                if (url != null) ((HTMLDocument) doc).setBase(url); 
+            } 
+        } catch(Throwable t) {;}
+        
+        super.setDocument(doc); 
+    }
+    
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc=" UIControl implementation "> 
@@ -138,6 +152,7 @@ public class XHtmlView extends JEditorPane implements UIControl, ActiveControl
                 url = new URL(value.toString()); 
             } else { 
                 setText(value.toString()); 
+                setCaretPosition(0); 
             } 
             
             if (newModel != null) newModel.setProvider(new ViewProviderImpl());                
@@ -328,8 +343,8 @@ public class XHtmlView extends JEditorPane implements UIControl, ActiveControl
     
     // <editor-fold defaultstate="collapsed" desc=" URLWorkerTask (class) "> 
     
-    private class URLWorkerTask extends Task { 
-        
+    private class URLWorkerTask extends Task 
+    { 
         XHtmlView root = XHtmlView.this;
         
         private URL url;
@@ -346,7 +361,9 @@ public class XHtmlView extends JEditorPane implements UIControl, ActiveControl
         public void execute() {
             try {
                 root.setText("<html><body><b>Loading...</b></body></html>");
-                if (url != null) root.setPage(url);                 
+                if (url != null) root.setPage(url); 
+                
+                root.setCaretPosition(0);
             } catch(Throwable t) { 
                 root.setText("<html><body color=\"red\">error caused by "+t.getMessage()+"</body></html>"); 
                 
@@ -354,14 +371,6 @@ public class XHtmlView extends JEditorPane implements UIControl, ActiveControl
             } finally { 
                 done = true;                 
             } 
-            
-            Runnable runnable = new Runnable() {
-                public void run() {
-                    root.setCaretPosition(0); 
-                    root.scrollRectToVisible(new Rectangle(0,0,1,1));
-                }
-            };
-            EventQueue.invokeLater(runnable); 
         }    
     }
     
