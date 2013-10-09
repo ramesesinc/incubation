@@ -14,7 +14,6 @@ import com.rameses.osiris3.core.MainContext;
 import com.rameses.osiris3.core.OsirisServer;
 import com.rameses.osiris3.script.ScriptRunnable;
 import com.rameses.osiris3.server.common.AbstractServlet;
-import com.rameses.osiris3.server.common.ServerConf;
 import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -47,7 +46,7 @@ public class ServiceInvokerServlet extends AbstractServlet {
     
     
     public void init() throws ServletException {
-        taskPool = Executors.newFixedThreadPool(ServerConf.getInstance().getTaskPoolSize());
+        taskPool = Executors.newFixedThreadPool(getTaskPoolSize());
     }
     
     private class ContinuationListener extends ScriptRunnable.AbstractListener {
@@ -60,7 +59,7 @@ public class ServiceInvokerServlet extends AbstractServlet {
         public void start() {
             continuation = ContinuationSupport.getContinuation(req);
             if( continuation.isInitial() ) {
-                continuation.setTimeout( ServerConf.getInstance().getBlockingTimeout()  );
+                continuation.setTimeout( getBlockingTimeout()  );
                 continuation.suspend();
             }
         }

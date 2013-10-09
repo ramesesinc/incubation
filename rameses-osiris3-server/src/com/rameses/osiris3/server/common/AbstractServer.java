@@ -16,6 +16,8 @@ package com.rameses.osiris3.server.common;
 public abstract class AbstractServer implements Runnable {
     
     protected int port;
+    private long blockingTimeout;
+    private int taskPoolSize;
     
     public abstract void start() throws Exception;
     public abstract void stop() throws Exception;
@@ -24,7 +26,22 @@ public abstract class AbstractServer implements Runnable {
         return port;
     }
     
+    public long getBlockingTimeout() {
+        return blockingTimeout;
+    }
 
+    public void setBlockingTimeout(long blockingTimeout) {
+        this.blockingTimeout = blockingTimeout;
+    }
+
+    public int getTaskPoolSize() {
+        return taskPoolSize;
+    }
+
+    public void setTaskPoolSize(int taskPoolSize) {
+        this.taskPoolSize = taskPoolSize;
+    }
+    
     public void run() {
         try {
             Runtime.getRuntime().addShutdownHook(new ServerShutdown());
@@ -45,4 +62,8 @@ public abstract class AbstractServer implements Runnable {
         }
         
     }
+
+  
+
+  
 }

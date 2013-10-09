@@ -48,7 +48,10 @@ public class OsirisTransactionServer implements ServerLoader  {
     private Server server;
     private Map conf;
     private String home;
-    private int port;
+    
+    private int port = 8090;
+    private long blockingTimeout =  20000;
+    private int taskPoolSize = 100;
     
     public void init(String baseUrl, Map info) throws Exception {
 
@@ -57,10 +60,16 @@ public class OsirisTransactionServer implements ServerLoader  {
         if(!conf.containsKey("cluster")) {
             conf.put("cluster", "osiris3");
         }
-        
-        port = 8090;
         try {
             port = Integer.parseInt(  this.conf.get("port")+"" );
+        } catch(Exception e) {;}
+
+        try {
+            blockingTimeout = Long.parseLong(  this.conf.get("blockingTimeout")+"" );
+        } catch(Exception e) {;}
+
+        try {
+            taskPoolSize = Integer.parseInt(  this.conf.get("taskPoolSize")+"" );
         } catch(Exception e) {;}
         
         home = (String)conf.get( "home.url" );
@@ -91,6 +100,8 @@ public class OsirisTransactionServer implements ServerLoader  {
         Iterator<AbstractServlet> iter = Service.providers( AbstractServlet.class, getClass().getClassLoader() );
         while(iter.hasNext()) {
             AbstractServlet ac = iter.next();
+            ac.setBlockingTimeout( blockingTimeout );
+            ac.setTaskPoolSize( taskPoolSize );
             context.addServlet( new ServletHolder(ac), ac.getMapping() );
         }
         server.setHandler(context);

@@ -23,6 +23,8 @@ import javax.servlet.http.HttpServletResponse;
  */
 public abstract class AbstractServlet extends HttpServlet {
     
+    private long blockingTimeout;
+    private int taskPoolSize; 
     public abstract String getMapping();
     
     protected Object filterOutput( Object obj ) throws Exception {
@@ -81,6 +83,22 @@ public abstract class AbstractServlet extends HttpServlet {
         finally {
             try { out.close(); } catch (Exception ex) {;}
         }
+    }
+
+    public long getBlockingTimeout() {
+        return blockingTimeout;
+    }
+
+    public void setBlockingTimeout(long blockingTimeout) {
+        this.blockingTimeout = blockingTimeout;
+    }
+
+    public int getTaskPoolSize() {
+        return taskPoolSize;
+    }
+
+    public void setTaskPoolSize(int taskPoolSize) {
+        this.taskPoolSize = taskPoolSize;
     }
     
     
