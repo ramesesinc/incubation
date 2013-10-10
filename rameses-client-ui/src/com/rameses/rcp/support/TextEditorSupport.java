@@ -3,7 +3,6 @@ package com.rameses.rcp.support;
 import java.awt.Insets;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
-import javax.swing.UIManager;
 import javax.swing.text.JTextComponent;
 
 public class TextEditorSupport 
@@ -22,14 +21,7 @@ public class TextEditorSupport
     private TextEditorSupport(JTextComponent component) 
     {
         this.component = component;
-        
-        Insets margin = UIManager.getInsets("TextField.margin");
-        if (margin != null) 
-        {
-            Insets ins = new Insets(margin.top, margin.left, margin.bottom, margin.right);
-            component.setMargin(ins);
-        }
-
+        component.setMargin(new Insets(1,5,2,4)); 
         component.addFocusListener(new SupportFocusListener()); 
         component.putClientProperty("TextField.focusBackground", ThemeUI.getColor("XTextField.focusBackground"));
     }

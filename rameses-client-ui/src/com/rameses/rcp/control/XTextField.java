@@ -11,7 +11,6 @@ import com.rameses.rcp.control.text.DefaultTextField;
 import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.framework.ClientContext;
 import com.rameses.rcp.support.TextDocument;
-import com.rameses.rcp.support.TextEditorSupport;
 import com.rameses.rcp.support.ThemeUI;
 import com.rameses.rcp.ui.ActiveControl;
 import com.rameses.rcp.ui.ControlProperty;
@@ -72,7 +71,6 @@ public class XTextField extends DefaultTextField implements UIInput, Validatable
     
     private void initComponent() {
         document.setTextCase(TextCase.UPPER);
-        TextEditorSupport.install(this);
 
         actionCommandInvoker = new ActionCommandInvoker();        
         addActionMapping(ACTION_MAPPING_KEY_ESCAPE, new ActionListener() {

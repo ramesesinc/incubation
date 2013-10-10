@@ -8,7 +8,6 @@ import com.rameses.rcp.control.text.AbstractNumberDocument;
 import com.rameses.rcp.control.text.AbstractNumberField;
 import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.framework.ClientContext;
-import com.rameses.rcp.support.TextEditorSupport;
 import com.rameses.rcp.ui.ActiveControl;
 import com.rameses.rcp.ui.ControlProperty;
 import com.rameses.rcp.ui.UIInput;
@@ -58,7 +57,6 @@ public class XDecimalField extends AbstractNumberField implements UIInput, Valid
     } 
     
     private void initComponent() {
-        TextEditorSupport.install(this); 
         if (Beans.isDesignTime()) return;
         
         actionCommandInvoker = new ActionCommandInvoker(); 

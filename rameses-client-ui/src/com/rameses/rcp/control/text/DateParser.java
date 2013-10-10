@@ -57,17 +57,20 @@ public class DateParser {
             if (sval.matches("[\\d]{4,4}-[\\d]{1,2}-[\\d]{1,2}")) {
                 //year-month-day
                 return java.sql.Date.valueOf(sval); 
+                
             } else if (sval.matches("[\\d]{4,4}-[\\d]{1,2}")) {
                 //year-month
                 String[] arr = sval.split("-");
                 String syear = arr[0];
                 String smonth = fillLeadingZeros(arr[1], 2);
                 String sday = currentDate.toString().split("-")[2];
-                return java.sql.Date.valueOf(syear + "-" + smonth + "-" + sday);
+                return java.sql.Date.valueOf(syear + "-" + smonth + "-" + sday); 
+                
             } else if (sval.matches("[\\d]{1,2}-[\\d]{1,2}-[\\d]{4,4}")) {
                 //month-day-year
                 String[] arr = sval.split("-");
                 return java.sql.Date.valueOf(arr[2]+"-"+arr[0]+"-"+arr[1]); 
+                
             } else if (sval.matches("[\\d]{1,2}-[\\d]{1,2}-[\\d]{1,2}")) {                
                 //month-day-year
                 String[] arr = sval.split("-");
@@ -84,23 +87,26 @@ public class DateParser {
                     syear = fillLeadingZeros(num1+"", 2) + fillLeadingZeros(syear, 2);  
                 } 
                 return java.sql.Date.valueOf(syear + "-" + smonth + "-" + sday); 
+                
             } else if (sval.matches("[\\d]{1,2}-[\\d]{1,2}")) {
                 String[] arr = sval.split("-");
                 String syear = currentDate.toString().split("-")[0];
                 String smonth = fillLeadingZeros(arr[0], 2);
                 String sday = fillLeadingZeros(arr[1], 2);
-                return java.sql.Date.valueOf(syear + "-" + smonth + "-" + sday);                
+                return java.sql.Date.valueOf(syear + "-" + smonth + "-" + sday); 
+                
             } else if (sval.matches("[a-zA-Z]{3,3}-[\\d]{1,2}")) {
                 //jan 1, jan 01
                 String[] arr = sval.split("-");
-                String smonth = months.get(arr[0]);
+                String smonth = months.get(arr[0].toLowerCase());
                 String sday = fillLeadingZeros(arr[1], 2);
                 String syear = currentDate.toString().split("-")[0];
                 return java.sql.Date.valueOf(syear + "-" + smonth + "-" + sday);
+                
             } else if (sval.matches("[a-zA-Z]{3,3}-[\\d]{1,2}-[\\d]{1,2}")) {
                 //jan 1 98, jan 01 98
                 String[] arr = sval.split("-");
-                String smonth = months.get(arr[0]);
+                String smonth = months.get(arr[0].toLowerCase());
                 String sday = fillLeadingZeros(arr[1], 2);
                 String syear = arr[2];
                 if (syear.length() <= 2) {
@@ -112,6 +118,14 @@ public class DateParser {
                     
                     syear = fillLeadingZeros(num1+"", 2) + fillLeadingZeros(syear, 2);  
                 }                 
+                return java.sql.Date.valueOf(syear + "-" + smonth + "-" + sday);
+                
+            } else if (sval.matches("[a-zA-Z]{3,3}-[\\d]{1,2}-[\\d]{4,4}")) {
+                //jan 1 98, jan 01 98
+                String[] arr = sval.split("-");
+                String smonth = months.get(arr[0].toLowerCase());
+                String sday = fillLeadingZeros(arr[1], 2);
+                String syear = arr[2];
                 return java.sql.Date.valueOf(syear + "-" + smonth + "-" + sday);
             }
         }
