@@ -1,7 +1,8 @@
 {
-  caption:'empty',
+  caption:'EMPTY',
   description: 'returns true if value is null or blank if string or 0 if number',
   code: 'com.rameses.functions.LogicalFunc.empty',
-  signature: '@empty( value )', 
+  title: '@EMPTY( value )', 
+  signature: '@EMPTY( | )', 
   group: 'logical' 
 }

@@ -21,6 +21,8 @@ import java.util.Properties;
 import org.drools.KnowledgeBase;
 import org.drools.builder.KnowledgeBuilder;
 import org.drools.builder.KnowledgeBuilderConfiguration;
+import org.drools.builder.KnowledgeBuilderError;
+import org.drools.builder.KnowledgeBuilderErrors;
 import org.drools.builder.KnowledgeBuilderFactory;
 import org.drools.builder.ResourceType;
 import org.drools.io.ResourceFactory;
@@ -109,6 +111,15 @@ public class RuleContext {
     public void addRulePackage(Reader reader) throws Exception {
         KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder( knowledgeBase, conf );
         kbuilder.add( ResourceFactory.newReaderResource(reader) , ResourceType.DRL );
+        KnowledgeBuilderErrors  errs = kbuilder.getErrors();
+        StringBuffer sb = new StringBuffer();
+        if(errs.size()>0) {
+            for(KnowledgeBuilderError e: errs) {
+                sb.append( e.getMessage() + "\n");
+            }
+        }
+        if(sb.length()>0)
+            throw new Exception(sb.toString());
         knowledgeBase.addKnowledgePackages( kbuilder.getKnowledgePackages() );
     }
     

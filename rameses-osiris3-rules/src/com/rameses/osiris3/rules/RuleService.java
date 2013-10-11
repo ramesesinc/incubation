@@ -113,6 +113,8 @@ public class RuleService extends ContextService {
         kbase.addRulePackage( reader );
     }
     
+   
+    
     public void removeRulePackage( String ruleContextName, String packageName ) throws Exception {
         RuleContext kbase = getRuleContext(ruleContextName);
         kbase.removeRulePackage( packageName );
@@ -197,8 +199,10 @@ public class RuleService extends ContextService {
                     RuleAction ac = (RuleAction)globals;
                     try {
                         session.setGlobal(ac.getName(), ac);
-                    } catch(Exception ign){
+                    } 
+                    catch(Exception ign){
                         System.out.println(ign.getMessage());
+                        //ign.printStackTrace();
                     }
                 } else if( globals instanceof Map ) {
                     Map g = (Map)globals;

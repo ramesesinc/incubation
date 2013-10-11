@@ -1,7 +1,8 @@
 {
-  caption:'fixed',
+  caption:'FIXED',
   description: 'makes value a whole number, decimals are stripped off if any',
   code: 'com.rameses.functions.NumberFunc.fixed',
-  signature: '@fixed( value )',
+  title: '@FIXED( value )',
+  signature: '@FIXED( | )',
   group: 'number'  
 }

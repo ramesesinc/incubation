@@ -1,7 +1,8 @@
 {
-  caption:'iif',
+  caption:'IIF',
   description: 'if cond is true value 1 is returned otherwise value2',
   code: 'com.rameses.functions.LogicalFunc.iif',
-  signature: '@iif( cond, value1, value2 )',
+  title: '@IIF( cond, value1, value2 )',
+  signature: '@IIF( |, ,  )',
   group: 'logical'  
 }

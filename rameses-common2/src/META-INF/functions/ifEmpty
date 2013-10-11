@@ -1,7 +1,8 @@
 {
-  caption:'ifEmpty',
+  caption:'IFEMPTY',
   description: 'if var is empty, first value1 is returned if not the value2',
   code: 'com.rameses.functions.LogicalFunc.ifEmpty',
-  signature: '@ifEmpty( var, value1, value2 )',
+  title: '@IFEMPTY( value1, value2 )',
+  signature: '@IFEMPTY( |, )',
   group: 'logical'  
 }
