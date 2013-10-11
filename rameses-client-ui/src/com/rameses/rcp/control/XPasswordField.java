@@ -4,7 +4,6 @@ import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.control.text.DefaultPasswordField;
 import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.framework.ClientContext;
-import com.rameses.rcp.support.TextEditorSupport;
 import com.rameses.rcp.ui.ActiveControl;
 import com.rameses.rcp.ui.ControlProperty;
 import com.rameses.rcp.ui.UIInput;
@@ -37,7 +36,6 @@ public class XPasswordField extends DefaultPasswordField implements UIInput, Act
     private boolean isHintShown;
             
     protected void initDefaults() {
-        TextEditorSupport.install(this);        
         super.setFont(Font.decode("Monospaced--"));
         
         Insets margin = UIManager.getInsets("TextField.margin");

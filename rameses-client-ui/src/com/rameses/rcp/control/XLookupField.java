@@ -21,7 +21,6 @@ import com.rameses.rcp.framework.UIController;
 import com.rameses.rcp.framework.UIControllerContext;
 import com.rameses.rcp.framework.UIControllerPanel;
 import com.rameses.rcp.support.TextDocument;
-import com.rameses.rcp.support.TextEditorSupport;
 import com.rameses.rcp.ui.ActiveControl;
 import com.rameses.rcp.ui.ControlProperty;
 import com.rameses.rcp.ui.UILookup;
@@ -92,7 +91,6 @@ public class XLookupField extends IconedTextField implements UILookup, UISelecto
     
     private void initComponent() {
         setOrientation( super.ICON_ON_RIGHT );  
-        TextEditorSupport.install(this);
         
         document.setTextCase(TextCase.UPPER); 
         setDocument(document); 

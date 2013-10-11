@@ -4,12 +4,12 @@ import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.common.TextDocumentModel;
 import com.rameses.rcp.constant.TextCase;
 import com.rameses.rcp.constant.TrimSpaceOption;
+import com.rameses.rcp.control.text.TextComponentSupport;
 import com.rameses.rcp.framework.ActionHandler;
 import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.framework.ClientContext;
 import com.rameses.rcp.support.FontSupport;
 import com.rameses.rcp.support.TextDocument;
-import com.rameses.rcp.support.TextEditorSupport;
 import com.rameses.rcp.support.ThemeUI;
 import com.rameses.rcp.ui.ActiveControl;
 import com.rameses.rcp.ui.ControlProperty;
@@ -63,11 +63,14 @@ public class XTextArea extends JTextArea implements UIInput, Validatable, Active
     private String hint;
     private boolean showHint;
         
-    public XTextArea() 
-    {
+    public XTextArea() {
         super();
+        initComponent();
+    }
 
-        TextEditorSupport.install(this);
+    private void initComponent() {
+        TextComponentSupport.getInstance().installUIDefaults(this); 
+        setPreferredSize(new Dimension(100,40));
         for (FocusListener l : getFocusListeners()) {
             removeFocusListener(l); 
         }
@@ -75,18 +78,12 @@ public class XTextArea extends JTextArea implements UIInput, Validatable, Active
         //default font
         Font f = ThemeUI.getFont("XTextArea.font");
         if ( f != null ) setFont( f );
-        
-        //set default margin
-        setMargin(new Insets(2,2,2,2));
-        setPreferredSize(new Dimension(100,40));
     }
-
-    public void paint(Graphics origGraphics) 
-    {
+    
+    public void paint(Graphics origGraphics) {
         super.paint(origGraphics);
         
-        if ( showHint && getDocument().getLength() == 0 ) 
-        {
+        if ( showHint && getDocument().getLength() == 0 ) {
             Graphics g = origGraphics.create();
             Font f = getFont();
             FontMetrics fm = g.getFontMetrics(f);

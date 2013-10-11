@@ -38,58 +38,56 @@ import javax.swing.InputVerifier;
  *
  * @author wflores
  */
-public class XDateField extends AbstractDateField implements UIInput, ActiveControl, Validatable 
-{
-    private Binding binding; 
-    private String[] depends; 
+public class XDateField extends AbstractDateField implements UIInput, ActiveControl, Validatable {
+    private Binding binding;
+    private String[] depends;
     private int index;
     private boolean nullWhenEmpty;
     private boolean immediate;
-
-    private ActionCommandInvoker actionCommandInvoker;    
-    private ControlProperty controlProperty;    
+    
+    private ActionCommandInvoker actionCommandInvoker;
+    private ControlProperty controlProperty;
     private ActionMessage actionMessage;
     
     public XDateField() {
         super();
-        initComponent(); 
+        initComponent();
     }
     
     private void initComponent() {
-        TextEditorSupport.install(this);
         if (Beans.isDesignTime()) return;
         
-        actionCommandInvoker = new ActionCommandInvoker(); 
+        actionCommandInvoker = new ActionCommandInvoker();
         addActionMapping(ACTION_MAPPING_KEY_ESCAPE, new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                try { refresh(); } catch(Throwable t) {;} 
+                try { refresh(); } catch(Throwable t) {;}
             }
-        }); 
+        });
         
         //set default font
-        Font font = ThemeUI.getFont("XTextField.font");
-        if (font != null) setFont(font);
+//        Font font = ThemeUI.getFont("XTextField.font");
+//        if (font != null) setFont(font);
         
         Color disableTextColor = ThemeUI.getColor("XTextField.disabledTextColor");
-        if (disableTextColor != null) setDisabledTextColor(disableTextColor);        
+        if (disableTextColor != null) setDisabledTextColor(disableTextColor);
     }
     
     // <editor-fold defaultstate="collapsed" desc=" Getters / Setters ">
     
     public void setName(String name) {
-        super.setName(name); 
-        if (Beans.isDesignTime()) 
-            super.setText((name == null? "": name)); 
+        super.setName(name);
+        if (Beans.isDesignTime())
+            super.setText((name == null? "": name));
     }
     
     protected InputVerifier getChildInputVerifier() {
-        return UIInputUtil.VERIFIER; 
-    }    
+        return UIInputUtil.VERIFIER;
+    }
     
     // </editor-fold>
-
+    
     // <editor-fold defaultstate="collapsed" desc=" UIInput implementation ">
-
+    
     public Binding getBinding() { return binding; }
     public void setBinding(Binding binding) { this.binding = binding; }
     
@@ -98,179 +96,173 @@ public class XDateField extends AbstractDateField implements UIInput, ActiveCont
     
     public int getIndex() { return index; }
     public void setIndex(int index) { this.index = index; }
-        
+    
     public boolean isNullWhenEmpty() { return nullWhenEmpty; }
     public void setNullWhenEmpty(boolean nullWhenEmpty) {
         this.nullWhenEmpty = nullWhenEmpty;
     }
-
+    
     public boolean isImmediate() { return immediate; }
     public void setImmediate(boolean immediate) {
-        this.immediate = immediate; 
+        this.immediate = immediate;
     }
     
-    public int compareTo(Object o) { 
+    public int compareTo(Object o) {
         return UIControlUtil.compare(this, o);
     }
     
     public void setRequestFocus(boolean focus) {
     }
-
+    
     public void load() {
         String cmd = getActionCommand();
         if (cmd != null && cmd.length() > 0) {
-            removeActionMapping(ACTION_MAPPING_KEY_ENTER, actionCommandInvoker); 
-            addActionMapping(ACTION_MAPPING_KEY_ENTER, actionCommandInvoker); 
-        }        
+            removeActionMapping(ACTION_MAPPING_KEY_ENTER, actionCommandInvoker);
+            addActionMapping(ACTION_MAPPING_KEY_ENTER, actionCommandInvoker);
+        }
     }
-
+    
     public void refresh() {
-        try 
-        {
-            updateBackground(); 
+        try {
+            updateBackground();
             reloadDocument();
             
-            Object value = UIControlUtil.getBeanValue(this);            
-            setValue(value); 
-        } 
-        catch(Exception e) 
-        {
+            Object value = UIControlUtil.getBeanValue(this);
+            setValue(value);
+        } catch(Exception e) {
             setValue(null);
             
-            if (ClientContext.getCurrentContext().isDebugMode()) e.printStackTrace(); 
-        }         
+            if (ClientContext.getCurrentContext().isDebugMode()) e.printStackTrace();
+        }
     }
-
+    
     public void setPropertyInfo(PropertySupport.PropertyInfo info) {
     }
-
-    public Object getValue() { 
-        return super.getValue(); 
+    
+    public Object getValue() {
+        return super.getValue();
     }
     public void setValue(Object value) {
-        super.setValue(value); 
-    }      
+        super.setValue(value);
+    }
     
     // </editor-fold>
     
-    // <editor-fold defaultstate="collapsed" desc=" ActiveControl implementation "> 
-
-    public ControlProperty getControlProperty() { 
+    // <editor-fold defaultstate="collapsed" desc=" ActiveControl implementation ">
+    
+    public ControlProperty getControlProperty() {
         if (controlProperty == null) {
             controlProperty = new ControlProperty();
         }
-        return controlProperty; 
-    }   
-
-    public boolean isRequired() { 
-        return getControlProperty().isRequired(); 
-    }    
+        return controlProperty;
+    }
+    
+    public boolean isRequired() {
+        return getControlProperty().isRequired();
+    }
     public void setRequired(boolean required) {
         getControlProperty().setRequired(required);
     }
-
-    public String getCaption() { 
-        return getControlProperty().getCaption(); 
-    }    
-    public void setCaption(String caption) { 
-        getControlProperty().setCaption(caption); 
-    } 
-
-    public char getCaptionMnemonic() { 
+    
+    public String getCaption() {
+        return getControlProperty().getCaption();
+    }
+    public void setCaption(String caption) {
+        getControlProperty().setCaption(caption);
+    }
+    
+    public char getCaptionMnemonic() {
         return getControlProperty().getCaptionMnemonic();
-    }    
+    }
     public void setCaptionMnemonic(char c) {
         getControlProperty().setCaptionMnemonic(c);
     }
-
+    
     public int getCaptionWidth() {
         return getControlProperty().getCaptionWidth();
-    }    
+    }
     public void setCaptionWidth(int width) {
         getControlProperty().setCaptionWidth(width);
-    }    
-
+    }
+    
     public boolean isShowCaption() {
         return getControlProperty().isShowCaption();
-    }    
+    }
     public void setShowCaption(boolean showCaption) {
         getControlProperty().setShowCaption(showCaption);
     }
-
+    
     public Font getCaptionFont() {
         return getControlProperty().getCaptionFont();
-    }    
+    }
     public void setCaptionFont(Font f) {
         getControlProperty().setCaptionFont(f);
     }
-
-    public String getCaptionFontStyle() { 
+    
+    public String getCaptionFontStyle() {
         return getControlProperty().getCaptionFontStyle();
-    } 
+    }
     public void setCaptionFontStyle(String captionFontStyle) {
-        getControlProperty().setCaptionFontStyle(captionFontStyle); 
-    }     
-
+        getControlProperty().setCaptionFontStyle(captionFontStyle);
+    }
+    
     public Insets getCellPadding() {
         return getControlProperty().getCellPadding();
-    }    
+    }
     public void setCellPadding(Insets padding) {
         getControlProperty().setCellPadding(padding);
-    }    
-
+    }
+    
     // </editor-fold>
-
+    
     // <editor-fold defaultstate="collapsed" desc=" Validatable implementations ">
     
-    public ActionMessage getActionMessage() { 
+    public ActionMessage getActionMessage() {
         if (actionMessage == null) {
-            actionMessage = new ActionMessage(); 
+            actionMessage = new ActionMessage();
         }
-        return actionMessage; 
+        return actionMessage;
     }
     
     
-    public void validateInput() 
-    { 
+    public void validateInput() {
         ActionMessage actionMessage = getActionMessage();
         ControlProperty property = getControlProperty();
         actionMessage.clearMessages();
         property.setErrorMessage(null);
-        if ( ValueUtil.isEmpty(getText()) ) 
-        {
-            if (isRequired()) 
+        if ( ValueUtil.isEmpty(getText()) ) {
+            if (isRequired())
                 actionMessage.addMessage("1001", "{0} is required.", new Object[] { getCaption() });
-        } 
+        }
         
-        if ( actionMessage.hasMessages() ) 
+        if ( actionMessage.hasMessages() )
             property.setErrorMessage( actionMessage.toString() );
     }
     
-    // </editor-fold>     
+    // </editor-fold>
     
-    // <editor-fold defaultstate="collapsed" desc=" ActionCommandInvoker ">    
+    // <editor-fold defaultstate="collapsed" desc=" ActionCommandInvoker ">
     
-    private class ActionCommandInvoker implements ActionListener 
-    {
-        XDateField root = XDateField.this; 
+    private class ActionCommandInvoker implements ActionListener {
+        XDateField root = XDateField.this;
         
-        public void actionPerformed(ActionEvent e) { 
+        public void actionPerformed(ActionEvent e) {
             try {
-                String cmd = root.getActionCommand(); 
-                if (cmd == null || cmd.length() == 0) return; 
+                String cmd = root.getActionCommand();
+                if (cmd == null || cmd.length() == 0) return;
                 
-                UIInputUtil.updateBeanValue(root);                 
+                UIInputUtil.updateBeanValue(root);
                 Object bean = root.getBinding().getBean();
-                Object outcome = MethodResolver.getInstance().invoke(bean, cmd, new Object[]{}); 
-                if (outcome instanceof Opener) { 
-                    root.getBinding().fireNavigation(outcome); 
-                } 
-            } catch(Throwable t) { 
-                MsgBox.err(t); 
-            } 
-        } 
+                Object outcome = MethodResolver.getInstance().invoke(bean, cmd, new Object[]{});
+                if (outcome instanceof Opener) {
+                    root.getBinding().fireNavigation(outcome);
+                }
+            } catch(Throwable t) {
+                MsgBox.err(t);
+            }
+        }
         
     }
     
-    // </editor-fold>    
+    // </editor-fold>
 }

@@ -40,7 +40,6 @@ import javax.swing.JComboBox;
 import javax.swing.JComboBox.KeySelectionManager;
 import javax.swing.JComponent;
 import javax.swing.JTable;
-import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
 public class XComboBox extends JComboBox implements UIInput, Validatable, ActiveControl 
@@ -159,7 +158,9 @@ public class XComboBox extends JComboBox implements UIInput, Validatable, Active
             if (!has_selection && getItemCount() > 0) {
                 ComboItem ci = (ComboItem) getItemAt(0);
                 model.setSelectedItem(ci); 
-            }
+            } 
+            
+            UIInputUtil.updateBeanValue(this);
         }
     }
     
@@ -470,7 +471,8 @@ public class XComboBox extends JComboBox implements UIInput, Validatable, Active
             
             addItem(o, caption+"");
         }
-        SwingUtilities.updateComponentTreeUI(this);
+        //SwingUtilities.updateComponentTreeUI(this);
+        //revalidate()
         updating = false;
     }
     

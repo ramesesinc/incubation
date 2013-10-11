@@ -11,7 +11,7 @@ public interface Platform {
     
     static final long serialVersionUID = 1L;
     /**
-     * actionSource must the component that triggers the action,
+     * actionSource must be the component that triggers the action,
      * it could be a JButton, JMenu, etc.
      */
     void showStartupWindow(JComponent actionSource, JComponent comp, Map properties);

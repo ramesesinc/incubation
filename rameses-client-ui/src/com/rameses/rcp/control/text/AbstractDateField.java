@@ -9,8 +9,6 @@
 
 package com.rameses.rcp.control.text;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.beans.Beans;
 import java.text.SimpleDateFormat;
@@ -41,11 +39,10 @@ public abstract class AbstractDateField extends DefaultTextField
 //                actionPerformedImpl(e);
 //            }
 //        });
-
+        
         if (!Beans.isDesignTime()) 
             setDocumentImpl(new BasicDateDocument()); 
-        
-    }
+    }        
     
     // <editor-fold defaultstate="collapsed" desc=" Getters / Setters "> 
     
@@ -147,6 +144,7 @@ public abstract class AbstractDateField extends DefaultTextField
             
             try {
                 Date dt = createDateParser().parse(sval); 
+                if (dt == null) dt = getOutputFormatter().parse(sval); 
                 if (dt == null) return null; 
 
                 return getValueFormatter().format(dt); 

@@ -864,12 +864,22 @@ public class DataTableComponent extends JTable implements TableControl
     protected void onfocusLost(FocusEvent e) {}    
     protected final void processFocusEvent(FocusEvent e) 
     {
-        if (e.getID() == FocusEvent.FOCUS_GAINED) 
-            onfocusGained(e);
-        else if (e.getID() == FocusEvent.FOCUS_LOST) 
-            onfocusLost(e);
+        if (e.getID() == FocusEvent.FOCUS_GAINED) { 
+            onfocusGained(e); 
+        } else if (e.getID() == FocusEvent.FOCUS_LOST) { 
+            onfocusLost(e); 
+        } 
         
         super.processFocusEvent(e); 
+        
+        if (e.getID() == FocusEvent.FOCUS_GAINED) {
+            int selCol = getSelectedColumn();
+            if (selCol < 0 && getColumnCount() > 0) { 
+                try { 
+                    changeSelection(getSelectedRow(), 0, false, false); 
+                } catch(Throwable t) {;} 
+            }
+        }
     }
     
     private void log(String msg) 

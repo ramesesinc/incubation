@@ -59,7 +59,8 @@ public class DefaultPasswordField extends JPasswordField
     }
 
     private void initComponent() { 
-        setPreferredSize(new Dimension(100,20));         
+        TextComponentSupport.getInstance().installUIDefaults(this); 
+        setPreferredSize(new Dimension(100,20)); 
         actionMap = new HashMap(); 
         
         KeyStroke esc = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, JComponent.WHEN_FOCUSED); 

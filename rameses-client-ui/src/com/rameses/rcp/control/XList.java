@@ -371,9 +371,14 @@ public class XList extends JList implements UIControl
         }
         
         public void setSelectionInterval(int index0, int index1) { 
-            if (!root.beforeSelectionIndex(index1)) return;
-            
-            super.setSelectionInterval(index0, index1); 
+            if (index0 == 0 && index1 == 0 && root.getSelectedIndex() < 0) {
+                super.setSelectionInterval(index0, index1); 
+                
+            } else { 
+                if (!root.beforeSelectionIndex(index1)) return;
+
+                super.setSelectionInterval(index0, index1); 
+            }
         }
     }
     

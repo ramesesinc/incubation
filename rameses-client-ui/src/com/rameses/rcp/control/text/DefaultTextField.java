@@ -65,9 +65,10 @@ public class DefaultTextField extends JTextField
     }
 
     private void initComponent() { 
-        setPreferredSize(new Dimension(100,20));         
+        TextComponentSupport.getInstance().installUIDefaults(this); 
+        setPreferredSize(new Dimension(100,20)); 
         actionMap = new HashMap(); 
-
+        
         initDefaults(); 
         
         InputMap inputMap = getInputMap(JComponent.WHEN_FOCUSED);
@@ -86,6 +87,11 @@ public class DefaultTextField extends JTextField
         
         this.setActionCommand("");
     }
+    
+    protected Map getFontAttributes() {
+        //override this method to change the font settings
+        return null; 
+    } 
     
     protected void initDefaults() {
         //to be implemented by the sub-class
