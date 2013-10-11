@@ -619,7 +619,6 @@ public class XList extends JList implements UIControl
     }
     
     public void setSelectionInterval(int anchor, int lead) {
-        System.out.println("setSelectionInterval("+anchor+","+lead+")");
         if (!beforeSelectionIndex(lead)) return;
         
         super.setSelectionInterval(anchor, lead); 
