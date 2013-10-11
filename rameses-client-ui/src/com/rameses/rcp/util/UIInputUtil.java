@@ -18,6 +18,7 @@ import com.rameses.util.ExceptionManager;
 import com.rameses.util.ValueUtil;
 import java.beans.Beans;
 import javax.swing.InputVerifier;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JTable;
 import javax.swing.text.JTextComponent;
@@ -144,6 +145,10 @@ public class UIInputUtil {
             }
             //notify dependencies
             binding.notifyDepends(control);
+        }
+        else if (control instanceof JComboBox) {
+            //do nothing, we dont want to fire the refresh to prevent cyclic updating 
+            //or never ending update 
         }
         else {
             //refresh component
