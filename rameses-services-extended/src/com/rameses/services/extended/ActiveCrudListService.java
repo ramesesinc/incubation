@@ -25,13 +25,17 @@ public abstract class ActiveCrudListService extends ActiveCrudService {
         return null;
     }
     
+    public String getListMethod() {
+        return "getList";
+    }
+    
     @ProxyMethod
     public Object getList(Object params) throws Exception {
         if(getPagingKeys()!=null) {
             ((Map)params).put("_pagingKeys", getPagingKeys());
         }
         beforeList(params);
-        List list = (List) getObj().invokeMethod("getList", new Object[]{params});
+        List list = (List) getObj().invokeMethod(getListMethod(), new Object[]{params});
         afterList(params, list);
         return list;
     }
