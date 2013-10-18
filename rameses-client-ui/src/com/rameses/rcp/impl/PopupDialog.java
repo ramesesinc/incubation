@@ -26,26 +26,22 @@ public class PopupDialog extends JDialog implements SubWindow, WindowListener
     
     private JComponent source;
     
-    public PopupDialog() 
-    {
+    public PopupDialog() {
         super();
         init();
     }
     
-    public PopupDialog(JFrame parent) 
-    {
+    public PopupDialog(JFrame parent) {
         super(parent);
         init();
     }
     
-    public PopupDialog(JDialog parent) 
-    {
+    public PopupDialog(JDialog parent) {
         super(parent);
         init();
     }
     
-    private void init() 
-    {
+    private void init() {
         setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
         addWindowListener(this);
     }
