@@ -56,7 +56,7 @@ public class NavigationHandlerImpl implements NavigationHandler {
                 String permission = opener.getPermission();
                 String role = opener.getRole();
                 String domain = opener.getDomain();
-                
+
                 //check permission(if specified) if allowed
                 if ( !ValueUtil.isEmpty(permission) ) {
                     permission = opCon.getName() + "." + permission;
