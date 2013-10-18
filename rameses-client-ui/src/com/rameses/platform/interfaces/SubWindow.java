@@ -16,4 +16,5 @@ public interface SubWindow
     void setListener(SubWindowListener listener);
     
     void update(Map windowAttributes);
+    
 }
