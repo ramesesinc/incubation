@@ -6,6 +6,7 @@
 
 package com.rameses.rcp.impl;
 
+import com.rameses.platform.interfaces.ContentPane;
 import com.rameses.platform.interfaces.SubWindow;
 import com.rameses.platform.interfaces.SubWindowListener;
 import com.rameses.platform.interfaces.ViewContext;
@@ -22,7 +23,7 @@ import javax.swing.KeyStroke;
  *
  * @author jaycverg
  */
-public class PlatformTabWindow extends JPanel implements SubWindow 
+public class PlatformTabWindow extends JPanel implements SubWindow, ContentPane  
 {
     private String id;
     private String title;
@@ -50,8 +51,8 @@ public class PlatformTabWindow extends JPanel implements SubWindow
             viewContext.setSubWindow(this); 
         } 
         
-        setLayout(new BorderLayout());        
-        add(comp);         
+        setLayout(new BorderLayout()); 
+        add(comp); 
     }
 
     public void close() {
@@ -72,6 +73,16 @@ public class PlatformTabWindow extends JPanel implements SubWindow
         Component p = getParent();
         if (p instanceof ExtTabbedPane) 
             ((ExtTabbedPane) p).setSelectedComponent(this);
+    }
+    
+    public ContentPane.View getView() { 
+        Component[] comps = getComponents();
+        for (Component c : comps) {
+            if (!(c instanceof ContentPane.View)) continue; 
+            
+            return (ContentPane.View) c; 
+        }
+        return null; 
     }
     
     // <editor-fold defaultstate="collapsed" desc=" SubWindow implementation ">
