@@ -17,6 +17,8 @@ import java.awt.Component;
 import java.awt.EventQueue;
 import java.awt.Graphics;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.net.URL;
@@ -25,7 +27,9 @@ import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JMenuBar;
+import javax.swing.JRootPane;
 import javax.swing.JToolBar;
+import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.border.AbstractBorder;
@@ -71,11 +75,28 @@ public class MainDialog implements MainWindow {
     public void show() {
         EventQueue.invokeLater(new Runnable() {
             public void run() {
-                dialog.pack();
-                dialog.setVisible(true);
+                showImpl(); 
             }
         });
     }
+    
+    private void showImpl() {        
+        dialog.pack();
+
+        KeyStroke ks = KeyStroke.getKeyStroke("ctrl shift I"); 
+        ActionListener al = new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                showInfo(e); 
+            }
+        };
+        JRootPane rootPane = dialog.getRootPane(); 
+        rootPane.registerKeyboardAction(al, ks, JComponent.WHEN_IN_FOCUSED_WINDOW); 
+        dialog.setVisible(true); 
+    } 
+        
+    private void showInfo(ActionEvent e) {
+        if (tabbedPane != null) tabbedPane.showInfo(); 
+    } 
     
     public void close() {
         if ( listener != null ) {
