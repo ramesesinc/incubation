@@ -1,9 +1,13 @@
 package com.rameses.rcp.framework;
 
+import com.rameses.platform.interfaces.ContentPane;
 import com.rameses.platform.interfaces.SubWindow;
 import com.rameses.platform.interfaces.ViewContext;
+import com.rameses.rcp.common.Opener;
 import java.awt.BorderLayout;
 import java.awt.LayoutManager;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Stack;
 import javax.swing.JButton;
 import javax.swing.JPanel;
@@ -16,8 +20,8 @@ import javax.swing.event.AncestorListener;
  *
  * @author jaycverg
  */
-public class UIControllerPanel extends JPanel implements NavigatablePanel, ViewContext {
-    
+public class UIControllerPanel extends JPanel implements NavigatablePanel, ViewContext, ContentPane.View   
+{    
     private Stack<UIControllerContext> controllers = new Stack();
     private boolean defaultBtnAdded;
     
@@ -25,6 +29,16 @@ public class UIControllerPanel extends JPanel implements NavigatablePanel, ViewC
     
     
     public UIControllerPanel() {
+        initComponent();
+    } 
+    
+    public UIControllerPanel(UIControllerContext controller) {
+        initComponent();
+        controllers.push(controller);        
+        _build();
+    }
+    
+    private void initComponent() {
         super.setLayout(new BorderLayout());
         setName("root");
         
@@ -39,7 +53,7 @@ public class UIControllerPanel extends JPanel implements NavigatablePanel, ViewC
             
             public void ancestorMoved(AncestorEvent event) {}
             public void ancestorRemoved(AncestorEvent event) {}
-        });
+        });        
     }
     
     //visible in the package
@@ -60,12 +74,6 @@ public class UIControllerPanel extends JPanel implements NavigatablePanel, ViewC
         if ( current.getCurrentView() == null ) return null;
         
         return current.getCurrentView().getBinding().getDefaultButton();
-    }
-    
-    public UIControllerPanel(UIControllerContext controller) {
-        this();
-        controllers.push(controller);
-        _build();
     }
     
     private void _build() {
@@ -136,6 +144,37 @@ public class UIControllerPanel extends JPanel implements NavigatablePanel, ViewC
     
     public SubWindow getSubWindow() {
         return parent;
+    }  
+    
+    // <editor-fold defaultstate="collapsed" desc=" ContentPane.View implementation ">
+    
+    public void showInfo() {
+        UIControllerContext current = getCurrentController(); 
+        if (current == null) return;
+        
+        UIController uic = current.getController(); 
+        Map info = (uic == null? null: uic.getInfo()); 
+        if (info == null || info.isEmpty()) return;
+        
+        OpenerProvider op = ClientContext.getCurrentContext().getOpenerProvider(); 
+        if (op == null) return;
+        
+        Map params = new HashMap(); 
+        params.put("info", info); 
+        Opener opener = null; 
+        try { 
+            opener = op.lookupOpener("workunit-info:show", params);
+            opener.setTarget("popup"); 
+        } catch(Throwable t) {;} 
+        
+        if (opener == null) return;
+            
+        UIViewPanel uiv = current.getCurrentView();
+        Binding binding = (uiv == null? null: uiv.getBinding());
+        if (binding == null) return;
+        
+        binding.fireNavigation(opener); 
     }
     
+    // </editor-fold>
 }
