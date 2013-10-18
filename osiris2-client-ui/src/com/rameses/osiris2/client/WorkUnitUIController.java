@@ -13,7 +13,7 @@ import com.rameses.rcp.util.ControlSupport;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -179,12 +179,18 @@ public class WorkUnitUIController extends UIController
     public Map getInfo() 
     {
         WorkUnit wu = getWorkunit().getWorkunit();
-        Map map = new HashMap();
-        map.put("module", wu.getModule().getName());
-        map.put("name", wu.getName());        
-        map.put("path", wu.getModule().getURL()+""); 
-        //String url = wu.getModule()
+        if ("true".equals(wu.getProperties().get("disableWorkunitInfo")+"")) {
+            return null; 
+        } 
         
+        Map map = new LinkedHashMap(); 
+        map.put("workunit_name", wu.getName());
+        map.put("workunit_properties", wu.getProperties());
+        map.put("module_name", wu.getModule().getName());
+        map.put("module_url", wu.getModule().getURL()+"");         
+        map.put("module_context_path", wu.getModule().getContextPath());
+        map.put("module_domain", wu.getModule().getDomain());
+        map.put("module_properties", wu.getModule().getProperties());
         return map;
     }
     
