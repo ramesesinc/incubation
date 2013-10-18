@@ -155,7 +155,7 @@ public class XTextArea extends JTextArea implements UIInput, Validatable, Active
     }
         
     // <editor-fold defaultstate="collapsed" desc="  Getters/Setters  "> 
-    
+
     public void setName(String name) 
     {
         super.setName(name);
