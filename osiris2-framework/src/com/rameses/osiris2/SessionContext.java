@@ -120,6 +120,21 @@ public class SessionContext {
         }
     }
     
+    public final List<Invoker> getInvokersByWorkunitid(String id) {
+        List<Invoker> list = new ArrayList();
+        if (id == null || id.length() == 0) return list; 
+        
+        Iterator itr = context.getInvokers().iterator();
+        while (itr.hasNext()) {
+            Invoker inv = (Invoker) itr.next();
+            if (id.equals(inv.getWorkunitid())) {
+                list.add(inv); 
+            } 
+        } 
+        Collections.sort(list); 
+        return list; 
+    }
+    
     public SecurityProvider getSecurityProvider() {
         return securityProvider;
     }
