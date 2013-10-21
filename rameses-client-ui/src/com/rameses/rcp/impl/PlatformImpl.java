@@ -1,6 +1,7 @@
 package com.rameses.rcp.impl;
 
 import com.rameses.common.PropertyResolver;
+import com.rameses.platform.interfaces.ContentPane;
 import com.rameses.platform.interfaces.MainWindow;
 import com.rameses.platform.interfaces.Platform;
 import com.rameses.platform.interfaces.SubWindow;
@@ -11,6 +12,8 @@ import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.KeyboardFocusManager;
 import java.awt.Window;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -18,6 +21,8 @@ import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.JRootPane;
+import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 
 
@@ -115,6 +120,11 @@ public class PlatformImpl implements Platform {
         if ("true".equals(properties.get("alwaysOnTop")+"")) d.setAlwaysOnTop(true);
         if ("true".equals(properties.get("undecorated")+"")) d.setUndecorated(true); 
         
+        KeyStroke ks = KeyStroke.getKeyStroke("ctrl shift I");  
+        ActionListener al = new ShowInfoAction(comp); 
+        JRootPane rootPane = d.getRootPane(); 
+        rootPane.registerKeyboardAction(al, ks, JComponent.WHEN_IN_FOCUSED_WINDOW); 
+        
         EventQueue.invokeLater(new Runnable() {
             public void run() {
                 d.setVisible(true);
@@ -123,6 +133,10 @@ public class PlatformImpl implements Platform {
         
         windows.put(id, d);
     }
+    
+    private void showInfo(ActionEvent e) {
+        System.out.println(e.getSource());
+    }     
     
     private void setProperties(Object bean, Map properties) {
         PropertyResolver resolver = PropertyResolver.getInstance();
@@ -236,4 +250,23 @@ public class PlatformImpl implements Platform {
     public void showFloatingWindow(JComponent owner, JComponent comp, Map properties) {
         showPopup(owner, comp, properties);
     }    
+    
+    // <editor-fold defaultstate="collapsed" desc=" ShowInfoAction ">
+    
+    private class ShowInfoAction implements ActionListener 
+    {
+        private Component source;
+        
+        ShowInfoAction(Component source) {
+            this.source = source; 
+        }
+        
+        public void actionPerformed(ActionEvent e) { 
+            if (!(source instanceof ContentPane.View)) return; 
+            
+            ((ContentPane.View) source).showInfo(); 
+        } 
+    }
+    
+    // </editor-fold>
 }

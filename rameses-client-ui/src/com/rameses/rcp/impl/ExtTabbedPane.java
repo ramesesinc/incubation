@@ -6,6 +6,7 @@
 
 package com.rameses.rcp.impl;
 
+import com.rameses.platform.interfaces.ContentPane;
 import com.rameses.platform.interfaces.SubWindow;
 import com.rameses.platform.interfaces.SubWindowContainer;
 import com.rameses.platform.interfaces.SubWindowListener;
@@ -43,7 +44,7 @@ public class ExtTabbedPane extends JTabbedPane implements SubWindowContainer
         
         TabSupport support = new TabSupport();
         addMouseListener(support);
-        addMouseMotionListener(support);
+        addMouseMotionListener(support);        
     }
     
     protected void paintComponent(Graphics g) {
@@ -118,6 +119,15 @@ public class ExtTabbedPane extends JTabbedPane implements SubWindowContainer
             if (cname != null) tabIndex.remove(cname);
         }
         super.remove(component);
+    } 
+    
+    public void showInfo() {
+        Component comp = getSelectedComponent();
+        if (!(comp instanceof ContentPane)) return; 
+
+        ContentPane cp = (ContentPane) comp;
+        ContentPane.View vw = cp.getView();
+        if (vw != null) vw.showInfo(); 
     }
 
     // <editor-fold defaultstate="collapsed" desc=" SubWindowContainer implementation ">
