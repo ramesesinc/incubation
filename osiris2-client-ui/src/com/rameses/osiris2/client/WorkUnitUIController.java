@@ -3,6 +3,7 @@ package com.rameses.osiris2.client;
 import com.rameses.classutils.ClassDefUtil;
 import com.rameses.common.MethodResolver;
 import com.rameses.common.PropertyResolver;
+import com.rameses.osiris2.Invoker;
 import com.rameses.rcp.framework.UIController;
 import com.rameses.osiris2.Page;
 import com.rameses.osiris2.WorkUnit;
@@ -178,6 +179,7 @@ public class WorkUnitUIController extends UIController
 
     public Map getInfo() 
     {
+        final String workunitId = getWorkunit().getId(); 
         WorkUnit wu = getWorkunit().getWorkunit();
         if ("true".equals(wu.getProperties().get("disableWorkunitInfo")+"")) {
             return null; 
@@ -190,6 +192,9 @@ public class WorkUnitUIController extends UIController
         map.put("module_name", wu.getModule().getName());
         map.put("module_domain", wu.getModule().getDomain());
         map.put("module_properties", wu.getModule().getProperties());
+        
+        List<Invoker> invokers = OsirisContext.getSession().getInvokersByWorkunitid(workunitId);
+        map.put("invokers", invokers); 
         return map;
     }
     
