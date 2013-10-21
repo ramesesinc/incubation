@@ -186,9 +186,8 @@ public class WorkUnitUIController extends UIController
         Map map = new LinkedHashMap(); 
         map.put("workunit_name", wu.getName());
         map.put("workunit_properties", wu.getProperties());
+        map.put("workunit_path", wu.getModule().getContextPath() + "/workunits/" + wu.getName() + ".xml");
         map.put("module_name", wu.getModule().getName());
-        map.put("module_url", wu.getModule().getURL()+"");         
-        map.put("module_context_path", wu.getModule().getContextPath());
         map.put("module_domain", wu.getModule().getDomain());
         map.put("module_properties", wu.getModule().getProperties());
         return map;
