@@ -1860,7 +1860,16 @@ public class DataTableComponent extends JTable implements TableControl
         
         public Object getBinding() { 
             return root.getBinding(); 
-        }         
+        }      
+
+        public Column getSelectedColumn() {
+            int index = root.getSelectedColumn();
+            if (index < 0) return null;
+            
+            if (root.tableModel == null) return null; 
+            
+            return root.tableModel.getColumn(index); 
+        }
     }
     
     // </editor-fold>
