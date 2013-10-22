@@ -204,22 +204,31 @@ public class EntityManager {
      *
      */
     public Object update(String schemaName, Object data) {
-        return update(schemaName, data, null, null, true);
+        return update(schemaName, data, null, null, true, true);
     }
     
     public Object update(String schemaName, Object data, boolean validate) {
-        return update(schemaName, data, null, null, validate);
+        return update(schemaName, data, null, null, validate, true);
     }
     
     public Object update(String schemaName, Object data, Map vars) {
-        return update( schemaName, data, vars, null, true );
+        return update( schemaName, data, vars, null, true, true );
     }
     
+    
+    public Object update(String schemaName, Object data, UpdateChangeHandler h) {
+        return update( schemaName, data, null, h, true, true );
+    }
+
     //added version handling of changes during updates
-    public Object update(String schemaName, Object data, Map vars, UpdateChangeHandler vhandler, boolean validate) {
+    public Object update(String schemaName, Object data, Map vars, UpdateChangeHandler vhandler, boolean validate, boolean read) {
         if(!(data instanceof Map))
             throw new RuntimeException("Data that is not a map is not yet supported at this time");
-        Map oldData = (Map) read( schemaName, data );
+        
+        Map oldData = (Map)data;
+        if( read == true ) {
+            oldData = (Map) read( schemaName, data );    
+        }
         
         //log changes before updating.
         if(vhandler!=null) {
@@ -227,9 +236,9 @@ public class EntityManager {
             vhandler.handle(changes);
         }
         
-        
-        
-        oldData.putAll( (Map)data );
+        if(read==true) {
+            oldData.putAll( (Map)data );    
+        }
         
         if(resolveNested) {
             oldData = MapToField.convert( (Map) oldData);
@@ -255,8 +264,9 @@ public class EntityManager {
         }
     }
     
-    public Object update(String schemaName, Object data, UpdateChangeHandler h) {
-        return update( schemaName, data, null, h, true );
+    //special function to avoid reading the data before updating
+    public Object updateImmediate(String schemaName, Object data) {
+        return update( schemaName, data, null, null, true, false );
     }
     
     public void delete(String schemaName, Object data) {
@@ -379,7 +389,7 @@ public class EntityManager {
             if(test==null ||  ((test instanceof Map) &&  ((Map)test).isEmpty() )) {
                 return create(schemaName, data, vars, validate );
             } else {
-                return update(schemaName, data, vars, vhandler, validate);
+                return update(schemaName, data, vars, vhandler, validate,true);
             }
         } else if(create==true  && update==false) {
             return create(schemaName, data, vars,validate );
@@ -387,7 +397,7 @@ public class EntityManager {
             Object test = read(schemaName, data, vars);
             if(test==null)
                 throw new RuntimeException("Record for update does not exist");
-            return update(schemaName, data, vars, vhandler, validate );
+            return update(schemaName, data, vars, vhandler, validate,true );
         } else {
             return data;
         }
