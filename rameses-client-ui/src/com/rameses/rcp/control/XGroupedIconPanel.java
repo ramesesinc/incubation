@@ -16,7 +16,6 @@ import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Graphics;
-import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -43,8 +42,8 @@ import javax.swing.SwingConstants;
  *
  * @author Windhel
  */
-public class XGroupedIconPanel extends JPanel implements UIControl{
-    
+public class XGroupedIconPanel extends JPanel implements UIControl
+{    
     private Binding binding;
     private String[] depends;
     private int index;
@@ -110,7 +109,7 @@ public class XGroupedIconPanel extends JPanel implements UIControl{
             }
             add( new GroupClass(getClass().getResource("/com/rameses/rcp/icons/folder.png"), memberList, memberActions, category.toString()) );
         }
-    }
+    }    
 }
 
 //<editor-fold defaultstate="collapsed" desc="  GroupClass  ">

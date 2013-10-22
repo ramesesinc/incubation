@@ -30,8 +30,8 @@ import javax.swing.event.HyperlinkEvent.EventType;
 import javax.swing.event.HyperlinkListener;
 import javax.swing.text.html.HTMLDocument;
 
-public class XEditorPane extends JEditorPane implements UIInput, ActiveControl {
-    
+public class XEditorPane extends JEditorPane implements UIInput, ActiveControl 
+{    
     private Binding binding;
     private String[] depends;
     private int index;

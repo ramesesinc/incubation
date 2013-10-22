@@ -16,6 +16,7 @@ import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.control.text.AbstractMaskField;
 import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.framework.ClientContext;
+import com.rameses.rcp.support.MouseEventSupport;
 import com.rameses.rcp.support.ThemeUI;
 import com.rameses.rcp.ui.ActiveControl;
 import com.rameses.rcp.ui.ControlProperty;
@@ -28,13 +29,15 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.Beans;
+import java.util.HashMap;
+import java.util.Map;
 import javax.swing.InputVerifier;
 
 /**
  *
  * @author wflores
  */
-public class XMaskField extends AbstractMaskField implements UIInput, ActiveControl 
+public class XMaskField extends AbstractMaskField implements UIInput, ActiveControl, MouseEventSupport.ComponentInfo 
 {
     private Binding binding; 
     private String[] depends; 
@@ -58,7 +61,8 @@ public class XMaskField extends AbstractMaskField implements UIInput, ActiveCont
             public void actionPerformed(ActionEvent e) {
                 try { refresh(); } catch(Throwable t) {;} 
             }
-        });         
+        });   
+        new MouseEventSupport(this).install(); 
         
         //set default font
         Font font = ThemeUI.getFont("XTextField.font");
@@ -138,6 +142,16 @@ public class XMaskField extends AbstractMaskField implements UIInput, ActiveCont
 
     public void setPropertyInfo(PropertySupport.PropertyInfo info) {
     }
+    
+    public Map getInfo() { 
+        Map map = new HashMap();
+        map.put("actionCommand", getActionCommand()); 
+        map.put("focusAccelerator", getFocusAccelerator());
+        map.put("mask", getMask());
+        map.put("includeLiteral", isIncludeLiteral());
+        map.put("required", isRequired()); 
+        return map;
+    }    
 
     public Object getValue() { 
         return super.getValue(); 

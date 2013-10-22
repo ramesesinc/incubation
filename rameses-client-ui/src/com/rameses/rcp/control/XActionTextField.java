@@ -9,14 +9,14 @@ package com.rameses.rcp.control;
 
 import com.rameses.common.MethodResolver;
 import com.rameses.rcp.common.MsgBox;
-import com.rameses.rcp.framework.ClientContext;
 import com.rameses.rcp.util.ControlSupport;
 import com.rameses.rcp.util.UIInputUtil;
 import com.rameses.util.ValueUtil;
+import java.util.Map;
 
 
-public class XActionTextField extends AbstractIconedTextField {
-    
+public class XActionTextField extends AbstractIconedTextField 
+{    
     private String actionName;
     
     
@@ -46,4 +46,9 @@ public class XActionTextField extends AbstractIconedTextField {
         this.actionName = actionName;
     }
 
+    public Map getInfo() {
+        Map map = super.getInfo(); 
+        map.put("actionName", getActionName()); 
+        return map; 
+    }
 }

@@ -16,8 +16,8 @@ import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
 
 
-public class XFileBrowser extends AbstractIconedTextField {
-    
+public class XFileBrowser extends AbstractIconedTextField 
+{    
     private JFileChooser fchooser;
     private FileFilter filter;
     private String customFilter;

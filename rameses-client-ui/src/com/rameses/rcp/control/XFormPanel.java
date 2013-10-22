@@ -13,6 +13,7 @@ import com.rameses.rcp.control.border.XUnderlineBorder;
 import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.framework.BindingListener;
 import com.rameses.rcp.support.FontSupport;
+import com.rameses.rcp.support.MouseEventSupport;
 import com.rameses.rcp.ui.ActiveControl;
 import com.rameses.rcp.ui.ControlProperty;
 import com.rameses.rcp.ui.ControlContainer;
@@ -56,12 +57,12 @@ import javax.swing.UIManager;
 import javax.swing.border.Border;
 import javax.swing.text.JTextComponent;
 
-
 /**
  * @author jaycverg
  */
-public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite, ControlContainer, Validatable, ActiveControl, UIConstants {
-    
+public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite, 
+    ControlContainer, Validatable, ActiveControl, UIConstants, MouseEventSupport.ComponentInfo 
+{    
     private int cellspacing = 2;
     private Insets cellpadding = new Insets(0,0,0,0);
     private String orientation = UIConstants.VERTICAL;
@@ -116,18 +117,23 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
     private FormPanelModel.Listener  defaultListener;
     private JLabel lblFont = new JLabel();
         
-    public XFormPanel() 
-    {
+    public XFormPanel() { 
+        initComponent(); 
+    } 
+    
+    private void initComponent() {
         propertySupport = new PropertyChangeSupport();
         super.setLayout(layout = new Layout());
         setPreferredSize(new Dimension(100,50)); 
         setPadding(new Insets(0,5,5,5));
         setOpaque(false);
         
-        Font font = lblFont.getFont().deriveFont(Font.PLAIN);         
-        setFont(font);
-        setCaptionFont(font);
-        setCaptionForeground(UIManager.getColor("Label.foreground"));
+        new MouseEventSupport(this).install(); 
+                
+        Font font = lblFont.getFont().deriveFont(Font.PLAIN); 
+        setFont(font); 
+        setCaptionFont(font); 
+        setCaptionForeground(UIManager.getColor("Label.foreground")); 
     }
 
     // <editor-fold defaultstate="collapsed" desc=" FormPanel implementations ">
@@ -238,7 +244,7 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
     
     // </editor-fold>
     
-    // <editor-fold defaultstate="collapsed" desc="  control support properties  ">
+    // <editor-fold defaultstate="collapsed" desc=" control support properties ">
     
     public boolean isShowCategory() { return showCategory; }
     public void setShowCategory(boolean showCategory) {
@@ -350,7 +356,7 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
     
     // </editor-fold>
     
-    // <editor-fold defaultstate="collapsed" desc="  refresh/load  ">
+    // <editor-fold defaultstate="collapsed" desc=" refresh/load ">
     
     public void refresh() 
     {
@@ -379,9 +385,13 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
         reloaded = true;
     }
     
+    public Map getInfo() { 
+        return null; 
+    }     
+    
     // </editor-fold>
     
-    // <editor-fold defaultstate="collapsed" desc="  helper method  ">
+    // <editor-fold defaultstate="collapsed" desc=" helper method ">
     
     private Component getClosestFormItemPanel(JComponent jc) {
         if (jc == null) return null;
@@ -396,8 +406,7 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
         return null; 
     }
     
-    private void build() 
-    {
+    private void build() {
         if ( ValueUtil.isEmpty(getName()) ) return;
         
         //remove only dynamic controls

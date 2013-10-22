@@ -19,6 +19,7 @@ import com.rameses.rcp.framework.ClientContext;
 import com.rameses.rcp.util.ControlSupport;
 import com.rameses.rcp.framework.NavigatablePanel;
 import com.rameses.rcp.framework.NavigationHandler;
+import com.rameses.rcp.support.MouseEventSupport;
 import com.rameses.rcp.ui.UIControl;
 import com.rameses.rcp.util.UIControlUtil;
 import java.awt.BorderLayout;
@@ -32,6 +33,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.swing.AbstractAction;
@@ -59,7 +61,7 @@ import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
-public class XTree extends JTree implements UIControl 
+public class XTree extends JTree implements UIControl, MouseEventSupport.ComponentInfo 
 {
     private DefaultProvider provider = new DefaultProvider(); 
     private TreeEventSupport eventSupport = new TreeEventSupport();
@@ -97,7 +99,7 @@ public class XTree extends JTree implements UIControl
                 fireOpenSelectedNode(true);
             } 
         });
-        
+        new MouseEventSupport(this).install(); 
         setBorder(BorderFactory.createEmptyBorder(3, 2, 0, 0)); 
         addAncestorListener(new AncestorListener() {
             private boolean inited;
@@ -200,6 +202,14 @@ public class XTree extends JTree implements UIControl
         model.setAsksAllowsChildren(true);         
         setModel(model); 
     }
+    
+    public Map getInfo() { 
+        Map map = new HashMap();
+        map.put("dynamic", isDynamic()); 
+        map.put("handler", getHandler());
+        map.put("handlerObject", getHandlerObject()); 
+        return map;
+    }       
 
     // </editor-fold>
     

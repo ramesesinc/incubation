@@ -36,8 +36,8 @@ import javax.swing.*;
 import javax.swing.border.AbstractBorder;
 import javax.swing.plaf.metal.MetalLookAndFeel;
 
-public class XTreeTable extends JPanel implements UIOutput, TreeTableListener, FocusListener {
-    
+public class XTreeTable extends JPanel implements UIOutput, TreeTableListener, FocusListener 
+{    
     private TreeTableComponent table;
     private ListScrollBar scrollBar;
     private RowHeaderView rowHeaderView;
@@ -200,6 +200,7 @@ public class XTreeTable extends JPanel implements UIOutput, TreeTableListener, F
     public int compareTo(Object o) {
         return UIControlUtil.compare(this, o);
     }
+    
     //</editor-fold>
     
     //<editor-fold defaultstate="collapsed" desc="  table listener methods  ">

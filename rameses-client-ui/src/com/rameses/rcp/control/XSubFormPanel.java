@@ -10,6 +10,7 @@ import com.rameses.rcp.common.Opener;
 import com.rameses.rcp.framework.UIController;
 import com.rameses.rcp.framework.UIControllerContext;
 import com.rameses.rcp.framework.UIControllerPanel;
+import com.rameses.rcp.support.MouseEventSupport;
 import com.rameses.rcp.ui.BindingConnector;
 import com.rameses.rcp.ui.ControlProperty;
 import com.rameses.rcp.ui.UIControl;
@@ -40,7 +41,7 @@ import javax.swing.event.AncestorListener;
  *
  * @author jaycverg
  */
-public class XSubFormPanel extends JPanel implements UISubControl, ActiveControl 
+public class XSubFormPanel extends JPanel implements UISubControl, ActiveControl, MouseEventSupport.ComponentInfo 
 {    
     private String handler;
     private String[] depends;
@@ -88,6 +89,7 @@ public class XSubFormPanel extends JPanel implements UISubControl, ActiveControl
                 bindingConnector.setParentBinding(null);
             }
         });
+        new MouseEventSupport(this).install(); 
     }
     
     public XSubFormPanel(Opener o) {
@@ -322,6 +324,15 @@ public class XSubFormPanel extends JPanel implements UISubControl, ActiveControl
     public int compareTo(Object o) {
         return UIControlUtil.compare(this, o);
     }
+    
+    public Map getInfo() { 
+        Map map = new HashMap();
+        map.put("dynamic", isDynamic()); 
+        map.put("handler", getHandler());
+        map.put("handlerObject", getHandlerObject()); 
+        map.put("visibleWhen", getVisibleWhen()); 
+        return map;
+    }         
     
     public boolean focusFirstInput() {
         for( Binding b: getSubBindings() ) {

@@ -22,8 +22,7 @@ import javax.swing.JViewport;
  * @author wflores
  */
 public class XScrollPane extends JScrollPane 
-{
-    
+{    
     private FocusChangeListener focusChangeListener;
     
     public XScrollPane() {

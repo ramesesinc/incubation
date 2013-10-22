@@ -18,6 +18,7 @@ import com.rameses.rcp.framework.ClientContext;
 import com.rameses.rcp.support.ActionButtonSupport;
 import com.rameses.rcp.support.ComponentSupport;
 import com.rameses.rcp.support.ImageIconSupport;
+import com.rameses.rcp.support.MouseEventSupport;
 import com.rameses.rcp.util.ControlSupport;
 import com.rameses.rcp.ui.UIComposite;
 import com.rameses.rcp.ui.UIControl;
@@ -50,7 +51,8 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 
-public class XActionBar extends JPanel implements UIComposite {
+public class XActionBar extends JPanel implements UIComposite, MouseEventSupport.ComponentInfo  
+{
     private Binding binding;
     private String[] depends;
     private boolean useToolBar;
@@ -94,6 +96,8 @@ public class XActionBar extends JPanel implements UIComposite {
         super.setLayout(new ContainerLayout());
         setUseToolBar(true);
         
+        new MouseEventSupport(this).install(); 
+        
         if(Beans.isDesignTime()) {
             buttonTpl.setText(getClass().getSimpleName());
         }
@@ -128,6 +132,15 @@ public class XActionBar extends JPanel implements UIComposite {
     public int compareTo(Object o) {
         return UIControlUtil.compare(this, o);
     }
+    
+    public Map getInfo() { 
+        Map map = new HashMap();
+        map.put("dynamic", isDynamic());
+        map.put("formName", getFormName());
+        map.put("showCaptions", isShowCaptions()); 
+        map.put("target", getTarget()); 
+        return map;
+    }     
     
     // <editor-fold defaultstate="collapsed" desc="  helper methods  ">
     
@@ -566,5 +579,5 @@ public class XActionBar extends JPanel implements UIComposite {
     }
     
     //</editor-fold>
-        
+
 }

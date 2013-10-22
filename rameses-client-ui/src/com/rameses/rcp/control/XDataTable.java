@@ -26,6 +26,7 @@ import com.rameses.rcp.control.table.TableUtil;
 import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.framework.ClientContext;
 import com.rameses.rcp.support.ColorUtil;
+import com.rameses.rcp.support.MouseEventSupport;
 import com.rameses.rcp.ui.*;
 import com.rameses.rcp.util.*;
 import com.rameses.util.ValueUtil;
@@ -33,10 +34,11 @@ import java.awt.*;
 import java.awt.event.*;
 import java.beans.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 import javax.swing.*;
 
-public class XDataTable extends JPanel implements UIInput, UIComplex, Validatable, FocusListener
+public class XDataTable extends JPanel implements UIInput, UIComplex, Validatable, FocusListener, MouseEventSupport.ComponentInfo
 {    
     private DataTableComponentImpl table;
     private ListScrollBar scrollBar;
@@ -187,6 +189,8 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
             if ( fg != null ) table.setOddForeground(fg);
         }
         
+        new MouseEventSupport(this).install();         
+        
         //--design time display
         if (Beans.isDesignTime()) {
             if (rowHeaderView != null) rowHeaderView.setRowCount(1);
@@ -297,6 +301,21 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
     public int compareTo(Object o) {
         return UIControlUtil.compare(this, o);
     }   
+    
+    public Map getInfo() { 
+        Map map = new HashMap();
+        map.put("dynamic", isDynamic());
+        map.put("handler", getHandler());
+        map.put("immediate", isImmediate()); 
+        map.put("items", getItems());
+        map.put("id", getId());
+        map.put("varName", getVarName());
+        map.put("varStatus", getVarStatus());
+        map.put("multiSelectName", getMultiSelectName());
+        map.put("readonlyWhen", getReadonlyWhen());
+        map.put("required", isRequired()); 
+        return map;
+    }     
     
     private void applyExpressions() {
         String expr = getReadonlyWhen();

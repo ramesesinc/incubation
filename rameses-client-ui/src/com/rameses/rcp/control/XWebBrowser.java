@@ -29,16 +29,15 @@ import javax.swing.event.HyperlinkEvent.EventType;
 import javax.swing.event.HyperlinkListener;
 import javax.swing.text.Document;
 
-public class XWebBrowser extends JEditorPane implements UIControl {
-    
+public class XWebBrowser extends JEditorPane implements UIControl 
+{    
     private Binding binding;
     private String[] depends;
     private int index;
     private boolean refreshed;
     
     private WebBrowserModel model;
-    
-    
+        
     public XWebBrowser() {
         super();
         
@@ -160,7 +159,7 @@ public class XWebBrowser extends JEditorPane implements UIControl {
     public int compareTo(Object o) {
         return UIControlUtil.compare(this, o);
     }
-    
+
     // <editor-fold defaultstate="collapsed" desc="  Getters/Setters  ">
     
     public void setName(String name) {

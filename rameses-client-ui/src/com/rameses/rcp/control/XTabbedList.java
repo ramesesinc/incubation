@@ -15,6 +15,7 @@ import com.rameses.rcp.common.TabbedListModel;
 import com.rameses.rcp.control.tabbedpane.TabbedItemPanel;
 import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.support.ImageIconSupport;
+import com.rameses.rcp.support.MouseEventSupport;
 import com.rameses.rcp.support.ThemeUI;
 import com.rameses.rcp.ui.UIControl;
 import com.rameses.rcp.util.UIControlUtil;
@@ -25,13 +26,14 @@ import java.awt.Font;
 import java.beans.Beans;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.swing.Icon;
 import javax.swing.JLabel;
 import javax.swing.JTabbedPane;
 
-public class XTabbedList extends JTabbedPane implements UIControl 
+public class XTabbedList extends JTabbedPane implements UIControl, MouseEventSupport.ComponentInfo 
 {    
     private Binding binding;
     private String[] depends;
@@ -62,7 +64,7 @@ public class XTabbedList extends JTabbedPane implements UIControl
             addTab("Tab 2", new JLabel());
             setPreferredSize(new Dimension(100,30)); 
         }
-
+        new MouseEventSupport(this).install(); 
         Font f = ThemeUI.getFont("XTabbedPane.font");
         if ( f != null ) setFont( f );
     }
@@ -148,6 +150,13 @@ public class XTabbedList extends JTabbedPane implements UIControl
     public int compareTo(Object o) {
         return UIControlUtil.compare(this, o);
     }
+    
+    public Map getInfo() { 
+        Map map = new HashMap();
+        map.put("dynamic", isDynamic()); 
+        map.put("disableWhen", getDisableWhen());
+        return map;
+    }    
     
     // </editor-fold>
     

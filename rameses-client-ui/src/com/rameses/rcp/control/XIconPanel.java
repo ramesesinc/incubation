@@ -31,8 +31,8 @@ import javax.swing.border.AbstractBorder;
  * @author Windhel
  */
 
-public class XIconPanel extends JPanel implements UIControl {
-    
+public class XIconPanel extends JPanel implements UIControl 
+{    
     List list = new ArrayList();
     Map controller1 = new HashMap();
     Map controller2 = new HashMap();

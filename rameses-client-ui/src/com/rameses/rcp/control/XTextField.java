@@ -10,6 +10,7 @@ import com.rameses.rcp.constant.TrimSpaceOption;
 import com.rameses.rcp.control.text.DefaultTextField;
 import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.framework.ClientContext;
+import com.rameses.rcp.support.MouseEventSupport;
 import com.rameses.rcp.support.TextDocument;
 import com.rameses.rcp.support.ThemeUI;
 import com.rameses.rcp.ui.ActiveControl;
@@ -29,6 +30,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.util.EventObject;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.swing.InputVerifier;
@@ -37,7 +40,8 @@ import javax.swing.InputVerifier;
  *
  * @author jaycverg
  */
-public class XTextField extends DefaultTextField implements UIInput, Validatable, ActiveControl 
+public class XTextField extends DefaultTextField implements UIInput, Validatable, 
+    ActiveControl, MouseEventSupport.ComponentInfo 
 {    
     protected Binding binding;
     protected ControlProperty property = new ControlProperty();
@@ -78,7 +82,7 @@ public class XTextField extends DefaultTextField implements UIInput, Validatable
                 try { refresh(); } catch(Throwable t) {;} 
             }
         }); 
-        
+        new MouseEventSupport(this).install(); 
         //set default font
         Font f = ThemeUI.getFont("XTextField.font");
         if ( f != null ) setFont(f);
@@ -194,6 +198,15 @@ public class XTextField extends DefaultTextField implements UIInput, Validatable
             property.setErrorMessage( actionMessage.toString() );
         }
     } 
+    
+    public Map getInfo() { 
+        Map map = new HashMap();
+        map.put("actionCommand", getActionCommand());         
+        map.put("nullWhenEmpty", isNullWhenEmpty());
+        map.put("required", isRequired());
+        map.put("focusAccelerator", getFocusAccelerator()); 
+        return map;
+    }    
     
     // </editor-fold>
     

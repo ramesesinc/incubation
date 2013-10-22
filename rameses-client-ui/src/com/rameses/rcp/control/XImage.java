@@ -13,6 +13,7 @@ import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.control.border.CSSBorder;
 import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.support.ImageIconSupport;
+import com.rameses.rcp.support.MouseEventSupport;
 import com.rameses.rcp.support.ThemeUI;
 import com.rameses.rcp.ui.UIControl;
 import com.rameses.rcp.util.UIControlUtil;
@@ -21,6 +22,8 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Insets;
 import java.beans.Beans;
+import java.util.HashMap;
+import java.util.Map;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.UIManager;
@@ -31,7 +34,7 @@ import javax.swing.border.Border;
  *
  * @author wflores
  */
-public class XImage extends JLabel implements UIControl
+public class XImage extends JLabel implements UIControl, MouseEventSupport.ComponentInfo
 {
     private Binding binding;
     private String[] depends;
@@ -48,6 +51,7 @@ public class XImage extends JLabel implements UIControl
         super();
         setPadding(null); 
         setBorder((Border) null); 
+        new MouseEventSupport(this).install(); 
         
         //default font
         Font f = ThemeUI.getFont("XLabel.font");
@@ -143,7 +147,13 @@ public class XImage extends JLabel implements UIControl
 
     public int compareTo(Object o) {
         return UIControlUtil.compare(this, o);
-    }    
+    }
+    
+    public Map getInfo() { 
+        Map map = new HashMap();
+        map.put("dynamic", isDynamic()); 
+        return map;
+    }       
     
     // </editor-fold>
     

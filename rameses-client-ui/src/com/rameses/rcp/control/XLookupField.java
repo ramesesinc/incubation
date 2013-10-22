@@ -20,6 +20,7 @@ import com.rameses.rcp.framework.ClientContext;
 import com.rameses.rcp.framework.UIController;
 import com.rameses.rcp.framework.UIControllerContext;
 import com.rameses.rcp.framework.UIControllerPanel;
+import com.rameses.rcp.support.MouseEventSupport;
 import com.rameses.rcp.support.TextDocument;
 import com.rameses.rcp.ui.ActiveControl;
 import com.rameses.rcp.ui.ControlProperty;
@@ -57,7 +58,8 @@ import javax.swing.event.AncestorListener;
  *
  * @author wflores
  */
-public class XLookupField extends IconedTextField implements UILookup, UISelector, Validatable, ActiveControl, ActionListener, LookupSelector   
+public class XLookupField extends IconedTextField implements UILookup, UISelector, 
+    Validatable, ActiveControl, ActionListener, LookupSelector, MouseEventSupport.ComponentInfo   
 {
     protected ControlProperty property = new ControlProperty();
     protected ActionMessage actionMessage = new ActionMessage();
@@ -104,7 +106,8 @@ public class XLookupField extends IconedTextField implements UILookup, UISelecto
             public void actionPerformed(ActionEvent e) {
                 try { refresh(); } catch(Throwable t) {;} 
             }
-        });         
+        });  
+        new MouseEventSupport(this).install(); 
     }
 
     // <editor-fold defaultstate="collapsed" desc="  Getters/Setters ">
@@ -293,7 +296,19 @@ public class XLookupField extends IconedTextField implements UILookup, UISelecto
         ExprBeanSupport beanSupport = new ExprBeanSupport(binding.getBean());
         beanSupport.setItem(getVarName(), itemBean); 
         return beanSupport.createProxy(); 
-    }        
+    } 
+    
+    public Map getInfo() { 
+        Map map = new HashMap();
+        map.put("disableWhen", getDisableWhen());
+        map.put("expression", getExpression()); 
+        map.put("focusAccelerator", getFocusAccelerator());
+        map.put("handler", getHandler());
+        map.put("handlerObject", getHandlerObject());
+        map.put("returnFields", getReturnFields()); 
+        map.put("varName", getVarName()); 
+        return map;
+    }     
     
     // </editor-fold>     
     

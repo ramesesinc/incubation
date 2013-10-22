@@ -21,7 +21,8 @@ import javax.swing.JPanel;
  *
  * @author wflores
  */
-public class XSplitView extends JPanel implements SplitViewLayout.Provider {
+public class XSplitView extends JPanel implements SplitViewLayout.Provider 
+{
     private static final long serialVersionUID = 1L;
     
     private SplitViewLayout layout; 

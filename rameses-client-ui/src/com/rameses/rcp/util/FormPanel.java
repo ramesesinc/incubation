@@ -34,6 +34,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
@@ -48,8 +49,8 @@ import javax.swing.border.Border;
 /**
  * @author jaycverg
  */
-public class FormPanel extends JPanel implements UIComposite, ControlContainer, Validatable, ActiveControl, UIConstants {
-    
+public class FormPanel extends JPanel implements UIComposite, ControlContainer, Validatable, ActiveControl, UIConstants 
+{    
     private int cellspacing = 2;
     private Insets cellpadding = new Insets(0,0,0,0);
     private String orientation = UIConstants.VERTICAL;
@@ -268,7 +269,8 @@ public class FormPanel extends JPanel implements UIComposite, ControlContainer, 
     }
     //</editor-fold>
     
-    //<editor-fold defaultstate="collapsed" desc="  refresh/load  ">
+    // <editor-fold defaultstate="collapsed" desc="  refresh/load  ">
+    
     public void refresh() {
         if( reloaded || (viewTypeSet && !ValueUtil.isEqual(oldViewType, viewType))) {
             refreshForm();
@@ -290,7 +292,12 @@ public class FormPanel extends JPanel implements UIComposite, ControlContainer, 
         build();
         reloaded = true;
     }
-    //</editor-fold>
+    
+    public Map getInfo() { 
+        return null; 
+    }         
+    
+    // </editor-fold>
     
     //<editor-fold defaultstate="collapsed" desc="  helper method  ">
     private void build() {

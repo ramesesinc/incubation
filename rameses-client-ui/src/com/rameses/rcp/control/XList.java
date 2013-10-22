@@ -15,6 +15,7 @@ import com.rameses.rcp.control.table.ExprBeanSupport;
 import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.support.FontSupport;
 import com.rameses.rcp.support.ImageIconSupport;
+import com.rameses.rcp.support.MouseEventSupport;
 import com.rameses.rcp.ui.UIControl;
 import com.rameses.rcp.util.UIControlUtil;
 import com.rameses.util.ValueUtil;
@@ -29,7 +30,9 @@ import java.awt.event.MouseEvent;
 import java.beans.Beans;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
 import javax.swing.DefaultListSelectionModel;
@@ -46,7 +49,7 @@ import javax.swing.UIManager;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-public class XList extends JList implements UIControl  
+public class XList extends JList implements UIControl, MouseEventSupport.ComponentInfo  
 {
     private ListSelectionSupport selectionSupport;    
     
@@ -91,7 +94,8 @@ public class XList extends JList implements UIControl
                     fireOpenItem();
                 }
             }, KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), JComponent.WHEN_FOCUSED);
-        }  
+        } 
+        new MouseEventSupport(this).install(); 
     }
     
     // <editor-fold defaultstate="collapsed" desc=" Getters/Setters ">
@@ -188,6 +192,19 @@ public class XList extends JList implements UIControl
     public int compareTo(Object o) {
         return UIControlUtil.compare(this, o);
     }    
+    
+    public Map getInfo() { 
+        Map map = new HashMap();
+        map.put("dynamic", isDynamic()); 
+        map.put("expression", getExpression());
+        map.put("handler", getHandler()); 
+        map.put("items", getItems());
+        map.put("multiselect", isMultiselect());
+        map.put("openAction", getOpenAction());
+        map.put("varName", getVarName());
+        map.put("varStatus", getVarStatus());
+        return map;
+    }     
     
     // </editor-fold>
    

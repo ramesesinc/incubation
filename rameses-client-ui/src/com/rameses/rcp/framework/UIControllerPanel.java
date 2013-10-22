@@ -148,12 +148,19 @@ public class UIControllerPanel extends JPanel implements NavigatablePanel, ViewC
     
     // <editor-fold defaultstate="collapsed" desc=" ContentPane.View implementation ">
     
+    public Map getInfo() {
+        UIControllerContext current = getCurrentController(); 
+        if (current == null) return null;
+        
+        UIController uic = current.getController(); 
+        return (uic == null? null: uic.getInfo()); 
+    }
+    
     public void showInfo() {
         UIControllerContext current = getCurrentController(); 
         if (current == null) return;
         
-        UIController uic = current.getController(); 
-        Map info = (uic == null? null: uic.getInfo()); 
+        Map info = getInfo();
         if (info == null || info.isEmpty()) return;
         
         OpenerProvider op = ClientContext.getCurrentContext().getOpenerProvider(); 

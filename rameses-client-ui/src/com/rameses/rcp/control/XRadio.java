@@ -11,6 +11,7 @@ import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.framework.ClientContext;
 import com.rameses.rcp.support.FontSupport;
+import com.rameses.rcp.support.MouseEventSupport;
 import com.rameses.rcp.support.ThemeUI;
 import com.rameses.rcp.ui.ActiveControl;
 import com.rameses.rcp.ui.ControlProperty;
@@ -30,7 +31,8 @@ import javax.swing.ButtonGroup;
 import javax.swing.JRadioButton;
 
 
-public class XRadio extends JRadioButton implements UIInput, ItemListener, ActiveControl 
+public class XRadio extends JRadioButton implements UIInput, ItemListener, 
+    ActiveControl, MouseEventSupport.ComponentInfo 
 {
     private Binding binding;
     private String[] depends;
@@ -46,7 +48,7 @@ public class XRadio extends JRadioButton implements UIInput, ItemListener, Activ
     public XRadio() 
     {
         addItemListener(this);
-        
+        new MouseEventSupport(this).install(); 
         //default font
         Font f = ThemeUI.getFont("XRadio.font");
         if ( f != null ) setFont( f );
@@ -86,6 +88,13 @@ public class XRadio extends JRadioButton implements UIInput, ItemListener, Activ
             buttonGroup.add(this);
         }
     }      
+    
+    public Map getInfo() { 
+        Map map = new HashMap();
+        map.put("mnemonic", (char)getMnemonic());
+        map.put("optionValue", getOptionValue());
+        return map;
+    }    
     
     public void itemStateChanged(ItemEvent e) {
         if ( e.getStateChange() == ItemEvent.SELECTED ) {

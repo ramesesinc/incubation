@@ -23,6 +23,7 @@ import com.rameses.rcp.util.UIInputUtil;
 import com.rameses.common.ExpressionResolver;
 import com.rameses.rcp.control.table.ExprBeanSupport;
 import com.rameses.rcp.support.FontSupport;
+import com.rameses.rcp.support.MouseEventSupport;
 import com.rameses.util.ValueUtil;
 import java.awt.EventQueue;
 import java.awt.Font;
@@ -42,7 +43,7 @@ import javax.swing.JComponent;
 import javax.swing.JTable;
 import javax.swing.UIManager;
 
-public class XComboBox extends JComboBox implements UIInput, Validatable, ActiveControl 
+public class XComboBox extends JComboBox implements UIInput, Validatable, ActiveControl, MouseEventSupport.ComponentInfo 
 {
     protected Binding binding;
     
@@ -86,6 +87,7 @@ public class XComboBox extends JComboBox implements UIInput, Validatable, Active
         }
 
         setVarName("item"); 
+        new MouseEventSupport(this).install();         
         
         //default font
         Font f = ThemeUI.getFont("XComboBox.font");
@@ -554,6 +556,22 @@ public class XComboBox extends JComboBox implements UIInput, Validatable, Active
     public int compareTo(Object o) {
         return UIControlUtil.compare(this, o);
     }      
+    
+    public Map getInfo() { 
+        Map map = new HashMap();
+        map.put("allowNull", isAllowNull()); 
+        map.put("dynamic", isDynamic()); 
+        map.put("emptyText", getEmptyText()); 
+        map.put("expression", getExpression()); 
+        map.put("fieldType", getFieldType());
+        map.put("immediate", isImmediate()); 
+        map.put("itemKey", getItemKey());
+        map.put("items", getItems());
+        map.put("itemsObject", getItemsObject()); 
+        map.put("required", isRequired());
+        map.put("varName", getVarName()); 
+        return map;
+    }       
     
     protected void onItemStateChanged(ItemEvent e) {
         if ( e.getStateChange() == ItemEvent.SELECTED && !updating ) {

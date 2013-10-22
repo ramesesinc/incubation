@@ -11,6 +11,7 @@ import com.rameses.rcp.ui.ControlProperty;
 import com.rameses.rcp.util.UICommandUtil;
 import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.support.FontSupport;
+import com.rameses.rcp.support.MouseEventSupport;
 import com.rameses.rcp.ui.UICommand;
 import com.rameses.rcp.util.UIControlUtil;
 import com.rameses.util.ValueUtil;
@@ -36,7 +37,8 @@ import javax.swing.KeyStroke;
  *
  * @author jaycverg
  */
-public class XButton extends JButton implements UICommand, ActionListener, ActiveControl 
+public class XButton extends JButton implements UICommand, ActionListener, 
+    ActiveControl, MouseEventSupport.ComponentInfo 
 {
     private int index;
     private String[] depends;
@@ -59,6 +61,7 @@ public class XButton extends JButton implements UICommand, ActionListener, Activ
     public XButton() {
         setOpaque(false);
         addActionListener(this);
+        new MouseEventSupport(this).install(); 
     }
     
         
@@ -277,6 +280,19 @@ public class XButton extends JButton implements UICommand, ActionListener, Activ
             }
         }
     }   
+    
+    public Map getInfo() { 
+        Map map = new HashMap();
+        map.put("accelerator", getAccelerator());
+        map.put("mnemonic", (char) getMnemonic());
+        map.put("defaultCommand", isDefaultCommand()); 
+        map.put("disableWhen", getDisableWhen());
+        map.put("expression", getExpression()); 
+        map.put("immediate", isImmediate()); 
+        map.put("target", getTarget());
+        map.put("visibleWhen", getVisibleWhen()); 
+        return map;
+    }     
     
     // </editor-fold>
     
