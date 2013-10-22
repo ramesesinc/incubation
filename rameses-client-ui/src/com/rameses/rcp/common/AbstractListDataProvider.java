@@ -8,6 +8,7 @@
  */
 package com.rameses.rcp.common;
 
+import com.rameses.rcp.common.Column.TypeHandler;
 import com.rameses.rcp.framework.ActionProvider;
 import com.rameses.rcp.framework.ClientContext;
 import java.util.ArrayList;
@@ -316,11 +317,11 @@ public abstract class AbstractListDataProvider
             tableModelSupport.fireTableRowsDeleted(index, index); 
         }
     }
-    
+        
     public final String getSelectedColumn() { return selectedColumn; }    
     public final void setSelectedColumn(String selectedColumn) {
-        this.selectedColumn = selectedColumn;
-    }     
+        this.selectedColumn = selectedColumn; 
+    } 
     
     protected void beforeLoad(){} 
     protected void afterLoad(){}
@@ -804,6 +805,7 @@ public abstract class AbstractListDataProvider
 
     public static interface UIProvider {
         Object getBinding(); 
+        Column getSelectedColumn(); 
     } 
     
     
@@ -816,6 +818,43 @@ public abstract class AbstractListDataProvider
     public final Object getBindingObject() {
         return (_uiprovider == null? null: _uiprovider.getBinding()); 
     }
+    
+    public final Column getSelectedColumnObject() {
+        return (_uiprovider == null? null: _uiprovider.getSelectedColumn()); 
+    }
+    
+    public final Map getSelectedColumnProperties() {
+        Column column = getSelectedColumnObject(); 
+        if (column == null) return null;
+        
+        Map map = new HashMap();
+        map.putAll(column.getProperties());
+        if (column.getName() != null) map.put("name", column.getName());
+        if (column.getCaption() != null) map.put("caption", column.getCaption());
+        if (column.getExpression() != null) map.put("expression", column.getExpression());
+        if (column.getType() != null) map.put("type", column.getType());
+        if (column.getEditableWhen() != null) map.put("editableWhen", column.getEditableWhen());
+        if (column.getVisibleWhen() != null) map.put("visibleWhen", column.getVisibleWhen());
+        
+        TypeHandler thandler = column.getTypeHandler();
+        if (thandler instanceof LookupColumnHandler) {
+            LookupColumnHandler hnd = (LookupColumnHandler)thandler; 
+            if (hnd.getExpression() != null) map.put("expression", hnd.getExpression());
+            if (hnd.getHandler() != null) map.put("handler", hnd.getHandler());
+            
+        } else if (thandler instanceof OpenerColumnHandler) {
+            OpenerColumnHandler hnd = (OpenerColumnHandler)thandler; 
+            if (hnd.getExpression() != null) map.put("expression", hnd.getExpression());
+            if (hnd.getHandler() != null) map.put("handler", hnd.getHandler());
+            
+        } else if (thandler instanceof ComboBoxColumnHandler) {
+            ComboBoxColumnHandler hnd = (ComboBoxColumnHandler)thandler; 
+            if (hnd.getExpression() != null) map.put("expression", hnd.getExpression());
+            if (hnd.getItemKey() != null) map.put("itemKey", hnd.getItemKey());
+            if (hnd.getItems() != null) map.put("items", hnd.getItems());
+        }        
+        return map;
+    }    
     
     // </editor-fold>
     
