@@ -3,6 +3,7 @@ package com.rameses.osiris2.client;
 import com.rameses.classutils.ClassDefUtil;
 import com.rameses.common.MethodResolver;
 import com.rameses.common.PropertyResolver;
+import com.rameses.osiris2.Invoker;
 import com.rameses.rcp.framework.UIController;
 import com.rameses.osiris2.Page;
 import com.rameses.osiris2.WorkUnit;
@@ -178,6 +179,7 @@ public class WorkUnitUIController extends UIController
 
     public Map getInfo() 
     {
+        final String workunitId = getWorkunit().getId(); 
         WorkUnit wu = getWorkunit().getWorkunit();
         if ("true".equals(wu.getProperties().get("disableWorkunitInfo")+"")) {
             return null; 
@@ -186,11 +188,13 @@ public class WorkUnitUIController extends UIController
         Map map = new LinkedHashMap(); 
         map.put("workunit_name", wu.getName());
         map.put("workunit_properties", wu.getProperties());
+        map.put("workunit_path", wu.getModule().getContextPath() + "/workunits/" + wu.getName() + ".xml");
         map.put("module_name", wu.getModule().getName());
-        map.put("module_url", wu.getModule().getURL()+"");         
-        map.put("module_context_path", wu.getModule().getContextPath());
         map.put("module_domain", wu.getModule().getDomain());
         map.put("module_properties", wu.getModule().getProperties());
+        
+        List<Invoker> invokers = OsirisContext.getSession().getInvokersByWorkunitid(workunitId);
+        map.put("invokers", invokers); 
         return map;
     }
     
