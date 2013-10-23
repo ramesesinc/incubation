@@ -9,7 +9,7 @@
 
 package com.rameses.rules.common;
 
-import java.util.Calendar;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
@@ -20,18 +20,12 @@ public class EffectiveDate {
     
     private Date date;
     private int numericDate;
+    private SimpleDateFormat dformat = new SimpleDateFormat("yyyyMMdd");
     
     /** Creates a new instance of EffectiveDate */
     public EffectiveDate(Date date) {
         this.date = date;
-        Calendar cal = Calendar.getInstance();
-        cal.setTime( date );
-        String yr = cal.get(Calendar.YEAR) +"";
-        String mnth = (cal.get(Calendar.MONTH)+1)+"";
-        String day = cal.get(Calendar.DAY_OF_MONTH)+"";
-        if(mnth.trim().length()==1) mnth = "0"+mnth;
-        if(day.trim().length()==1) day = "0"+day;
-        numericDate = Integer.parseInt(yr+mnth+day);
+        numericDate = Integer.parseInt(dformat.format(date));
     }
 
     public Date getDate() {
