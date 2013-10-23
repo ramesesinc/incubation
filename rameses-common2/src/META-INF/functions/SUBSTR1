@@ -1,5 +1,5 @@
 {
-  caption:'SUBSTR',
+  caption: 'SUBSTR',
   description: 'gets the substring of a text starting from start and ends at end',
   code: 'com.rameses.functions.StringFunc.substr',
   title: '@SUBSTR( text, start, end )',
