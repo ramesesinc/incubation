@@ -53,9 +53,9 @@ public class RuleContext {
     }
     
     public void build(List<Reader> readers) throws Exception {
-        KnowledgeBuilder builder = KnowledgeBuilderFactory.newKnowledgeBuilder(conf); 
+        KnowledgeBuilder builder = KnowledgeBuilderFactory.newKnowledgeBuilder(conf);
         for(Reader r: readers) {
-            builder.add( ResourceFactory.newReaderResource(r), ResourceType.DRL );    
+            builder.add( ResourceFactory.newReaderResource(r), ResourceType.DRL );
         }
         knowledgeBase = builder.newKnowledgeBase();
     }
@@ -111,19 +111,20 @@ public class RuleContext {
     public void addRulePackage(Reader reader) throws Exception {
         KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder( knowledgeBase, conf );
         kbuilder.add( ResourceFactory.newReaderResource(reader) , ResourceType.DRL );
-        KnowledgeBuilderErrors  errs = kbuilder.getErrors();
-        StringBuffer sb = new StringBuffer();
-        if(errs.size()>0) {
-            for(KnowledgeBuilderError e: errs) {
-                sb.append( e.getMessage() + "\n");
-            }
-        }
-        if(sb.length()>0)
-            throw new Exception(sb.toString());
         knowledgeBase.addKnowledgePackages( kbuilder.getKnowledgePackages() );
+        if(kbuilder.hasErrors()) {
+            KnowledgeBuilderErrors  errs = kbuilder.getErrors();
+            StringBuffer sb = new StringBuffer();
+            if(errs.size()>0) {
+                for(KnowledgeBuilderError e: errs) {
+                    sb.append( e.getMessage() + "\n");
+                }
+            }
+            throw new Exception(sb.toString());
+        }
     }
     
     public void removeRulePackage(String packageName) throws Exception {
         knowledgeBase.removeKnowledgePackage( packageName );
-    }   
+    }
 }

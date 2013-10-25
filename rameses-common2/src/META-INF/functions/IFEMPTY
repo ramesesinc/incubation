@@ -1,5 +1,5 @@
 {
-  caption:'IFEMPTY',
+  caption: 'IFEMPTY',
   description: 'if var is empty, first value1 is returned if not the value2',
   code: 'com.rameses.functions.LogicalFunc.ifEmpty',
   title: '@IFEMPTY( value1, value2 )',

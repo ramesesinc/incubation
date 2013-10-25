@@ -50,6 +50,9 @@ public class ActiveDBInvoker {
             else if(methodName.equals("update")) {
                 return em.update(n+subSchema, m);
             }
+            else if(methodName.equals("updateImmediate")) {
+                return em.updateImmediate(n+subSchema, m);
+            }
             else if(methodName.equals("read")) {
                 return em.read(n+subSchema, m);
             }

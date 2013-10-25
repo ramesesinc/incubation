@@ -25,14 +25,39 @@ public abstract class ActiveCrudListService extends ActiveCrudService {
         return null;
     }
     
+    public String getListMethod() {
+        return "getList";
+    }
+
+    public boolean isSearchtext() {
+        return true;
+    }
+    
     @ProxyMethod
     public Object getList(Object params) throws Exception {
+        Map m = (Map)params;
         if(getPagingKeys()!=null) {
-            ((Map)params).put("_pagingKeys", getPagingKeys());
+            m.put("_pagingKeys", getPagingKeys());
         }
-        beforeList(params);
-        List list = (List) getObj().invokeMethod("getList", new Object[]{params});
-        afterList(params, list);
+        
+        
+        if(isSearchtext()) {
+            String searchtext = (String)m.get("searchtext");
+            if(searchtext==null) 
+                searchtext = "%";
+            else
+                searchtext += "%";
+            m.put("searchtext", searchtext);
+        }
+
+        beforeList(m);
+        String listMethod = getListMethod();
+        if( m.get("_listMethod")!=null ) {
+            listMethod = (String) m.get("_listMethod");
+        }
+        
+        List list = (List) getObj().invokeMethod(listMethod, new Object[]{m});
+        afterList(m, list);
         return list;
     }
     
