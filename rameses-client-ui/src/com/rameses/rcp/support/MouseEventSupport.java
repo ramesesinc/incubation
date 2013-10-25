@@ -107,7 +107,8 @@ public class MouseEventSupport implements MouseListener
         Map info = new LinkedHashMap();
         if (!(component instanceof UIControl)) return info;
         
-        info.put("beanClass", (bean==null? null: bean.getClass()));
+        info.put("controlClass", component.getClass().getSimpleName()); 
+        info.put("beanClass", (bean == null? null: bean.getClass().getSimpleName()));
         
         UIControl uic = (UIControl) component;        
         info.put("name", uic.getName()); 
