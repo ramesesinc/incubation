@@ -15,6 +15,7 @@ import com.rameses.rcp.control.editor.FormulaDocument;
 import com.rameses.rcp.framework.ActionHandler;
 import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.framework.ClientContext;
+import com.rameses.rcp.support.MouseEventSupport;
 import com.rameses.rcp.ui.UIInput;
 import com.rameses.rcp.util.UIControlUtil;
 import com.rameses.rcp.util.UIInputUtil;
@@ -23,12 +24,14 @@ import java.awt.EventQueue;
 import java.beans.Beans;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.swing.JTextPane;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.Document;
 
-public class XFormulaEditor extends JTextPane implements UIInput 
+public class XFormulaEditor extends JTextPane implements UIInput, MouseEventSupport.ComponentInfo 
 {
     private Binding binding;
     private String[] depends;
@@ -51,6 +54,7 @@ public class XFormulaEditor extends JTextPane implements UIInput
     public XFormulaEditor() 
     {
         super.setDocument(getFormulaDocument());
+        new MouseEventSupport(this).install(); 
     }
     
     // <editor-fold defaultstate="collapsed" desc="  Getters/Setters  ">
@@ -226,6 +230,16 @@ public class XFormulaEditor extends JTextPane implements UIInput
     }
 
     public boolean isImmediate() { return false; }          
+    
+    public Map getInfo() { 
+        Map map = new HashMap();
+        map.put("dynamic", isDynamic()); 
+        map.put("handler", getHandler());
+        map.put("handlerObject", getHandlerObject());
+        map.put("keywordItems", getKeywordItems());
+        map.put("nullWhenEmpty", isNullWhenEmpty()); 
+        return map;
+    }    
     
     // </editor-fold>
     

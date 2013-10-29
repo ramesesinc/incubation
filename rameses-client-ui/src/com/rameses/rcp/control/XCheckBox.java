@@ -4,6 +4,7 @@ import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.framework.ClientContext;
 import com.rameses.rcp.support.FontSupport;
+import com.rameses.rcp.support.MouseEventSupport;
 import com.rameses.rcp.support.ThemeUI;
 import com.rameses.rcp.ui.ActiveControl;
 import com.rameses.rcp.ui.ControlProperty;
@@ -28,7 +29,7 @@ import javax.swing.SwingConstants;
  *
  * @author jaycverg
  */
-public class XCheckBox extends JCheckBox implements UIInput, ActiveControl 
+public class XCheckBox extends JCheckBox implements UIInput, ActiveControl, MouseEventSupport.ComponentInfo 
 {
     private ItemListenerImpl itemHandler = new ItemListenerImpl(); 
     private ControlProperty property = new ControlProperty();   
@@ -46,6 +47,7 @@ public class XCheckBox extends JCheckBox implements UIInput, ActiveControl
     
     public XCheckBox() 
     {
+        new MouseEventSupport(this).install(); 
         //default font
         Font f = ThemeUI.getFont("XCheckBox.font");
         if ( f != null ) setFont( f );
@@ -108,6 +110,14 @@ public class XCheckBox extends JCheckBox implements UIInput, ActiveControl
             uncheckValue = false; 
         } 
     }
+    
+    public Map getInfo() { 
+        Map map = new HashMap();
+        map.put("mnemonic", (char) getMnemonic()); 
+        map.put("checkValue", getCheckValue());
+        map.put("uncheckValue", getUncheckValue()); 
+        return map;
+    }     
     
     // <editor-fold defaultstate="collapsed" desc="  Getters/Setters  ">
     

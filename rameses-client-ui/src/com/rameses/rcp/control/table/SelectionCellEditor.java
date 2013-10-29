@@ -19,6 +19,7 @@ import com.rameses.rcp.util.UIControlUtil;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
+import java.util.Map;
 import javax.swing.JCheckBox;
 import javax.swing.SwingConstants;
 
@@ -95,6 +96,10 @@ public class SelectionCellEditor extends JCheckBox implements UIInput, Immediate
             itemHandler.enabled = true;
         }
     } 
+    
+    public Map getInfo() {
+        return null; 
+    }
     
     DataTableBinding getTableBinding() { 
         return (DataTableBinding) getBinding();

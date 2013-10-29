@@ -30,8 +30,8 @@ import java.util.List;
 import javax.swing.JPanel;
 
 
-public class XStyleRule extends JPanel implements UIControl {
-    
+public class XStyleRule extends JPanel implements UIControl 
+{    
     private Binding binding;
     private StyleRule[] styleRules;
     private boolean loaded;

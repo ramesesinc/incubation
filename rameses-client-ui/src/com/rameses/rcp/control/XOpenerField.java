@@ -24,6 +24,7 @@ import com.rameses.rcp.framework.ClientContext;
 import com.rameses.rcp.framework.UIController;
 import com.rameses.rcp.framework.UIControllerContext;
 import com.rameses.rcp.framework.UIControllerPanel;
+import com.rameses.rcp.support.MouseEventSupport;
 import com.rameses.rcp.support.TextDocument;
 import com.rameses.rcp.ui.ActiveControl;
 import com.rameses.rcp.ui.ControlProperty;
@@ -66,7 +67,8 @@ import javax.swing.text.Document;
  *
  * @author wflores
  */
-public class XOpenerField extends DefaultTextField implements UIInput, UIInputVerifier, Validatable, ActiveControl  
+public class XOpenerField extends DefaultTextField implements UIInput, 
+    UIInputVerifier, Validatable, ActiveControl, MouseEventSupport.ComponentInfo  
 {
     private Dimension minimumSize = new Dimension(0,0); 
     private BorderImpl borderImpl;
@@ -118,7 +120,7 @@ public class XOpenerField extends DefaultTextField implements UIInput, UIInputVe
                 try { refresh(); } catch(Throwable t) {;} 
             }
         }); 
-        
+        new MouseEventSupport(this).install(); 
         new KeyboardAction().install(); 
     }
     
@@ -518,7 +520,19 @@ public class XOpenerField extends DefaultTextField implements UIInput, UIInputVe
             setHandler(null); 
             setHandlerObject(handler);
         }
-    }   
+    } 
+    
+    public Map getInfo() { 
+        Map map = new HashMap();
+        map.put("handler", getHandler());
+        map.put("handlerObject", getHandlerObject());
+        map.put("expression", getExpression()); 
+        map.put("varName", getVarName());
+        map.put("focusAccelerator", getFocusAccelerator());
+        map.put("nullWhenEmpty", isNullWhenEmpty());
+        map.put("required", isRequired()); 
+        return map;
+    }     
 
     // </editor-fold>
     

@@ -4,6 +4,7 @@ import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.control.text.DefaultPasswordField;
 import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.framework.ClientContext;
+import com.rameses.rcp.support.MouseEventSupport;
 import com.rameses.rcp.ui.ActiveControl;
 import com.rameses.rcp.ui.ControlProperty;
 import com.rameses.rcp.ui.UIInput;
@@ -15,6 +16,8 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.Beans;
+import java.util.HashMap;
+import java.util.Map;
 import javax.swing.BorderFactory;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
@@ -23,7 +26,8 @@ import javax.swing.border.Border;
  *
  * @author Windhel
  */
-public class XPasswordField extends DefaultPasswordField implements UIInput, ActiveControl, Validatable 
+public class XPasswordField extends DefaultPasswordField implements UIInput, 
+    ActiveControl, Validatable, MouseEventSupport.ComponentInfo 
 {    
     protected Binding binding;
     
@@ -51,7 +55,8 @@ public class XPasswordField extends DefaultPasswordField implements UIInput, Act
             public void actionPerformed(ActionEvent e) {
                 try { refresh(); } catch(Throwable t) {;} 
             }
-        });         
+        });
+        new MouseEventSupport(this).install(); 
     }    
         
     // <editor-fold defaultstate="collapsed" desc=" Getters / Setters ">
@@ -120,7 +125,15 @@ public class XPasswordField extends DefaultPasswordField implements UIInput, Act
             
             if (ClientContext.getCurrentContext().isDebugMode()) e.printStackTrace(); 
         }         
-    }    
+    }  
+    
+    public Map getInfo() { 
+        Map map = new HashMap();
+        map.put("focusAccelerator", getFocusAccelerator());
+        map.put("nullWhenEmpty", isNullWhenEmpty()); 
+        map.put("required", isRequired()); 
+        return map;
+    }      
     
     // </editor-fold>
 

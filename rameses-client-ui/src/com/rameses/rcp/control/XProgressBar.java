@@ -17,12 +17,15 @@ import com.rameses.rcp.framework.NavigationHandler;
 import com.rameses.rcp.ui.UIControl;
 import com.rameses.rcp.util.UIControlUtil;
 import com.rameses.common.MethodResolver;
+import com.rameses.rcp.support.MouseEventSupport;
 import com.rameses.util.ValueUtil;
+import java.util.Map;
 import javax.swing.JProgressBar;
 
 
-public class XProgressBar extends JProgressBar implements UIControl, ProgressListener {
-    
+public class XProgressBar extends JProgressBar implements UIControl, 
+    ProgressListener, MouseEventSupport.ComponentInfo 
+{    
     private Binding binding;
     private String[] depends;
     private int index;
@@ -31,7 +34,9 @@ public class XProgressBar extends JProgressBar implements UIControl, ProgressLis
     private ProgressModel model;
     
     
-    public XProgressBar() {}
+    public XProgressBar() {
+        new MouseEventSupport(this).install(); 
+    }
     
     public void refresh() {
     }
@@ -47,6 +52,10 @@ public class XProgressBar extends JProgressBar implements UIControl, ProgressLis
     public int compareTo(Object o) {
         return UIControlUtil.compare(this, o);
     }
+    
+    public Map getInfo() { 
+        return null; 
+    }    
     
     public void onStart(int min, int max) {
         if ( model.isIndeterminate() ) {

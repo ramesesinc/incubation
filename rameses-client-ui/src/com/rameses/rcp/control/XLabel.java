@@ -5,6 +5,7 @@ import com.rameses.rcp.control.table.ExprBeanSupport;
 import com.rameses.rcp.control.text.DefaultLabel;
 import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.framework.ClientContext;
+import com.rameses.rcp.support.MouseEventSupport;
 import com.rameses.rcp.support.ThemeUI;
 import com.rameses.rcp.ui.ActiveControl;
 import com.rameses.rcp.ui.ControlProperty;
@@ -23,6 +24,8 @@ import java.beans.Beans;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.text.Format;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -35,7 +38,7 @@ import javax.swing.border.Border;
  *
  * @author jaycverg
  */
-public class XLabel extends DefaultLabel implements UIOutput, ActiveControl 
+public class XLabel extends DefaultLabel implements UIOutput, ActiveControl, MouseEventSupport.ComponentInfo 
 {
     private ControlProperty property = new ControlProperty();
     private Binding binding; 
@@ -75,6 +78,7 @@ public class XLabel extends DefaultLabel implements UIOutput, ActiveControl
         this.forceUseActiveCaption = forceUseActiveCaption;
         
         setPadding(new Insets(1,3,1,1));
+        new MouseEventSupport(this).install(); 
         
         //default font
         Font f = ThemeUI.getFont("XLabel.font");
@@ -335,6 +339,15 @@ public class XLabel extends DefaultLabel implements UIOutput, ActiveControl
     public int compareTo(Object o) {
         return UIControlUtil.compare(this, o);
     }
+    
+    public Map getInfo() { 
+        Map map = new HashMap();
+        map.put("expression", getExpression()); 
+        map.put("format", getFormat());
+        map.put("varName", getVarName());
+        map.put("visibleWhen", getVisibleWhen()); 
+        return map;
+    }     
     
     // </editor-fold>
     

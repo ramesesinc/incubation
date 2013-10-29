@@ -31,8 +31,8 @@ import javax.swing.JPopupMenu;
  *
  * @author jaycverg
  */
-public class XContextMenu extends JPanel implements UIControl, EventListener {
-    
+public class XContextMenu extends JPanel implements UIControl, EventListener 
+{    
     private Binding binding;
     private int index;
     private String[] depends;

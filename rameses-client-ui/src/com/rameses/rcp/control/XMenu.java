@@ -21,8 +21,8 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JPanel;
 
-public class XMenu extends JPanel implements UIControl {
-    
+public class XMenu extends JPanel implements UIControl 
+{    
     private Binding binding;
     private int index;
     private String[] depends;

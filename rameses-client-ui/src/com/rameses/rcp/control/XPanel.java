@@ -34,8 +34,8 @@ import javax.swing.border.EmptyBorder;
  *
  * @author jaycverg
  */
-public class XPanel extends JPanel implements UIControl, ControlContainer {
-    
+public class XPanel extends JPanel implements UIControl, ControlContainer 
+{    
     private Binding binding;
     private String[] depends;
     private int index;

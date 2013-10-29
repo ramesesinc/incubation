@@ -9,6 +9,7 @@ import com.rameses.rcp.framework.ActionHandler;
 import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.framework.ClientContext;
 import com.rameses.rcp.support.FontSupport;
+import com.rameses.rcp.support.MouseEventSupport;
 import com.rameses.rcp.support.TextDocument;
 import com.rameses.rcp.support.ThemeUI;
 import com.rameses.rcp.ui.ActiveControl;
@@ -29,6 +30,8 @@ import java.awt.Insets;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.beans.Beans;
+import java.util.HashMap;
+import java.util.Map;
 import javax.swing.JTextArea;
 import javax.swing.UIManager;
 import javax.swing.text.BadLocationException;
@@ -37,7 +40,8 @@ import javax.swing.text.BadLocationException;
  *
  * @author Windhel
  */
-public class XTextArea extends JTextArea implements UIInput, Validatable, ActiveControl 
+public class XTextArea extends JTextArea implements UIInput, Validatable, 
+    ActiveControl, MouseEventSupport.ComponentInfo 
 {
     private Color focusBackground;
     private Color disabledBackground;
@@ -74,7 +78,7 @@ public class XTextArea extends JTextArea implements UIInput, Validatable, Active
         for (FocusListener l : getFocusListeners()) {
             removeFocusListener(l); 
         }
-        
+        new MouseEventSupport(this).install(); 
         //default font
         Font f = ThemeUI.getFont("XTextArea.font");
         if ( f != null ) setFont( f );
@@ -142,6 +146,15 @@ public class XTextArea extends JTextArea implements UIInput, Validatable, Active
     public int compareTo(Object o) {
         return UIControlUtil.compare(this, o);
     }    
+    
+    public Map getInfo() { 
+        Map map = new HashMap();
+        map.put("focusAccelerator", getFocusAccelerator());
+        map.put("handler", getHandler());
+        map.put("nullWhenEmpty", isNullWhenEmpty()); 
+        map.put("required", isRequired());        
+        return map;
+    }       
     
     public void validateInput() 
     {

@@ -25,8 +25,8 @@ import java.beans.Beans;
 import javax.swing.JComponent;
 import javax.swing.UIManager;
 
-public class XSeparator extends JComponent implements UIControl, ActiveControl, UIConstants {
-    
+public class XSeparator extends JComponent implements UIControl, ActiveControl, UIConstants 
+{    
     private ControlProperty property = new ControlProperty();
     private String orientation = HORIZONTAL;
     private String orientationHPosition = CENTER;

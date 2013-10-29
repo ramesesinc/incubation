@@ -22,6 +22,7 @@ import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.framework.ClientContext;
 import com.rameses.rcp.support.FontSupport;
 import com.rameses.rcp.support.ImageIconSupport;
+import com.rameses.rcp.support.MouseEventSupport;
 import com.rameses.rcp.ui.ActiveControl;
 import com.rameses.rcp.ui.ControlProperty;
 import com.rameses.rcp.ui.UIControl;
@@ -57,7 +58,7 @@ import javax.swing.text.html.HTMLDocument;
  *
  * @author wflores
  */
-public class XHtmlView extends JEditorPane implements UIControl, ActiveControl 
+public class XHtmlView extends JEditorPane implements UIControl, ActiveControl, MouseEventSupport.ComponentInfo 
 {
     private ControlProperty controlProperty;    
     private Binding binding;
@@ -86,6 +87,8 @@ public class XHtmlView extends JEditorPane implements UIControl, ActiveControl
                 mousePoint = e.getPoint(); 
             } 
         }); 
+        
+        new MouseEventSupport(this).install(); 
         
         try { 
             Font font = UIManager.getLookAndFeelDefaults().getFont("TextField.font"); 
@@ -180,6 +183,10 @@ public class XHtmlView extends JEditorPane implements UIControl, ActiveControl
 
     public void setPropertyInfo(PropertySupport.PropertyInfo info) {
     }
+    
+    public Map getInfo() { 
+        return null; 
+    }      
     
     // </editor-fold>
     

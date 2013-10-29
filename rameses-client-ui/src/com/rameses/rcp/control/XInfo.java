@@ -52,5 +52,5 @@ public class XInfo extends JButton implements UIControl, ActionListener
     }
 
     public void setPropertyInfo(PropertySupport.PropertyInfo info) {
-    }
+    }     
 }

@@ -3,6 +3,7 @@ package com.rameses.rcp.control;
 import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.framework.ClientContext;
+import com.rameses.rcp.support.MouseEventSupport;
 import com.rameses.rcp.ui.UIControl;
 import com.rameses.rcp.util.UIControlUtil;
 import com.rameses.util.ValueUtil;
@@ -13,13 +14,15 @@ import java.awt.Image;
 import java.beans.Beans;
 import java.io.File;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 import javax.swing.border.Border;
 
-public class XImagePanel extends JPanel implements UIControl 
+public class XImagePanel extends JPanel implements UIControl, MouseEventSupport.ComponentInfo 
 {    
     private static String DISPLAY_NORMAL        = "NORMAL";
     private static String DISPLAY_TILE          = "TILE";
@@ -39,6 +42,7 @@ public class XImagePanel extends JPanel implements UIControl
     
     public XImagePanel() {
         dynamic = true; 
+        new MouseEventSupport(this).install(); 
     } 
     
     // <editor-fold defaultstate="collapsed" desc="  setter(s)/getter(s)  ">
@@ -175,6 +179,13 @@ public class XImagePanel extends JPanel implements UIControl
     public int compareTo(Object o) {
         return UIControlUtil.compare(this, o);
     }
+    
+    public Map getInfo() { 
+        Map map = new HashMap();
+        map.put("dynamic", isDynamic()); 
+        map.put("iconResource", getIconResource()); 
+        return map;
+    }    
 
     protected void paintComponent(Graphics g) 
     {

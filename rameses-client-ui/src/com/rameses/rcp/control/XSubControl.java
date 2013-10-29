@@ -24,8 +24,8 @@ import java.util.Set;
 import javax.swing.SwingUtilities;
 
 
-public class XSubControl extends XSubFormPanel {
-    
+public class XSubControl extends XSubFormPanel 
+{    
     private AbstractSubControlModel model;
     private boolean handlerAutoLookup = true;
     private boolean readonly;

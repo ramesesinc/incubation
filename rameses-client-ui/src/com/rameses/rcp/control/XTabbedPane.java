@@ -17,6 +17,7 @@ import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.framework.ClientContext;
 import com.rameses.rcp.framework.OpenerProvider;
 import com.rameses.rcp.support.ImageIconSupport;
+import com.rameses.rcp.support.MouseEventSupport;
 import com.rameses.rcp.support.ThemeUI;
 import com.rameses.rcp.ui.UIControl;
 import com.rameses.rcp.util.UIControlUtil;
@@ -34,7 +35,7 @@ import javax.swing.Icon;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
-public class XTabbedPane extends JTabbedPane implements UIControl 
+public class XTabbedPane extends JTabbedPane implements UIControl, MouseEventSupport.ComponentInfo 
 {    
     private Binding binding;
     private String[] depends;
@@ -64,7 +65,7 @@ public class XTabbedPane extends JTabbedPane implements UIControl
             addTab("Tab 1", new JPanel());
             addTab("Tab 2", new JPanel());
         }
-
+        new MouseEventSupport(this).install(); 
         setPreferredSize(new Dimension(100,50)); 
         Font f = ThemeUI.getFont("XTabbedPane.font");
         if ( f != null ) setFont( f );        
@@ -156,6 +157,13 @@ public class XTabbedPane extends JTabbedPane implements UIControl
     public int compareTo(Object o) {
         return UIControlUtil.compare(this, o);
     }
+    
+    public Map getInfo() { 
+        Map map = new HashMap();
+        map.put("dynammic", isDynamic());
+        map.put("disableWhen", getDisableWhen()); 
+        return map;
+    }       
     
     // </editor-fold>
     

@@ -8,6 +8,7 @@ import com.rameses.rcp.control.text.AbstractNumberDocument;
 import com.rameses.rcp.control.text.AbstractNumberField;
 import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.framework.ClientContext;
+import com.rameses.rcp.support.MouseEventSupport;
 import com.rameses.rcp.ui.ActiveControl;
 import com.rameses.rcp.ui.ControlProperty;
 import com.rameses.rcp.ui.UIInput;
@@ -30,7 +31,8 @@ import javax.swing.InputVerifier;
  *
  * @author wflores
  */
-public class XIntegerField extends AbstractNumberField implements UIInput, Validatable, ActiveControl 
+public class XIntegerField extends AbstractNumberField implements UIInput, 
+    Validatable, ActiveControl, MouseEventSupport.ComponentInfo 
 {   
     protected ControlProperty property = new ControlProperty();
     protected ActionMessage actionMessage = new ActionMessage();
@@ -58,6 +60,7 @@ public class XIntegerField extends AbstractNumberField implements UIInput, Valid
                 try { refresh(); } catch(Throwable t) {;} 
             }
         }); 
+        new MouseEventSupport(this).install(); 
     }
     
     protected AbstractNumberDocument createDocument() 
@@ -269,6 +272,18 @@ public class XIntegerField extends AbstractNumberField implements UIInput, Valid
     public int compareTo(Object o) { 
         return UIControlUtil.compare(this, o);
     }   
+    
+    public Map getInfo() { 
+        Map map = new HashMap();
+        map.put("actionCommand", getActionCommand());
+        map.put("focusAccelerator", getFocusAccelerator()); 
+        map.put("minValue", getMinValue());
+        map.put("maxValue", getMaxValue());
+        map.put("pattern", getPattern());
+        map.put("usePrimitiveValue", isUsePrimitiveValue()); 
+        map.put("required", isRequired()); 
+        return map;
+    }     
 
     // </editor-fold>
     

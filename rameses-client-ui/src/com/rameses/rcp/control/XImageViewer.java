@@ -2,6 +2,7 @@ package com.rameses.rcp.control;
 
 import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.framework.Binding;
+import com.rameses.rcp.support.MouseEventSupport;
 import com.rameses.rcp.ui.UIControl;
 import com.rameses.rcp.util.UIControlUtil;
 import java.awt.*;
@@ -13,6 +14,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.Map;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -24,8 +26,8 @@ import javax.swing.event.ChangeListener;
  * @author Windhel
  */
 
-public class XImageViewer extends JPanel implements UIControl {
-    
+public class XImageViewer extends JPanel implements UIControl, MouseEventSupport.ComponentInfo 
+{    
     private Binding binding;
     private int index;
     private boolean advanced;
@@ -65,6 +67,7 @@ public class XImageViewer extends JPanel implements UIControl {
         if( Beans.isDesignTime() ) {
             setPreferredSize(new Dimension(40,40));
         }
+        new MouseEventSupport(this).install();         
     }
     
     private void init() {
@@ -122,6 +125,10 @@ public class XImageViewer extends JPanel implements UIControl {
     public int compareTo(Object o) {
         return UIControlUtil.compare(this, o);
     }
+    
+    public Map getInfo() { 
+        return null; 
+    }      
     
     //<editor-fold defaultstate="collapsed" desc="  helper method(s)  ">
     private Image getImage() {

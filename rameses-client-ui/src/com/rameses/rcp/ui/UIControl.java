@@ -2,6 +2,7 @@ package com.rameses.rcp.ui;
 
 import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.framework.*;
+import java.util.Map;
 
 /**
  *
