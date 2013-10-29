@@ -20,7 +20,9 @@ public interface ContentPane
     Object getClientProperty(Object key);
     void putClientProperty(Object key, Object value); 
 
-    ContentPane.View getView(); 
+    ContentPane.View getView();     
+    boolean isCanClose();    
+    void close();
     
     
     
