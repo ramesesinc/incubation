@@ -19,10 +19,10 @@ import java.util.Map;
  */
 public abstract class ActiveCrudNodeService extends ActiveCrudListService {
     
-    public void beforeNode(Map selectedNode, boolean root) {
+    public void beforeNode(Object selectedNode, boolean root) {
         
     }
-    public void afterNode(Map selectedNode, Object nodes) {
+    public void afterNode(Object selectedNode, Object nodes) {
         
     }
     

@@ -43,6 +43,8 @@ public class ListHelper {
         listener.beforeList(params); 
         if (params.containsKey("searchtext")) {
             String stext = (String) params.get("searchtext");
+            if(stext.trim().equals("-")) stext = "";
+            stext = stext.trim()+ "%";
             params.put("searchtext", stext+"%" );
         }
         SqlQuery sq = em.getSqlContext().createNamedQuery( schemaName+":"+listMethod );
