@@ -49,6 +49,7 @@ public abstract class ActiveListService  {
             m.put("_pagingKeys", getPagingKeys());
         }
         
+        
         if(isSearchtext()) {
             String searchtext = (String)m.get("searchtext");
             if(searchtext==null)
