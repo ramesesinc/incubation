@@ -51,9 +51,14 @@ public final class InvokerProxy {
             return ect.create( serviceName, env, localInterface );
         }
         if( !scripts.containsKey(serviceName) ) {
-            ScriptInfoInf si = ect.create( serviceName,  ScriptInfoInf.class  );
-            Class clz = classLoader.parseClass( si.getStringInterface() );
-            scripts.put( serviceName, clz );
+            try {
+                ScriptInfoInf si = ect.create( serviceName,  ScriptInfoInf.class  );
+                Class clz = classLoader.parseClass( si.getStringInterface() );
+                scripts.put( serviceName, clz );
+            } catch(Exception e) {
+                e.printStackTrace();
+                throw e;
+            }
         }
         Class clz  = scripts.get(serviceName);
         ServiceProxy sp = ect.create( serviceName, env );

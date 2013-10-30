@@ -31,9 +31,15 @@ public class ScriptInfoContextResource extends ContextResource {
     }
     
     public ScriptInfo parseScript(String name, InputStream is, URL u, AbstractContext ctx ) throws Exception {
-        GroovyClassLoader gc = (GroovyClassLoader)ctx.getClassLoader();
-        Class clazz = gc.parseClass( is );
-        return new ScriptInfo(name, u, clazz,  ctx, gc);
+        try {
+            GroovyClassLoader gc = (GroovyClassLoader)ctx.getClassLoader();
+            Class clazz = gc.parseClass( is );
+            return new ScriptInfo(name, u, clazz,  ctx, gc);
+        }
+        catch(Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
     }
     
     public ScriptInfo findResource(String name) {

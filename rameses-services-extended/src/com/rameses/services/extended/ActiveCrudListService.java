@@ -45,8 +45,10 @@ public abstract class ActiveCrudListService extends ActiveCrudService {
             String searchtext = (String)m.get("searchtext");
             if(searchtext==null) 
                 searchtext = "%";
-            else
-                searchtext += "%";
+            else {
+                if(searchtext.trim().equals("-")) searchtext = "";
+                searchtext = searchtext.trim()+ "%";
+            }    
             m.put("searchtext", searchtext);
         }
 

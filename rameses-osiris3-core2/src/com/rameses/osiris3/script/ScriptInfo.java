@@ -76,8 +76,14 @@ public class ScriptInfo {
     
     public synchronized Class getInterfaceClass() {
         if(interfaceClass==null) {
-            stringInterface = StringInterface.buildInterface( clazz );
-            interfaceClass = ((GroovyClassLoader)sourceContext.getClassLoader()).parseClass( stringInterface );
+            try {
+                stringInterface = StringInterface.buildInterface( clazz );
+                interfaceClass = ((GroovyClassLoader)sourceContext.getClassLoader()).parseClass( stringInterface );
+            }
+            catch(Exception e) {
+                e.printStackTrace();
+                throw new RuntimeException(e);
+            }
         }
         return interfaceClass;
     }
