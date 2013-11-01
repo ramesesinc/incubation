@@ -21,7 +21,6 @@ import com.rameses.rcp.util.UIControlUtil;
 import com.rameses.rcp.util.UIInputUtil;
 import com.rameses.util.ValueUtil;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.FontMetrics;
@@ -74,7 +73,9 @@ public class XTextArea extends JTextArea implements UIInput, Validatable,
 
     private void initComponent() {
         TextComponentSupport.getInstance().installUIDefaults(this); 
-        setPreferredSize(new Dimension(100,40));
+        setColumns(5);
+        setRows(4); 
+        
         for (FocusListener l : getFocusListeners()) {
             removeFocusListener(l); 
         }
@@ -102,24 +103,21 @@ public class XTextArea extends JTextArea implements UIInput, Validatable,
         }
     }
     
-    public void refresh() 
-    {
+    public void refresh() {
         int oldCaretPos = getCaretPosition();
-        try 
-        {
+        try {
             //force to update component's status
             updateBackground();
             
             Object value = UIControlUtil.getBeanValue(this);
             setValue(value);
-        } 
-        catch(Exception e) 
-        {
+            
+        } catch(Exception e) {
             setText("");
             
             if (ClientContext.getCurrentContext().isDebugMode()) 
                 e.printStackTrace();
-        }
+        } 
         
         try {
             setCaretPosition(oldCaretPos); 
@@ -132,15 +130,13 @@ public class XTextArea extends JTextArea implements UIInput, Validatable,
         setDocument(textDocument);
         
         String shandler = getHandler();
-        if (shandler != null) 
-        {
+        if (shandler != null) {
             Object obj = UIControlUtil.getBeanValue(getBinding(), shandler); 
-            if (obj instanceof TextDocumentModel) 
-            {
+            if (obj instanceof TextDocumentModel) {
                 handlerObject = (TextDocumentModel) obj;
                 handlerObject.setProvider(new DocumentProvider()); 
-            }
-        }
+            } 
+        } 
     }
     
     public int compareTo(Object o) {
@@ -187,7 +183,7 @@ public class XTextArea extends JTextArea implements UIInput, Validatable,
     }
     
     public void setValue(Object value) {
-        setText(value == null? "" : value.toString());
+        setText(value == null? "" : value.toString()); 
     }
     
     public boolean isNullWhenEmpty() { return nullWhenEmpty; }    
