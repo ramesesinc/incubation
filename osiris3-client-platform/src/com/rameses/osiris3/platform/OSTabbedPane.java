@@ -12,6 +12,7 @@ import com.rameses.platform.interfaces.SubWindowContainer;
 import com.rameses.platform.interfaces.SubWindowListener;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.EventQueue;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -24,7 +25,9 @@ import java.util.Hashtable;
 import java.util.Map;
 import javax.swing.Icon;
 import javax.swing.JComponent;
+import javax.swing.JRootPane;
 import javax.swing.JTabbedPane;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
 /**

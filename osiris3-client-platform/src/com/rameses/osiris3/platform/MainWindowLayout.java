@@ -12,9 +12,24 @@ package com.rameses.osiris3.platform;
 
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Cursor;
+import java.awt.Desktop;
 import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.Insets;
 import java.awt.LayoutManager;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.net.URI;
+import java.net.URL;
+import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.SwingUtilities;
+import javax.swing.border.Border;
 
 /**
  *
@@ -32,8 +47,10 @@ class MainWindowLayout implements LayoutManager
     private Component content;
     private Component statusbar;
     
-    public MainWindowLayout()
-    {
+    private Logo logo;
+    
+    public MainWindowLayout() {
+        logo = new Logo(); 
     }
     
     public void addLayoutComponent(String name, Component comp) { 
@@ -154,7 +171,7 @@ class MainWindowLayout implements LayoutManager
     
     public void layoutContainer(Container parent) {
         synchronized (parent.getTreeLock()) {
-            Insets margin = parent.getInsets();            
+            Insets margin = parent.getInsets();  
             int pw = parent.getWidth();
             int ph = parent.getHeight();
             int x = margin.left;
@@ -165,10 +182,24 @@ class MainWindowLayout implements LayoutManager
                 Dimension dim = menubar.getPreferredSize();
                 menubar.setBounds(x, y, w, dim.height); 
                 y += dim.height;
-            }
+            }                        
             if (toolbar != null && toolbar.isVisible()) {
                 Dimension dim = toolbar.getPreferredSize();
-                toolbar.setBounds(x, y, w, dim.height); 
+                
+                //logo component
+                if (logo.getParent() == null) parent.add(logo); 
+                if (toolbar instanceof JComponent) {
+                    Border border = ((JComponent)toolbar).getBorder(); 
+                    if (border == null) border = BorderFactory.createEmptyBorder();
+
+                    logo.setBorder(border); 
+                }
+                logo.setPreferredSize(new Dimension(100, dim.height));                
+                Dimension ldim = logo.getPreferredSize(); 
+                int lx = (pw - margin.right) - ldim.width; 
+                int lw = lx - margin.left;
+                toolbar.setBounds(x, y, lx-margin.right, dim.height); 
+                logo.setBounds(lx, y, ldim.width, dim.height); 
                 y += dim.height;
             } 
             
@@ -193,4 +224,64 @@ class MainWindowLayout implements LayoutManager
         }
     } 
 
+    // <editor-fold defaultstate="collapsed" desc=" Logo ">
+    
+    private class Logo extends JLabel 
+    { 
+        MainWindowLayout root = MainWindowLayout.this;
+        ImageIcon iicon;
+        Image scaledImage;
+        Dimension scale;
+        
+        Logo() {
+            super();
+            try {
+                URL url = root.getClass().getResource("icon/rameses.png"); 
+                iicon = new ImageIcon(url);
+            } catch(Throwable e){;}
+            
+            setOpaque(true); 
+            setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)); 
+            setToolTipText("www.ramesesinc.com"); 
+            addMouseListener(new MouseAdapter() {
+                public void mouseClicked(MouseEvent me) {
+                    if (!SwingUtilities.isLeftMouseButton(me)) return;
+                    if (me.getClickCount() != 1) return;
+                    
+                    try { 
+                        Desktop.getDesktop().browse(new URI("www.ramesesinc.com"));
+                    } catch(Throwable t){;} 
+                }
+            });
+            
+        }
+        
+        public void paint(Graphics g) {
+            super.paint(g); 
+            if (iicon == null) return;
+
+            Insets margin = getInsets();  
+            int w = getWidth();
+            int h = getHeight();
+            int x = margin.left;
+            int y = margin.top;            
+            Image image = iicon.getImage();
+            int imgw = iicon.getIconWidth();
+            int imgh = iicon.getIconHeight();
+            if (imgw < (w-margin.left-margin.right)) x = w - (margin.left + margin.right + imgw);
+            if (imgh < (h-margin.top-margin.bottom)) {
+                int rh = h - (margin.top + margin.bottom); 
+                y = Math.max((h/2)-(rh/2), 0)+margin.top;
+            }
+            if (x < 0) x = margin.left; 
+            if (y < 0) y = margin.top; 
+            
+            Graphics2D g2 = (Graphics2D) g.create(); 
+            g2.drawImage(image, x, y, imgw, imgh, null);             
+            g2.dispose(); 
+        }
+    }
+    
+    // </editor-fold>
+    
 }

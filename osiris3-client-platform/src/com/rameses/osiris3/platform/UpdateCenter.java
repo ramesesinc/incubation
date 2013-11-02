@@ -20,20 +20,27 @@ import java.util.Map;
  *
  * @author compaq
  */
-public class UpdateCenter 
+class UpdateCenter 
 {
     private String appPath = System.getProperty("user.dir") + "/osiris2";
     private String appurl; 
     private URL[] urls;
     private Map env; 
     
+    private Handler handler;
+    
     public UpdateCenter(String appurl) {
         this.appurl = appurl;
     }
 
+    public void setHandler(Handler handler) {
+        this.handler = handler;
+    }
+    
     public String getAppPath() { return appPath; }    
     public void setAppPath(String appPath) { this.appPath = appPath; }
-    
+
+    public URL[] getUrls() { return urls; }     
     public Map getEnv() { return env; }    
     
     public ClassLoader getClassLoader(ClassLoader sourceClassLoader) {
@@ -42,13 +49,13 @@ public class UpdateCenter
         } else {
             return new URLClassLoader(urls, sourceClassLoader);
         } 
-    }    
-        
+    } 
+            
     public void start() throws Exception 
     {
         System.out.println("starting update");
+        if (handler != null) handler.onmessage("Checking for updates...");
         String hostPath = UpdateCenterUtil.buildHostPath( appurl );
-
         UpdateConf conf = UpdateCenterUtil.getUpdateConf(appurl, appPath );
         
         //compare the modules with old list, whatever is remaining should be deleted
@@ -67,9 +74,13 @@ public class UpdateCenter
         }
         
         //download all new modules
-        for(ModuleEntry me : forDownload) {
+        int index = 0; 
+        for (ModuleEntry me : forDownload) {
             System.out.println("... updating " + me.getFilename() );
+            if (handler != null) handler.ondownload(me); 
+            
             UpdateCenterUtil.download( hostPath, me );
+            index++;
         }
         
         env = conf.getEnv();
@@ -77,6 +88,15 @@ public class UpdateCenter
         int i = 0;
         for(ModuleEntry me: conf.getModules()) {
             urls[i++] = me.getURL();
-        }
-    }    
+        } 
+        
+        if (handler != null) handler.oncomplete(); 
+    } 
+        
+    public static interface Handler
+    {
+        void onmessage(String message);
+        void ondownload(ModuleEntry me);
+        void oncomplete();
+    }
 }

@@ -12,6 +12,7 @@ package com.rameses.osiris3.platform;
 import java.awt.Container;
 import java.util.Hashtable;
 import java.util.Map;
+import javax.swing.JLabel;
 import javax.swing.JMenuBar;
 
 /**
@@ -61,7 +62,11 @@ final class OSManager
     void reinitialize() {
         osMainWindow.reinitialize();
         osPlatform = new OSPlatform(this); 
-        startUpdate(); 
+        if (osAppLoader == null) {
+            osMainWindow.setContent(new JLabel("")); 
+        } else {
+            osAppLoader.load(osPlatform); 
+        }        
     }
     
     void startUpdate() {
@@ -94,5 +99,27 @@ final class OSManager
             } 
         }; 
         new Thread(runnable).start(); 
-    }    
+    }   
+    
+    private OSStartupWindow startupWindow;    
+    OSStartupWindow getStartupWindow() {
+        if (startupWindow == null) {
+            startupWindow = new OSStartupWindow();
+        }
+        return startupWindow; 
+    } 
+    
+    void closeStartupWindow() {
+        if (startupWindow == null) return;
+
+        startupWindow.dispose();
+        startupWindow = null; 
+    } 
+    
+    private OSAppLoader osAppLoader;
+    OSAppLoader getAppLoader() { return osAppLoader; } 
+    void setAppLoader(OSAppLoader osAppLoader) {
+        this.osAppLoader = osAppLoader; 
+        if (osAppLoader != null) osAppLoader.load(osPlatform); 
+    }     
 }

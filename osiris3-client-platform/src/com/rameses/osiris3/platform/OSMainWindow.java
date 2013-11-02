@@ -173,7 +173,7 @@ class OSMainWindow implements MainWindow
         });        
     }
     
-    public void setComponent(JComponent comp, String constraint) { 
+    public void setComponent(final JComponent comp, String constraint) { 
         //do nothing if comp or constraint is null
         if (comp == null || constraint == null) return;
         
@@ -227,7 +227,7 @@ class OSMainWindow implements MainWindow
             scrdim.height -= (margin.top + margin.bottom + 40); 
             window.setSize(scrdim.width, scrdim.height); 
             window.setLocation(40, 20);
-            window.setExtendedState(window.getExtendedState() | JFrame.MAXIMIZED_BOTH); 
+            //window.setExtendedState(window.getExtendedState() | JFrame.MAXIMIZED_BOTH); 
             
             KeyStroke ks = KeyStroke.getKeyStroke("ctrl shift I"); 
             ActionListener al = new ActionListener() {
@@ -240,6 +240,7 @@ class OSMainWindow implements MainWindow
             window.getRootPane().putClientProperty("Window.showInit", true);
         } 
         window.setVisible(true); 
+        OSManager.getInstance().closeStartupWindow();
     } 
     
     private void showInfo(ActionEvent e) {         

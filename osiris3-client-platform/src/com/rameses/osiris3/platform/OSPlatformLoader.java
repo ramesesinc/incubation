@@ -12,6 +12,7 @@ package com.rameses.osiris3.platform;
 import com.rameses.platform.interfaces.AppLoader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -23,10 +24,13 @@ import java.util.Properties;
 class OSPlatformLoader 
 {
     
-    public OSPlatformLoader() {
-    }
+    private OSPlatformLoader() {}
     
     public static OSPlatformLoader.DownloadResult downloadUpdates() throws Exception {
+        return downloadUpdates(null); 
+    }
+    
+    public static OSPlatformLoader.DownloadResult downloadUpdates(UpdateCenter.Handler handler) throws Exception {
         String filename = System.getProperty("user.dir") + "/client.conf";
         File file = new File(filename);
         if (!file.exists()) throw new Exception("client.conf does not exist");
@@ -39,7 +43,8 @@ class OSPlatformLoader
             throw new NullPointerException("app.url must be provided");
         
         UpdateCenter updateCenter = new UpdateCenter(appsys);
-        updateCenter.start();
+        updateCenter.setHandler(handler); 
+        updateCenter.start(); 
         
         Map env = new HashMap(props);
         env.putAll(updateCenter.getEnv());
@@ -48,33 +53,32 @@ class OSPlatformLoader
         if (loaderName == null || loaderName.trim().length() == 0)
             throw new NullPointerException("app.loader must be provided in the ENV");
 
-        ClassLoader classLoader = updateCenter.getClassLoader(OSManager.getOriginalClassLoader());         
+        ClassLoader classLoader = updateCenter.getClassLoader(OSManager.getOriginalClassLoader()); 
         AppLoader appLoader = (AppLoader) classLoader.loadClass(loaderName).newInstance(); 
-        return new DownloadResult(classLoader, appLoader, env);
+        return new DownloadResult(classLoader, appLoader, env, updateCenter.getUrls());
     } 
     
     public static class DownloadResult 
     {
         private ClassLoader classLoader;
         private AppLoader appLoader;
+        private String loaderName;
         private Map env;
+        private URL[] urls;
         
-        DownloadResult(ClassLoader classLoader, AppLoader appLoader, Map env) {
+        DownloadResult(ClassLoader classLoader, AppLoader appLoader, Map env, URL[] urls) {
             this.classLoader = classLoader;
             this.appLoader = appLoader;
             this.env = env; 
+            this.urls = urls;
         }
-
-        public ClassLoader getClassLoader() { 
-            return classLoader; 
-        } 
         
-        public AppLoader getAppLoader() { 
-            return appLoader; 
-        } 
+        public ClassLoader getClassLoader() { return classLoader; }         
+        public AppLoader getAppLoader() { return appLoader; }         
+        public Map getEnv() { return env; } 
         
-        public Map getEnv() { 
-            return env; 
-        } 
-    }    
+        public OSAppLoader deriveAppLoader() {
+            return new OSAppLoader(appLoader, env, urls);
+        }
+    } 
 }

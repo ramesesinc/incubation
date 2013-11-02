@@ -12,15 +12,13 @@ public class TextDocument extends PlainDocument
     private int maxlength;
     private boolean dirty;
     
-    public TextDocument() 
-    {
+    public TextDocument() {
         this.textCase = TextCase.NONE;
         this.maxlength = -1;
     }
     
     public TextCase getTextCase() { return textCase; }    
-    public void setTextCase(TextCase textCase) 
-    {
+    public void setTextCase(TextCase textCase) {
         this.textCase = textCase;
         update(); 
     }
@@ -30,33 +28,26 @@ public class TextDocument extends PlainDocument
     
     public boolean isDirty() { return dirty; } 
     
-    public void reset() 
-    { 
+    public void reset() { 
         dirty = false; 
     }  
     
-    public void loadValue(Object value) 
-    {
-        try 
-        {
+    public void loadValue(Object value) {
+        try {
             super.remove(0, getLength());
             insertString(0, (value == null? "": value.toString()), null);
-        }
-        catch(Exception ex) {;}
+        } catch(Throwable ex) {;}
         
         dirty = false; 
     }
     
-    public void insertString(int offs, String str, AttributeSet a) throws BadLocationException 
-    {
-        if (Beans.isDesignTime()) 
-        {
+    public void insertString(int offs, String str, AttributeSet a) throws BadLocationException {
+        if (Beans.isDesignTime()) { 
             super.insertString(offs, str, a); 
             return;
         }
         
-        if (maxlength > 0) 
-        {
+        if (maxlength > 0) {
             if (getLength() >= maxlength) return;
             
             if (getLength()+str.length() > maxlength) {
@@ -71,21 +62,17 @@ public class TextDocument extends PlainDocument
         dirty = true; 
     }
 
-    public void remove(int offs, int len) throws BadLocationException 
-    {
+    public void remove(int offs, int len) throws BadLocationException {
         super.remove(offs, len); 
         dirty = true; 
     }
     
-    private void update() 
-    {        
-        try 
-        {
+    private void update() { 
+        try {
             String text = getText(0, getLength());
             super.remove(0, getLength());
             insertString(0, text, null); 
-        } 
-        catch (Exception ex) {;}
-    }
+        } catch (Throwable ex) {;}
+    }    
 }
 
