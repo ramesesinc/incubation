@@ -46,7 +46,16 @@ public class PageFlowInstance {
             Object data = workunit.getController();
             Transition t = findTransition(prevNode, n, data);
             fireTransitionAction(t);
-            AbstractNode tempNode = findNode(t.getTo());
+            
+            //resolve to if it is expression-like
+            String to = t.getTo();
+            try {
+                to = ExpressionResolver.getInstance().evalString(to, data);
+            }
+            catch(Exception ex) {
+                System.out.println("error pageflow rendered expr " + to + "->" + ex.getMessage());
+            }
+            AbstractNode tempNode = findNode(to);
             fireNodeAction(tempNode);
             if ( tempNode instanceof ProcessNode ) {
                 return signalNode( tempNode, null );
