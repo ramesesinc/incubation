@@ -2,6 +2,7 @@ package com.rameses.rcp.framework;
 
 import com.rameses.rcp.annotations.Controller;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.Hashtable;
 import java.util.Map;
 
@@ -24,38 +25,70 @@ public abstract class ControllerProvider
     protected abstract UIController provide(String name, UIController caller);
     
     private void injectController( Object o, Class clazz, UIController u ) {
-        if( o == null) return;
+        if (o == null) return;
         
-        if( classIndex.containsKey(clazz) ) {
-            Field f = classIndex.get(clazz);
-            if( f != null ) {
-                setValue(f, o, u);
-            }
-        }
-        else {
-            for( Field f: clazz.getDeclaredFields() ) {
+        if (classIndex.containsKey(clazz)) { 
+            Field f = classIndex.get(clazz); 
+            if (f == null) return;
+            
+            boolean success = setValue(f, o, u);
+            if (success) {
+                com.rameses.rcp.annotations.Controller a = f.getAnnotation(com.rameses.rcp.annotations.Controller.class);
+                fireOnreadyCallback(a, o);
+            }             
+        } else {
+            for (Field f: clazz.getDeclaredFields()) {
                 //inject Controller
-                if( f.isAnnotationPresent( Controller.class )) {
-                    setValue( f, o, u );
-                    classIndex.put(clazz, f);
-                    return;
-                }
+                if (f.isAnnotationPresent(Controller.class)) {
+                    boolean success = setValue(f, o, u); 
+                    if (success) {
+                        com.rameses.rcp.annotations.Controller a = f.getAnnotation(com.rameses.rcp.annotations.Controller.class);
+                        classIndex.put(clazz, f); 
+                        fireOnreadyCallback(a, o);
+                    }
+                    return; 
+                } 
             }
-            if( clazz.getSuperclass() != null ) {
-                injectController( o, clazz.getSuperclass(), u );
+            if (clazz.getSuperclass() != null) {
+                injectController(o, clazz.getSuperclass(), u);
             }
         }
     }
     
-    private void setValue(Field f, Object owner, Object value) {
-        boolean accessible = f.isAccessible();
-        f.setAccessible(true);
-        try {
-            f.set(owner, value);
-        } catch(Exception ex) {
+    private boolean setValue(Field f, Object owner, Object value) {
+        boolean accessible = f.isAccessible();        
+        try { 
+            f.setAccessible(true); 
+            f.set(owner, value); 
+            return true; 
+        } catch(Throwable ex) { 
             System.out.println("ERROR injecting @Controller "  + ex.getMessage() );
-        }
-        f.setAccessible(accessible);
+            return false;  
+        } finally { 
+            f.setAccessible(accessible); 
+        }        
     }
     
+    private void fireOnreadyCallback(com.rameses.rcp.annotations.Controller a, Object bean) {
+        if (a == null || bean == null) return;
+        
+        String onready = (a == null? null: a.onready()); 
+        if (onready == null || onready.length() == 0) return;
+        
+        Class clazz = bean.getClass();
+        Method method = null; 
+        try { 
+            method = clazz.getMethod(onready, new Class[]{});
+        } catch(Throwable t) {;} 
+        
+        try {
+            if (method == null) return;
+            
+            method.invoke(bean, new Object[]{}); 
+        } catch (RuntimeException re) {
+            throw re;
+        } catch (Exception ex) {
+            throw new RuntimeException(ex.getMessage(), ex); 
+        } 
+    }     
 }
