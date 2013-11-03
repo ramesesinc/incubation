@@ -201,6 +201,13 @@ public class XTree extends JTree implements UIControl, MouseEventSupport.Compone
         //treat items w/ no children as folders unless explicitly defined as leaf
         model.setAsksAllowsChildren(true);         
         setModel(model); 
+        if (nodeModel.isAutoSelect()) {
+            try { 
+                setSelectionRow(0); 
+            } catch(Throwable t) {;} 
+            
+            fireOpenSelectedNode(true); 
+        } 
     }
     
     public Map getInfo() { 
