@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 
 @Retention(value=RetentionPolicy.RUNTIME)
 @Target(value=ElementType.FIELD)
-public @interface Controller {
-    
-    
+public @interface Controller 
+{
+    String onready() default ""; 
 }
