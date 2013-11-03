@@ -1,20 +1,22 @@
 /*
- * ExplorerViewPage2.java
+ * ListPage.java
  *
  * Created on April 24, 2013, 12:44 PM
  */
 
 package com.rameses.osiris2.themes;
 
+import java.awt.Font;
+
 /**
  *
  * @author  wflores
  */
-public class ExplorerViewPage extends javax.swing.JPanel {
+public class ExplorerViewPage_old extends javax.swing.JPanel {
     
-    public ExplorerViewPage() {
+    public ExplorerViewPage_old() {
         initComponents();
-        pnlView.add(new ExplorerViewListPage());  
+        //lblTitle.setFont(Font.decode("-bold-18"));
     }
 
     /** This method is called from within the constructor to
@@ -31,6 +33,7 @@ public class ExplorerViewPage extends javax.swing.JPanel {
         jScrollPane1 = new javax.swing.JScrollPane();
         xTree1 = new com.rameses.rcp.control.XTree();
         pnlView = new javax.swing.JPanel();
+        xSubFormPanel1 = new com.rameses.rcp.control.XSubFormPanel();
 
         setLayout(new java.awt.BorderLayout());
 
@@ -69,6 +72,12 @@ public class ExplorerViewPage extends javax.swing.JPanel {
         pnlView.setLayout(new java.awt.BorderLayout());
 
         pnlView.setBorder(javax.swing.BorderFactory.createEmptyBorder(2, 0, 2, 0));
+        xSubFormPanel1.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        xSubFormPanel1.setDynamic(true);
+        xSubFormPanel1.setHandler("openerObject");
+        xSubFormPanel1.setName("subform");
+        pnlView.add(xSubFormPanel1, java.awt.BorderLayout.CENTER);
+
         xSplitView1.add(pnlView);
 
         add(xSplitView1, java.awt.BorderLayout.CENTER);
@@ -84,6 +93,7 @@ public class ExplorerViewPage extends javax.swing.JPanel {
     private javax.swing.JPanel pnlTree;
     private javax.swing.JPanel pnlView;
     private com.rameses.rcp.control.XSplitView xSplitView1;
+    private com.rameses.rcp.control.XSubFormPanel xSubFormPanel1;
     private com.rameses.rcp.control.XTree xTree1;
     // End of variables declaration//GEN-END:variables
     

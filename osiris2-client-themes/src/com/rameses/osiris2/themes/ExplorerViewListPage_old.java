@@ -1,18 +1,18 @@
 /*
- * ExplorerViewListPage2.java
+ * ExplorerViewListPage.java
  *
  * Created on April 24, 2013, 12:44 PM
  */
 
-package com.rameses.osiris2.themes; 
+package com.rameses.osiris2.themes;
 
 /**
  *
  * @author  wflores
  */
-public class ExplorerViewListPage extends javax.swing.JPanel {
+public class ExplorerViewListPage_old extends javax.swing.JPanel {
     
-    public ExplorerViewListPage() {
+    public ExplorerViewListPage_old() {
         initComponents();
     }
     
@@ -52,9 +52,8 @@ public class ExplorerViewListPage extends javax.swing.JPanel {
         jPanel3.setBorder(xEtchedBorder1);
         jPanel3.setPreferredSize(new java.awt.Dimension(154, 30));
         lblTitle.setBackground(new java.awt.Color(255, 255, 255));
-        lblTitle.setExpression("#{listHandler.title}");
+        lblTitle.setExpression("#{title}");
         lblTitle.setFontStyle("font-size: 14; font-weight:bold;");
-        lblTitle.setName("nodechange");
         lblTitle.setOpaque(true);
         lblTitle.setPadding(new java.awt.Insets(2, 7, 2, 5));
         jPanel3.add(lblTitle, java.awt.BorderLayout.WEST);
@@ -63,7 +62,7 @@ public class ExplorerViewListPage extends javax.swing.JPanel {
         xActionBar1.setButtonBorderPainted(false);
         xActionBar1.setButtonContentAreaFilled(false);
         xActionBar1.setDynamic(true);
-        xActionBar1.setName("listHandler.nodeActions");
+        xActionBar1.setName("nodeActions");
         xActionBar1.setOpaque(false);
         xActionBar1.setShowCaptions(false);
         xActionBar1.setUseToolBar(false);
@@ -77,15 +76,12 @@ public class ExplorerViewListPage extends javax.swing.JPanel {
         xEtchedBorder2.setHideRight(true);
         jPanel1.setBorder(xEtchedBorder2);
         xActionBar2.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        xActionBar2.setDepends(new String[] {"listHandler.selectedEntity", "nodechange"});
+        xActionBar2.setDepends(new String[] {"selectedEntity"});
         xActionBar2.setDynamic(true);
-        xActionBar2.setName("listHandler.formActions");
+        xActionBar2.setName("formActions");
         jPanel1.add(xActionBar2, java.awt.BorderLayout.WEST);
 
-        xSubFormPanel1.setDepends(new String[] {"nodechange"});
-        xSubFormPanel1.setDynamic(true);
         xSubFormPanel1.setHandler("queryForm");
-        xSubFormPanel1.setName("queryForm");
         xSubFormPanel1.setVisibleWhen("#{queryFormVisible == true}");
         org.jdesktop.layout.GroupLayout xSubFormPanel1Layout = new org.jdesktop.layout.GroupLayout(xSubFormPanel1);
         xSubFormPanel1.setLayout(xSubFormPanel1Layout);
@@ -108,20 +104,20 @@ public class ExplorerViewListPage extends javax.swing.JPanel {
         pnlBody.setBorder(javax.swing.BorderFactory.createEmptyBorder(2, 0, 0, 2));
         xDataTable1.setHandler("listHandler");
         xDataTable1.setImmediate(true);
-        xDataTable1.setName("listHandler.selectedEntity");
+        xDataTable1.setName("selectedEntity");
         pnlBody.add(xDataTable1, java.awt.BorderLayout.CENTER);
 
         add(pnlBody, java.awt.BorderLayout.CENTER);
 
         navBar1.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 5, 0, 25));
-        navBar1.setName("listHandler.navActions");
+        navBar1.setName("navActions");
         xHorizontalPanel2.add(navBar1);
 
         jPanel4.setLayout(new java.awt.BorderLayout());
 
         jPanel4.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 5, 0, 10));
-        xLabel1.setDepends(new String[] {"listHandler.selectedEntity"});
-        xLabel1.setExpression("#{listHandler.recordCountInfo}");
+        xLabel1.setDepends(new String[] {"selectedEntity"});
+        xLabel1.setExpression("#{recordCountInfo}");
         xLabel1.setUseHtml(true);
         jPanel4.add(xLabel1, java.awt.BorderLayout.CENTER);
 
@@ -130,8 +126,8 @@ public class ExplorerViewListPage extends javax.swing.JPanel {
         jPanel5.setLayout(new java.awt.BorderLayout());
 
         jPanel5.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 5, 0, 10));
-        xLabel2.setDepends(new String[] {"listHandler.selectedEntity"});
-        xLabel2.setExpression("#{listHandler.pageCountInfo}");
+        xLabel2.setDepends(new String[] {"selectedEntity"});
+        xLabel2.setExpression("#{pageCountInfo}");
         xLabel2.setUseHtml(true);
         jPanel5.add(xLabel2, java.awt.BorderLayout.CENTER);
 

@@ -49,9 +49,8 @@
                 <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
                   <Color blue="ff" green="ff" red="ff" type="rgb"/>
                 </Property>
-                <Property name="expression" type="java.lang.String" value="#{listHandler.title}"/>
+                <Property name="expression" type="java.lang.String" value="#{title}"/>
                 <Property name="fontStyle" type="java.lang.String" value="font-size: 14; font-weight:bold;"/>
-                <Property name="name" type="java.lang.String" value="nodechange"/>
                 <Property name="opaque" type="boolean" value="true"/>
                 <Property name="padding" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
                   <Insets value="[2, 7, 2, 5]"/>
@@ -73,7 +72,7 @@
                 <Property name="buttonBorderPainted" type="boolean" value="false"/>
                 <Property name="buttonContentAreaFilled" type="boolean" value="false"/>
                 <Property name="dynamic" type="boolean" value="true"/>
-                <Property name="name" type="java.lang.String" value="listHandler.nodeActions"/>
+                <Property name="name" type="java.lang.String" value="nodeActions"/>
                 <Property name="opaque" type="boolean" value="false"/>
                 <Property name="showCaptions" type="boolean" value="false"/>
                 <Property name="useToolBar" type="boolean" value="false"/>
@@ -110,13 +109,12 @@
                   </Border>
                 </Property>
                 <Property name="depends" type="[Ljava.lang.String;" editor="org.netbeans.beaninfo.editors.StringArrayEditor">
-                  <StringArray count="2">
-                    <StringItem index="0" value="listHandler.selectedEntity"/>
-                    <StringItem index="1" value="nodechange"/>
+                  <StringArray count="1">
+                    <StringItem index="0" value="selectedEntity"/>
                   </StringArray>
                 </Property>
                 <Property name="dynamic" type="boolean" value="true"/>
-                <Property name="name" type="java.lang.String" value="listHandler.formActions"/>
+                <Property name="name" type="java.lang.String" value="formActions"/>
               </Properties>
               <Constraints>
                 <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
@@ -126,14 +124,7 @@
             </Component>
             <Container class="com.rameses.rcp.control.XSubFormPanel" name="xSubFormPanel1">
               <Properties>
-                <Property name="depends" type="[Ljava.lang.String;" editor="org.netbeans.beaninfo.editors.StringArrayEditor">
-                  <StringArray count="1">
-                    <StringItem index="0" value="nodechange"/>
-                  </StringArray>
-                </Property>
-                <Property name="dynamic" type="boolean" value="true"/>
                 <Property name="handler" type="java.lang.String" value="queryForm"/>
-                <Property name="name" type="java.lang.String" value="queryForm"/>
                 <Property name="visibleWhen" type="java.lang.String" value="#{queryFormVisible == true}"/>
               </Properties>
               <Constraints>
@@ -179,7 +170,7 @@
           <Properties>
             <Property name="handler" type="java.lang.String" value="listHandler"/>
             <Property name="immediate" type="boolean" value="true"/>
-            <Property name="name" type="java.lang.String" value="listHandler.selectedEntity"/>
+            <Property name="name" type="java.lang.String" value="selectedEntity"/>
           </Properties>
           <Constraints>
             <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
@@ -203,7 +194,7 @@
                 <EmptyBorder bottom="0" left="5" right="25" top="0"/>
               </Border>
             </Property>
-            <Property name="name" type="java.lang.String" value="listHandler.navActions"/>
+            <Property name="name" type="java.lang.String" value="navActions"/>
           </Properties>
         </Component>
         <Container class="javax.swing.JPanel" name="jPanel4">
@@ -221,10 +212,10 @@
               <Properties>
                 <Property name="depends" type="[Ljava.lang.String;" editor="org.netbeans.beaninfo.editors.StringArrayEditor">
                   <StringArray count="1">
-                    <StringItem index="0" value="listHandler.selectedEntity"/>
+                    <StringItem index="0" value="selectedEntity"/>
                   </StringArray>
                 </Property>
-                <Property name="expression" type="java.lang.String" value="#{listHandler.recordCountInfo}"/>
+                <Property name="expression" type="java.lang.String" value="#{recordCountInfo}"/>
                 <Property name="useHtml" type="boolean" value="true"/>
               </Properties>
               <Constraints>
@@ -250,10 +241,10 @@
               <Properties>
                 <Property name="depends" type="[Ljava.lang.String;" editor="org.netbeans.beaninfo.editors.StringArrayEditor">
                   <StringArray count="1">
-                    <StringItem index="0" value="listHandler.selectedEntity"/>
+                    <StringItem index="0" value="selectedEntity"/>
                   </StringArray>
                 </Property>
-                <Property name="expression" type="java.lang.String" value="#{listHandler.pageCountInfo}"/>
+                <Property name="expression" type="java.lang.String" value="#{pageCountInfo}"/>
                 <Property name="useHtml" type="boolean" value="true"/>
               </Properties>
               <Constraints>
