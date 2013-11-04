@@ -7,10 +7,10 @@
 package com.rameses.rcp.control.table;
 
 import com.rameses.rcp.common.Column;
-import com.rameses.rcp.common.EditorListModel;
 import com.rameses.rcp.common.ListItem;
 import com.rameses.common.PropertyResolver;
 import com.rameses.rcp.common.AbstractListDataProvider;
+import com.rameses.rcp.common.EditorListSupport;
 import com.rameses.rcp.common.TableModelHandler;
 import com.rameses.util.ValueUtil;
 import java.beans.PropertyChangeListener;
@@ -29,7 +29,7 @@ public class DataTableModel extends AbstractTableModel implements TableControlMo
     private List<Column> columnList = new ArrayList();    
     
     private AbstractListDataProvider dataProvider; 
-    private EditorListModel editorModel;    
+    private EditorListSupport editorSupport;
     private DataTableBinding binding;
     private String multiSelectName;    
     private String varName = "item";
@@ -72,21 +72,18 @@ public class DataTableModel extends AbstractTableModel implements TableControlMo
     public AbstractListDataProvider getDataProvider() { return dataProvider; }    
     public void setDataProvider(AbstractListDataProvider dataProvider) 
     {
-        if (this.dataProvider != null) {
-            this.dataProvider.removeHandler(this);
-        } 
+        AbstractListDataProvider oldDataProvider = this.dataProvider;
+        if (oldDataProvider != null) oldDataProvider.removeHandler(this);
         
         this.dataProvider = dataProvider;
-        if (this.dataProvider != null) {
-            this.dataProvider.addHandler(this);
-        }           
-        if (this.dataProvider instanceof EditorListModel) {
-            this.editorModel = (EditorListModel) this.dataProvider; 
-        } else {
-            this.editorModel = null; 
-        }        
+        if (dataProvider != null) dataProvider.addHandler(this); 
+
         reIndexColumns(); 
     } 
+    
+    void setEditorListSupport(EditorListSupport editorSupport) {
+        this.editorSupport = editorSupport; 
+    }
     
     void dispose() {
         if (dataProvider == null) return;
@@ -235,8 +232,8 @@ public class DataTableModel extends AbstractTableModel implements TableControlMo
 
             ListItem li = getListItem(rowIndex); 
             //fire notification before column update
-            if (editorModel != null)  
-                editorModel.fireBeforeColumnUpdate(li, value);
+            if (editorSupport != null)  
+                editorSupport.fireBeforeColumnUpdate(li, value);
             
             resolver.setProperty(item, column.getName(), value); 
 
@@ -250,7 +247,7 @@ public class DataTableModel extends AbstractTableModel implements TableControlMo
             } catch(Exception ex) {;} 
             
             //fire notification after the column has been updated
-            if (editorModel != null) editorModel.fireColumnUpdate(li); 
+            if (editorSupport != null) editorSupport.fireColumnUpdate(li); 
         }
     }
 

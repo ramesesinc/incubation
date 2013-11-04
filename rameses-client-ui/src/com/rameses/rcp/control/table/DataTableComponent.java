@@ -11,7 +11,7 @@ import com.rameses.rcp.common.AbstractListDataProvider;
 import com.rameses.rcp.common.AbstractListModel;
 import com.rameses.rcp.common.Action;
 import com.rameses.rcp.common.Column;
-import com.rameses.rcp.common.EditorListModel;
+import com.rameses.rcp.common.EditorListSupport;
 import com.rameses.rcp.common.ListItem;
 import com.rameses.rcp.common.ListPageModel;
 import com.rameses.rcp.common.MsgBox;
@@ -82,7 +82,7 @@ public class DataTableComponent extends JTable implements TableControl
     private DataTableModel tableModel;
     private TableListener tableListener;
     private ListPageModel pageModel;    
-    private EditorListModel editorModel;
+    private EditorListSupport editorSupport; 
     private AbstractListDataProvider dataProvider;
     private PropertyChangeHandlerImpl propertyHandler;
     private TableModelHandlerImpl tableModelHandler;
@@ -211,39 +211,39 @@ public class DataTableComponent extends JTable implements TableControl
         }
         
         AbstractListDataProvider oldDataProvider = this.dataProvider;
-        if (oldDataProvider != null) 
-        { 
+        if (oldDataProvider != null) { 
             oldDataProvider.removeHandler(propertyHandler); 
             oldDataProvider.removeHandler(tableModelHandler);
-            oldDataProvider.setUIProvider(null);             
-            if (oldDataProvider instanceof EditorListModel) {
-                ((EditorListModel) oldDataProvider).setUIEditorProvider(null); 
-            }
+            oldDataProvider.setUIProvider(null); 
             uninstall(oldDataProvider); 
         }
+        EditorListSupport oldEditorSupport = this.editorSupport;
+        if (oldEditorSupport != null) oldEditorSupport.setTableEditorProvider(null); 
         
         this.dataProvider = dataProvider; 
-        this.editorModel = null;
+        this.editorSupport = null;
         this.pageModel = null;  
         
         if (this.dataProvider != null) 
             this.dataProvider.addHandler(propertyHandler); 
         if (dataProvider instanceof ListPageModel) 
             this.pageModel = (ListPageModel) dataProvider; 
-        if (dataProvider instanceof EditorListModel) 
-            this.editorModel = (EditorListModel) dataProvider; 
+        
+        if (dataProvider instanceof EditorListSupport.TableEditor) { 
+            this.editorSupport = EditorListSupport.create(dataProvider); 
+        } 
         
         //dispose the old table model
         if (tableModel != null) tableModel.dispose(); 
         
         tableModel = new DataTableModel();         
         tableModel.setDataProvider(dataProvider); 
-        if (dataProvider != null) 
-        {
+        tableModel.setEditorListSupport(editorSupport); 
+        if (dataProvider != null) {
             dataProvider.addHandler(tableModelHandler); 
             dataProvider.setUIProvider(new DefaultUIProvider()); 
-            if (editorModel != null) { 
-                editorModel.setUIEditorProvider(new DefaultUIEditorProvider()); 
+            if (editorSupport != null) { 
+                editorSupport.setTableEditorProvider(new TableEditorProviderImpl()); 
             } 
             install(dataProvider);
         } 
@@ -427,6 +427,7 @@ public class DataTableComponent extends JTable implements TableControl
     {
         tableModel = new DataTableModel();
         tableModel.setDataProvider(dataProvider);
+        tableModel.setEditorListSupport(editorSupport); 
         tableModel.setVarName(getVarName());
         tableModel.setVarStatus(getVarStatus());
         tableModel.setMultiSelectName(getMultiSelectName()); 
@@ -580,7 +581,8 @@ public class DataTableComponent extends JTable implements TableControl
             return false;
         } 
         
-        if (editorModel == null) return false; 
+        if (editorSupport == null) return false; 
+        //if (editorModel == null) return false; 
         
         if (e instanceof MouseEvent) 
         {
@@ -597,7 +599,7 @@ public class DataTableComponent extends JTable implements TableControl
         StyleRule[] rules = getBinding().getStyleRules();
         if (rules != null && getId() != null) {
             String qname = getId()+":"+getVarName()+"."+oColumn.getName(); 
-            Object itemData = editorModel.getListItemData(rowIndex);
+            Object itemData = editorSupport.getSource().getListItemData(rowIndex);
             for (StyleRule r : rules) {
                 String pattern = r.getPattern();
                 String expr = r.getExpression();
@@ -639,16 +641,16 @@ public class DataTableComponent extends JTable implements TableControl
             } 
         }
 
-        if (rowIndex != oldRowIndex && editorModel != null && editingRow >= 0) 
+        if (rowIndex != oldRowIndex && editorSupport != null && editingRow >= 0) 
         {
-            ListItem li = editorModel.getListItem(editingRow);
-            if (li != null && (editorModel.isTemporaryItem(li) || li.getState()==ListItem.STATE_EDIT)) 
+            ListItem li = editorSupport.getSource().getListItem(editingRow);
+            if (li != null && (editorSupport.isTemporaryItem(li) || li.getState()==ListItem.STATE_EDIT)) 
             { 
                 try 
                 {
                     if (!validateRow(editingRow))
                     {
-                        String errmsg = editorModel.getMessageSupport().getErrorMessage(editingRow); 
+                        String errmsg = editorSupport.getSource().getMessageSupport().getErrorMessage(editingRow); 
                         if (errmsg != null) throw new Exception(errmsg); 
 
                         //exit from this process
@@ -656,10 +658,10 @@ public class DataTableComponent extends JTable implements TableControl
                     } 
 
                     if (li.getState() == ListItem.STATE_DRAFT)
-                        editorModel.flushTemporaryItem(li);
+                        editorSupport.flushTemporaryItem(li);
 
 
-                    editorModel.fireCommitItem(li);
+                    editorSupport.fireCommitItem(li);
                     itemBinding.getChangeLog().clear(); 
                     editingRow = -1;
                 } 
@@ -750,19 +752,20 @@ public class DataTableComponent extends JTable implements TableControl
     public final void removeItem() 
     {
         if (isReadonly()) return;
-        if (editorModel == null) return;
+        if (editorSupport == null) return;
         
         int rowIndex = getSelectedRow();
         if (rowIndex < 0) return;        
         //if the ListModel has error messages
         //allow editing only to the row that caused the error
-        if (editorModel.getMessageSupport().hasErrorMessages() && 
-            editorModel.getMessageSupport().getErrorMessage(rowIndex) == null) 
+        AbstractListDataProvider ldp = editorSupport.getSource();
+        if (ldp.getMessageSupport().hasErrorMessages() && 
+            ldp.getMessageSupport().getErrorMessage(rowIndex) == null) 
             return;
         
         try {
-            editorModel.setSelectedItem(rowIndex); 
-            editorModel.fireRemoveItem(editorModel.getListItem(rowIndex)); 
+            ldp.setSelectedItem(rowIndex); 
+            editorSupport.fireRemoveItem(ldp.getListItem(rowIndex)); 
         } catch(Exception ex) {
             MsgBox.err(ex); 
         }
@@ -777,7 +780,7 @@ public class DataTableComponent extends JTable implements TableControl
     protected void onchangedItem(ListItem item) {} 
     
     public void editItem(int rowIndex, int colIndex, EventObject e) {
-        if (editorModel == null) return;        
+        if (editorSupport == null) return;        
         /*
             if ListItem has error messages, 
             allow editing only to the row that caused the error
@@ -787,14 +790,14 @@ public class DataTableComponent extends JTable implements TableControl
             return;
         
         ListItem oListItem = tableModel.getListItem(rowIndex);
-        if (!editorModel.isAllowedForEditing(oListItem)) return;
+        if (!editorSupport.isAllowedForEditing(oListItem)) return;
         
         Column col = tableModel.getColumn(colIndex);
         if (col == null || !col.isEditable()) return;
                 
         try {
             if (oListItem.getItem() == null || oListItem.getState() == ListItem.STATE_EMPTY) {
-                editorModel.loadTemporaryItem(oListItem);
+                editorSupport.loadTemporaryItem(oListItem);
                 oListItem.setRoot(binding.getBean()); 
                 tableModel.fireTableRowsUpdated(rowIndex, rowIndex); 
             }       
@@ -824,7 +827,7 @@ public class DataTableComponent extends JTable implements TableControl
         }
         
         try { 
-            boolean editable = editorModel.isColumnEditable(oListItem.getItem(), col.getName());
+            boolean editable = editorSupport.isColumnEditable(oListItem.getItem(), col.getName());
             if (!editable) return; 
         } catch(Throwable t) {  
             System.out.println("[WARN] error caused by " + t.getMessage());
@@ -832,11 +835,11 @@ public class DataTableComponent extends JTable implements TableControl
         } 
         
         JComponent editor = editors.get(colIndex);
-        if ( editor == null ) return;
+        if (editor == null) return;
         
-        if (editorModel.isLastItem(oListItem)) { 
-            if (editorModel.isAllowAdd()) {
-                editorModel.addEmptyItem(); 
+        if (editorSupport.isLastItem(oListItem)) { 
+            if (editorSupport.isAllowAdd()) {
+                editorSupport.addEmptyItem(); 
             } else {
                 //not allowed to add more items
                 oListItem.loadItem(null, ListItem.STATE_EMPTY); 
@@ -1010,12 +1013,12 @@ public class DataTableComponent extends JTable implements TableControl
         Object value = editor.getClientProperty("cellEditorValue"); 
         if ("no_updates".equals(value)) commit = false;
             
-        if (editor instanceof UILookup && editorModel != null) {
+        if (editor instanceof UILookup && editorSupport != null) {
             UILookup lkp = (UILookup) editor;
             Object lkpval = lkp.getClientProperty("UIControl.value"); 
             if (lkpval instanceof Object[]) {
-                ListItem oListItem = editorModel.getListItem(editingRow);
-                Object[] objs = (Object[])lkpval;                    
+                ListItem oListItem = editorSupport.getSource().getListItem(editingRow);
+                Object[] objs = (Object[]) lkpval; 
                 if (objs.length > 0 && oListItem.getState() != ListItem.STATE_DRAFT) {
                     oListItem.setState(ListItem.STATE_EDIT); 
                 }
@@ -1032,14 +1035,14 @@ public class DataTableComponent extends JTable implements TableControl
                 //    editorModel.fireColumnUpdate(oListItem);
                 //}
             } 
-            catch(EditorListModel.BeforeColumnUpdateException bcx) {
+            catch(EditorListSupport.BeforeColumnUpdateException bcx) {
                 if (bcx.getCause() != null) MsgBox.err(bcx.getCause());
 
                 refocusEditor(editor, inputVerifier); 
                 return false;
                 
             } 
-            catch(EditorListModel.AfterColumnUpdateException acx) { 
+            catch(EditorListSupport.AfterColumnUpdateException acx) { 
                 if (acx.getCause() != null) MsgBox.err(acx.getCause());  
 
                 itemBinding.getChangeLog().undo(); 
@@ -1079,7 +1082,7 @@ public class DataTableComponent extends JTable implements TableControl
     private boolean validateRow(int rowIndex) 
     {
         //exit right away if no editor model specified 
-        if (editorModel == null) return true;
+        if (editorSupport == null) return true;
         
         ActionMessage ac = new ActionMessage();
         itemBinding.validate(ac);
@@ -1092,7 +1095,7 @@ public class DataTableComponent extends JTable implements TableControl
         
         try 
         {
-            editorModel.fireValidateItem( dataProvider.getListItem(rowIndex) );
+            editorSupport.fireValidateItem( dataProvider.getListItem(rowIndex) );
             dataProvider.getMessageSupport().removeErrorMessage(rowIndex);
         } 
         catch (Exception e ) 
@@ -1483,8 +1486,7 @@ public class DataTableComponent extends JTable implements TableControl
         
         public void actionPerformed(ActionEvent e) 
         {
-            if (editorModel != null) 
-            {
+            if (editorSupport != null) {
                 fireAction(); 
                 return;
             }
@@ -1499,22 +1501,21 @@ public class DataTableComponent extends JTable implements TableControl
         private void fireAction() 
         {
             int rowIndex = getSelectedRow(); 
-            ListItem li = editorModel.getListItem(rowIndex); 
+            ListItem li = dataProvider.getListItem(rowIndex); 
             if (li == null) return; 
             
-            if (editorModel.isTemporaryItem(li))
-            {
-                editorModel.getMessageSupport().removeErrorMessage(li.getIndex());
-                editorModel.removeTemporaryItem(li); 
+            if (editorSupport.isTemporaryItem(li)) { 
+                dataProvider.getMessageSupport().removeErrorMessage(li.getIndex());
+                editorSupport.removeTemporaryItem(li); 
                 
                 Point sel = (Point) getClientProperty("selectionPoint"); 
                 if (sel == null) sel = new Point(0, 0);
                 
                 changeSelection(rowIndex, sel.x, false, false);                 
-            }
-            else if (li.getState() == ListItem.STATE_EDIT && editorModel.getMessageSupport().hasErrorMessages()) 
+            } 
+            else if (li.getState() == ListItem.STATE_EDIT && dataProvider.getMessageSupport().hasErrorMessages()) 
             {
-                editorModel.getMessageSupport().removeErrorMessage(li.getIndex()); 
+                dataProvider.getMessageSupport().removeErrorMessage(li.getIndex()); 
                 li.setState(ListItem.STATE_SYNC); 
                 tableModel.fireTableRowsUpdated(rowIndex, rowIndex); 
             } 
@@ -1873,10 +1874,10 @@ public class DataTableComponent extends JTable implements TableControl
     }
     
     // </editor-fold>
+        
+    // <editor-fold defaultstate="collapsed" desc=" TableEditorProviderImpl "> 
     
-    // <editor-fold defaultstate="collapsed" desc=" DefaultUIEditorProvider "> 
-    
-    private class DefaultUIEditorProvider implements EditorListModel.UIEditorProvider 
+    private class TableEditorProviderImpl implements EditorListSupport.TableEditorProvider 
     {
         DataTableComponent root = DataTableComponent.this;
         

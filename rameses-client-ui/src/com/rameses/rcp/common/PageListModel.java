@@ -1,11 +1,13 @@
 package com.rameses.rcp.common;
 
+import com.rameses.rcp.common.EditorListSupport.TableEditorHandler;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public abstract class PageListModel extends AbstractListDataProvider implements ListPageModel 
+public abstract class PageListModel extends AbstractListDataProvider 
+    implements ListPageModel, EditorListSupport.TableEditor  
 {    
     //stores the fetched result list size 
     private int fetchedRows;
@@ -162,4 +164,123 @@ public abstract class PageListModel extends AbstractListDataProvider implements 
             return false;
     } 
 
+    
+    // <editor-fold defaultstate="collapsed" desc=" editor options and callback events ">
+        
+    public boolean isAllowColumnEditing() { return false; } 
+    public boolean isAllowAdd() { return true; } 
+    
+    public Object createItem() { 
+        return new HashMap(); 
+    }     
+    
+    protected void validateItem(Object item) {}    
+    protected void validate(ListItem li) {
+        if (li != null) validateItem(li.getItem()); 
+    }
+    
+    protected void addItem(Object item) {}
+    protected void onAddItem(Object item) {
+        addItem(item);
+    }
+    
+    protected boolean onRemoveItem(Object item) { 
+        return false;
+    } 
+    
+    protected void commitItem(Object item) {} 
+    protected void onCommitItem(Object item) {
+        commitItem(item); 
+    }
+
+    public boolean isColumnEditable(Object item, String columnName) { 
+        return true;
+    }
+    
+    protected boolean beforeColumnUpdate(Object item, String columnName, Object newValue) {
+        return true; 
+    } 
+    
+    protected void afterColumnUpdate(Object item, String columnName) {}
+    protected void onColumnUpdate(Object item, String columnName) {
+        afterColumnUpdate(item, columnName); 
+    }    
+    
+    public final void refreshEditedCell() {
+        refreshCurrentEditor(); 
+    }
+    public final void refreshCurrentEditor() {
+        if (editorSupport != null) editorSupport.refreshCurrentEditor(); 
+    }    
+    
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" TableEditor implementation ">
+
+    private TableEditorHandlerImpl editorHandler;
+    private EditorListSupport editorSupport;
+    
+    public TableEditorHandler getTableEditorHandler() { 
+        if (!isAllowColumnEditing()) return null; 
+        
+        if (editorHandler == null) { 
+            editorHandler = new TableEditorHandlerImpl(); 
+        } 
+        return editorHandler; 
+    } 
+
+    public TableModelSupport getTableModelSupport() {
+        return tableModelSupport; 
+    }
+    
+    public void setEditorListSupport(EditorListSupport editorSupport) {
+        this.editorSupport = editorSupport; 
+    }    
+    
+    // </editor-fold>     
+    
+    // <editor-fold defaultstate="collapsed" desc=" TableEditorHandler implementation ">
+    
+    private class TableEditorHandlerImpl implements EditorListSupport.TableEditorHandler 
+    {
+        PageListModel root = PageListModel.this;
+
+        public Object createItem() {
+            return root.createItem(); 
+        }
+        
+        public boolean isAllowAdd() {
+            return root.isAllowAdd(); 
+        }
+
+        public void validate(ListItem li) {
+            root.validate(li);
+        }
+
+        public void onAddItem(Object item) {
+            root.onAddItem(item);
+        }
+
+        public void onCommitItem(Object item) { 
+            root.onCommitItem(item);
+        } 
+
+        public boolean onRemoveItem(Object item) {
+            return root.onRemoveItem(item);
+        }
+
+        public boolean isColumnEditable(Object item, String columnName) {
+            return root.isColumnEditable(item, columnName); 
+        }
+
+        public boolean beforeColumnUpdate(Object item, String columnName, Object newValue) {
+            return root.beforeColumnUpdate(item, columnName, newValue);
+        }
+
+        public void onColumnUpdate(Object item, String columnName) {
+            root.onColumnUpdate(item, columnName); 
+        }
+    } 
+    
+    // </editor-fold>    
 }
