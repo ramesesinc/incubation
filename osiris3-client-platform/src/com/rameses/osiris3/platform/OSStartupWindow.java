@@ -19,8 +19,6 @@ import java.awt.Graphics2D;
 import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
-import java.io.File;
-import java.net.URL;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -98,16 +96,13 @@ class OSStartupWindow extends JFrame
     }
     
     private void beforeVisible() {
-        String userdir = System.getProperty("user.dir");
-        try { 
-            URL url = new File(userdir + "/splash.png").toURL();
-            setImageIcon(new ImageIcon(url));
-        } catch(Throwable t) {;} 
+        OSPlatformIdentity spi = OSPlatformIdentity.getInstance(); 
+        ImageIcon splashIcon = (ImageIcon) spi.get("splash");
+        ImageIcon winIcon = (ImageIcon) spi.get("icon");
+        if (winIcon == null) winIcon = spi.getDefaultIcon();
         
-        try { 
-            URL url = new File(userdir + "/icon.gif").toURL(); 
-            setIconImage(new ImageIcon(url).getImage()); 
-        } catch(Throwable t) {;}         
+        try { setImageIcon(splashIcon); } catch(Throwable t) {;} 
+        try { setIconImage(winIcon.getImage()); } catch(Throwable t) {;}         
         
         center();
     }

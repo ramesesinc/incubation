@@ -10,8 +10,14 @@
 package com.rameses.osiris3.platform;
 
 import java.awt.Container;
+import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 import javax.swing.JLabel;
 import javax.swing.JMenuBar;
 
@@ -35,6 +41,9 @@ final class OSManager
 
         return instance;
     } 
+    
+    static final Object VIEW_LOCK = new OSViewLock();
+    static class OSViewLock {}    
 
     // </editor-fold>
     
@@ -45,8 +54,8 @@ final class OSManager
     private Container toolbarView;
     private Container desktopView;
     private Container statusView;
-    private Map<Object,Object> properties = new Hashtable<Object,Object>();
-    //private NBHeaderBar headerBar = new NBHeaderBar();
+    private Map<Object,Object> properties = new Hashtable<Object,Object>();    
+    private Map<String,OSView> views = new LinkedHashMap(); 
     
     private OSManager() {
     }
@@ -65,8 +74,11 @@ final class OSManager
         if (osAppLoader == null) {
             osMainWindow.setContent(new JLabel("")); 
         } else {
+            WaitPanel wp = WaitPanel.create("Loading please wait...");
+            osMainWindow.showInGlassPane(wp, null); 
             osAppLoader.load(osPlatform); 
-        }        
+        } 
+        osMainWindow.hideGlassPane();
     }
     
     void startUpdate() {
@@ -100,7 +112,59 @@ final class OSManager
         }; 
         new Thread(runnable).start(); 
     }   
+        
+    boolean registerView(String id, OSView view) {
+        synchronized (VIEW_LOCK) {
+            if (id == null || view == null) return false;
+            if (views.containsKey(id)) return false;
+
+            views.put(id, view); 
+            return true; 
+        }
+    }
     
+    OSView unregisterView(String id) {
+        synchronized (VIEW_LOCK) {
+            if (id == null) return null;
+
+            return views.remove(id); 
+        } 
+    }
+    
+    OSView lookupView(String id) {
+        if (id == null) return null;
+        
+        return views.get(id); 
+    }
+    
+    boolean containsView(String id) {
+        return (lookupView(id) != null); 
+    }
+    
+    void unregisterAllViews() {
+        synchronized (VIEW_LOCK) { 
+            views.clear(); 
+        } 
+    }
+    
+    List<OSView> findViews(String type) {
+        List<OSView> list = new ArrayList();
+        if (type == null) return list;
+        
+        Iterator<OSView> itr = views.values().iterator();
+        while (itr.hasNext()) {
+            OSView vw = itr.next();
+            if (!type.equals(vw.getType())) continue; 
+            
+            list.add(vw);
+        } 
+        return list;
+    }
+    
+    Iterator<OSView> findAll() {
+        return views.values().iterator(); 
+    } 
+        
     private OSStartupWindow startupWindow;    
     OSStartupWindow getStartupWindow() {
         if (startupWindow == null) {
@@ -119,7 +183,84 @@ final class OSManager
     private OSAppLoader osAppLoader;
     OSAppLoader getAppLoader() { return osAppLoader; } 
     void setAppLoader(OSAppLoader osAppLoader) {
+        OSAppLoader old = this.osAppLoader;
+        if (old != null) old.destroy();
+        
         this.osAppLoader = osAppLoader; 
         if (osAppLoader != null) osAppLoader.load(osPlatform); 
-    }     
+    }    
+    
+    // <editor-fold defaultstate="collapsed" desc=" screen lock support ">
+ 
+    private OSScreenLock osScreenLock; 
+    OSScreenLock getScreenLock() { return osScreenLock; } 
+    void setScreenLock(OSScreenLock osScreenLock) {
+        OSScreenLock old = this.osScreenLock;
+        if (old != null) unregisterView(old.getName()); 
+
+        this.osScreenLock = osScreenLock; 
+    }
+    
+    // </editor-fold>    
+    
+    // <editor-fold defaultstate="collapsed" desc=" Scheduler support ">
+    
+    private Scheduler scheduler;
+    
+    void scheduleTask(Runnable runnable, long delay) {
+        if (scheduler == null) scheduler = new Scheduler(); 
+        
+        scheduler.addTask(runnable, delay);
+    }
+    
+    void stopScheduledTasks() {
+        if (scheduler != null) {
+            scheduler.stopAllTasks();
+        }
+    }
+    
+    private class Scheduler 
+    {
+        private Timer timer;
+        private boolean enabled; 
+        
+        Scheduler() {
+            timer = new Timer();
+            enabled = true; 
+        }
+        
+        void setEnabled(boolean enabled) {
+            this.enabled = enabled; 
+        }
+                
+        void addTask(Runnable runnable, long delay) {
+            if (!enabled) return;
+            
+            ScheduledTask task = new ScheduledTask(runnable);
+            timer.schedule(task, delay); 
+        } 
+        
+        void stopAllTasks() {
+            try { timer.cancel(); } catch(Throwable t) { t.printStackTrace(); }
+            try { timer.purge(); } catch(Throwable t) {;} 
+
+            timer = new Timer(); 
+        }
+    } 
+    
+    private class ScheduledTask extends TimerTask 
+    {
+        private Runnable target;
+        
+        ScheduledTask(Runnable target) {
+            this.target = target; 
+        }
+        
+        public void run() {
+            if (target != null) target.run(); 
+        }        
+    }
+    
+    // </editor-fold>
+
 }

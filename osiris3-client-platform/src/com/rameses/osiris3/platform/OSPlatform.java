@@ -12,7 +12,6 @@ package com.rameses.osiris3.platform;
 import com.rameses.platform.interfaces.ContentPane;
 import com.rameses.platform.interfaces.MainWindow;
 import com.rameses.platform.interfaces.Platform;
-import com.rameses.platform.interfaces.SubWindow;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.EventQueue;
@@ -20,8 +19,7 @@ import java.awt.KeyboardFocusManager;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.HashMap;
-import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
@@ -39,7 +37,6 @@ class OSPlatform implements Platform
 {
     private OSManager osManager; 
     private OSMainWindow osMainWindow; 
-    private Map<String,Component> popups = new HashMap(); 
     
     public OSPlatform(OSManager osManager) {
         this.osManager = osManager;
@@ -48,23 +45,6 @@ class OSPlatform implements Platform
 
     // <editor-fold defaultstate="collapsed" desc=" Getters/Setters ">
 
-    void unregisterPopup(String id) {
-        if (id != null) popups.remove(id); 
-    } 
-    
-    void registerPopup(String id, Component comp) {
-        if (id ==  null || comp == null) return;
-        
-        popups.put(id, comp);
-    }
-    
-    Component findPopup(String id) {
-        if (id == null) return null;
-        
-        return popups.get(id); 
-    }
-    
-    
     
     // </editor-fold>
     
@@ -75,7 +55,7 @@ class OSPlatform implements Platform
         if (id == null || id.trim().length() == 0) 
             throw new IllegalStateException("id is required for a page.");
         
-        if (osMainWindow.findWindow(id) != null) return;
+        if (osManager.containsView(id)) return;
         
         OSTabbedView view = new OSTabbedView(id, comp, this, false);
         view.setTitle((String) props.get("title"));
@@ -83,13 +63,13 @@ class OSPlatform implements Platform
     } 
 
     public void showWindow(JComponent actionSource, JComponent comp, Map props) {
-        String id = (String) props.remove("id");
+        String id = (String) props.get("id");
         if (id == null || id.trim().length() == 0)
             throw new IllegalStateException("id is required for a page.");
-        
-        if (osMainWindow.findWindow(id) != null) return;
+
+        if (osManager.containsView(id)) return;        
         if (osMainWindow.findExplorer(id) != null) return;
-        
+
         String title = (String) props.get("title");
         if (title == null || title.length() == 0) title = id;
         
@@ -107,11 +87,17 @@ class OSPlatform implements Platform
     }
 
     public void showPopup(JComponent actionSource, JComponent comp, Map props) {
-        String id = (String) props.remove("id");
+        String id = (String) props.get("id");
         if (id == null || id.trim().length() == 0)
             throw new IllegalStateException("id is required for a page.");
         
-        if (popups.containsKey(id)) return;
+        if (osManager.containsView(id)) return;
+        
+        String windowmode = (String) props.get("windowmode");
+        if ("screenlock".equals(windowmode)) { 
+            showScreenLock(actionSource, comp, props); 
+            return;
+        }
         
         String title = (String) props.get("title");
         if (title == null || title.length() == 0) title = id;
@@ -164,51 +150,52 @@ class OSPlatform implements Platform
                 dx.setVisible(true);
             }
         });
-        registerPopup(id, dx);
     }
 
     public void showFloatingWindow(JComponent owner, JComponent comp, Map props) {
         showPopup(owner, comp, props);
     }
+    
+    public void showScreenLock(JComponent actionSource, JComponent comp, Map props) {
+        String id = (String) props.get("id");
+        if (id == null || id.trim().length() == 0)
+            throw new IllegalStateException("id is required for a page.");
+        
+        OSScreenLock lock = osManager.getScreenLock();
+        if (lock != null) return; 
+        
+        lock = new OSScreenLock();
+        lock.setName(id); 
+        lock.updateBackgroundImage();
+        lock.setContent(comp); 
+        lock.setVisible(true); 
+    }
 
     public boolean isWindowExists(String id) {
-        if (popups.containsKey(id)) return true; 
-        if (osMainWindow.findWindow(id) != null) return true; 
+        if (osManager.containsView(id)) return true;
+        if (osMainWindow.findExplorer(id) != null) return true; 
         
-        return (osMainWindow.findExplorer(id) != null);
+        Component c = osManager.getScreenLock();
+        return (c != null && id.equals(c.getName())); 
     }
 
     public void activateWindow(String id) {
-        if (popups.containsKey(id)) {
-            Component comp = popups.get(id);
-            if (comp != null) comp.requestFocus(); 
-            
+        OSView view = osManager.lookupView(id);
+        if (view != null) {
+            view.requestFocus();             
         } else {
             Component comp = osMainWindow.findExplorer(id); 
-            if (comp != null) { 
-                comp.requestFocus();  
-            } else {
-                comp = osMainWindow.findWindow(id); 
-                if (comp == null) return;
-                
-                if (comp instanceof OSTabbedView) {
-                    ((OSTabbedView) comp).activate(); 
-                } else {
-                    comp.requestFocus(); 
-                }
-            }
+            if (comp != null) comp.requestFocus();  
         }
     }
 
     public void closeWindow(String id) {
         if (id == null) return;
         
-        Component comp = popups.get(id);
-        if (comp == null) comp = osMainWindow.findWindow(id); 
-        if (comp == null) comp = osMainWindow.findExplorer(id); 
-        if (comp instanceof SubWindow) {
-            ((SubWindow) comp).closeWindow(); 
-        }
+        OSView view = osManager.lookupView(id); 
+        if (view == null) return;
+        
+        view.closeView(); 
     }
 
     public void showError(JComponent actionSource, Exception e) {
@@ -245,15 +232,24 @@ class OSPlatform implements Platform
     } 
 
     public void logoff() {
-        closeAllPopups(); 
-        osManager.reinitialize(); 
+        LogoffPanel panel = new LogoffPanel(); 
+        osMainWindow.showInGlassPane(panel, null);         
+        closeAllDialogs(); 
+        closeAllNonDialogViews();    
+        osManager.stopScheduledTasks();
+        
+        OSScreenLock lock = osManager.getScreenLock(); 
+        if (lock != null) lock.setVisible(false); 
     }
 
     public void lock() {
     }
 
-    public void unlock() {
-    }
+    public void unlock() { 
+        osMainWindow.hideGlassPane(); 
+        OSScreenLock lock = osManager.getScreenLock(); 
+        if (lock != null) lock.setVisible(false); 
+    } 
     
     // </editor-fold>
     
@@ -294,19 +290,31 @@ class OSPlatform implements Platform
         } 
     } 
     
-    private void closeAllPopups() {
-        Iterator<Component> itr = popups.values().iterator(); 
-        while (itr.hasNext()) {
-            Component c = itr.next();
-            if (c instanceof SubWindow) {
-                ((SubWindow)c).closeWindow(); 
+    private void closeAllDialogs() {
+        List<OSView> list = osManager.findViews("popup");
+        while (!list.isEmpty()) { 
+            try { 
+                list.remove(0).closeView();
+            } catch(Throwable t) {
+                t.printStackTrace();
             }
         }
-        popups.clear();
     }
     
-    // </editor-fold> 
+    private void closeAllNonDialogViews() {
+        List<OSView> list = osManager.findViews("screenlock");
+        while (!list.isEmpty()) { 
+            try { 
+                list.remove(0).closeView();
+            } catch(Throwable t) {
+                t.printStackTrace();
+            }
+        }
+        osManager.unregisterAllViews(); 
+    }
     
+    // </editor-fold> p
+
     // <editor-fold defaultstate="collapsed" desc=" ShowInfoAction ">
     
     private class ShowInfoAction implements ActionListener 

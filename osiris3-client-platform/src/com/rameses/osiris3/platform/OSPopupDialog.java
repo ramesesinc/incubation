@@ -21,6 +21,8 @@ public class OSPopupDialog extends JDialog implements SubWindow, WindowListener
 {
     private ViewContext viewContext;
     private OSPlatform platformImpl;
+    private OSView osview;
+    
     private boolean canClose = true;
     private String id;
     
@@ -69,7 +71,10 @@ public class OSPopupDialog extends JDialog implements SubWindow, WindowListener
     
     public String getId() { return id; }    
     public void setId(String id) { this.id = id; }
-    
+
+    public void setVisible(boolean visible) {        
+        super.setVisible(visible); 
+    }
     
     // <editor-fold defaultstate="collapsed" desc=" SubWindow implementation ">
     
@@ -77,13 +82,13 @@ public class OSPopupDialog extends JDialog implements SubWindow, WindowListener
     
     public String getName() { return getId(); } 
     
-    public void closeWindow()     
-    {
-        if ( !canClose ) return;
-        if ( viewContext != null && !viewContext.close() ) return;
+    public void closeWindow() {
+        if (!canClose) return;
+        if (viewContext != null && !viewContext.close()) return;
         
         super.dispose();
-        platformImpl.unregisterPopup(id); 
+        OSManager.getInstance().unregisterView(getId());         
+        //platformImpl.unregisterPopup(id); 
         //notify others
         getContentPane().firePropertyChange("Window.close", 0L, 1L); 
         //
@@ -102,9 +107,12 @@ public class OSPopupDialog extends JDialog implements SubWindow, WindowListener
             String newId = oid.toString();
             String oldId = getName();
             if (newId != null && oldId != null && !newId.equals(oldId)) {
-                platformImpl.unregisterPopup(oldId);
+                OSManager osm = OSManager.getInstance();
+                OSView view = osm.unregisterView(oldId);
+                //platformImpl.unregisterPopup(oldId);
                 setId(newId);
-                platformImpl.registerPopup(newId, this); 
+                //platformImpl.registerPopup(newId, this); 
+                osm.registerView(newId, view); 
             }
         }
     } 
@@ -125,12 +133,40 @@ public class OSPopupDialog extends JDialog implements SubWindow, WindowListener
     
     public void windowOpened(WindowEvent e) 
     {
-        if ( viewContext != null ) {
+        if (viewContext != null) {
             viewContext.display();
             viewContext.setSubWindow(this);
+        }
+        if (osview == null) {
+            osview = new OSViewImpl();
+            OSManager.getInstance().registerView(getId(), osview); 
         }
     }
     
     // </editor-fold>    
 
+    // <editor-fold defaultstate="collapsed" desc=" OSView support ">
+    
+    private class OSViewImpl implements OSView 
+    {
+        OSPopupDialog root = OSPopupDialog.this;
+        
+        public String getId() { 
+            return root.getId(); 
+        } 
+        
+        public String getType() {
+            return "popup"; 
+        }
+        
+        public void requestFocus() {
+            root.requestFocus(); 
+        }        
+
+        public void closeView() {
+            root.closeWindow(); 
+        }
+    }
+    
+    // </editor-fold>
 }

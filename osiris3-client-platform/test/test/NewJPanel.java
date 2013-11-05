@@ -6,8 +6,6 @@
 
 package test;
 
-import javax.swing.BorderFactory;
-
 /**
  *
  * @author  compaq
@@ -35,6 +33,7 @@ public class NewJPanel extends javax.swing.JPanel {
         btnStart1 = new javax.swing.JButton();
         btnStart2 = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
+        jButton1 = new javax.swing.JButton();
 
         btnStart.setText("1");
         btnStart.addActionListener(new java.awt.event.ActionListener() {
@@ -59,6 +58,13 @@ public class NewJPanel extends javax.swing.JPanel {
 
         jLabel1.setText("Downloading updates...");
 
+        jButton1.setText("Exit");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -71,7 +77,9 @@ public class NewJPanel extends javax.swing.JPanel {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(btnStart1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnStart2))
+                        .addComponent(btnStart2)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jButton1))
                     .addComponent(progressbar, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 578, Short.MAX_VALUE)
                     .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 578, Short.MAX_VALUE))
                 .addContainerGap())
@@ -87,10 +95,17 @@ public class NewJPanel extends javax.swing.JPanel {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnStart)
                     .addComponent(btnStart1)
-                    .addComponent(btnStart2))
+                    .addComponent(btnStart2)
+                    .addComponent(jButton1))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+
+        System.exit(0); 
+        
+    }//GEN-LAST:event_jButton1ActionPerformed
 
     private void btnStart2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnStart2ActionPerformed
 
@@ -119,6 +134,7 @@ public class NewJPanel extends javax.swing.JPanel {
     private javax.swing.JButton btnStart;
     private javax.swing.JButton btnStart1;
     private javax.swing.JButton btnStart2;
+    private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JProgressBar progressbar;
     // End of variables declaration//GEN-END:variables
