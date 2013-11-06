@@ -84,7 +84,7 @@ class OSMainWindow implements MainWindow
         
         window.addWindowListener(new WindowAdapter() { 
             public void windowClosing(WindowEvent e) { 
-                close(); 
+                windowClosingImpl(e);
             } 
         });         
     }
@@ -245,6 +245,10 @@ class OSMainWindow implements MainWindow
         } else {
             tabbedPane.showInfo(); 
         }
+    } 
+    
+    private void windowClosingImpl(WindowEvent e) { 
+        close(); 
     } 
     
     void restoreMainPanel() {

@@ -7,7 +7,6 @@
 
 package test;
 
-import javax.swing.ImageIcon;
 import javax.swing.UIManager;
 import junit.framework.*;
 
@@ -35,10 +34,6 @@ public class NewEmptyJUnitTest extends TestCase {
 //        d.setContentPane(new NewJPanel());
 //        d.pack();
 //        d.setVisible(true);
-        
-        ImageIcon iicon;
-        
-        
     }
 
 }

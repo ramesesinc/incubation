@@ -63,6 +63,6 @@ class OSAppLoader
     public void destroy() {
         if (activeAppLoader == null) return;
         
-        activeAppLoader.restore(); 
+        activeAppLoader = null; 
     }
 }

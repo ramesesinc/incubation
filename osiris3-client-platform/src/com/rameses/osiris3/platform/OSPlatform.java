@@ -233,9 +233,9 @@ class OSPlatform implements Platform
 
     public void logoff() {
         LogoffPanel panel = new LogoffPanel(); 
-        osMainWindow.showInGlassPane(panel, null);         
+        osMainWindow.showInGlassPane(panel, null); 
         closeAllDialogs(); 
-        closeAllNonDialogViews();    
+        closeAllNonDialogViews(); 
         osManager.stopScheduledTasks();
         
         OSScreenLock lock = osManager.getScreenLock(); 

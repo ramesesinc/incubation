@@ -37,6 +37,7 @@ import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JInternalFrame;
 import javax.swing.JPanel;
+import javax.swing.RootPaneContainer;
 import javax.swing.plaf.basic.BasicInternalFrameUI;
 
 /**
@@ -200,7 +201,15 @@ class OSScreenLock extends JDialog implements SubWindow, WindowListener
         }
         
         public void requestFocus() { 
-            root.requestFocus(); 
+            Component comp = root.getContent(); 
+            if (comp instanceof RootPaneContainer) {
+                Container con = (Container) comp;
+                con.requestFocus(); 
+                con.setFocusCycleRoot(true); 
+                con.transferFocus();                 
+            } else { 
+                root.requestFocus(); 
+            } 
         } 
 
         public void closeView() {
