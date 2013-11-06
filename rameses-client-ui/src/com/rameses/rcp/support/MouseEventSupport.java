@@ -23,6 +23,7 @@ import java.beans.Beans;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import javax.swing.AbstractButton;
 import javax.swing.JComponent;
 
 /**
@@ -42,8 +43,12 @@ public class MouseEventSupport implements MouseListener
         if (Beans.isDesignTime()) return;         
         //try to uninstall first all MouseEventSupport class 
         uninstall(); 
-        //install the listener
-        component.addMouseListener(this); 
+        //install the listener 
+        if (component instanceof AbstractButton) {
+            //do not attached the listener
+        } else { 
+            component.addMouseListener(this); 
+        } 
     }
     
     public void uninstall() {
@@ -60,7 +65,7 @@ public class MouseEventSupport implements MouseListener
     public void mouseEntered(MouseEvent e) {}
     public void mouseExited(MouseEvent e) {}
 
-    public void mouseClicked(final MouseEvent e) {
+    public void mouseClicked(MouseEvent e) {
         if (processing) return; 
         if (e.getClickCount() != 1) return; 
         if (!(e.isControlDown() && e.isShiftDown())) return;
@@ -69,7 +74,7 @@ public class MouseEventSupport implements MouseListener
         EventQueue.invokeLater(new Runnable() { 
             public void run() { 
                 try { 
-                    mouseClickedImpl(e); 
+                    showComponentInfo(); 
                 } catch(Throwable t) { 
                     MsgBox.err(t); 
                 } finally { 
@@ -79,7 +84,7 @@ public class MouseEventSupport implements MouseListener
         }); 
     } 
     
-    private void mouseClickedImpl(MouseEvent e) { 
+    public void showComponentInfo() {
         if (!(component instanceof UIControl)) return;
         
         Binding binding = ((UIControl) component).getBinding();

@@ -22,6 +22,7 @@ import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -57,11 +58,13 @@ public class XButton extends JButton implements UICommand, ActionListener,
     
     private String accelerator;
     private KeyStroke acceleratorKS;
+    private MouseEventSupport mouseSupport; 
         
     public XButton() {
         setOpaque(false);
         addActionListener(this);
-        new MouseEventSupport(this).install(); 
+        mouseSupport = new MouseEventSupport(this);
+        mouseSupport.install(); 
     }
     
         
@@ -258,6 +261,13 @@ public class XButton extends JButton implements UICommand, ActionListener,
     }
     
     public void actionPerformed(ActionEvent e) {
+        boolean ctrlDown = ((e.getModifiers() & InputEvent.CTRL_MASK) == InputEvent.CTRL_MASK);
+        boolean shiftDown = ((e.getModifiers() & InputEvent.SHIFT_MASK) == InputEvent.SHIFT_MASK);
+        if (ctrlDown && shiftDown) {
+            mouseSupport.showComponentInfo(); 
+            return; 
+        }
+        
         final Object outcome = UICommandUtil.processAction(this); 
         if (outcome instanceof PopupMenuOpener) {
             PopupMenuOpener menu = (PopupMenuOpener) outcome;
