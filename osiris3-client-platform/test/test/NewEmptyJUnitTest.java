@@ -7,8 +7,7 @@
 
 package test;
 
-import com.rameses.osiris3.platform.OSStartupWindow;
-import javax.swing.JDialog;
+import javax.swing.ImageIcon;
 import javax.swing.UIManager;
 import junit.framework.*;
 
@@ -31,11 +30,15 @@ public class NewEmptyJUnitTest extends TestCase {
     
     // TODO add test methods here. The name must begin with 'test'. For example:
     public void testMain() throws Exception {
-        JDialog d = new JDialog();
-        d.setModal(true); 
-        d.setContentPane(new NewJPanel());
-        d.pack();
-        d.setVisible(true);
+//        JDialog d = new JDialog();
+//        d.setModal(true); 
+//        d.setContentPane(new NewJPanel());
+//        d.pack();
+//        d.setVisible(true);
+        
+        ImageIcon iicon;
+        
+        
     }
 
 }

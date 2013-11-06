@@ -12,7 +12,6 @@ import com.rameses.platform.interfaces.SubWindowContainer;
 import com.rameses.platform.interfaces.SubWindowListener;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Container;
 import java.awt.EventQueue;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -25,9 +24,7 @@ import java.util.Hashtable;
 import java.util.Map;
 import javax.swing.Icon;
 import javax.swing.JComponent;
-import javax.swing.JRootPane;
 import javax.swing.JTabbedPane;
-import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
 /**
@@ -39,7 +36,7 @@ class OSTabbedPane extends JTabbedPane implements SubWindowContainer
     private Map<String,Component> tabIndex;
     private Rectangle closeIconBounds;
     private boolean closeIconHover;
-        
+    
     public OSTabbedPane() {
         tabIndex = new Hashtable();
         closeIconBounds = new Rectangle(0,0,10,10);
@@ -47,7 +44,11 @@ class OSTabbedPane extends JTabbedPane implements SubWindowContainer
         
         TabSupport support = new TabSupport();
         addMouseListener(support);
-        addMouseMotionListener(support);        
+        addMouseMotionListener(support);   
+    }
+    
+    public boolean containsView(String id) {
+        return (tabIndex.get(id) != null); 
     }
     
     public Component findWindow(String id) {
@@ -126,6 +127,7 @@ class OSTabbedPane extends JTabbedPane implements SubWindowContainer
         super.insertTab(title, icon, component, tip, index);
         setSelectedIndex(index);
         tabIndex.put(tabid, component);
+        OSManager.getInstance().registerView(tabid, new OSViewImpl(component));
     }
     
     public void remove(Component component) {
@@ -136,12 +138,15 @@ class OSTabbedPane extends JTabbedPane implements SubWindowContainer
             tabIndex.remove(title);
             
             String cname = component.getName();
-            if (cname != null) tabIndex.remove(cname);
+            if (cname != null) {
+                tabIndex.remove(cname);
+                OSManager.getInstance().unregisterView(cname); 
+            }
         }
         super.remove(component);
     } 
 
-    public void removeAll() {
+    public void removeAll() {   
         super.removeAll();  
         tabIndex.clear(); 
     }
@@ -228,4 +233,36 @@ class OSTabbedPane extends JTabbedPane implements SubWindowContainer
     }
 
     // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" OSView support ">
+    
+    private class OSViewImpl implements OSView 
+    {
+        OSTabbedPane root = OSTabbedPane.this;
+        Component view;
+        
+        OSViewImpl(Component view) {
+            this.view = view;
+        }
+        
+        public String getId() { 
+            return view.getName(); 
+        } 
+        
+        public String getType() {
+            return "tab"; 
+        }
+        
+        public void requestFocus() { 
+            if (view instanceof OSTabbedView) {
+                ((OSTabbedView) view).activate(); 
+            }            
+        }  
+
+        public void closeView() { 
+            root.remove(view); 
+        }
+    }
+    
+    // </editor-fold>        
 }

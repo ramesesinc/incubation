@@ -22,10 +22,14 @@ import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.File;
-import java.net.URL;
+import java.util.Map;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
@@ -51,6 +55,7 @@ class OSMainWindow implements MainWindow
     private MainWindowPanel mainWindowPanel;
     private MainViewPanel mainViewPanel;
     private OSTabbedPane tabbedPane; 
+    private GlassPaneImpl glassPane;
     
     public OSMainWindow() {
         initComponent();
@@ -58,21 +63,19 @@ class OSMainWindow implements MainWindow
     }
 
     private void initComponent() {
+        OSPlatformIdentity spi = OSPlatformIdentity.getInstance(); 
+        ImageIcon icon = (ImageIcon) spi.get("icon");
+        
         window = new JFrame();
         window.setTitle("Rameses Client Platform");
         window.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        window.setGlassPane(glassPane = new GlassPaneImpl()); 
         
         Image image = null; 
+        try { image = icon.getImage(); } catch(Throwable t) {;} 
+        
         try { 
-            URL url = new File(System.getProperty("user.dir")+"/icon.gif").toURL(); 
-            image = new ImageIcon(url).getImage(); 
-        } catch(Throwable t) {;} 
-                
-        try {
-            if (image == null) {
-                URL url = getClass().getResource("icon/os2-icon.png"); 
-                image = new ImageIcon(url).getImage(); 
-            } 
+            if (image == null) image = spi.getDefaultIcon().getImage();
         } catch(Throwable e){;}        
         
         try {
@@ -117,13 +120,7 @@ class OSMainWindow implements MainWindow
         plainContentPanel.revalidate();
         plainContentPanel.repaint();        
     } 
-    
-    Component findWindow(String id) { 
-        if (id == null) return null;
         
-        return tabbedPane.findWindow(id);  
-    } 
-    
     Component findExplorer(String id) {
         if (id == null) return null;
         
@@ -154,10 +151,9 @@ class OSMainWindow implements MainWindow
 
     public void close() {
         try { 
-            if (mainWindowListener != null && !mainWindowListener.onClose()) 
-                return;  
-        } catch(Throwable ex) {
-            ex.printStackTrace();
+            if (mainWindowListener != null && !mainWindowListener.onClose()) return;  
+        } catch(Throwable ex) { 
+            ex.printStackTrace(); 
         } 
         
         window.dispose(); 
@@ -262,6 +258,22 @@ class OSMainWindow implements MainWindow
         mainWindowPanel.repaint(); 
     }
     
+    void showGlassPane() {
+        glassPane.setVisible(true);
+        SwingUtilities.updateComponentTreeUI(glassPane); 
+    }
+    
+    void hideGlassPane() {
+        glassPane.setVisible(false); 
+        glassPane.removeAll(); 
+    }
+    
+    void showInGlassPane(Component comp, Map props) {
+        glassPane.removeAll(); 
+        glassPane.add(comp);
+        showGlassPane(); 
+    }
+    
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" ToolbarBorder ">
@@ -304,4 +316,60 @@ class OSMainWindow implements MainWindow
     
     // </editor-fold>
     
+    // <editor-fold defaultstate="collapsed" desc=" GlassPaneImpl ">
+    
+    private class GlassPaneImpl extends JPanel 
+    {
+        GlassPaneImpl() {
+            initComponent(); 
+        }
+        
+        private void initComponent() {
+            setOpaque(true);
+            setLayout(new BorderLayout()); 
+            addMouseListener(new MouseListener() {
+                public void mouseClicked(MouseEvent e) {
+                    e.consume();
+                }
+                public void mouseEntered(MouseEvent e) {
+                }
+                public void mouseExited(MouseEvent e) {
+                }
+                public void mousePressed(MouseEvent e) {
+                    e.consume();
+                }
+                public void mouseReleased(MouseEvent e) {
+                    e.consume();
+                }
+            });
+            addMouseMotionListener(new MouseMotionListener() {
+                public void mouseDragged(MouseEvent e) {
+                }
+                public void mouseMoved(MouseEvent e) {
+                }
+            });
+            addKeyListener(new KeyListener() {
+                public void keyPressed(KeyEvent e) { 
+                    e.consume(); 
+                }
+                public void keyReleased(KeyEvent e) {
+                    e.consume();
+                }
+                public void keyTyped(KeyEvent e) {
+                }
+            });        
+        }        
+        
+        public void setVisible(boolean visible) {
+            this.setFocusable(visible);         
+            super.setVisible(visible);
+            if (visible) {
+                this.requestFocusInWindow();
+                this.transferFocus(); 
+                this.setFocusCycleRoot(true); 
+            } 
+        }         
+    }
+    
+    // </editor-fold>
 }

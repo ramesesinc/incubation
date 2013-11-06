@@ -24,7 +24,9 @@ class OSAppLoader
     private AppLoader appLoader; 
     private Map env;
     private URL[] urls;
-            
+    
+    private AppLoader activeAppLoader;
+    
     public OSAppLoader(AppLoader appLoader, Map env, URL[] urls) {
         this.appLoader = appLoader;
         this.env = env;
@@ -50,10 +52,17 @@ class OSAppLoader
             if (env != null) newEnv.putAll(env); 
             
             newAppLoader.load(newClassLoader, newEnv, platform); 
+            activeAppLoader = newAppLoader; 
         } catch(RuntimeException re) {
             throw re; 
         } catch(Throwable t) {
             throw new RuntimeException(t.getMessage(), t); 
         }
+    }
+    
+    public void destroy() {
+        if (activeAppLoader == null) return;
+        
+        activeAppLoader.restore(); 
     }
 }
