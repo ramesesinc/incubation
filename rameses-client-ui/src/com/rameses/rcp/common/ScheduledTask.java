@@ -13,11 +13,10 @@ package com.rameses.rcp.common;
  *
  * @author elmo
  */
-public abstract class ScheduledTask extends Task{
-    
+public abstract class ScheduledTask extends Task 
+{
     private long expiryTime;
     
-    /** Creates a new instance of ScheduledTask */
     public ScheduledTask() {
         if(isImmediate()) {
             expiryTime = System.currentTimeMillis();
@@ -45,5 +44,4 @@ public abstract class ScheduledTask extends Task{
     public void restart() {
         expiryTime = System.currentTimeMillis() + getInterval();
     }
-    
 }

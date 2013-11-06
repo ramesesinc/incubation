@@ -100,11 +100,13 @@ public class TaskManager {
     }
 
     public void addTask(Task t) {
-        taskPool.add(t);
+        if (t != null && !taskPool.contains(t)) {
+            taskPool.add(t);
+        }
     }
     
     public void removeTask(Task t) {
-        taskPool.remove(t);
+        if (t != null) taskPool.remove(t);
     }
 
     public boolean isStarted() {

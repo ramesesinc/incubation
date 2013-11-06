@@ -37,16 +37,14 @@ public abstract class CountDownTimer extends ScheduledTask {
     }
     
     public final void execute() {
-        if( !executed ) {
+        if (!executed) { 
             executed = true;
             secondsLeft = getMaxSeconds();
         }
-        secondsLeft--;
         
+        secondsLeft--;
         onProgress();
-        if ( isEnded() ) {
-            onTimeout();
-        }
+        if (isEnded()) onTimeout();
     }
     
     public final boolean accept() {
@@ -97,5 +95,4 @@ public abstract class CountDownTimer extends ScheduledTask {
         secondsLeft = -1;
         executed = false;
     }
-    
 }
