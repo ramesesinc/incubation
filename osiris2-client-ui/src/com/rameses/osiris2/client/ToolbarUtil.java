@@ -34,8 +34,8 @@ import javax.swing.JToolBar;
  *
  * @author ms
  */
-public final class ToolbarUtil {
-    
+public final class ToolbarUtil 
+{    
     
     public static JToolBar getToolBar() {
         JToolBar toolbar = new JToolBar();
@@ -43,17 +43,19 @@ public final class ToolbarUtil {
         SessionContext app = OsirisContext.getSession();
         
         List<Invoker> invokers = app.getInvokers("toolbar");
-        for(Invoker inv : invokers) {
+        for (Invoker inv : invokers) {
             boolean isButton = true;
             try {
                 String sButton = (String)inv.getProperties().get("button");
                 if(sButton !=null ) isButton = Boolean.parseBoolean( sButton );
-            } catch(Exception ign){;}
-            if(isButton)
-                toolbar.add(new InvokerAction(inv));
-            else
-                toolbar.add(getViewComponent(inv));
-        }
+            } catch(Throwable ign){;}
+            
+            if (isButton) { 
+                toolbar.add(new InvokerAction(inv)); 
+            } else { 
+                toolbar.add(getViewComponent(inv)); 
+            } 
+        } 
         return toolbar;
     }
     
@@ -62,32 +64,33 @@ public final class ToolbarUtil {
         UIController c = cp.getController( inv.getWorkunitid(), null );
         String action = inv.getAction();
         UIControllerContext uic = new UIControllerContext( c );
-        if(action!=null) {
+        if (action != null) {
             String out = (String)c.init(new HashMap(), action);
-            if ( !ValueUtil.isEmpty(out) ) {
-                uic.setCurrentView(out);
-            }
+            if (!ValueUtil.isEmpty(out)) uic.setCurrentView(out);
         }
-        
-        UIControllerPanel p = new UIControllerPanel(uic);
-        return p;
+        return new UIControllerPanel(uic);
     }
     
+    // <editor-fold defaultstate="collapsed" desc=" InvokerAction ">
     
-    private static class InvokerAction extends JButton implements ActionListener {
+    private static class InvokerAction extends JButton implements ActionListener 
+    {
         private Invoker invoker;
+        
         public InvokerAction(Invoker inv) {
             this.invoker = inv;
             this.setText(inv.getCaption());
             this.addActionListener(this);
+            
             try {
-                String tooltip = (String)inv.getProperties().get("tooltip");
-                if(tooltip!=null) this.setToolTipText(tooltip);
-                String icn = (String)inv.getProperties().get("icon");
-                if(icn!=null) this.setIcon( ResourceUtil.getImageIcon( icn ) );
-            } catch(Exception e) {
-                //do nothing
-            }
+                String tooltip = (String) inv.getProperties().get("tooltip"); 
+                if (tooltip != null) this.setToolTipText(tooltip); 
+                
+                String icn = (String) inv.getProperties().get("icon");
+                if (icn != null) this.setIcon(ResourceUtil.getImageIcon(icn));
+            } catch(Throwable e) {
+                //do nothing 
+            } 
         }
         
         public void actionPerformed(ActionEvent e) {
@@ -97,13 +100,16 @@ public final class ToolbarUtil {
                 throw re;
             } catch(Exception ex) {
                 throw new IllegalStateException(ex.getMessage(), ex);
-            }
-        }
-        
+            } 
+        } 
     }
     
-    private static class ToolBarLayout implements LayoutManager {
-        
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" ToolbarLayout ">
+    
+    private static class ToolBarLayout implements LayoutManager 
+    {
         private static final int SPACING = 2;
         
         public void addLayoutComponent(String name, Component comp) {;}
@@ -154,6 +160,7 @@ public final class ToolbarUtil {
                 }
             }
         }
-    }
+    } 
     
+    // </editor-fold>
 }

@@ -13,10 +13,12 @@ import com.rameses.osiris2.SessionContext;
 import com.rameses.osiris2.Folder;
 import com.rameses.osiris2.Invoker;
 import com.rameses.rcp.support.ImageIconSupport;
+import com.rameses.rcp.support.MouseEventSupport;
 import com.rameses.rcp.util.ControlSupport;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JMenu;
@@ -103,8 +105,8 @@ public final class MenuUtil {
             return '\u0000';
     }
     
-    private static class MenuProxy extends JMenu {
-        
+    private static class MenuProxy extends JMenu 
+    {
         private boolean init;
         private String id;
         
@@ -142,7 +144,8 @@ public final class MenuUtil {
         
     }
     
-    private static class MenuItemProxy extends JMenuItem implements ActionListener {
+    private static class MenuItemProxy extends JMenuItem implements ActionListener 
+    {
         private Invoker invoker;
         
         MenuItemProxy(Folder menu) {
