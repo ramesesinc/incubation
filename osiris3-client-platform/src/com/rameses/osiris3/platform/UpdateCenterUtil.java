@@ -175,43 +175,48 @@ final class UpdateCenterUtil
         FileOutputStream fos = null;
         BufferedInputStream bis = null;
         BufferedOutputStream bos = null;
-        File file = new File( me.getModulePath() + me.getFilename());
+        
+        String filePath = me.getModulePath() + me.getFilename(); 
+        File file = new File(filePath + ".tmp"); 
+        boolean success = false; 
+        
         try {
-            if( !file.getParentFile().exists() ) {
+            if (!file.getParentFile().exists()) {
                 file.getParentFile().mkdirs();
             }
             
-            int buffSize = 1024 * 32;
-            
-            fos = new FileOutputStream( file );
+            int buffSize = 1024 * 32;            
+            fos = new FileOutputStream(file);
             bos = new BufferedOutputStream(fos, buffSize);
             
             URL u = new URL(hostPath  + me.getName());
             uc = u.openConnection();
             is = uc.getInputStream();
             bis = new BufferedInputStream(is, buffSize);
-            
+                        
             byte[] buff = new byte[buffSize];
             int bytesRead = -1;
             
-            while( (bytesRead = bis.read(buff)) != -1 ) {
+            while ((bytesRead = bis.read(buff)) != -1) {
                 bos.write(buff, 0, bytesRead);
             }
             bos.flush();
+            success = true;             
         } catch (Exception e) {
-            throw e;
+            throw e;            
         } finally {
-            try {
-                if( uc instanceof HttpURLConnection ) {
-                    ((HttpURLConnection)uc).disconnect();
-                }
-            } catch (Exception ign) {;}
-            try { is.close(); } catch (Exception ign) {;}
-            try { bis.close(); } catch (Exception ign) {;}
+            if (uc instanceof HttpURLConnection) {
+                try { 
+                    ((HttpURLConnection)uc).disconnect(); 
+                } catch (Throwable ign) {;} 
+            }
+            
             try { fos.close(); } catch (Exception ign) {;}
             try { bos.close(); } catch (Exception ign) {;}
+            try { bis.close(); } catch (Exception ign) {;}
+            try { is.close(); } catch (Exception ign) {;}
         }
+        
+        if (success) file.renameTo(new File(filePath)); 
     }
-    
-    
 }

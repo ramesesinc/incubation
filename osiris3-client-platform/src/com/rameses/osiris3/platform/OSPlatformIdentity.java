@@ -36,7 +36,7 @@ final class OSPlatformIdentity
     
     private OSPlatformIdentity() {
         URL url = OSPlatformIdentity.class.getResource(".identity");
-        if (url == null) throw new RuntimeException("Failed to load platform identity"); 
+        if (url == null) throw new RuntimeException("Failed to load the platform identity"); 
         
         load(url);
     }
