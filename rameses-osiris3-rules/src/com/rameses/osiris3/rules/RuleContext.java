@@ -73,7 +73,6 @@ public class RuleContext {
     }
     
     public void stop() {
-        
     }
     
     //this is called when starting up the rules
@@ -127,4 +126,7 @@ public class RuleContext {
     public void removeRulePackage(String packageName) throws Exception {
         knowledgeBase.removeKnowledgePackage( packageName );
     }
+    
+    
+    
 }

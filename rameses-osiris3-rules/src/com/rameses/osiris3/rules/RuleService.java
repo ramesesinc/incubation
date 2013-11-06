@@ -240,4 +240,11 @@ public class RuleService extends ContextService {
     }
     
     
+    //to recover from bad error that cannot be determined yet
+    public void removeRuleContext(String ruleset) throws Exception {
+        //remove and destroy the rule context.
+        RuleContext rc = ruleContexts.remove(ruleset);
+        rc.stop();
+    }
+    
 }
