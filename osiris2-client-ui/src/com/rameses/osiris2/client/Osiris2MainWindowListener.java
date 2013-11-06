@@ -8,6 +8,7 @@
 package com.rameses.osiris2.client;
 
 import com.rameses.platform.interfaces.MainWindowListener;
+import com.rameses.rcp.common.MsgBox;
 import com.rameses.rcp.framework.ClientContext;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,13 +29,12 @@ public class Osiris2MainWindowListener implements MainWindowListener {
     }
     
     public boolean onClose() {
-        for(MainWindowListener l: listeners) {
+        for (MainWindowListener l: listeners) {
             try {
-                if( !l.onClose() ) return false;
-                
-            } catch(Exception e) {
-                e.printStackTrace();
-            }
+                if (!l.onClose()) return false;
+            } catch(Exception e) { 
+                e.printStackTrace(); 
+            } 
         }
         
         //stop taskmanager only if all listeners allow the platform to be closed
@@ -42,7 +42,7 @@ public class Osiris2MainWindowListener implements MainWindowListener {
             ClientContext.getCurrentContext().shutdown();
         } catch(Exception e) {
             e.printStackTrace();
-        }
+        } 
         
         return true;
     }

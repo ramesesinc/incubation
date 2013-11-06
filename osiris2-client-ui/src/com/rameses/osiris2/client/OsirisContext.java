@@ -5,8 +5,8 @@ import com.rameses.rcp.framework.ClientContext;
 import java.util.HashMap;
 import java.util.Map;
 
-public final class OsirisContext {
-    
+public final class OsirisContext 
+{
     private static SessionContext session;
     private static Osiris2MainWindowListener mainWindowListener;
     
@@ -31,7 +31,7 @@ public final class OsirisContext {
     
     public static Map getEnv() {
         return getClientContext().getHeaders();
-    }
+    } 
 
     public static Map getSessionEnv() {
         Map map = new HashMap();

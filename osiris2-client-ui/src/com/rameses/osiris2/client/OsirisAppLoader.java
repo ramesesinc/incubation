@@ -31,7 +31,7 @@ public class OsirisAppLoader implements AppLoader {
             }
             
             OsirisAppContext dac = new OsirisAppContext(loader);
-            if(env.get("readTimeout")==null) {
+            if (env.get("readTimeout") == null) {
                 env.put("readTimeout","20000");
             }
             dac.setEnvMap( env );
@@ -42,7 +42,7 @@ public class OsirisAppLoader implements AppLoader {
             
             ClientSecurityProvider cs = (ClientSecurityProvider)startupApp.getSecurityProvider();
             ClientContext ctx = ClientContext.getCurrentContext();
-            
+            ctx.getProperties().clear();            
             ctx.setSecurityProvider(cs);
             ctx.setPlatform(platform);
             ctx.setClassLoader(loader);
