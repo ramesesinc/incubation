@@ -73,17 +73,12 @@ public abstract class ActiveCrudService {
     
     @ProxyMethod
     public Object save(Object data) {
-        if(getSubSchemaName()!=null) {
-            data = getObj().invokeMethod("read",new Object[]{data, getSubSchemaName()});    
-        }
-        else {
-            data = getObj().invokeMethod("read",new Object[]{data});    
-        }
-        if(data==null || ((Map)data).isEmpty() ) {
-            return create(data);
-        }
-        else {
+        try {
+            data = open(data);
             return update(data);
+        }
+        catch(Exception ign) {
+            return create(data);
         }
     }
     
