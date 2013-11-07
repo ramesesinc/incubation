@@ -64,7 +64,7 @@ class OSMainWindow implements MainWindow
 
     private void initComponent() {
         OSPlatformIdentity spi = OSPlatformIdentity.getInstance(); 
-        ImageIcon icon = (ImageIcon) spi.get("icon");
+        ImageIcon icon = spi.getIcon("icon");
         
         window = new JFrame();
         window.setTitle("Rameses Client Platform");

@@ -97,8 +97,8 @@ class OSStartupWindow extends JFrame
     
     private void beforeVisible() {
         OSPlatformIdentity spi = OSPlatformIdentity.getInstance(); 
-        ImageIcon splashIcon = (ImageIcon) spi.get("splash");
-        ImageIcon winIcon = (ImageIcon) spi.get("icon");
+        ImageIcon splashIcon = spi.getIcon("splash");
+        ImageIcon winIcon = spi.getIcon("icon");
         if (winIcon == null) winIcon = spi.getDefaultIcon();
         
         try { setImageIcon(splashIcon); } catch(Throwable t) {;} 
