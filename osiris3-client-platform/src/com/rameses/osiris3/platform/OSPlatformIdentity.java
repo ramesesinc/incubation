@@ -45,6 +45,17 @@ final class OSPlatformIdentity
         return identity.get(key); 
     }
     
+    public byte[] getBytes(Object key) {
+        return (byte[]) get(key); 
+    }
+    
+    public ImageIcon getIcon(Object key) {
+        byte[] bytes = getBytes(key);
+        if (bytes == null || bytes.length == 0) return null;
+        
+        return new ImageIcon(bytes); 
+    }
+    
     public ImageIcon getDefaultIcon() { 
         try { 
             if (defaultIcon == null) { 

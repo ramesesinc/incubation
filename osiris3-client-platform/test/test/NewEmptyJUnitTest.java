@@ -7,6 +7,7 @@
 
 package test;
 
+import javax.swing.ImageIcon;
 import javax.swing.UIManager;
 import junit.framework.*;
 

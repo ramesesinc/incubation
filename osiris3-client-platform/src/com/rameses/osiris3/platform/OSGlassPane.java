@@ -84,7 +84,7 @@ public class OSGlassPane extends JPanel
         Rectangle clip = g.getClipBounds();
         
         // sets a 65% translucent composite
-        AlphaComposite alpha = AlphaComposite.SrcOver.derive(0.65f);
+        AlphaComposite alpha = AlphaComposite.SrcOver.derive(0.85f);
         Composite oldComposite = g2.getComposite();
         g2.setComposite(alpha);
         
