@@ -74,7 +74,7 @@ public abstract class ActiveCrudService {
     @ProxyMethod
     public Object save(Object data) {
         try {
-            data = open(data);
+            open(data);
             return update(data);
         }
         catch(Exception ign) {
