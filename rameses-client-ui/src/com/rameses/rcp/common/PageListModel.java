@@ -213,6 +213,10 @@ public abstract class PageListModel extends AbstractListDataProvider
         if (editorSupport != null) editorSupport.refreshCurrentEditor(); 
     }    
     
+    public final boolean hasUncommittedData() {
+        return (editorSupport == null? false: editorSupport.hasUncommittedData()); 
+    }
+    
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" TableEditor implementation ">
@@ -236,7 +240,7 @@ public abstract class PageListModel extends AbstractListDataProvider
     public void setEditorListSupport(EditorListSupport editorSupport) {
         this.editorSupport = editorSupport; 
     }    
-    
+        
     // </editor-fold>     
     
     // <editor-fold defaultstate="collapsed" desc=" TableEditorHandler implementation ">

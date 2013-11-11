@@ -1889,6 +1889,24 @@ public class DataTableComponent extends JTable implements TableControl
             UIInput uiinput = (UIInput) currentEditor; 
             uiinput.refresh(); 
         } 
+
+        public boolean hasUncommittedData() {
+            if (root.editingMode) return true; 
+            
+            //verify the selected rows if there are draft items
+            int[] selRows = root.getSelectedRows();
+            if (selRows == null) selRows = new int[0]; 
+            
+            for (int rowIndex: selRows) {
+                if (rowIndex < 0) continue;
+                
+                ListItem li = root.getDataProvider().getListItem(rowIndex);
+                if (li == null && li.getState() == ListItem.STATE_DRAFT) {
+                    return true; 
+                }
+            }
+            return false; 
+        }
     }
     
     // </editor-fold>

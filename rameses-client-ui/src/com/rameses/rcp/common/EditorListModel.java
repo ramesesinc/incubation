@@ -67,6 +67,9 @@ public class EditorListModel extends AbstractListDataProvider implements EditorL
         if (editorSupport != null) editorSupport.refreshCurrentEditor(); 
     }
     
+    public final boolean hasUncommittedData() {
+        return (editorSupport == null? false: editorSupport.hasUncommittedData()); 
+    }    
     
     // <editor-fold defaultstate="collapsed" desc=" TableEditor implementation ">
 

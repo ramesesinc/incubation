@@ -219,7 +219,7 @@ public final class EditorListSupport
         TableEditorHandler getTableEditorHandler();
         TableModelSupport getTableModelSupport(); 
         
-        void setEditorListSupport(EditorListSupport editorSupport);
+        void setEditorListSupport(EditorListSupport editorSupport); 
     }
     
     // </editor-fold>
@@ -229,6 +229,7 @@ public final class EditorListSupport
     public static interface TableEditorProvider 
     {
         void refreshCurrentEditor(ListItem li); 
+        boolean hasUncommittedData();
     } 
     
     private TableEditorProvider editorProvider; 
@@ -243,6 +244,10 @@ public final class EditorListSupport
         ListItem li = dataProvider.getSelectedItem(); 
         if (li != null) editorProvider.refreshCurrentEditor(li); 
     } 
+    
+    public final boolean hasUncommittedData() {
+        return (editorProvider == null? false: editorProvider.hasUncommittedData()); 
+    }
     
     // </editor-fold>
     
