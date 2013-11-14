@@ -69,11 +69,13 @@ public class XList extends JList implements UIControl, MouseEventSupport.Compone
     private Insets padding = new Insets(1,3,1,3);    
     private int cellVerticalAlignment = SwingConstants.CENTER;
     private int cellHorizontalAlignment = SwingConstants.LEADING;
+    private boolean enableNavigation;
         
     public XList() 
     {
         super.addListSelectionListener(getSelectionSupport()); 
         setCellRenderer(new DefaultCellRenderer());
+        setEnableNavigation(true); 
         setMultiselect(false);
         setVarName("item");
         
@@ -97,7 +99,7 @@ public class XList extends JList implements UIControl, MouseEventSupport.Compone
         } 
         new MouseEventSupport(this).install(); 
     }
-    
+
     // <editor-fold defaultstate="collapsed" desc=" Getters/Setters ">
     
     public final void setModel(ListModel model) {;}    
@@ -122,6 +124,13 @@ public class XList extends JList implements UIControl, MouseEventSupport.Compone
     public boolean isDynamic() { return dynamic; }    
     public void setDynamic(boolean dynamic) {
         this.dynamic = dynamic;
+    }
+    
+    public boolean isEnableNavigation() { return enableNavigation; } 
+    public void setEnableNavigation(boolean enableNavigation) {
+        this.enableNavigation = enableNavigation;
+        boolean enabled = isEnabled();
+        firePropertyChange("enabled", !enabled, enabled); 
     }
 
     public boolean isMultiselect() {
@@ -428,8 +437,10 @@ public class XList extends JList implements UIControl, MouseEventSupport.Compone
             cellLabel.setFont(list.getFont());
             cellLabel.setVerticalAlignment(getCellVerticalAlignment());
             cellLabel.setHorizontalAlignment(getCellHorizontalAlignment());
+            if (cellLabel.isEnabled()) cellLabel.setEnabled(root.isEnableNavigation());
             
             if (isSelected) {
+                cellLabel.setEnabled(true); 
                 cellLabel.setBackground(list.getSelectionBackground());
                 cellLabel.setForeground(list.getSelectionForeground());
                 fontSupport.applyStyles(cellLabel, "font-weight:bold;");
@@ -624,6 +635,7 @@ public class XList extends JList implements UIControl, MouseEventSupport.Compone
     }
 
     private boolean beforeSelectionIndex(int lead) {
+        if (!isEnableNavigation()) return false;
         if (listPaneModel == null) return true;
         
         try {
@@ -631,7 +643,7 @@ public class XList extends JList implements UIControl, MouseEventSupport.Compone
             if (!listPaneModel.beforeSelect(o)) return false;
         } catch(Throwable t) { 
             MsgBox.err(t); 
-        }         
+        } 
         return true; 
     }
     

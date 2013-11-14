@@ -24,12 +24,18 @@ public class ImageIconSupport
 {
     private static ImageIconSupport instance;
     
-    public static ImageIconSupport getInstance() 
-    {
-        if (instance == null) instance = new ImageIconSupport(); 
-        
+    public static ImageIconSupport getInstance() {
+        if (instance == null) {
+            instance = new ImageIconSupport();
+        }         
         return instance; 
     }
+    
+    public static ImageIconSupport.Resizer getResizer() {
+        return new Resizer(); 
+    }
+    
+    
     
     private Map<String,Image> cache = new HashMap(); 
             
@@ -69,4 +75,53 @@ public class ImageIconSupport
         return new ImageIcon(image); 
     }    
     
+    // <editor-fold defaultstate="collapsed" desc=" Resizer "> 
+    
+    public static class Resizer 
+    {
+        public final static int SCALE_AREA_AVERAGING = Image.SCALE_AREA_AVERAGING;
+        public final static int SCALE_DEFAULT = Image.SCALE_DEFAULT;
+        public final static int SCALE_FAST = Image.SCALE_FAST;
+        public final static int SCALE_REPLICATE = Image.SCALE_REPLICATE;
+        public final static int SCALE_SMOOTH = Image.SCALE_SMOOTH;
+        
+        private Resizer() {
+        }
+        
+        public Image resizeWidth(Image image, int size) {
+            return resizeWidth(image, size, SCALE_FAST);
+        }
+        
+        public Image resizeWidth(Image image, int size, int scaleType) {
+            return resize(image, size, -1, scaleType);
+        }        
+        
+        public Image resizeHeight(Image image, int size) {
+            return resizeHeight(image, size, SCALE_FAST);
+        }
+
+        public Image resizeHeight(Image image, int size, int scaleType) {
+            return resize(image, -1, size, scaleType);
+        }
+        
+        public Image resize(Image image, int width, int height) {
+            return resize(image, width, height, SCALE_FAST);
+        }      
+        
+        public Image resize(Image image, int width, int height, int scaleType) {
+            if (image == null) {
+                return null;
+            } else if (width < 0 && height < 0) { 
+                return image;
+            } else if (width > 0 && height < 0) { 
+                return image.getScaledInstance(width, -1, scaleType); 
+            } else if (width < 0 && height > 0) { 
+                return image.getScaledInstance(-1, height, scaleType); 
+            } else {
+                return image.getScaledInstance(width, height, scaleType); 
+            }
+        } 
+    }
+    
+    // </editor-fold>
 }

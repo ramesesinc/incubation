@@ -24,6 +24,10 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Insets;
 import java.awt.LayoutManager;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
+import java.awt.event.ContainerEvent;
+import java.awt.event.ContainerListener;
 import java.beans.Beans;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -482,6 +486,8 @@ public class XSubFormPanel extends JPanel implements UISubControl, ActiveControl
     
     protected class SubFormContext extends UIControllerPanel 
     {
+        XSubFormPanel root = XSubFormPanel.this;
+        
         private Opener opener;
         
         SubFormContext(UIControllerContext controller, Opener opener) {
@@ -489,7 +495,7 @@ public class XSubFormPanel extends JPanel implements UISubControl, ActiveControl
             this.opener = opener;
             
             setOpaque(false);
-            setName(XSubFormPanel.this.getName());
+            setName(root.getName());
         }
         
         public Opener getOpener() { return opener; } 
@@ -497,10 +503,10 @@ public class XSubFormPanel extends JPanel implements UISubControl, ActiveControl
         public void renderView() {
             super.renderView();
             
-            Set<Binding> connectorBindings = bindingConnector.getSubBindings();
-            connectorBindings.clear();
-            connectorBindings.addAll(getSubBindings());
-        }        
+            Set<Binding> bindings = root.bindingConnector.getSubBindings();
+            bindings.clear();
+            bindings.addAll(root.getSubBindings());
+        } 
     }
     
     // </editor-fold>     
