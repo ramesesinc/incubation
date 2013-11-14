@@ -9,9 +9,10 @@
 
 package com.rameses.beaninfo;
 
-import com.rameses.rcp.common.MsgBox;
 import java.awt.Component;
 import java.awt.Image;
+import java.awt.KeyboardFocusManager;
+import java.awt.Window;
 import java.beans.BeanDescriptor;
 import java.beans.BeanInfo;
 import java.beans.Beans;
@@ -19,6 +20,7 @@ import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
 import java.beans.SimpleBeanInfo;
 import javax.swing.JComponent;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -87,7 +89,8 @@ public class ComponentBeanInfo extends SimpleBeanInfo
             } 
             catch (IntrospectionException ie) 
             {
-                MsgBox.err(ie); 
+                ie.printStackTrace();
+                showError(ie);
                 return null;
             }
         }  
@@ -97,5 +100,12 @@ public class ComponentBeanInfo extends SimpleBeanInfo
             pd.setPropertyEditorClass(editorClass); 
             return pd; 
         } 
+        
+        private void showError(Throwable t) {
+            KeyboardFocusManager kfm = KeyboardFocusManager.getCurrentKeyboardFocusManager();
+            Window window = kfm.getActiveWindow();
+            String errmsg = t.getClass().getName() + ": " + t.getMessage();
+            JOptionPane.showMessageDialog(window, errmsg, "ERROR", JOptionPane.ERROR_MESSAGE);
+        }
     } 
 }

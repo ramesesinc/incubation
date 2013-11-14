@@ -10,8 +10,10 @@
 package com.rameses.beaninfo.editor.table;
 
 import com.rameses.rcp.common.Column;
-import com.rameses.rcp.common.MsgBox;
+import java.awt.KeyboardFocusManager;
 import java.awt.Point;
+import java.awt.Window;
+import javax.swing.JOptionPane;
 import javax.swing.JTable;
 
 /**
@@ -74,7 +76,15 @@ public class ColumnDataTable extends JTable {
             controller.refresh();                
         } 
         catch(Exception ex) {
-            MsgBox.err(ex); 
+            ex.printStackTrace();
+            showError(ex); 
         }            
     }      
+    
+    private void showError(Throwable t) {
+        KeyboardFocusManager kfm = KeyboardFocusManager.getCurrentKeyboardFocusManager();
+        Window window = kfm.getActiveWindow();
+        String errmsg = t.getClass().getName() + ": " + t.getMessage();
+        JOptionPane.showMessageDialog(window, errmsg, "ERROR", JOptionPane.ERROR_MESSAGE);
+    }    
 }

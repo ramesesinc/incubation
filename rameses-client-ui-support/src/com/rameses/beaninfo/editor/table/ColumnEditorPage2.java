@@ -8,11 +8,12 @@ package com.rameses.beaninfo.editor.table;
 
 import com.rameses.beaninfo.editor.table.ColumnEditorController.DependHandler;
 import com.rameses.rcp.common.Column;
-import com.rameses.rcp.common.MsgBox;
 import com.rameses.rcp.constant.TextCase;
 import com.rameses.rcp.swingx.ComboItem;
 import java.awt.EventQueue;
+import java.awt.KeyboardFocusManager;
 import java.awt.Point;
+import java.awt.Window;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.beans.PropertyChangeEvent;
@@ -20,6 +21,7 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyEditor;
 import java.util.Comparator;
 import javax.swing.JComponent;
+import javax.swing.JOptionPane;
 import javax.swing.ListSelectionModel;
 
 /**
@@ -551,6 +553,13 @@ public class ColumnEditorPage2 extends javax.swing.JPanel {
     
     // <editor-fold defaultstate="collapsed" desc=" TypeHandler ">          
     
+    private void showError(Throwable t) {
+        KeyboardFocusManager kfm = KeyboardFocusManager.getCurrentKeyboardFocusManager();
+        Window window = kfm.getActiveWindow();
+        String errmsg = t.getClass().getName() + ": " + t.getMessage();
+        JOptionPane.showMessageDialog(window, errmsg, "ERROR", JOptionPane.ERROR_MESSAGE);
+    }    
+    
     private class TypeHandler implements ItemListener 
     {
         public void itemStateChanged(ItemEvent e) 
@@ -581,7 +590,8 @@ public class ColumnEditorPage2 extends javax.swing.JPanel {
                 }
             } 
             catch(Exception ex) {
-                MsgBox.err(ex);                
+                ex.printStackTrace();
+                showError(ex); 
             }
         } 
     }

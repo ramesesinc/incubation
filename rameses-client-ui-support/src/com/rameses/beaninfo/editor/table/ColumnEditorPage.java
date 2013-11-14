@@ -8,7 +8,6 @@ package com.rameses.beaninfo.editor.table;
 
 import com.rameses.beaninfo.editor.table.ColumnEditorController.DependHandler;
 import com.rameses.rcp.common.Column;
-import com.rameses.rcp.common.MsgBox;
 import com.rameses.rcp.constant.TextCase;
 import com.rameses.rcp.swingx.CheckField;
 import com.rameses.rcp.swingx.ComboField;
@@ -16,7 +15,9 @@ import com.rameses.rcp.swingx.ComboItem;
 import com.rameses.rcp.swingx.IntegerField;
 import com.rameses.rcp.swingx.TextField;
 import java.awt.EventQueue;
+import java.awt.KeyboardFocusManager;
 import java.awt.Point;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -27,6 +28,7 @@ import java.beans.PropertyEditor;
 import java.util.Comparator;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 
@@ -554,6 +556,13 @@ public class ColumnEditorPage extends javax.swing.JPanel
     
     // <editor-fold defaultstate="collapsed" desc=" TableImpl ">          
     
+    private void showError(Throwable t) {
+        KeyboardFocusManager kfm = KeyboardFocusManager.getCurrentKeyboardFocusManager();
+        Window window = kfm.getActiveWindow();
+        String errmsg = t.getClass().getName() + ": " + t.getMessage();
+        JOptionPane.showMessageDialog(window, errmsg, "ERROR", JOptionPane.ERROR_MESSAGE);
+    }    
+    
     private class TableImpl extends JTable 
     {
         public void selectRow(int rowIndex) 
@@ -591,7 +600,8 @@ public class ColumnEditorPage extends javax.swing.JPanel
                 controller.refresh();                
             } 
             catch(Exception ex) {
-                MsgBox.err(ex); 
+                ex.printStackTrace();
+                showError(ex); 
             }            
         }
     }
@@ -630,7 +640,8 @@ public class ColumnEditorPage extends javax.swing.JPanel
                 }
             } 
             catch(Exception ex) {
-                MsgBox.err(ex);                
+                ex.printStackTrace();
+                showError(ex); 
             }
         } 
     }
