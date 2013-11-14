@@ -72,6 +72,18 @@ public abstract class ActiveCrudService {
     }
     
     @ProxyMethod
+    public Object save(Object data) {
+        try {
+            open(data);
+            return update(data);
+        }
+        catch(Exception ign) {
+            return create(data);
+        }
+    }
+    
+    
+    @ProxyMethod
     public Object open(Object data) {
         beforeOpen(data);
         if(getSubSchemaName()!=null) {

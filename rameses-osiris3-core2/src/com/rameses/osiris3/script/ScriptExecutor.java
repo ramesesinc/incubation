@@ -9,6 +9,8 @@
 
 package com.rameses.osiris3.script;
 
+import com.rameses.osiris3.core.TransactionContext;
+import com.rameses.util.ExceptionManager;
 import groovy.lang.GroovyObject;
 
 /**
@@ -35,7 +37,20 @@ public class ScriptExecutor {
     /** Creates a new instance of ScriptExecutor */
     
     public Object invokeMethod(final String method, final Object[] args ) throws Exception {
-        return  scriptObject.invokeMethod( method, args );
+        try {
+            return  scriptObject.invokeMethod( method, args );
+        }
+        catch(Exception e) {
+            TransactionContext ct = TransactionContext.getCurrentContext();
+            if(ct!=null) {
+                String debug = (String)ct.getContext().getProperty("app.debug");
+                if("true".equals(debug) ) {
+                    //Exception oe = ExceptionManager.getOriginal(e);
+                    e.printStackTrace();
+                }
+            }
+            throw e;
+        }
     }
     
     public void setProperty(String name, Object data) {
