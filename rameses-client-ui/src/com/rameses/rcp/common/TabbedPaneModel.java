@@ -49,6 +49,14 @@ public class TabbedPaneModel {
         if (provider != null) provider.refresh(); 
     }
     
+    public Object getSelectedItem() {
+        return (provider == null? null: provider.getSelectedItem()); 
+    }
+    
+    public int getSelectedIndex() {
+        return (provider == null? -1: provider.getSelectedIndex()); 
+    }    
+    
     // <editor-fold defaultstate="collapsed" desc=" Provider interface ">
 
     private TabbedPaneModel.Provider provider; 
@@ -64,6 +72,9 @@ public class TabbedPaneModel {
         
         void reload();
         void refresh();
+        
+        Object getSelectedItem();
+        int getSelectedIndex();
     } 
     
     // </editor-fold>     

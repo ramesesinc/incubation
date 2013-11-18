@@ -24,6 +24,7 @@ import com.rameses.rcp.util.UIControlUtil;
 import com.rameses.util.Warning;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.EventQueue;
 import java.awt.Font;
 import java.beans.Beans;
 import java.util.ArrayList;
@@ -43,16 +44,16 @@ public class XTabbedPane extends JTabbedPane implements UIControl, MouseEventSup
     
     private boolean dynamic;
     private String disableWhen;
-    
+    private String handler;
+
     private int oldIndex;
     private List<Opener> openers = new ArrayList();
     private boolean nameAutoLookupAsOpener = false;
     
     private TabbedPaneModel model;
     private boolean noSelectionAllowed;
-        
-    public XTabbedPane() 
-    {
+    
+    public XTabbedPane() {
         super();
         initComponents();
     }
@@ -68,7 +69,7 @@ public class XTabbedPane extends JTabbedPane implements UIControl, MouseEventSup
         new MouseEventSupport(this).install(); 
         setPreferredSize(new Dimension(100,50)); 
         Font f = ThemeUI.getFont("XTabbedPane.font");
-        if ( f != null ) setFont( f );        
+        if ( f != null ) setFont( f ); 
     }
     
     //</editor-fold>
@@ -87,6 +88,9 @@ public class XTabbedPane extends JTabbedPane implements UIControl, MouseEventSup
     public void setDisableWhen(String disableWhen) {
         this.disableWhen = disableWhen;
     }
+    
+    public String getHandler() { return handler; } 
+    public void setHandler(String handler) { this.handler = handler; } 
         
     // </editor-fold>
     
@@ -199,12 +203,35 @@ public class XTabbedPane extends JTabbedPane implements UIControl, MouseEventSup
         
         this.oldIndex = getSelectedIndex();
         super.setSelectedIndex(index);
+        
+        EventQueue.invokeLater(new Runnable() {
+            public void run() { 
+                fireSelectionChanged(); 
+            }
+        });
+    }
+    
+    private void fireSelectionChanged() {
+        String name = getName();
+        if (name == null || name.length() == 0) return;
+
+        Object value = null;
+        Component comp = getSelectedComponent();
+        if (comp instanceof TabbedItemPanel) {
+            TabbedItemPanel p = (TabbedItemPanel) comp;
+            value = p.getOpener();
+        }
+        
+        try { 
+            UIControlUtil.setBeanValue(getBinding(), name, value); 
+            getBinding().notifyDepends(this); 
+        } catch(Throwable t) {;}
     }
     
     private void loadTabs() {
         loadOpeners();
         removeAll();
-                
+        
         ExpressionResolver expRes = ExpressionResolver.getInstance();
         for (Opener op: openers) {
             Object ov = op.getProperties().get("visibleWhen");
@@ -251,14 +278,12 @@ public class XTabbedPane extends JTabbedPane implements UIControl, MouseEventSup
         }
         
         Object value = null;
-        String name = getName();
-        if (name != null && name.length() > 0) {
-            if (name.matches(".+:.+")) {
-                value = openerProvider.lookupOpeners(name, new HashMap()); 
+        String handler = getHandler();
+        if (handler != null && handler.length() > 0) {
+            if (handler.matches(".+:.+")) {
+                value = openerProvider.lookupOpeners(handler, new HashMap()); 
             } else {
-                try { 
-                    value = UIControlUtil.getBeanValue(this); 
-                } catch(Throwable t){;}
+                value = UIControlUtil.getBeanValue(getBinding(), handler); 
             }
         }
         
@@ -266,23 +291,45 @@ public class XTabbedPane extends JTabbedPane implements UIControl, MouseEventSup
         if (value instanceof TabbedPaneModel) {
             newModel = (TabbedPaneModel)value; 
             newModel.setProvider(getProviderImpl()); 
-            value = newModel.getOpeners(); 
-        } 
+        } else {
+            newModel = new TabbedPaneModelImpl(value);
+        }
 
-        if (value == null) {
-            //do nothing
-        } else if (value.getClass().isArray()) {
-            Opener[] arrays = (Opener[]) value;
-            for (Opener o: arrays) openers.add(o); 
-            
-        } else if (value instanceof Collection) {
-            openers.addAll((Collection) value);
-        } 
+        List<Opener> list = newModel.getOpeners(); 
+        if (list != null) openers.addAll(list); 
         
-        if (this.model != null) this.model.setProvider(null);
+        TabbedPaneModel oldModel = this.model;
+        if (oldModel != null) oldModel.setProvider(null); 
         
         this.model = newModel; 
     } 
+    
+    // </editor-fold>
+
+    // <editor-fold defaultstate="collapsed" desc=" DefaultTabbedPaneModel ">
+    
+    private class TabbedPaneModelImpl extends TabbedPaneModel 
+    {
+        private List<Opener> list;
+        
+        TabbedPaneModelImpl(Object value) {
+            list = new ArrayList();
+            
+            if (value == null) {
+                //do nothing
+            } else if (value.getClass().isArray()) {
+                Opener[] arrays = (Opener[]) value;
+                for (Opener o: arrays) list.add(o); 
+
+            } else if (value instanceof Collection) {
+                list.addAll((Collection) value);
+            }  
+        }
+
+        public List<Opener> getOpeners() { 
+            return list; 
+        }
+    }
     
     // </editor-fold>
     
@@ -338,6 +385,19 @@ public class XTabbedPane extends JTabbedPane implements UIControl, MouseEventSup
             TabbedItemPanel itemPanel = (TabbedItemPanel)comp;
             itemPanel.refreshContent(); 
         }        
+
+        public Object getSelectedItem() {
+            Component comp = root.getSelectedComponent(); 
+            if (comp instanceof TabbedItemPanel) {
+                return ((TabbedItemPanel) comp).getOpener(); 
+            } else {
+                return null; 
+            }
+        }
+
+        public int getSelectedIndex() {
+            return root.getSelectedIndex(); 
+        }
     } 
     
     // </editor-fold> 
@@ -360,4 +420,5 @@ public class XTabbedPane extends JTabbedPane implements UIControl, MouseEventSup
     }
     
     // </editor-fold>
+    
 }
