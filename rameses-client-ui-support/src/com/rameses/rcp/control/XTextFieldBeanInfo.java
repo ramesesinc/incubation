@@ -10,6 +10,7 @@
 package com.rameses.rcp.control;
 
 import com.rameses.beaninfo.ComponentBeanInfo;
+import com.rameses.beaninfo.editor.SwingConstantsHAlignment;
 import com.rameses.beaninfo.editor.TextCasePropertyEditor;
 import com.rameses.beaninfo.editor.TrimSpaceOptionPropertyEditor;
 import java.beans.IntrospectionException;
@@ -39,6 +40,8 @@ public class XTextFieldBeanInfo extends ComponentBeanInfo.Support
             new PropertyDescriptor("fontStyle", getBeanClass()), 
             new PropertyDescriptor("disabledTextColor", getBeanClass()), 
             new PropertyDescriptor("actionCommand", getBeanClass()), 
+            
+            installEditor(new PropertyDescriptor("horizontalAlignment", getBeanClass()), SwingConstantsHAlignment.class), 
             
             new PropertyDescriptor("caption", getBeanClass()),
             new PropertyDescriptor("captionFont", getBeanClass()),
