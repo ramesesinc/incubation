@@ -491,10 +491,9 @@ public class XLookupField extends IconedTextField implements UILookup, UISelecto
         }
     }    
     
-    public void select(Object value) 
-    {
-        selectionOption = JOptionPane.OK_OPTION;
+    public Object select(Object value) {
         selectedValue = value; 
+        selectionOption = JOptionPane.OK_OPTION;
         LookupDataSource lds = lookupHandlerProxy.getModel();
         String flds = lds.getReturnFields();
         if (flds != null && flds.length() > 0) {
@@ -505,17 +504,23 @@ public class XLookupField extends IconedTextField implements UILookup, UISelecto
             String itemVal = lds.getReturnItemValue();
             selectedValue = new ResultKeyValueMapper().parse(itemKey, itemVal, value);
         }
-         
-        getInputSupport().setValue(getName(), selectedValue);         
+        
+        Object outcome = getInputSupport().setValue(getName(), selectedValue);         
         putClientProperty("updateBeanValue", true); 
         getInputVerifierProxy().setEnabled(true);        
-        if (lookupHandlerProxy.hasOnselectCallback()) 
+        if (lookupHandlerProxy.hasOnselectCallback()) { 
             putClientProperty("cellEditorValue", "no_updates"); 
+        }
+        if (outcome instanceof Opener || "_close".equals(outcome)) {
+            return outcome; 
+        } 
         
-        if ( transferFocusOnSelect )
-            this.transferFocus();
-        else
-            this.requestFocus();        
+        if ( transferFocusOnSelect ) { 
+            this.transferFocus(); 
+        } else {
+            this.requestFocus();    
+        } 
+        return null; 
     }
 
     public void cancelSelection() 
@@ -623,17 +628,16 @@ public class XLookupField extends IconedTextField implements UILookup, UISelecto
             if (handler != null) handler.onselect(item);
         }
         
-        void invokeOnempty(Object value) {
-            invokeHandler(onemptyCallback, value);
+        Object invokeOnempty(Object value) {
+            return invokeHandler(onemptyCallback, value);
         }
         
-        void invokeOnselect(Object item) {
-            invokeHandler(onselectCallback, item);
+        Object invokeOnselect(Object item) {
+            return invokeHandler(onselectCallback, item);
         }        
         
-        private void invokeHandler(Object handler, Object item)
-        {
-            if (handler == null) return;
+        private Object invokeHandler(Object handler, Object item){
+            if (handler == null) return null;
 
             Method method = null;         
             Class clazz = handler.getClass();
@@ -641,13 +645,14 @@ public class XLookupField extends IconedTextField implements UILookup, UISelecto
 
             try 
             {
-                if (method != null) 
-                    method.invoke(handler, new Object[]{item}); 
-            }
-            catch (RuntimeException re) {
+                if (method != null) { 
+                    return method.invoke(handler, new Object[]{item}); 
+                } else {
+                    return null; 
+                }
+            } catch (RuntimeException re) {
                 throw re;
-            }
-            catch (Exception ex) {
+            } catch (Exception ex) {
                 throw new IllegalStateException(ex.getMessage(), ex); 
             }
         }        
@@ -695,22 +700,25 @@ public class XLookupField extends IconedTextField implements UILookup, UISelecto
             return true; 
         }  
         
-        public void setValue(String name, Object value) {
-            setValue(name, value, null); 
+        public Object setValue(String name, Object value) {
+            return setValue(name, value, null); 
         }   
         
-        public void setValue(String name, Object value, JComponent jcomp){
+        public Object setValue(String name, Object value, JComponent jcomp){
             JComponent xlkp = XLookupField.this;
             xlkp.putClientProperty("UIControl.value", null); 
             
-            if (lookupHandlerProxy.hasOnselectCallback()) 
-                lookupHandlerProxy.invokeOnselect(value); 
-            else 
-                updateBeanValue(name, value);
+            Object outcome = null;
+            if (lookupHandlerProxy.hasOnselectCallback()) { 
+                outcome = lookupHandlerProxy.invokeOnselect(value); 
+            } else { 
+                updateBeanValue(name, value); 
+            }
 
             xlkp.putClientProperty("UIControl.value", new Object[]{value}); 
             publishUpdates(); 
             dirty = false; 
+            return outcome;
         }
         
         private void updateBeanValue(String name, Object value) 
@@ -721,7 +729,7 @@ public class XLookupField extends IconedTextField implements UILookup, UISelecto
                 //handle the updating of the bean
                 Object bean = binding.getBean();
                 if (bean != null) {
-                    PropertyResolver resolver =PropertyResolver.getInstance();
+                    PropertyResolver resolver = PropertyResolver.getInstance();
                     resolver.setProperty(binding.getBean(), name, value); 
                     binding.getValueChangeSupport().notify(name, value);
                 } 

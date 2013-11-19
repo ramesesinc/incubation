@@ -1209,14 +1209,14 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
         XFormPanel root = XFormPanel.this;
         PropertyResolver propertyResolver = PropertyResolver.getInstance();
         
-        public void setValue(String name, Object value) {
-            setValue(name, value, null); 
+        public Object setValue(String name, Object value) {
+            return setValue(name, value, null); 
         } 
         
-        public void setValue(String name, Object value, JComponent jcomp) {
+        public Object setValue(String name, Object value, JComponent jcomp) {
             if (root.model == null) {
                 System.out.println("[WARN] No available FormPanelModel attached"); 
-                return; 
+                return null; 
             }
             
             UIControl uic = null;
@@ -1226,7 +1226,7 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
                 uic = (UIControl)jcomp;
             else { 
                 System.out.println("[WARN] EditorInputSupport does not support this type of component"); 
-                return;
+                return null;
             }
             
             Binding binding = uic.getBinding();
@@ -1263,7 +1263,8 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
                 jtxt.putClientProperty("CaretPosition", oldCaretPos); 
             }
 
-            binding.notifyDepends(uic);            
+            binding.notifyDepends(uic);  
+            return null; 
         } 
         
         private void fireOnChangeEvent(Object userObj, Object value) {

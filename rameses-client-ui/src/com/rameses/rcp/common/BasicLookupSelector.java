@@ -35,7 +35,8 @@ public class BasicLookupSelector implements LookupSelector
         this.searchtext = searchtext; 
     }
     
-    public void select(Object o) {
+    public Object select(Object o) {
+        return null; 
     }
 
     public void cancelSelection() {

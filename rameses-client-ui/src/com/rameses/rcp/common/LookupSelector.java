@@ -15,6 +15,6 @@ package com.rameses.rcp.common;
  */
 public interface LookupSelector 
 {
-    void select(Object o); 
+    Object select(Object o); 
     void cancelSelection();  
 }

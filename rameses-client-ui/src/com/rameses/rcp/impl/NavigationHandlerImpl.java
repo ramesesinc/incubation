@@ -34,7 +34,7 @@ public class NavigationHandlerImpl implements NavigationHandler {
         }
         else {
             //-- process Opener outcome
-            if( outcome instanceof Opener )  {
+            if ( outcome instanceof Opener )  {
                 Opener opener = (Opener) outcome;
                 opener = ControlSupport.initOpener( opener, curController.getController() );
                 

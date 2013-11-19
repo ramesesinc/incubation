@@ -30,7 +30,8 @@ public class UICommandUtil {
         if ( Beans.isDesignTime() ) return null;
 
         ClientContext ctx = ClientContext.getCurrentContext();
-        MethodResolver resolver = MethodResolver.getInstance();  
+        UICommandSupport uics = new UICommandSupport();         
+        MethodResolver resolver = uics.getMethodResolver(); 
         try 
         {
             Binding binding = command.getBinding();
@@ -80,36 +81,29 @@ public class UICommandUtil {
             //notify handlers who hooked after execution
             binding.getActionHandlerSupport().fireAfterExecute(); 
             
-            if (outcome instanceof PopupMenuOpener) { 
-                return outcome; 
-            } 
-            else if (outcome instanceof Opener) { 
-                try { 
-                    Object bean = binding.getBean(); 
-                    //invoke a callback method getOpenerParams to get the extended opener parameters 
-                    Object paramEntity = null;
-                    try { 
-                        paramEntity = PropertyResolver.getInstance().getProperty(bean, "entity");
-                    } catch(Throwable t) {;} 
-                    
-                    Opener opener = (Opener) outcome;
-                    Map openerParams = opener.getParams();
-                    if (openerParams == null) openerParams = new HashMap();
-                    
-                    try { 
-                        Map params = (Map) resolver.invoke(bean, "getOpenerParams", new Object[]{});
-                        if (params != null) openerParams.putAll(params); 
-                    } catch(Throwable t) {;} 
-                    
-                    if (paramEntity != null && !openerParams.containsKey("entity")) 
-                        openerParams.put("entity", paramEntity);
-                    
-                    opener.setParams(openerParams); 
-                } catch(Throwable t){;} 
+            if (outcome instanceof PopupMenuOpener) {
+                return outcome;
             } 
 
-            NavigationHandler handler = ctx.getNavigationHandler();
-            if ( handler != null ) handler.navigate(navPanel, command, outcome); 
+            if (outcome instanceof Opener) { 
+                Opener opener = (Opener) outcome;
+                if ("_close".equals(opener.getOutcome())) {
+                    outcome = "_close"; 
+                    
+                } else if (opener.isAsync()) {
+                    String str = opener.getTarget();
+                    if (!"popup".equals(str)) opener.setTarget("popup"); 
+                    
+                    outcome = "_close"; 
+                    uics.navigate(binding, opener); 
+                    
+                } else { 
+                    uics.initOpenerParams(binding, opener); 
+                }
+            } 
+
+            NavigationHandler handler = ctx.getNavigationHandler();             
+            if (handler != null) handler.navigate(navPanel, command, outcome);
 
             return null;
         } 
@@ -205,4 +199,62 @@ public class UICommandUtil {
         }
         return false;
     }
+    
+    // <editor-fold defaultstate="collapsed" desc=" UICommandSupport ">  
+    
+    private static class UICommandSupport 
+    {
+        private MethodResolver methodResolver;
+        private PropertyResolver propertyResolver;
+        
+        private MethodResolver getMethodResolver() {
+            if (methodResolver == null) {
+                methodResolver = MethodResolver.getInstance(); 
+            }
+            return methodResolver; 
+        }
+        
+        private PropertyResolver getPropertyResolver() {
+            if (propertyResolver == null) {
+                propertyResolver = PropertyResolver.getInstance();
+            }
+            return propertyResolver; 
+        }
+        
+        private void initOpenerParams(Binding binding, Opener opener) {
+            try { 
+                Object bean = binding.getBean(); 
+                //invoke a callback method getOpenerParams to get the extended opener parameters 
+                Object paramEntity = null;
+                try { 
+                    paramEntity = getPropertyResolver().getProperty(bean, "entity");
+                } catch(Throwable t) {;} 
+
+                Map openerParams = opener.getParams();
+                if (openerParams == null) openerParams = new HashMap();
+
+                try { 
+                    Map params = (Map) getMethodResolver().invoke(bean, "getOpenerParams", new Object[]{});
+                    if (params != null) openerParams.putAll(params); 
+                } catch(Throwable t) {;} 
+
+                if (paramEntity != null && !openerParams.containsKey("entity")) 
+                    openerParams.put("entity", paramEntity);
+
+                opener.setParams(openerParams); 
+                
+            } catch(Throwable t){;}  
+        } 
+        
+        private void navigate(final Binding binding, final Opener opener) {
+            Runnable runnable = new Runnable() {
+                public void run() {
+                    binding.fireNavigation(opener); 
+                }
+            };
+            new Thread(runnable).start(); 
+        }
+    }
+    
+    // </editor-fold>
 }

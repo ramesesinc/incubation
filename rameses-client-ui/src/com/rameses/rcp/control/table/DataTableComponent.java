@@ -1240,11 +1240,11 @@ public class DataTableComponent extends JTable implements TableControl
     
     private class EditorInputSupport implements UIInputUtil.Support 
     {       
-        public void setValue(String name, Object value) {
-            setValue(name, value, null); 
+        public Object setValue(String name, Object value) {
+            return setValue(name, value, null); 
         } 
         
-        public void setValue(String name, Object value, JComponent jcomp) {
+        public Object setValue(String name, Object value, JComponent jcomp) {
             //temporarily stores the editor value 
             //the value is committed once the cell selection is about to changed            
             if (currentEditor != null) {
@@ -1253,6 +1253,7 @@ public class DataTableComponent extends JTable implements TableControl
             else if (jcomp != null) {
                 jcomp.putClientProperty("cellEditorValue", value);
             }
+            return null; 
         } 
     }
     

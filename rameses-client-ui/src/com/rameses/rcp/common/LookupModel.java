@@ -51,28 +51,13 @@ public class LookupModel extends ScrollListModel implements LookupDataSource
     public List fetchList(Map params) { return DEFAULT_LIST; } 
         
     //default implementation for select and cancel
-    public String select() 
-    {
-        if (selector != null) 
-        {
+    public Object select() { 
+        if (selector != null) { 
             Object selectedValue = getSelectedValue(); 
-//            String rItemVal = getReturnItemValue();            
-//            String rItemKey = getReturnItemKey();
-//            String rFields = getReturnFields();
-//            if (rItemKey != null || rItemVal != null) 
-//            {
-//                ResultKeyValueMapper kvm = new ResultKeyValueMapper();
-//                selectedValue = kvm.parse(rItemKey, rItemVal, selectedValue); 
-//            }
-//            else if (rFields != null) 
-//            {
-//                ResultFieldsMapper fm = new ResultFieldsMapper();
-//                selectedValue = fm.parse(rFields, selectedValue); 
-//            }
-            
-            selector.select( selectedValue ); 
-        }
-        return "_close";
+            Object outcome = selector.select( selectedValue ); 
+            if (outcome instanceof Opener) return outcome; 
+        } 
+        return "_close"; 
     }
     
     public String cancel() 
@@ -104,8 +89,7 @@ public class LookupModel extends ScrollListModel implements LookupDataSource
             if (selector != null) selector.select(retVal);
             
             return false;
-        } 
-        else { 
+        } else { 
             return true;
         }
     }

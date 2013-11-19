@@ -158,7 +158,7 @@ public class UIInputUtil {
     
     public static interface Support 
     {
-        void setValue(String name, Object value);         
-        void setValue(String name, Object value, JComponent jcomp); 
+        Object setValue(String name, Object value);         
+        Object setValue(String name, Object value, JComponent jcomp); 
     }    
 }

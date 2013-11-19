@@ -8,8 +8,8 @@ import java.util.Map;
  *
  * @author jaycverg
  */
-public class Opener {
-    
+public class Opener 
+{    
     private static final long serialVersionUID = 1L;
     
     private String id;
@@ -26,6 +26,13 @@ public class Opener {
     private UIController caller;
     private String role;
     private String domain;
+    
+    /*
+     *  applies to popup windows only
+     *  true: closes the active dialog when this opener is visible
+     *  false: nothing to do with the active dialog. (Default) 
+     */
+    private boolean async;
     
     private Map properties = new HashMap();
     private OpenerLoader loader;
@@ -108,6 +115,9 @@ public class Opener {
     public void setModal(boolean modal) {
         this.modal = modal;
     }
+    
+    public boolean isAsync() { return async; } 
+    public void setAsync(boolean async) { this.async = async; }
 
     public String getRole() { return role; }
     public void setRole(String role) { this.role = role; }
