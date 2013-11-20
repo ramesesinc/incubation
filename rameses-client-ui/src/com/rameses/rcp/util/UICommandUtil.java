@@ -103,7 +103,21 @@ public class UICommandUtil {
             } 
 
             NavigationHandler handler = ctx.getNavigationHandler();             
-            if (handler != null) handler.navigate(navPanel, command, outcome);
+            if (handler != null) {
+                handler.navigate(navPanel, command, outcome);
+                
+                if (outcome instanceof Opener) {
+                    Opener opener = (Opener) outcome; 
+                    Object closeBehindOnStart = opener.getProperties().get("closeBehindOnStart"); 
+                    /*
+                     *  closeBehindOnStart: To close the previous binding/controller 
+                     *                      when this opener is successfully showed 
+                     */
+                    if ("true".equals(closeBehindOnStart+"")) {
+                        binding.fireNavigation("_close"); 
+                    } 
+                }
+            }
 
             return null;
         } 
