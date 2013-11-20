@@ -20,4 +20,5 @@ public interface NavigatablePanel {
      */
     void renderView();
     
+    Object getClientProperty(Object key); 
 }
