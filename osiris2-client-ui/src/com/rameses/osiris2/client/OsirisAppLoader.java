@@ -65,7 +65,7 @@ public class OsirisAppLoader implements AppLoader {
                 ctx.getProperties().putAll( properties );
             }
             if( env.get("app.debugMode") != null ) {
-                ctx.setDebugMode( "true".equals(env.get("app.debugMode").toString()) );
+                ctx.setDebugMode("true".equals(env.get("app.debugMode").toString()));
             }
             
             //load all loaders
