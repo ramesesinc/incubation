@@ -14,6 +14,7 @@ import com.rameses.platform.interfaces.MainWindowListener;
 import com.rameses.platform.interfaces.SubWindow;
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.EventQueue;
 import java.awt.Graphics;
 import java.awt.Insets;
@@ -38,8 +39,8 @@ import javax.swing.border.AbstractBorder;
  *
  * @author elmo
  */
-public class MainDialog implements MainWindow {
-    
+class MainDialog implements MainWindow 
+{
     private JFrame dialog;
     private MainWindowListener listener;
     private Component toolbar;
@@ -47,9 +48,11 @@ public class MainDialog implements MainWindow {
     private ExtTabbedPane tabbedPane;
     
     private Component defaultContentPane;
+    private GlassPaneImpl glassPane; 
+    private PlatformImpl platform;
     
-    
-    public MainDialog() {
+    public MainDialog(PlatformImpl platform) {
+        this.platform = platform;
         dialog = new JFrame();
         dialog.setTitle("Main Dialog");
         dialog.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -60,15 +63,16 @@ public class MainDialog implements MainWindow {
         }
         catch(Exception e){}
         
-        dialog.getContentPane().setLayout(new BorderLayout());
+        dialog.getContentPane().setLayout(new BorderLayout()); 
+        dialog.setGlassPane(glassPane = new GlassPaneImpl(platform, this)); 
         dialog.add((defaultContentPane = new TestPlatformContentPane()), BorderLayout.CENTER);
         
-        dialog.addWindowListener(new WindowAdapter() {
-            public void windowClosing(WindowEvent e) {
-                close();
-            }
-        });
-    }
+        dialog.addWindowListener(new WindowAdapter() { 
+            public void windowClosing(WindowEvent e) { 
+                close(); 
+            } 
+        }); 
+    } 
     
     public JFrame getComponent() { return dialog; }
     
@@ -156,10 +160,41 @@ public class MainDialog implements MainWindow {
             dialog.add(comp, BorderLayout.SOUTH);
         }
         SwingUtilities.updateComponentTreeUI( dialog.getContentPane() );
+    } 
+    
+    void showGlassPane() {
+        glassPane.setVisible(true);
+        SwingUtilities.updateComponentTreeUI(glassPane); 
     }
     
-    private class ToolbarBorder extends AbstractBorder {
-        
+    void hideGlassPane() {
+        glassPane.setVisible(false); 
+        glassPane.removeAll(); 
+    }
+    
+    Container getGlassPane() {
+        return glassPane; 
+    }
+    
+    void requestFocus() {
+        if (tabbedPane != null) {
+            Component comp = tabbedPane.getSelectedComponent(); 
+            if (comp != null) {
+                tabbedPane.setFocusable(true);
+                tabbedPane.requestFocus();
+                tabbedPane.transferFocus(); 
+            } 
+        } else {
+            dialog.requestFocus(); 
+            dialog.transferFocus();
+        } 
+    }
+    
+    
+    // <editor-fold defaultstate="collapsed" desc=" ToolbarBorder ">
+    
+    private class ToolbarBorder extends AbstractBorder 
+    {
         public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
             Graphics g2 = g.create();
             g2.setColor(UIManager.getColor("controlShadow"));
@@ -172,11 +207,14 @@ public class MainDialog implements MainWindow {
         public Insets getBorderInsets(Component c) {
             return new Insets(1,1,4,1);
         }
-        
-    }
+    } 
     
-    private class StatusbarBorder extends AbstractBorder {
-        
+    // </editor-fold> 
+    
+    // <editor-fold defaultstate="collapsed" desc=" StatusbarBorder ">
+    
+    private class StatusbarBorder extends AbstractBorder 
+    { 
         public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
             Graphics g2 = g.create();            
             g2.setColor(UIManager.getColor("controlShadow"));
@@ -189,7 +227,7 @@ public class MainDialog implements MainWindow {
         public Insets getBorderInsets(Component c) {
             return new Insets(4,1,1,1);
         }
-        
     }
     
+    // </editor-fold> 
 }
