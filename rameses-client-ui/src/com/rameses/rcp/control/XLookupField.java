@@ -484,8 +484,7 @@ public class XLookupField extends IconedTextField implements UILookup, UISelecto
                 platform.showPopup(this, lookupPanel, props);
             }
         } 
-        catch(Exception e) 
-        {
+        catch(Exception e) {
             MsgBox.err(e);
             getInputVerifierProxy().setEnabled(true); 
         }
