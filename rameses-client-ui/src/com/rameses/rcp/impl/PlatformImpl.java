@@ -8,6 +8,7 @@ import com.rameses.platform.interfaces.SubWindow;
 import com.rameses.rcp.util.ErrorDialog;
 import com.rameses.util.ValueUtil;
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.KeyboardFocusManager;
@@ -32,12 +33,12 @@ import javax.swing.SwingUtilities;
  */
 public class PlatformImpl implements Platform {
     
-    private MainDialog mainWindow = new MainDialog(); //default impl
+    private MainDialog mainWindow; 
     
     Map windows = new HashMap();
     
-    
     public PlatformImpl() {
+        mainWindow = new MainDialog(this); 
     }
     
     public void showStartupWindow(JComponent actionSource, JComponent comp, Map properties) {
@@ -54,16 +55,26 @@ public class PlatformImpl implements Platform {
     }
     
     public void showWindow(JComponent actionSource, JComponent comp, Map properties) {
-        String id = (String) properties.remove("id");
-        if ( ValueUtil.isEmpty(id) )
+        String id = (String) properties.get("id");
+        if (id == null || id.trim().length() == 0)
             throw new IllegalStateException("id is required for a page.");
         
-        if ( windows.containsKey(id) ) return;
+        if (windows.containsKey(id)) return;
         
-        String title = (String) properties.remove("title");
-        if ( ValueUtil.isEmpty(title) ) title = id;
+        String title = (String) properties.get("title");
+        if (title == null || title.length() == 0) {
+            properties.put("title", id); 
+            title = id;             
+        }
         
-        String canClose = (String) properties.remove("canclose");
+        comp.putClientProperty("Window.properties", properties);        
+        String windowmode = (String) properties.get("windowmode");
+        if ("glasspane".equals(windowmode)) { 
+            showGlassPane(actionSource, comp, properties, id); 
+            return; 
+        }
+                
+        String canClose = (String) properties.get("canclose");
         String modal = properties.remove("modal")+"";
         
         PlatformTabWindow t = new PlatformTabWindow(id, comp, this);
@@ -74,18 +85,27 @@ public class PlatformImpl implements Platform {
         windows.put(id, t);
     }
     
-    public void showPopup(JComponent actionSource, JComponent comp, Map properties) 
-    {
-        String id = (String) properties.remove("id");
-        if ( ValueUtil.isEmpty(id) )
+    public void showPopup(JComponent actionSource, JComponent comp, Map properties) {
+        String id = (String) properties.get("id");
+        if (id == null || id.trim().length() == 0)
             throw new IllegalStateException("id is required for a page.");
         
-        if ( windows.containsKey(id) ) return;
+        if (windows.containsKey(id)) return;
         
-        String title = (String) properties.remove("title");
-        if ( ValueUtil.isEmpty(title) ) title = id;
+        String title = (String) properties.get("title");
+        if (title == null || title.length() == 0) {
+            properties.put("title", id); 
+            title = id;             
+        }
         
-        String modal = properties.remove("modal")+"";
+        comp.putClientProperty("Window.properties", properties);        
+        String windowmode = (String) properties.get("windowmode");
+        if ("glasspane".equals(windowmode)) { 
+            showGlassPane(actionSource, comp, properties, id); 
+            return; 
+        }
+        
+        String modal = properties.get("modal")+"";
         
         Component parent = getParentWindow(actionSource);
         PopupDialog dd = null;
@@ -132,6 +152,16 @@ public class PlatformImpl implements Platform {
         });
         
         windows.put(id, d);
+    }
+     
+    private void showGlassPane(JComponent actionSource, JComponent comp, Map props, String id) 
+    {
+        Container con = mainWindow.getGlassPane();
+        con.removeAll();
+        con.add(comp);
+        con.setName(id); 
+        con.setVisible(true); 
+        windows.put(id, con);
     }
     
     private void showInfo(ActionEvent e) {
