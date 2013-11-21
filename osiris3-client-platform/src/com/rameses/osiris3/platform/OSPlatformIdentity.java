@@ -85,5 +85,5 @@ final class OSPlatformIdentity
             try { ois.close(); } catch(Exception ign){;}
             try { inp.close(); } catch(Exception ign){;}
         }
-    }
+    }  
 }

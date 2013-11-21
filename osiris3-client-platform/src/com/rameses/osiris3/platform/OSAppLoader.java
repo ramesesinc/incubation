@@ -26,6 +26,7 @@ class OSAppLoader
     private URL[] urls;
     
     private AppLoader activeAppLoader;
+    private ClassLoader activeClassLoader;
     
     public OSAppLoader(AppLoader appLoader, Map env, URL[] urls) {
         this.appLoader = appLoader;
@@ -53,6 +54,7 @@ class OSAppLoader
             
             newAppLoader.load(newClassLoader, newEnv, platform); 
             activeAppLoader = newAppLoader; 
+            activeClassLoader = newClassLoader; 
         } catch(RuntimeException re) {
             throw re; 
         } catch(Throwable t) {
@@ -64,5 +66,13 @@ class OSAppLoader
         if (activeAppLoader == null) return;
         
         activeAppLoader = null; 
+        activeClassLoader = null; 
+    }
+    
+    public ClassLoader getClassLoader() {
+        if (activeClassLoader == null) {
+            return OSManager.getOriginalClassLoader(); 
+        }
+        return activeClassLoader; 
     }
 }

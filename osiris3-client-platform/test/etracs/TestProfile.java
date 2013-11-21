@@ -44,7 +44,7 @@ public class TestProfile extends TestCase
         map.put("splash", splash);
         writeToFile(".identity", map); 
     }
-
+    
     private byte[] getImageBytes(String name) throws Exception {
         URL url = getClass().getResource(name);
         InputStream inp = url.openStream();
@@ -64,7 +64,7 @@ public class TestProfile extends TestCase
         }
     } 
     
-    private void writeToFile(String filename, Map data) throws Exception {
+    private void writeToFile(String filename, Object data) throws Exception {
         FileOutputStream fos = null;
         ObjectOutputStream oos = null;
         try {
@@ -80,5 +80,5 @@ public class TestProfile extends TestCase
             try { oos.close(); } catch(Exception ign){;}
             try { fos.close(); } catch(Exception ign){;}
         } 
-    }
+    }    
 }
