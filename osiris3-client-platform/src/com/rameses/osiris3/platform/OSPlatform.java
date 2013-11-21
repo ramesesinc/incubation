@@ -57,7 +57,7 @@ class OSPlatform implements Platform
         
         if (osManager.containsView(id)) return;
         
-        OSTabbedView view = new OSTabbedView(id, comp, this, false);
+        SubWindowImpl view = new SubWindowImpl(id, comp, this, false); 
         view.setTitle((String) props.get("title"));
         osMainWindow.setComponent(view, MainWindow.CONTENT); 
     } 
@@ -71,14 +71,23 @@ class OSPlatform implements Platform
         if (osMainWindow.findExplorer(id) != null) return;
 
         String title = (String) props.get("title");
-        if (title == null || title.length() == 0) title = id;
+        if (title == null || title.length() == 0) {
+            props.put("title", id); 
+            title = id;             
+        }
         
+        comp.putClientProperty("Window.properties", props);        
+        String windowmode = (String) props.get("windowmode");
+        if ("glasspane".equals(windowmode)) { 
+            showGlassPane(actionSource, comp, props, id); 
+            return; 
+        }
+        
+        SubWindowImpl view = new SubWindowImpl(id, comp, this); 
         String canClose = (String) props.get("canclose");
-        OSTabbedView view = new OSTabbedView(id, comp, this);
         view.setCanClose(!"false".equals(canClose));
         view.setTitle(title);
         
-        String windowmode = (String) props.get("windowmode");
         if ("explorer".equals(windowmode)) { 
             osMainWindow.setComponent(view, windowmode); 
         } else { 
@@ -92,15 +101,23 @@ class OSPlatform implements Platform
             throw new IllegalStateException("id is required for a page.");
         
         if (osManager.containsView(id)) return;
+
+        String title = (String) props.get("title");
+        if (title == null || title.length() == 0) {
+            props.put("title", id); 
+            title = id;             
+        }
         
+        comp.putClientProperty("Window.properties", props);         
         String windowmode = (String) props.get("windowmode");
         if ("screenlock".equals(windowmode)) { 
             showScreenLock(actionSource, comp, props); 
             return;
-        }
-        
-        String title = (String) props.get("title");
-        if (title == null || title.length() == 0) title = id;
+        } 
+        if ("glasspane".equals(windowmode)) { 
+            showGlassPane(actionSource, comp, props, id); 
+            return; 
+        }        
         
         Component parent = getParentWindow(actionSource);
         OSPopupDialog dialog = null;
@@ -170,6 +187,10 @@ class OSPlatform implements Platform
         lock.setContent(comp); 
         lock.setVisible(true); 
     }
+    
+    private void showGlassPane(JComponent actionSource, JComponent comp, Map props, String id) {
+        osMainWindow.showInGlassPane(comp, props);
+    }    
 
     public boolean isWindowExists(String id) {
         if (osManager.containsView(id)) return true;

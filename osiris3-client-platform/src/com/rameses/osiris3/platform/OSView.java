@@ -13,7 +13,9 @@ package com.rameses.osiris3.platform;
  *
  * @author wflores
  */
-public interface OSView {
+public interface OSView 
+{
+    WindowContainer getWindowContainer();
     String getId();
     String getType(); 
     void requestFocus();

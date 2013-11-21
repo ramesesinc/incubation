@@ -31,7 +31,7 @@ import javax.swing.plaf.metal.MetalLookAndFeel;
  *
  * @author wflores
  */
-class ExplorerView extends JPanel 
+class ExplorerView extends JPanel implements WindowContainer 
 {
     private HeaderRenderer header;
     
@@ -51,6 +51,24 @@ class ExplorerView extends JPanel
     void attachHeader() {
         remove(header); 
         add(header, BorderLayout.NORTH); 
+    }
+
+    protected void addImpl(Component comp, Object constraints, int index) {
+        removeAll();
+        super.addImpl(header, BorderLayout.NORTH, -1);
+        
+        if (comp instanceof HeaderRenderer) {
+            //do nothing, already added above 
+        } else if (comp instanceof SubWindowImpl) { 
+            SubWindowImpl swin = (SubWindowImpl) comp;
+            setTitle(swin.getTitle());
+            
+            super.addImpl(comp, BorderLayout.CENTER, -1); 
+            
+            OSViewImpl osv = new OSViewImpl(comp);
+            osv.setSubWindowImpl(swin);
+            OSManager.getInstance().registerView(swin.getId(), osv);
+        } 
     }
     
     private Color brighter(Color c, int value) {
@@ -73,6 +91,55 @@ class ExplorerView extends JPanel
         int rgb = Color.HSBtoRGB(h/360.0f, s/100.0f, b/100.0f);
         return new Color(rgb);
     }    
+    
+    // <editor-fold defaultstate="collapsed" desc=" OSView support ">
+    
+    private class OSViewImpl implements OSView 
+    {
+        ExplorerView root = ExplorerView.this;
+        
+        Component view;
+        SubWindowImpl subWindow;
+        
+        OSViewImpl(Component view) {
+            this.view = view;
+        }
+        
+        void setSubWindowImpl(SubWindowImpl subWindow) {
+            this.subWindow = subWindow; 
+            if (subWindow != null) subWindow.setView(this); 
+        }
+        
+        public WindowContainer getWindowContainer() {
+            return root; 
+        }
+        
+        public String getId() { 
+            return view.getName(); 
+        } 
+        
+        public String getType() {
+            return "tab"; 
+        }
+        
+        public void requestFocus() { 
+            if (root.isVisible()) return;
+            
+            root.setVisible(true); 
+            root.getParent().firePropertyChange("toggleLeftView", 0, 1); 
+            if (subWindow != null) subWindow.activate(); 
+        }  
+
+        public void closeView() { 
+            if (subWindow == null) {
+                root.remove(view); 
+            } else {
+                subWindow.close(); 
+            } 
+        }
+    }
+    
+    // </editor-fold>                
     
     // <editor-fold defaultstate="collapsed" desc=" HeaderRenderer (class) ">
     

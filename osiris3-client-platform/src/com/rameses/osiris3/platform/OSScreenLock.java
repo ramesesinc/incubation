@@ -214,11 +214,15 @@ class OSScreenLock extends JDialog implements SubWindow, WindowListener
 
         public void closeView() {
             root.closeWindow(); 
-        }
+        } 
+        
+        public WindowContainer getWindowContainer() {
+            return null; 
+        }        
     }
     
     // </editor-fold>    
-        
+    
     // <editor-fold defaultstate="collapsed" desc=" ContentPaneImpl ">
     
     private class ContentPaneImpl extends JPanel 

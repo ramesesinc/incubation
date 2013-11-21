@@ -115,7 +115,7 @@ final class OSManager
         
     boolean registerView(String id, OSView view) {
         synchronized (VIEW_LOCK) {
-            if (id == null || view == null) return false;
+            if (id == null || id.trim().length() == 0 || view == null) return false;
             if (views.containsKey(id)) return false;
 
             views.put(id, view); 
@@ -125,7 +125,7 @@ final class OSManager
     
     OSView unregisterView(String id) {
         synchronized (VIEW_LOCK) {
-            if (id == null) return null;
+            if (id == null || id.trim().length() == 0) return null;
 
             return views.remove(id); 
         } 

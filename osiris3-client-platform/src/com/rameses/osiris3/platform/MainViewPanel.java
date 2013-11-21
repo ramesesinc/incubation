@@ -18,6 +18,8 @@ import java.awt.KeyboardFocusManager;
 import java.awt.LayoutManager;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import javax.swing.JPanel;
 
 /**
@@ -36,9 +38,13 @@ public class MainViewPanel extends JPanel implements MainViewLayout.Provider
     private ExplorerView explorerView;
     
     public MainViewPanel() {
-        layout = new MainViewLayout(this); 
-        super.setLayout(layout); 
+        super.setLayout(layout = new MainViewLayout(this)); 
         explorerView = new ExplorerView(); 
+        addPropertyChangeListener(new PropertyChangeListener() {
+            public void propertyChange(PropertyChangeEvent evt) {
+                layout.propertyChange(evt); 
+            }
+        }); 
     }
     
     public LayoutManager getLayout() { return layout; } 
@@ -150,4 +156,19 @@ public class MainViewPanel extends JPanel implements MainViewLayout.Provider
         ContentPane.View vw = cp.getView();
         if (vw != null) vw.showInfo(); 
     }
+    
+    // <editor-fold defaultstate="collapsed" desc=" PropertyChangeSupport ">
+    
+    private class PropertyChangeSupport implements PropertyChangeListener
+    {
+        public void propertyChange(PropertyChangeEvent evt) {
+            String name = evt.getPropertyName();
+            if ("toggleLeftView".equals(name)) {
+                layout.propertyChange(evt); 
+            }
+        }        
+    }
+    
+    // </editor-fold>
+    
 }

@@ -166,6 +166,10 @@ public class OSPopupDialog extends JDialog implements SubWindow, WindowListener
         public void closeView() {
             root.closeWindow(); 
         }
+        
+        public WindowContainer getWindowContainer() {
+            return null; 
+        } 
     }
     
     // </editor-fold>

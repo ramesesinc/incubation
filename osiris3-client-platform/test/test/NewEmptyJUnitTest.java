@@ -35,6 +35,9 @@ public class NewEmptyJUnitTest extends TestCase {
 //        d.setContentPane(new NewJPanel());
 //        d.pack();
 //        d.setVisible(true);
+        
+        String s = "1111b-a:0-_\\";
+        System.out.println(s.matches("[0-9a-zA-Z]{5,5}-[0-9a-zA-Z:_\\-]{1,}"));
     }
 
 }

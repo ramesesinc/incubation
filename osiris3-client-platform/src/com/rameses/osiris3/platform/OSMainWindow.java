@@ -22,13 +22,9 @@ import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.HashMap;
 import java.util.Map;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -54,7 +50,7 @@ class OSMainWindow implements MainWindow
     private JPanel plainContentPanel; 
     private MainWindowPanel mainWindowPanel;
     private MainViewPanel mainViewPanel;
-    private OSTabbedPane tabbedPane; 
+    private OSMainTabbedPane tabbedPane; 
     private GlassPaneImpl glassPane;
     
     public OSMainWindow() {
@@ -69,7 +65,7 @@ class OSMainWindow implements MainWindow
         window = new JFrame();
         window.setTitle("Rameses Client Platform");
         window.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-        window.setGlassPane(glassPane = new GlassPaneImpl()); 
+        window.setGlassPane(glassPane = new GlassPaneImpl(this)); 
         
         Image image = null; 
         try { image = icon.getImage(); } catch(Throwable t) {;} 
@@ -91,7 +87,7 @@ class OSMainWindow implements MainWindow
     
     private void initComponents() {
         plainContentPanel = new JPanel(new BorderLayout()); 
-        tabbedPane = new OSTabbedPane();
+        tabbedPane = new OSMainTabbedPane();
         mainViewPanel = new MainViewPanel(); 
         mainViewPanel.setBorder(BorderFactory.createEmptyBorder(3,3,2,3));
         mainViewPanel.setContent(tabbedPane); 
@@ -273,10 +269,30 @@ class OSMainWindow implements MainWindow
     }
     
     void showInGlassPane(Component comp, Map props) {
-        glassPane.removeAll(); 
+        if (props == null) props = new HashMap();
+        
+        glassPane.removeAll();
         glassPane.add(comp);
-        showGlassPane(); 
+        
+        String id = (String) props.get("id");        
+        glassPane.setName(id); 
+        showGlassPane();
+        OSManager.getInstance().registerView(id, glassPane); 
     }
+    
+    void requestFocus() {
+        if (tabbedPane != null) {
+            Component comp = tabbedPane.getSelectedComponent(); 
+            if (comp != null) {
+                tabbedPane.setFocusable(true);
+                tabbedPane.requestFocus();
+                tabbedPane.transferFocus(); 
+            } 
+        } else {
+            window.requestFocus(); 
+            window.transferFocus();
+        } 
+    }    
     
     // </editor-fold>
     
@@ -317,63 +333,6 @@ class OSMainWindow implements MainWindow
             return new Insets(4,1,1,1);
         }    
     } 
-    
-    // </editor-fold>
-    
-    // <editor-fold defaultstate="collapsed" desc=" GlassPaneImpl ">
-    
-    private class GlassPaneImpl extends JPanel 
-    {
-        GlassPaneImpl() {
-            initComponent(); 
-        }
-        
-        private void initComponent() {
-            setOpaque(true);
-            setLayout(new BorderLayout()); 
-            addMouseListener(new MouseListener() {
-                public void mouseClicked(MouseEvent e) {
-                    e.consume();
-                }
-                public void mouseEntered(MouseEvent e) {
-                }
-                public void mouseExited(MouseEvent e) {
-                }
-                public void mousePressed(MouseEvent e) {
-                    e.consume();
-                }
-                public void mouseReleased(MouseEvent e) {
-                    e.consume();
-                }
-            });
-            addMouseMotionListener(new MouseMotionListener() {
-                public void mouseDragged(MouseEvent e) {
-                }
-                public void mouseMoved(MouseEvent e) {
-                }
-            });
-            addKeyListener(new KeyListener() {
-                public void keyPressed(KeyEvent e) { 
-                    e.consume(); 
-                }
-                public void keyReleased(KeyEvent e) {
-                    e.consume();
-                }
-                public void keyTyped(KeyEvent e) {
-                }
-            });        
-        }        
-        
-        public void setVisible(boolean visible) {
-            this.setFocusable(visible);         
-            super.setVisible(visible);
-            if (visible) {
-                this.requestFocusInWindow();
-                this.transferFocus(); 
-                this.setFocusCycleRoot(true); 
-            } 
-        }         
-    }
     
     // </editor-fold>
 }

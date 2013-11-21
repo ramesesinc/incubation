@@ -22,6 +22,8 @@ import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import javax.swing.JLabel;
 import javax.swing.SwingUtilities;
 
@@ -29,7 +31,7 @@ import javax.swing.SwingUtilities;
  *
  * @author wflores
  */
-class MainViewLayout implements LayoutManager
+class MainViewLayout implements LayoutManager, PropertyChangeListener
 {
     public final static String EXPLORER_SECTION = "EXPLORER";
     public final static String CONTENT_SECTION = "CONTENT";
@@ -47,6 +49,8 @@ class MainViewLayout implements LayoutManager
     private Point sourcePoint;
     private Point targetPoint;
     private Rectangle viewRect; 
+    
+    private HorizontalMouseSupport mouseSupport;
         
     public MainViewLayout(MainViewLayout.Provider provider)
     {
@@ -76,7 +80,8 @@ class MainViewLayout implements LayoutManager
             lbl.setName("splitview.divider"); 
             lbl.setCursor(Cursor.getPredefinedCursor(Cursor.W_RESIZE_CURSOR)); 
 
-            new HorizontalMouseSupport().setDivider(lbl);                
+            mouseSupport = new HorizontalMouseSupport();
+            mouseSupport.setDivider(lbl);                
             divider = lbl;
         } 
         return divider;
@@ -131,6 +136,13 @@ class MainViewLayout implements LayoutManager
         layout.layoutContainer(parent);
     }     
 
+    public void propertyChange(PropertyChangeEvent evt) {
+        String name = evt.getPropertyName();
+        if ("toggleLeftView".equals(name)) {
+            if (mouseSupport != null) mouseSupport.toggleLeftView(); 
+        }
+    }
+
     // <editor-fold defaultstate="collapsed" desc=" Provider ">
     
     public static interface Provider 
@@ -181,6 +193,9 @@ class MainViewLayout implements LayoutManager
             }
             sourcePoint = null;
             targetPoint = null;
+            if (locationIndex > 0 && root.explorer != null && !root.explorer.isVisible()) {
+                root.explorer.setVisible(true); 
+            }
             provider.revalidate();
             provider.repaint(); 
         }
@@ -208,9 +223,11 @@ class MainViewLayout implements LayoutManager
         private void toggleLeftView() {
             if (root.getLocationIndex() == 0) {
                 root.setLocationIndex(prevLocationIndex); 
+                if (root.explorer != null) root.explorer.setVisible(true); 
             } else { 
                 prevLocationIndex = root.getLocationIndex(); 
                 root.setLocationIndex(0); 
+                if (root.explorer != null) root.explorer.setVisible(false);
             }             
             provider.revalidate();
             provider.repaint(); 
@@ -270,7 +287,7 @@ class MainViewLayout implements LayoutManager
                     locationIndex = (pw-margin.right)-getDividerSize();
 
                 int divX = locationIndex;     
-                if (root.explorer == null) {
+                if (root.explorer == null || !root.explorer.isVisible()) {
                     divX = 0;
                 } else {
                     Dimension dim = root.explorer.getPreferredSize();

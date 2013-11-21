@@ -1,7 +1,10 @@
 /*
- * OSTabbedPane.java
+ * OSMainTabbedPane.java
  *
- * Created on July 20, 2011, 10:04 PM
+ * Created on November 18, 2013, 3:56 PM
+ *
+ * To change this template, choose Tools | Template Manager
+ * and open the template in the editor.
  */
 
 package com.rameses.osiris3.platform;
@@ -10,13 +13,9 @@ import com.rameses.platform.interfaces.ContentPane;
 import com.rameses.platform.interfaces.SubWindow;
 import com.rameses.platform.interfaces.SubWindowContainer;
 import com.rameses.platform.interfaces.SubWindowListener;
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.EventQueue;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.Rectangle;
-import java.awt.RenderingHints;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -24,27 +23,21 @@ import java.util.Hashtable;
 import java.util.Map;
 import javax.swing.Icon;
 import javax.swing.JComponent;
-import javax.swing.JTabbedPane;
-import javax.swing.UIManager;
 
 /**
  *
- * @author jaycverg
+ * @author wflores
  */
-class OSTabbedPane extends JTabbedPane implements SubWindowContainer 
-{    
+class OSMainTabbedPane extends WindowTabbedPane implements WindowContainer, SubWindowContainer 
+{
     private Map<String,Component> tabIndex;
     private Rectangle closeIconBounds;
     private boolean closeIconHover;
     
-    public OSTabbedPane() {
+    public OSMainTabbedPane() {
         tabIndex = new Hashtable();
         closeIconBounds = new Rectangle(0,0,10,10);
-        setFocusable(false);
-        
-        TabSupport support = new TabSupport();
-        addMouseListener(support);
-        addMouseMotionListener(support);   
+        setFocusable(false);        
     }
     
     public boolean containsView(String id) {
@@ -55,41 +48,8 @@ class OSTabbedPane extends JTabbedPane implements SubWindowContainer
         return tabIndex.get(id); 
     }
     
-    protected void paintComponent(Graphics g) {
-        super.paintComponent(g);
-        
-        Component comp = getSelectedComponent();
-        if (comp instanceof ContentPane) {
-            ContentPane cp = (ContentPane)comp;
-            if (!cp.isCanClose()) return; 
-        } 
-        
-        int idx = getSelectedIndex();
-        if( idx < 0 ) return;
-        Rectangle rec = getBoundsAt( idx );
-        
-        Graphics2D g2 = (Graphics2D) g.create();
-        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        int w = closeIconBounds.width;
-        int h = closeIconBounds.height;
-        int x = rec.x + rec.width - w - 8;
-        int y = rec.y + (rec.height/2) - (h/2);
-        
-        g2.setColor(closeIconHover? Color.RED : Color.BLACK);
-        g2.drawLine(x+2, y+2, x+w-3, y+h-3);
-        g2.drawLine(x+w-3, y+2, x+2, y+h-3);
-        
-        closeIconBounds.x = x;
-        closeIconBounds.y = y;
-        
-        g2.setColor(closeIconHover? UIManager.getColor("Separator.shadow") : UIManager.getColor("control"));
-        Rectangle cib = closeIconBounds;
-        g2.drawRoundRect(cib.x, cib.y, cib.width-1, cib.height-1, 3,3);
-        g2.dispose();
-    }
-    
     public void insertTab(String title, Icon icon, Component component, String tip, int index) {
-        final String _title = title + "          ";
+        final String _title = title; 
         final Icon _icon = icon;
         final Component _component = component;
         final String _tip = tip;
@@ -103,37 +63,40 @@ class OSTabbedPane extends JTabbedPane implements SubWindowContainer
     } 
     
     private void insertTabImpl(String title, Icon icon, Component component, String tip, int index) {
-        String tabid = component.getName();
+        SubWindowImpl subWindow = null;
+        if (component instanceof SubWindowImpl) {
+            subWindow = (SubWindowImpl) component;
+            
+            String str = subWindow.getTitle(); 
+            if (str != null && str.trim().length() > 0) title = str; 
+        }        
+        
+        String tabid = (subWindow == null? component.getName(): subWindow.getId());
         if (tabid == null) { 
-            tabid = "WIN"+new java.rmi.server.UID();
-            component.setName(tabid);
+            tabid = "WIN" + new java.rmi.server.UID();
+            if (subWindow == null) 
+                component.setName(tabid); 
+            else 
+                subWindow.setId(tabid); 
         }
 
         Component old = tabIndex.get(tabid);
-        if (old != null) {
-            if (indexOfComponent(old) >= 0) {
-                setSelectedComponent(old);
-                return;
-            }
+        if (old != null && indexOfComponent(old) >= 0) {
+            setSelectedComponent(old);
+            return;
         }
 
-        if (component instanceof OSTabbedView) {
-            String s = ((OSTabbedView) component).getTitle(); 
-            if (s != null && s.trim().length() > 0) {
-                title = s + "          ";
-            } 
-        }
-        
         super.insertTab(title, icon, component, tip, index);
         setSelectedIndex(index);
         tabIndex.put(tabid, component);
-        OSManager.getInstance().registerView(tabid, new OSViewImpl(component));
+        
+        OSViewImpl osv = new OSViewImpl(component); 
+        OSManager.getInstance().registerView(tabid, osv); 
     }
-    
-    public void remove(Component component) {
+
+    protected boolean beforeClose(Component component) {
         int idx = indexOfComponent(component);
-        if (idx >= 0) 
-        {
+        if (idx >= 0) {
             String title = getTitleAt(idx);
             tabIndex.remove(title);
             
@@ -143,14 +106,29 @@ class OSTabbedPane extends JTabbedPane implements SubWindowContainer
                 OSManager.getInstance().unregisterView(cname); 
             }
         }
-        super.remove(component);
-    } 
+        return true; 
+    }
 
     public void removeAll() {   
         super.removeAll();  
         tabIndex.clear(); 
+    } 
+
+    protected boolean isCloseable(int index) {
+        Component comp = null; 
+        try { comp = getComponentAt(index); } catch(Throwable t) {;} 
+
+        if (comp instanceof ContentPane) {
+            ContentPane cp = (ContentPane)comp;
+            return cp.isCanClose();
+        } else { 
+            return false; 
+        }
     }
-    
+
+    protected void afterClose(Component component) {
+    }
+        
     public void showInfo() {
         Component comp = getSelectedComponent();
         if (!(comp instanceof ContentPane)) return; 
@@ -160,6 +138,11 @@ class OSTabbedPane extends JTabbedPane implements SubWindowContainer
         if (vw != null) vw.showInfo(); 
     }
 
+    // <editor-fold defaultstate="collapsed" desc=" WindowContainer implementation ">
+    
+    
+    // </editor-fold>
+    
     // <editor-fold defaultstate="collapsed" desc=" SubWindowContainer implementation ">
     
     public void add(SubWindow window) { 
@@ -238,11 +221,22 @@ class OSTabbedPane extends JTabbedPane implements SubWindowContainer
     
     private class OSViewImpl implements OSView 
     {
-        OSTabbedPane root = OSTabbedPane.this;
+        OSMainTabbedPane root = OSMainTabbedPane.this;
+        
         Component view;
+        SubWindowImpl subWindow;
         
         OSViewImpl(Component view) {
             this.view = view;
+            
+            if (view instanceof SubWindowImpl) {
+                subWindow = (SubWindowImpl) view; 
+                subWindow.setView(this); 
+            }
+        }
+        
+        public WindowContainer getWindowContainer() {
+            return root; 
         }
         
         public String getId() { 
@@ -254,15 +248,18 @@ class OSTabbedPane extends JTabbedPane implements SubWindowContainer
         }
         
         public void requestFocus() { 
-            if (view instanceof OSTabbedView) {
-                ((OSTabbedView) view).activate(); 
-            }            
+            root.setSelectedComponent(view); 
+            if (subWindow != null) subWindow.activate(); 
         }  
 
         public void closeView() { 
-            root.remove(view); 
+            if (subWindow == null) {
+                root.remove(view); 
+            } else {
+                subWindow.close(); 
+            } 
         }
     }
     
-    // </editor-fold>        
+    // </editor-fold>            
 }

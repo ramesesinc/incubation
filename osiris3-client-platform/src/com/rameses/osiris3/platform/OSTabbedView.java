@@ -50,7 +50,7 @@ class OSTabbedView extends JPanel implements SubWindow, ContentPane
             viewContext = (ViewContext) comp; 
             viewContext.setSubWindow(this); 
         } 
-        
+
         setLayout(new BorderLayout()); 
         add(comp); 
     }
@@ -60,8 +60,8 @@ class OSTabbedView extends JPanel implements SubWindow, ContentPane
         if ( viewContext != null && !viewContext.close() ) return;
         
         Component p = getParent();
-        if (p instanceof OSTabbedPane) { 
-            ((OSTabbedPane) p).remove(this); 
+        if (p instanceof OSMainTabbedPane) { 
+            ((OSMainTabbedPane) p).remove(this); 
         } 
     }
 
@@ -70,8 +70,8 @@ class OSTabbedView extends JPanel implements SubWindow, ContentPane
     
     public void activate() {
         Component p = getParent();
-        if (p instanceof OSTabbedPane) { 
-            ((OSTabbedPane) p).setSelectedComponent(this);
+        if (p instanceof OSMainTabbedPane) { 
+            ((OSMainTabbedPane) p).setSelectedComponent(this);
         } 
     }
     
@@ -119,5 +119,35 @@ class OSTabbedView extends JPanel implements SubWindow, ContentPane
     }
     
     // </editor-fold>    
+    
+    // <editor-fold defaultstate="collapsed" desc=" ComponentHandler ">
+   /*
+    private class ComponentHandler implements ComponentListener
+    {
+        OSTabbedView root = OSTabbedView.this;
+        private boolean done;
+        
+        public void componentResized(ComponentEvent e) {
+            if (done) return;
+
+            done = true;
+            OSManager.getInstance().registerView(root.id, root);
+        }
+
+        public void componentMoved(ComponentEvent e) {
+        }
+
+        public void componentShown(ComponentEvent e) {
+            if (done) return;
+
+            done = true;
+            OSManager.getInstance().registerView(root.id, root);
+        }
+
+        public void componentHidden(ComponentEvent e) {
+        }
+    }
+    */
+    // </editor-fold>
 
 }
