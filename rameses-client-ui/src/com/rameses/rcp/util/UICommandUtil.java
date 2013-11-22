@@ -2,17 +2,20 @@ package com.rameses.rcp.util;
 
 import com.rameses.common.MethodResolver;
 import com.rameses.common.PropertyResolver;
+import com.rameses.rcp.common.CallbackHandlerProxy;
 import com.rameses.rcp.common.PopupMenuOpener;
 import com.rameses.rcp.control.XButton;
 import com.rameses.rcp.framework.*;
 import com.rameses.rcp.ui.UICommand;
 
 import com.rameses.rcp.common.Action;
+import com.rameses.rcp.common.MsgBox;
 import com.rameses.rcp.common.Opener;
 import com.rameses.util.BusinessException;
 import com.rameses.util.ExceptionManager;
 import com.rameses.util.IgnoreException;
 import com.rameses.util.ValueUtil;
+import java.awt.EventQueue;
 import java.beans.Beans;
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -32,10 +35,11 @@ public class UICommandUtil {
         ClientContext ctx = ClientContext.getCurrentContext();
         UICommandSupport uics = new UICommandSupport();         
         MethodResolver resolver = uics.getMethodResolver(); 
-        try 
-        {
-            Binding binding = command.getBinding();
-            
+
+        Object callbackErrorHandler = null; 
+        Binding binding = null;
+        try { 
+            binding = command.getBinding();
             binding.formCommit();
             validate(command, binding);
             
@@ -85,8 +89,9 @@ public class UICommandUtil {
                 return outcome;
             } 
 
+            Opener opener = null; 
             if (outcome instanceof Opener) { 
-                Opener opener = (Opener) outcome;
+                opener = (Opener) outcome;
                 if ("_close".equals(opener.getOutcome())) {
                     outcome = "_close"; 
                     
@@ -104,10 +109,11 @@ public class UICommandUtil {
 
             NavigationHandler handler = ctx.getNavigationHandler();             
             if (handler != null) {
+                if (opener != null) callbackErrorHandler = opener.getProperties().get("windowError");
+                
                 handler.navigate(navPanel, command, outcome);
                 
-                if (outcome instanceof Opener) {
-                    Opener opener = (Opener) outcome; 
+                if (opener != null) {
                     Object closeBehindOnStart = opener.getProperties().get("closeBehindOnStart"); 
                     /*
                      *  closeBehindOnStart: To close the previous binding/controller 
@@ -126,9 +132,11 @@ public class UICommandUtil {
             Exception e = ExceptionManager.getOriginal(ex); 
             if (e instanceof IgnoreException) return null;
             
-            if (!ExceptionManager.getInstance().handleError(e))
+            if (!ExceptionManager.getInstance().handleError(e)) { 
                 ctx.getPlatform().showError((JComponent) command, ex); 
+            } 
             
+            new Thread(new CallbackErrorNotifier(callbackErrorHandler)).start(); 
             return null; 
         }
     }
@@ -267,6 +275,40 @@ public class UICommandUtil {
                 }
             };
             new Thread(runnable).start(); 
+        }
+    }
+    
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" CallbackErrorNotifier "> 
+    
+    private static class CallbackErrorNotifier implements Runnable 
+    {
+        private Object callback;
+        
+        CallbackErrorNotifier(Object callback) {
+            this.callback = callback; 
+        }
+        
+        public void run() {
+            EventQueue.invokeLater(new Runnable() {
+                public void run() {
+                    runImpl();
+                }
+            });
+        } 
+        
+        private void runImpl() {
+            try {
+                if (callback == null) return;
+                if (callback instanceof Runnable) {
+                    ((Runnable) callback).run(); 
+                } else {
+                    new CallbackHandlerProxy(callback).call(); 
+                }
+            } catch(Throwable t) {
+                MsgBox.err(t); 
+            }
         }
     }
     

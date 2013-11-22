@@ -77,6 +77,8 @@ public final class ControlSupport {
                     } else if (oldColor != null) {
                         component.setForeground(oldColor); 
                     }
+                } else if ("repaint".equals(key)) {
+                    component.repaint();
                 } else {
                     resolver.setProperty(component, key, me.getValue()); 
                 }

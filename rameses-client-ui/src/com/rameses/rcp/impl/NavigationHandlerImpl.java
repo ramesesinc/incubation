@@ -92,7 +92,8 @@ public class NavigationHandlerImpl implements NavigationHandler {
                                         
                     props.put("id", windowId);
                     props.put("title", controller.getTitle() );
-                    props.put("modal", opener.isModal());
+                    props.put("modal", opener.isModal()); 
+                    uic.putClientProperty("Opener.properties", props); 
                     
                     if ( "popup".equals(opTarget) ) {
                         platform.showPopup(sourceComp, uic, props);

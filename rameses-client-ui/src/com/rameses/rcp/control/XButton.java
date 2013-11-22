@@ -288,9 +288,9 @@ public class XButton extends JButton implements UICommand, ActionListener,
                     } 
                 }); 
             }
-        }
+        }     
     }   
-    
+        
     public Map getInfo() { 
         Map map = new HashMap();
         map.put("accelerator", getAccelerator());

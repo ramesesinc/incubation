@@ -12,7 +12,7 @@ public interface SubWindow
     void setTitle(String title);
     
     void closeWindow(); 
-        
+    
     void setListener(SubWindowListener listener);
     
     void update(Map windowAttributes);

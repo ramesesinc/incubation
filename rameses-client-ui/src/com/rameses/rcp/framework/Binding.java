@@ -391,6 +391,18 @@ public class Binding
      *  sample usage: refresh("field1|field2|entity.*")
      */
     public void refresh(String regEx) {
+        refresh(regEx, false);
+    }
+    
+    public void refresh(String regEx, boolean async) {
+        if (async) {
+            new AsyncRefreshWorker(regEx).run();
+        } else {
+            refreshImpl(regEx); 
+        }
+    }
+    
+    private void refreshImpl(String regEx) {
         Set<UIControl> refreshed = new HashSet();
         for( UIControl uu : controls ) {
             String name = uu.getName();
@@ -419,7 +431,7 @@ public class Binding
                 comp.requestFocusInWindow();
             }
             focusComponentName = null;
-        }
+        }        
     }
     
     private void _doRefresh( UIControl u, Set refreshed ) { 
@@ -1224,4 +1236,32 @@ public class Binding
     
     // </editor-fold>
     
+    // <editor-fold defaultstate="collapsed" desc=" AsyncRefreshWorker ">
+    
+    private class AsyncRefreshWorker 
+    {
+        private String regex; 
+        
+        AsyncRefreshWorker(String regex) {
+            this.regex = regex; 
+        }
+        
+        void run() {
+            new Thread(new Runnable() {
+                public void run() {
+                    EventQueue.invokeLater(new Runnable() {
+                        public void run() {
+                            runImpl(); 
+                        }
+                    });
+                }
+            }).start(); 
+        }
+        
+        private void runImpl() {
+            Binding.this.refreshImpl(regex); 
+        }
+    }
+    
+    // </editor-fold>
 }

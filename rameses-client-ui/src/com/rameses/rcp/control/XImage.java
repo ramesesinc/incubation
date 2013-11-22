@@ -140,6 +140,7 @@ public class XImage extends JLabel implements UIControl, MouseEventSupport.Compo
     }
 
     public void refresh() {
+        
     }
 
     public void setPropertyInfo(PropertySupport.PropertyInfo info) {
