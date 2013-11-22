@@ -38,10 +38,12 @@ public class TestProfile extends TestCase
     
     public void testMain() throws Exception {
         byte[] icon = getImageBytes("icon.gif");
-        byte[] splash = getImageBytes("splash.png");
+        byte[] splash = getImageBytes("splash-community.png");
         Map map = new HashMap(); 
         map.put("icon", icon);
         map.put("splash", splash);
+        map.put("platform.type", "community");
+        map.put("platform.title", "eTRACS 2.5");
         writeToFile(".identity", map); 
     }
     

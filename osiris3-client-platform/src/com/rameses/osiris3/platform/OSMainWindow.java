@@ -11,6 +11,7 @@ package com.rameses.osiris3.platform;
 
 import com.rameses.platform.interfaces.MainWindow;
 import com.rameses.platform.interfaces.MainWindowListener;
+import com.rameses.platform.interfaces.ViewContext;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
@@ -22,6 +23,11 @@ import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.HashMap;
@@ -51,7 +57,9 @@ class OSMainWindow implements MainWindow
     private MainWindowPanel mainWindowPanel;
     private MainViewPanel mainViewPanel;
     private OSMainTabbedPane tabbedPane; 
+    
     private GlassPaneImpl glassPane;
+    private DefaultGlassPane defaultGlassPane;
     
     public OSMainWindow() {
         initComponent();
@@ -66,6 +74,8 @@ class OSMainWindow implements MainWindow
         window.setTitle("Rameses Client Platform");
         window.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         window.setGlassPane(glassPane = new GlassPaneImpl(this)); 
+        
+        defaultGlassPane = new DefaultGlassPane();
         
         Image image = null; 
         try { image = icon.getImage(); } catch(Throwable t) {;} 
@@ -142,7 +152,21 @@ class OSMainWindow implements MainWindow
     }
 
     public void setTitle(String title) {
-        window.setTitle(title);
+        StringBuffer sb = new StringBuffer();
+        if (title == null || title.length() == 0) {
+            sb.append("Rameses Client Platform"); 
+        } else {
+            sb.append(title); 
+        }
+        
+        OSPlatformIdentity spi = OSPlatformIdentity.getInstance(); 
+        String platformtype = spi.getString("platform.type");
+        if ("enterpise".equals(platformtype)) {
+            sb.append("  Enterprise Edition");
+        } else if ("community".equals(platformtype)) {
+            sb.append("  Community Edition");
+        }
+        window.setTitle(sb.toString());
     }
 
     public void close() {
@@ -258,26 +282,35 @@ class OSMainWindow implements MainWindow
         mainWindowPanel.repaint(); 
     }
     
-    void showGlassPane() {
-        glassPane.setVisible(true);
-        SwingUtilities.updateComponentTreeUI(glassPane); 
-    }
-    
     void hideGlassPane() {
         glassPane.setVisible(false); 
         glassPane.removeAll(); 
+        defaultGlassPane.setVisible(false);
+        defaultGlassPane.removeAll(); 
     }
     
     void showInGlassPane(Component comp, Map props) {
         if (props == null) props = new HashMap();
-        
-        glassPane.removeAll();
-        glassPane.add(comp);
-        
-        String id = (String) props.get("id");        
-        glassPane.setName(id); 
-        showGlassPane();
-        OSManager.getInstance().registerView(id, glassPane); 
+
+        if (comp instanceof ViewContext) {
+            glassPane.removeAll();
+            glassPane.add(comp);
+
+            String id = (String) props.get("id");        
+            glassPane.setName(id); 
+            showGlassPaneImpl(glassPane);
+            OSManager.getInstance().registerView(id, glassPane); 
+        } else {
+            defaultGlassPane.removeAll();
+            defaultGlassPane.add(comp);
+            showGlassPaneImpl(defaultGlassPane);
+        }
+    }
+    
+    private void showGlassPaneImpl(JComponent jcomp) {
+        window.setGlassPane(jcomp);   
+        jcomp.setVisible(true);
+        SwingUtilities.updateComponentTreeUI(jcomp); 
     }
     
     void requestFocus() {
@@ -333,6 +366,49 @@ class OSMainWindow implements MainWindow
             return new Insets(4,1,1,1);
         }    
     } 
+    
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" DefaultGlassPane ">
+    
+    private class DefaultGlassPane extends JPanel 
+    {
+        DefaultGlassPane() {
+            setOpaque(true);
+            setLayout(new BorderLayout()); 
+            addMouseListener(new MouseListener() {
+                public void mouseClicked(MouseEvent e) {
+                    e.consume();
+                }
+                public void mouseEntered(MouseEvent e) {
+                }
+                public void mouseExited(MouseEvent e) {
+                }
+                public void mousePressed(MouseEvent e) {
+                    e.consume();
+                }
+                public void mouseReleased(MouseEvent e) {
+                    e.consume();
+                }
+            });
+            addMouseMotionListener(new MouseMotionListener() {
+                public void mouseDragged(MouseEvent e) {
+                }
+                public void mouseMoved(MouseEvent e) {
+                }
+            });
+            addKeyListener(new KeyListener() {
+                public void keyPressed(KeyEvent e) { 
+                    e.consume(); 
+                }
+                public void keyReleased(KeyEvent e) {
+                    e.consume();
+                }
+                public void keyTyped(KeyEvent e) {
+                }
+            }); 
+        }
+    }
     
     // </editor-fold>
 }

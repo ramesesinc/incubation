@@ -13,6 +13,7 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.Map;
 import javax.swing.ImageIcon;
 
@@ -39,6 +40,11 @@ final class OSPlatformIdentity
         if (url == null) throw new RuntimeException("Failed to load the platform identity"); 
         
         load(url);
+        
+        Map map = new HashMap(); 
+        if (identity != null) map.putAll(identity);
+        
+        System.getProperties().put("platform.identity", map);
     }
     
     public Object get(Object key) {
@@ -47,6 +53,11 @@ final class OSPlatformIdentity
     
     public byte[] getBytes(Object key) {
         return (byte[]) get(key); 
+    }
+    
+    public String getString(Object key) {
+        Object value = get(key);
+        return (value == null? null: value.toString()); 
     }
     
     public ImageIcon getIcon(Object key) {

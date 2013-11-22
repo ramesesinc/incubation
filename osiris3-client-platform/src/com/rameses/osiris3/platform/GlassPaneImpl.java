@@ -100,8 +100,8 @@ class GlassPaneImpl extends JPanel implements SubWindow, OSView
         // sets a 65% translucent composite
         //AlphaComposite alpha = AlphaComposite.SrcOver.derive(0.75f);
         Composite oldComposite = g2.getComposite();
-        AlphaComposite alpha = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.75f);         
-        g2.setComposite(alpha);
+        AlphaComposite acomposite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.75f);         
+        g2.setComposite(acomposite);
         
         // fills the background
         g2.setColor(getBackground());
