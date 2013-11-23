@@ -97,7 +97,7 @@ public class SessionContext {
             while (iter.hasNext()) {
                 Invoker inv = (Invoker)iter.next();
                 String itype = (inv.getType() == null) ? "folder" : inv.getType();
-                if(itype.matches(type) ) {
+                if(itype.matches(type) || itype.equalsIgnoreCase(type)) {
                     boolean showIt = true;
                     String permission = inv.getPermission();
                     String role = inv.getRole();
