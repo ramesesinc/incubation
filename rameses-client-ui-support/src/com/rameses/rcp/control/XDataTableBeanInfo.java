@@ -47,6 +47,7 @@ public class XDataTableBeanInfo extends ComponentBeanInfo.Support
             new PropertyDescriptor("errorForeground", getBeanClass()),
             new PropertyDescriptor("evenBackground", getBeanClass()),
             new PropertyDescriptor("evenForeground", getBeanClass()),
+            new PropertyDescriptor("fontStyle", getBeanClass()),
             new PropertyDescriptor("gridColor", getBeanClass()),
             new PropertyDescriptor("handler", getBeanClass()),
             new PropertyDescriptor("immediate", getBeanClass(), "isImmediate", "setImmediate"),
