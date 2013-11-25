@@ -26,6 +26,7 @@ import com.rameses.rcp.control.table.TableUtil;
 import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.framework.ClientContext;
 import com.rameses.rcp.support.ColorUtil;
+import com.rameses.rcp.support.FontSupport;
 import com.rameses.rcp.support.MouseEventSupport;
 import com.rameses.rcp.ui.*;
 import com.rameses.rcp.util.*;
@@ -548,6 +549,48 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
     public void setReadonlyWhen(String readonlyWhen) {
         this.readonlyWhen = readonlyWhen; 
     }
+
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" font support ">
+    
+    private FontSupport fontSupport;    
+    private Font sourceFont;    
+    private String fontStyle; 
+    
+    private FontSupport getFontSupport() {
+        if (fontSupport == null) 
+            fontSupport = new FontSupport();
+        
+        return fontSupport; 
+    }
+    
+    public void setFont(Font font) { 
+        sourceFont = font; 
+        if (sourceFont != null) {
+            Map attrs = getFontSupport().createFontAttributes(getFontStyle()); 
+            if (!attrs.isEmpty()) sourceFont = sourceFont.deriveFont(attrs);
+        }
+        
+        super.setFont(sourceFont); 
+        if (table != null) table.setFont(font); 
+    } 
+    
+    public String getFontStyle() { return fontStyle; } 
+    public void setFontStyle(String fontStyle) {
+        this.fontStyle = fontStyle;
+        
+        if (sourceFont == null) sourceFont = super.getFont(); 
+        
+        Font font = sourceFont;
+        if (font == null) return;
+        
+        Map attrs = getFontSupport().createFontAttributes(getFontStyle()); 
+        if (!attrs.isEmpty()) font = font.deriveFont(attrs); 
+        
+        super.setFont(font); 
+        if (table != null) table.setFont(font); 
+    } 
     
     // </editor-fold>
     

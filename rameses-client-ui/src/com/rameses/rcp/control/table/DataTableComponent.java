@@ -1143,6 +1143,7 @@ public class DataTableComponent extends JTable implements TableControl
         Rectangle bounds = getCellRect(rowIndex, colIndex, false);
         editor.putClientProperty(COLUMN_POINT, new Point(colIndex, rowIndex));
         editor.putClientProperty("cellEditorValue", null); 
+        editor.setFont(getFont());
         editor.setBounds(bounds); 
         editor.validate(); 
         
