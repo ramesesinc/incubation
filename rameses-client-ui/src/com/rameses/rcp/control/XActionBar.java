@@ -185,23 +185,17 @@ public class XActionBar extends JPanel implements UIComposite, MouseEventSupport
         if (actions.size() > 0) {
             Collections.sort(actions);
             for (Action action: actions) {
-                //check permission
-                String permission = action.getPermission();
-                String role = action.getRole();
-                String domain = action.getDomain();
-                /*
-                if (permission != null && binding.getController().getName() != null)
-                    permission = binding.getController().getName() + "." + permission;
-                 */
-                boolean allowed = ControlSupport.isPermitted(domain, role, permission);
-                if (!allowed) continue;
-                
                 XButton btn = createButton(action);
+                btn.putClientProperty("Action.domain", action.getDomain());
+                btn.putClientProperty("Action.role", action.getRole());                
+                btn.putClientProperty("Action.permission", action.getPermission());
+                
                 if (!buttonTpl.isContentAreaFilled()) {
                     btn.setBorder(null);
                     btn.setOpaque(false);
                     btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
                 }
+                
                 btn.setContentAreaFilled(buttonTpl.isContentAreaFilled());
                 btn.setBorderPainted(buttonTpl.isBorderPainted());
                 
@@ -328,15 +322,22 @@ public class XActionBar extends JPanel implements UIComposite, MouseEventSupport
         boolean found = false;
         ExpressionResolver expResolver = ExpressionResolver.getInstance();
         for (XButton btn: buttons) {
+            String domain = (String) btn.getClientProperty("Action.domain");
+            String role = (String) btn.getClientProperty("Action.role");
+            String permission = (String) btn.getClientProperty("Action.permission");
+            boolean allowed = ControlSupport.isPermitted(domain, role, permission);
+            if (!allowed) continue;
+            
             String expression = (String) btn.getClientProperty("visibleWhen");
-            if (!ValueUtil.isEmpty(expression)) {
-                boolean result = UIControlUtil.evaluateExprBoolean(binding.getBean(), expression);
-                btn.setVisible(result);
-            } else {
+            if (expression != null && expression.trim().length() > 0) { 
+                boolean result = UIControlUtil.evaluateExprBoolean(binding.getBean(), expression); 
+                btn.setVisible(result); 
+                
+            } else { 
                 if ( btn.getClientProperty("default.button") != null ) {
                     if ( getRootPane() != null )
                         getRootPane().setDefaultButton( btn );
-                    else
+                    else 
                         binding.setDefaultButton( btn );
                 }
             }
