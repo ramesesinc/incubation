@@ -48,7 +48,6 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JToolBar;
 import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 
 public class XActionBar extends JPanel implements UIComposite, MouseEventSupport.ComponentInfo  
@@ -258,7 +257,7 @@ public class XActionBar extends JPanel implements UIComposite, MouseEventSupport
             ImageIcon icon = ImageIconSupport.getInstance().getIcon(sicon);
             btn.setIcon(icon);
         } 
-        if (btn.getIcon() == null) {
+        if (btn.getIcon() == null && toolbarComponent instanceof JToolBar) {
             ImageIcon icon = ImageIconSupport.getInstance().getIcon("com/rameses/rcp/icons/button-separator.png");
             btn.setIcon(icon); 
         }
@@ -317,14 +316,16 @@ public class XActionBar extends JPanel implements UIComposite, MouseEventSupport
         else if (caption != null)
             btn.setToolTipText(caption);
         
-        btn.setMnemonic(action.getMnemonic());        
+        btn.setMnemonic(action.getMnemonic());  
+        btn.setMargin(new Insets(2, 2, 2, 2)); 
         return btn;
     }
     
     private void buildToolbar() {
         if ( dirty ) toolbarComponent.removeAll();
         if (isDynamic()) buildButtons();
-        
+
+        boolean found = false;
         ExpressionResolver expResolver = ExpressionResolver.getInstance();
         for (XButton btn: buttons) {
             String expression = (String) btn.getClientProperty("visibleWhen");
@@ -342,8 +343,9 @@ public class XActionBar extends JPanel implements UIComposite, MouseEventSupport
             
             if ( dirty ) toolbarComponent.add(btn);
         }
-        
-        SwingUtilities.updateComponentTreeUI(this);
+
+        revalidate(); 
+        repaint(); 
         dirty = false;
     }
     
@@ -579,5 +581,4 @@ public class XActionBar extends JPanel implements UIComposite, MouseEventSupport
     }
     
     //</editor-fold>
-
 }
