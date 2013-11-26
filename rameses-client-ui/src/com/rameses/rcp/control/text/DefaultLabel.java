@@ -10,8 +10,10 @@
 package com.rameses.rcp.control.text;
 
 import com.rameses.rcp.support.FontSupport;
+import com.rameses.rcp.support.ImageIconSupport;
 import java.awt.Font;
 import java.util.Map;
+import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 
 /**
@@ -23,6 +25,8 @@ public class DefaultLabel extends JLabel
     private FontSupport fontSupport;    
     private Font sourceFont;    
     private String fontStyle; 
+    
+    private String iconResource;
     
     public DefaultLabel() {
     }
@@ -58,4 +62,10 @@ public class DefaultLabel extends JLabel
         
         super.setFont(font); 
     } 
+    
+    public String getIconResource() { return iconResource; } 
+    public void setIconResource(String iconResource) {
+        this.iconResource = iconResource;         
+        setIcon(ImageIconSupport.getInstance().getIcon(iconResource)); 
+    }
 }
