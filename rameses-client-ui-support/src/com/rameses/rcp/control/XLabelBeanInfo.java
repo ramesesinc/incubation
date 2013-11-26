@@ -53,6 +53,7 @@ public class XLabelBeanInfo extends ComponentBeanInfo.Support
             new PropertyDescriptor("fontStyle", getBeanClass()),
             new PropertyDescriptor("for", getBeanClass()),
             new PropertyDescriptor("format", getBeanClass()),
+            new PropertyDescriptor("iconResource", getBeanClass()),
             new PropertyDescriptor("index", getBeanClass()),
             new PropertyDescriptor("padding", getBeanClass()), 
             new PropertyDescriptor("useHtml", getBeanClass(), "isUseHtml", "setUseHtml"),            
