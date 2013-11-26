@@ -20,7 +20,6 @@ import java.util.Map;
  */
 public class LookupOpenerProviderImpl implements LookupOpenerProvider
 {
-
     public Opener lookupOpener(String invokerType, Map params) { 
         return InvokerUtil.lookupOpener(invokerType, params); 
     }

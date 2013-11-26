@@ -1,8 +1,7 @@
-
 /*
- * InvokerUtil.java
+ * Inv.java
  *
- * Created on October 27, 2009, 4:14 PM
+ * Created on November 26, 2013, 3:18 PM
  *
  * To change this template, choose Tools | Template Manager
  * and open the template in the editor.
@@ -12,12 +11,11 @@ package com.rameses.osiris2.client;
 
 /**
  *
- * @author elmo
+ * @author wflores
  */
-public final class InvokerUtil extends InvokerUtilImpl
+public final class Inv extends InvokerUtilImpl
 {
     
-    private InvokerUtil() {
-    }    
+    private Inv() {}
     
 }
