@@ -9,7 +9,7 @@
 
 package com.rameses.rcp.control;
 
-import com.rameses.rcp.common.PropertySupport;
+import com.rameses.rcp.common.PropertySupport; 
 import com.rameses.rcp.control.border.CSSBorder;
 import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.support.ImageIconSupport;

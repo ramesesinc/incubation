@@ -54,7 +54,7 @@ public class PopupDialog extends JDialog implements SubWindow, WindowListener
         super.setContentPane(contentPane);
         if ( contentPane instanceof ViewContext ) {
             viewContext = (ViewContext) contentPane;
-        }
+        }        
     }   
         
     public boolean isCanClose() { return canClose; }    

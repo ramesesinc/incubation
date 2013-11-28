@@ -3,6 +3,7 @@ package com.rameses.rcp.impl;
 import com.rameses.common.PropertyResolver;
 import com.rameses.platform.interfaces.ContentPane;
 import com.rameses.platform.interfaces.MainWindow;
+import com.rameses.platform.interfaces.Notifier;
 import com.rameses.platform.interfaces.Platform;
 import com.rameses.platform.interfaces.SubWindow;
 import com.rameses.rcp.util.ErrorDialog;
@@ -31,9 +32,10 @@ import javax.swing.SwingUtilities;
  *
  * @author jaycverg
  */
-public class PlatformImpl implements Platform {
-    
+public class PlatformImpl implements Platform 
+{
     private MainDialog mainWindow; 
+    private NotifierImpl notifier;
     
     Map windows = new HashMap();
     
@@ -213,6 +215,13 @@ public class PlatformImpl implements Platform {
     
     public MainWindow getMainWindow() {
         return mainWindow;
+    }
+    
+    public Notifier getNotifier() {
+        if (notifier == null) {
+            notifier = new NotifierImpl();
+        }
+        return notifier; 
     }
     
     public boolean isWindowExists(String id) {

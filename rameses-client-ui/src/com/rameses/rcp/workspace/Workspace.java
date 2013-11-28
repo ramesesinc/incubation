@@ -2,10 +2,12 @@ package com.rameses.rcp.workspace;
 
 import com.rameses.platform.interfaces.AppLoader;
 import com.rameses.platform.interfaces.MainWindow;
+import com.rameses.platform.interfaces.Notifier;
 import com.rameses.platform.interfaces.Platform;
 import com.rameses.platform.interfaces.SubPlatform;
 import com.rameses.platform.interfaces.ViewContext;
 import com.rameses.rcp.framework.ClientContext;
+import com.rameses.rcp.impl.NotifierImpl;
 import java.net.URLClassLoader;
 import java.rmi.server.UID;
 import java.util.HashMap;
@@ -16,8 +18,8 @@ import javax.swing.JComponent;
  *
  * @author jaycverg
  */
-public class Workspace implements SubPlatform {
-    
+public class Workspace implements SubPlatform 
+{    
     public static final Workspace create(Map conf) {
         ClientContext ctx = ClientContext.getCurrentContext();
         Workspace ws = new Workspace();
@@ -221,6 +223,14 @@ public class Workspace implements SubPlatform {
     
     public MainWindow getMainWindow() {
         return mainWindow;
+    }
+    
+    private NotifierImpl notifier;
+    public Notifier getNotifier() {
+        if (notifier == null) {
+            notifier = new NotifierImpl(); 
+        }
+        return notifier; 
     }
     
     public boolean isWindowExists(String id) {

@@ -1,7 +1,7 @@
 package com.rameses.rcp.control;
 
 import com.rameses.rcp.common.Action;
-import com.rameses.rcp.common.MsgBox;
+import com.rameses.rcp.common.MsgBox; 
 import com.rameses.rcp.common.Opener;
 import com.rameses.rcp.common.PopupMenuOpener;
 import com.rameses.rcp.common.PropertySupport;
