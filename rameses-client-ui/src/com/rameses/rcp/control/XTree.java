@@ -138,6 +138,18 @@ public class XTree extends JTree implements UIControl, MouseEventSupport.Compone
     public void setHandlerObject(Object handlerObject) {
         this.handlerObject = handlerObject; 
     }
+
+    protected void fireValueChanged(TreeSelectionEvent e) {
+        TreePath newpath = e.getNewLeadSelectionPath(); 
+        if (newpath != null) {
+            XTree.DefaultNode newnode = (XTree.DefaultNode) newpath.getLastPathComponent(); 
+            if (newnode.request_to_open && nodeModel != null && nodeModel.isAllowOpenOnSingleClick()) { 
+                fireOpenSelectedNode(true, newnode); 
+            } 
+        }
+        
+        super.fireValueChanged(e); 
+    }
     
     // </editor-fold>
     
@@ -231,25 +243,42 @@ public class XTree extends JTree implements UIControl, MouseEventSupport.Compone
     
     protected void processMouseEvent(MouseEvent me) 
     {
-        if (me.getID() == MouseEvent.MOUSE_CLICKED) {
-            if (SwingUtilities.isLeftMouseButton(me)) {
-                if (me.getClickCount() == 2) {
-                    fireOpenSelectedNode(true);
-                } else if (nodeModel != null && nodeModel.isAllowOpenOnSingleClick()) { 
-                    fireOpenSelectedNode(false); 
-                } 
+        if (me.getID() == MouseEvent.MOUSE_PRESSED) {
+            //process only single-click 
+            if (SwingUtilities.isLeftMouseButton(me) && me.getClickCount() == 1) {
+                TreePath newpath = getPathForLocation(me.getX(), me.getY()); 
+                if (newpath == null) return; 
+
+                XTree.DefaultNode newnode = (XTree.DefaultNode) newpath.getLastPathComponent(); 
+                newnode.request_to_open = true;
+            }
+        } else if (me.getID() == MouseEvent.MOUSE_CLICKED) {
+            //process only double-click
+            if (SwingUtilities.isLeftMouseButton(me) && me.getClickCount() == 2) {
+                TreePath newpath = getPathForLocation(me.getX(), me.getY()); 
+                if (newpath == null) return;
+                
+                XTree.DefaultNode newnode = (XTree.DefaultNode) newpath.getLastPathComponent(); 
+                if (newnode.request_to_open) {
+                    fireOpenSelectedNode(true, newnode); 
+                }
             } 
         }
         super.processMouseEvent(me); 
     }
     
     private void fireOpenSelectedNode(boolean forcely) 
-    {        
-        final DefaultNode selNode = getSelectedNode(); 
+    {   
+        DefaultNode selNode = getSelectedNode(); 
+        fireOpenSelectedNode(forcely, selNode); 
+    }    
+    
+    private void fireOpenSelectedNode(boolean forcely, final XTree.DefaultNode selNode) { 
         if (selNode == null) return;
         if (!selNode.hasChanged && !forcely) return;
 
         selNode.hasChanged = false;        
+        selNode.request_to_open = false; 
         EventQueue.invokeLater(new Runnable() {
             public void run() {
                 try { 
@@ -329,6 +358,8 @@ public class XTree extends JTree implements UIControl, MouseEventSupport.Compone
         private Node node;
         private boolean hasChanged;
         private Node[] nodes;
+
+        private boolean request_to_open;
         
         public DefaultNode(String n) {
             super(n); 
@@ -859,4 +890,5 @@ public class XTree extends JTree implements UIControl, MouseEventSupport.Compone
     }
     
     // </editor-fold>     
+    
 }
