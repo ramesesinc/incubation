@@ -213,8 +213,10 @@ public class XActionBar extends JPanel implements UIComposite, MouseEventSupport
     private XButton createButton(Action action) {
         XButton btn = new XButton();
         ActionButtonSupport.getInstance().loadDefaults(btn, action.getName(), btn);
-        
+
         btn.setFocusable(false);
+        btn.setMargin(new Insets(2, 2, 2, 2)); 
+        if (!isUseToolBar()) btn.setMargin(new Insets(2, 7, 2, 7)); 
         
         //map properties from the button template
         btn.setName(action.getName());
@@ -311,7 +313,6 @@ public class XActionBar extends JPanel implements UIComposite, MouseEventSupport
             btn.setToolTipText(caption);
         
         btn.setMnemonic(action.getMnemonic());  
-        btn.setMargin(new Insets(2, 2, 2, 2)); 
         return btn;
     }
     
