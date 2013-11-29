@@ -56,6 +56,7 @@ public class FormPage extends javax.swing.JPanel {
         xHorizontalPanel2.setBorderSeparator(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         xabFormActions.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 5, 0, 5));
         xabFormActions.setDepends(new String[] {"entity"});
+        xabFormActions.setDynamic(true);
         xabFormActions.setName("formActions");
         xHorizontalPanel2.add(xabFormActions);
 
