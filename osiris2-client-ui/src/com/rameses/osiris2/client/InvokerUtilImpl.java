@@ -24,6 +24,7 @@ import com.rameses.rcp.common.Action;
 import com.rameses.rcp.common.Opener;
 import com.rameses.util.ExceptionManager;
 import com.rameses.util.ValueUtil;
+import java.awt.EventQueue;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -327,7 +328,15 @@ class InvokerUtilImpl
             throw new RuntimeException("No access privilege for this item. Please contact your administrator.");
         }
         return createOpener(list.get(0), params);
+    } 
+    
+    public static void lookupAsync(String invType) {
+        lookupAsync(invType, null); 
     }
+    
+    public static void lookupAsync(String invType, Map params) {
+        EventQueue.invokeLater(new AsyncOpenerRunnable(invType, params)); 
+    }    
     
     public static List lookupOpeners( String invType) {
         return lookupOpeners( invType, null, null );
@@ -384,5 +393,28 @@ class InvokerUtilImpl
         }
         return sb.toString();
     }
+ 
     
+    private static class AsyncOpenerRunnable implements Runnable 
+    {
+        private String invType;
+        private Map params;
+        
+        AsyncOpenerRunnable(String invType, Map params) {
+            this.invType = invType;
+            this.params = params;
+        }
+
+        public void run() {
+            List<Invoker> list = InvokerUtilImpl.lookup(invType, null, null);
+            if (list.isEmpty()) { 
+                System.out.println("[WARN] No invokers found for type [" + invType + "]");
+                throw new RuntimeException("No access privilege for this item. Please contact your administrator.");            
+            } 
+            
+            Invoker invoker = list.remove(0);
+            list.clear();            
+            InvokerUtilImpl.invoke(invoker, params); 
+        }
+    }
 }
