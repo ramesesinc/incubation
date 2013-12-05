@@ -130,14 +130,8 @@ public class UICommandUtil {
         } 
         catch(Exception ex) 
         {
-            if (ex instanceof IgnoreException || ex instanceof BreakException) {
-                return null; 
-            }
-            
             Exception e = ExceptionManager.getOriginal(ex); 
-            if (e instanceof IgnoreException || e instanceof BreakException) {
-                return null; 
-            } 
+            if (e instanceof IgnoreException || e instanceof BreakException) return null; 
             
             if (!ExceptionManager.getInstance().handleError(e)) { 
                 ctx.getPlatform().showError((JComponent) command, ex); 
@@ -171,10 +165,8 @@ public class UICommandUtil {
         }
         catch(Exception ex) 
         {
-            if (ex instanceof IgnoreException || ex instanceof BreakException) return;
-                        
             Exception e = ExceptionManager.getOriginal(ex); 
-            if (e instanceof IgnoreException || e instanceof BreakException) return;
+            if (e instanceof IgnoreException || e instanceof BreakException) return; 
             
             if (!ExceptionManager.getInstance().handleError(e))
                 ctx.getPlatform().showError(invoker, ex);
@@ -187,15 +179,12 @@ public class UICommandUtil {
 
         ClientContext ctx = ClientContext.getCurrentContext();
         try {
-            
             if (anOpener != null) binding.fireNavigation(anOpener);
         }
         catch(Exception ex) 
-        {
-            if (ex instanceof IgnoreException || ex instanceof BreakException) return;
-            
+        {            
             Exception e = ExceptionManager.getOriginal(ex); 
-            if (e instanceof IgnoreException || e instanceof BreakException) return;
+            if (e instanceof IgnoreException || e instanceof BreakException) return; 
             
             if (!ExceptionManager.getInstance().handleError(e))
                 ctx.getPlatform().showError(invoker, ex);
