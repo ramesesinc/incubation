@@ -11,6 +11,7 @@ import com.rameses.rcp.ui.UICommand;
 import com.rameses.rcp.common.Action;
 import com.rameses.rcp.common.MsgBox;
 import com.rameses.rcp.common.Opener;
+import com.rameses.util.BreakException;
 import com.rameses.util.BusinessException;
 import com.rameses.util.ExceptionManager;
 import com.rameses.util.IgnoreException;
@@ -129,8 +130,14 @@ public class UICommandUtil {
         } 
         catch(Exception ex) 
         {
+            if (ex instanceof IgnoreException || ex instanceof BreakException) {
+                return null; 
+            }
+            
             Exception e = ExceptionManager.getOriginal(ex); 
-            if (e instanceof IgnoreException) return null;
+            if (e instanceof IgnoreException || e instanceof BreakException) {
+                return null; 
+            } 
             
             if (!ExceptionManager.getInstance().handleError(e)) { 
                 ctx.getPlatform().showError((JComponent) command, ex); 
@@ -164,8 +171,10 @@ public class UICommandUtil {
         }
         catch(Exception ex) 
         {
+            if (ex instanceof IgnoreException || ex instanceof BreakException) return;
+                        
             Exception e = ExceptionManager.getOriginal(ex); 
-            if (e instanceof IgnoreException) return;
+            if (e instanceof IgnoreException || e instanceof BreakException) return;
             
             if (!ExceptionManager.getInstance().handleError(e))
                 ctx.getPlatform().showError(invoker, ex);
@@ -183,8 +192,10 @@ public class UICommandUtil {
         }
         catch(Exception ex) 
         {
+            if (ex instanceof IgnoreException || ex instanceof BreakException) return;
+            
             Exception e = ExceptionManager.getOriginal(ex); 
-            if (e instanceof IgnoreException) return;
+            if (e instanceof IgnoreException || e instanceof BreakException) return;
             
             if (!ExceptionManager.getInstance().handleError(e))
                 ctx.getPlatform().showError(invoker, ex);
