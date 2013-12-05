@@ -36,16 +36,28 @@ public class CallbackHandlerProxy implements CallbackHandler
     }
     
     public Object invoke(Object source) {
-        return invokeMethod(source, new Object[]{});
+        if (source instanceof CallbackHandler) {
+            return ((CallbackHandler) source).call(); 
+        } else { 
+            return invokeMethod(source, new Object[]{});
+        } 
     } 
     
     public Object invoke(Object source, Object value) {
-        return invokeMethod(source, new Object[]{ value }); 
+        if (source instanceof CallbackHandler) {
+            return ((CallbackHandler) source).call(value); 
+        } else { 
+            return invokeMethod(source, new Object[]{ value }); 
+        } 
     }
 
     public Object invoke(Object source, Object[] values) {
-        return invokeMethod(source, new Object[]{ values });
-    }    
+        if (source instanceof CallbackHandler) {
+            return ((CallbackHandler) source).call(values); 
+        } else { 
+            return invokeMethod(source, new Object[]{ values });
+        } 
+    } 
        
     private Object invokeMethod(Object source, Object[] args) 
     {
