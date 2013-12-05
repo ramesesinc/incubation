@@ -51,14 +51,17 @@ public final class ExceptionManager {
         while( t.getCause() != null) {
             t = t.getCause();
         }
+        
         Exception e = null;
         if (t instanceof AppException) {
             e = (AppException)t;
-        }
-        else if (t instanceof NullPointerException) {
+        } else if (t instanceof NullPointerException) {
             e = (NullPointerException)t;
-        }
-        else {
+        } else if (t instanceof BreakException) {
+            e = (BreakException)t;
+        } else if (t instanceof IgnoreException) {
+            e = (IgnoreException)t;
+        } else {
             String msg = t.getMessage();
             if (t instanceof NoSuchMethodException) {
                 e = new NoSuchMethodException(msg); 
