@@ -255,6 +255,8 @@ public class XCamera extends JButton implements MouseEventSupport.ComponentInfo,
     private void openViewer(CameraModel model) {
         Map options = new HashMap(); 
         options.put("title", model.getTitle()); 
+        options.put("width", model.getWidth());
+        options.put("height", model.getHeight());
         options.put("onselect", new BuiltinSelectHandler(model)); 
         options.put("onclose", new BuiltinCloseHandler(model)); 
         WebcamViewer.open(options); 

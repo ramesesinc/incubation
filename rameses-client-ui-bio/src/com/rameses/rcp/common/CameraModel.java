@@ -19,7 +19,9 @@ public class CameraModel
     public CameraModel() {
     }
     
-    public String getTitle() { return "Camera"; } 
+    public String getTitle() { return "Camera"; }     
+    public int getWidth() { return 320; } 
+    public int getHeight() { return 240; } 
     
     public void onselect(byte[] bytes) {
     }

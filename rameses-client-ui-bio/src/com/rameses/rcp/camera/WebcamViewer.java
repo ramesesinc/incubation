@@ -20,6 +20,7 @@ import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.util.List;
 import java.util.Map;
 import javax.swing.JDialog;
 
@@ -69,8 +70,10 @@ public final class WebcamViewer
     }
     
     public byte[] open() { 
-        Window win = KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusedWindow();         
-        Webcam webcam = Webcam.getDefault();
+        Window win = KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusedWindow(); 
+        
+        List<Webcam> webcams = Webcam.getWebcams(); 
+        Webcam webcam = whichWebcam(webcams); 
         webcam.setViewSize(new Dimension(width, height)); 
         webcam.setAutoOpenMode(autoOpenMode); 
         
@@ -154,6 +157,18 @@ public final class WebcamViewer
         int y = Math.max((scrheight - windim.height) / 2, 0) + margin.top;
         win.setLocation(x, y); 
     } 
+    
+    private Webcam whichWebcam(List<Webcam> webcams) {
+        if (webcams.isEmpty())
+            throw new RuntimeException("No available Webcam on your computer"); 
+        
+        if (webcams.size() > 1) {
+            return webcams.get(1); 
+        } else {
+            return webcams.get(0); 
+        }
+    }
+    
     
     // <editor-fold defaultstate="collapsed" desc=" WebcamPaneListenerImpl "> 
     
