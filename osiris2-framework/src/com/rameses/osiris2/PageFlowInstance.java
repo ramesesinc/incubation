@@ -9,6 +9,8 @@ import com.rameses.osiris2.flow.PageNode;
 import com.rameses.osiris2.flow.ProcessNode;
 import com.rameses.osiris2.flow.StartNode;
 import com.rameses.osiris2.flow.Transition;
+import com.rameses.util.BreakException;
+import com.rameses.util.ExceptionManager;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -34,7 +36,8 @@ public class PageFlowInstance {
     }
     
     public void signal(String n ){
-        currentNode = signalNode( currentNode, n );
+        AbstractNode tmp = signalNode( currentNode, n );
+        if(tmp!=null) currentNode = tmp;
     }
     
 
@@ -46,7 +49,6 @@ public class PageFlowInstance {
             Object data = workunit.getController();
             Transition t = findTransition(prevNode, n, data);
             fireTransitionAction(t);
-            
             //resolve to if it is expression-like
             String to = t.getTo();
             try {
@@ -63,11 +65,14 @@ public class PageFlowInstance {
                 return tempNode;
             }
         }
+        catch(BreakException be) {
+            return null;
+        }
         catch(RuntimeException re) {
             throw re;
         }
         catch(Exception ex) {
-            throw new IllegalStateException(ex.getMessage(), ex);
+            throw new RuntimeException(ex.getMessage(), ex);
         }
     }
     
@@ -135,7 +140,12 @@ public class PageFlowInstance {
     
     private void fireTransitionAction(Transition t) throws Exception{
         if( t.getAction() != null ) {
-            MethodResolver.getInstance().invoke(workunit.getController(), t.getAction(), null );
+            try {
+                MethodResolver.getInstance().invoke(workunit.getController(), t.getAction(), null );
+            }
+            catch(Exception e) {
+                throw ExceptionManager.getOriginal(e);
+            }
         }
     }
     
