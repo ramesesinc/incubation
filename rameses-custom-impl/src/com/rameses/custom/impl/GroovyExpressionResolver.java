@@ -13,7 +13,6 @@ import com.rameses.common.ExpressionResolver;
 import groovy.lang.MissingPropertyException;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
-import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -30,9 +29,10 @@ public class GroovyExpressionResolver extends ExpressionResolver {
     
     private Object evalObject(String expr, ExprBean bean) throws MissingPropertyException {
         try {
-            expr = expr.replaceAll("(\\$|#)\\{","").replaceAll("\\}","");
+            //expr = expr.replaceAll("(\\$|#)\\{","").replaceAll("\\}","");
             expr = replaceFunctions(expr);
             ScriptTemplate t = null;
+            
             if (!expressions.containsKey(expr)) {
                 t = new ScriptTemplate(expr);
                 expressions.put(expr, t );
@@ -109,7 +109,7 @@ public class GroovyExpressionResolver extends ExpressionResolver {
         try 
         {
             ExprBean bean = new ExprBean(o);
-            Object result = evalObject(expr, bean);
+             Object result = evalObject(expr, bean);
             if (result instanceof Number)
                 return ((Number) result).doubleValue(); 
             
@@ -139,6 +139,7 @@ public class GroovyExpressionResolver extends ExpressionResolver {
     public BigDecimal evalDecimal(String expr, Object o) {
         try {
             ExprBean bean = new ExprBean(o);
+            
             Object result = evalObject(expr,bean);
             if (result == null) 
                 return null; 
