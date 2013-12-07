@@ -9,6 +9,9 @@
 
 package com.rameses.rcp.common;
 
+import com.rameses.util.BreakException;
+import com.rameses.util.ExceptionManager;
+import com.rameses.util.IgnoreException;
 import java.lang.reflect.Method;
 
 /**
@@ -61,8 +64,7 @@ public class CallbackHandlerProxy implements CallbackHandler
        
     private Object invokeMethod(Object source, Object[] args) 
     {
-        try 
-        {
+        try {
             if (source == null) 
                 throw new NullPointerException("failed to invoke method call caused by source object null");
 
@@ -73,12 +75,16 @@ public class CallbackHandlerProxy implements CallbackHandler
             Class sourceClass = source.getClass();
             Method m = sourceClass.getMethod("call", classes); 
             return m.invoke(source, params); 
-        }
-        catch(Throwable t) 
-        {
-            //System.out.println("[CallbackHandlerProxy.invokeMethod] error: " + t.getMessage());  
-            if (t instanceof RuntimeException) 
-                throw (RuntimeException)t;
+            
+        } catch(Throwable t) {
+            if (t instanceof Exception) { 
+                Exception e = ExceptionManager.getOriginal((Exception) t); 
+                if (e instanceof IgnoreException || e instanceof BreakException) {
+                    return null; 
+                }
+                
+                if (t instanceof RuntimeException) throw (RuntimeException)t;
+            }
             
             throw new RuntimeException(t.getMessage(), t);
         } 
