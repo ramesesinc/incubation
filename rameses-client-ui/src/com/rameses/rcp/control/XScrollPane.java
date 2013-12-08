@@ -26,7 +26,7 @@ public class XScrollPane extends JScrollPane
     private FocusChangeListener focusChangeListener;
     
     public XScrollPane() {
-        this.focusChangeListener = new FocusChangeListener(); 
+        focusChangeListener = new FocusChangeListener(); 
     }
         
     public void setViewportView(Component view) {
@@ -34,7 +34,9 @@ public class XScrollPane extends JScrollPane
         
         KeyboardFocusManager kfm = KeyboardFocusManager.getCurrentKeyboardFocusManager();
         kfm.removePropertyChangeListener("focusOwner", focusChangeListener);
-        if (view != null) kfm.addPropertyChangeListener("focusOwner", focusChangeListener);         
+        if (view != null) {
+            kfm.addPropertyChangeListener("focusOwner", focusChangeListener);
+        }         
     }
     
     // <editor-fold defaultstate="collapsed" desc=" FocusChangeListener ">
@@ -63,4 +65,5 @@ public class XScrollPane extends JScrollPane
     }
     
     // </editor-fold>
+    
 }
