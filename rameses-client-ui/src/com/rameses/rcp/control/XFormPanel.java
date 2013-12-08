@@ -35,7 +35,7 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Insets;
 import java.awt.LayoutManager;
-import java.beans.Beans;
+import java.awt.LayoutManager2;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -124,7 +124,6 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
     private void initComponent() {
         propertySupport = new PropertyChangeSupport();
         super.setLayout(layout = new Layout());
-        setPreferredSize(new Dimension(100,50)); 
         setPadding(new Insets(0,5,5,5));
         setOpaque(false);
         
@@ -176,14 +175,16 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
                 
         if (p != null) 
         {
-            if ( !loaded && control instanceof UIControl )
+            if ( !loaded && control instanceof UIControl ) { 
                 nonDynamicControls.add( (UIControl) control );
-
+            } 
+            
             FormItemPanel form = getLastItem(); 
-            if (form == null) 
+            if (form == null) { 
                 super.addImpl(p, constraints, index); 
-            else 
+            } else { 
                 form.add(p); 
+            } 
         }
     }
     
@@ -916,7 +917,7 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
     
     // <editor-fold defaultstate="collapsed" desc=" Layout (Class) ">
     
-    private class Layout implements LayoutManager 
+    private class Layout implements LayoutManager, LayoutManager2
     {        
         private Logger logger = Logger.getLogger(getClass().getName()); 
         
@@ -928,53 +929,34 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
         }
         
         public Dimension minimumLayoutSize(Container parent) {
-            Dimension dim = getLayoutSize(parent);
-            return new Dimension(100, dim.height);
+            return getLayoutSize(parent);
         }
         
-        public void layoutContainer(Container parent) 
-        {
-            synchronized (parent.getTreeLock()) 
-            {
+        public void layoutContainer(Container parent) {
+            synchronized (parent.getTreeLock()) {
                 Insets margin = parent.getInsets();
                 int x = margin.left;
                 int y = margin.top;
                 int w = parent.getWidth() - (margin.left + margin.right);
                 int h = parent.getHeight() - (margin.top + margin.bottom);
                 
-                if (Beans.isDesignTime()) 
-                {
-                    logger.log(Level.INFO, "*******************************");
-                    logger.log(Level.INFO, "container dimension: "+w+", "+h); 
-                }
-                
                 boolean hasVisibleComponents = false;
                 Component[] comps = parent.getComponents();
-                for (int i=0; i<comps.length; i++) 
-                {
+                for (int i=0; i<comps.length; i++) {
                     Component c = comps[i];                    
                     if (!c.isVisible()) continue;
                     if (!(c instanceof FormItemPanel || c instanceof ItemPanel)) continue;   
                     
                     Dimension dim = c.getPreferredSize(); 
-                    if ( UIConstants.HORIZONTAL.equals(orientation) ) 
-                    {
+                    if (UIConstants.HORIZONTAL.equals(orientation)) {
                         if (hasVisibleComponents) x += getCellspacing(); 
                         
                         x += cellpadding.left;
                         c.setBounds(x, y, dim.width, dim.height);
                         x += cellpadding.right + dim.width;
                         
-                        if (Beans.isDesignTime()) 
-                        {
-                            logger.log(Level.INFO, "component: " + c);
-                            logger.log(Level.INFO, "component-bounds:" + c.getBounds());
-                        }                        
-                    } 
-                    else 
-                    {
-                        if (hasVisibleComponents) 
-                        {
+                    } else {
+                        if (hasVisibleComponents) {
                             y += getCellspacing();
                             if (isShowCategory()) y += 10;
                         } 
@@ -982,62 +964,85 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
                         y += cellpadding.top;
                         c.setBounds(x, y, w, dim.height);
                         y += dim.height + cellpadding.bottom;
-                        
-                        if (Beans.isDesignTime()) 
-                        {
-                            logger.log(Level.INFO, "component: " + c);
-                            logger.log(Level.INFO, "component-bounds:" + c.getBounds());
-                        }
                     }
                     hasVisibleComponents = true;
                 }
             }
         }
         
-        public Dimension getLayoutSize(Container parent) 
-        {
-            synchronized (parent.getTreeLock()) 
-            {
-                int w=0, h=0;
-                boolean hasVisibleComponents = false;
+        private Dimension getLayoutSize(Container parent) {
+            synchronized (parent.getTreeLock()) {
+                Dimension dim = null;
                 Component[] comps = parent.getComponents();
-                if ( Beans.isDesignTime() && comps.length == 0 ) {
-                    return new Dimension(100, 100);
-                }
-                
-                for (int i=0; i<comps.length; i++) 
-                {
-                    Component c = comps[i];
-                    if (!c.isVisible()) continue;
-                    if (!(c instanceof FormItemPanel || c instanceof ItemPanel)) continue;  
-
-                    Dimension dim = c.getPreferredSize();
-                    if ( UIConstants.HORIZONTAL.equals(orientation) ) 
-                    {
-                        if (hasVisibleComponents) w += getCellspacing(); 
-                        
-                        h = Math.max(h, dim.height + cellpadding.top + cellpadding.bottom);
-                        w += dim.width + cellpadding.left + cellpadding.right;
-                    } 
-                    else 
-                    {
-                        if (hasVisibleComponents) 
-                        {
-                            h += getCellspacing();
-                            if (isShowCategory()) h += 10;
-                        } 
-
-                        w = Math.max(w, dim.width + cellpadding.left + cellpadding.right);
-                        h += dim.height + cellpadding.top + cellpadding.bottom;
-                    }
-                    hasVisibleComponents = true;
+                if (UIConstants.HORIZONTAL.equals(orientation)) {
+                    dim = getHorizontalLayoutSize(comps);
+                } else {
+                    dim = getVerticalLayoutSize(comps);
                 }
                 
                 Insets margin = parent.getInsets();
-                w += (margin.left + margin.right);
-                h += (margin.top + margin.bottom);
-                return new Dimension(w, h);
+                dim.width += (margin.left + margin.right);
+                dim.height += (margin.top + margin.bottom);
+                return dim; 
             }
+        }
+        
+        private Dimension getHorizontalLayoutSize(Component[] comps) {
+            int w=0, h=0;
+            boolean hasVisibleComponents = false;
+            for (int i=0; i<comps.length; i++) {
+                Component c = comps[i];
+                if (!c.isVisible()) continue;
+                if (!(c instanceof FormItemPanel || c instanceof ItemPanel)) continue;  
+
+                if (hasVisibleComponents) w += getCellspacing(); 
+                
+                Dimension dim = c.getPreferredSize();
+                h = Math.max(h, dim.height + cellpadding.top + cellpadding.bottom);
+                w += dim.width + cellpadding.left + cellpadding.right;
+                hasVisibleComponents = true;
+            }
+            return new Dimension(w, h); 
+        } 
+        
+        private Dimension getVerticalLayoutSize(Component[] comps) {
+            int w=0, h=0;
+            boolean hasVisibleComponents = false;
+            for (int i=0; i<comps.length; i++) {
+                Component c = comps[i];
+                if (!c.isVisible()) continue;                
+                if (!(c instanceof FormItemPanel || c instanceof ItemPanel)) continue;  
+
+                if (hasVisibleComponents) {
+                    h += getCellspacing();
+                    if (isShowCategory()) h += 10;
+                } 
+
+                Dimension dim = c.getPreferredSize();
+                w = Math.max(w, dim.width + cellpadding.left + cellpadding.right);
+                h += dim.height + cellpadding.top + cellpadding.bottom;
+                hasVisibleComponents = true;
+            }
+            return new Dimension(w, h); 
+        }        
+
+        
+        public void addLayoutComponent(Component comp, Object constraints) {}
+
+        public Dimension maximumLayoutSize(Container parent) {
+            return getLayoutSize(parent); 
+        }
+
+        public float getLayoutAlignmentX(Container parent) {
+            return 0.0f;
+        } 
+
+        public float getLayoutAlignmentY(Container parent) {
+            return 0.0f;
+        }
+
+        public void invalidateLayout(Container parent) {
+            layoutContainer(parent); 
         }
     }
     
