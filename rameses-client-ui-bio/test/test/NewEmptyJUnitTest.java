@@ -7,9 +7,10 @@
 
 package test;
 
-import com.rameses.rcp.camera.WebcamViewer;
+import com.rameses.rcp.fingerprint.FingerPrintViewer;
 import java.util.HashMap;
 import java.util.Map;
+import javax.swing.UIManager;
 import junit.framework.*;
 
 /**
@@ -23,6 +24,7 @@ public class NewEmptyJUnitTest extends TestCase {
     }
 
     protected void setUp() throws Exception {
+        UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName()); 
     }
 
     protected void tearDown() throws Exception {
@@ -30,7 +32,8 @@ public class NewEmptyJUnitTest extends TestCase {
     
     public void testMain() throws Exception {
         Map options = new HashMap();
-        WebcamViewer.open(options); 
+        //WebcamViewer.open(options); 
+        FingerPrintViewer.open(options); 
     }
 
 }
