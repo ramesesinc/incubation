@@ -2,6 +2,7 @@ package com.rameses.rcp.common;
 
 import com.rameses.rcp.framework.ClientContext;
 import com.rameses.rcp.util.MessageUtil;
+import java.awt.EventQueue;
 
 public final class MsgBox {
     
@@ -11,6 +12,21 @@ public final class MsgBox {
     public static void alert(Object msg) {
         ClientContext.getCurrentContext().getPlatform().showInfo(null, msg);
     }
+    
+    //another option
+    public static void alert(final Object msg, boolean invokeLater) {
+        Runnable runnable = new Runnable() {
+            public void run() {
+                ClientContext.getCurrentContext().getPlatform().showInfo(null, msg); 
+            }
+        };
+        
+        if (invokeLater) {
+            EventQueue.invokeLater(runnable); 
+        } else { 
+            runnable.run();
+        }
+    }    
     
     public static void err(Exception e) {
         ClientContext.getCurrentContext().getPlatform().showError(null, MessageUtil.getErrorMessage(e));
