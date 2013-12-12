@@ -1,0 +1,8 @@
+{
+  caption: 'DAYDIFF',
+  description: 'returns the number of days difference between two dates',
+  code: 'com.rameses.functions.DateFunc.daysDiff',
+  title: '@DAYDIFF( startdate, enddate )', 
+  signature: '@DAYDIFF( |, )', 
+  group: 'date' 
+}

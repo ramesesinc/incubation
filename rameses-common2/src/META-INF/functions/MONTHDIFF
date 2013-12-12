@@ -1,0 +1,8 @@
+{
+  caption: 'MONTHDIFF',
+  description: 'returns the number of months difference between two dates',
+  code: 'com.rameses.functions.DateFunc.monthsDiff',
+  title: '@MONTHDIFF( startdate, enddate )', 
+  signature: '@MONTHDIFF( |, )', 
+  group: 'date' 
+}
