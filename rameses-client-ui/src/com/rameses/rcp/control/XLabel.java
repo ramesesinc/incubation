@@ -85,7 +85,7 @@ public class XLabel extends DefaultLabel implements UIOutput, ActiveControl, Mou
         if (f != null) setFont(f);
     }
     
-    // <editor-fold defaultstate="collapsed" desc="  Getters/Setters  ">
+    // <editor-fold defaultstate="collapsed" desc=" Getters/Setters ">
     
     private Logger getLogger() 
     {
@@ -284,20 +284,16 @@ public class XLabel extends DefaultLabel implements UIOutput, ActiveControl, Mou
     public Binding getBinding() { return binding; }    
     public void setBinding(Binding binding) { this.binding = binding; }
     
-    public void load() 
-    {
-        if ( !ValueUtil.isEmpty(labelFor) ) 
-        {
+    public void load() {
+        if ( !ValueUtil.isEmpty(labelFor) ) {
             UIControl c = binding.find(labelFor);
             if (c instanceof JComponent) 
                 this.setLabelFor((JComponent) c);
         }
     } 
     
-    public void refresh() 
-    {
-        try 
-        {
+    public void refresh() {
+        try {
             String name = getName();
             boolean hasName = (name != null && name.length() > 0); 
             
@@ -331,7 +327,7 @@ public class XLabel extends DefaultLabel implements UIOutput, ActiveControl, Mou
             
             if (ClientContext.getCurrentContext().isDebugMode()) e.printStackTrace();
         }
-    }   
+    } 
     
     public void setPropertyInfo(PropertySupport.PropertyInfo info) {
     }    
