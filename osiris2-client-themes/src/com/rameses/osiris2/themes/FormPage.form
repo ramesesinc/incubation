@@ -28,6 +28,7 @@
             </Property>
             <Property name="expression" type="java.lang.String" value="#{title}"/>
             <Property name="fontStyle" type="java.lang.String" value="font-size:16; font-weight:bold;"/>
+            <Property name="iconResource" type="java.lang.String" value="#{icon}"/>
             <Property name="opaque" type="boolean" value="true"/>
             <Property name="padding" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
               <Insets value="[2, 7, 2, 5]"/>

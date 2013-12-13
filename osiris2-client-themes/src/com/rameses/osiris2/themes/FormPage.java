@@ -42,6 +42,7 @@ public class FormPage extends javax.swing.JPanel {
         lblTitle.setBackground(new java.awt.Color(255, 255, 255));
         lblTitle.setExpression("#{title}");
         lblTitle.setFontStyle("font-size:16; font-weight:bold;");
+        lblTitle.setIconResource("#{icon}");
         lblTitle.setOpaque(true);
         lblTitle.setPadding(new java.awt.Insets(2, 7, 2, 5));
         jPanel1.add(lblTitle, java.awt.BorderLayout.NORTH);
