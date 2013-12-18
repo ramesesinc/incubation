@@ -486,6 +486,8 @@ public class XSuggest extends IconedTextField implements MouseEventSupport.Compo
         
         Map params = new HashMap();
         params.put("searchtext", getText()); 
+        params.put("_start", 0);
+        params.put("_limit", (model == null? 10: model.getRows())); 
         TimerManager.getInstance().schedule(new LookupTask(params), 300); 
     }
     

@@ -22,6 +22,8 @@ public class SuggestModel
     public SuggestModel() {
     }
     
+    public int getRows() { return 10; } 
+    
     public List fetchList(Map params) {
         return null; 
     }
