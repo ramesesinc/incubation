@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.swing.AbstractAction;
+import javax.swing.ActionMap;
 import javax.swing.InputMap;
 import javax.swing.InputVerifier;
 import javax.swing.JButton;
@@ -72,6 +73,8 @@ public class DefaultTextField extends JTextField
         initDefaults(); 
         
         InputMap inputMap = getInputMap(JComponent.WHEN_FOCUSED);
+        initActionKeys(inputMap, getActionMap()); 
+        
         KeyStroke escKey = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0); 
         inputMap.put(escKey, ACTION_MAPPING_KEY_ESCAPE); 
         getActionMap().put(ACTION_MAPPING_KEY_ESCAPE, new EscapeActionSupport()); 
@@ -81,7 +84,7 @@ public class DefaultTextField extends JTextField
             inputMap.put(enterKey, ACTION_MAPPING_KEY_ENTER);
             getActionMap().put(ACTION_MAPPING_KEY_ENTER, new EnterActionSupport()); 
         }
-        
+                
         resetInputVerifierProxy();         
         focusBackground = ThemeUI.getColor("XTextField.focusBackground");
         
@@ -94,6 +97,10 @@ public class DefaultTextField extends JTextField
     } 
     
     protected void initDefaults() {
+        //to be implemented by the sub-class
+    }
+    
+    protected void initActionKeys(InputMap inputMap, ActionMap actionMap) {
         //to be implemented by the sub-class
     }
 
@@ -360,7 +367,7 @@ public class DefaultTextField extends JTextField
         }         
         actionMap.clear();
     }     
-    
+
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" EscapeActionSupport ">
