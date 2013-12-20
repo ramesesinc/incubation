@@ -35,7 +35,9 @@ public class XPhotoBeanInfo extends ComponentBeanInfo.Support
             new PropertyDescriptor("text", getBeanClass()), 
             
             new PropertyDescriptor("depends", getBeanClass()),
-            new PropertyDescriptor("index", getBeanClass()) 
+            new PropertyDescriptor("index", getBeanClass()), 
+            new PropertyDescriptor("noImageBackground", getBeanClass()),
+            new PropertyDescriptor("noImageForeground", getBeanClass())
         };        
     }
 }
