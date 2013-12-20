@@ -52,6 +52,9 @@ public class XPhoto extends JLabel implements UIControl, MouseEventSupport.Compo
     private NoImageCanvas noImageCanvas;
     private ImageCanvas imageCanvas;
     
+    private Color noImageBackground;
+    private Color noImageForeground; 
+    
     public XPhoto() { 
         initComponent();
     }
@@ -60,9 +63,11 @@ public class XPhoto extends JLabel implements UIControl, MouseEventSupport.Compo
     
     private void initComponent() {
         super.setLayout(new DefaultLayout()); 
-        setOpaque(false);         
+        setOpaque(false); 
         setPreferredSize(new Dimension(120, 100));
         setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY));
+        setNoImageBackground(Color.BLACK);
+        setNoImageForeground(Color.WHITE); 
         
         noImageCanvas = new NoImageCanvas(); 
         imageCanvas = new ImageCanvas(); 
@@ -97,7 +102,17 @@ public class XPhoto extends JLabel implements UIControl, MouseEventSupport.Compo
     
     public boolean isDynamic() { return dynamic; } 
     public void setDynamic(boolean dynamic) { this.dynamic = dynamic; } 
-            
+    
+    public Color getNoImageBackground() { return noImageBackground; } 
+    public void setNoImageBackground(Color noImageBackground) { 
+        this.noImageBackground = noImageBackground; 
+    } 
+    
+    public Color getNoImageForeground() { return noImageForeground; } 
+    public void setNoImageForeground(Color noImageForeground) { 
+        this.noImageForeground = noImageForeground; 
+    } 
+    
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" UIControl implementation ">    
