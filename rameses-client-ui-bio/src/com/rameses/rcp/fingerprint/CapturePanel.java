@@ -10,7 +10,6 @@
 package com.rameses.rcp.fingerprint;
 
 import com.digitalpersona.uareu.*;
-import com.digitalpersona.uareu.Fid.Fiv;
 import com.rameses.rcp.common.MsgBox;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -65,7 +64,7 @@ class CapturePanel extends JPanel
     
     byte[] getImageData() {
         try { 
-            BufferedImage bi = (imageContext == null? null: imageContext.image);
+            BufferedImage bi = (imageContext == null? null: imageContext.getImage());
             if (bi == null) return null;
             
             ByteArrayOutputStream baos = new ByteArrayOutputStream(); 
@@ -92,10 +91,10 @@ class CapturePanel extends JPanel
         Rectangle clip = g2.getClipBounds();
         g2.clearRect(0, 0, clip.width, clip.height); 
         
-        int x = Math.max((width - imageContext.width)/2, 0);
-        int y = Math.max((height - imageContext.height)/2, 0);
+        int x = Math.max((width - imageContext.getWidth())/2, 0);
+        int y = Math.max((height - imageContext.getHeight())/2, 0);
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g2.drawImage(imageContext.image, x, y, null); 
+        g2.drawImage(imageContext.getImage(), x, y, null); 
     }    
     
     private void startCaptureThread() {
@@ -156,33 +155,12 @@ class CapturePanel extends JPanel
     private void fireImageDataChanged(final ImageContext ctx) {
         EventQueue.invokeLater(new Runnable() {
             public void run() {
-                byte[] data = (ctx == null? null: ctx.data); 
+                byte[] data = (ctx == null? null: ctx.getImageData()); 
                 firePropertyChange("imageDataChanged", "", data); 
             }
         });
     }
         
     // </editor-fold>    
-    
-    // <editor-fold defaultstate="collapsed" desc=" ImageContext "> 
-    
-    private class ImageContext 
-    {
-        private BufferedImage image;
-        private byte[] data; 
-        private int width;
-        private int height;
-        
-        ImageContext(Fid fid) { 
-            Fiv view = fid.getViews()[0];
-            width = view.getWidth();
-            height = view.getHeight();
-            data = view.getImageData();
-            image = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);
-            image.getRaster().setDataElements(0, 0, width, height, data);
-        }
-    } 
-    
-    // </editor-fold>
 
 }

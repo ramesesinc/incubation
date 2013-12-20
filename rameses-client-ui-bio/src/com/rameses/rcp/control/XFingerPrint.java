@@ -12,6 +12,7 @@ package com.rameses.rcp.control;
 import com.rameses.rcp.common.CallbackHandler;
 import com.rameses.rcp.common.CallbackHandlerProxy;
 import com.rameses.rcp.common.FingerPrintModel;
+import com.rameses.rcp.common.MsgBox;
 import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.fingerprint.FingerPrintViewer;
 import com.rameses.rcp.framework.Binding;
@@ -237,18 +238,22 @@ public class XFingerPrint extends JButton implements MouseEventSupport.Component
     }
     
     protected void processAction() {
-        String handler = getHandler();
-        Object bean = getBinding().getBean();
-        Object ohandler = UIControlUtil.getBeanValue(bean, handler); 
-        
-        FingerPrintModel model = null;        
-        if (ohandler instanceof FingerPrintModel) {
-            model = (FingerPrintModel) ohandler; 
-        } else {
-            model = new DefaultFingerPrintModel(ohandler); 
+        try { 
+            String handler = getHandler();
+            Object bean = getBinding().getBean();
+            Object ohandler = UIControlUtil.getBeanValue(bean, handler); 
+
+            FingerPrintModel model = null;        
+            if (ohandler instanceof FingerPrintModel) {
+                model = (FingerPrintModel) ohandler; 
+            } else {
+                model = new DefaultFingerPrintModel(ohandler); 
+            }
+            model.setProvider(new DefaultFingerPrintModelProvider()); 
+            openViewer(model);  
+        } catch(Throwable t) {
+            MsgBox.err(t); 
         }
-        model.setProvider(new DefaultFingerPrintModelProvider()); 
-        openViewer(model);         
     } 
     
     private void openViewer(FingerPrintModel model) {
@@ -368,7 +373,7 @@ public class XFingerPrint extends JButton implements MouseEventSupport.Component
         public Object call(Object[] args) { return null; }  
         public Object call() { return null; } 
         public Object call(Object arg) { 
-            model.onselect((byte[]) arg); 
+            model.onselect(arg); 
             return null; 
         } 
     }

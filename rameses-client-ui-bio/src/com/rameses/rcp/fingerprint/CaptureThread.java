@@ -31,6 +31,10 @@ class CaptureThread extends Thread
     private Fid.Format img_format;
     private Reader.ImageProcessing img_proc;
         
+    public CaptureThread(Reader reader, boolean streaming) {
+        this(reader, streaming, Fid.Format.ANSI_381_2004, Reader.ImageProcessing.IMG_PROC_DEFAULT); 
+    }
+    
     public CaptureThread(Reader reader, boolean streaming, Fid.Format img_format, Reader.ImageProcessing img_proc){
         this.cancelled = false;
         this.reader = reader;

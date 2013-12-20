@@ -15,13 +15,28 @@ package com.rameses.rcp.common;
  */
 public class FingerPrintModel 
 {
+    public final static int RIGHT_THUMB  = 1;
+    public final static int RIGHT_INDEX  = 2;
+    public final static int RIGHT_MIDDLE = 4;
+    public final static int RIGHT_RING   = 8;
+    public final static int RIGHT_LITTLE = 16;
+
+    public final static int LEFT_THUMB   = 32;
+    public final static int LEFT_INDEX   = 64;
+    public final static int LEFT_MIDDLE  = 128;
+    public final static int LEFT_RING    = 256;
+    public final static int LEFT_LITTLE  = 512;
     
     public FingerPrintModel() {
     }
     
-    public String getTitle() { return "FingerPrint Capture"; }     
+    public String getTitle() { return "FingerPrint Capture"; }  
     
-    public void onselect(byte[] bytes) {
+    public int getFingerType() { 
+        return LEFT_THUMB + RIGHT_THUMB; 
+    } 
+    
+    public void onselect(Object resultInfo) {
     }
     
     public void onclose() {

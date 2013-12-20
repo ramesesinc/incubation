@@ -11,8 +11,10 @@ package com.rameses.rcp.fingerprint;
 
 import com.digitalpersona.uareu.Reader;
 import com.digitalpersona.uareu.ReaderCollection;
+import com.digitalpersona.uareu.UareUException;
 import com.digitalpersona.uareu.UareUGlobal;
 import com.rameses.rcp.common.CallbackHandlerProxy;
+import com.rameses.rcp.common.FingerPrintModel;
 import com.rameses.rcp.common.MsgBox;
 import com.rameses.rcp.control.border.XEtchedBorder;
 import com.rameses.rcp.support.ImageIconSupport;
@@ -47,26 +49,26 @@ public final class FingerPrintViewer
     
     public static void open(Map options) {
         new FingerPrintViewer(options).open();
-    }    
+    } 
     
-    private Map options;
-    private int width;
-    private int height; 
+    public static void open(FingerPrintModel model) {
+        new FingerPrintViewer(model).open();
+    } 
     
+    private FingerPrintModel model;    
     private Reader reader;
     
     public FingerPrintViewer() {
-        this(null); 
+        this(new FingerPrintModel()); 
     }
 
-    public FingerPrintViewer(Map options) {
-        this.options = options; 
-        init();
+    public FingerPrintViewer(Map options) { 
+        this.model = new FingerPrintModelProxy(options); 
     } 
     
-    private void init() {
-        
-    } 
+    public FingerPrintViewer(FingerPrintModel model) {
+        this.model = (model == null? new FingerPrintModel(): model); 
+    }
     
     private Reader getReader() {
         if (reader == null) {
@@ -93,15 +95,18 @@ public final class FingerPrintViewer
             reader.Open(Reader.Priority.COOPERATIVE); 
         } catch(RuntimeException re) {
             throw re;
+        } catch(UareUException ue) {
+            String str = String.format("%s returned DP error %d \n%s", "Reader.Open", (ue.getCode() & 0xffff), ue.toString());
+            throw new RuntimeException(str); 
         } catch(Exception e) {
             throw new RuntimeException(e.getMessage(), e); 
         }
         
-        final CapturePanel panel = new CapturePanel();
+        final FingerPrintPanel panel = new FingerPrintPanel(); 
 
-        String title = getString(options, "title");
+        String title = model.getTitle();
         if (title == null) title = "FingerPrint Capture";
-                
+        
         JDialog dialog = null; 
         if (win instanceof Frame) {
             dialog = new JDialog((Frame) win); 
@@ -115,59 +120,34 @@ public final class FingerPrintViewer
         dialog.setResizable(false); 
         dialog.setTitle(title);
         
-        Toolbar toolbar = new Toolbar(dialog, panel);        
+        Toolbar toolbar = new Toolbar(dialog, panel); 
         JPanel contentPane = new JPanel(); 
         contentPane.setLayout(new DefaultLayout(panel, toolbar)); 
         contentPane.add(panel); 
-        contentPane.add(toolbar);         
-        dialog.setContentPane(contentPane);
+        contentPane.add(toolbar); 
+        dialog.setContentPane(contentPane); 
         
         dialog.pack(); 
-        dialog.addWindowListener(new WindowListener() {
-            public void windowActivated(WindowEvent e) {}
-            public void windowClosed(WindowEvent e) {}
+        dialog.addWindowListener(new WindowListener() { 
+            public void windowActivated(WindowEvent e) {} 
+            public void windowClosed(WindowEvent e) {} 
             public void windowClosing(WindowEvent e) { 
                 close(panel); 
-                fireOnClose();
-            }
+                fireOnClose(); 
+            } 
             
-            public void windowDeactivated(WindowEvent e) {}
-            public void windowDeiconified(WindowEvent e) {}
-            public void windowIconified(WindowEvent e) {}
+            public void windowDeactivated(WindowEvent e) {} 
+            public void windowDeiconified(WindowEvent e) {} 
+            public void windowIconified(WindowEvent e) {} 
             
-            public void windowOpened(WindowEvent e) {
+            public void windowOpened(WindowEvent e) { 
                 panel.start(reader, false); 
-            }
+            } 
         }); 
         centerWindow(dialog);
         dialog.setVisible(true); 
         return null; 
     }
-    
-    private Integer getInt(Map map, String name) {
-        try {
-            return (Integer) map.get(name);
-        } catch(Throwable t) { 
-            return null; 
-        }
-    }
-    
-    private Boolean getBool(Map map, String name) {
-        try {
-            return (Boolean) map.get(name);
-        } catch(Throwable t) { 
-            return null; 
-        }
-    } 
-    
-    private String getString(Map map, String name) {
-        try {
-            Object o = map.get(name);
-            return (o == null? null: o.toString()); 
-        } catch(Throwable t) { 
-            return null; 
-        }
-    }    
     
     private void centerWindow(Window win) {
         Dimension windim = win.getSize();
@@ -180,7 +160,7 @@ public final class FingerPrintViewer
         win.setLocation(x, y); 
     } 
     
-    private void close(CapturePanel panel) {
+    private void close(FingerPrintPanel panel) {
         try { 
             panel.stop(); 
             panel.waitForCaptureThread(); 
@@ -189,27 +169,19 @@ public final class FingerPrintViewer
         } 
 
         try { 
-            reader.Close(); 
-        } catch(Throwable t) {
-            t.printStackTrace();
+            reader.Close();  
+        } catch(Throwable t) { 
+            t.printStackTrace(); 
         } 
-    }
-    
-    private void fireOnClose() {
-        Object source = (options == null? null: options.get("onclose"));
-        if (source == null) return;
-
-        CallbackHandlerProxy proxy = new CallbackHandlerProxy(source); 
-        proxy.call(); 
     } 
     
-    private void fireOnSelect(byte[] data) {
-        Object source = (options == null? null: options.get("onselect"));
-        if (source == null) return;
-
-        CallbackHandlerProxy proxy = new CallbackHandlerProxy(source); 
-        proxy.call(data); 
-    }     
+    private void fireOnClose() { 
+        model.onclose(); 
+    } 
+    
+    private void fireOnSelect(ImageContext[] results) { 
+        model.onselect(new FingerPrintResultInfo(results)); 
+    } 
     
     // <editor-fold defaultstate="collapsed" desc=" DefaultLayout "> 
     
@@ -287,12 +259,12 @@ public final class FingerPrintViewer
         FingerPrintViewer root = FingerPrintViewer.this;
         
         private JDialog dialog;
-        private CapturePanel panel;
+        private FingerPrintPanel panel;
         
         private JButton btnOK;
         private JButton btnCancel;
         
-        Toolbar(JDialog dialog, CapturePanel panel) {
+        Toolbar(JDialog dialog, FingerPrintPanel panel) {
             this.dialog = dialog;
             this.panel = panel;
             
@@ -335,7 +307,7 @@ public final class FingerPrintViewer
         private void doSelect(ActionEvent e) { 
             dialog.dispose(); 
             root.close(panel); 
-            root.fireOnSelect(panel.getImageData());
+            root.fireOnSelect(panel.getImageContexts());
         }
         
         private void doCancel(ActionEvent e) {
@@ -424,6 +396,78 @@ public final class FingerPrintViewer
     }
     
     // </editor-fold>    
-    
 
+    // <editor-fold defaultstate="collapsed" desc=" FingerPrintModelProxy "> 
+    
+    private class FingerPrintModelProxy extends FingerPrintModel 
+    {
+        private Map options; 
+        private String title;
+        private Integer fingerType; 
+        private CallbackHandlerProxy onselectCallback;
+        private CallbackHandlerProxy oncloseCallback;
+        
+        FingerPrintModelProxy(Map options) {
+            this.options = options;
+            this.title = getString(options, "title"); 
+            this.fingerType = getInt(options, "fingerType"); 
+            
+            Object source = get(options, "onselect"); 
+            if (source != null) onselectCallback = new CallbackHandlerProxy(source); 
+            
+            source = get(options, "onclose"); 
+            if (source != null) oncloseCallback = new CallbackHandlerProxy(source); 
+        }
+        
+        public String getTitle() {
+            if (title == null) {
+                return super.getTitle(); 
+            } else { 
+                return title; 
+            } 
+        }
+
+        public int getFingerType() {
+            if (fingerType == null) {
+                return super.getFingerType(); 
+            } else { 
+                return fingerType.intValue(); 
+            } 
+        } 
+
+        public void onselect(Object result) {
+            if (onselectCallback == null) return;
+            
+            onselectCallback.call(result); 
+        } 
+
+        public void onclose() {
+            if (oncloseCallback == null) return;
+            
+            oncloseCallback.call(); 
+        } 
+        
+        private Integer getInt(Map map, String name) {
+            try {
+                return (Integer) map.get(name);
+            } catch(Throwable t) { 
+                return null; 
+            }
+        }
+
+        private String getString(Map map, String name) {
+            try {
+                Object o = map.get(name);
+                return (o == null? null: o.toString()); 
+            } catch(Throwable t) { 
+                return null; 
+            }
+        } 
+        
+        private Object get(Map map, String name) {
+            return (map == null? null: map.get(name)); 
+        }
+    }
+    
+    // </editor-fold>
 }
