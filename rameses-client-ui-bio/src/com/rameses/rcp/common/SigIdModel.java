@@ -1,7 +1,7 @@
 /*
- * CameraModel.java
+ * SigIdModel.java
  *
- * Created on December 5, 2013, 12:13 PM
+ * Created on December 19, 2013, 8:10 PM
  *
  * To change this template, choose Tools | Template Manager
  * and open the template in the editor.
@@ -13,22 +13,21 @@ package com.rameses.rcp.common;
  *
  * @author wflores
  */
-public class CameraModel 
+public class SigIdModel 
 {
     private String title;
     private int width;
     private int height;
-    private boolean autoOpenMode;
     
-    public CameraModel() {
-        setTitle("Camera");
-        setWidth(320);
-        setHeight(240);
+    public SigIdModel() {
+        setTitle("Signature Capture"); 
+        setWidth(640);
+        setHeight(300);
     }
     
     public String getTitle() { return title; } 
     public void setTitle(String title) {
-        this.title = title; 
+        this.title = title;
     }
     
     public int getWidth() { return width; } 
@@ -40,27 +39,20 @@ public class CameraModel
     public void setHeight(int height) {
         this.height = height;
     }
-    
-    public boolean isAutoOpenMode() { return autoOpenMode; } 
-    public void setAutoOpenMode(boolean autoOpenMode) {
-        this.autoOpenMode = autoOpenMode; 
-    }
-    
-    public void onselect(byte[] bytes) {
+
+    public void onselect(byte[] data) {
     }
     
     public void onclose() {
     }
-    
     
     // <editor-fold defaultstate="collapsed" desc=" Provider ">
     
     public static interface Provider 
     {
         Object getBinding();
-        void showDialog(CameraModel model);
-    }
-
+        void showDialog(SigIdModel model);
+    } 
     
     private Provider provider;
     
@@ -76,5 +68,5 @@ public class CameraModel
         if (provider != null) provider.showDialog(this); 
     } 
     
-    // </editor-fold>
+    // </editor-fold>    
 }

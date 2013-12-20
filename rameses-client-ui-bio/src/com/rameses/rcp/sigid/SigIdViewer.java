@@ -1,18 +1,20 @@
 /*
- * WebcamViewer.java
+ * SigIdViewer.java
  *
- * Created on December 4, 2013, 8:44 PM
+ * Created on December 19, 2013, 8:58 PM
  *
  * To change this template, choose Tools | Template Manager
  * and open the template in the editor.
  */
 
-package com.rameses.rcp.camera;
+package com.rameses.rcp.sigid;
 
-import com.github.sarxos.webcam.Webcam;
-import com.rameses.rcp.common.*;
+import com.rameses.rcp.common.CallbackHandlerProxy;
+import com.rameses.rcp.common.MsgBox;
+import com.rameses.rcp.common.SigIdModel;
 import java.awt.Dialog;
 import java.awt.Dimension;
+import java.awt.EventQueue;
 import java.awt.Frame;
 import java.awt.Insets;
 import java.awt.KeyboardFocusManager;
@@ -20,70 +22,49 @@ import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
-import java.util.List;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.util.Map;
+import javax.imageio.ImageIO;
 import javax.swing.JDialog;
+import javax.swing.JOptionPane;
 
 /**
  *
  * @author wflores 
  */
-public final class WebcamViewer 
+public class SigIdViewer 
 {
-    
     public static void open(Map options) {
-        new WebcamViewer(options).open();
+        new SigIdViewer(options).open();
     }    
     
-    public static void open(CameraModel model) {
-        new WebcamViewer(model).open();
+    public static void open(SigIdModel model) {
+        new SigIdViewer(model).open();
     }        
     
-    private CameraModel model;
-    private String title;
+    private Map options;
+    private SigIdModel model;
     private int width;
-    private int height;
+    private int height; 
     private boolean autoOpenMode;
     
-    public WebcamViewer() {
-        this(new CameraModel()); 
-    }
-    
-    public WebcamViewer(CameraModel model) {
-        this.model = (model == null? new CameraModel(): model); 
-        init();
+    public SigIdViewer() {
+        this(new SigIdModel()); 
     }
 
-    public WebcamViewer(Map options) {
-        this.model = new CameraModelProxy(options); 
-        init();
+    public SigIdViewer(SigIdModel model) {
+        this.model = (model == null? new SigIdModel(): model); 
+    }     
+
+    public SigIdViewer(Map options) {
+        this.model = new SigIdModelProxy(options); 
     } 
-    
-    private void init() {
-        title = model.getTitle();
-        width = model.getWidth();
-        height = model.getHeight();
-        autoOpenMode = model.isAutoOpenMode(); 
-    }
         
-    public void setSize(int width, int height) {
-        this.width = width;
-        this.height = height; 
-    }
-    
-    public void setAutoOpenMode(boolean autoOpenMode) {
-        this.autoOpenMode = autoOpenMode;
-    }
-    
     public byte[] open() { 
         Window win = KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusedWindow(); 
+        final SigIdPanel panel = new SigIdPanel(); 
         
-        List<Webcam> webcams = Webcam.getWebcams(); 
-        Webcam webcam = whichWebcam(webcams); 
-        webcam.setViewSize(new Dimension(width, height)); 
-        webcam.setAutoOpenMode(autoOpenMode); 
-        
-        final WebcamPane pane = new WebcamPane(webcam);         
         JDialog dialog = null; 
         if (win instanceof Frame) {
             dialog = new JDialog((Frame) win); 
@@ -92,38 +73,60 @@ public final class WebcamViewer
         } else {
             dialog = new JDialog(); 
         } 
+        
+        final JDialog jdialog = dialog;        
         dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE); 
-        dialog.setTitle(title == null? "Camera": title);        
-        dialog.setModal(true);
+        dialog.setModal(true); 
         dialog.setResizable(false); 
-        dialog.setContentPane(pane);
-        dialog.pack();
+        dialog.setContentPane(panel);         
+        dialog.setTitle(model.getTitle());
+        dialog.setSize(model.getWidth(), model.getHeight());
         dialog.addWindowListener(new WindowListener() {
             public void windowActivated(WindowEvent e) {}
             public void windowClosed(WindowEvent e) {}
             public void windowClosing(WindowEvent e) { 
                 try { 
-                    pane.stop(); 
+                    panel.stop();
                 } catch(Throwable t) {
-                    MsgBox.err(t); 
+                    JOptionPane.showMessageDialog(jdialog, "[ERROR] " + t.getClass().getName() + ": " + t.getMessage()); 
                 } 
                 
-                onclose(); 
+                oncloseImpl(); 
             }
             
             public void windowDeactivated(WindowEvent e) {}
             public void windowDeiconified(WindowEvent e) {}
             public void windowIconified(WindowEvent e) {}
             
-            public void windowOpened(WindowEvent e) {
-                pane.start(); 
+            public void windowOpened(WindowEvent e) { 
+                try { 
+                    panel.start(); 
+                } catch(Throwable t) {
+                    MsgBox.err(t); 
+                    EventQueue.invokeLater(new Runnable() {
+                        public void run() {
+                            jdialog.dispose(); 
+                        }
+                    }); 
+                }
             }
         }); 
+        panel.add(new SigIdPanel.SelectionListener(){
+            public void onselect(BufferedImage image) {
+                jdialog.dispose(); 
+                onselectImpl(image);
+            }
+
+            public void onclose() {
+                jdialog.dispose(); 
+                oncloseImpl(); 
+            }
+        });
+        
         centerWindow(dialog);
-        pane.addListener(new WebcamPaneListenerImpl(dialog)); 
         dialog.setVisible(true); 
         return null; 
-    }
+    }    
     
     private void centerWindow(Window win) {
         Dimension windim = win.getSize();
@@ -134,37 +137,39 @@ public final class WebcamViewer
         int x = Math.max((scrwidth - windim.width) / 2, 0) + margin.left;
         int y = Math.max((scrheight - windim.height) / 2, 0) + margin.top;
         win.setLocation(x, y); 
-    } 
-    
-    private Webcam whichWebcam(List<Webcam> webcams) {
-        if (webcams.isEmpty())
-            throw new RuntimeException("No available Webcam on your computer"); 
-        
-        if (webcams.size() > 1) {
-            return webcams.get(1); 
-        } else {
-            return webcams.get(0); 
-        }
     }
     
-    // <editor-fold defaultstate="collapsed" desc=" CameraModelProxy "> 
+    private void onselectImpl(BufferedImage image) {
+        byte[] data = null;
+        try {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream(); 
+            ImageIO.write(image, "JPG", baos); 
+            data = baos.toByteArray();
+        } catch(Throwable t) {;} 
+        
+        if (model != null) model.onselect(data); 
+    }
     
-    private class CameraModelProxy extends CameraModel 
+    private void oncloseImpl() {
+        if (model != null) model.onclose();
+    }
+    
+    // <editor-fold defaultstate="collapsed" desc=" SigIdModelProxy "> 
+    
+    private class SigIdModelProxy extends SigIdModel 
     {
         private Map options; 
         private String title;
         private Integer width; 
         private Integer height;
-        private Boolean autoOpenMode;
         private CallbackHandlerProxy onselectCallback;
         private CallbackHandlerProxy oncloseCallback;
         
-        CameraModelProxy(Map options) {
+        SigIdModelProxy(Map options) {
             this.options = options;
             this.title = getString(options, "title"); 
             this.width = getInt(options, "width"); 
             this.height = getInt(options, "height");
-            this.autoOpenMode = getBool(options, "autoOpenMode");
             
             Object source = get(options, "onselect"); 
             if (source != null) onselectCallback = new CallbackHandlerProxy(source); 
@@ -195,15 +200,7 @@ public final class WebcamViewer
             } else {
                 return height.intValue(); 
             }
-        }   
-        
-        public boolean isAutoOpenMode() {
-            if (autoOpenMode == null) {
-                return super.isAutoOpenMode(); 
-            } else {
-                return autoOpenMode.booleanValue(); 
-            }
-        }
+        }        
 
         public void onselect(Object result) {
             if (onselectCallback == null) return;
@@ -234,47 +231,9 @@ public final class WebcamViewer
             }
         } 
         
-        private Boolean getBool(Map map, String name) {
-            try {
-                return (Boolean) map.get(name);
-            } catch(Throwable t) { 
-                return null; 
-            }
-        } 
-        
         private Object get(Map map, String name) {
             return (map == null? null: map.get(name)); 
         }
-    }
-    
-    // </editor-fold>
-    
-    // <editor-fold defaultstate="collapsed" desc=" WebcamPaneListenerImpl "> 
-    
-    private class WebcamPaneListenerImpl implements WebcamPaneListener
-    {
-        WebcamViewer root = WebcamViewer.this;
-        
-        private JDialog dialog;
-        
-        WebcamPaneListenerImpl(JDialog dialog) {
-            this.dialog = dialog; 
-        }
-        
-        public void onselect(byte[] bytes) {
-            if (root.model == null) return; 
-            
-            root.model.onselect(bytes); 
-        } 
-
-        public void oncancel() {
-            dialog.dispose(); 
-            root.onclose(); 
-        }
-    }
-    
-    private void onclose() {
-        if (model != null) model.onclose();
     }
     
     // </editor-fold>
