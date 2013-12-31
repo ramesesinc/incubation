@@ -147,13 +147,18 @@ public class PlatformImpl implements Platform
         JRootPane rootPane = d.getRootPane(); 
         rootPane.registerKeyboardAction(al, ks, JComponent.WHEN_IN_FOCUSED_WINDOW); 
         
-        EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                d.setVisible(true);
-            }
-        });
+        Runnable runnable = new Runnable() {
+            public void run() { 
+                d.setVisible(true); 
+            } 
+        }; 
         
         windows.put(id, d);
+        if ("true".equals(properties.get("immediate")+"")) {
+            runnable.run(); 
+        } else { 
+            EventQueue.invokeLater(runnable); 
+        }
     }
      
     private void showGlassPane(JComponent actionSource, JComponent comp, Map props, String id) 
