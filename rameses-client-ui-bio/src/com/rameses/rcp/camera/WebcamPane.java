@@ -336,6 +336,8 @@ class WebcamPane extends JPanel
 
             if (bytes == null) return;
 
+            try { root.stop(); }catch(Throwable t){;} 
+            
             for (WebcamPaneListener listener : root.listeners) { 
                 listener.onselect(bytes); 
             } 

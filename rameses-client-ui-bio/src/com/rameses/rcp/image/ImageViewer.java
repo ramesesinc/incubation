@@ -1,18 +1,20 @@
 /*
- * WebcamViewer.java
+ * ImageViewer.java
  *
- * Created on December 4, 2013, 8:44 PM
+ * Created on December 23, 2013, 12:39 PM
  *
  * To change this template, choose Tools | Template Manager
  * and open the template in the editor.
  */
 
-package com.rameses.rcp.camera;
+package com.rameses.rcp.image;
 
-import com.github.sarxos.webcam.Webcam;
-import com.rameses.rcp.common.*;
+import com.rameses.rcp.common.CallbackHandlerProxy;
+import com.rameses.rcp.common.ImageModel;
+import com.rameses.rcp.common.MsgBox;
 import java.awt.Dialog;
 import java.awt.Dimension;
+import java.awt.EventQueue;
 import java.awt.Frame;
 import java.awt.Insets;
 import java.awt.KeyboardFocusManager;
@@ -20,70 +22,65 @@ import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
-import java.util.List;
+import java.io.File;
 import java.util.Map;
 import javax.swing.JDialog;
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
+import javax.swing.filechooser.FileFilter;
 
 /**
  *
- * @author wflores 
+ * @author wflores
  */
-public final class WebcamViewer 
+public final class ImageViewer 
 {
-    
     public static void open(Map options) {
-        new WebcamViewer(options).open();
-    }    
-    
-    public static void open(CameraModel model) {
-        new WebcamViewer(model).open();
-    }        
-    
-    private CameraModel model;
-    private String title;
-    private int width;
-    private int height;
-    private boolean autoOpenMode;
-    
-    public WebcamViewer() {
-        this(new CameraModel()); 
-    }
-    
-    public WebcamViewer(CameraModel model) {
-        this.model = (model == null? new CameraModel(): model); 
-        init();
-    }
-
-    public WebcamViewer(Map options) {
-        this.model = new CameraModelProxy(options); 
-        init();
+        new ImageViewer(options).open();
     } 
     
-    private void init() {
-        title = model.getTitle();
-        width = model.getWidth();
-        height = model.getHeight();
-        autoOpenMode = model.isAutoOpenMode(); 
+    public static void open(ImageModel model) {
+        new ImageViewer(model).open();
+    }        
+    
+    private Map options;
+    private ImageModel model;
+    private int width;
+    private int height; 
+    private boolean autoOpenMode;
+    
+    private JFileChooser fileChooser;
+    
+    public ImageViewer() {
+        this(new ImageModel()); 
     }
+
+    public ImageViewer(ImageModel model) {
+        this.model = (model == null? new ImageModel(): model); 
+    }     
+
+    public ImageViewer(Map options) {
+        this.model = new ImageModelProxy(options); 
+    } 
         
-    public void setSize(int width, int height) {
-        this.width = width;
-        this.height = height; 
-    }
-    
-    public void setAutoOpenMode(boolean autoOpenMode) {
-        this.autoOpenMode = autoOpenMode;
-    }
-    
     public byte[] open() { 
         Window win = KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusedWindow(); 
-        
-        List<Webcam> webcams = Webcam.getWebcams(); 
-        Webcam webcam = whichWebcam(webcams); 
-        webcam.setViewSize(new Dimension(width, height)); 
-        webcam.setAutoOpenMode(autoOpenMode); 
 
-        final WebcamPane pane = new WebcamPane(webcam);         
+        final ContentPane panel = new ContentPane(); 
+        Object imageData = model.getData(); 
+        if (imageData == null) {
+            JFileChooser fc = getFileChooser();
+            fc.addChoosableFileFilter(new ImageFileFilter(model)); 
+            int retopt = fc.showOpenDialog(win); 
+            if (retopt == JFileChooser.APPROVE_OPTION) {
+                panel.setData(fc.getSelectedFile()); 
+            } else {
+                return null;
+            }
+        } else {
+            panel.setData(imageData); 
+        }
+        
         JDialog dialog = null; 
         if (win instanceof Frame) {
             dialog = new JDialog((Frame) win); 
@@ -92,37 +89,55 @@ public final class WebcamViewer
         } else {
             dialog = new JDialog(); 
         } 
+        
+        final JDialog jdialog = dialog;        
         dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE); 
-        dialog.setTitle(title == null? "Camera": title);        
-        dialog.setModal(true);
+        dialog.setModal(true); 
         dialog.setResizable(false); 
-        dialog.setContentPane(pane);
-        dialog.pack();
+        dialog.setContentPane(panel);         
+        dialog.setTitle(model.getTitle());
+        dialog.setSize(model.getWidth(), model.getHeight());
         dialog.addWindowListener(new WindowListener() {
             public void windowActivated(WindowEvent e) {}
             public void windowClosed(WindowEvent e) {}
             public void windowClosing(WindowEvent e) { 
                 try { 
-                    pane.stop(); 
+                    //panel.stop();
                 } catch(Throwable t) {
-                    MsgBox.err(t); 
+                    JOptionPane.showMessageDialog(jdialog, "[ERROR] " + t.getClass().getName() + ": " + t.getMessage()); 
                 } 
                 
-                onclose(); 
+                //oncloseImpl(); 
             }
             
             public void windowDeactivated(WindowEvent e) {}
             public void windowDeiconified(WindowEvent e) {}
             public void windowIconified(WindowEvent e) {}
             
-            public void windowOpened(WindowEvent e) {
-                pane.start(); 
+            public void windowOpened(WindowEvent e) { 
+                try { 
+                    //panel.start(); 
+                } catch(Throwable t) {
+                    MsgBox.err(t); 
+                    EventQueue.invokeLater(new Runnable() {
+                        public void run() {
+                            jdialog.dispose(); 
+                        }
+                    }); 
+                }
             }
         }); 
+        
         centerWindow(dialog);
-        pane.addListener(new WebcamPaneListenerImpl(dialog)); 
         dialog.setVisible(true); 
         return null; 
+    } 
+    
+    private JFileChooser getFileChooser() {
+        if (fileChooser == null) {
+            fileChooser = new JFileChooser(); 
+        }
+        return fileChooser;
     }
     
     private void centerWindow(Window win) {
@@ -136,35 +151,22 @@ public final class WebcamViewer
         win.setLocation(x, y); 
     } 
     
-    private Webcam whichWebcam(List<Webcam> webcams) {
-        if (webcams.isEmpty())
-            throw new RuntimeException("No available Webcam on your computer"); 
-        
-        if (webcams.size() > 1) {
-            return webcams.get(1); 
-        } else {
-            return webcams.get(0); 
-        }
-    }
+    // <editor-fold defaultstate="collapsed" desc=" ImageModelProxy "> 
     
-    // <editor-fold defaultstate="collapsed" desc=" CameraModelProxy "> 
-    
-    private class CameraModelProxy extends CameraModel 
+    private class ImageModelProxy extends ImageModel 
     {
         private Map options; 
         private String title;
         private Integer width; 
         private Integer height;
-        private Boolean autoOpenMode;
         private CallbackHandlerProxy onselectCallback;
         private CallbackHandlerProxy oncloseCallback;
         
-        CameraModelProxy(Map options) {
+        ImageModelProxy(Map options) {
             this.options = options;
             this.title = getString(options, "title"); 
             this.width = getInt(options, "width"); 
             this.height = getInt(options, "height");
-            this.autoOpenMode = getBool(options, "autoOpenMode");
             
             Object source = get(options, "onselect"); 
             if (source != null) onselectCallback = new CallbackHandlerProxy(source); 
@@ -195,14 +197,11 @@ public final class WebcamViewer
             } else {
                 return height.intValue(); 
             }
-        }   
+        }  
         
-        public boolean isAutoOpenMode() {
-            if (autoOpenMode == null) {
-                return super.isAutoOpenMode(); 
-            } else {
-                return autoOpenMode.booleanValue(); 
-            }
+        public Object getData() {
+            Object o = get(options, "data");
+            return (o == null? super.getData(): o);
         }
 
         public void onselect(Object result) {
@@ -234,48 +233,36 @@ public final class WebcamViewer
             }
         } 
         
-        private Boolean getBool(Map map, String name) {
-            try {
-                return (Boolean) map.get(name);
-            } catch(Throwable t) { 
-                return null; 
-            }
-        } 
-        
         private Object get(Map map, String name) {
             return (map == null? null: map.get(name)); 
         }
     }
     
-    // </editor-fold>
+    // </editor-fold>    
     
-    // <editor-fold defaultstate="collapsed" desc=" WebcamPaneListenerImpl "> 
+    // <editor-fold defaultstate="collapsed" desc=" ImageFileFilter "> 
     
-    private class WebcamPaneListenerImpl implements WebcamPaneListener
+    private class ImageFileFilter extends FileFilter 
     {
-        WebcamViewer root = WebcamViewer.this;
+        private ImageModel model;
+        private String filterDescription;
         
-        private JDialog dialog;
-        
-        WebcamPaneListenerImpl(JDialog dialog) {
-            this.dialog = dialog; 
-        }
-        
-        public void onselect(byte[] bytes) {
-            dialog.dispose(); 
-            if (root.model != null) { 
-                root.model.onselect(bytes); 
+        ImageFileFilter(ImageModel model) {
+            this.model = model;
+            
+            filterDescription = model.getFilterDescription(); 
+            if (filterDescription == null || filterDescription.length() == 0) {
+                filterDescription = "*.jpg|*.png|*.gif"; 
             }
-        } 
-
-        public void oncancel() {
-            dialog.dispose(); 
-            root.onclose(); 
         }
-    }
-    
-    private void onclose() {
-        if (model != null) model.onclose();
+
+        public String getDescription() {
+            return model.getFilterDescription();
+        }
+        
+        public boolean accept(File file) {
+            return model.accept(file); 
+        }
     }
     
     // </editor-fold>
