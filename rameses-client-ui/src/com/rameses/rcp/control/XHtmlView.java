@@ -28,6 +28,7 @@ import com.rameses.rcp.ui.ControlProperty;
 import com.rameses.rcp.ui.UIControl;
 import com.rameses.rcp.util.UICommandUtil;
 import com.rameses.rcp.util.UIControlUtil;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Font;
@@ -47,6 +48,8 @@ import java.util.Map;
 import javax.swing.JEditorPane;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
+import javax.swing.JViewport;
 import javax.swing.UIManager;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
@@ -68,6 +71,8 @@ public class XHtmlView extends JEditorPane implements UIControl, ActiveControl, 
     private String fontStyle;
     private DocViewModel docModel; 
     private Point mousePoint; 
+    
+    private String visibleWhen;
     
     public XHtmlView() {
         super(); 
@@ -118,6 +123,23 @@ public class XHtmlView extends JEditorPane implements UIControl, ActiveControl, 
         } catch(Throwable t) {;}
         
         super.setDocument(doc); 
+    }
+    
+    public String getVisibleWhen() { return visibleWhen; } 
+    public void setVisibleWhen(String visibleWhen) {
+        this.visibleWhen = visibleWhen; 
+    }
+
+    public void setVisible(boolean visible) {
+        Container parent = getParent(); 
+        if (parent instanceof JViewport) {
+            parent = parent.getParent(); 
+            if (parent instanceof JScrollPane) {
+                parent.setVisible(visible); 
+                return;
+            }
+        }
+        super.setVisible(visible); 
     }
     
     // </editor-fold>
@@ -175,6 +197,16 @@ public class XHtmlView extends JEditorPane implements UIControl, ActiveControl, 
         } finally {
             
         }
+        
+        try { 
+            String visibleWhen = getVisibleWhen(); 
+            if (visibleWhen != null && visibleWhen.length() > 0) { 
+                Object bean = getBinding().getBean();
+                boolean b = UIControlUtil.evaluateExprBoolean(bean, visibleWhen);
+                setVisible(b); 
+            } 
+        } catch(Throwable t) {;} 
+        
     }
 
     public int compareTo(Object o) { 
@@ -186,7 +218,7 @@ public class XHtmlView extends JEditorPane implements UIControl, ActiveControl, 
     
     public Map getInfo() { 
         return null; 
-    }      
+    } 
     
     // </editor-fold>
     
