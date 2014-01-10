@@ -2,14 +2,15 @@ package com.rameses.server;
 
 import com.rameses.util.ConfigProperties;
 import com.rameses.util.Service;
+import java.io.File;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public final class BootLoader {
-    
+public final class BootLoader 
+{
     private ExecutorService thread;
     private Map<String, ServerLoaderProvider> providers = new Hashtable();
     private Map<String, ServerLoader> servers = new Hashtable();
@@ -34,6 +35,7 @@ public final class BootLoader {
     
     
     public void start() throws Exception {
+        removePids();
         initProviders();
         
         String userdir = System.getProperty("user.dir");
@@ -66,8 +68,8 @@ public final class BootLoader {
         }
         
         //load all servers
-        thread = Executors.newFixedThreadPool(servers.size());
-        System.out.println("starting servers");
+        thread = Executors.newFixedThreadPool(servers.size());        
+        System.out.println("starting servers");        
         for(final ServerLoader loader: servers.values() ) {
             thread.submit( new Runnable(){
                 public void run() {
@@ -85,34 +87,64 @@ public final class BootLoader {
             });
         }
         
-        Runnable shutdownHook = new Runnable() {
-            public void run() {
-                try {
-                    thread.shutdownNow();
-                } catch(Exception ign){;}
-            }
-        };
+        final ShutdownAgent shutdownAgent = new ShutdownAgent();
+        final Runnable shutdownHook = new Runnable() { 
+            public void run() { 
+                onshutdown(); 
+                shutdownAgent.cancel(); 
+            } 
+        }; 
         Runtime.getRuntime().addShutdownHook(new Thread(shutdownHook));
-        
+        //start the shutdown agent
+        new Thread(shutdownAgent).start(); 
     }
     
-    /*
-    private void stop() throws Exception {
-        println("Stopping servers... ");
-        List<Runnable> list = thread.shutdownNow();
-        for (Runnable r : list) {
-            if (!(r instanceof ServerProxy)) continue;
-     
-            try {
-                ((ServerProxy) r).stop();
-            } catch(Exception ex) {
-                ex.printStackTrace();
-            }
-        }
+    private void onshutdown() {
+        try {
+            thread.shutdownNow(); 
+        } catch(Exception ign){;}  
     }
-     
-    private void println(String s) {
-        System.out.println("[BootLoader] " + s);
+    
+    private boolean removePids() {
+        String userdir  = System.getProperty("user.dir"); 
+        String rundir   = System.getProperty("osiris.run.dir", userdir); 
+        File file = new File(rundir + "/.shutdown_pid"); 
+        if (!file.exists()) return false; 
+
+        //remove the file
+        try { file.delete(); } catch(Throwable t) {;}
+        return true; 
     }
-     */
+    
+    private class ShutdownAgent implements Runnable 
+    {
+        BootLoader root = BootLoader.this;
+        
+        private boolean cancelled;
+        
+        void cancel() { 
+            this.cancelled = true; 
+        } 
+        
+        public void run() {
+            while(true) {
+                if (cancelled) break;
+                
+                try { 
+                    Thread.sleep(2000); 
+                } catch(Throwable t) {;} 
+                
+                if (cancelled) break; 
+                if (!root.removePids()) continue; 
+                
+                cancelled = true;              
+                root.onshutdown(); 
+                try { 
+                    System.exit(0); 
+                } catch(Throwable t) {;} 
+                
+                break; 
+            } 
+        }        
+    }
 }
