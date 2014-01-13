@@ -23,6 +23,9 @@ import com.rameses.osiris3.xconnection.XConnection;
 import com.rameses.util.ExceptionManager;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Proxy;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  *
@@ -60,10 +63,21 @@ public class ServiceDependencyHandler extends DependencyHandler {
             else {
                 Class localIntf = s.localInterface();
                 ScriptConnection sc = (ScriptConnection)ac.getResource(XConnection.class, conn);
+                Map env = new HashMap();
+                env.putAll(txn.getEnv());
+                
+                Iterator keys = sc.getConf().keySet().iterator(); 
+                while (keys.hasNext()) {
+                    String key = keys.next()+"";
+                    if (key.startsWith("env.") && key.length() > 4) { 
+                        env.put(key.substring(4), sc.getConf().get(key)); 
+                    } 
+                }
+                
                 if(localIntf!=null)
-                    return sc.create(serviceName, txn.getEnv(),localIntf);
+                    return sc.create(serviceName, env, localIntf); 
                 else
-                    return sc.create( serviceName, txn.getEnv() );
+                    return sc.create(serviceName, env);
             }
             
         } catch(Exception e) {
