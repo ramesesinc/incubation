@@ -51,6 +51,7 @@ public class SendMessageServlet extends HttpServlet
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException 
     {
         ObjectInputStream in = null;
+        ObjectOutputStream out = null;
         try 
         {
             in = new ObjectInputStream(req.getInputStream());
@@ -74,6 +75,9 @@ public class SendMessageServlet extends HttpServlet
                 String channel = (String) map.get("channel");
                 send(channel, map); 
             }
+            
+            out = new ObjectOutputStream(resp.getOutputStream());
+            out.writeObject("OK"); 
         } 
         catch(IOException ioe) { throw ioe; }
         catch(ServletException se) { throw se; }
@@ -84,6 +88,7 @@ public class SendMessageServlet extends HttpServlet
         }
         finally {
             try {in.close();} catch(Exception ign){;}
+            try {out.close();} catch(Exception ign){;}
         }
     }
 
