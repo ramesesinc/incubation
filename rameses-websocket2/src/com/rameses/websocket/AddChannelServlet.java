@@ -12,6 +12,7 @@ package com.rameses.websocket;
 import com.rameses.util.SealedMessage;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
@@ -37,6 +38,7 @@ public class AddChannelServlet extends HttpServlet
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException 
     {
         ObjectInputStream in = null;
+        ObjectOutputStream out = null;
         try 
         {
             in = new ObjectInputStream(req.getInputStream());
@@ -62,15 +64,18 @@ public class AddChannelServlet extends HttpServlet
                 addChannel(name, type); 
             }
             collection.clear(); 
+            
+            out = new ObjectOutputStream(resp.getOutputStream());
+            out.writeObject("OK"); 
         } 
         catch(IOException ioe) { throw ioe; }
-        catch(Exception e) 
-        {
-            e.printStackTrace();
-            throw new ServletException(e.getMessage(), e);
-        }
-        finally {
+        catch(Exception e) { 
+            e.printStackTrace(); 
+            throw new ServletException(e.getMessage(), e); 
+        } 
+        finally { 
             try {in.close();} catch(Exception ign){;}
+            try {out.close();} catch(Exception ign){;}
         }        
     }
     
