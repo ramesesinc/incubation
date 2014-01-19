@@ -9,7 +9,14 @@
 
 package com.rameses.websocket;
 
+import com.rameses.util.SealedMessage;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Map;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -29,8 +36,51 @@ public class RemoveChannelServlet extends HttpServlet {
     
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException 
     {
-        String channelName = req.getParameter("channel");
-        sockets.removeChannel(channelName);
-        System.out.println("channel "+channelName +" removed");
+        ObjectInputStream in = null;
+        ObjectOutputStream out = null;
+        try {
+            in = new ObjectInputStream(req.getInputStream());
+            
+            Object o = in.readObject();
+            if (o instanceof SealedMessage) { 
+                o = ((SealedMessage)o).getMessage(); 
+            } 
+            Collection collection = null;
+            if (o instanceof Collection) { 
+                collection = (Collection) o; 
+            } else if (o instanceof Object[]) { 
+                collection = Arrays.asList((Object[]) o); 
+            } 
+            
+            if (collection != null) { 
+                Iterator itr = collection.iterator(); 
+                while (itr.hasNext()) {
+                    Map map = (Map) itr.next();
+                    String name = (String) map.get("channel");
+                    removeChannel(name); 
+                } 
+                collection.clear(); 
+            } 
+            out = new ObjectOutputStream(resp.getOutputStream());
+            out.writeObject("OK"); 
+        } catch(IOException ioe) { 
+            throw ioe; 
+        } catch(Exception e) { 
+            e.printStackTrace(); 
+            throw new ServletException(e.getMessage(), e); 
+        } finally { 
+            try { in.close(); } catch(Throwable ign){;}
+            try { out.close(); } catch(Throwable ign){;}
+        }        
+    } 
+    
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String name = req.getParameter("channel");
+        removeChannel( name ); 
+    } 
+        
+    private void removeChannel( String name ) {
+        sockets.removeChannel(name); 
+        System.out.println("channel "+ name +" removed");
     }
 }
