@@ -81,8 +81,8 @@ public class ServiceDependencyHandler extends DependencyHandler {
             }
             
         } catch(Exception e) {
+            System.out.println("error injecting resource caused by "+ ExceptionManager.getOriginal(e).getMessage());            
             e.printStackTrace();
-            System.out.println("error injecting resource @Service."+ ExceptionManager.getOriginal(e).getMessage());
             return null;
         } finally {
             

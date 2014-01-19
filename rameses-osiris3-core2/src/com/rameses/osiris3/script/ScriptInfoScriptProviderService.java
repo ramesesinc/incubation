@@ -22,7 +22,7 @@ import java.lang.reflect.Proxy;
  */
 public class ScriptInfoScriptProviderService extends ScriptInfoContextResource {
     
-private static String SERVICE_NAME = "ScriptProviderService";
+    private static String SERVICE_NAME = "ScriptProviderService";
     
     public ScriptInfo findResource(String name) {
         InputStream is = null;

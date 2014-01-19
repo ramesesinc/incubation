@@ -46,18 +46,21 @@ public class ScriptInfoContextResource extends ContextResource {
         InputStream is = null;
         try {
             URL u = context.getClassLoader().getResource( "scripts/"+name );
-            if(u==null)
-                throw new ResourceNotFoundException("File " + name + " not found" );
+            if (u == null) throw new ResourceNotFoundException("File " + name + " not found" );
             
             is = u.openStream();
+            if (is == null) throw new NullPointerException("Resource " + name + " has no available stream");
+                     
             return parseScript(name, is, u, context);
         } catch(ResourceNotFoundException rnfe) {
             throw rnfe;
+        } catch(RuntimeException re) {
+            throw re;
         } catch(Exception e) {
-            throw new RuntimeException(e);
-        } finally {
+            throw new RuntimeException(e.getMessage(), e);
+        } finally { 
             try { is.close(); } catch(Exception ign){;}
-        }
+        } 
     }
     
     public void remove(String key) {

@@ -44,9 +44,9 @@ public class ScriptMessageHandler implements MessageHandler {
     }
     
     public void onMessage(Object data) {
-        ScriptService svc = context.getService( ScriptService.class );
-        TransactionContext txn = TransactionContext.getCurrentContext();
         try {
+            ScriptService svc = context.getService( ScriptService.class );
+            TransactionContext txn = TransactionContext.getCurrentContext();
             ScriptRunnable sr = new ScriptRunnable(context);
             if( getScriptListener()!=null )sr.setListener(getScriptListener());
             sr.setArgs( new Object[]{data} );

@@ -72,38 +72,44 @@ public class ScriptMessagingService extends ContextService {
         //execute each script
         ScriptService svc = context.getService( ScriptService.class );
         for(String sname: list) {
-            ScriptInfo sinfo = svc.findScriptInfo( sname );
-            
-            //check for OnMessage annotated methods and add basic script message handler
-            for( Method m: sinfo.getClassDef().findAnnotatedMethods(OnMessage.class) ) {
-                try {
-                    OnMessage om = m.getAnnotation(OnMessage.class);
-                    String connName = om.value();
-                    if( connName ==null || connName.trim().length()==0) connName = "default-messaging";
-                    MessageConnection conn = (MessageConnection) context.getResource( XConnection.class, connName );
-                    if(conn!=null) {
-                        conn.addHandler( new ScriptMessageHandler(context, sname, m.getName(), om.eval()) );
+            try {
+
+                ScriptInfo sinfo = svc.findScriptInfo( sname );
+                
+                //check for OnMessage annotated methods and add basic script message handler
+                for( Method m: sinfo.getClassDef().findAnnotatedMethods(OnMessage.class) ) {
+                    try {
+                        OnMessage om = m.getAnnotation(OnMessage.class);
+                        String connName = om.value();
+                        if( connName ==null || connName.trim().length()==0) connName = "default-messaging";
+                        MessageConnection conn = (MessageConnection) context.getResource( XConnection.class, connName );
+                        if(conn!=null) {
+                            conn.addHandler( new ScriptMessageHandler(context, sname, m.getName(), om.eval()) );
+                        }
+                    } catch(Exception e) {
+                        System.out.println("error unable to load handler " + sname + "."+m.getName() + " cause:"+e.getMessage());
                     }
-                } catch(Exception e) {
-                    System.out.println("error unable to load handler " + sname + "."+m.getName() + " cause:"+e.getMessage());
                 }
-            }
-            
-            //check for OnEvent annotated methods and add script event handlers
-            for( Method m: sinfo.getClassDef().findAnnotatedMethods(OnEvent.class) ) {
-                try {
-                    OnEvent oe = m.getAnnotation(OnEvent.class);
-                    String connName = oe.value();
-                    
-                    if( connName ==null || connName.trim().length()==0) connName = "default-messaging";
-                    MessageConnection conn = (MessageConnection) context.getResource( XConnection.class, connName );
-                    if(conn!=null) {
-                        conn.addHandler( new ScriptEventMessageHandler(context, sname, m.getName(), oe.eval(), oe.pattern() ) );
+
+                //check for OnEvent annotated methods and add script event handlers
+                for( Method m: sinfo.getClassDef().findAnnotatedMethods(OnEvent.class) ) {
+                    try {
+                        OnEvent oe = m.getAnnotation(OnEvent.class);
+                        String connName = oe.value();
+
+                        if( connName ==null || connName.trim().length()==0) connName = "default-messaging";
+                        MessageConnection conn = (MessageConnection) context.getResource( XConnection.class, connName );
+                        if(conn!=null) {
+                            conn.addHandler( new ScriptEventMessageHandler(context, sname, m.getName(), oe.eval(), oe.pattern() ) );
+                        }
+                    } catch(Exception e) {
+                        System.out.println("error unable to load script event handler " + sname + "."+m.getName() + " cause:"+e.getMessage());
                     }
-                } catch(Exception e) {
-                    System.out.println("error unable to load script event handler " + sname + "."+m.getName() + " cause:"+e.getMessage());
                 }
-            }
+            } catch(Exception e) {
+                System.out.println("ERROR LOADING MESSAGING SCRIPT. "+ e.getMessage());
+                e.printStackTrace();
+            }     
         }
     }
     
