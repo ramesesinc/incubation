@@ -43,29 +43,40 @@ public class ScriptService extends ContextService {
     
     public ScriptInfo findScriptInfo( String name) {
         //if script info cannot be found, select in service provider
-        
         try {
             if( context instanceof AppContext ) {
                 SharedContext sctx = ((AppContext)context).getSharedContext();
                 try {
-                    if(sctx!=null)
-                        return sctx.getResource( ScriptInfo.class, name );
-                    else
-                        return context.getResource( ScriptInfo.class, name );
+                    if (sctx != null) return sctx.getResource(ScriptInfo.class, name);
                 } catch(ResourceNotFoundException nfe) {
+                    //do nothing, proceed below 
+                } 
+                try {
                     return context.getResource( ScriptInfo.class, name );
-                } catch(Exception e) {
-                    throw e;
-                }
+                } catch(ResourceNotFoundException nfe) {
+                } 
             } else {
-                return context.getResource( ScriptInfo.class, name );
+                try {
+                    return context.getResource( ScriptInfo.class, name );
+                }
+                catch(ResourceNotFoundException ign){;}
             }
-        } 
-        catch(ResourceNotFoundException nfe) {
+            throw new ResourceNotFoundException("resource " + name + " not found");
+            //check if in database
+            /*
+            try {
             ScriptInfoScriptProviderService spe = new ScriptInfoScriptProviderService();
             return spe.findResource( name );
-        } 
-        catch(Exception e) {
+            }
+            catch(Exception ign) {
+                
+            }
+             */
+        } catch(ResourceNotFoundException nfe) {
+            throw nfe;
+        } catch(RuntimeException re) {
+            throw re;
+        } catch(Exception e) {
             throw new RuntimeException(e.getMessage(), e);
         }
     }

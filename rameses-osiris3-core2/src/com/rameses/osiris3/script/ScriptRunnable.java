@@ -55,8 +55,9 @@ public class ScriptRunnable implements Runnable {
     public void run() {
         //System.out.println("run service method ->" + this.serviceName+"."+this.methodName);
         if(cancelled ) return;
-        TransactionContext txn = new TransactionContext(context.getServer(), context, env);
+        TransactionContext txn = null;
         try {
+            txn = new TransactionContext(context.getServer(), context, env);
             if(listener!=null) listener.onBegin();
             //call the service here.
             ScriptTransactionManager t = txn.getManager( ScriptTransactionManager.class );
@@ -70,6 +71,7 @@ public class ScriptRunnable implements Runnable {
         } catch(Exception ex) {
             txn.rollback();
             err = ExceptionManager.getOriginal(ex);
+            err.printStackTrace();
             if(listener!=null) listener.onRollback(ex);
         } finally {
             txn.close();

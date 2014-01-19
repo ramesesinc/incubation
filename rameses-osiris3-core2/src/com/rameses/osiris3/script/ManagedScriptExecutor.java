@@ -51,6 +51,7 @@ public class ManagedScriptExecutor {
     public Object execute( final String method, final Object[] args, boolean fireInterceptors  ) throws Exception {
         try {
             ScriptInfo scriptInfo = scriptExecutor.getScriptInfo();
+
             if( method.equals( GET_STRING_INTERFACE )) {
                 return scriptInfo.getStringInterface();
             }
@@ -59,7 +60,7 @@ public class ManagedScriptExecutor {
             ExecutionInfo e = new ExecutionInfo(scriptInfo.getName(),method, args);
             Method m = scriptInfo.getClassDef().findMethodByName( method );
             if (m == null) throw new NoSuchMethodException("'"+method+"' method does not exist");
-            
+
             TransactionContext txn = TransactionContext.getCurrentContext();
             OsirisServer svr = txn.getServer();
             MainContext ct = txn.getContext();
@@ -133,6 +134,8 @@ public class ManagedScriptExecutor {
             }
             
             //inject the dependencies
+            
+
             ScriptService scriptSvc = ct.getService( ScriptService.class );
             DependencyInjector di = scriptSvc.getDependencyInjector();
             di.injectDependencies( scriptExecutor, e );
