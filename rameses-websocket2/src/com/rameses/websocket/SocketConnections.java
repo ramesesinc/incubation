@@ -23,16 +23,12 @@ public class SocketConnections
     
     private final Map<String, Channel> channels = Collections.synchronizedMap(new HashMap());
     
-    public boolean addChannel(Channel channel) 
-    {
+    public boolean addChannel(Channel channel) {
         String name = channel.getName();
-        if (channels.containsKey(name)) 
-        {
+        if (channels.containsKey(name)) {
             System.out.println("channel " + name + " already exists!");
             return false;
-        } 
-        else 
-        {
+        } else {
             channels.put( name, channel );
             return true;
         }
