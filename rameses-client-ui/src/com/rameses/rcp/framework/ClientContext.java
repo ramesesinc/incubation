@@ -28,14 +28,17 @@ import java.util.concurrent.ExecutorService;
 /**
  * @author jaycverg
  */
-public abstract class ClientContext {
-    
+public abstract class ClientContext 
+{
     private static ClientContext currentContext;
+    
     private TaskManager taskManager;
+    private NotificationManager notificationMgr;
     private NavigationHandler navigationHandler;
     private ControllerProvider controllerProvider;
     private ActionProvider actionProvider;
     private OpenerProvider openerProvider;
+    private Services services;
     
     private Map appEnv = new HashMap();
     private Map headers = new HashMap();
@@ -112,12 +115,29 @@ public abstract class ClientContext {
     }
     
     public static final void setCurrentContext(ClientContext context) {
-        currentContext = context;
+        ClientContext old = currentContext;
+        currentContext = context;        
         currentContext.taskManager = new TaskManager();
+        currentContext.notificationMgr = new NotificationManager(); 
+        currentContext.services = new Services();
+        
+        if (old != null) {
+            try { old.taskManager.stop(); }catch(Throwable t){;} 
+            try { old.notificationMgr.close(); }catch(Throwable t){;} 
+            try { old.services.stop(); }catch(Throwable t){;}             
+        }
     }
     
     public final TaskManager getTaskManager() {
         return taskManager;
+    }
+    
+    public final NotificationManager getNotificationManager() {
+        return notificationMgr; 
+    }
+    
+    public final Services getServices() {
+        return services; 
     }
     
     public Map getHeaders() {
@@ -160,6 +180,8 @@ public abstract class ClientContext {
     
     public void shutdown() {
         getTaskManager().stop();
+        getNotificationManager().close();
+        getServices().stop();
         for(WeakReference wr : executors) {
             try {
                 ExecutorService svc = (ExecutorService) wr.get();
@@ -176,4 +198,13 @@ public abstract class ClientContext {
         }
     }
 
+    // <editor-fold defaultstate="collapsed" desc=" DesktopService "> 
+    
+    public static interface DesktopService 
+    { 
+        void start(); 
+        void stop(); 
+    } 
+    
+    // </editor-fold>
 }
