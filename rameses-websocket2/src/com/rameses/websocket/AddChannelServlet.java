@@ -48,23 +48,23 @@ public class AddChannelServlet extends HttpServlet
                 o = ((SealedMessage)o).getMessage(); 
 
             Collection collection = null;
-            if (o instanceof Collection)
+            if (o instanceof Collection) { 
                 collection = (Collection) o; 
-            else if (o instanceof Object[]) 
-                collection = Arrays.asList((Object[]) o);
+            } else if (o instanceof Object[]) { 
+                collection = Arrays.asList((Object[]) o); 
+            } 
             
-            if (collection == null) return;
-
-            Iterator itr = collection.iterator(); 
-            while (itr.hasNext()) 
-            {
-                Map map = (Map) itr.next();
-                String name  = (String) map.get("channel");
-                String type  = (String) map.get("type");
-                addChannel(name, type); 
+            if (collection != null) { 
+                Iterator itr = collection.iterator(); 
+                while (itr.hasNext()) 
+                {
+                    Map map = (Map) itr.next();
+                    String name  = (String) map.get("channel");
+                    String type  = (String) map.get("type");
+                    addChannel(name, type); 
+                }
+                collection.clear(); 
             }
-            collection.clear(); 
-            
             out = new ObjectOutputStream(resp.getOutputStream());
             out.writeObject("OK"); 
         } 
