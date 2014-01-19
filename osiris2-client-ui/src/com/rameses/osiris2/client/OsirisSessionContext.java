@@ -50,6 +50,7 @@ public class OsirisSessionContext extends SessionContext {
                 m.setTitle((String) OsirisSessionContext.super.getEnv().get("app.title"));
                 m.setComponent(ToolbarUtil.getToolBar(), MainWindow.TOOLBAR);
                 m.setComponent(StatusbarUtil.getStatusbar(), MainWindow.STATUSBAR);
+                LoaderUtil.runLoaderAfter(); 
             }
         });
     }

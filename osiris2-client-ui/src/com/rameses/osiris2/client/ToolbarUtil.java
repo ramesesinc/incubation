@@ -16,6 +16,7 @@ import com.rameses.rcp.framework.ClientContext;
 import com.rameses.rcp.framework.ControllerProvider;
 import com.rameses.rcp.framework.UIControllerContext;
 import com.rameses.rcp.framework.UIControllerPanel;
+import com.rameses.rcp.support.ImageIconSupport;
 import com.rameses.rcp.support.ResourceUtil;
 import com.rameses.util.ValueUtil;
 import java.awt.Component;
@@ -27,6 +28,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JToolBar;
 
@@ -38,24 +41,40 @@ public final class ToolbarUtil
 {    
     
     public static JToolBar getToolBar() {
+        final SessionContext app = OsirisContext.getSession();        
         JToolBar toolbar = new JToolBar();
         toolbar.setLayout(new ToolBarLayout());
-        SessionContext app = OsirisContext.getSession();
         
+        ButtonHelper buttonHelper = new ButtonHelper();
         List<Invoker> invokers = app.getInvokers("toolbar");
         for (Invoker inv : invokers) {
-            boolean isButton = true;
+            boolean isButton = true;            
+            MapHelper helper = new MapHelper(inv.getProperties()); 
             try {
-                String sButton = (String)inv.getProperties().get("button");
-                if(sButton !=null ) isButton = Boolean.parseBoolean( sButton );
+                Boolean bool = helper.getBoolean("button");
+                if (bool != null) isButton = bool.booleanValue();
             } catch(Throwable ign){;}
             
             if (isButton) { 
-                toolbar.add(new InvokerAction(inv)); 
+                String strclass = helper.getString("buttonClass");
+                if (strclass == null || strclass.length() == 0 ) { 
+                    toolbar.add(new InvokerAction(inv)); 
+                } else {
+                    try {
+                        Class clazz = helper.getClass("buttonClass"); 
+                        JButton btn = (JButton) clazz.newInstance(); 
+                        btn.addActionListener(new InvokerActionHandler(inv));                         
+                        buttonHelper.setProperties(btn, inv, helper); 
+                        toolbar.add(btn); 
+                    } catch(Throwable t) {
+                        System.out.println("error caused by " + t.getClass().getName() + ": " + t.getMessage());
+                        t.printStackTrace(); 
+                    }
+                }
             } else { 
                 toolbar.add(getViewComponent(inv)); 
             } 
-        } 
+        }
         return toolbar;
     }
     
@@ -71,26 +90,105 @@ public final class ToolbarUtil
         return new UIControllerPanel(uic);
     }
     
+    // <editor-fold defaultstate="collapsed" desc=" MapHelper ">
+
+    private static class MapHelper 
+    {
+        private Map props; 
+        
+        MapHelper(Map props) {
+            this.props = props; 
+        }
+        
+        private Object get(String key) {
+            return (props == null? null: props.get(key));
+        }
+        
+        public Boolean getBoolean(String key) {
+            Object value = get(key);
+            if (value == null) return null; 
+            
+            if ("true".equals(value.toString())) 
+                return Boolean.TRUE; 
+            else 
+                return Boolean.FALSE; 
+        } 
+        
+        public String getString(String key) {
+            Object value = get(key);
+            return (value == null? null: value.toString()); 
+        }
+        
+        public Class getClass(String key) {
+            String str = getString(key); 
+            if (str == null || str.length() == 0) return null; 
+            
+            try {
+                return ClientContext.getCurrentContext().getClassLoader().loadClass(str); 
+            } catch(Throwable t) { 
+                return null; 
+            } 
+        }
+    }
+    
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" ButtonHelper ">
+
+    private static class ButtonHelper 
+    {
+        void setProperties(JButton btn, Invoker inv, MapHelper helper) {
+            btn.setFocusable(false); 
+            String caption = helper.getString("caption"); 
+            if (caption != null) btn.setText(caption); 
+            
+            String tooltip = helper.getString("tooltip"); 
+            if (tooltip != null) btn.setToolTipText(tooltip); 
+            
+            String icon = helper.getString("icon");
+            if (icon != null) {
+                ImageIcon iicon = ImageIconSupport.getInstance().getIcon(icon); 
+                btn.setIcon(iicon); 
+            }
+        }
+    }
+    
+    // </editor-fold>
+    
     // <editor-fold defaultstate="collapsed" desc=" InvokerAction ">
     
-    private static class InvokerAction extends JButton implements ActionListener 
+    private static class InvokerAction extends JButton 
     {
         private Invoker invoker;
         
-        public InvokerAction(Invoker inv) {
-            this.invoker = inv;
-            this.setText(inv.getCaption());
-            this.addActionListener(this);
-            
+        public InvokerAction(Invoker invoker) {
+            this.invoker = invoker;
+
+            setFocusable(false);             
+            setText(invoker.getCaption());
+            addActionListener(new InvokerActionHandler(invoker));             
             try {
-                String tooltip = (String) inv.getProperties().get("tooltip"); 
+                String tooltip = (String) invoker.getProperties().get("tooltip"); 
                 if (tooltip != null) this.setToolTipText(tooltip); 
                 
-                String icn = (String) inv.getProperties().get("icon");
+                String icn = (String) invoker.getProperties().get("icon");
                 if (icn != null) this.setIcon(ResourceUtil.getImageIcon(icn));
             } catch(Throwable e) {
                 //do nothing 
             } 
+        }
+    }
+    
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" InvokerActionHandler ">
+    
+    private static class InvokerActionHandler implements ActionListener 
+    {
+        private Invoker invoker;
+        
+        public InvokerActionHandler(Invoker invoker) {
+            this.invoker = invoker;
         }
         
         public void actionPerformed(ActionEvent e) {
@@ -161,6 +259,16 @@ public final class ToolbarUtil
             }
         }
     } 
+    
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" CustomAction ">
+    
+    public static interface CustomAction 
+    {
+        void setInvoker(Invoker invoker); 
+        void setController(UIController controller); 
+    }
     
     // </editor-fold>
 }
