@@ -880,8 +880,8 @@ public class Binding
                 f.setAccessible(true);
                 try {
                     f.set(o, Binding.this );
-                } catch(Throwable ex) {
-                    System.out.println("ERROR injecting @Binding "  + ex.getMessage() );
+                } catch(Throwable t) {
+                    System.out.println("ERROR injecting @Binding caused by " + t.getClass().getName() + ": " + t.getMessage() );
                 }
                 
                 f.setAccessible(accessible);                
@@ -914,8 +914,8 @@ public class Binding
                         for (String s : prefixes) cl.getPrefix().add(s);
                     }                    
                     f.set(o, cl );
-                } catch(Throwable ex) {
-                    System.out.println("ERROR injecting @ChangeLog "  + ex.getMessage() );
+                } catch(Throwable t) {
+                    System.out.println("ERROR injecting @ChangeLog caused by " + t.getClass().getName() + ": " + t.getMessage() );
                 }
                 
                 f.setAccessible(accessible); 
@@ -926,8 +926,8 @@ public class Binding
                 try {
                     Map map = (Map) f.get(getBean());
                     getValueChangeSupport().addExtendedHandler(map); 
-                } catch(Throwable ex) {
-                    System.out.println("ERROR injecting @PropertyChangeListener caused by " + ex.getMessage());
+                } catch(Throwable t) {
+                    System.out.println("ERROR injecting @PropertyChangeListener caused by " + t.getClass().getName() + ": " + t.getMessage() );
                 } 
                 f.setAccessible(accessible); 
             }
@@ -938,8 +938,8 @@ public class Binding
                     Object ov = f.getAnnotation(com.rameses.rcp.annotations.Validators.class); 
                     com.rameses.rcp.annotations.Validators v = (com.rameses.rcp.annotations.Validators)ov; 
                     getFieldValidatorSupport().add(map, v.immediate()); 
-                } catch(Throwable ex) { 
-                    System.out.println("ERROR injecting @FieldValidators caused by " + ex.getMessage());
+                } catch(Throwable t) { 
+                    System.out.println("ERROR injecting @Validators caused by " + t.getClass().getName() + ": " + t.getMessage() );
                 } 
                 f.setAccessible(accessible); 
             } 
@@ -947,11 +947,20 @@ public class Binding
                 f.setAccessible(true);
                 try {
                     f.set(o, new SubWindowAdapter());
-                } catch(Throwable ex) {
-                    System.out.println("ERROR injecting @SubWindow "  + ex.getMessage() );
+                } catch(Throwable t) {
+                    System.out.println("ERROR injecting @SubWindow caused by " + t.getClass().getName() + ": " + t.getMessage() );
                 }                
                 f.setAccessible(accessible); 
-            } 
+            }
+            else if (f.isAnnotationPresent(com.rameses.rcp.annotations.Notification.class)) {
+                f.setAccessible(true);
+                try {
+                    f.set(o, new RuntimeNotificationHandle(this));
+                } catch(Throwable t) {
+                    System.out.println("ERROR injecting @Notification caused by " + t.getClass().getName() + ": " + t.getMessage() );
+                }                
+                f.setAccessible(accessible); 
+            }
         }
         
         Class superClass = clazz.getSuperclass();
