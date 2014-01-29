@@ -29,7 +29,7 @@ public class XConnectionDependencyHandler extends DependencyHandler {
         XConnection mc = (XConnection)c;
         MainContext ctx = TransactionContext.getCurrentContext().getContext();
         String connName = mc.value();
-        if(connName==null || connName.trim().length()==0) connName = "default";
+        if(connName==null || connName.trim().length()==0) connName = "default";        
         return ctx.getResource( XConnection.class, connName );
     }
     
