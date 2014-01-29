@@ -21,6 +21,7 @@ import com.rameses.osiris3.server.common.AbstractServlet;
 import com.rameses.osiris3.xconnection.XConnection;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;

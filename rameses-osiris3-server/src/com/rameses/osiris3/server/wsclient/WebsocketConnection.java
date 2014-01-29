@@ -28,11 +28,11 @@ import org.eclipse.jetty.websocket.WebSocketClientFactory;
  *
  * @author Elmo
  */
-public class WebsocketConnection extends MessageConnection implements WebSocket.OnTextMessage, WebSocket.OnBinaryMessage {
-    
-    private final static int MAX_IDLE_TIME = 30000;
-    private final static int DEFAULT_MAX_CONNECTION = 35000;
-    private final static int RECONNECT_DELAY = 10000;
+public class WebsocketConnection extends MessageConnection implements WebSocket.OnTextMessage, WebSocket.OnBinaryMessage 
+{
+    private final static int DEFAULT_MAX_CONNECTION = 35000;    
+    private final static int MAX_IDLE_TIME          = 60000;
+    private final static int RECONNECT_DELAY        = 2000;
     
     private Map conf;
     private WebSocket.Connection connection;
