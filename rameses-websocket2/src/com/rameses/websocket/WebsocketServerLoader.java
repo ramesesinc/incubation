@@ -103,8 +103,9 @@ public class WebsocketServerLoader implements ServerLoader {
         
         ServletContextHandler servletContext = new ServletContextHandler(ServletContextHandler.SESSIONS);
         servletContext.setContextPath(context);
+        servletContext.addServlet( new ServletHolder( new PostMessageServlet(conn)), "/post" );        
         servletContext.addServlet( new ServletHolder( new SendMessageServlet(conn)), "/send" );
-        servletContext.addServlet( new ServletHolder( new AddChannelServlet(conn)), "/addchannel" );
+        servletContext.addServlet( new ServletHolder( new AddChannelServlet(conn)),  "/addchannel" );
         servletContext.addServlet( new ServletHolder( new RemoveChannelServlet(conn)), "/removechannel" );
         
         HandlerList list = new HandlerList();
