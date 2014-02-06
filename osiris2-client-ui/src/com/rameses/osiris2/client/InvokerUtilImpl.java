@@ -37,7 +37,18 @@ import java.util.Map;
  */
 class InvokerUtilImpl 
 {
-    
+    public static UIController createController(Invoker invoker) { 
+        ClientContext ctx = ClientContext.getCurrentContext(); 
+        Platform platform = ctx.getPlatform(); 
+        String wuId = invoker.getWorkunitid(); 
+        ControllerProvider cp = ctx.getControllerProvider(); 
+        UIController u = cp.getController(wuId, null); 
+        
+        Object callee = u.getCodeBean(); 
+        ControlSupport.injectInvoker(callee, callee.getClass(), invoker); 
+        return u; 
+    }
+        
     public static void invoke(Invoker invoker) { 
         invoke(invoker,null);
     }
