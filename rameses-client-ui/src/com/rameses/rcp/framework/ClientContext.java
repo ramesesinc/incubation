@@ -116,16 +116,16 @@ public abstract class ClientContext
     
     public static final void setCurrentContext(ClientContext context) {
         ClientContext old = currentContext;
-        currentContext = context;        
-        currentContext.taskManager = new TaskManager();
-        currentContext.notificationMgr = new NotificationManager(); 
-        currentContext.services = new Services();
-        
         if (old != null) {
             try { old.taskManager.stop(); }catch(Throwable t){;} 
             try { old.notificationMgr.close(); }catch(Throwable t){;} 
             try { old.services.stop(); }catch(Throwable t){;}             
         }
+        
+        currentContext = context;        
+        currentContext.notificationMgr = new NotificationManager(context.getClassLoader());         
+        currentContext.taskManager = new TaskManager();
+        currentContext.services = new Services();        
     }
     
     public final TaskManager getTaskManager() {
