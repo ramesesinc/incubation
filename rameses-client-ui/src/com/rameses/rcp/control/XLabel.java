@@ -49,6 +49,7 @@ public class XLabel extends DefaultLabel implements UIOutput, ActiveControl,
     private String varName;    
     private int index;    
     private boolean useHtml;
+    private boolean hideOnEmpty;
     
     private Insets padding; 
     private Format format; 
@@ -94,6 +95,11 @@ public class XLabel extends DefaultLabel implements UIOutput, ActiveControl,
             logger = Logger.getLogger(getClass().getName());
         
         return logger;
+    }
+    
+    public boolean isHideOnEmpty() { return hideOnEmpty; } 
+    public void setHideOnEmpty(boolean hideOnEmpty) {
+        this.hideOnEmpty = hideOnEmpty;
     }
     
     public boolean isUseHtml() { return useHtml; } 
@@ -359,6 +365,7 @@ public class XLabel extends DefaultLabel implements UIOutput, ActiveControl,
     public boolean isVisible() {
         boolean b = super.isVisible();
         if (Beans.isDesignTime()) return b;
+        if (!isHideOnEmpty()) return b;
         if (!b) return false;
         
         String text = super.getText();
