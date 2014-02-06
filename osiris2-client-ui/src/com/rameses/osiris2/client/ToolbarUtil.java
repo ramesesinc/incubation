@@ -63,7 +63,7 @@ public final class ToolbarUtil
                     try {
                         Class clazz = helper.getClass("buttonClass"); 
                         JButton btn = (JButton) clazz.newInstance(); 
-                        btn.addActionListener(new InvokerActionHandler(inv));                         
+                        btn.addActionListener(new InvokerActionHandler(inv)); 
                         buttonHelper.setProperties(btn, inv, helper); 
                         toolbar.add(btn); 
                     } catch(Throwable t) {
