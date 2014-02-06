@@ -10,7 +10,10 @@
 package com.rameses.rcp.control;
 
 import com.rameses.rcp.control.layout.HorizontalLayout;
+import com.rameses.rcp.control.layout.LayoutComponent;
+import java.awt.Component;
 import java.awt.LayoutManager;
+import java.beans.Beans;
 import javax.swing.JPanel;
 import javax.swing.border.Border;
 
@@ -18,7 +21,7 @@ import javax.swing.border.Border;
  *
  * @author wflores
  */
-public class XHorizontalPanel extends JPanel
+public class XHorizontalPanel extends JPanel 
 {
     private HorizontalLayout layoutMgr;
     private Border borderSeparator;
@@ -48,4 +51,25 @@ public class XHorizontalPanel extends JPanel
         this.showLeftSeparator = showLeftSeparator; 
         this.layoutMgr.setShowLeftSeparator(showLeftSeparator); 
     }
+    
+    // <editor-fold defaultstate="collapsed" desc=" for layout purposes ">   
+
+    public boolean isVisible() {
+        boolean b = super.isVisible();
+        if (Beans.isDesignTime()) return b;        
+        if (!b) return false;
+        
+        Component[] comps = getComponents();
+        for (int i=0; i<comps.length; i++) {
+            Component c = comps[i];
+            if (!c.isVisible()) continue;
+            if (c instanceof LayoutComponent) { 
+                LayoutComponent lc = (LayoutComponent)c; 
+                if (lc.isVisibleInLayout()) return true;
+            } 
+        }
+        return false;
+    }
+    
+    // </editor-fold>        
 }
