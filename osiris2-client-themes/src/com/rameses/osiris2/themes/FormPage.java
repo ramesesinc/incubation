@@ -22,7 +22,11 @@ public class FormPage extends javax.swing.JPanel {
     
     public FormPage() {
         initComponents();
-
+        
+        headertitle.setHideOnEmpty(true);
+        xActionBar1.setHideOnEmpty(true);
+        xabFormActions.setHideOnEmpty(true);
+        xabNavActions.setHideOnEmpty(true);
         headergroup.setLayout(new HeaderLayout());
         headertoolbar.removeAll();        
         headertoolbar.setLayout(new ToolbarLayout()); 
@@ -51,7 +55,6 @@ public class FormPage extends javax.swing.JPanel {
 
         headergroup.setLayout(new java.awt.BorderLayout());
 
-        headergroup.setOpaque(false);
         headertitle.setBackground(new java.awt.Color(255, 255, 255));
         headertitle.setExpression("#{title}");
         headertitle.setFontStyle("font-size:16; font-weight:bold;");
