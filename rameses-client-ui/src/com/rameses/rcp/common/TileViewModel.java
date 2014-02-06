@@ -21,7 +21,10 @@ public class TileViewModel
     
     public TileViewModel() {
     }
-        
+
+    public int getCellCount() { return 0; } 
+    public int getCellSize() { return 0; } 
+    
     public List fetchList(Map params) { 
         return null; 
     } 

@@ -202,12 +202,10 @@ public class XTileView extends JPanel implements UIComposite, MouseEventSupport.
         dirty = true;
     }
     
-    private Vector LOCKS = new Vector();
     private XButton createButton(TileViewItem item) {
         XButton btn = new XButton() {
             public void actionPerformed(ActionEvent e) {
                 try {
-                    LOCKS.addElement(new Object());
                     onOpenItem(e); 
                 } catch(Throwable t) {
                     MsgBox.err(t); 
@@ -312,28 +310,6 @@ public class XTileView extends JPanel implements UIComposite, MouseEventSupport.
         
         btn.setMnemonic(item.getMnemonic());  
         return btn;
-    }
-    
-    private synchronized void onOpenItem(ActionEvent e) {         
-        if (model == null) return;
-        if (LOCKS.isEmpty()) return;
-        
-        try { 
-            AbstractButton ab = (AbstractButton) e.getSource();
-            TileViewItem item = (TileViewItem) ab.getClientProperty(TileViewItem.class);
-            Object result = model.onOpenItem(item.getUserObject()); 
-            if (!(result instanceof Opener)) return;
-
-            Opener opener = (Opener)result;
-            String target = opener.getTarget()+"";
-            if (!target.matches("process|_process|window|_window|popup|_popup")) {
-                opener.setTarget("window"); 
-            }
-            Binding binding = getBinding();
-            if (binding != null) binding.fireNavigation(opener); 
-        } finally { 
-            LOCKS.removeAllElements(); 
-        } 
     }
     
     private void buildToolbar() {
@@ -572,6 +548,7 @@ public class XTileView extends JPanel implements UIComposite, MouseEventSupport.
 
     private class FlowLayout implements LayoutManager 
     {
+        XTileView root = XTileView.this;
         private int CELL_SIZE = 100;
 
         public void addLayoutComponent(String name, Component comp) {;}
@@ -608,10 +585,16 @@ public class XTileView extends JPanel implements UIComposite, MouseEventSupport.
                 Component[] comps = parent.getComponents();
                 if (comps.length == 0) return;
 
-                int colWidth = (CELL_SIZE+20) + padding.left + padding.right;
-                int colHeight = (CELL_SIZE-20) + padding.top + padding.bottom;
-                int colCount = w / colWidth; 
-
+                int cellSize = (root.model == null? 0: root.model.getCellSize());
+                if (cellSize <= 0) cellSize = CELL_SIZE;                
+                int pcolWidth  = (cellSize >= 100? cellSize+20: cellSize);
+                int pcolHeight = (cellSize >= 100? cellSize-20: cellSize);
+                
+                int colWidth  = pcolWidth + padding.left + padding.right;
+                int colHeight = pcolHeight + padding.top + padding.bottom;
+                int colCount = (root.model == null? 0: root.model.getCellCount());
+                if (colCount <= 0) colCount = w / colWidth; 
+                
                 for (int i=0; i<comps.length; i++)
                 {
                     int colIndex = 0;
@@ -842,4 +825,53 @@ public class XTileView extends JPanel implements UIComposite, MouseEventSupport.
     }    
     
     //</editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" ActionProcess ">
+    
+    private Vector LOCKS = new Vector();
+    
+    private synchronized void onOpenItem(ActionEvent e) {         
+        if (model == null) return;
+        
+        AbstractButton ab = (AbstractButton) e.getSource();
+        TileViewItem item = (TileViewItem) ab.getClientProperty(TileViewItem.class);
+        if (LOCKS.contains(item)) return;
+        
+        LOCKS.addElement(item);
+        new Thread(new ActionProcess(item)).start();
+    }
+    
+    private class ActionProcess implements Runnable 
+    {
+        private TileViewItem item;
+        
+        ActionProcess(TileViewItem item) {
+            this.item = item;
+        }
+        
+        public void run() {
+            try { 
+                if (item == null) return;
+                
+                Object result = model.onOpenItem(item.getUserObject()); 
+                if (!(result instanceof Opener)) return;
+
+                Opener opener = (Opener)result;
+                String target = opener.getTarget()+"";
+                if (!target.matches("process|_process|window|_window|popup|_popup")) {
+                    opener.setTarget("window"); 
+                }
+                Binding binding = getBinding();
+                if (binding != null) binding.fireNavigation(opener); 
+                
+            } catch(Throwable t) {
+                MsgBox.err(t); 
+                
+            } finally { 
+                LOCKS.remove(item); 
+            }
+        }
+    }
+    
+    // </editor-fold>
 }
