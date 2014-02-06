@@ -31,7 +31,15 @@ public final class RuntimeNotificationHandle
     public NotificationManager getManager() {
         return ClientContext.getCurrentContext().getNotificationManager(); 
     }
-        
+    
+    public void publish(Object data) {
+        getManager().publish(data);
+    }
+    
+    public void markAsRead(Object data) {
+        getManager().markAsRead(data); 
+    }     
+    
     public void register(Object callback) {
         Map options = new HashMap();
         options.put("onmessage", callback); 

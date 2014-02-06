@@ -9,8 +9,8 @@
 
 package com.rameses.rcp.framework;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.rameses.util.Service;
+import java.util.Iterator;
 
 /**
  *
@@ -19,110 +19,59 @@ import java.util.List;
 public final class NotificationManager 
 {
     private static Object LOCK = new Object();
-    private List<NotificationHandler> handlers;
-    
-    NotificationManager() {
-        handlers = new ArrayList(); 
+    private NotificationProvider provider;
+    private ClassLoader classLoader;
+
+    NotificationManager(ClassLoader classLoader) {
+        Iterator itr = Service.providers(NotificationProvider.class, classLoader); 
+        while (itr.hasNext()) {
+            provider = (NotificationProvider) itr.next(); 
+            break; 
+        }
     }
     
     public void close() {
         synchronized (LOCK) {
-            handlers.clear();
+            if (provider == null) return;
+            
+            provider.close(); 
         }
     }
     
     public void add(NotificationHandler handler) {
         synchronized (LOCK) {
-            if (handler == null) return;
-            if (!handlers.contains(handler)) {
-                handlers.add(handler);
+            if (provider == null) return; 
+            
+            if (handler != null) {
+                provider.add(handler);
             } 
         }
     }
     
     public boolean remove(NotificationHandler handler) {
         synchronized (LOCK) {
-            if (handler == null) {
-                return false; 
-            } else { 
-                return handlers.remove(handler); 
-            } 
+            if (handler == null || provider == null) return false; 
+            
+            return provider.remove(handler); 
         } 
     } 
     
-    public void publish(Object data) {
-        new Thread(new NotifyProcess(handlers, data)).start(); 
+    public void publish(Object data) { 
+        synchronized (LOCK) {
+            if (provider == null) { 
+                System.out.println("No available notification provider"); 
+                return; 
+            } 
+            
+            provider.publish(data);
+        } 
     } 
     
     public void markAsRead(Object data) {
-        new Thread(new ReadProcess(handlers, data)).start(); 
+        synchronized (LOCK) {
+            if (provider == null) return; 
+            
+            provider.markAsRead(data);
+        }         
     }
-    
-    // <editor-fold defaultstate="collapsed" desc=" NotifyProcess ">
-    
-    private class NotifyProcess implements Runnable
-    {
-        private List<NotificationHandler> handlers;
-        private Object data;
-        
-        NotifyProcess(List<NotificationHandler> handlers, Object data) {
-            this.handlers = handlers; 
-            this.data = data; 
-        }
-
-        public void run() {
-            synchronized (LOCK) { 
-                if (handlers == null) return;
-
-                for (int i=0; i<handlers.size(); i++) {
-                    NotificationHandler handler = handlers.get(i);
-                    if (handler == null) continue;
-                    
-                    try { 
-                        handler.onMessage(data); 
-                    } catch(Throwable t) {
-                        System.out.println("handler error onMessage caused by " + t.getMessage());
-                    } 
-                }
-                handlers = null;
-                data = null; 
-            } 
-        }
-    }
-    
-    // </editor-fold>
-    
-    // <editor-fold defaultstate="collapsed" desc=" ReadProcess ">
-    
-    private class ReadProcess implements Runnable
-    {
-        private List<NotificationHandler> handlers;
-        private Object data;
-        
-        ReadProcess(List<NotificationHandler> handlers, Object data) {
-            this.handlers = handlers; 
-            this.data = data; 
-        }
-
-        public void run() {
-            synchronized (LOCK) { 
-                if (handlers == null) return;
-
-                for (int i=0; i<handlers.size(); i++) {
-                    NotificationHandler handler = handlers.get(i);
-                    if (handler == null) continue;
-                    
-                    try { 
-                        handler.onRead(data); 
-                    } catch(Throwable t) {
-                        System.out.println("handler error onMessage caused by " + t.getMessage());
-                    } 
-                }
-                handlers = null;
-                data = null; 
-            }             
-        }
-    }
-    
-    // </editor-fold>
 }
