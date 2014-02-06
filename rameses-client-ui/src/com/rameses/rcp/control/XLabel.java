@@ -38,7 +38,8 @@ import javax.swing.border.Border;
  *
  * @author jaycverg
  */
-public class XLabel extends DefaultLabel implements UIOutput, ActiveControl, MouseEventSupport.ComponentInfo 
+public class XLabel extends DefaultLabel implements UIOutput, ActiveControl, 
+    MouseEventSupport.ComponentInfo
 {
     private ControlProperty property = new ControlProperty();
     private Binding binding; 
@@ -353,6 +354,19 @@ public class XLabel extends DefaultLabel implements UIOutput, ActiveControl, Mou
 
     // </editor-fold>
     
+    // <editor-fold defaultstate="collapsed" desc=" for layout purposes ">   
+
+    public boolean isVisible() {
+        boolean b = super.isVisible();
+        if (Beans.isDesignTime()) return b;
+        if (!b) return false;
+        
+        String text = super.getText();
+        return (text == null? false: text.trim().length() > 0);
+    }
+    
+    // </editor-fold>
+    
     // <editor-fold defaultstate="collapsed" desc=" Owned and helper methods ">   
    
     public void setDisplayedMnemonic(char aChar) {
@@ -423,6 +437,8 @@ public class XLabel extends DefaultLabel implements UIOutput, ActiveControl, Mou
     {
         if (isUseHtml() && text != null) 
         {
+            if (text.trim().length() == 0) return "";
+            
             StringBuffer sb = new StringBuffer();
             if (text.toLowerCase().indexOf("<html>") < 0) 
                 sb.append("<html>"); 
