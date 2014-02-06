@@ -107,20 +107,16 @@ public class ToolbarLayout implements LayoutManager
         public void addLayoutComponent(String name, Component comp) {;}
         public void removeLayoutComponent(Component comp) {;}
         
-        public Dimension getLayoutSize(Container parent) 
-        {
-            synchronized (parent.getTreeLock()) 
-            {
+        public Dimension getLayoutSize(Container parent) {
+            synchronized (parent.getTreeLock()) {
                 int w=0, h=0;
                 boolean found = false;
                 Component[] comps = parent.getComponents();
-                for (int i=0; i<comps.length; i++) 
-                {
-                    
-                    if (!comps[i].isVisible()) continue;
+                for (int i=0; i<comps.length; i++) {
+                    Component c = comps[i];
+                    if (!c.isVisible()) continue;
                     if (found) w += getSpacing();
-
-                    Dimension dim = comps[i].getPreferredSize();
+                    Dimension dim = c.getPreferredSize();
                     w += (dim.width + padding.left+padding.right);
                     h = Math.max(h, dim.height+padding.top+padding.bottom);
                     found = true; 
