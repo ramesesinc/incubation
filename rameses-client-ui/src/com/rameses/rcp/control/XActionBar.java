@@ -50,7 +50,7 @@ import javax.swing.JToolBar;
 import javax.swing.SwingConstants;
 import javax.swing.border.Border;
 
-public class XActionBar extends JPanel implements UIComposite, MouseEventSupport.ComponentInfo  
+public class XActionBar extends JPanel implements UIComposite, MouseEventSupport.ComponentInfo 
 {
     private Binding binding;
     private String[] depends;
@@ -524,6 +524,22 @@ public class XActionBar extends JPanel implements UIComposite, MouseEventSupport
     
     // </editor-fold>
     
+    // <editor-fold defaultstate="collapsed" desc=" for layout purposes ">   
+
+    public boolean isVisible() {
+        boolean b = super.isVisible();
+        if (Beans.isDesignTime()) return b;
+        if (!b) return false;
+        
+        Component[] comps = toolbarComponent.getComponents();
+        for (int i=0; i<comps.length; i++) {
+            if (comps[i].isVisible()) return true; 
+        }
+        return false;
+    }
+    
+    // </editor-fold>    
+    
     // <editor-fold defaultstate="collapsed" desc=" ContainerLayout (Class) ">
     
     private class ContainerLayout implements LayoutManager {
@@ -583,4 +599,5 @@ public class XActionBar extends JPanel implements UIComposite, MouseEventSupport
     }
     
     //</editor-fold>
+
 }
