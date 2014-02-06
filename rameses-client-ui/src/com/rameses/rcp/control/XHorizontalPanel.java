@@ -62,11 +62,7 @@ public class XHorizontalPanel extends JPanel
         Component[] comps = getComponents();
         for (int i=0; i<comps.length; i++) {
             Component c = comps[i];
-            if (!c.isVisible()) continue;
-            if (c instanceof LayoutComponent) { 
-                LayoutComponent lc = (LayoutComponent)c; 
-                if (lc.isVisibleInLayout()) return true;
-            } 
+            if (c.isVisible()) return true; 
         }
         return false;
     }
