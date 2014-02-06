@@ -838,14 +838,16 @@ public class XTileView extends JPanel implements UIComposite, MouseEventSupport.
         if (LOCKS.contains(item)) return;
         
         LOCKS.addElement(item);
-        new Thread(new ActionProcess(item)).start();
+        new Thread(new ActionProcess(ab, item)).start();
     }
     
     private class ActionProcess implements Runnable 
     {
+        private AbstractButton button;
         private TileViewItem item;
         
-        ActionProcess(TileViewItem item) {
+        ActionProcess(AbstractButton button, TileViewItem item) {
+            this.button = button;
             this.item = item;
         }
         
