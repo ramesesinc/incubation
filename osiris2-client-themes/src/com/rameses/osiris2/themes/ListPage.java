@@ -6,9 +6,12 @@
 
 package com.rameses.osiris2.themes;
 
-import java.awt.Font;
-import java.util.HashMap;
-import java.util.Map;
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.Insets;
+import java.awt.LayoutManager;
+import java.awt.LayoutManager2;
 
 /**
  *
@@ -18,6 +21,11 @@ public class ListPage extends javax.swing.JPanel {
     
     public ListPage() {
         initComponents();
+        
+        sidebarpanel.setName("sidebar");
+        sidebarpanel.setLayout(new SideBarLayout()); 
+        rightsidebarpanel.setName("rightsidebar");
+        rightsidebarpanel.setLayout(new SideBarLayout());         
     }
     
     /** This method is called from within the constructor to
@@ -34,6 +42,8 @@ public class ListPage extends javax.swing.JPanel {
         xSubFormPanel1 = new com.rameses.rcp.control.XSubFormPanel();
         pnlBody = new javax.swing.JPanel();
         xDataTable1 = new com.rameses.rcp.control.XDataTable();
+        sidebarpanel = new javax.swing.JPanel();
+        rightsidebarpanel = new javax.swing.JPanel();
         xHorizontalPanel2 = new com.rameses.rcp.control.XHorizontalPanel();
         navBar1 = new com.rameses.rcp.control.XActionBar();
         jPanel3 = new javax.swing.JPanel();
@@ -89,6 +99,33 @@ public class ListPage extends javax.swing.JPanel {
         xDataTable1.setName("selectedEntity");
         pnlBody.add(xDataTable1, java.awt.BorderLayout.CENTER);
 
+        sidebarpanel.setName("sidebar");
+        sidebarpanel.setOpaque(false);
+        org.jdesktop.layout.GroupLayout sidebarpanelLayout = new org.jdesktop.layout.GroupLayout(sidebarpanel);
+        sidebarpanel.setLayout(sidebarpanelLayout);
+        sidebarpanelLayout.setHorizontalGroup(
+            sidebarpanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(0, 100, Short.MAX_VALUE)
+        );
+        sidebarpanelLayout.setVerticalGroup(
+            sidebarpanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(0, 289, Short.MAX_VALUE)
+        );
+        pnlBody.add(sidebarpanel, java.awt.BorderLayout.WEST);
+
+        rightsidebarpanel.setName("rightsidebar");
+        org.jdesktop.layout.GroupLayout rightsidebarpanelLayout = new org.jdesktop.layout.GroupLayout(rightsidebarpanel);
+        rightsidebarpanel.setLayout(rightsidebarpanelLayout);
+        rightsidebarpanelLayout.setHorizontalGroup(
+            rightsidebarpanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(0, 100, Short.MAX_VALUE)
+        );
+        rightsidebarpanelLayout.setVerticalGroup(
+            rightsidebarpanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(0, 289, Short.MAX_VALUE)
+        );
+        pnlBody.add(rightsidebarpanel, java.awt.BorderLayout.EAST);
+
         add(pnlBody, java.awt.BorderLayout.CENTER);
 
         navBar1.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 5, 0, 25));
@@ -119,7 +156,87 @@ public class ListPage extends javax.swing.JPanel {
 
     }// </editor-fold>//GEN-END:initComponents
     
+    // <editor-fold defaultstate="collapsed" desc=" SideBarLayout ">
     
+    private class SideBarLayout implements LayoutManager, LayoutManager2 
+    {
+        public void addLayoutComponent(String name, Component comp) {}
+        public void removeLayoutComponent(Component comp) {}
+
+        public Dimension preferredLayoutSize(Container parent) {
+            return getLayoutSize(parent);
+        }
+
+        public Dimension minimumLayoutSize(Container parent) {
+            return getLayoutSize(parent);
+        }
+
+        private Component getVisibleComponent(Component[] comps) {
+            Component selected = null;
+            for (int i=0; i<comps.length; i++) {
+                Component c = comps[i];
+                if (c.isVisible()) selected = c;
+            }
+            return selected;
+        }
+        
+        public void layoutContainer(Container parent) {
+            layoutContainerImpl(parent);            
+        }
+
+        public void addLayoutComponent(Component comp, Object constraints) {}
+
+        public Dimension maximumLayoutSize(Container target) {
+            return getLayoutSize(target);
+        }
+
+        public float getLayoutAlignmentX(Container target) { 
+            return 0.5f;
+        }
+
+        public float getLayoutAlignmentY(Container target) {
+            return 0.5f;
+        }
+
+        public void invalidateLayout(Container target) {
+            layoutContainerImpl(target);
+        }
+
+        private Dimension getLayoutSize(Container parent) {
+            synchronized (parent.getTreeLock()) {
+                int w=0, h=0;
+                Component comp = getVisibleComponent(parent.getComponents()); 
+                if (comp != null) {
+                    Dimension dim = comp.getPreferredSize();
+                    w = dim.width;
+                    h = dim.height;
+                }
+                if (w > 0 || h > 0) {
+                    Insets margin = parent.getInsets();
+                    w += (margin.left + margin.right);
+                    h += (margin.top + margin.bottom);
+                }
+                return new Dimension(w, h);
+            }
+        }
+        
+        private void layoutContainerImpl(Container parent) {
+            synchronized (parent.getTreeLock()) {
+                Insets margin = parent.getInsets();
+                int pwidth = parent.getWidth();
+                int pheight = parent.getHeight();
+                int x = margin.left;
+                int y = margin.top;
+                int w = pwidth - (margin.left + margin.right);
+                int h = pheight - (margin.top + margin.bottom);
+                Component comp = getVisibleComponent(parent.getComponents()); 
+                if (comp != null) comp.setBounds(x, y, w, h);
+            }            
+        }
+    }    
+    
+    // </editor-fold>
+        
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel3;
@@ -128,6 +245,8 @@ public class ListPage extends javax.swing.JPanel {
     private com.rameses.rcp.control.XActionBar navBar1;
     private javax.swing.JPanel pnlBody;
     private javax.swing.JPanel pnlHeader;
+    private javax.swing.JPanel rightsidebarpanel;
+    private javax.swing.JPanel sidebarpanel;
     private com.rameses.rcp.control.XActionBar xActionBar2;
     private com.rameses.rcp.control.XDataTable xDataTable1;
     private com.rameses.rcp.control.XHorizontalPanel xHorizontalPanel2;
