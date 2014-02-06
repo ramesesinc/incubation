@@ -78,6 +78,7 @@ public class XActionBar extends JPanel implements UIComposite, MouseEventSupport
     
     //flag
     private boolean dirty;
+    private boolean hideOnEmpty;
     
     //button template
     private XButton buttonTpl = new XButton();
@@ -355,6 +356,11 @@ public class XActionBar extends JPanel implements UIComposite, MouseEventSupport
     
     // <editor-fold defaultstate="collapsed" desc="  Getters/Setters  ">
     
+    public boolean isHideOnEmpty() { return hideOnEmpty; } 
+    public void setHideOnEmpty(boolean hideOnEmpty) {
+        this.hideOnEmpty = hideOnEmpty;
+    }
+    
     public String getFormName() { return formName; }
     public void setFormName(String formName) { this.formName = formName; }
     
@@ -529,6 +535,7 @@ public class XActionBar extends JPanel implements UIComposite, MouseEventSupport
     public boolean isVisible() {
         boolean b = super.isVisible();
         if (Beans.isDesignTime()) return b;
+        if (!isHideOnEmpty()) return b;
         if (!b) return false;
         
         Component[] comps = toolbarComponent.getComponents();
