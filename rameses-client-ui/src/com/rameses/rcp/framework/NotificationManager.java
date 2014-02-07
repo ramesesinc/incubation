@@ -40,7 +40,10 @@ public final class NotificationManager
     
     public void add(NotificationHandler handler) {
         synchronized (LOCK) {
-            if (provider == null) return; 
+            if (provider == null) {
+                System.err.println("[NotificationManager] No available notification provider"); 
+                return;
+            } 
             
             if (handler != null) {
                 provider.add(handler);
@@ -59,7 +62,7 @@ public final class NotificationManager
     public void publish(Object data) { 
         synchronized (LOCK) {
             if (provider == null) { 
-                System.out.println("No available notification provider"); 
+                System.err.println("[NotificationManager] No available notification provider"); 
                 return; 
             } 
             
@@ -69,7 +72,10 @@ public final class NotificationManager
     
     public void markAsRead(Object data) {
         synchronized (LOCK) {
-            if (provider == null) return; 
+            if (provider == null) {
+                System.err.println("[NotificationManager] No available notification provider"); 
+                return;
+            } 
             
             provider.markAsRead(data);
         }         
