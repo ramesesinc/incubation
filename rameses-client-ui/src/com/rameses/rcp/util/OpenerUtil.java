@@ -114,8 +114,6 @@ public class OpenerUtil
         map.put("id", sid);
         
         uicp.putClientProperty("Opener.properties", map); 
-        platform.showPopup(null, uicp, map);
-        
         if ("popup".equals(target) ) {
             platform.showPopup(null, uicp, map);
         } else {
