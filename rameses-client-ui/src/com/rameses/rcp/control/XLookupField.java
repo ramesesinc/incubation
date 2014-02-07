@@ -80,6 +80,7 @@ public class XLookupField extends IconedTextField implements UILookup, UISelecto
     private String expression;
     private String returnFields;
     private String disableWhen;
+    private String visibleWhen;
     private boolean transferFocusOnSelect = true;    
     private boolean dirty;
     private boolean loaded;
@@ -204,6 +205,11 @@ public class XLookupField extends IconedTextField implements UILookup, UISelecto
     public void setDisableWhen(String disableWhen) {
         this.disableWhen = disableWhen;
     }
+    
+    public String getVisibleWhen() { return visibleWhen; } 
+    public void setVisibleWhen(String visibleWhen) {
+        this.visibleWhen = visibleWhen;
+    }    
    
     // </editor-fold> 
     
@@ -276,6 +282,12 @@ public class XLookupField extends IconedTextField implements UILookup, UISelecto
             sval = getExpression();
             if (sval != null && sval.length() > 0) {
                 expval = UIControlUtil.evaluateExpr(exprBean, expression); 
+            }
+            
+            sval = getVisibleWhen();
+            if (sval != null && sval.length() > 0) {
+                setVisible(!UIControlUtil.evaluateExprBoolean(exprBean, sval)); 
+                if (!isVisible() && hasFocus()) transferFocus(); 
             }
         }
         
