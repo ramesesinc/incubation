@@ -12,6 +12,7 @@ import com.rameses.util.SealedMessage;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Serializable;
 import java.net.ConnectException;
@@ -163,7 +164,8 @@ public class HttpClient implements Serializable {
             uhost = queue.poll();
             if( uhost == null )
                 throw new AllConnectionFailed("Cannot connect to "+uhost);
-            
+
+            //System.out.println("url-> " + uhost);            
             URL url = new URL(uhost);
             conn = (HttpURLConnection) url.openConnection();
             if( connectionTimeout > 0 ) conn.setConnectTimeout(connectionTimeout);

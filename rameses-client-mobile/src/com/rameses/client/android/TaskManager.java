@@ -10,7 +10,6 @@
 package com.rameses.client.android;
 
 import java.util.Timer;
-import java.util.TimerTask;
 
 /**
  *
@@ -18,26 +17,15 @@ import java.util.TimerTask;
  */
 public class TaskManager 
 {
-    private static TaskManager current;
-    static void setCurrent(TaskManager newInstance) {
-        if (current != null) current.close(); 
-        
-        current = newInstance;
-    } 
-    
-    
     private Timer timer; 
     
     TaskManager() {
         timer = new Timer();
     }
     
-    void close() {
-        if (timer != null) { 
-            try { timer.cancel(); } catch(Throwable t){;} 
-            try { timer.purge(); } catch(Throwable t){;} 
-            try { timer = null; } catch(Throwable t){;} 
-        } 
+    synchronized void close() {
+        try { timer.cancel(); } catch(Throwable t){;} 
+        try { timer.purge(); } catch(Throwable t){;} 
     }
     
     public void schedule(Runnable runnable, long delay) {
@@ -53,11 +41,11 @@ public class TaskManager
     } 
     
     public void schedule(Task task, long delay, long period) {
-        TimerTaskImpl impl = new TimerTaskImpl(task); 
-        if (period <= 0)  
-            timer.schedule(impl, delay); 
-        else 
-            timer.schedule(impl, delay, period); 
+        if (period <= 0) { 
+            timer.schedule(task, delay); 
+        } else { 
+            timer.schedule(task, delay, period); 
+        } 
     } 
     
     
@@ -71,20 +59,11 @@ public class TaskManager
         }
 
         public void run() { 
-            runnable.run(); 
+            try { 
+                runnable.run(); 
+            } catch(Throwable t) {
+                t.printStackTrace(); 
+            }
         } 
-    }
-    
-    private class TimerTaskImpl extends TimerTask 
-    {
-        private Task task; 
-        
-        TimerTaskImpl(Task task) {
-            this.task = task; 
-        }
-
-        public void run() {
-            task.run(); 
-        }
-    }
+    } 
 }

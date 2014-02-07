@@ -25,155 +25,123 @@ public class SessionContext
     
     static SessionContext getCurrent() { return currentSession; } 
     static void setCurrent(SessionContext newSession) { 
+        SessionContext old = currentSession;
+        if (old != null) old.close();
+        
         currentSession = newSession;  
     } 
     
     public static String getSessionId() {
         SessionContext sc = getCurrent();
+        if (sc == null) return null;
+        
         Map headers = (sc == null? null: sc.getHeaders()); 
         return sc.getString(headers, "SESSIONID");
     }
     
     public static UserProfile getProfile() {
         SessionContext sc = getCurrent();
-        return (sc == null? null: sc.profileImpl); 
+        SessionProvider sp = (sc == null? null: sc.provider); 
+        return (sp == null? null: sp.getProfile());
     }
     
     public static UserSetting getSettings() {
         SessionContext sc = getCurrent();
-        return (sc == null? null: sc.userSettingImpl); 
+        SessionProvider sp = (sc == null? null: sc.provider); 
+        return (sp == null? null: sp.getSettings());
     }
     
-    public static Object getProperty(String name) {
+    public static String getPassword() {
+        return (String) get("encpwd"); 
+    } 
+    
+    public static Object get(String name) {
         SessionContext sc = getCurrent();
         return (sc == null? null: sc.properties.get(name)); 
     }
     
-    private UserProfileImpl profileImpl;    
-    private UserSettingImpl userSettingImpl;
+    public static void set(String name, Object value) {
+        SessionContext sc = getCurrent();
+        if (sc != null) sc.properties.put(name, value); 
+    }
+    
+    
+    private SessionProvider provider;    
     private AppContext appContext;
     private Map properties;
-    private Map env;
-    private Map headers; 
-    private Map settings;
+    private Map env; 
     
     SessionContext(AppContext appContext) { 
         this.appContext = appContext; 
-
-        userSettingImpl = new UserSettingImpl();        
-        profileImpl = new UserProfileImpl();
-        env = new EnvMap(appContext.getEnv()); 
-        properties = new HashMap();
-        setHeaders(new HashMap()); 
-        setSettings(new HashMap()); 
+        
+        properties = new HashMap(); 
+        setProvider(new SessionProviderImpl()); 
     }
-    
-    public Map getEnv() { return env; } 
+
     public Map getProperties() { return properties; } 
     
-    public final Map getHeaders() { return headers; } 
-    public void setHeaders(Map headers) {
-        this.headers = (headers == null? new HashMap(): headers);
-        this.headers.put("CLIENTTYPE", "mobile"); 
-    } 
-    
-    public void setSettings(Map settings) {
-        this.settings = (settings == null? new HashMap(): settings); 
+    public SessionProvider getProvider() { return provider; }  
+    public void setProvider(SessionProvider provider) {
+        if (provider == null) provider = new SessionProviderImpl();
+        
+        this.provider = provider;
+        env = provider.getEnv();
+        if (env == null) env = new HashMap();
     }
     
     void close() {
         if (properties != null) properties.clear();
-        if (headers != null) headers.clear();
-        if (env != null) env.clear();
+        if (env != null) env.clear(); 
+        
+        setProvider(new SessionProviderImpl());         
+    }
+    
+    public final Map getHeaders() { 
+        env.put("CLIENTTYPE", "mobile"); 
+        return env; 
     }
     
     private String getString(Map map, String name) {
         Object value = (map == null? null: map.get(name));
         return (value == null? null: value.toString()); 
     }
+
+    private int getInt(Map map, String name) {
+        try {
+            return Integer.parseInt(map.get(name).toString()); 
+        } catch(Throwable t) {
+            return -1;
+        }
+    }  
+    
+    
+    
+    private class SessionProviderImpl extends SessionProvider 
+    {
+        private Map env = new HashMap();
+        private UserProfileImpl profile = new UserProfileImpl();
+        
+        public Map getEnv() { 
+            return env; 
+        }
+
+        public UserProfile getProfile() {
+            return profile; 
+        }
+
+        public UserSetting getSettings() {
+            return null; 
+        }
+    }
     
     private class UserProfileImpl implements UserProfile 
     {
         SessionContext root = SessionContext.this; 
 
-        public String getUserId() {
-            Map headers = root.getHeaders();
-            return root.getString(headers, "USERID");
-        }
-        
-        public String getUserName() {
-            Map headers = root.getHeaders();
-            return root.getString(headers, "USER");
-        }
-
-        public String getFullName() {
-            Map headers = root.getHeaders();
-            return root.getString(headers, "FULLNAME");
-        }
-
-        public String getName() {
-            Map headers = root.getHeaders();
-            return root.getString(headers, "NAME");            
-        }
-
-        public String getJobTitle() {
-            Map headers = root.getHeaders();
-            return root.getString(headers, "JOBTITLE");
-        }
-
-        public String getPassword() {
-            Object value = root.getProperties().get("encpwd");
-            return (value == null? null: value.toString()); 
-        }
-        
-        public void set(String name, Object value) {
-            root.getProperties().put(name, value); 
-        }
-
-        public Object get(String name) {
-            return root.getProperties().get(name); 
-        }
-    }
-    
-    private class UserSettingImpl implements UserSetting
-    {
-        SessionContext root = SessionContext.this; 
-        
-        public String getOnlineHost() {
-            return getString(root.settings, "ONLINE_HOST");
-        }
-
-        public String getOfflineHost() {
-            return getString(root.settings, "OFFLINE_HOST");            
-        }
-
-        public int getPort() {
-            return getInt(root.settings, "PORT");
-        }
-
-        public int getSessionTimeout() {
-            return getInt(root.settings, "SESSION_TIMEOUT");
-        }
-
-        public int getTrackerDelay() {
-            return getInt(root.settings, "TRACKER_DELAY");
-        }
-
-        public int getUploadDelay() {
-            return getInt(root.settings, "UPLOAD_DELAY");
-        }
-        
-        private String getString(Map map, String name) {
-            Object value = (map == null? null: map.get(name));
-            return (value == null? null: value.toString()); 
-        }
-        
-        private int getInt(Map map, String name) {
-            try {
-                return Integer.parseInt(map.get(name).toString()); 
-            } catch(Throwable t) {
-                return -1;
-            }
-        } 
-    }
+        public String getUserId() { return null; }
+        public String getUserName() { return null; }
+        public String getFullName() { return null; }
+        public String getName() { return null; }
+        public String getJobTitle() { return null; }
+    } 
 }

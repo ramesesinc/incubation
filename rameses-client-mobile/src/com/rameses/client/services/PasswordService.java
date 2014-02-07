@@ -9,6 +9,7 @@
 
 package com.rameses.client.services;
 
+import com.rameses.client.android.AppContext;
 import com.rameses.client.android.SessionContext;
 import com.rameses.client.interfaces.UserProfile;
 import com.rameses.util.Encoder;
@@ -31,9 +32,10 @@ public class PasswordService extends AbstractService
         if (!newpwd.equals(confirmpwd)) 
             throw new RuntimeException("New password and Confirm password must be the same");
         
-        UserProfile profile = SessionContext.getProfile(); 
+        SessionContext sess = AppContext.getSession();
+        UserProfile profile = sess.getProfile();
         String username  = profile.getUserName();
-        String encCurPwd = profile.getPassword();
+        String encCurPwd = sess.getPassword();
         String encOldPwd = (oldpwd == null? encCurPwd: Encoder.MD5.encode(oldpwd, username));
 
         if (!encOldPwd.equals(encCurPwd)) 
@@ -48,6 +50,6 @@ public class PasswordService extends AbstractService
         param.put("newpassword", encNewPwd);
         param.put("oldpassword", encOldPwd);
         invoke("changePassword", param);
-        profile.set("encpwd", encNewPwd); 
+        sess.set("encpwd", encNewPwd); 
     }    
 }

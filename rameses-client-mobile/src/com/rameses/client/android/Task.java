@@ -9,15 +9,13 @@
 
 package com.rameses.client.android;
 
+import java.util.TimerTask;
+
 /**
  *
  * @author wflores 
  */
-public abstract class Task 
-{
-    
-    public Task() {
-    }
-    
-    public abstract void run();
+public abstract class Task extends TimerTask 
+{    
+    public abstract void run();    
 }

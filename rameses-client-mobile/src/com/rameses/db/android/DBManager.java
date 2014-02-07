@@ -33,7 +33,7 @@ public final class DBManager
         map.put(name, db); 
     }
     
-    static synchronized AbstractDB get(String name) {
+    public static synchronized AbstractDB get(String name) {
         return getInstance().databases.get(name);
     }
     

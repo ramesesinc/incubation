@@ -20,8 +20,4 @@ public interface UserProfile
     String getFullName();
     String getName();
     String getJobTitle();
-    String getPassword();
-    
-    void set(String name, Object value);
-    Object get(String name); 
 } 

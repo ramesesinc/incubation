@@ -1,5 +1,5 @@
 /*
- * DeviceAppContext.java
+ * AppContextImpl.java
  *
  * Created on January 22, 2014, 11:11 AM
  *
@@ -11,22 +11,18 @@ package com.rameses.client.android;
 
 import java.util.Map;
 
-/**
+/**x
  *
  * @author wflores
  */
-class DeviceAppContext extends AppContext 
+class AppContextImpl extends AppContext 
 {
     private Map env;
     
-    public DeviceAppContext(Map env) {
+    public AppContextImpl(Map env) {
         this.env = env;
     }
 
     public Map getEnv() { return env; }
 
-    protected void close() {
-        super.close();
-        if (env != null) env.clear(); 
-    }
 }

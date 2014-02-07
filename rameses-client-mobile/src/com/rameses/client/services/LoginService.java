@@ -30,19 +30,18 @@ public class LoginService extends AbstractService
         param.put("username", username);
         param.put("password", encpwd);
         Map result = (Map) invoke("login", param);
-        Map userEnv = (Map) result.remove("env");
-        Map settings = (Map) userEnv.remove("SETTINGS"); 
+        
+        SessionProviderImpl sessImpl = new SessionProviderImpl(result);
         SessionContext sess = AppContext.getSession();
-        sess.setHeaders(userEnv); 
-        sess.setSettings(settings);         
-        sess.getProfile().set("encpwd", encpwd); 
+        sess.setProvider(sessImpl); 
+        sess.set("encpwd", encpwd); 
         
         Map authOpts = (Map) result.remove("AUTH_OPTIONS");
         if (authOpts != null) {
             Iterator keys = authOpts.keySet().iterator(); 
             while (keys.hasNext()) { 
                 String key = keys.next().toString(); 
-                sess.getProperties().put(key, authOpts.get(key)); 
+                sess.set(key, authOpts.get(key)); 
             } 
         } 
     } 

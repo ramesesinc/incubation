@@ -22,6 +22,9 @@ public class SecurityManager
     
     static SecurityManager getCurrent() { return currentSecurityManager; } 
     static void setCurrent(SecurityManager newSecurityManager) { 
+        SecurityManager old = currentSecurityManager;
+        if (old != null) old.close();
+        
         currentSecurityManager = newSecurityManager;  
     } 
 

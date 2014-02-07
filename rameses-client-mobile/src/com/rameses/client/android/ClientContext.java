@@ -18,13 +18,17 @@ import java.util.Map;
  */
 public final class ClientContext 
 {
-    private static Object LOCK = new Object();
-    private static ClientContext current; 
+    private final static Object LOCK = new Object();
+    private static TaskManager taskManager;
     
-    public static ClientContext getCurrentContext() {
-        return current; 
+    static {
+        synchronized (LOCK) {
+            taskManager = new TaskManager();
+        }
     }
     
+    private static ClientContext current;     
+    public static ClientContext getCurrentContext() { return current; }    
     static synchronized void setCurrentContext(ClientContext newContext) {
         ClientContext old = current;
         if (old != null) old.close();
@@ -32,16 +36,19 @@ public final class ClientContext
         current = newContext; 
         if (current != null) current.init();
     }
+        
     
-    
+    private UIApplication uiapp;
     private AppContext appContext;
-    private DeviceContext deviceContext;
-    private TaskManager taskManager;
     
-    ClientContext(AppContext appContext, DeviceContext deviceContext) {
+    ClientContext(UIApplication uiapp, AppContext appContext) {
+        this.uiapp = uiapp;
         this.appContext = appContext; 
-        this.deviceContext = deviceContext;
     }
+
+    private void init() { 
+        AppContext.setInstance(this.appContext); 
+    } 
     
     public Map getAppEnv() { 
         return appContext.getEnv();  
@@ -51,20 +58,24 @@ public final class ClientContext
         SessionContext sess = appContext.getSession(); 
         return (sess == null? null: sess.getHeaders()); 
     }
-    
-    public DeviceContext getDeviceContext() {
-        return deviceContext; 
-    } 
-    
-    public TaskManager getTaskManager() {
-        return taskManager; 
+        
+    public TaskManager getTaskManager() { 
+        return ClientContext.taskManager; 
     }
     
-    protected void init() {
-        taskManager = new TaskManager(); 
-        TaskManager.setCurrent(taskManager); 
-    } 
-    
-    protected void close() {
+    void close() { 
+        AppContext.setInstance(null);
+        
+        try { 
+            taskManager.close();  
+        } catch(Throwable t) { 
+            t.printStackTrace(); 
+        } 
+        
+        try { 
+            appContext.close(); 
+        } catch(Throwable t) { 
+            t.printStackTrace(); 
+        }         
     }
 }

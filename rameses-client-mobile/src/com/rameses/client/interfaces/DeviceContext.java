@@ -15,4 +15,8 @@ package com.rameses.client.interfaces;
  */
 public interface DeviceContext {
     
+    void logout();
+    
+    void suspend(); 
+    
 }
