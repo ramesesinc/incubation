@@ -40,16 +40,16 @@ public class ListPage extends javax.swing.JPanel {
         jPanel1 = new javax.swing.JPanel();
         xActionBar2 = new com.rameses.rcp.control.XActionBar();
         xSubFormPanel1 = new com.rameses.rcp.control.XSubFormPanel();
+        sidebarpanel = new javax.swing.JPanel();
         pnlBody = new javax.swing.JPanel();
         xDataTable1 = new com.rameses.rcp.control.XDataTable();
-        sidebarpanel = new javax.swing.JPanel();
-        rightsidebarpanel = new javax.swing.JPanel();
         xHorizontalPanel2 = new com.rameses.rcp.control.XHorizontalPanel();
         navBar1 = new com.rameses.rcp.control.XActionBar();
         jPanel3 = new javax.swing.JPanel();
         xLabel1 = new com.rameses.rcp.control.XLabel();
         jPanel4 = new javax.swing.JPanel();
         xLabel2 = new com.rameses.rcp.control.XLabel();
+        rightsidebarpanel = new javax.swing.JPanel();
 
         setLayout(new java.awt.BorderLayout());
 
@@ -91,14 +91,7 @@ public class ListPage extends javax.swing.JPanel {
 
         add(pnlHeader, java.awt.BorderLayout.NORTH);
 
-        pnlBody.setLayout(new java.awt.BorderLayout());
-
-        pnlBody.setBorder(javax.swing.BorderFactory.createEmptyBorder(2, 2, 0, 2));
-        xDataTable1.setHandler("listHandler");
-        xDataTable1.setImmediate(true);
-        xDataTable1.setName("selectedEntity");
-        pnlBody.add(xDataTable1, java.awt.BorderLayout.CENTER);
-
+        sidebarpanel.setBorder(javax.swing.BorderFactory.createEmptyBorder(2, 2, 2, 0));
         sidebarpanel.setName("sidebar");
         sidebarpanel.setOpaque(false);
         org.jdesktop.layout.GroupLayout sidebarpanelLayout = new org.jdesktop.layout.GroupLayout(sidebarpanel);
@@ -109,24 +102,17 @@ public class ListPage extends javax.swing.JPanel {
         );
         sidebarpanelLayout.setVerticalGroup(
             sidebarpanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(0, 289, Short.MAX_VALUE)
+            .add(0, 312, Short.MAX_VALUE)
         );
-        pnlBody.add(sidebarpanel, java.awt.BorderLayout.WEST);
+        add(sidebarpanel, java.awt.BorderLayout.WEST);
 
-        rightsidebarpanel.setName("rightsidebar");
-        org.jdesktop.layout.GroupLayout rightsidebarpanelLayout = new org.jdesktop.layout.GroupLayout(rightsidebarpanel);
-        rightsidebarpanel.setLayout(rightsidebarpanelLayout);
-        rightsidebarpanelLayout.setHorizontalGroup(
-            rightsidebarpanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(0, 100, Short.MAX_VALUE)
-        );
-        rightsidebarpanelLayout.setVerticalGroup(
-            rightsidebarpanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(0, 289, Short.MAX_VALUE)
-        );
-        pnlBody.add(rightsidebarpanel, java.awt.BorderLayout.EAST);
+        pnlBody.setLayout(new java.awt.BorderLayout());
 
-        add(pnlBody, java.awt.BorderLayout.CENTER);
+        pnlBody.setBorder(javax.swing.BorderFactory.createEmptyBorder(2, 2, 0, 2));
+        xDataTable1.setHandler("listHandler");
+        xDataTable1.setImmediate(true);
+        xDataTable1.setName("selectedEntity");
+        pnlBody.add(xDataTable1, java.awt.BorderLayout.CENTER);
 
         navBar1.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 5, 0, 25));
         navBar1.setName("navActions");
@@ -152,7 +138,23 @@ public class ListPage extends javax.swing.JPanel {
 
         xHorizontalPanel2.add(jPanel4);
 
-        add(xHorizontalPanel2, java.awt.BorderLayout.SOUTH);
+        pnlBody.add(xHorizontalPanel2, java.awt.BorderLayout.SOUTH);
+
+        add(pnlBody, java.awt.BorderLayout.CENTER);
+
+        rightsidebarpanel.setBorder(javax.swing.BorderFactory.createEmptyBorder(2, 0, 2, 2));
+        rightsidebarpanel.setName("rightsidebar");
+        org.jdesktop.layout.GroupLayout rightsidebarpanelLayout = new org.jdesktop.layout.GroupLayout(rightsidebarpanel);
+        rightsidebarpanel.setLayout(rightsidebarpanelLayout);
+        rightsidebarpanelLayout.setHorizontalGroup(
+            rightsidebarpanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(0, 100, Short.MAX_VALUE)
+        );
+        rightsidebarpanelLayout.setVerticalGroup(
+            rightsidebarpanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(0, 312, Short.MAX_VALUE)
+        );
+        add(rightsidebarpanel, java.awt.BorderLayout.EAST);
 
     }// </editor-fold>//GEN-END:initComponents
     
