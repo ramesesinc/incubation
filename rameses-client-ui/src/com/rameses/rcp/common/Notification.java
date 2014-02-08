@@ -25,12 +25,12 @@ public final class Notification
         return ClientContext.getCurrentContext().getNotificationManager(); 
     }
     
-    public static void publish(Object data) {
-        getManager().publish(data);
+    public static void sendMessage(Object data) {
+        getManager().sendMessage(data);
     }
     
-    public static void markAsRead(Object data) {
-        getManager().markAsRead(data); 
+    public static void removeMessage(Object data) {
+        getManager().removeMessage(data); 
     }    
     
     public static RuntimeHandle register(Object callback) {
