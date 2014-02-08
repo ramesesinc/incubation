@@ -33,11 +33,11 @@ public final class RuntimeNotificationHandle
     }
     
     public void publish(Object data) {
-        getManager().publish(data);
+        getManager().sendMessage(data);
     }
     
     public void markAsRead(Object data) {
-        getManager().markAsRead(data); 
+        getManager().removeMessage(data); 
     }     
     
     public void register(Object callback) {

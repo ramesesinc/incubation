@@ -59,25 +59,25 @@ public final class NotificationManager
         } 
     } 
     
-    public void publish(Object data) { 
+    public void sendMessage(Object data) { 
         synchronized (LOCK) {
             if (provider == null) { 
                 System.err.println("[NotificationManager] No available notification provider"); 
                 return; 
             } 
             
-            provider.publish(data);
+            provider.sendMessage(data);
         } 
     } 
     
-    public void markAsRead(Object data) {
+    public void removeMessage(Object data) {
         synchronized (LOCK) {
             if (provider == null) {
                 System.err.println("[NotificationManager] No available notification provider"); 
                 return;
             } 
             
-            provider.markAsRead(data);
+            provider.removeMessage(data);
         }         
     }
 }

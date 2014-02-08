@@ -18,7 +18,7 @@ public interface NotificationProvider
     void add(NotificationHandler handler);
     boolean remove(NotificationHandler handler);
     
-    void publish(Object data);
-    void markAsRead(Object data); 
+    void sendMessage(Object data);
+    void removeMessage(Object data); 
     void close();
 }
