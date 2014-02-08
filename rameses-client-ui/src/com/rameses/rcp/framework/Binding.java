@@ -31,6 +31,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -824,6 +825,14 @@ public class Binding
     
     // <editor-fold defaultstate="collapsed" desc="  helper methods  ">
     
+    private DependencyInjector injector;    
+    private DependencyInjector getInjector() {
+        if (injector == null) {
+            injector = new DependencyInjector();
+        }
+        return injector;
+    }
+    
     private void initAnnotatedFields( Object o, Class clazz ) 
     {
         if (o == null) return;
@@ -952,14 +961,17 @@ public class Binding
                 }                
                 f.setAccessible(accessible); 
             }
-            else if (f.isAnnotationPresent(com.rameses.rcp.annotations.Notification.class)) {
+            else {
                 f.setAccessible(true);
                 try {
-                    f.set(o, new RuntimeNotificationHandle(this));
+                    for (Annotation anno: f.getDeclaredAnnotations()) {
+                        Object resource = getInjector().getResource(anno, this);
+                        if (resource != null) f.set(o, resource);
+                    } 
                 } catch(Throwable t) {
-                    System.out.println("ERROR injecting @Notification caused by " + t.getClass().getName() + ": " + t.getMessage() );
+                    System.out.println("ERROR injecting caused by " + t.getClass().getName() + ": " + t.getMessage() );
                 }                
-                f.setAccessible(accessible); 
+                f.setAccessible(accessible);                 
             }
         }
         
