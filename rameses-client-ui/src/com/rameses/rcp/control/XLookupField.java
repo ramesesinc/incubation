@@ -286,7 +286,7 @@ public class XLookupField extends IconedTextField implements UILookup, UISelecto
             
             sval = getVisibleWhen();
             if (sval != null && sval.length() > 0) {
-                setVisible(!UIControlUtil.evaluateExprBoolean(exprBean, sval)); 
+                setVisible(UIControlUtil.evaluateExprBoolean(exprBean, sval)); 
                 if (!isVisible() && hasFocus()) transferFocus(); 
             }
         }
