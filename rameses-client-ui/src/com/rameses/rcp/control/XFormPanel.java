@@ -490,34 +490,30 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
         //visibility and empty text support
         if ( controls.size() == 0 && nonDynamicControls.size() == 0 && !ValueUtil.isEmpty(emptyText) ) {
             empty = true;
-        } 
-        else 
-        {
-            if ( !ValueUtil.isEmpty(emptyWhen) ) 
-                empty = UIControlUtil.evaluateExprBoolean(binding.getBean(), emptyWhen);
+        } else {
+            if ( !ValueUtil.isEmpty(emptyWhen) ) {
+                try { 
+                    empty = UIControlUtil.evaluateExprBoolean(binding.getBean(), emptyWhen); 
+                } catch(Throwable t){
+                    t.printStackTrace();
+                } 
+            }
         }
         
-        if ( !empty ) 
-        {
-            if ( emptyLbl != null ) 
-            {
+        if ( !empty ) {
+            if ( emptyLbl != null ) {
                 remove(emptyLbl);
                 emptyLbl = null;
             }
             
-            if ( htmlView ) 
-            {
+            if ( htmlView ) {
                 FormControlUtil fcUtil = FormControlUtil.getInstance();
                 htmlPane.setText( fcUtil.renderHtml(getAllControls(), this) );
-            } 
-            else 
-            {
+            } else {
                 //attach again the nonDynamicControls
                 //if they were removed temporarily
-                if ( dynamicControlsRemoved ) 
-                {
-                    for (UIControl u : nonDynamicControls) 
-                    {
+                if ( dynamicControlsRemoved ) {
+                    for (UIControl u : nonDynamicControls) {
                         add((Component)u);
                         u.refresh();
                     }
@@ -526,33 +522,27 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
                 
                 FormItemPanel formItemPanel = null;
                 Map<String,String> categories = new WeakHashMap(); 
-                for (UIControl u : controls) 
-                {
+                for (UIControl u : controls) {
                     u.refresh();
-                    if ( !htmlView ) 
-                    {
+                    if ( !htmlView ) {
                         if (layout != super.getLayout()) super.setLayout(layout);
                         
                         //add component if form panel is reloaded
                         //this happends if the form panel is dynamic
-                        if ( reloaded && u instanceof JComponent ) 
-                        {
+                        if ( reloaded && u instanceof JComponent ) {
                             JComponent jc = (JComponent) u; 
-                            if (model != null && isShowCategory()) 
-                            { 
+                            if (model != null && isShowCategory()) { 
                                 FormControl fc = (FormControl) jc.getClientProperty(FormControl.class); 
                                 String newCategoryid = (fc == null? null: fc.getCategoryid()); 
                                 String oldCategoryid = (formItemPanel == null? null: formItemPanel.getId()); 
-                                if (formItemPanel == null || !(newCategoryid+"").equals(oldCategoryid+"")) 
-                                { 
+                                if (formItemPanel == null || !(newCategoryid+"").equals(oldCategoryid+"")) { 
                                     formItemPanel = new FormItemPanel(newCategoryid); 
                                     formItemPanel.setFormPanelProperty(this); 
                                     add(formItemPanel); 
                                 }                                     
 
                                 String fiCaption = formItemPanel.getCaption();
-                                if (fiCaption == null || fiCaption.length() == 0) 
-                                { 
+                                if (fiCaption == null || fiCaption.length() == 0) { 
                                     String s = model.getCategory(newCategoryid); 
                                     if (s != null) formItemPanel.setCaption(s); 
                                     
@@ -567,11 +557,8 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
                 }
                 categories.clear();
             }
-        } 
-        else 
-        {
-            if ( htmlView ) 
-            {
+        } else {
+            if ( htmlView ) {
                 Font f = getFont();
                 
                 StringBuffer sb = new StringBuffer()
@@ -589,13 +576,9 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
                 
                 htmlPane.setText( sb.toString() );
                 htmlPane.setCaretPosition(0);
-            } 
-            else 
-            {
-                if ( emptyText != null ) 
-                {
-                    if ( emptyLbl == null ) 
-                    {
+            } else {
+                if ( emptyText != null ) {
+                    if ( emptyLbl == null ) {
                         emptyLbl = new XLabel();
                         emptyLbl.setShowCaption(false);
                     }

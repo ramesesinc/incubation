@@ -227,30 +227,40 @@ public class XButton extends JButton implements UICommand, ActionListener,
     
     // <editor-fold defaultstate="collapsed" desc=" UICommand implementation ">
     
-    public void refresh() 
-    {
-        if (!ValueUtil.isEmpty(expression)) 
-        {
+    public void refresh() {
+        if (!ValueUtil.isEmpty(expression)) {
             Object result = UIControlUtil.evaluateExpr(binding.getBean(), expression);
             setText((result==null? "": result.toString()));
         }
         
-        if (!ValueUtil.isEmpty(visibleWhen)) 
-        {
-            boolean result = UIControlUtil.evaluateExprBoolean(binding.getBean(), visibleWhen);
-            if ( !result ) 
+        if (!ValueUtil.isEmpty(visibleWhen)) {
+            boolean result = false; 
+            try { 
+                result = UIControlUtil.evaluateExprBoolean(binding.getBean(), visibleWhen);
+            } catch(Throwable t) {
+                t.printStackTrace();
+            }
+            
+            if (!result) {
                 setVisible(false);
-            else if (!isVisible()) 
+            } else if (!isVisible()) {
                 setVisible(true);
+            }
         }
         
-        if (!ValueUtil.isEmpty(disableWhen)) 
-        {
-            boolean result = UIControlUtil.evaluateExprBoolean(binding.getBean(), disableWhen);
-            if ( !result ) 
+        if (!ValueUtil.isEmpty(disableWhen)) {
+            boolean result = false; 
+            try { 
+                result = UIControlUtil.evaluateExprBoolean(binding.getBean(), disableWhen);
+            } catch(Throwable t) {
+                t.printStackTrace();
+            } 
+            
+            if (!result) {
                 setEnabled(true);
-            else if (isEnabled()) 
+            } else if (isEnabled()) {
                 setEnabled(false);
+            }
         } 
     }
     

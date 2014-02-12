@@ -1,6 +1,5 @@
 package com.rameses.rcp.util;
 
-import com.rameses.common.ExpressionResolver;
 import com.rameses.common.PropertyResolver;
 import com.rameses.rcp.common.FormControl;
 import com.rameses.rcp.common.FormPanelModel;
@@ -366,8 +365,11 @@ public class FormPanel extends JPanel implements UIComposite, ControlContainer, 
             empty = true;
         } else {
             if( !ValueUtil.isEmpty(emptyWhen) ) {
-                ExpressionResolver er = ExpressionResolver.getInstance();
-                empty = UIControlUtil.evaluateExprBoolean(binding.getBean(), emptyWhen); 
+                try { 
+                    empty = UIControlUtil.evaluateExprBoolean(binding.getBean(), emptyWhen); 
+                } catch(Throwable t) {
+                    t.printStackTrace();
+                }
             }
         }
         
@@ -440,10 +442,15 @@ public class FormPanel extends JPanel implements UIComposite, ControlContainer, 
         boolean empty = false;
         
         //visibility and empty text support
-        if( controls.size() == 0 && nonDynamicControls.size() == 0 && !ValueUtil.isEmpty(emptyText) ) 
+        if( controls.size() == 0 && nonDynamicControls.size() == 0 && !ValueUtil.isEmpty(emptyText) ) {
             empty = true;
-        else if( !ValueUtil.isEmpty(emptyWhen) ) 
-            empty = UIControlUtil.evaluateExprBoolean(binding.getBean(), emptyWhen);             
+        } else if( !ValueUtil.isEmpty(emptyWhen) ) { 
+            try { 
+                empty = UIControlUtil.evaluateExprBoolean(binding.getBean(), emptyWhen); 
+            } catch(Throwable t) {
+                t.printStackTrace();
+            }
+        }
         
         if( !empty ) {
             List<UIControl> allControls = getAllControls();

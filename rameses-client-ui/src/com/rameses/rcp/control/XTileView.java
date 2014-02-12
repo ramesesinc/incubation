@@ -327,7 +327,12 @@ public class XTileView extends JPanel implements UIComposite, MouseEventSupport.
             
             String expression = (String) btn.getClientProperty("visibleWhen");
             if (expression != null && expression.trim().length() > 0) { 
-                boolean result = UIControlUtil.evaluateExprBoolean(binding.getBean(), expression); 
+                boolean result = false;
+                try {
+                    UIControlUtil.evaluateExprBoolean(binding.getBean(), expression);
+                } catch(Throwable t) {
+                    t.printStackTrace();
+                }
                 btn.setVisible(result); 
                 
             } else { 

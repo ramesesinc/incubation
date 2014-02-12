@@ -24,10 +24,6 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Insets;
 import java.awt.LayoutManager;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
-import java.awt.event.ContainerEvent;
-import java.awt.event.ContainerListener;
 import java.beans.Beans;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -183,10 +179,13 @@ public class XSubFormPanel extends JPanel implements UISubControl, ActiveControl
      
         String sval = getVisibleWhen(); 
         if (sval != null && sval.length() > 0) {
+            boolean result = false; 
             try { 
-                boolean bool = UIControlUtil.evaluateExprBoolean(getBinding().getBean(), sval);
-                setVisible(bool); 
-            } catch(Throwable t) {;} 
+                result = UIControlUtil.evaluateExprBoolean(getBinding().getBean(), sval);
+            } catch(Throwable t) {
+                t.printStackTrace();
+            } 
+            setVisible(result); 
         }
     }
     

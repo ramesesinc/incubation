@@ -322,7 +322,6 @@ public class XActionBar extends JPanel implements UIComposite, MouseEventSupport
         if (isDynamic()) buildButtons();
 
         boolean found = false;
-        ExpressionResolver expResolver = ExpressionResolver.getInstance();
         for (XButton btn: buttons) {
             String domain = (String) btn.getClientProperty("Action.domain");
             String role = (String) btn.getClientProperty("Action.role");
@@ -332,8 +331,13 @@ public class XActionBar extends JPanel implements UIComposite, MouseEventSupport
             
             String expression = (String) btn.getClientProperty("visibleWhen");
             if (expression != null && expression.trim().length() > 0) { 
-                boolean result = UIControlUtil.evaluateExprBoolean(binding.getBean(), expression); 
-                btn.setVisible(result); 
+                try { 
+                    boolean result = UIControlUtil.evaluateExprBoolean(binding.getBean(), expression); 
+                    btn.setVisible(result); 
+                } catch(Throwable t) { 
+                    btn.setVisible(false); 
+                    t.printStackTrace();
+                }
                 
             } else { 
                 if ( btn.getClientProperty("default.button") != null ) {
