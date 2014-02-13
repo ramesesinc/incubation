@@ -42,6 +42,19 @@ public final class DateFunc {
         return cal.getTime();
     }
     
+    public static int getQtrMonth( int qtr ) {
+        switch(qtr) {
+            case 1: 
+                return Calendar.JANUARY;
+            case 2: 
+                return Calendar.APRIL; 
+            case 3: 
+                return Calendar.JULY; 
+            default: 
+                return Calendar.OCTOBER;
+        }
+    }
+    
     public static Date endQtrDate( int year, int qtr ) {
         Calendar cal = Calendar.getInstance();
         int month = 0;
