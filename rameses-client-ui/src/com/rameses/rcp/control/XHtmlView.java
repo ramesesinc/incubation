@@ -202,7 +202,12 @@ public class XHtmlView extends JEditorPane implements UIControl, ActiveControl, 
             String visibleWhen = getVisibleWhen(); 
             if (visibleWhen != null && visibleWhen.length() > 0) { 
                 Object bean = getBinding().getBean();
-                boolean b = UIControlUtil.evaluateExprBoolean(bean, visibleWhen);
+                boolean b = false; 
+                try { 
+                    b = UIControlUtil.evaluateExprBoolean(bean, visibleWhen);
+                } catch(Throwable t) {
+                    t.printStackTrace();
+                } 
                 setVisible(b); 
             } 
         } catch(Throwable t) {;} 

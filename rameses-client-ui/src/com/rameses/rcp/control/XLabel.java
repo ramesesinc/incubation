@@ -310,7 +310,12 @@ public class XLabel extends DefaultLabel implements UIOutput, ActiveControl,
             Object exprBean = createExpressionBean(beanValue);             
             String exprWhen = getVisibleWhen();
             if (exprWhen != null && exprWhen.length() > 0) {
-                boolean result = UIControlUtil.evaluateExprBoolean(exprBean, exprWhen);
+                boolean result = false; 
+                try { 
+                    result = UIControlUtil.evaluateExprBoolean(exprBean, exprWhen);
+                } catch(Throwable t) {
+                    t.printStackTrace();
+                } 
                 setVisible(result); 
                 if (!result) return;
             }

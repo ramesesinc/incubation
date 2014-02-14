@@ -68,10 +68,11 @@ public class DynamicCellRenderer extends CellRenderers.AbstractRenderer
                 boolean b = false;
                 try {
                     b = UIControlUtil.evaluateExprBoolean(exprBean, visibleWhen); 
-                } catch(Exception ex) {;} 
+                } catch(Throwable t) {
+                    t.printStackTrace();
+                } 
                 
-                if (b)
-                {
+                if (b) { 
                     selColumn = ic;
                     break;
                 }

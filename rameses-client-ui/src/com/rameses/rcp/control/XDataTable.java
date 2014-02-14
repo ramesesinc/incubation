@@ -324,7 +324,9 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
             try { 
                 boolean b = UIControlUtil.evaluateExprBoolean(getBinding().getBean(), expr); 
                 setReadonly(b); 
-            } catch(Throwable t) {;}
+            } catch(Throwable t) {
+                t.printStackTrace();
+            }
         } 
     }
          

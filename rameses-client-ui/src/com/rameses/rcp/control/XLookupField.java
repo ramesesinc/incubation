@@ -275,7 +275,11 @@ public class XLookupField extends IconedTextField implements UILookup, UISelecto
             Object exprBean = createExpressionBean(itemBean); 
             String sval = getDisableWhen();
             if (sval != null && sval.length() > 0) {
-                setEnabled(!UIControlUtil.evaluateExprBoolean(exprBean, sval)); 
+                try { 
+                    setEnabled(!UIControlUtil.evaluateExprBoolean(exprBean, sval)); 
+                } catch(Throwable t) {
+                    t.printStackTrace();
+                }
                 if (!isEnabled() && hasFocus()) transferFocus(); 
             }
             
@@ -286,7 +290,11 @@ public class XLookupField extends IconedTextField implements UILookup, UISelecto
             
             sval = getVisibleWhen();
             if (sval != null && sval.length() > 0) {
-                setVisible(UIControlUtil.evaluateExprBoolean(exprBean, sval)); 
+                try {
+                    setVisible(UIControlUtil.evaluateExprBoolean(exprBean, sval)); 
+                } catch(Throwable t) {
+                    t.printStackTrace();
+                }
                 if (!isVisible() && hasFocus()) transferFocus(); 
             }
         }
