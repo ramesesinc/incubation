@@ -17,6 +17,7 @@ import com.rameses.client.interfaces.AppLoaderCaller;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -39,6 +40,7 @@ public class UIApplication extends Application
     
     private AppLoaderCallerImpl appLoaderCaller;
     private SuspendTimer suspendTimer;
+    private TimeTicker timeTicker;
     
     public UIApplication() {
         super(); 
@@ -164,6 +166,18 @@ public class UIApplication extends Application
         if (suspendTimer != null) suspendTimer.suspend();
     }
     
+    public final void syncServerDate() {
+        if (timeTicker == null) {
+            timeTicker = new TimeTicker(this);
+            timeTicker.start(); 
+        } else { 
+            timeTicker.restart(); 
+        } 
+    } 
+    
+    public final Date getServerDate() {
+        return (timeTicker == null? null: timeTicker.getDate()); 
+    }     
     
     private void loadAppLoaders() {
         List<AppLoader> list = new ArrayList(); 
