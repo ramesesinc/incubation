@@ -9,7 +9,6 @@
 
 package com.rameses.client.android;
 
-import java.security.PrivilegedAction;
 import java.util.Timer;
 
 /**
@@ -28,6 +27,10 @@ public class TaskManager
         try { timer.cancel(); } catch(Throwable t){;} 
         try { timer.purge(); } catch(Throwable t){;} 
     }
+
+    public void schedule(Runnable runnable) {
+        schedule(runnable, 0);
+    } 
     
     public void schedule(Runnable runnable, long delay) {
         schedule(new TaskRunnableProxy(runnable), delay);
@@ -37,6 +40,10 @@ public class TaskManager
         schedule(new TaskRunnableProxy(runnable), delay, period);
     } 
 
+    public void schedule(Task task) {
+        schedule(task, 0);
+    } 
+    
     public void schedule(Task task, long delay) {
         schedule(task, delay, 0);
     } 
