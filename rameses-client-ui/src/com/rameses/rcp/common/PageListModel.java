@@ -184,6 +184,9 @@ public abstract class PageListModel extends AbstractListDataProvider
         addItem(item);
     }
     
+    protected void onUpdateItem(Object item) {
+    }
+    
     protected boolean onRemoveItem(Object item) { 
         return false;
     } 
@@ -257,13 +260,17 @@ public abstract class PageListModel extends AbstractListDataProvider
             return root.isAllowAdd(); 
         }
 
-        public void validate(ListItem li) {
+        public void validate(ListItem li) { 
             root.validate(li);
         }
 
         public void onAddItem(Object item) {
             root.onAddItem(item);
         }
+        
+        public void onUpdateItem(Object item) {
+            root.onUpdateItem(item);
+        }        
 
         public void onCommitItem(Object item) { 
             root.onCommitItem(item);

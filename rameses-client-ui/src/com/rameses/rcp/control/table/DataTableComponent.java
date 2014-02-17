@@ -641,15 +641,11 @@ public class DataTableComponent extends JTable implements TableControl
             } 
         }
 
-        if (rowIndex != oldRowIndex && editorSupport != null && editingRow >= 0) 
-        {
+        if (rowIndex != oldRowIndex && editorSupport != null && editingRow >= 0) { 
             ListItem li = editorSupport.getSource().getListItem(editingRow);
-            if (li != null && (editorSupport.isTemporaryItem(li) || li.getState()==ListItem.STATE_EDIT)) 
-            { 
-                try 
-                {
-                    if (!validateRow(editingRow))
-                    {
+            if (li != null && (editorSupport.isTemporaryItem(li) || li.getState()==ListItem.STATE_EDIT)) {  
+                try {
+                    if (!validateRow(editingRow)){
                         String errmsg = editorSupport.getSource().getMessageSupport().getErrorMessage(editingRow); 
                         if (errmsg != null) throw new Exception(errmsg); 
 
@@ -657,16 +653,15 @@ public class DataTableComponent extends JTable implements TableControl
                         return;
                     } 
 
-                    if (li.getState() == ListItem.STATE_DRAFT)
-                        editorSupport.flushTemporaryItem(li);
-
-
+                    if (li.getState() == ListItem.STATE_DRAFT) { 
+                        editorSupport.flushTemporaryItem(li); 
+                    } else if (li.getState() == ListItem.STATE_EDIT) { 
+                        editorSupport.fireUpdateItem(li); 
+                    } 
                     editorSupport.fireCommitItem(li);
                     itemBinding.getChangeLog().clear(); 
                     editingRow = -1;
-                } 
-                catch(Exception ex) 
-                {
+                } catch(Throwable ex) {
                     tableModel.fireTableRowsUpdated(editingRow, editingRow);       
                     MsgBox.err(ex); 
                     return; 

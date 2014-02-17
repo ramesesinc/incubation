@@ -58,11 +58,13 @@ public class DBContext
             if (sqldb != null) { 
                 if (sqldb.inTransaction()) {
                     //we will let the one who invoke the begintransaction to do the closing
+                    //System.out.println("[DBContext.close] sqldb is in transaction do not close connection");
                     return;
                 } 
                 
                 sqldb.close(); 
             } 
+            //System.out.println("[DBContext.close] closing db context...");
             sqldb = null; 
             hasClosed = true; 
         } catch(RuntimeException re) {
@@ -120,6 +122,10 @@ public class DBContext
     public void execute(String sql) {
         getSqldb().execSQL(sql); 
     }
+
+    public void execute(String sql, Object[] params) { 
+        getSqldb().execSQL(sql, params);
+    } 
     
     public void execute(String sql, Map params) {
         SQLParser parser = new SQLParser();
@@ -242,23 +248,28 @@ public class DBContext
         Properties data = new Properties(); 
         String[] colnames = cursor.getColumnNames();
         for (int i=0; i<colnames.length; i++) {
-            int type = cursor.getType(i);            
             String name = colnames[i];
-            Object value = null;
-            if (type == Cursor.FIELD_TYPE_STRING) {
-                value = cursor.getString(i); 
-            } else if (type == Cursor.FIELD_TYPE_INTEGER) {
-                value = cursor.getInt(i);
-            } else if (type == Cursor.FIELD_TYPE_FLOAT) {
-                value = cursor.getDouble(i); 
-            } else if (type == Cursor.FIELD_TYPE_BLOB) {
-                value = cursor.getBlob(i); 
-            } else if (type == Cursor.FIELD_TYPE_NULL) {
-                value = null;
-            } else {
-                value = cursor.getString(i); 
-            }
-            data.put(name, value); 
+            try { 
+                data.put(name, cursor.getString(i)); 
+            } catch(Throwable t) {;} 
+            
+//            int type = cursor.getType(i);            
+//            String name = colnames[i];
+//            Object value = null;
+//            if (type == Cursor.FIELD_TYPE_STRING) {
+//                value = cursor.getString(i); 
+//            } else if (type == Cursor.FIELD_TYPE_INTEGER) {
+//                value = cursor.getInt(i);
+//            } else if (type == Cursor.FIELD_TYPE_FLOAT) {
+//                value = cursor.getDouble(i); 
+//            } else if (type == Cursor.FIELD_TYPE_BLOB) {
+//                value = cursor.getBlob(i); 
+//            } else if (type == Cursor.FIELD_TYPE_NULL) {
+//                value = null;
+//            } else {
+//                value = cursor.getString(i); 
+//            }
+            
         } 
         return data; 
     }
