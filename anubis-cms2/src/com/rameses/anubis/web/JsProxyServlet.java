@@ -35,12 +35,11 @@ public class JsProxyServlet extends AbstractAnubisServlet {
         
         try {
             String pathInfo = hreq.getPathInfo();
-            
             Project project = actx.getProject();
             
             String[] arr = pathInfo.substring(1).split("/");
-            String connection = arr[1];
-            String service = arr[2];
+            String connection = (arr.length >= 3? arr[1]: arr[0]);
+            String service    = (arr.length >= 3? arr[2]: arr[1]);
             service = service.substring(0, service.indexOf("."));
             Module module = actx.getModule();
             if(module!=null) {
