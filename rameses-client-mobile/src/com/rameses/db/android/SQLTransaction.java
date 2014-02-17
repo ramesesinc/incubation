@@ -112,6 +112,22 @@ public class SQLTransaction implements SQLExecutor
         return getContextImpl().delete(tablename, params, whereClause);
     }
 
+    public final void execute(ExecutionHandler handler) {
+        if (handler == null) throw new RuntimeException("Please provide an execution handler");
+        
+        try {
+            beginTransaction();
+            handler.execute(this); 
+            commit();
+        } catch(RuntimeException re) {
+            throw re; 
+        } catch(Throwable e) {
+            throw new RuntimeException(e.getMessage(), e); 
+        } finally {
+            endTransaction(); 
+        } 
+    }
+
     public final void execute() {
         try {
             beginTransaction();
@@ -123,12 +139,11 @@ public class SQLTransaction implements SQLExecutor
             throw new RuntimeException(e.getMessage(), e); 
         } finally {
             endTransaction(); 
-        }
+        } 
     }
     
-    protected void onExecute(SQLExecutor sqlexec) throws Exception {
+    protected void onExecute(SQLExecutor sqlexec) {
     }
-
     
     private DBContext getContextImpl() {
         synchronized (LOCKED) {
