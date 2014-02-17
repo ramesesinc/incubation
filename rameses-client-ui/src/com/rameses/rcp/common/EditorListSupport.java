@@ -102,6 +102,11 @@ public final class EditorListSupport
         dataProvider.addEmptyItem(); 
     }
    
+    public void fireUpdateItem(ListItem li) {
+        if (li == null) return;
+        
+        onUpdateItem(li.getItem()); 
+    }
 
     public void fireValidateItem(ListItem li) {
         if (li != null) validate(li); 
@@ -112,7 +117,7 @@ public final class EditorListSupport
         
         onCommitItem(li.getItem()); 
         li.setState(ListItem.STATE_SYNC); 
-    }    
+    } 
     
     public void fireRemoveItem(ListItem li) {
         if (li == null) return;
@@ -174,6 +179,10 @@ public final class EditorListSupport
     
     protected void onAddItem(Object item) {
         handler.onAddItem(item);
+    } 
+
+    protected void onUpdateItem(Object item) {
+        handler.onUpdateItem(item);
     } 
     
     protected void onCommitItem(Object item) {
@@ -260,6 +269,7 @@ public final class EditorListSupport
         
         void validate(ListItem li);
         void onAddItem(Object item);
+        void onUpdateItem(Object item);
         void onCommitItem(Object item); 
         boolean onRemoveItem(Object item);
         

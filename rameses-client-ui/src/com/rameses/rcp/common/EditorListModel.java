@@ -38,6 +38,9 @@ public class EditorListModel extends AbstractListDataProvider implements EditorL
         addItem(item);
     }
     
+    protected void onUpdateItem(Object item) {
+    }
+    
     protected boolean onRemoveItem(Object item) { 
         return false; 
     } 
@@ -114,6 +117,10 @@ public class EditorListModel extends AbstractListDataProvider implements EditorL
         public void onAddItem(Object item) {
             root.onAddItem(item);
         }
+        
+        public void onUpdateItem(Object item) {
+            root.onUpdateItem(item); 
+        }        
 
         public void onCommitItem(Object item) { 
             root.onCommitItem(item);
