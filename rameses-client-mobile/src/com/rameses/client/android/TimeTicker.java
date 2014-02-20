@@ -14,6 +14,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  *
@@ -38,18 +39,11 @@ class TimeTicker
     
     void start() {
         synchronized (LOCKED) { 
-            if (calendar == null) calendar = new GregorianCalendar(); 
-            long timemillis = 0;
-            try { 
-                timemillis = new CommonService().getServerTime(); 
-            } catch(Throwable t) {
-                date = null; 
-                t.printStackTrace();
-                return;
-            }
+            Logger logger = Platform.getLogger();
+            if (logger != null) logger.log("[TimeTicker] starting..."); 
             
-            calendar.setTimeInMillis(timemillis); 
-            dateChanged();
+            if (calendar == null) calendar = new GregorianCalendar(); 
+            timer.schedule(new TimeFetcher(), 0);
             if (task == null) { 
                 task = new TaskImpl(); 
                 timer.schedule(task, 0, 1000);  
@@ -59,16 +53,10 @@ class TimeTicker
     
     void restart() {
         synchronized (LOCKED) { 
-            long timemillis = 0;
-            try {
-                timemillis = new CommonService().getServerTime();
-            } catch(Throwable t) {
-                date = null; 
-                t.printStackTrace();
-                return;
-            }
-            calendar.setTimeInMillis(timemillis); 
-            dateChanged();
+            Logger logger = Platform.getLogger();
+            if (logger != null) logger.log("[TimeTicker] restarting..."); 
+            
+            timer.schedule(new TimeFetcher(), 0);
         } 
     }
     
@@ -95,5 +83,42 @@ class TimeTicker
                 root.dateChanged(); 
             } 
         }
+    }
+    
+    private class TimeFetcher extends Task 
+    {
+        TimeTicker root = TimeTicker.this;
+        
+        public void run() {
+            try {
+                execute();
+            } catch(Throwable t) {
+                Logger logger = Platform.getLogger();
+                if (logger != null) logger.log(t);  
+            }             
+        }
+        
+        private void execute() {
+            synchronized (root.LOCKED) { 
+                long timemillis = getServerTime();
+                if (timemillis <= 0) { 
+                    root.date = null;
+                } else {
+                    root.calendar.setTimeInMillis(timemillis); 
+                    root.dateChanged();
+                }
+            } 
+        }   
+        
+        private long getServerTime() {
+            long timemillis = 0;
+            try { 
+                timemillis = new CommonService().getServerTime(); 
+            } catch(Throwable t) {
+                Logger logger = Platform.getLogger();
+                if (logger != null) logger.log(t);             
+            } 
+            return timemillis; 
+        }        
     }
 }

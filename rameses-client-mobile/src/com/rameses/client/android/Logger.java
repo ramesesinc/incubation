@@ -63,11 +63,11 @@ public class Logger
             
             String msg = time + ": " + new String(bytes);
             System.out.println(msg);
-            if (enabled) messages.addElement(msg); 
+            if (enabled) messages.addElement(msg);
         } else { 
             String msg = time + ": " + o;
             System.out.println(msg);
-            if (enabled) messages.addElement(msg); 
+            if (enabled) messages.addElement(msg);
         }
     }
     
@@ -103,7 +103,7 @@ public class Logger
                 throw new RuntimeException(e.getMessage(), e); 
             } finally {
                 try { writer.close(); }catch(Throwable t){;} 
-            }            
+            }       
         }        
     }
 }

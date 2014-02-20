@@ -38,9 +38,9 @@ public abstract class AbstractDB extends SQLiteOpenHelper
     public final String getName() { return databaseName; } 
     public final int getVersion() { return databaseVersion; }
     
-    protected DBContext createDBContext(SQLiteDatabase sqldb) {
-        return new DBContext(sqldb); 
-    } 
+//    protected DBContext createDBContext(SQLiteDatabase sqldb) {
+//        return new DBContext(sqldb); 
+//    } 
 
     protected void onOpenProcess(SQLiteDatabase sqldb) {}
     protected void onCreateProcess(SQLiteDatabase sqldb) {}
