@@ -12,6 +12,7 @@ package com.rameses.osiris3.core;
 import com.rameses.util.URLDirectory;
 import com.rameses.util.URLDirectory.URLFilter;
 import groovy.lang.GroovyClassLoader;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -69,8 +70,12 @@ public abstract class ContextProvider {
             Properties props = new Properties();
             if(is!=null) props.load( is );
             return props;
+        } catch(FileNotFoundException fnfe) {
+            throw new RuntimeException("'"+name+"' conf not found"); 
+        } catch(RuntimeException re) {
+            throw re;
         } catch(Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException(e.getMessage(), e);
         } finally {
             try {is.close();} catch(Exception ign){;}
         }

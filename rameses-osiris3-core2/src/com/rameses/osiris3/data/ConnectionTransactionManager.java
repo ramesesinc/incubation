@@ -71,8 +71,10 @@ public class ConnectionTransactionManager implements TransactionManager {
                 else
                     c.setAutoCommit( false );
                 connections.put(dsname, c);
+            } catch(RuntimeException re) {
+                throw re; 
             } catch(Exception e) {
-                throw new RuntimeException(e);
+                throw new RuntimeException(e.getMessage(), e);
             }
         }
         return connections.get(dsname);

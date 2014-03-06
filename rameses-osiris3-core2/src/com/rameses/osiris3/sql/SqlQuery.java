@@ -349,6 +349,7 @@ public class SqlQuery extends AbstractSqlTxn {
             
         } catch(Exception ex) {
             ex.printStackTrace();
+            
             throw new RuntimeException(ex.getMessage());
         } finally {
             try {rs.close();} catch(Exception ign){;}

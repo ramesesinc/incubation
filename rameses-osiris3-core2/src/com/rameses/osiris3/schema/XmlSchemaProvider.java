@@ -30,8 +30,10 @@ public class XmlSchemaProvider extends SchemaProvider {
             if(is==null) return null;
             SchemaXmlParser parser = new SchemaXmlParser( getSchemaManager() );
             return parser.parse( is, name );
+        } catch(RuntimeException re) {
+            throw re;
         } catch(Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException(e.getMessage(), e);
         } finally {
             try { is.close(); } catch(Exception ign){;}
         }

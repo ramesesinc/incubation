@@ -40,11 +40,13 @@ public class SimpleDataSource implements DataSource {
         this.url = url;
         this.user = user;
         this.pwd = pwd;
-        try {
-            Class.forName(driverClass);
-        } catch(Exception e) {
-            throw new RuntimeException(e);
-        }
+        try { 
+            Class.forName(driverClass); 
+        } catch(RuntimeException re) { 
+            throw re; 
+        } catch(Exception e) { 
+            throw new RuntimeException(e.getMessage(), e); 
+        } 
     }
     
     

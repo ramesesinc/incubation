@@ -103,6 +103,8 @@ public class ActiveDBInvoker {
                 }
                 return sqe.execute();
             }
+        } catch(RuntimeException re) {
+            throw re; 
         } catch(Exception ex) {
             throw new RuntimeException(ex.getMessage(), ex);
         }

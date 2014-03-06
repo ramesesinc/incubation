@@ -64,8 +64,10 @@ public class XsltTemplateBuilder implements TemplateBuilder {
                 ByteArrayInputStream bis = new ByteArrayInputStream(data.toString().getBytes());
                 StreamSource sourceData = new StreamSource(bis);
                 transformer.transform(sourceData, sresult);
+            } catch(RuntimeException re) {
+                throw re;
             } catch(Exception e) {
-                throw new RuntimeException(e.getMessage());
+                throw new RuntimeException(e.getMessage(), e);
             }
         }
     }

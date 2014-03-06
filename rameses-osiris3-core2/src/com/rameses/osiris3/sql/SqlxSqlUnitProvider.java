@@ -30,9 +30,10 @@ public class SqlxSqlUnitProvider extends SqlUnitProvider {
             String txt = StreamUtil.toString(is);
             String statement = formatText( txt );
             return new SqlUnit(statement);
-        }
-        catch(Exception e) {
-            throw new RuntimeException(e);
+        } catch(RuntimeException re) {
+            throw re;
+        } catch(Exception e) {
+            throw new RuntimeException(e.getMessage(), e);
         }
         finally {
             try {is.close();} catch(Exception ign){;}

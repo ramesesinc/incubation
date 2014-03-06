@@ -37,8 +37,10 @@ public class BasicSqlCrudParser extends DefaultHandler {
             SAXParser parser = SAXParserFactory.newInstance().newSAXParser();
             parser.parse( is, this );
             return crudModel;
+        } catch(RuntimeException re) {
+            throw re;
         } catch(Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException(e.getMessage(), e);
         } finally {
             try { is.close(); } catch(Exception ign){;}
         }

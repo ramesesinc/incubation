@@ -62,8 +62,10 @@ public class InterceptorSetContextResource extends ContextResource {
                 }
             }
             return set;
+        } catch(RuntimeException re) {
+            throw re;
         } catch(Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException(e.getMessage(), e);
         } finally {
             try {is.close();} catch(Exception ign){;}
         }
