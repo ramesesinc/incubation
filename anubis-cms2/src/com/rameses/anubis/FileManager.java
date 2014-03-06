@@ -53,7 +53,7 @@ public class FileManager {
                 return ContentUtil.getResources(urls,name);
             }
         } catch(Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException(e.getMessage(), e);
         }
         //locate all sources until you find the file source
         
