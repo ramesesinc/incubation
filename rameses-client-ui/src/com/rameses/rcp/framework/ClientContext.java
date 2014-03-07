@@ -33,7 +33,6 @@ public abstract class ClientContext
     private static ClientContext currentContext;
     
     private TaskManager taskManager;
-    private NotificationManager notificationMgr;
     private NavigationHandler navigationHandler;
     private ControllerProvider controllerProvider;
     private ActionProvider actionProvider;
@@ -45,7 +44,7 @@ public abstract class ClientContext
     private Map properties = new HashMap();
     
     private boolean debugMode;
-    
+    private NotificationProvider notificationProvider;     
     private List<WeakReference<ExecutorService>> executors = new Vector();
     
     
@@ -117,33 +116,30 @@ public abstract class ClientContext
     public static final void setCurrentContext(ClientContext context) {
         ClientContext old = currentContext;
         if (old != null) {
+            try { old.notificationProvider.close(); }catch(Throwable t){;}             
             try { old.taskManager.stop(); }catch(Throwable t){;} 
-            try { old.notificationMgr.close(); }catch(Throwable t){;} 
             try { old.services.stop(); }catch(Throwable t){;}             
-        }
+        } 
         
         currentContext = context;        
-        currentContext.notificationMgr = new NotificationManager(context.getClassLoader());         
         currentContext.taskManager = new TaskManager();
         currentContext.services = new Services();        
     }
     
-    public final TaskManager getTaskManager() {
-        return taskManager;
+    public final TaskManager getTaskManager() { return taskManager; }
+    public final Services getServices() { return services; }
+    
+    public final NotificationProvider getNotificationProvider() { 
+        if (notificationProvider == null) {
+            notificationProvider = new EmptyNotificationProvider(); 
+        } 
+        return notificationProvider; 
+    } 
+    public void setNotificationProvider(NotificationProvider notificationProvider) {
+        this.notificationProvider = notificationProvider; 
     }
     
-    public final NotificationManager getNotificationManager() {
-        return notificationMgr; 
-    }
-    
-    public final Services getServices() {
-        return services; 
-    }
-    
-    public Map getHeaders() {
-        return headers;
-    }
-    
+    public Map getHeaders() { return headers; }
     public void setHeaders(Map headers) {
         this.headers = headers;
     }
@@ -152,18 +148,12 @@ public abstract class ClientContext
         return properties;
     }
     
-    public Map getAppEnv() {
-        return appEnv;
-    }
-    
+    public Map getAppEnv() { return appEnv; }
     public void setAppEnv(Map appEnv) {
         this.appEnv = appEnv;
     }
     
-    public boolean isDebugMode() {
-        return debugMode;
-    }
-
+    public boolean isDebugMode() { return debugMode; }
     public void setDebugMode(boolean debugMode) {
         this.debugMode = debugMode;
     }
@@ -179,9 +169,10 @@ public abstract class ClientContext
     }
     
     public void shutdown() {
-        getTaskManager().stop();
-        getNotificationManager().close();
-        getServices().stop();
+        NotificationProvider np = getNotificationProvider();
+        if (np != null) np.close(); 
+        getTaskManager().stop(); 
+        getServices().stop(); 
         for(WeakReference wr : executors) {
             try {
                 ExecutorService svc = (ExecutorService) wr.get();

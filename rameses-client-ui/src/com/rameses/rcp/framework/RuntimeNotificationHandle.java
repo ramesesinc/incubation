@@ -28,16 +28,16 @@ public final class RuntimeNotificationHandle
 
     public Binding getBinding() { return binding; } 
     
-    public NotificationManager getManager() {
-        return ClientContext.getCurrentContext().getNotificationManager(); 
+    public NotificationProvider getProvider() {
+        return ClientContext.getCurrentContext().getNotificationProvider();
     }
     
     public void publish(Object data) {
-        getManager().sendMessage(data);
+        getProvider().sendMessage(data);
     }
     
     public void markAsRead(Object data) {
-        getManager().removeMessage(data); 
+        getProvider().removeMessage(data); 
     }     
     
     public void register(Object callback) {
@@ -50,14 +50,14 @@ public final class RuntimeNotificationHandle
         if (options == null) options = new HashMap();
         
         proxy = new HandlerProxy(options); 
-        getManager().add(proxy); 
+        getProvider().add(proxy); 
     }
     
     public void unregister() {
         if (proxy == null) return;
         
         proxy.cancelled = true;
-        getManager().remove(proxy);
+        getProvider().remove(proxy);
         proxy.onClose(); 
         proxy = null; 
     }

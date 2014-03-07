@@ -11,7 +11,7 @@ package com.rameses.rcp.common;
 
 import com.rameses.rcp.framework.ClientContext;
 import com.rameses.rcp.framework.NotificationHandler;
-import com.rameses.rcp.framework.NotificationManager;
+import com.rameses.rcp.framework.NotificationProvider;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,16 +21,16 @@ import java.util.Map;
  */
 public final class Notification 
 {
-    public static NotificationManager getManager() {
-        return ClientContext.getCurrentContext().getNotificationManager(); 
+    public static NotificationProvider getProvider() {
+        return ClientContext.getCurrentContext().getNotificationProvider(); 
     }
     
     public static void sendMessage(Object data) {
-        getManager().sendMessage(data);
+        getProvider().sendMessage(data);
     }
     
     public static void removeMessage(Object data) {
-        getManager().removeMessage(data); 
+        getProvider().removeMessage(data); 
     }    
     
     public static RuntimeHandle register(Object callback) {
@@ -56,14 +56,14 @@ public final class Notification
         
         RuntimeHandle(Map options) { 
             proxy = new HandlerProxy(options); 
-            getManager().add(proxy); 
+            getProvider().add(proxy); 
         }
         
         public void unregister() {
             if (proxy == null) return;
 
             proxy.cancelled = true;
-            getManager().remove(proxy);
+            getProvider().remove(proxy);
             proxy.onClose(); 
             proxy = null;             
         }
