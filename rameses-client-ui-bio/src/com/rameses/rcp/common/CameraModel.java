@@ -19,11 +19,14 @@ public class CameraModel
     private int width;
     private int height;
     private boolean autoOpenMode;
+    private boolean alwaysOnTop;
+    private boolean modal;
     
     public CameraModel() {
-        setTitle("Camera");
+        setModal(true);        
+        setTitle("Camera"); 
         setWidth(320);
-        setHeight(240);
+        setHeight(240);         
     }
     
     public String getTitle() { return title; } 
@@ -44,6 +47,16 @@ public class CameraModel
     public boolean isAutoOpenMode() { return autoOpenMode; } 
     public void setAutoOpenMode(boolean autoOpenMode) {
         this.autoOpenMode = autoOpenMode; 
+    }
+    
+    public boolean isAlwaysOnTop() { return alwaysOnTop; } 
+    public void setAlwaysOnTop(boolean alwaysOnTop) {
+        this.alwaysOnTop = alwaysOnTop;
+    }
+    
+    public boolean isModal() { return modal; } 
+    public void setModal(boolean modal) {
+        this.modal = modal;
     }
     
     public void onselect(byte[] bytes) {

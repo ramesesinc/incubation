@@ -44,6 +44,8 @@ public final class WebcamViewer
     private int width;
     private int height;
     private boolean autoOpenMode;
+    private boolean alwaysOnTop;
+    private boolean modal;
     
     public WebcamViewer() {
         this(new CameraModel()); 
@@ -63,7 +65,9 @@ public final class WebcamViewer
         title = model.getTitle();
         width = model.getWidth();
         height = model.getHeight();
-        autoOpenMode = model.isAutoOpenMode(); 
+        autoOpenMode = model.isAutoOpenMode();  
+        alwaysOnTop = model.isAlwaysOnTop(); 
+        modal = model.isModal(); 
     }
         
     public void setSize(int width, int height) {
@@ -93,8 +97,14 @@ public final class WebcamViewer
             dialog = new JDialog(); 
         } 
         dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE); 
-        dialog.setTitle(title == null? "Camera": title);        
-        dialog.setModal(true);
+        dialog.setTitle(title == null? "Camera": title); 
+        if (alwaysOnTop) {
+            dialog.setAlwaysOnTop(true); 
+            dialog.setModal(false); 
+        } else {
+            dialog.setAlwaysOnTop(false);
+            dialog.setModal(true); 
+        }         
         dialog.setResizable(false); 
         dialog.setContentPane(pane);
         dialog.pack();
