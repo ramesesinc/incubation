@@ -23,13 +23,19 @@ import java.awt.Insets;
 import java.awt.LayoutManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Vector;
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JToolBar;
 
@@ -39,15 +45,18 @@ import javax.swing.JToolBar;
  */
 class WebcamPane extends JPanel 
 {
+    private WebcamViewer viewer;
     private Webcam webcam;
     private WebcamPanel wcp;
     private JToolBar toolbar;
     private JButton btnShoot;
+    private JComboBox cboSizes;
     
     private List<WebcamPaneListener> listeners;
     
-    public WebcamPane(Webcam webcam) {
+    public WebcamPane(WebcamViewer viewer, Webcam webcam) {
         this.listeners = new ArrayList(); 
+        this.viewer = viewer;
         this.webcam = webcam;         
         initComponent();
     }
@@ -68,6 +77,19 @@ class WebcamPane extends JPanel
         toolbar.setBorder(BorderFactory.createEmptyBorder(2,5,5,5)); 
         add(toolbar); 
         
+        Vector<ViewSize> sizes = new Vector();
+        for (Dimension dim : webcam.getViewSizes()) {
+            sizes.add(new ViewSize(dim));
+        }
+        for (Dimension dim : webcam.getCustomViewSizes()) {
+            sizes.add(new ViewSize(dim));
+        }        
+        cboSizes = new JComboBox(sizes);
+        cboSizes.setSelectedItem(new ViewSize(webcam.getViewSize()));
+        cboSizes.addItemListener(new ViewSizeSelector());
+        toolbar.add(cboSizes);
+        toolbar.add(Box.createHorizontalStrut(25));
+        
         btnShoot = new JButton("Shoot");
         btnShoot.setEnabled(false);
         btnShoot.setFocusPainted(false); 
@@ -83,6 +105,67 @@ class WebcamPane extends JPanel
     }
     
     // </editor-fold>
+    
+    private class ViewSize 
+    {
+        private Dimension size;
+        
+        ViewSize(Dimension size) {
+            this.size = size;
+        }
+        
+        public Dimension getSize() { return size; } 
+        public String toString() {
+            if (size == null) return "null";
+            
+            return size.width + " x " + size.height;
+        }
+
+        public boolean equals(Object obj) {
+            if (!(obj instanceof ViewSize)) return false;
+            
+            ViewSize vs = (ViewSize)obj;
+            Dimension dim1 = vs.getSize(); 
+            Dimension dim2 = getSize();
+            return (dim1.width==dim2.width && dim1.height==dim2.height);
+        }
+    }
+    
+    private class ViewSizeSelector implements ItemListener 
+    {
+        ViewSizeSelector() {
+            
+        }
+        
+        public void itemStateChanged(ItemEvent e) {
+            if (e.getStateChange() == ItemEvent.SELECTED) {
+                ViewSize vs = (ViewSize) e.getItem();
+                final Dimension size = vs.getSize();
+                
+                try { 
+                    stop(); 
+                } catch(Throwable t) {
+                    JOptionPane.showMessageDialog(WebcamPane.this, "[ERROR] " + t.getClass().getName() + ": " + t.getMessage()); 
+                } 
+
+                try { 
+                    for (WebcamPaneListener listener : listeners) { 
+                        listener.oncancel(); 
+                    } 
+                } catch(Throwable t) {
+                    JOptionPane.showMessageDialog(WebcamPane.this, "[ERROR] " + t.getClass().getName() + ": " + t.getMessage()); 
+                }   
+                
+                EventQueue.invokeLater(new Runnable() {
+                    public void run() {
+                        viewer.setSize(size.width, size.height);
+                        viewer.open(); 
+                    } 
+                });
+            }
+        }
+    }    
+    
     
     // <editor-fold defaultstate="collapsed" desc=" Getters/Setters "> 
     

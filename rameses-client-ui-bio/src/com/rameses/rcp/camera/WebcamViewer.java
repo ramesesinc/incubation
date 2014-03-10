@@ -87,7 +87,9 @@ public final class WebcamViewer
         webcam.setViewSize(new Dimension(width, height)); 
         webcam.setAutoOpenMode(autoOpenMode); 
 
-        final WebcamPane pane = new WebcamPane(webcam);         
+        if (title == null) title = "Camera";
+        
+        final WebcamPane pane = new WebcamPane(this, webcam);         
         JDialog dialog = null; 
         if (win instanceof Frame) {
             dialog = new JDialog((Frame) win); 
@@ -97,7 +99,7 @@ public final class WebcamViewer
             dialog = new JDialog(); 
         } 
         dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE); 
-        dialog.setTitle(title == null? "Camera": title); 
+        dialog.setTitle(title + " ("+width+" x "+height+")"); 
         if (alwaysOnTop) {
             dialog.setAlwaysOnTop(true); 
             dialog.setModal(false); 
