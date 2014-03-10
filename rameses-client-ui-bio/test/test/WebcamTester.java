@@ -9,6 +9,7 @@ package test;
 
 import com.rameses.rcp.camera.WebcamViewer;
 import com.rameses.rcp.common.CameraModel;
+import javax.swing.JOptionPane;
 import junit.framework.*;
 
 /**
@@ -38,5 +39,6 @@ public class WebcamTester extends TestCase {
             }            
         };
         WebcamViewer.open(model); 
+        JOptionPane.showMessageDialog(null, "freeze...");
     }
 }

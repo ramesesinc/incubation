@@ -54,6 +54,8 @@ class WebcamPane extends JPanel
     
     private List<WebcamPaneListener> listeners;
     
+    private boolean autoCloseOnSelect;    
+    
     public WebcamPane(WebcamViewer viewer, Webcam webcam) {
         this.listeners = new ArrayList(); 
         this.viewer = viewer;
@@ -159,6 +161,7 @@ class WebcamPane extends JPanel
                 EventQueue.invokeLater(new Runnable() {
                     public void run() {
                         viewer.setSize(size.width, size.height);
+                        WebcamViewer.PREFERRED_SIZE = new Dimension(size.width, size.height); 
                         viewer.open(); 
                     } 
                 });
@@ -171,6 +174,10 @@ class WebcamPane extends JPanel
     
     public void setLayout(LayoutManager mgr){
     } 
+    
+    void setAutoCloseOnSelect(boolean autoCloseOnSelect) {
+        this.autoCloseOnSelect = autoCloseOnSelect;
+    }
     
     // </editor-fold>
     
@@ -419,7 +426,9 @@ class WebcamPane extends JPanel
 
             if (bytes == null) return;
 
-            try { root.stop(); }catch(Throwable t){;} 
+            try { 
+                if (autoCloseOnSelect) root.stop(); 
+            } catch(Throwable t){;} 
             
             for (WebcamPaneListener listener : root.listeners) { 
                 listener.onselect(bytes); 
