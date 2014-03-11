@@ -113,7 +113,10 @@ public final class WebcamViewer
             dialog = new JDialog(); 
         } 
         dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE); 
-        dialog.setTitle(title + " ("+width+" x "+height+")"); 
+        
+        Dimension viewSize = webcam.getViewSize();         
+        dialog.setTitle(title + " ("+viewSize.width+" x "+viewSize.height+")"); 
+        
         if (alwaysOnTop) {
             dialog.setAlwaysOnTop(true); 
             dialog.setModal(false); 

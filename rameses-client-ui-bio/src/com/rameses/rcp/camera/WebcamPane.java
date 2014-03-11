@@ -76,7 +76,7 @@ class WebcamPane extends JPanel
         toolbar.setFloatable(false);        
         toolbar.setRollover(false); 
         toolbar.setLayout(new ToolbarLayout()); 
-        toolbar.setBorder(BorderFactory.createEmptyBorder(2,5,5,5)); 
+        toolbar.setBorder(BorderFactory.createEmptyBorder(5,5,5,5)); 
         add(toolbar); 
         
         Vector<ViewSize> sizes = new Vector();
@@ -87,26 +87,28 @@ class WebcamPane extends JPanel
             sizes.add(new ViewSize(dim));
         }        
         cboSizes = new JComboBox(sizes);
+        cboSizes.setEnabled(false);
         cboSizes.setSelectedItem(new ViewSize(webcam.getViewSize()));
         cboSizes.addItemListener(new ViewSizeSelector());
-        toolbar.add(cboSizes);
-        toolbar.add(Box.createHorizontalStrut(25));
+        toolbar.add(cboSizes, "left");
         
         btnShoot = new JButton("Shoot");
         btnShoot.setEnabled(false);
         btnShoot.setFocusPainted(false); 
         btnShoot.setIcon(ImageIconSupport.getInstance().getIcon("images/toolbars/camera.png"));  
         btnShoot.addActionListener(new ShootActionSupport(btnShoot));
-        toolbar.add(btnShoot); 
+        toolbar.add(btnShoot, "right"); 
         
         JButton btnCancel = new JButton("Cancel");
         btnCancel.setFocusPainted(false); 
         btnCancel.setIcon(ImageIconSupport.getInstance().getIcon("images/toolbars/cancel.png")); 
         btnCancel.addActionListener(new CancelActionSupport()); 
-        toolbar.add(btnCancel);         
+        toolbar.add(btnCancel, "right"); 
     }
     
     // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" ViewSize "> 
     
     private class ViewSize 
     {
@@ -133,12 +135,12 @@ class WebcamPane extends JPanel
         }
     }
     
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" ViewSizeSelector "> 
+    
     private class ViewSizeSelector implements ItemListener 
     {
-        ViewSizeSelector() {
-            
-        }
-        
         public void itemStateChanged(ItemEvent e) {
             if (e.getStateChange() == ItemEvent.SELECTED) {
                 ViewSize vs = (ViewSize) e.getItem();
@@ -169,6 +171,7 @@ class WebcamPane extends JPanel
         }
     }    
     
+    // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" Getters/Setters "> 
     
@@ -276,6 +279,111 @@ class WebcamPane extends JPanel
     private class ToolbarLayout implements LayoutManager 
     {
         WebcamPane root = WebcamPane.this;
+        private Vector<Component> leftComponents = new Vector();
+        private Vector<Component> rightComponents = new Vector();
+        
+        public void addLayoutComponent(String name, Component comp) {
+            if (comp == null) return;
+            if ("right".equalsIgnoreCase(name+"")) {
+                rightComponents.removeElement(comp);
+                rightComponents.addElement(comp);
+            } else {
+                leftComponents.removeElement(comp);
+                leftComponents.addElement(comp);
+            } 
+        }
+        
+        public void removeLayoutComponent(Component comp) {
+            if (comp == null) return;
+            leftComponents.removeElement(comp);
+            rightComponents.removeElement(comp);
+        }
+
+        public Dimension preferredLayoutSize(Container parent) {
+            return layoutSize(parent);
+        }
+
+        public Dimension minimumLayoutSize(Container parent) {
+            return layoutSize(parent);
+        }
+
+        private Dimension layoutSize(Container parent) {
+            synchronized (parent.getTreeLock()) {
+                int w=0, h=0;
+                Component[] comps = parent.getComponents();
+                for (int i=0; i<comps.length; i++) {
+                    Component c = comps[i];
+                    if (!c.isVisible()) continue;
+                    
+                    Dimension dim = c.getPreferredSize(); 
+                    w += dim.width + 3;
+                    h = Math.max(dim.height, h); 
+                }
+                
+                Insets margin = parent.getInsets();
+                w += margin.left + margin.right;
+                h += margin.top + margin.bottom;
+                return new Dimension(w, h); 
+            }
+        }
+        
+        public void layoutContainer(Container parent) { 
+            synchronized (parent.getTreeLock()) { 
+                Insets margin = parent.getInsets(); 
+                int pw = parent.getWidth();
+                int ph = parent.getHeight();
+                int x = margin.left;
+                int y = margin.top;
+                int w = pw - (margin.left + margin.right);
+                int h = ph - (margin.top + margin.bottom);
+                
+                int size = 0;
+                for (int i=0; i<leftComponents.size(); i++) {
+                    Component c = leftComponents.get(i);
+                    if (!c.isVisible()) continue;
+                    
+                    Dimension dim = c.getPreferredSize(); 
+                    c.setBounds(x, y, dim.width, h); 
+                    x += (dim.width + 3);
+                }
+                
+                int remWidth = (pw - margin.right);
+                int rightWidth = getRightWidth();           
+                int rightX = remWidth - (x + rightWidth);
+                if (rightX < 0) rightX = 0;
+                
+                x += rightX;
+                for (int i=0; i<rightComponents.size(); i++) {
+                    Component c = rightComponents.get(i);
+                    if (!c.isVisible()) continue;
+                    
+                    Dimension dim = c.getPreferredSize(); 
+                    c.setBounds(x, y, dim.width, h); 
+                    x += (dim.width + 3);
+                } 
+            } 
+        }
+        
+        private int getRightWidth() {
+            int width = 0;
+            for (int i=0; i<rightComponents.size(); i++) {
+                Component c = rightComponents.get(i);
+                if (!c.isVisible()) continue;
+
+                Dimension dim = c.getPreferredSize(); 
+                width += (dim.width + 3);
+            }
+            return width; 
+        }
+    }
+    
+    // </editor-fold>    
+    
+    // <editor-fold defaultstate="collapsed" desc=" FooterLayout "> 
+    
+    private class FooterLayout implements LayoutManager 
+    {
+        WebcamPane root = WebcamPane.this;
         
         public void addLayoutComponent(String name, Component comp) {}
         public void removeLayoutComponent(Component comp) {}
@@ -348,18 +456,21 @@ class WebcamPane extends JPanel
     private class WebcamPanelSupport implements WebcamListener
     {
         public void webcamOpen(WebcamEvent we) {
+            cboSizes.setEnabled(true);
             btnShoot.setEnabled(true);
             btnShoot.repaint();
             btnShoot.requestFocus(); 
         }
 
         public void webcamClosed(WebcamEvent we) {
+            cboSizes.setEnabled(false);
             btnShoot.setEnabled(false);
             btnShoot.repaint();
             if (btnShoot.hasFocus()) btnShoot.transferFocus();
         }
 
         public void webcamDisposed(WebcamEvent we) {
+            cboSizes.setEnabled(false);
             btnShoot.setEnabled(false);
             btnShoot.repaint();
             if (btnShoot.hasFocus()) btnShoot.transferFocus();
