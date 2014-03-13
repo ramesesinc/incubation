@@ -10,7 +10,7 @@
 package com.rameses.rcp.control;
 
 import com.rameses.rcp.common.*;
-import com.rameses.rcp.control.image.ImageView;
+import com.rameses.rcp.control.image.ImageViewPanel;
 import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.framework.ClientContext;
 import com.rameses.rcp.support.MouseEventSupport;
@@ -25,7 +25,7 @@ import javax.swing.ImageIcon;
  *
  * @author wflores
  */
-public class XImageCanvas extends ImageView implements UIControl, MouseEventSupport.ComponentInfo  
+public class XImageCanvas extends ImageViewPanel implements UIControl, MouseEventSupport.ComponentInfo  
 {
     private Binding binding;
     private String[] depends;
@@ -40,9 +40,9 @@ public class XImageCanvas extends ImageView implements UIControl, MouseEventSupp
     
     public boolean isDynamic() { return dynamic; }
     public void setDynamic(boolean dynamic) {
-        this.dynamic = dynamic; 
+        this.dynamic = dynamic;  
     }
-    
+        
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" UIControl implementation ">    

@@ -15,7 +15,6 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
@@ -34,7 +33,7 @@ import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.geom.AffineTransform;
-import java.util.Vector;
+import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
@@ -43,7 +42,7 @@ import javax.swing.SwingConstants;
  *
  * @author wflores
  */
-public class ImageView extends JLabel   
+public class ImageView extends JLabel 
 {
     private Binding binding;
     private String[] depends;
@@ -60,10 +59,9 @@ public class ImageView extends JLabel
     private double ZOOM_FACTOR = 0.10;
     private Dimension fitSize;
     private Rectangle image_rect;
+    private Rectangle zoom_rect;
     private Rectangle drag_rect;
     private boolean zoom_mode;
-    
-    private Vector<ImageView.Handler> handlers;
     
     public ImageView() { 
         this(null);
@@ -71,7 +69,6 @@ public class ImageView extends JLabel
     
     public ImageView(ImageIcon iicon) { 
         this.iicon = iicon;
-        handlers = new Vector();
         initComponent();
     }    
     
@@ -81,6 +78,7 @@ public class ImageView extends JLabel
         super.setLayout(new DefaultLayout()); 
         setOpaque(false); 
         setPreferredSize(new Dimension(120, 100));
+        //setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY));
         setNoImageBackground(Color.BLACK);
         setNoImageForeground(Color.WHITE); 
         
@@ -92,7 +90,7 @@ public class ImageView extends JLabel
             setFont(oldFont.deriveFont(Font.BOLD, 14.0f));
         } 
 
-        addComponentListener(new ComponentListenerImpl()); 
+        addComponentListener(new ComponentListenerImpl());        
         MouseAdapterImpl mouseAdapter = new MouseAdapterImpl();
         addMouseListener(mouseAdapter);
         addMouseWheelListener(mouseAdapter);
@@ -124,50 +122,27 @@ public class ImageView extends JLabel
     public void setValue(ImageIcon iicon) { 
         this.iicon = iicon; 
         image_rect = null;
+        zoom_rect = null;
         zoom_mode = false;
-    }
-    
-    public void removeHandler(ImageView.Handler handler) {
-        if (handler != null) handlers.remove(handler); 
-    }
-    public void addHandler(ImageView.Handler handler) {
-        if (handler == null) return;
-        if (!handlers.contains(handler)) {
-            handlers.addElement(handler); 
-        }
-    }
-    
-    public final double getMinScale() {
-        ImageIcon iicon = getValue();
-        if (iicon == null) return 0.0;
-
-        int iw = iicon.getIconWidth();
-        int ih = iicon.getIconHeight(); 
-        int width = getWidth();
-        int height = getHeight();
-        double scaleX = (double)width  / (double)iw;
-        double scaleY = (double)height / (double)ih;
-        return (scaleY > scaleX)? scaleX: scaleY;        
-    }
-    public final double getCurrentScale() {
-        ImageIcon iicon = getValue();
-        if (iicon == null) return 0.0;
-
-        Rectangle rect = cloneImageRect();
-        if (rect == null) return 0.0;
-        
-        double iw = (double)iicon.getIconWidth();
-        double rw = (double)rect.width; 
-        double scale = (rw / iw);
-        return scale;
-    }
-    public final double getNextScale() {
-        return 0.0;
+        drag_mode = false;
+        wheel_move = false;
     }
     
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" helper/override methods "> 
+    
+    public void paint1(Graphics g) {
+        int w = getWidth();
+        int h = getHeight();
+        Graphics2D g2 = (Graphics2D) g.create();
+        if (iicon == null) { 
+            paintNoImage(g2, w, h); 
+        } else { 
+            paintImage(g2, w, h, iicon);
+        } 
+        g2.dispose();
+    }
     
     protected void paintNoImage(Graphics2D g2, int width, int height) {
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -225,13 +200,9 @@ public class ImageView extends JLabel
     }
       
     private Rectangle cloneImageRect() {
-        return cloneRect(image_rect);
-    }
-    
-    private Rectangle cloneRect(Rectangle source) {
-        if (source == null) return null;
+        if (image_rect == null) return null;
         
-        return new Rectangle(source.x, source.y, source.width, source.height); 
+        return new Rectangle(image_rect.x, image_rect.y, image_rect.width, image_rect.height);
     }
     
     private boolean matchSize(Rectangle rect1, Rectangle rect2) {
@@ -294,22 +265,6 @@ public class ImageView extends JLabel
     private void computeCenter(Rectangle inr, int width, int height) {
         inr.x = (width - inr.width) / 2; 
         inr.y = (height - inr.height) / 2; 
-    }
-        
-    private void notifyRefresh() {
-        ImageIcon iicon = getValue();
-        if (iicon == null) return;
-        
-        for (ImageView.Handler handler: handlers) {
-            handler.refresh(this); 
-        }
-    } 
-    
-    public final void fitToWindow() {
-        Rectangle rect = getFitViewRect(); 
-        image_rect = rect;
-        zoom_mode = false;
-        refreshCanvas(); 
     }
     
     // </editor-fold>
@@ -378,14 +333,79 @@ public class ImageView extends JLabel
             ImageIcon iicon = root.getValue();            
             if (iicon == null) return;
 
-            Rectangle fitrect = getFitViewRect();
-            int nx = (image_rect==null? fitrect.x: image_rect.x);
-            int ny = (image_rect==null? fitrect.y: image_rect.y);
-            int nw = (image_rect==null? fitrect.width: image_rect.width);
-            int nh = (image_rect==null? fitrect.height: image_rect.height);
+            int width = getWidth(); 
+            int height = getHeight(); 
+            int iw = iicon.getIconWidth(); 
+            int ih = iicon.getIconHeight(); 
+            
             Graphics2D g2 = (Graphics2D) g.create(); 
-            g2.drawImage(iicon.getImage(), nx, ny, nw, nh, null); 
-            g2.dispose();
+            if (wheel_move) { 
+                wheel_move = false;
+                int nx = zoom_rect.x, ny = zoom_rect.y;
+                int nw = zoom_rect.width, nh = zoom_rect.height;
+                g2.drawImage(iicon.getImage(), nx, ny, nw, nh, null); 
+                image_rect = new Rectangle(nx, ny, nw, nh); 
+                
+            } else if (drag_mode) { 
+                int nx = drag_rect.x, ny = drag_rect.y;
+                int nw = drag_rect.width, nh = drag_rect.height;
+                g2.drawImage(iicon.getImage(), nx, ny, nw, nh, null); 
+                
+            } else if (zoom_mode) {
+                int nx=0, ny=0, nw=0, nh=0;
+                Rectangle deltaR = computeInnerDelta(zoom_rect, width, height);
+                if (deltaR.x==0 && deltaR.y==0 && deltaR.width==0 && deltaR.height==0) {
+                    nx = zoom_rect.x; ny = zoom_rect.y;
+                    nw = zoom_rect.width; nh = zoom_rect.height;
+                } else if (deltaR.x > 0 && deltaR.y > 0 && deltaR.width > 0 && deltaR.height > 0) {
+                    Rectangle fit_rect = getFitViewRect();
+                    nw = fit_rect.width;
+                    nh = fit_rect.height;
+                    nx = (width - nw) / 2; 
+                    ny = (height - nh) / 2; 
+                    zoom_mode = false; 
+                } else {
+                    if (deltaR.width > 0) zoom_rect.x = zoom_rect.x+deltaR.width;
+                    if (zoom_rect.x > 0) zoom_rect.x = (width-zoom_rect.width)/2;
+                    if (deltaR.height > 0) zoom_rect.y = zoom_rect.y+deltaR.height;
+                    if (zoom_rect.y > 0) zoom_rect.y = (height-zoom_rect.height)/2;
+                    nx = zoom_rect.x; ny = zoom_rect.y;
+                    nw = zoom_rect.width; nh = zoom_rect.height;
+                } 
+                g2.drawImage(iicon.getImage(), nx, ny, nw, nh, null); 
+                image_rect = new Rectangle(nx, ny, nw, nh); 
+                
+            } else {
+                int nx = 0, ny = 0;
+                int nw = 0, nh = 0;
+                if (image_rect == null) {
+                    Rectangle fit_rect = getFitViewRect();
+                    nx = fit_rect.x;
+                    ny = fit_rect.y;
+                    nw = fit_rect.width;
+                    nh = fit_rect.height;
+                } else if (drag_rect != null) {
+                    nx = drag_rect.x;
+                    ny = drag_rect.y; 
+                    nw = drag_rect.width;
+                    nh = drag_rect.height;
+                } else {
+                    Rectangle fit_rect = getFitViewRect();
+                    nw = image_rect.width; 
+                    nh = image_rect.height;
+                    if (width > image_rect.width && height > image_rect.height) {
+                        nw = fit_rect.width; 
+                        nh = fit_rect.height;
+                    } 
+                    nw = fit_rect.width;
+                    nh = fit_rect.height;
+                    nx = (width - nw) / 2; 
+                    ny = (height - nh) / 2; 
+                } 
+                g2.drawImage(iicon.getImage(), nx, ny, nw, nh, null); 
+                image_rect = new Rectangle(nx, ny, nw, nh); 
+                drag_rect = null; 
+            } 
         }
     }
     
@@ -446,33 +466,14 @@ public class ImageView extends JLabel
     
     // <editor-fold defaultstate="collapsed" desc=" MouseAdapterImpl "> 
     
-    public final void refreshCanvas() {
+    protected void refreshCanvas() {
         removeAll();
         revalidate(); 
-        repaint();  
-        EventQueue.invokeLater(new Runnable() {
-            public void run() { 
-                notifyRefresh(); 
-            }
-        });
-    }    
-    
-    public final void zoom(int zoomlevel) {
-        ImageIcon iicon = getValue();
-        if (iicon == null) return;
-
-        boolean hasFitScreen = false;
-        double scale = (double)zoomlevel / 100.0;
-        int iw = (int) (iicon.getIconWidth() * scale);
-        int ih = (int) (iicon.getIconHeight() * scale);
-        Rectangle newrect = new Rectangle(0, 0, iw, ih); 
-        computeCenter(newrect, getWidth(), getHeight()); 
-        zoom_mode = true;       
-        image_rect = newrect; 
-        refreshCanvas(); 
+        repaint();         
     }
 
-    private boolean customize_mode; 
+    private boolean wheel_move;
+    private boolean drag_mode;
     
     private class MouseAdapterImpl implements MouseWheelListener, MouseListener, MouseMotionListener   
     {
@@ -482,12 +483,15 @@ public class ImageView extends JLabel
         
         public void mouseWheelMoved(MouseWheelEvent e) {
             boolean ctrlDown = ((e.getModifiers() & InputEvent.CTRL_MASK) == InputEvent.CTRL_MASK);
-            if (!ctrlDown) return;
+            if (!ctrlDown) {
+                wheel_move = false;
+                return;
+            }
             
             ImageIcon iicon = root.getValue();
             if (iicon == null) return;
 
-            Point pivot = e.getPoint();
+            wheel_move = true; 
             int width = getWidth();
             int height = getHeight();
             if (e.getWheelRotation() <= -1) {
@@ -496,12 +500,12 @@ public class ImageView extends JLabel
                     int maxWidth  = (int) (iicon.getIconWidth() * 8.0);
                     int maxHeight = (int) (iicon.getIconWidth() * 8.0);
                     Rectangle rect = new Rectangle(image_rect.x, image_rect.y, image_rect.width, image_rect.height);
-                    rect.grow(50, 50); 
-                    zoom_mode = true;                     
-                    if (rect.width <= maxWidth && rect.height <= maxHeight) {                    
-                        image_rect = rect;
-                        root.refreshCanvas(); 
-                    } 
+                    rect.grow(50, 50);
+                    if (rect.width <= maxWidth && rect.height <= maxHeight) {
+                        zoom_rect = rect;
+                        root.refreshCanvas();                        
+                    }
+                    zoom_mode = true;
                 } catch(Throwable t) {;}
             } else {
                 //zoom out
@@ -510,7 +514,7 @@ public class ImageView extends JLabel
                     rect.grow(-50, -50);
                     Rectangle fit_rect = getFitViewRect();
                     if (rect.width < fit_rect.width || rect.height < fit_rect.height) {
-                        image_rect = fit_rect; 
+                        zoom_rect = fit_rect; 
                     } else { 
                         Rectangle deltaR = computeInnerDelta(rect, width, height);
                         if (deltaR.width > 0) rect.x = rect.x + deltaR.width; 
@@ -518,9 +522,9 @@ public class ImageView extends JLabel
                         if (deltaR.height > 0) rect.y = rect.y + deltaR.height;
                         if (rect.y > 0) computeCenter(rect, width, height);
                         
-                        image_rect = rect; 
+                        zoom_rect = rect; 
                     } 
-                    if (fitSize.width==image_rect.width && fitSize.height==image_rect.height) {
+                    if (fitSize.width==zoom_rect.width && fitSize.height==zoom_rect.height) {
                         zoom_mode = false; 
                     } 
                     root.refreshCanvas();                   
@@ -532,14 +536,13 @@ public class ImageView extends JLabel
         public void mouseExited(MouseEvent e) {}
         public void mouseMoved(MouseEvent e) {}
         
-        private Rectangle orig_image_rect;
         public void mousePressed(MouseEvent e) {
             if (image_rect == null) return;
             
             startPoint = e.getPoint();
             if (image_rect.contains(startPoint)) { 
-                orig_image_rect = cloneImageRect();
-                start_tracking = true; 
+                start_tracking = true;  
+                wheel_move = false;
             } 
         }
 
@@ -553,7 +556,19 @@ public class ImageView extends JLabel
         
         private void onstopDragging(MouseEvent e) {
             start_tracking = false;
-            orig_image_rect = null; 
+            wheel_move = false;
+            drag_mode = false;
+            if (drag_rect != null) {
+                if (image_rect != null) {
+                    image_rect.x = drag_rect.x; 
+                    image_rect.y = drag_rect.y;     
+                }
+                if (zoom_mode) {
+                    zoom_rect.x = drag_rect.x;
+                    zoom_rect.y = drag_rect.y;
+                }
+            }
+            root.refreshCanvas();
         }
         
         public void mouseDragged(MouseEvent e) {
@@ -562,7 +577,7 @@ public class ImageView extends JLabel
             Point p = e.getPoint(); 
             int width = getWidth();
             int height = getHeight();            
-            Rectangle rect = root.cloneRect(orig_image_rect); 
+            Rectangle rect = root.cloneImageRect(); 
             Rectangle deltaR = computeDelta(rect, width, height); 
             int dx = p.x - startPoint.x; 
             int dy = p.y - startPoint.y; 
@@ -601,7 +616,8 @@ public class ImageView extends JLabel
                     rect.x = rect.x + adx;
                 } 
             }
-            image_rect = rect; 
+            drag_rect = rect; 
+            drag_mode = true; 
             root.refreshCanvas();
         } 
     }
@@ -617,8 +633,7 @@ public class ImageView extends JLabel
         public void componentMoved(ComponentEvent e) {}
         public void componentShown(ComponentEvent e) {}
         public void componentHidden(ComponentEvent e) {}
-        
-        public void xcomponentResized(ComponentEvent e) {
+        public void componentResized(ComponentEvent e) {
             int width = root.getWidth();
             int height = root.getHeight();
             ImageIcon iicon = root.getValue();            
@@ -632,83 +647,7 @@ public class ImageView extends JLabel
             fitSize = new Dimension(nw, nh);
             root.refreshCanvas();
         }        
-        
-        public void componentResized(ComponentEvent e) {
-            ImageIcon iicon = root.getValue();  
-            if (iicon == null) return;
-            
-            int width = root.getWidth();
-            int height = root.getHeight();
-            int iw = iicon.getIconWidth(); 
-            int ih = iicon.getIconHeight(); 
-            Rectangle fitrect = getFitViewRect();
-            fitSize = new Dimension(fitrect.width, fitrect.height);            
-            if (image_rect == null) {
-                image_rect = fitrect; 
-            } else if (zoom_mode) {
-                adjustOnZoomMode(); 
-            } else {
-                image_rect = fitrect;     
-            }
-            root.refreshCanvas();
-        }
-        
-        private void adjustOnZoomMode() {
-            ImageIcon iicon = root.getValue();  
-            if (iicon == null) return;
-            
-            int width = root.getWidth();
-            int height = root.getHeight();
-            int iw = iicon.getIconWidth(); 
-            int ih = iicon.getIconHeight(); 
-            int nx=0, ny=0, nw=0, nh=0;
-            Rectangle rect = cloneImageRect();
-            Rectangle deltaR = computeInnerDelta(rect, width, height);
-            if (deltaR.x==0 && deltaR.y==0 && deltaR.width==0 && deltaR.height==0) {
-                nx = rect.x;     
-                ny = rect.y;
-                nw = rect.width; 
-                nh = rect.height;
-            } else if (deltaR.x > 0 && deltaR.y > 0 && deltaR.width > 0 && deltaR.height > 0) {
-                Rectangle fit_rect = getFitViewRect();
-                nw = fit_rect.width;
-                nh = fit_rect.height;
-                nx = (width - nw) / 2; 
-                ny = (height - nh) / 2; 
-                zoom_mode = false; 
-            } else {
-                if (deltaR.width > 0) rect.x = rect.x+deltaR.width;
-                if (rect.x > 0) rect.x = (width-rect.width)/2;
-                if (deltaR.height > 0) rect.y = rect.y+deltaR.height;
-                if (rect.y > 0) rect.y = (height-rect.height)/2;
-                
-                if (rect.x + rect.width < width || rect.y + rect.height < height) {
-                    Rectangle fit_rect = getFitViewRect();
-                    nx = fit_rect.x;
-                    ny = fit_rect.y;
-                    nw = fit_rect.width;
-                    nh = fit_rect.height;
-                    zoom_mode = false;
-                } else { 
-                    nx = rect.x; 
-                    ny = rect.y;
-                    nw = rect.width; 
-                    nh = rect.height;
-                }
-            } 
-            image_rect = new Rectangle(nx, ny, nw, nh); 
-        }
     }
     
     // </editor-fold>
-    
-    // <editor-fold defaultstate="collapsed" desc=" Handler "> 
-    
-    public static interface Handler 
-    {
-        void refresh(ImageView imageView); 
-    }
-    
-    // </editor-fold> 
-    
 }
