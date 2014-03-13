@@ -71,12 +71,14 @@ public class ImageViewToolbar extends JPanel implements ImageView.Handler
         
         slider = new JSlider(6, 800); 
         slider.setOpaque(false); 
+        slider.setToolTipText("Zoom");
         add(slider); 
         
         btnFitWindow = new JButton();
         btnFitWindow.setOpaque(false);
         btnFitWindow.setBorderPainted(false);
         btnFitWindow.setMargin(new Insets(1,3,1,3));
+        btnFitWindow.setToolTipText("Fit to window");
         btnFitWindow.setIcon(getIcon("com/rameses/rcp/icons/fit-to-screen.png"));
         add(btnFitWindow);
         
@@ -84,6 +86,7 @@ public class ImageViewToolbar extends JPanel implements ImageView.Handler
         btnFitActual.setOpaque(false);
         btnFitActual.setBorderPainted(false);
         btnFitActual.setMargin(new Insets(1,2,1,2)); 
+        btnFitActual.setToolTipText("Actual size");
         add(btnFitActual); 
         
         SliderHandler handler = new SliderHandler();

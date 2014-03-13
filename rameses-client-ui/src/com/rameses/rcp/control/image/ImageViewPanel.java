@@ -81,7 +81,13 @@ public class ImageViewPanel extends JPanel
     }
     
     private void showToolbar() {
-        toolbar.setVisible(true); 
+        ImageIcon iicon = (imageView == null? null: imageView.getValue());
+        if (iicon == null) {
+            toolbar.setVisible(false); 
+            toolbar.setEnabled(false);
+        } else {
+            toolbar.setVisible(true); 
+        } 
         revalidate();
         repaint();
     }
@@ -171,7 +177,7 @@ public class ImageViewPanel extends JPanel
         public void mousePressed(MouseEvent e) {}
         public void mouseReleased(MouseEvent e) {}
 
-        public void mouseEntered(MouseEvent e) {
+        public void mouseEntered(MouseEvent e) {            
             root.showToolbar();
         }
 
