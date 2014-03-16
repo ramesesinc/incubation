@@ -85,8 +85,7 @@ public abstract class OsirisServer {
         System.out.println("starting server context root @ " + rootUrl );
         try {
             init();
-        }
-        catch(Exception e) {
+        } catch(Exception e) {
             e.printStackTrace();
         }
     }

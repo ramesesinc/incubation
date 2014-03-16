@@ -80,8 +80,10 @@ public class EntityManager {
             scanner.scan(schema,element,data,handler);
             queue = handler.getQueue();
             EntityManagerUtil.executeQueue(queue,sqlContext,vars,transactionOpen,debug);
-        } catch(Exception ex) {
-            throw new RuntimeException(ex);
+        } catch(RuntimeException re) {
+            throw re; 
+        } catch(Exception ex) { 
+            throw new RuntimeException(ex.getMessage(), ex);
         }
         if(resolveNested) {
             data = FieldToMap.convert((Map)data);
@@ -112,8 +114,10 @@ public class EntityManager {
             removeFields = handler.getRemoveFields();
             serializedFields = handler.getSerializedFields();
             mergeFields = handler.getMergeFields();
+        } catch(RuntimeException re) { 
+            throw re;
         } catch(Exception ex) {
-            throw new RuntimeException(ex);
+            throw new RuntimeException(ex.getMessage(), ex);
         }
         try {
             Map map = new HashMap();
@@ -183,8 +187,10 @@ public class EntityManager {
             else
                 data = map;
             
+        } catch(RuntimeException re) {
+            throw re; 
         } catch(Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException(e.getMessage(), e);
             
         } finally {
             if(!transactionOpen) {
@@ -259,8 +265,10 @@ public class EntityManager {
                 oldData = FieldToMap.convert((Map)oldData);
             }
             return oldData;
+        } catch(RuntimeException re) {
+            throw re; 
         } catch(Exception ex) {
-            throw new RuntimeException(ex);
+            throw new RuntimeException(ex.getMessage(), ex);
         }
     }
     
@@ -282,8 +290,10 @@ public class EntityManager {
             scanner.scan(schema,element,data,handler);
             Queue queue = handler.getQueue();
             EntityManagerUtil.executeQueue(queue,sqlContext,vars,transactionOpen,debug);
+        } catch(RuntimeException re) {
+            throw re;
         } catch(Exception ex) {
-            throw new RuntimeException(ex);
+            throw new RuntimeException(ex.getMessage(), ex);
         }
     }
     

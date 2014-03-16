@@ -55,9 +55,11 @@ public class ActiveDBService extends ContextService {
             Object obj =  metaClass.newInstance();
             ((GroovyObject)obj).setProperty( "invoker", dbi );
             return obj;
-        } catch(Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
+        } catch(RuntimeException re) { 
+            throw re; 
+        } catch(Exception e) { 
+            e.printStackTrace(); 
+            throw new RuntimeException(e.getMessage());
         }
     }
     

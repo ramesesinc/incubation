@@ -23,10 +23,9 @@ public final class Platform
 {
     private final static Object LOCKED = new Object();
     private static Platform instance;
+    private static boolean debug;
 
-    public static Platform getInstance() { 
-        return instance; 
-    }
+    public static Platform getInstance() { return instance; }
     
     public static UIMain getMainActivity() { 
         UIApplication uiapp = getApplication();
@@ -73,6 +72,15 @@ public final class Platform
     public static Logger getLogger() {
         UIApplication uiapp = getApplication();
         return (uiapp == null? null: uiapp.getLogger()); 
+    }
+    
+    public static void setDebug(boolean debug) {
+        synchronized (LOCKED) { 
+            Platform.debug = debug; 
+            UIApplication uiapp = getApplication(); 
+            Logger logger = (uiapp==null? null: uiapp.getLogger()); 
+            if( logger != null ) logger.setEnabled(debug); 
+        } 
     }
     
     

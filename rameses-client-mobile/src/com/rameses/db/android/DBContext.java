@@ -29,43 +29,40 @@ public class DBContext
     private final static int QUERY_LIST_RESULT      = 2;
     private final static int QUERY_COUNT            = 4;
     
+    private ReadWriteProvider provider;
     private String databaseName;
-    private SQLiteDatabase sqldb;
     private boolean hasClosed;
     
     public DBContext(String databaseName) { 
-        this.databaseName = databaseName; 
+        this.provider = new DefaultReadWriteProvider(databaseName);
     } 
     
-    DBContext(SQLiteDatabase sqldb) { 
-        this.sqldb = sqldb; 
+    DBContext(SQLiteDatabase readabledb, SQLiteDatabase writabledb) { 
+        this.provider = new ReadWriteProviderProxy(readabledb, writabledb); 
     } 
 
-    private SQLiteDatabase getSqldb() {
-        if (sqldb == null && !hasClosed) { 
-            AbstractDB adb = DBManager.get(databaseName); 
-            if (adb == null) throw new RuntimeException("'"+databaseName+"' database is not binded"); 
-            
-            sqldb = adb.getWritableDatabase(); 
-        }
-        return sqldb;
+    private SQLiteDatabase getReadableDb() {
+        return (provider == null? null: provider.getReadableDb());
+    }
+    
+    private SQLiteDatabase getWritableDb() {
+        return (provider == null? null: provider.getWritableDb());
     }
     
     public boolean isClosed() { return hasClosed; } 
     
     public void close() {
         try { 
-            if (sqldb != null) { 
-                if (sqldb.inTransaction()) {
-                    //we will let the one who invoke the begintransaction to do the closing
-                    //System.out.println("[DBContext.close] sqldb is in transaction do not close connection");
-                    return;
-                } 
+            if (provider == null) {
+                //do nothing 
+            } else {
+                provider.close(); 
                 
-                sqldb.close(); 
+                if (provider instanceof DefaultReadWriteProvider) {
+                    provider = null; 
+                } 
             } 
-            //System.out.println("[DBContext.close] closing db context...");
-            sqldb = null; 
+            
             hasClosed = true; 
         } catch(RuntimeException re) {
             throw re; 
@@ -120,11 +117,11 @@ public class DBContext
     }    
     
     public void execute(String sql) {
-        getSqldb().execSQL(sql); 
+        getWritableDb().execSQL(sql); 
     }
 
     public void execute(String sql, Object[] params) { 
-        getSqldb().execSQL(sql, params);
+        getWritableDb().execSQL(sql, params);
     } 
     
     public void execute(String sql, Map params) {
@@ -136,12 +133,12 @@ public class DBContext
         for (int i=0; i<names.length; i++) {
             args[i] = params.get(names[i]);
         } 
-        getSqldb().execSQL(sql0, args);
+        getWritableDb().execSQL(sql0, args);
     }
     
     public long insert(String tableName, Map params) { 
         ContentValues cv = createContentValues(params); 
-        return getSqldb().insert(tableName, null, cv);
+        return getWritableDb().insert(tableName, null, cv);
     }
     
     public int update(String tableName, Map params, String whereClause) { 
@@ -154,7 +151,7 @@ public class DBContext
             Object value = params.get(names[i]);
             args[i] = (value == null? null: value.toString()); 
         }         
-        return getSqldb().update(tableName, cv, parser.getSql(), args);
+        return getWritableDb().update(tableName, cv, parser.getSql(), args);
     }
     
     public int update(String tableName, Object[] args, String whereClause) { 
@@ -162,7 +159,7 @@ public class DBContext
         for (int i=0; i<values.length; i++) {
             values[i] = (args[i] == null? null: args[i].toString()); 
         } 
-        return getSqldb().update(tableName, null, whereClause, values);
+        return getWritableDb().update(tableName, null, whereClause, values);
     }
     
 
@@ -175,7 +172,7 @@ public class DBContext
             Object value = params.get(names[i]);
             args[i] = (value == null? null: value.toString()); 
         } 
-        return getSqldb().delete(tableName, parser.getSql(), args); 
+        return getWritableDb().delete(tableName, parser.getSql(), args); 
     }
     
     public int delete(String tableName, Object[] args, String whereClause) { 
@@ -183,7 +180,7 @@ public class DBContext
         for (int i=0; i<values.length; i++) {
             values[i] = (args[i] == null? null: args[i].toString()); 
         } 
-        return getSqldb().delete(tableName, whereClause, values);
+        return getWritableDb().delete(tableName, whereClause, values);
     }
     
     private List<Map> getListImpl(String sql, Object params, int queryOption) {
@@ -217,7 +214,7 @@ public class DBContext
         List<Map> results = new ArrayList();
         Cursor cursor = null; 
         try { 
-            cursor = getSqldb().rawQuery(sql, args);
+            cursor = getReadableDb().rawQuery(sql, args);
             if (queryOption == QUERY_COUNT) {
                 Map m = new Properties();
                 m.put("COUNT", cursor.getCount()); 
@@ -300,4 +297,93 @@ public class DBContext
         }
         return cv;
     }
+    
+    // <editor-fold defaultstate="collapsed" desc=" ReadWriteProvider ">
+    
+    private static interface ReadWriteProvider 
+    {
+        SQLiteDatabase getReadableDb();
+        SQLiteDatabase getWritableDb();
+        void close();
+    }
+    
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" DefaultReadWriteProvider ">
+        
+    private class DefaultReadWriteProvider implements ReadWriteProvider 
+    {
+        private String databaseName;
+        private SQLiteDatabase readabledb;
+        private SQLiteDatabase writabledb;
+        
+        DefaultReadWriteProvider(String databaseName) {
+            this.databaseName = databaseName;
+        }
+                
+        public SQLiteDatabase getReadableDb() {
+            if (readabledb == null) { 
+                AbstractDB adb = DBManager.get(databaseName); 
+                if (adb == null) throw new RuntimeException("'"+databaseName+"' database is not binded"); 
+
+                readabledb = adb.getReadableDatabase();
+            }
+            return readabledb;        
+        }
+
+        public SQLiteDatabase getWritableDb() { 
+            if (writabledb == null) { 
+                AbstractDB adb = DBManager.get(databaseName); 
+                if (adb == null) throw new RuntimeException("'"+databaseName+"' database is not binded"); 
+
+                writabledb = adb.getReadableDatabase();
+            }
+            return writabledb;               
+        }    
+        
+        public void close() {
+            try { 
+                if (writabledb != null) {  
+                    if (writabledb.inTransaction()) return;
+                } 
+                if (readabledb != null) {  
+                    if (readabledb.inTransaction()) return;
+                } 
+
+                try { writabledb.close(); }catch(Throwable ignore){;}             
+                try { readabledb.close(); }catch(Throwable ignore){;} 
+
+                writabledb = null; 
+                readabledb = null;
+            } catch(RuntimeException re) {
+                throw re; 
+            } catch(Exception e) {
+                throw new RuntimeException(e.getMessage(), e); 
+            }            
+        }
+    }
+    
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" ReadWriteProviderProxy ">
+        
+    private class ReadWriteProviderProxy implements ReadWriteProvider 
+    {
+        private SQLiteDatabase readabledb;
+        private SQLiteDatabase writabledb;
+        
+        ReadWriteProviderProxy(SQLiteDatabase readabledb, SQLiteDatabase writabledb) {
+            this.readabledb = readabledb;
+            this.writabledb = writabledb;
+        }
+                
+        public SQLiteDatabase getReadableDb() { return readabledb; }
+        public SQLiteDatabase getWritableDb() { return writabledb; } 
+        
+        public void close() {
+        }
+    }
+    
+    // </editor-fold>
+    
 }

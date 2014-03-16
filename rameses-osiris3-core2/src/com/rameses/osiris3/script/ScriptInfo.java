@@ -79,10 +79,12 @@ public class ScriptInfo {
             try {
                 stringInterface = StringInterface.buildInterface( clazz );
                 interfaceClass = ((GroovyClassLoader)sourceContext.getClassLoader()).parseClass( stringInterface );
-            }
-            catch(Exception e) {
+            } catch(RuntimeException re) {
+                re.printStackTrace();
+                throw re;
+            } catch(Exception e) {
                 e.printStackTrace();
-                throw new RuntimeException(e);
+                throw new RuntimeException(e.getMessage(), e);
             }
         }
         return interfaceClass;

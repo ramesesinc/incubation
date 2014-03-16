@@ -18,12 +18,17 @@ public class CameraModel
     private String title;
     private int width;
     private int height;
+    private boolean autoCloseOnSelect;    
     private boolean autoOpenMode;
+    private boolean alwaysOnTop;
+    private boolean modal;
     
     public CameraModel() {
-        setTitle("Camera");
+        setAutoCloseOnSelect(true);
+        setModal(true);        
+        setTitle("Camera"); 
         setWidth(320);
-        setHeight(240);
+        setHeight(240);         
     }
     
     public String getTitle() { return title; } 
@@ -41,9 +46,24 @@ public class CameraModel
         this.height = height;
     }
     
+    public boolean isAutoCloseOnSelect() { return autoCloseOnSelect; } 
+    public void setAutoCloseOnSelect(boolean autoCloseOnSelect) {
+        this.autoCloseOnSelect = autoCloseOnSelect; 
+    }
+    
     public boolean isAutoOpenMode() { return autoOpenMode; } 
     public void setAutoOpenMode(boolean autoOpenMode) {
         this.autoOpenMode = autoOpenMode; 
+    }
+    
+    public boolean isAlwaysOnTop() { return alwaysOnTop; } 
+    public void setAlwaysOnTop(boolean alwaysOnTop) {
+        this.alwaysOnTop = alwaysOnTop;
+    }
+    
+    public boolean isModal() { return modal; } 
+    public void setModal(boolean modal) {
+        this.modal = modal;
     }
     
     public void onselect(byte[] bytes) {
@@ -51,7 +71,7 @@ public class CameraModel
     
     public void onclose() {
     }
-    
+        
     
     // <editor-fold defaultstate="collapsed" desc=" Provider ">
     
@@ -61,7 +81,6 @@ public class CameraModel
         void showDialog(CameraModel model);
     }
 
-    
     private Provider provider;
     
     public void setProvider(Provider provider) { 
@@ -74,6 +93,21 @@ public class CameraModel
     
     public void showDialog() { 
         if (provider != null) provider.showDialog(this); 
+    } 
+    
+    
+    public static interface ViewerProvider 
+    {
+        void close();
+    }
+    
+    private ViewerProvider viewerProvider;
+    public void setViewerProvider(ViewerProvider viewerProvider) {
+        this.viewerProvider = viewerProvider;
+    }
+    
+    public void close() {
+        if (viewerProvider != null) viewerProvider.close(); 
     } 
     
     // </editor-fold>

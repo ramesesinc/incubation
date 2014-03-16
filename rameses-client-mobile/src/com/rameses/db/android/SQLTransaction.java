@@ -23,7 +23,8 @@ public class SQLTransaction implements SQLExecutor
     
     private String dbname;
     private DBContext dbContext;
-    private SQLiteDatabase sqldb;
+    private SQLiteDatabase readabledb;
+    private SQLiteDatabase writabledb;
     
     public SQLTransaction(String dbname) {
         this.dbname = dbname;
@@ -31,7 +32,7 @@ public class SQLTransaction implements SQLExecutor
     
     public void beginTransaction() {
         getContext();
-        sqldb.beginTransaction();
+        writabledb.beginTransaction();
     }
     
     public void endTransaction() {
@@ -39,7 +40,7 @@ public class SQLTransaction implements SQLExecutor
     }
     
     public void commit() {
-        sqldb.setTransactionSuccessful();
+        writabledb.setTransactionSuccessful();
     }
     
     public DBContext getContext() {
@@ -48,12 +49,12 @@ public class SQLTransaction implements SQLExecutor
     
     public void execute(String sql) {
         getContextImpl();
-        sqldb.execSQL(sql);
+        writabledb.execSQL(sql);
     }
     
     public void execute(String sql, Object[] args) {
         getContextImpl();
-        sqldb.execSQL(sql, args);
+        writabledb.execSQL(sql, args);
     }
     
     public void execute(String sql, Map params) {
@@ -151,8 +152,9 @@ public class SQLTransaction implements SQLExecutor
                 AbstractDB adb = DBManager.get(dbname);
                 if (adb == null) throw new RuntimeException("'"+dbname+"' database is not registered");
                 
-                sqldb = adb.getWritableDatabase();
-                dbContext = new DBContext(sqldb);
+                writabledb = adb.getWritableDatabase();
+                readabledb = adb.getReadableDatabase();
+                dbContext = new DBContext(writabledb, readabledb);
             }
             return dbContext;
         }
@@ -160,15 +162,17 @@ public class SQLTransaction implements SQLExecutor
     
     private void endTransactionImpl() {
         try {
-            sqldb.endTransaction();
+            writabledb.endTransaction();
         } catch(RuntimeException re) {
             throw re;
         } catch(Exception e) {
             throw new RuntimeException(e.getMessage(), e);
         } finally {
-            try { sqldb.close(); } catch(Throwable t){;}
+            try { writabledb.close(); } catch(Throwable t){;}
+            try { readabledb.close(); } catch(Throwable t){;}
             
-            sqldb = null;
+            writabledb = null;
+            readabledb = null;
         }
     }
 }

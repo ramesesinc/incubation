@@ -66,8 +66,10 @@ public class TemplateContextResource extends ContextResource {
                 throw new Exception("Template " + key + " not found in templates");
             return tb.build( is );
             
+        } catch(RuntimeException re) {
+            throw re;
         } catch(Exception ex) {
-            throw new RuntimeException(ex);
+            throw new RuntimeException(ex.getMessage(), ex);
         } finally {
             try {is.close();} catch(Exception ign){;}
         }

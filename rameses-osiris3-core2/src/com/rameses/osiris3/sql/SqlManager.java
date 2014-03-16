@@ -111,8 +111,10 @@ public class SqlManager {
             sm.setConnection( c );
             sm.setSqlManager(this);
             return sm;
+        } catch(RuntimeException re) {
+            throw re;
         } catch(Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException(e.getMessage(), e);
         }
     }
     
@@ -122,8 +124,10 @@ public class SqlManager {
             sm.setConnection( ds.getConnection() );
             sm.setSqlManager(this);
             return sm;
+        } catch(RuntimeException re) {
+            throw re;
         } catch(Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException(e.getMessage(), e);
         }
     }
     

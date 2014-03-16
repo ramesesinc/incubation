@@ -11,6 +11,7 @@ package com.rameses.rcp.camera;
 
 import com.github.sarxos.webcam.Webcam;
 import com.rameses.rcp.common.*;
+import com.rameses.rcp.common.CameraModel.ViewerProvider;
 import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.Frame;
@@ -30,6 +31,7 @@ import javax.swing.JDialog;
  */
 public final class WebcamViewer 
 {
+    public static Dimension PREFERRED_SIZE;
     
     public static void open(Map options) {
         new WebcamViewer(options).open();
@@ -43,7 +45,10 @@ public final class WebcamViewer
     private String title;
     private int width;
     private int height;
+    private boolean autoCloseOnSelect;
     private boolean autoOpenMode;
+    private boolean alwaysOnTop;
+    private boolean modal;
     
     public WebcamViewer() {
         this(new CameraModel()); 
@@ -63,7 +68,10 @@ public final class WebcamViewer
         title = model.getTitle();
         width = model.getWidth();
         height = model.getHeight();
-        autoOpenMode = model.isAutoOpenMode(); 
+        autoCloseOnSelect = model.isAutoCloseOnSelect();
+        autoOpenMode = model.isAutoOpenMode();  
+        alwaysOnTop = model.isAlwaysOnTop(); 
+        modal = model.isModal(); 
     }
         
     public void setSize(int width, int height) {
@@ -80,10 +88,22 @@ public final class WebcamViewer
         
         List<Webcam> webcams = Webcam.getWebcams(); 
         Webcam webcam = whichWebcam(webcams); 
-        webcam.setViewSize(new Dimension(width, height)); 
+        Dimension prefsize = PREFERRED_SIZE;
+        if (prefsize == null) prefsize = new Dimension(width, height);
+        
+        try { 
+            webcam.setViewSize(prefsize); 
+        } catch(Throwable t) { 
+            t.printStackTrace();
+            webcam.setViewSize(new Dimension(width, height)); 
+        } 
         webcam.setAutoOpenMode(autoOpenMode); 
 
-        final WebcamPane pane = new WebcamPane(webcam);         
+        if (title == null) title = "Camera";
+        
+        final WebcamPane pane = new WebcamPane(this, webcam);  
+        pane.setAutoCloseOnSelect(model.isAutoCloseOnSelect()); 
+        
         JDialog dialog = null; 
         if (win instanceof Frame) {
             dialog = new JDialog((Frame) win); 
@@ -93,8 +113,17 @@ public final class WebcamViewer
             dialog = new JDialog(); 
         } 
         dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE); 
-        dialog.setTitle(title == null? "Camera": title);        
-        dialog.setModal(true);
+        
+        Dimension viewSize = webcam.getViewSize();         
+        dialog.setTitle(title + " ("+viewSize.width+" x "+viewSize.height+")"); 
+        
+        if (alwaysOnTop) {
+            dialog.setAlwaysOnTop(true); 
+            dialog.setModal(false); 
+        } else {
+            dialog.setAlwaysOnTop(false);
+            dialog.setModal(true); 
+        }         
         dialog.setResizable(false); 
         dialog.setContentPane(pane);
         dialog.pack();
@@ -121,6 +150,7 @@ public final class WebcamViewer
         }); 
         centerWindow(dialog);
         pane.addListener(new WebcamPaneListenerImpl(dialog)); 
+        model.setViewerProvider(new ViewerProviderImpl(dialog)); 
         dialog.setVisible(true); 
         return null; 
     }
@@ -262,10 +292,8 @@ public final class WebcamViewer
         }
         
         public void onselect(byte[] bytes) {
-            dialog.dispose(); 
-            if (root.model != null) { 
-                root.model.onselect(bytes); 
-            }
+            if (autoCloseOnSelect) dialog.dispose();
+            if (root.model != null) root.model.onselect(bytes); 
         } 
 
         public void oncancel() {
@@ -277,6 +305,26 @@ public final class WebcamViewer
     private void onclose() {
         if (model != null) model.onclose();
     }
+    
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" ViewerProviderImpl "> 
+    
+    private class ViewerProviderImpl implements ViewerProvider 
+    {
+        WebcamViewer root = WebcamViewer.this;
+        
+        private JDialog dialog;
+        
+        ViewerProviderImpl(JDialog dialog) {
+            this.dialog = dialog; 
+        }
+        
+        public void close() { 
+            dialog.dispose(); 
+            root.onclose();
+        } 
+    } 
     
     // </editor-fold>
 }

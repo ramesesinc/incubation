@@ -13,6 +13,8 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.widget.EditText;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 
 /**
  *
@@ -30,6 +32,14 @@ public class UIDialog
         new UIDialog(context).alert(message);
     }
 
+    public static void showError(Throwable error) {
+        showError(error, null); 
+    }
+    
+    public static void showError(Throwable error, Context context) {
+        new UIDialog(context).alert(error);
+    }
+    
     
     private Context context;
     
@@ -58,6 +68,9 @@ public class UIDialog
     public void onApprove(Object value) {} 
     public void onSelectItem(int index) {}
 
+    public final void alert(Throwable error) {
+        new AlertBox().show(this, error);
+    }    
     public final void alert(Object message) {
         new AlertBox().show(this, message);
     }
@@ -82,6 +95,35 @@ public class UIDialog
     
     private static class AlertBox 
     {
+        void show(final UIDialog caller, Throwable error) {
+            Context context = caller.getContext();
+            if (context == null) return; 
+            
+            DialogInterface.OnClickListener approvelistener = new DialogInterface.OnClickListener() {	
+                public void onClick(DialogInterface dialog, int which) {
+                    caller.onApprove();
+                }
+            }; 
+
+            byte[] bytes = null;
+            ByteArrayOutputStream baos = new ByteArrayOutputStream(); 
+            try { 
+                error.printStackTrace(new PrintStream(baos));  
+                bytes = baos.toByteArray();
+            } catch(Throwable t) {
+                t.printStackTrace();
+            } finally {
+                try { baos.close(); } catch(Throwable t){;} 
+            } 
+            
+            AlertDialog.Builder builder = new AlertDialog.Builder(context);
+            builder.setTitle("Error");
+            builder.setMessage((bytes==null? null: new String(bytes))+"\n");
+            builder.setPositiveButton("  OK  ", approvelistener); 
+            AlertDialog dialog = builder.create();
+            dialog.show();
+        }
+
         void show(final UIDialog caller, Object message) {
             Context context = caller.getContext();
             if (context == null) return; 

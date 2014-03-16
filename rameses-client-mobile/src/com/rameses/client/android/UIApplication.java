@@ -176,6 +176,8 @@ public class UIApplication extends Application
     } 
     
     public final Date getServerDate() {
+        Logger logger = Platform.getLogger();
+        if (logger != null) logger.log("[Platform.getServerDate] timeTicker="+timeTicker);
         return (timeTicker == null? null: timeTicker.getDate()); 
     }     
     

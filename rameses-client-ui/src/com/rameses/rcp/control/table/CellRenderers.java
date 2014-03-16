@@ -668,7 +668,7 @@ public class CellRenderers {
             
             TextCase oTextCase = (oColumn == null? null: oColumn.getTextCase());
             if (oTextCase != null && columnValue != null)
-                label.setText(oTextCase.convert(columnValue.toString())); 
+                label.setText("<html>"+oTextCase.convert(columnValue.toString())+"</html>"); 
             
             label.setHorizontalAlignment( SwingConstants.LEFT );
             //set alignment if it is specified in the Column model
@@ -693,7 +693,7 @@ public class CellRenderers {
             if (oColumn != null && cellValue != null && oColumn.isHtmlDisplay() )
                 cellValue = "<html>" + cellValue + "</html>";
             
-            label.setText((cellValue == null? "": cellValue.toString()));
+            label.setText("<html>"+(cellValue == null? "": cellValue.toString())+"</html>");
         }
     }
     

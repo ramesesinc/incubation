@@ -42,12 +42,9 @@ public class ScriptExecutor {
         }
         catch(Exception e) {
             TransactionContext ct = TransactionContext.getCurrentContext();
-            if(ct!=null) {
+            if (ct != null) {
                 String debug = (String)ct.getContext().getProperty("app.debug");
-                if("true".equals(debug) ) {
-                    //Exception oe = ExceptionManager.getOriginal(e);
-                    e.printStackTrace();
-                }
+                if ("true".equals(debug)) e.printStackTrace();
             }
             throw e;
         }

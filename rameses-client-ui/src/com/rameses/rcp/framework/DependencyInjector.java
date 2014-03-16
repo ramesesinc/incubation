@@ -20,11 +20,11 @@ import java.util.Map;
  *
  * @author wflores
  */
-class DependencyInjector 
+public final class DependencyInjector 
 {
     private Map<Class,DependencyHandler> handlers;
 
-    DependencyInjector() {
+    public DependencyInjector() {
         handlers = Collections.synchronizedMap(new HashMap());
         Iterator itr = Service.providers(DependencyHandler.class, ClientContext.getCurrentContext().getClassLoader()); 
         while (itr.hasNext()) {
@@ -36,10 +36,10 @@ class DependencyInjector
         }
     }
     
-    Object getResource( Annotation anno, Binding binding ) {
+    public Object getResource( Annotation anno, Binding binding ) {
         if (anno == null) return null;
         
-        DependencyHandler dh = handlers.get(anno.getClass());
+        DependencyHandler dh = handlers.get(anno.annotationType());
         if (dh == null) return null;
         
         return dh.getResource(binding);

@@ -13,6 +13,7 @@ import com.rameses.osiris3.core.OsirisServer;
 import com.rameses.osiris3.core.ServerResource;
 
 import com.rameses.util.Service;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Collections;
@@ -47,12 +48,16 @@ public class DsServerResource extends ServerResource {
         InputStream is = null;
         try {
             String rootUrl = server.getRootUrl();
-            is = (new URL( rootUrl +  "/datasources/" + name )).openStream();
+            is = new URL( rootUrl +  "/datasources/" + name ).openStream();
             Properties props = new Properties();
             props.load(is);
             return props;
+        } catch(FileNotFoundException fnfe) {
+            throw new RuntimeException("'"+name+"' datasource not found"); 
+        } catch(RuntimeException re) {
+            throw re;
         } catch(Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException(e.getMessage(), e);
         } finally {
             try {is.close();}catch(Exception ex){;}
         }

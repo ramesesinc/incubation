@@ -66,8 +66,10 @@ public class CrudSqlUnitProvider extends SimpleSqlUnitProvider {
                 return CrudSqlBuilder.getInstance().getListSqlUnit(crudModel, alias);
             else
                 throw new RuntimeException("Crud action " + action + " is not supported!");
+        } catch(RuntimeException re) {
+            throw re;
         } catch(Exception ex) {
-            throw new RuntimeException(ex);
+            throw new RuntimeException(ex.getMessage(), ex);
         } finally {
             try { is.close(); } catch(Exception e) {;}
         }

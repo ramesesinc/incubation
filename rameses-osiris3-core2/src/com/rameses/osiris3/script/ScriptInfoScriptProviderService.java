@@ -36,6 +36,9 @@ public class ScriptInfoScriptProviderService extends ScriptInfoContextResource {
             String s = svc.getScript(name);
             is = new ByteArrayInputStream(s.getBytes());
             return parseScript(name, is, null, ac );
+        } catch(RuntimeException re) {
+            re.printStackTrace();
+            throw re;
         } catch(Exception e) {
             e.printStackTrace();
             throw new RuntimeException(e.getMessage(), e);

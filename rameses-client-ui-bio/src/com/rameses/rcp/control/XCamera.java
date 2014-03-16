@@ -210,8 +210,8 @@ public class XCamera extends JButton implements MouseEventSupport.ComponentInfo,
         String expression = getExpression();
         Object bean = getBinding().getBean();
         if (expression != null && expression.length() > 0) { 
-            Object result = UIControlUtil.evaluateExpr(bean, expression);
-            setText((result == null? "": result.toString()));  
+            Object result = UIControlUtil.evaluateExpr(bean, expression); 
+            setText((result == null? "": result.toString())); 
         } 
     }
         

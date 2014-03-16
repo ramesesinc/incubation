@@ -43,9 +43,11 @@ public class DataAdapterServiceResource extends ContextResource {
             props.load( is );
             return new DataAdapter(props);
         } catch(FileNotFoundException fe) {
-            throw new ResourceNotFoundException();
+            throw new ResourceNotFoundException("'"+name+"' adapter not found");
+        } catch(RuntimeException re) {
+            throw re;
         } catch(Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException(e.getMessage(), e);
         } finally {
             try { is.close(); } catch(Exception e){;}
         }
@@ -66,9 +68,5 @@ public class DataAdapterServiceResource extends ContextResource {
             return findDataAdapter(name);
         }
         
-    }
-
-    
-    
-    
+    } 
 }

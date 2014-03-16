@@ -18,6 +18,7 @@ import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.HashMap;
@@ -55,36 +56,50 @@ public abstract class AbstractActivity extends Activity
     protected void onCreateProcess(Bundle savedInstanceState) {}    
     protected void beforeCreate(Bundle savedInstanceState) {}    
     protected final void onCreate(Bundle savedInstanceState) {
-        dump("onCreate (Bundle)");        
-        beforeCreate(savedInstanceState);
-        super.onCreate(savedInstanceState);
-        handler = new Handler();
-        onCreateProcess(savedInstanceState);
+        try { 
+            dump("onCreate (Bundle)");        
+            handler = new Handler();            
+            beforeCreate(savedInstanceState);
+            super.onCreate(savedInstanceState);
+            onCreateProcess(savedInstanceState); 
+        } catch(Throwable t) { 
+            Logger logger = Platform.getLogger(); 
+            if (logger != null) logger.log(t); 
+            
+            UIDialog.showError(t, this);
+        } 
     }
 
     protected void onResumeProcess() {}    
     protected final void onResume() {
-        dump("onResume");
-        super.onResume(); 
-        
-        Platform platform = Platform.getInstance();
-        if (platform != null) {
-            AbstractActivity aa = platform.find(getClass());
-            if (aa == null) {
-                platform.register(this);
-                afterRegister();
+        try { 
+            dump("onResume");
+            super.onResume(); 
+
+            Platform platform = Platform.getInstance();
+            if (platform != null) {
+                AbstractActivity aa = platform.find(getClass());
+                if (aa == null) {
+                    platform.register(this);
+                    afterRegister();
+                }
+            } 
+
+            UIApplication uiapp = Platform.getApplication();
+            if (uiapp != null) {
+                beforeActivityChanged();
+                uiapp.setCurrentActivity(this);
+                afterActivityChanged();
             }
+
+            onResumeProcess();
+        } catch(Throwable t) { 
+            Logger logger = Platform.getLogger(); 
+            if (logger != null) logger.log(t); 
+            
+            UIDialog.showError(t, this);
         } 
-        
-        UIApplication uiapp = Platform.getApplication();
-        if (uiapp != null) {
-            beforeActivityChanged();
-            uiapp.setCurrentActivity(this);
-            afterActivityChanged();
-        }
-        
-        onResumeProcess();
-    }
+    } 
     
     protected void beforeActivityChanged() {}    
     protected void afterActivityChanged() {}    
@@ -93,9 +108,16 @@ public abstract class AbstractActivity extends Activity
     
     protected void onPostCreateProcess(Bundle savedInstanceState) {}     
     protected final void onPostCreate(Bundle savedInstanceState) {
-        dump("onPostCreate (Bundle)");        
-        super.onPostCreate(savedInstanceState);
-        onPostCreateProcess(savedInstanceState);
+        try { 
+            dump("onPostCreate (Bundle)");        
+            super.onPostCreate(savedInstanceState);
+            onPostCreateProcess(savedInstanceState);
+        } catch(Throwable t) { 
+            Logger logger = Platform.getLogger(); 
+            if (logger != null) logger.log(t); 
+            
+            UIDialog.showError(t, this);
+        } 
     }
 
     protected void onStopProcess() {}
@@ -106,17 +128,31 @@ public abstract class AbstractActivity extends Activity
     }
 
     protected void onStartProcess() {}
-    protected final void onStart() {
-        dump("onstart");  
-        super.onStart();
-        onStartProcess();
+    protected final void onStart() { 
+        try { 
+            dump("onstart");  
+            super.onStart();
+            onStartProcess(); 
+        } catch(Throwable t) { 
+            Logger logger = Platform.getLogger(); 
+            if (logger != null) logger.log(t); 
+            
+            UIDialog.showError(t, this);
+        }             
     }
 
     protected void onRestartProcess() {}    
-    protected final void onRestart() {
-        dump("onrestart");  
-        super.onRestart();
-        onRestartProcess();
+    protected final void onRestart() { 
+        try { 
+            dump("onrestart");  
+            super.onRestart();
+            onRestartProcess(); 
+        } catch(Throwable t) { 
+            Logger logger = Platform.getLogger(); 
+            if (logger != null) logger.log(t); 
+            
+            UIDialog.showError(t, this);
+        }  
     }
 
     protected void afterAttachedToWindow() {}        
@@ -129,15 +165,22 @@ public abstract class AbstractActivity extends Activity
     protected boolean beforeFinish() { return true; } 
     protected void afterFinish() {}        
     public final void finish() {
-        dump("finish");  
-        if (!isCloseable()) {
-            //this is not closeable
-            return;
-        } 
-        if (beforeFinish()) {
-            super.finish(); 
-            afterFinish(); 
-        } 
+        try { 
+            dump("finish");  
+            if (!isCloseable()) {
+                //this is not closeable
+                return;
+            } 
+            if (beforeFinish()) {
+                super.finish(); 
+                afterFinish(); 
+            } 
+        } catch(Throwable t) { 
+            Logger logger = Platform.getLogger(); 
+            if (logger != null) logger.log(t); 
+            
+            UIDialog.showError(t, this);
+        }              
     }
     
     final void dispose() {
@@ -153,11 +196,18 @@ public abstract class AbstractActivity extends Activity
     protected boolean beforeBackPressed() { return true; } 
     protected void afterBackPressed() {}            
     public final void onBackPressed() {
-        dump("onBackPressed");  
-        if (beforeBackPressed()) { 
-            super.onBackPressed(); 
-            afterBackPressed(); 
-        } 
+        try { 
+            dump("onBackPressed");  
+            if (beforeBackPressed()) { 
+                super.onBackPressed(); 
+                afterBackPressed(); 
+            } 
+        } catch(Throwable t) { 
+            Logger logger = Platform.getLogger(); 
+            if (logger != null) logger.log(t); 
+            
+            UIDialog.showError(t, this);
+        }
     }
 
     public void onContentChanged() {
@@ -194,16 +244,30 @@ public abstract class AbstractActivity extends Activity
 
     protected void onPauseProcess() {}  
     protected final void onPause() {
-        dump("onPause");  
-        super.onPause();
-        onPauseProcess();
+        try { 
+            dump("onPause");  
+            super.onPause();
+            onPauseProcess();  
+        } catch(Throwable t) { 
+            Logger logger = Platform.getLogger(); 
+            if (logger != null) logger.log(t); 
+            
+            UIDialog.showError(t, this);
+        }
     }
 
     protected void onPostResumeProcess() {}  
     protected final void onPostResume() {
-        dump("onPostResume");  
-        super.onPostResume();
-        onPostResumeProcess();
+        try { 
+            dump("onPostResume");  
+            super.onPostResume(); 
+            onPostResumeProcess(); 
+        } catch(Throwable t) { 
+            Logger logger = Platform.getLogger(); 
+            if (logger != null) logger.log(t); 
+            
+            UIDialog.showError(t, this);
+        } 
     }
     
     public void processActivityChanged() {

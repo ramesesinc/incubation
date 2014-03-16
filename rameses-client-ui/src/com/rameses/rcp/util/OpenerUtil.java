@@ -52,7 +52,9 @@ public class OpenerUtil
     }  
     
     private void showImpl(Opener opener, Map windowOptions) {
-        if (windowOptions == null) windowOptions = new HashMap(); 
+        if (windowOptions == null) {
+            windowOptions = opener.getProperties();
+        } 
         
         Map props = opener.getProperties();
         if (hasValue(windowOptions, "title")) {
@@ -113,6 +115,10 @@ public class OpenerUtil
         map.putAll(props); 
         map.put("id", sid);
         
+        if (!hasValue(map, "title")) { 
+            map.put("title", uicx.getTitle());
+        }
+
         uicp.putClientProperty("Opener.properties", map); 
         if ("popup".equals(target) ) {
             platform.showPopup(null, uicp, map);

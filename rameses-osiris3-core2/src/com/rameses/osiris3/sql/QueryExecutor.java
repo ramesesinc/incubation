@@ -90,9 +90,10 @@ public class QueryExecutor {
                 if(batchCounter>0) {
                     executor.execute();
                 }
-            }
-            catch(Exception e) {
-                throw new RuntimeException(e);
+            } catch(RuntimeException re) {
+                throw re;
+            } catch(Exception e) {
+                throw new RuntimeException(e.getMessage(), e);
             }
         }
         
