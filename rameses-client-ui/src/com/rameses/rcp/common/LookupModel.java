@@ -16,6 +16,8 @@ public class LookupModel extends ScrollListModel implements LookupDataSource
     private List DEFAULT_LIST = new ArrayList(); 
     private Map properties = new HashMap(); 
     private LookupSelector selector;
+    private Object onselect;
+    private Object onempty;
     
     private String returnItemKey;
     private String returnItemValue;
@@ -23,6 +25,16 @@ public class LookupModel extends ScrollListModel implements LookupDataSource
         
     public Map getProperties() { return properties; } 
     
+    public Object getOnselect() { return onselect; }    
+    public void setOnselect(Object onselect) { 
+        this.onselect = onselect; 
+    }
+    
+    public Object getOnempty() { return onempty; }    
+    public void setOnempty(Object onempty) { 
+        this.onempty = onempty; 
+    }
+        
     public LookupSelector getSelector() { return selector; }    
     public void setSelector(LookupSelector s) { this.selector = s; }
     

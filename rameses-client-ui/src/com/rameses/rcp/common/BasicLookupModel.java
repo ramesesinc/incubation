@@ -15,6 +15,8 @@ package com.rameses.rcp.common;
  */
 public class BasicLookupModel implements LookupDataSource  
 {
+    private Object onselect;
+    private Object onempty;    
     private LookupSelector selector; 
     private String returnItemKey;
     private String returnItemValue;
@@ -25,6 +27,16 @@ public class BasicLookupModel implements LookupDataSource
     
     // <editor-fold defaultstate="collapsed" desc=" LookupDataSource implementation ">  
 
+    public Object getOnselect() { return onselect; }    
+    public void setOnselect(Object onselect) { 
+        this.onselect = onselect; 
+    }
+    
+    public Object getOnempty() { return onempty; }    
+    public void setOnempty(Object onempty) { 
+        this.onempty = onempty; 
+    }
+    
     public LookupSelector getSelector() { return selector; }    
     public void setSelector(LookupSelector selector) { 
         this.selector = selector; 

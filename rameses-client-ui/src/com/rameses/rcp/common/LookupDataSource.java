@@ -15,6 +15,9 @@ package com.rameses.rcp.common;
  */
 public interface LookupDataSource 
 {
+    Object getOnselect();
+    Object getOnempty();
+    
     LookupSelector getSelector(); 
     void setSelector(LookupSelector selector);
         
