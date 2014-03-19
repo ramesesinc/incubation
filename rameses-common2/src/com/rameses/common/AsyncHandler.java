@@ -19,4 +19,7 @@ public interface AsyncHandler {
     void onMessage(AsyncResponse o);
     void onError(Exception e);
     
+    //alternative method
+    void call(Object o);
+    
 }
