@@ -10,10 +10,12 @@
 package com.rameses.osiris3.script.dependency;
 
 import com.rameses.osiris3.core.AbstractContext;
+import com.rameses.osiris3.core.MainContext;
 
 import com.rameses.osiris3.script.DependencyHandler;
 import com.rameses.osiris3.script.ExecutionInfo;
 import com.rameses.osiris3.script.ManagedScriptExecutor;
+import com.rameses.osiris3.script.AsyncScriptInvocation;
 import com.rameses.osiris3.script.ScriptInfo;
 import com.rameses.osiris3.core.TransactionContext;
 import com.rameses.osiris3.script.ScriptInvocation;
@@ -22,6 +24,7 @@ import com.rameses.osiris3.script.messaging.ScriptConnection;
 import com.rameses.osiris3.xconnection.XConnection;
 import com.rameses.util.ExceptionManager;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -52,13 +55,20 @@ public class ServiceDependencyHandler extends DependencyHandler {
             
             //check connection
             String conn = s.connection();
-            
+            boolean async = s.async();
             if( conn==null || conn.trim().length()==0) {
                 ScriptTransactionManager smr = txn.getManager(ScriptTransactionManager.class);
                 final ManagedScriptExecutor executor = smr.create( serviceName );
                 final boolean managed = s.managed();
                 ScriptInfo sinfo = executor.getScriptInfo();
-                return Proxy.newProxyInstance( sinfo.getInterfaceClass().getClassLoader(), new Class[]{sinfo.getInterfaceClass()}, new ScriptInvocation(executor,managed));
+                InvocationHandler ih = null;
+                if( !async ) {
+                    ih = new ScriptInvocation(executor,managed);
+                }
+                else {
+                    ih = new AsyncScriptInvocation((MainContext)ac, serviceName, txn.getEnv() );
+                }
+                return Proxy.newProxyInstance( sinfo.getInterfaceClass().getClassLoader(), new Class[]{sinfo.getInterfaceClass()}, ih);
             }
             else {
                 Class localIntf = s.localInterface();

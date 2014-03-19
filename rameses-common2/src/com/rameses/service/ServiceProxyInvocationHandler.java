@@ -87,6 +87,9 @@ public class ServiceProxyInvocationHandler implements InvocationHandler{
                     public void onError(Exception e) {
                         e.printStackTrace();
                     }
+                    public void call(Object o) {
+                        
+                    }
                 };
             }
         }
