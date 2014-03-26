@@ -10,6 +10,7 @@ package test;
 import com.rameses.rcp.camera.WebcamViewer;
 import com.rameses.rcp.common.CameraModel;
 import javax.swing.JOptionPane;
+import javax.swing.UIManager;
 import junit.framework.*;
 
 /**
@@ -23,6 +24,7 @@ public class WebcamTester extends TestCase {
     }
 
     protected void setUp() throws Exception {
+        UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
     }
 
     protected void tearDown() throws Exception {
@@ -39,6 +41,6 @@ public class WebcamTester extends TestCase {
             }            
         };
         WebcamViewer.open(model); 
-        JOptionPane.showMessageDialog(null, "freeze...");
+        //JOptionPane.showMessageDialog(null, "freeze...");
     }
 }

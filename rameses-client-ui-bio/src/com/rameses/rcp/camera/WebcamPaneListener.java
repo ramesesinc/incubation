@@ -9,12 +9,17 @@
 
 package com.rameses.rcp.camera;
 
+import com.github.sarxos.webcam.Webcam;
+import java.awt.Dimension;
+
 /**
  *
  * @author wflores
  */
 interface WebcamPaneListener 
 {
+    void oncreate(Webcam webcam); 
+    void onchangeResolution(Dimension dim);
     void onselect(byte[] bytes); 
     void oncancel();
 }

@@ -10,15 +10,21 @@
 package com.rameses.rcp.camera;
 
 import com.github.sarxos.webcam.Webcam;
+import com.github.sarxos.webcam.WebcamDiscoveryEvent;
+import com.github.sarxos.webcam.WebcamDiscoveryListener;
 import com.github.sarxos.webcam.WebcamEvent;
 import com.github.sarxos.webcam.WebcamListener;
 import com.github.sarxos.webcam.WebcamPanel;
 import com.rameses.rcp.common.MsgBox;
 import com.rameses.rcp.support.ImageIconSupport;
+import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.EventQueue;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Insets;
 import java.awt.LayoutManager;
 import java.awt.event.ActionEvent;
@@ -32,10 +38,9 @@ import java.util.List;
 import java.util.Vector;
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
-import javax.swing.Box;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JToolBar;
 
@@ -50,46 +55,61 @@ class WebcamPane extends JPanel
     private WebcamPanel wcp;
     private JToolBar toolbar;
     private JButton btnShoot;
+    private JComboBox cboDevices;
     private JComboBox cboSizes;
     
+    private DefaultComboBoxModel deviceModel;
+    
+    private List<Webcam> webcams;    
     private List<WebcamPaneListener> listeners;
     
     private boolean autoCloseOnSelect;    
     
-    public WebcamPane(WebcamViewer viewer, Webcam webcam) {
+    public WebcamPane(WebcamViewer viewer) {
         this.listeners = new ArrayList(); 
         this.viewer = viewer;
-        this.webcam = webcam;         
         initComponent();
     }
     
     // <editor-fold defaultstate="collapsed" desc=" initComponent "> 
     
     private void initComponent() {
-        super.setLayout(new DefaultLayout()); 
-        webcam.addWebcamListener(new WebcamPanelSupport()); 
-        wcp = new WebcamPanel(webcam, webcam.getViewSize(), false); 
-        wcp.setFPSDisplayed(true);
-        add(wcp); 
+        //super.setLayout(new DefaultLayout()); 
+        super.setLayout(new BorderLayout()); 
+        setPreferredSize(new Dimension(370, 290));
+        
+        webcams = Webcam.getWebcams();
+        Webcam.addDiscoveryListener(new WebcamDiscoveryListener() {
+            public void webcamFound(WebcamDiscoveryEvent e) {
+                System.out.println("webcamFound: " + e.getWebcam());
+                reloadDevices();
+            }
+            public void webcamGone(WebcamDiscoveryEvent e) {
+                System.out.println("webcamGone: " + e.getWebcam());
+                reloadDevices();
+            }
+            private void reloadDevices() {
+                deviceModel = new WCDeviceModel();
+                cboDevices.setModel(deviceModel); 
+            }
+        }); 
         
         toolbar = new JToolBar();
         toolbar.setFloatable(false);        
         toolbar.setRollover(false); 
         toolbar.setLayout(new ToolbarLayout()); 
         toolbar.setBorder(BorderFactory.createEmptyBorder(5,5,5,5)); 
-        add(toolbar); 
+        add(toolbar, BorderLayout.SOUTH); 
+
+        deviceModel = new DefaultComboBoxModel();
+        cboDevices = new JComboBox();
+        cboDevices.setEnabled(false);
+        cboDevices.addItemListener(new WCDeviceSelector()); 
+        toolbar.add(cboDevices, "left");
         
-        Vector<ViewSize> sizes = new Vector();
-        for (Dimension dim : webcam.getViewSizes()) {
-            sizes.add(new ViewSize(dim));
-        }
-        for (Dimension dim : webcam.getCustomViewSizes()) {
-            sizes.add(new ViewSize(dim));
-        }        
-        cboSizes = new JComboBox(sizes);
+        cboSizes = new JComboBox();
         cboSizes.setEnabled(false);
-        cboSizes.setSelectedItem(new ViewSize(webcam.getViewSize()));
-        cboSizes.addItemListener(new ViewSizeSelector());
+        cboSizes.addItemListener(new WCResolutionSelector()); 
         toolbar.add(cboSizes, "left");
         
         btnShoot = new JButton("Shoot");
@@ -106,71 +126,68 @@ class WebcamPane extends JPanel
         toolbar.add(btnCancel, "right"); 
     }
     
-    // </editor-fold>
-    
-    // <editor-fold defaultstate="collapsed" desc=" ViewSize "> 
-    
-    private class ViewSize 
-    {
-        private Dimension size;
-        
-        ViewSize(Dimension size) {
-            this.size = size;
-        }
-        
-        public Dimension getSize() { return size; } 
-        public String toString() {
-            if (size == null) return "null";
-            
-            return size.width + " x " + size.height;
-        }
-
-        public boolean equals(Object obj) {
-            if (!(obj instanceof ViewSize)) return false;
-            
-            ViewSize vs = (ViewSize)obj;
-            Dimension dim1 = vs.getSize(); 
-            Dimension dim2 = getSize();
-            return (dim1.width==dim2.width && dim1.height==dim2.height);
-        }
+    private void initWebcam() {
+        initWebcam(WebcamViewer.CACHE.getProperty("webcam.name"));
     }
     
-    // </editor-fold>
-    
-    // <editor-fold defaultstate="collapsed" desc=" ViewSizeSelector "> 
-    
-    private class ViewSizeSelector implements ItemListener 
-    {
-        public void itemStateChanged(ItemEvent e) {
-            if (e.getStateChange() == ItemEvent.SELECTED) {
-                ViewSize vs = (ViewSize) e.getItem();
-                final Dimension size = vs.getSize();
-                
-                try { 
-                    stop(); 
-                } catch(Throwable t) {
-                    JOptionPane.showMessageDialog(WebcamPane.this, "[ERROR] " + t.getClass().getName() + ": " + t.getMessage()); 
-                } 
-
-                try { 
-                    for (WebcamPaneListener listener : listeners) { 
-                        listener.oncancel(); 
-                    } 
-                } catch(Throwable t) {
-                    JOptionPane.showMessageDialog(WebcamPane.this, "[ERROR] " + t.getClass().getName() + ": " + t.getMessage()); 
-                }   
-                
-                EventQueue.invokeLater(new Runnable() {
-                    public void run() {
-                        viewer.setSize(size.width, size.height);
-                        WebcamViewer.PREFERRED_SIZE = new Dimension(size.width, size.height); 
-                        viewer.open(); 
-                    } 
-                });
-            }
+    private void initWebcam(final String name) {
+        if (webcams == null) {
+            webcams = Webcam.getWebcams();
         }
-    }    
+        
+        Webcam new_webcam = findWebcam(name);
+        if (new_webcam == null) return; 
+        
+        System.out.println("initWebcam ...(" + name + ")");
+        //close previous webcam
+        if (wcp != null) wcp.stop(); 
+        if (wcp != null) { 
+            remove(wcp); 
+            wcp = null; 
+            revalidate();
+            repaint();
+        } 
+        
+        webcam = new_webcam;         
+        cboSizes.removeAllItems();          
+        webcam.addWebcamListener(new WebcamPanelSupport());         
+        for (WebcamPaneListener wpl : listeners) { 
+            wpl.oncreate(webcam); 
+        } 
+        
+        WebcamViewer.CACHE.setProperty("webcam.name", webcam.getDevice().getName()); 
+        deviceModel = new WCDeviceModel(); 
+        cboDevices.setModel(deviceModel); 
+        cboDevices.setEnabled(true); 
+        cboSizes.setModel(new WCResolutionModel()); 
+        
+        wcp = new WebcamPanel(webcam, webcam.getViewSize(), false); 
+        wcp.setFPSDisplayed(true);
+        wcp.setFillArea(true); 
+        add(wcp); 
+
+        EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                if (!wcp.isStarted()) wcp.start(); 
+
+                revalidate();
+                repaint();
+            }
+        });
+    }
     
+    private Webcam findWebcam(String name) {
+        List<Webcam> webcams = Webcam.getWebcams();
+        if (webcams.isEmpty())
+            throw new RuntimeException("No available Webcam on your computer"); 
+        
+        for (Webcam wc : webcams) {
+            if (name == null || name.length() == 0) return wc;
+            if (name.equalsIgnoreCase(wc.getDevice().getName())) return wc; 
+        }
+        return webcams.get(0); 
+    }    
+        
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" Getters/Setters "> 
@@ -197,15 +214,184 @@ class WebcamPane extends JPanel
     }
     
     public void start() {
+        if (wcp == null) initWebcam(); 
+
         wcp.start(); 
     }
     
     public void stop() { 
-        wcp.stop(); 
+        if (wcp != null) wcp.stop(); 
     }
+
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g); 
         
+        int width = getWidth();
+        int height = getHeight();
+        Graphics2D g2 = (Graphics2D) g.create();
+        g2.setColor(Color.BLACK); 
+        g2.fillRect(0, 0, width, height);
+        g2.setColor(Color.WHITE);        
+        String str = "loading device ...";
+        if (webcams.isEmpty()) str = "No available Webcam device";
+        g2.drawString(str, 20, 30); 
+        g2.dispose();
+    }
+    
     // </editor-fold>
     
+    // <editor-fold defaultstate="collapsed" desc=" WCDevice "> 
+    
+    private class WCDeviceModel extends DefaultComboBoxModel 
+    {
+        WCDeviceModel() { 
+            super();
+            List<Webcam> webcams = Webcam.getWebcams(); 
+            if (webcams.isEmpty()) {
+                addElement(new WCDevice(null, "-- Devices --"));
+            } else { 
+                for (Webcam wc : webcams) {
+                    String name = wc.getDevice().getName();
+                    addElement(new WCDevice(name, name));
+                } 
+                
+                String wc_name = WebcamViewer.CACHE.getProperty("webcam.name");
+                setSelectedItem(new WCDevice(wc_name, wc_name)); 
+                
+                WCDevice sel = (WCDevice) getSelectedItem();
+                if (sel == null) setSelectedItem(getElementAt(0));
+            } 
+        }
+    }
+    
+    private class WCDevice 
+    {
+        private Object key;
+        private Object value;
+        private Webcam webcam;
+        
+        WCDevice(Object key, Object value) {
+            this.key = key;
+            this.value = value; 
+        }
+        
+        public Object getKey() { return key; } 
+        public Object getValue() { return value; } 
+        public String toString() {
+            return (value == null? "null": value.toString()); 
+        }
+        
+        public boolean equals(Object obj) {
+            if (!(obj instanceof WCDevice)) return false;
+            
+            WCDevice wc = (WCDevice)obj;
+            Object key1 = wc.getKey();
+            Object key2 = getKey();
+            if (key1 == null && key2 == null) return true;
+            
+            return (key1 != null && key2 != null && key1.equals(key2));
+        } 
+    }    
+    
+    private class WCDeviceSelector implements ItemListener 
+    {
+        public void itemStateChanged(ItemEvent e) {
+            if (e.getStateChange() == ItemEvent.SELECTED) {
+                Object item = e.getItem();
+                if (!(item instanceof WCDevice)) return; 
+                
+                Object key = ((WCDevice) item).getKey();
+                if (key == null) return;
+                
+                initWebcam(key.toString()); 
+            }
+        }
+    }      
+    
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" WCResolution "> 
+    
+    private class WCResolutionModel extends DefaultComboBoxModel 
+    {
+        WebcamPane root = WebcamPane.this;
+        
+        WCResolutionModel() { 
+            super();
+            if (root.webcam == null) return;
+            
+            Dimension[] sizes = root.webcam.getViewSizes();
+            for (Dimension dim : sizes) {
+                addElement(new WCResolution(dim));
+            }
+            sizes = root.webcam.getCustomViewSizes();
+            for (Dimension dim : sizes) {
+                addElement(new WCResolution(dim));
+            }
+            
+            if (getSize() == 0) {
+                addElement(new WCResolution(null, "-- Resolutions --"));
+            } else {
+                Dimension dim = root.webcam.getViewSize();
+                setSelectedItem(new WCResolution(dim));
+                
+                WCResolution sel = (WCResolution) getSelectedItem();
+                if (sel == null) setSelectedItem(getElementAt(0));
+            }
+        }
+    }    
+    
+    private class WCResolution 
+    {
+        private Dimension size;
+        private String caption;
+        
+        WCResolution(Dimension size) {
+            this.size = size;
+            if (size != null) { 
+                this.caption = size.width + " x " + size.height; 
+            } 
+        }
+        
+        WCResolution(Dimension size, String caption) {
+            this.size = size;
+            this.caption = caption;
+        }
+        
+        public Dimension getSize() { return size; } 
+        public String toString() {
+            return (caption == null? "null": caption);
+        }
+
+        public boolean equals(Object obj) {
+            if (!(obj instanceof WCResolution)) return false;
+            
+            WCResolution res = (WCResolution)obj;
+            Dimension dim1 = res.getSize(); 
+            Dimension dim2 = getSize();
+            if (dim1 == null || dim2 == null) return false;
+            return (dim1.width==dim2.width && dim1.height==dim2.height);
+        }
+    }
+    
+    private class WCResolutionSelector implements ItemListener 
+    {
+        public void itemStateChanged(ItemEvent e) {
+            if (e.getStateChange() == ItemEvent.SELECTED) {
+                WCResolution res = (WCResolution) e.getItem();
+                final Dimension size = res.getSize();
+                if (size == null) return;
+                
+                WebcamViewer.CACHE.setProperty("webcam.width", size.width+"");
+                WebcamViewer.CACHE.setProperty("webcam.height", size.height+"");
+                String wc_name = webcam.getDevice().getName();
+                initWebcam(wc_name); 
+            }
+        }
+    }    
+    
+    // </editor-fold>
+        
     // <editor-fold defaultstate="collapsed" desc=" DefaultLayout "> 
     
     private class DefaultLayout implements LayoutManager 
@@ -225,20 +411,7 @@ class WebcamPane extends JPanel
 
         private Dimension layoutSize(Container parent) {
             synchronized (parent.getTreeLock()) {
-                int w=0, h=0;
-                Component c = root.wcp;
-                if (c != null) {
-                    Dimension dim = c.getPreferredSize(); 
-                    w = dim.width;
-                    h = dim.height; 
-                }
-                c = root.toolbar;
-                if (c != null) {
-                    Dimension dim = c.getPreferredSize(); 
-                    w = Math.max(dim.width, w); 
-                    h += dim.height; 
-                }
-                
+                int w=320, h=240;
                 Insets margin = parent.getInsets();
                 w += margin.left + margin.right;
                 h += margin.top + margin.bottom;
@@ -258,16 +431,19 @@ class WebcamPane extends JPanel
                 
                 Component c = root.wcp;
                 if (c != null) {
+                    Component toolbar = root.toolbar;
+                    if (toolbar != null) {
+                        Dimension dim = toolbar.getPreferredSize();
+                        int ny1 = ph - margin.top;
+                        int ny2 = (ph - margin.bottom)-dim.height;
+                        int ny = Math.max(ny1, ny2); 
+                        toolbar.setBounds(x, ny, w, dim.height);
+                        h -= dim.height;
+                    }
+                    
                     Dimension dim = c.getPreferredSize();
-                    c.setBounds(x, y, w, dim.height);
-                    y += dim.height;
-                } 
-                
-                c = root.toolbar;
-                if (c != null) {
-                    Dimension dim = c.getPreferredSize();
-                    c.setBounds(x, y, w, dim.height);
-                }
+                    c.setBounds(x, y, w, Math.max(h, 0));
+                }                 
             } 
         }
     }
@@ -455,7 +631,10 @@ class WebcamPane extends JPanel
     
     private class WebcamPanelSupport implements WebcamListener
     {
+        WebcamPane root = WebcamPane.this;
+        
         public void webcamOpen(WebcamEvent we) {
+            cboDevices.setEnabled(true);
             cboSizes.setEnabled(true);
             btnShoot.setEnabled(true);
             btnShoot.repaint();
@@ -467,6 +646,8 @@ class WebcamPane extends JPanel
             btnShoot.setEnabled(false);
             btnShoot.repaint();
             if (btnShoot.hasFocus()) btnShoot.transferFocus();
+
+            removeWebcamPanel(); 
         }
 
         public void webcamDisposed(WebcamEvent we) {
@@ -477,6 +658,18 @@ class WebcamPane extends JPanel
         }
 
         public void webcamImageObtained(WebcamEvent we) {
+        }
+        
+        private void removeWebcamPanel() {
+            WebcamPanel wcp = root.wcp; 
+            if (wcp == null) return;
+            
+            if (wcp != null) { 
+                root.remove(wcp); 
+                root.wcp = null; 
+                root.revalidate();
+                root.repaint();
+            } 
         }
     }
     
