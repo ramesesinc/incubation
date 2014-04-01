@@ -589,6 +589,7 @@ public class XLookupField extends IconedTextField implements UILookup, UISelecto
     
     private class LookupHandlerProxy implements LookupHandler 
     {
+        private Object codeBean;
         private LookupDataSource model;
         private LookupHandler handler;
         private Opener opener;
@@ -617,13 +618,19 @@ public class XLookupField extends IconedTextField implements UILookup, UISelecto
                 if (controller == null) 
                     throw new IllegalStateException("'"+opener.getName()+"' opener must have a controller");
 
-                Object codeBean = controller.getCodeBean();
-                if (codeBean instanceof LookupDataSource) {
-                    controller.setId(opener.getId());
-                    controller.setName(opener.getName());
-                    controller.setTitle(opener.getCaption());            
-                    model = (LookupDataSource) codeBean;
+                codeBean = controller.getCodeBean();
+                if (codeBean instanceof LookupDataSource) { 
+                    controller.setId(opener.getId()); 
+                    controller.setName(opener.getName()); 
+                    controller.setTitle(opener.getCaption()); 
+                    model = (LookupDataSource) codeBean; 
                     
+                    Object callback = model.getOnselect();
+                    if (callback != null) onselectCallback = callback;
+                    
+                    callback = model.getOnempty();
+                    if (callback != null) onemptyCallback = callback;
+
                 } else {
                     model = null;                     
                     throw new IllegalStateException("'"+opener.getName()+"' opener controller must be an instance of LookupDataSource");
@@ -658,7 +665,7 @@ public class XLookupField extends IconedTextField implements UILookup, UISelecto
         private Object invokeHandler(Object handler, Object item){
             if (handler == null) return null;
 
-            Method method = null;         
+            Method method = null; 
             Class clazz = handler.getClass();
             try { method = clazz.getMethod("call", new Class[]{Object.class}); }catch(Exception ign){;} 
 

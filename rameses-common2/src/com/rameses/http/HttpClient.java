@@ -20,9 +20,17 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.security.cert.X509Certificate;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
 /**
  * This is a generic utility for accessing servlets in a service style manner
@@ -166,6 +174,11 @@ public class HttpClient implements Serializable {
             
             URL url = new URL(uhost);
             conn = (HttpURLConnection) url.openConnection();
+            if (conn instanceof HttpsURLConnection) {
+                HttpsURLConnection httpsc = (HttpsURLConnection)conn; 
+                bypassSSLSecurityCheck(httpsc); 
+            }
+            
             if( connectionTimeout > 0 ) conn.setConnectTimeout(connectionTimeout);
             if( readTimeout > 0 ) conn.setReadTimeout(readTimeout);
             conn.setDoOutput(true);
@@ -283,5 +296,50 @@ public class HttpClient implements Serializable {
         this.encrypted = encrypted;
     }
     
+    
+    
+    private void bypassSSLSecurityCheck(HttpsURLConnection conn) {
+        SSLSocketFactory sslsf = getSSLSocketFactory();
+        if (sslsf == null) return;
+        
+        // Ignore differences between given hostname and certificate hostname
+        HostnameVerifier hv = new HostnameVerifier() {
+            public boolean verify(String hostname, SSLSession session) { 
+                return true; 
+            }
+        };        
+        conn.setSSLSocketFactory(sslsf); 
+        conn.setHostnameVerifier(hv); 
+    }
+    
+    
+    private SSLSocketFactory sslSocketFactory;
+    private SSLSocketFactory getSSLSocketFactory() {
+        if (sslSocketFactory == null) {
+            sslSocketFactory = createSSLSocketFactory();
+        }
+        return sslSocketFactory;             
+    }
+    
+    private SSLSocketFactory createSSLSocketFactory() {
+        try { 
+            TrustManager[] trustAllCerts = new TrustManager[] { 
+                new X509TrustManager() {
+                    public X509Certificate[] getAcceptedIssuers() { 
+                        return new X509Certificate[0]; 
+                    }
+                    public void checkClientTrusted(X509Certificate[] certs, String authType) {}
+                    public void checkServerTrusted(X509Certificate[] certs, String authType) {}
+                }
+            };
 
+            // Install the all-trusting trust manager
+            SSLContext sslContext = SSLContext.getInstance( "SSL" );
+            sslContext.init( null, trustAllCerts, new java.security.SecureRandom() );
+            // Create an ssl socket factory with our all-trusting manager
+            return sslContext.getSocketFactory();  
+        } catch(Throwable t) {
+            return null; 
+        }
+    }
 }

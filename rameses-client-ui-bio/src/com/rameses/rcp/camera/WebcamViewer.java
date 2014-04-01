@@ -10,6 +10,7 @@
 package com.rameses.rcp.camera;
 
 import com.github.sarxos.webcam.Webcam;
+import com.github.sarxos.webcam.WebcamResolution;
 import com.rameses.rcp.common.*;
 import com.rameses.rcp.common.CameraModel.ViewerProvider;
 import java.awt.Dialog;
@@ -23,6 +24,7 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import javax.swing.JDialog;
 
 /**
@@ -31,6 +33,7 @@ import javax.swing.JDialog;
  */
 public final class WebcamViewer 
 {
+    public final static Properties CACHE = new Properties(); 
     public static Dimension PREFERRED_SIZE;
     
     public static void open(Map options) {
@@ -86,22 +89,7 @@ public final class WebcamViewer
     public byte[] open() { 
         Window win = KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusedWindow(); 
         
-        List<Webcam> webcams = Webcam.getWebcams(); 
-        Webcam webcam = whichWebcam(webcams); 
-        Dimension prefsize = PREFERRED_SIZE;
-        if (prefsize == null) prefsize = new Dimension(width, height);
-        
-        try { 
-            webcam.setViewSize(prefsize); 
-        } catch(Throwable t) { 
-            t.printStackTrace();
-            webcam.setViewSize(new Dimension(width, height)); 
-        } 
-        webcam.setAutoOpenMode(autoOpenMode); 
-
-        if (title == null) title = "Camera";
-        
-        final WebcamPane pane = new WebcamPane(this, webcam);  
+        final WebcamPane pane = new WebcamPane(this);  
         pane.setAutoCloseOnSelect(model.isAutoCloseOnSelect()); 
         
         JDialog dialog = null; 
@@ -112,19 +100,17 @@ public final class WebcamViewer
         } else {
             dialog = new JDialog(); 
         } 
+        
         dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE); 
-        
-        Dimension viewSize = webcam.getViewSize();         
-        dialog.setTitle(title + " ("+viewSize.width+" x "+viewSize.height+")"); 
-        
+        dialog.setTitle("Camera"); 
         if (alwaysOnTop) {
             dialog.setAlwaysOnTop(true); 
             dialog.setModal(false); 
         } else {
-            dialog.setAlwaysOnTop(false);
+            dialog.setAlwaysOnTop(true);
             dialog.setModal(true); 
         }         
-        dialog.setResizable(false); 
+        //dialog.setResizable(false); 
         dialog.setContentPane(pane);
         dialog.pack();
         dialog.addWindowListener(new WindowListener() {
@@ -148,8 +134,8 @@ public final class WebcamViewer
                 pane.start(); 
             }
         }); 
-        centerWindow(dialog);
-        pane.addListener(new WebcamPaneListenerImpl(dialog)); 
+        centerWindow(dialog); 
+        pane.addListener(new WebcamPaneListenerImpl(dialog));
         model.setViewerProvider(new ViewerProviderImpl(dialog)); 
         dialog.setVisible(true); 
         return null; 
@@ -290,6 +276,37 @@ public final class WebcamViewer
         WebcamPaneListenerImpl(JDialog dialog) {
             this.dialog = dialog; 
         }
+
+        public void oncreate(Webcam webcam) {
+            String title = root.title;
+            if (title == null) title = "Camera";
+            
+            dialog.setTitle(title); 
+            Dimension[] customViewSizes = new Dimension[]{ 
+                WebcamResolution.PAL.getSize(), 
+                new Dimension(1024, 768), 
+                WebcamResolution.HD720.getSize() 
+            };
+            webcam.setCustomViewSizes(customViewSizes); 
+            webcam.setViewSize(WebcamResolution.HD720.getSize());
+            
+            try { 
+                Integer owidth = getInteger(root.CACHE, "webcam.width");
+                Integer oheight = getInteger(root.CACHE, "webcam.height");
+                webcam.setViewSize(new Dimension(owidth.intValue(), oheight.intValue())); 
+            } catch(Throwable t) {;} 
+            
+            Dimension dim = webcam.getViewSize();         
+            String deviceName = webcam.getDevice().getName();            
+            dialog.setTitle(deviceName + " ("+dim.width+" x "+dim.height+")");             
+            webcam.setAutoOpenMode(autoOpenMode); 
+        }
+        
+        public void onchangeResolution(Dimension dim) {
+            if (dim == null) return;
+            
+            
+        }
         
         public void onselect(byte[] bytes) {
             if (autoCloseOnSelect) dialog.dispose();
@@ -299,6 +316,15 @@ public final class WebcamViewer
         public void oncancel() {
             dialog.dispose(); 
             root.onclose(); 
+        }
+        
+        private Integer getInteger(Map data, String name) {
+            try {
+                int num = Integer.parseInt(data.get(name).toString());
+                return new Integer(num); 
+            } catch(Throwable t) {
+                return null; 
+            }
         }
     }
     

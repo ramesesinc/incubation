@@ -51,6 +51,11 @@ public abstract class AbstractServiceProxy{
             }catch(Exception e){;}
             client.setConnectionTimeout(ct);
         }        
+        
+        String _protocol = (String)conf.get("protocol");
+        if(_protocol != null && _protocol.length() > 0) {
+            client.setProtocol(_protocol);
+        } 
     }
     
     public Map getConf() {
