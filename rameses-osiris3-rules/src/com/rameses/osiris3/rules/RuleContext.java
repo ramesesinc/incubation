@@ -19,6 +19,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import org.drools.KnowledgeBase;
+import org.drools.KnowledgeBaseConfiguration;
+import org.drools.KnowledgeBaseFactory;
 import org.drools.builder.KnowledgeBuilder;
 import org.drools.builder.KnowledgeBuilderConfiguration;
 import org.drools.builder.KnowledgeBuilderError;
@@ -49,7 +51,7 @@ public class RuleContext {
             properties.setProperty( "drools.dialect.java.compiler.lnglevel",langLevel );
         }
         properties.setProperty( "drools.dialect.java.compiler", "JANINO" );
-        conf = KnowledgeBuilderFactory.newKnowledgeBuilderConfiguration(properties);
+        conf = KnowledgeBuilderFactory.newKnowledgeBuilderConfiguration(properties,this.mainContext.getClassLoader());
     }
     
     public void build(List<Reader> readers) throws Exception {
@@ -57,7 +59,9 @@ public class RuleContext {
         for(Reader r: readers) {
             builder.add( ResourceFactory.newReaderResource(r), ResourceType.DRL );
         }
-        knowledgeBase = builder.newKnowledgeBase();
+        KnowledgeBaseConfiguration _conf = KnowledgeBaseFactory.newKnowledgeBaseConfiguration(null,this.mainContext.getClassLoader());
+        knowledgeBase = KnowledgeBaseFactory.newKnowledgeBase( _conf );
+        knowledgeBase.addKnowledgePackages( builder.getKnowledgePackages() );
     }
     
     public void start() throws Exception {

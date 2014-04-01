@@ -93,7 +93,12 @@ public abstract class ContextProvider {
                 }
             });
             urc = new URLClassLoader(urls);
-            return new GroovyClassLoader(urc);
+            GroovyClassLoader gc = new GroovyClassLoader(urc);
+            //add url so it can scan classes
+            for( URL u : urls) {
+                gc.addURL( u );    
+            }
+            return gc;
         } catch(Exception ign){
             throw new RuntimeException("ERROR init classloader for "+name+" "+ign.getMessage());
         }
