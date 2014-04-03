@@ -170,7 +170,8 @@ public class XHtmlView extends JEditorPane implements UIControl, ActiveControl, 
             
             URL url = null;
             if (value == null) {
-                //do nothing 
+                setText(""); 
+                setCaretPosition(0); 
             } else if (value instanceof URL) {
                 url = (URL) value;
             } else if (value.toString().startsWith("http://")) {
