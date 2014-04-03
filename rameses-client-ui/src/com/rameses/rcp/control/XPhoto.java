@@ -12,7 +12,6 @@ package com.rameses.rcp.control;
 import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.framework.ClientContext;
-import com.rameses.rcp.support.ImageIconSupport;
 import com.rameses.rcp.support.MouseEventSupport;
 import com.rameses.rcp.ui.UIControl;
 import com.rameses.rcp.util.UIControlUtil;
@@ -43,6 +42,8 @@ import javax.swing.SwingConstants;
  */
 public class XPhoto extends JLabel implements UIControl, MouseEventSupport.ComponentInfo 
 {
+    final static String DEFAULT_NO_IMAGE_ICON = "com/rameses/rcp/icons/photo.png";
+            
     private Binding binding;
     private String[] depends;
     private int index; 
@@ -52,9 +53,12 @@ public class XPhoto extends JLabel implements UIControl, MouseEventSupport.Compo
     
     private NoImageCanvas noImageCanvas;
     private ImageCanvas imageCanvas;
-    
+
+    private String noImageIcon;    
     private Color noImageBackground;
     private Color noImageForeground; 
+    private boolean showNoImageText;
+    private boolean showNoImageIcon;
     
     public XPhoto() { 
         initComponent();
@@ -67,8 +71,9 @@ public class XPhoto extends JLabel implements UIControl, MouseEventSupport.Compo
         setOpaque(false); 
         setPreferredSize(new Dimension(120, 100));
         setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY));
-        setNoImageBackground(Color.BLACK);
-        setNoImageForeground(Color.WHITE); 
+        setNoImageIcon(DEFAULT_NO_IMAGE_ICON); 
+        setShowNoImageIcon(true);
+        setShowNoImageText(true);
         
         noImageCanvas = new NoImageCanvas(); 
         imageCanvas = new ImageCanvas(); 
@@ -104,6 +109,11 @@ public class XPhoto extends JLabel implements UIControl, MouseEventSupport.Compo
     public boolean isDynamic() { return dynamic; } 
     public void setDynamic(boolean dynamic) { this.dynamic = dynamic; } 
     
+    public String getNoImageIcon() { return noImageIcon; } 
+    public void setNoImageIcon(String noImageIcon) {
+        this.noImageIcon = noImageIcon; 
+    }
+    
     public Color getNoImageBackground() { return noImageBackground; } 
     public void setNoImageBackground(Color noImageBackground) { 
         this.noImageBackground = noImageBackground; 
@@ -113,6 +123,16 @@ public class XPhoto extends JLabel implements UIControl, MouseEventSupport.Compo
     public void setNoImageForeground(Color noImageForeground) { 
         this.noImageForeground = noImageForeground; 
     } 
+    
+    public boolean isShowNoImageText() { return showNoImageText; } 
+    public void setShowNoImageText(boolean showNoImageText) { 
+        this.showNoImageText = showNoImageText; 
+    } 
+    
+    public boolean isShowNoImageIcon() { return showNoImageIcon; } 
+    public void setShowNoImageIcon(boolean showNoImageIcon) { 
+        this.showNoImageIcon = showNoImageIcon; 
+    }     
     
     // </editor-fold>
     
@@ -253,10 +273,10 @@ public class XPhoto extends JLabel implements UIControl, MouseEventSupport.Compo
                     else 
                         loader = ClientContext.getCurrentContext().getClassLoader();
 
-                    URL url = loader.getResource("com/rameses/rcp/icons/photo.png");
+                    URL url = loader.getResource(getNoImageIcon());
                     photoIcon = new ImageIcon(url);
-                } catch (Exception ex) {
-                    ex.printStackTrace();
+                } catch (Throwable ex) {
+                    System.out.println("[WARN] failed to load icon caused by " + ex.getClass().getName() + ": " + ex.getMessage()); 
                 }            
             }
             return photoIcon; 
@@ -266,37 +286,52 @@ public class XPhoto extends JLabel implements UIControl, MouseEventSupport.Compo
             int width = getWidth();
             int height = getHeight();
             Graphics2D g2 = (Graphics2D)g.create(); 
+            Color oldColor = g2.getColor();            
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            g2.setBackground(Color.DARK_GRAY);
+            
+            Color bgcolor = getNoImageBackground();
+            if (bgcolor == null) bgcolor = Color.DARK_GRAY;
+            
+            g2.setColor(bgcolor);
             g2.fillRect(0, 0, width, height);
 
-            ImageIcon photoIcon = getPhotoIcon();
-            if (photoIcon != null) {
-                g2.drawImage(photoIcon.getImage(), 0, 0, width, height, null); 
-            }
+            if (isShowNoImageIcon()) { 
+                ImageIcon photoIcon = getPhotoIcon();
+                if (photoIcon != null) {
+                    g2.setColor(Color.WHITE);
+                    g2.fillRect(0, 0, width, height);                    
+                    g2.drawImage(photoIcon.getImage(), 0, 0, width, height, null); 
+                }
+            } 
+            if (isShowNoImageText()) { 
+                String str = "No Available"; 
+                FontMetrics metrics = g2.getFontMetrics(getFont());
+                int fw = metrics.stringWidth(str);
+                int fh = metrics.getHeight();
+                int x = Math.max(((width - fw) / 2), 0);
+                int y = Math.max(((height / 2) - (fh / 2)), 0) + 4;
+                
+                Color shadowColor = Color.decode("#808080");
+                Color forecolor = getNoImageForeground();
+                if (forecolor == null) forecolor = Color.WHITE;
 
-            String str = "No Available"; 
-            FontMetrics metrics = g2.getFontMetrics(getFont());
-            int fw = metrics.stringWidth(str);
-            int fh = metrics.getHeight();
-            int x = Math.max(((width - fw) / 2), 0);
-            int y = Math.max(((height / 2) - (fh / 2)), 0) + 4;
+                g2.setFont(getFont());
+                g2.setColor(shadowColor);
+                g2.drawString(str, x, y+1);            
+                g2.setColor(forecolor);
+                g2.drawString(str, x, y);
 
-            g2.setFont(getFont());
-            g2.setColor(Color.decode("#808080"));
-            g2.drawString(str, x, y+1);            
-            g2.setColor(Color.WHITE);
-            g2.drawString(str, x, y);
-
-            str = "Photo";
-            fw = metrics.stringWidth(str);
-            fh = metrics.getHeight();        
-            x = Math.max(((width - fw) / 2), 0);
-            y = Math.max(((height / 2) + (fh / 2)), 0) + 4;
-            g2.setColor(Color.decode("#808080"));
-            g2.drawString(str, x, y+1);            
-            g2.setColor(Color.WHITE);            
-            g2.drawString(str, x, y);            
+                str = "Photo";
+                fw = metrics.stringWidth(str);
+                fh = metrics.getHeight();        
+                x = Math.max(((width - fw) / 2), 0);
+                y = Math.max(((height / 2) + (fh / 2)), 0) + 4;
+                g2.setColor(shadowColor);
+                g2.drawString(str, x, y+1);            
+                g2.setColor(forecolor);            
+                g2.drawString(str, x, y); 
+            } 
+            g2.dispose();
         }
     }
     
