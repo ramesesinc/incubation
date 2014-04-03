@@ -238,6 +238,7 @@ is divided into following sections:
         <ant target="jar" inheritall="false" antfile="${project.osiris2-framework}/build.xml"/>
         <ant target="jar" inheritall="false" antfile="${project.rameses-client-ui}/build.xml"/>
         <ant target="jar" inheritall="false" antfile="${project.rameses-common2}/build.xml"/>
+        <ant target="jar" inheritall="false" antfile="${project.rameses-jdbc}/build.xml"/>
     </target>
     <target name="-pre-pre-compile" depends="init,deps-jar">
         <mkdir dir="${build.classes.dir}"/>
@@ -538,6 +539,7 @@ is divided into following sections:
         <ant target="clean" inheritall="false" antfile="${project.osiris2-framework}/build.xml"/>
         <ant target="clean" inheritall="false" antfile="${project.rameses-client-ui}/build.xml"/>
         <ant target="clean" inheritall="false" antfile="${project.rameses-common2}/build.xml"/>
+        <ant target="clean" inheritall="false" antfile="${project.rameses-jdbc}/build.xml"/>
     </target>
     <target name="-do-clean" depends="init">
         <delete dir="${build.dir}"/>
