@@ -12,6 +12,7 @@ package com.rameses.rcp.control;
 import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.framework.ClientContext;
+import com.rameses.rcp.support.ImageIconSupport;
 import com.rameses.rcp.support.MouseEventSupport;
 import com.rameses.rcp.ui.UIControl;
 import com.rameses.rcp.util.UIControlUtil;
@@ -238,21 +239,41 @@ public class XPhoto extends JLabel implements UIControl, MouseEventSupport.Compo
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" NoImageCanvas "> 
-    
+        
     private class NoImageCanvas extends JLabel 
     {
+        private ImageIcon photoIcon;    
+    
+        private ImageIcon getPhotoIcon() {
+            if (photoIcon == null) {
+                try {
+                    ClassLoader loader = null;
+                    if ( Beans.isDesignTime() ) 
+                        loader = getClass().getClassLoader();
+                    else 
+                        loader = ClientContext.getCurrentContext().getClassLoader();
+
+                    URL url = loader.getResource("com/rameses/rcp/icons/photo.png");
+                    photoIcon = new ImageIcon(url);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }            
+            }
+            return photoIcon; 
+        }
+        
         public void paint(Graphics g) {
             int width = getWidth();
             int height = getHeight();
             Graphics2D g2 = (Graphics2D)g.create(); 
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            g2.setBackground(Color.BLACK);
+            g2.setBackground(Color.DARK_GRAY);
             g2.fillRect(0, 0, width, height);
 
-            g2.setColor(Color.DARK_GRAY);
-            g2.setStroke(new BasicStroke(3));
-            g2.drawLine(0, 0, width-1, height-1);
-            g2.drawLine(0, height-1, width-1, 0);
+            ImageIcon photoIcon = getPhotoIcon();
+            if (photoIcon != null) {
+                g2.drawImage(photoIcon.getImage(), 0, 0, width, height, null); 
+            }
 
             String str = "No Available"; 
             FontMetrics metrics = g2.getFontMetrics(getFont());
@@ -262,6 +283,8 @@ public class XPhoto extends JLabel implements UIControl, MouseEventSupport.Compo
             int y = Math.max(((height / 2) - (fh / 2)), 0) + 4;
 
             g2.setFont(getFont());
+            g2.setColor(Color.decode("#808080"));
+            g2.drawString(str, x, y+1);            
             g2.setColor(Color.WHITE);
             g2.drawString(str, x, y);
 
@@ -270,6 +293,9 @@ public class XPhoto extends JLabel implements UIControl, MouseEventSupport.Compo
             fh = metrics.getHeight();        
             x = Math.max(((width - fw) / 2), 0);
             y = Math.max(((height / 2) + (fh / 2)), 0) + 4;
+            g2.setColor(Color.decode("#808080"));
+            g2.drawString(str, x, y+1);            
+            g2.setColor(Color.WHITE);            
             g2.drawString(str, x, y);            
         }
     }
