@@ -20,7 +20,7 @@ public class GroovyTemplateProvider extends TemplateProvider {
     private Map<String, Template> cache = new Hashtable();
     
     public String[] getExtensions() {
-        return new String[] { "gtpl" };
+        return new String[] { "gtpl", "htm", "html" };
     }
     
     public Template getTemplate(String name, TemplateSource provider) {
