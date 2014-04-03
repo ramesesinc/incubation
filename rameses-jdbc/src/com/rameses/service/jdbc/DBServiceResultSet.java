@@ -13,6 +13,9 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.math.BigDecimal;
 import java.net.URL;
+import java.sql.NClob;
+import java.sql.RowId;
+import java.sql.SQLXML;
 
 import java.sql.Timestamp;
 import java.sql.Array;
@@ -889,6 +892,62 @@ public class DBServiceResultSet implements ResultSet {
 
     public boolean isWrapperFor(Class<?> iface) throws SQLException {
         throw new SQLException("not supported");
+    }
+
+    public RowId getRowId(int columnIndex) throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public RowId getRowId(String columnLabel) throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public void updateRowId(int columnIndex, RowId x) throws SQLException {
+    }
+
+    public void updateRowId(String columnLabel, RowId x) throws SQLException {
+    }
+
+    public int getHoldability() throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public boolean isClosed() throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public void updateNString(int columnIndex, String nString) throws SQLException {        
+    }
+
+    public void updateNString(String columnLabel, String nString) throws SQLException {
+    }
+
+    public void updateNClob(int columnIndex, NClob nClob) throws SQLException {
+    }
+
+    public void updateNClob(String columnLabel, NClob nClob) throws SQLException {
+    }
+
+    public NClob getNClob(int columnIndex) throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public NClob getNClob(String columnLabel) throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public SQLXML getSQLXML(int columnIndex) throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public SQLXML getSQLXML(String columnLabel) throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public void updateSQLXML(int columnIndex, SQLXML xmlObject) throws SQLException {
+    }
+
+    public void updateSQLXML(String columnLabel, SQLXML xmlObject) throws SQLException {
     }
     
 }

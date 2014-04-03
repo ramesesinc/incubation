@@ -13,6 +13,9 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.math.BigDecimal;
 import java.net.URL;
+import java.sql.NClob;
+import java.sql.RowId;
+import java.sql.SQLXML;
 
 import java.sql.Timestamp;
 import java.sql.Array;
@@ -467,5 +470,14 @@ public class DBServiceStatement implements PreparedStatement {
 
     public boolean isWrapperFor(Class<?> iface) throws SQLException {
         throw new SQLException("not supported");
+    }
+
+    public void setRowId(int parameterIndex, RowId x) throws SQLException {
+    }
+
+    public void setNClob(int parameterIndex, NClob value) throws SQLException {
+    }
+
+    public void setSQLXML(int parameterIndex, SQLXML xmlObject) throws SQLException {
     }
 }

@@ -12,6 +12,7 @@ package com.rameses.service.jdbc;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
+import java.sql.RowIdLifetime;
 
 import java.sql.SQLException;
 import java.util.Map;
@@ -862,6 +863,10 @@ public class DBServiceDatabaseMetaData implements DatabaseMetaData {
     }
 
     public boolean isWrapperFor(Class<?> iface) throws SQLException {
+        throw new SQLException("not supported");
+    }
+
+    public RowIdLifetime getRowIdLifetime() throws SQLException {
         throw new SQLException("not supported");
     }
     
