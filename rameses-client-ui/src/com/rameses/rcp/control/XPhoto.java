@@ -60,6 +60,7 @@ public class XPhoto extends JLabel implements UIControl, MouseEventSupport.Compo
     private boolean showNoImageText;
     private boolean showNoImageIcon;
     
+    
     public XPhoto() { 
         initComponent();
     }
@@ -73,7 +74,7 @@ public class XPhoto extends JLabel implements UIControl, MouseEventSupport.Compo
         setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY));
         setNoImageIcon(DEFAULT_NO_IMAGE_ICON); 
         setShowNoImageIcon(true);
-        setShowNoImageText(true);
+        setShowNoImageText(false);
         
         noImageCanvas = new NoImageCanvas(); 
         imageCanvas = new ImageCanvas(); 
