@@ -26,6 +26,7 @@ import com.rameses.rcp.constant.TextCase;
 import com.rameses.rcp.support.ColorUtil;
 import com.rameses.rcp.support.ComponentSupport;
 import com.rameses.rcp.support.FontSupport;
+import com.rameses.rcp.support.ImageIconSupport;
 import com.rameses.rcp.util.ControlSupport;
 import com.rameses.rcp.util.UIControlUtil;
 import java.awt.Color;
@@ -35,6 +36,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Insets;
 import java.math.BigDecimal;
+import java.net.URL;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -760,6 +762,21 @@ public class CellRenderers {
                 Object retval = ich.getValue(itemData, value);
                 if (retval instanceof ImageIcon) {
                     label.setIcon((ImageIcon) retval); 
+                } else if (retval instanceof String) {
+                    try { 
+                        String sval = retval.toString();
+                        if (sval.matches("[a-zA-Z0-9]://.*")) {
+                            label.setIcon(new ImageIcon(new URL(sval)));
+                        } else {
+                            ImageIcon iicon = ImageIconSupport.getInstance().getIcon(sval); 
+                            if (iicon == null) {
+                                iicon = new ImageIcon(getClass().getClassLoader().getResource(sval));
+                            }
+                            label.setIcon(iicon); 
+                        }
+                    } catch(Throwable t) { 
+                        label.setIcon(null); 
+                    }
                 } else { 
                     label.setIcon(null); 
                 } 
