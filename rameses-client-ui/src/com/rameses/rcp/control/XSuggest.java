@@ -98,7 +98,7 @@ public class XSuggest extends IconedTextField implements MouseEventSupport.Compo
         
         trimSpaceOption = TrimSpaceOption.ALL; 
         document = new TextDocument();
-        document.setTextCase(TextCase.UPPER); 
+        document.setTextCase(TextCase.NONE); 
         document.add(new TextDocument.DocumentListener() {
             public void onupdate() {
                 onupdate_document();
