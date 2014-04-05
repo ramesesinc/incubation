@@ -206,13 +206,12 @@ public class XHtmlView extends JEditorPane implements UIControl, ActiveControl, 
                 boolean b = false; 
                 try { 
                     b = UIControlUtil.evaluateExprBoolean(bean, visibleWhen);
-                } catch(Throwable t) {
-                    t.printStackTrace();
+                } catch(Throwable t) { 
+                    t.printStackTrace();  
                 } 
                 setVisible(b); 
             } 
         } catch(Throwable t) {;} 
-        
     }
 
     public int compareTo(Object o) { 
