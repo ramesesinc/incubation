@@ -762,6 +762,15 @@ public class CellRenderers {
                 Object retval = ich.getValue(itemData, value);
                 if (retval instanceof ImageIcon) {
                     label.setIcon((ImageIcon) retval); 
+                    
+                } else if (retval instanceof byte[]) { 
+                    try { 
+                        label.setIcon(new ImageIcon((byte[]) retval)); 
+                    } catch(Throwable t) {
+                        System.out.println("[WARN] failed to render icon caused by " + t.getClass().getName() + ": " + t.getMessage()); 
+                        label.setIcon(null); 
+                    } 
+                    
                 } else if (retval instanceof String) {
                     try { 
                         String sval = retval.toString();
