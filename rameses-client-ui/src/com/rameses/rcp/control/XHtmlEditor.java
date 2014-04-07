@@ -17,8 +17,9 @@ import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.framework.ClientContext;
 import com.rameses.rcp.ui.ActiveControl;
 import com.rameses.rcp.ui.ControlProperty;
-import com.rameses.rcp.ui.UIControl;
+import com.rameses.rcp.ui.UIInput;
 import com.rameses.rcp.util.UIControlUtil;
+import com.rameses.rcp.util.UIInputUtil;
 import java.awt.Font;
 import java.awt.Insets;
 import java.net.URL;
@@ -31,11 +32,13 @@ import javax.swing.text.html.HTMLDocument;
  *
  * @author wflores
  */
-public class XHtmlEditor extends HtmlEditorPanel implements UIControl, ActiveControl
+public class XHtmlEditor extends HtmlEditorPanel implements UIInput, ActiveControl
 {
     private Binding binding;
     private String[] depends;
     private int index;
+    private boolean nullWhenEmpty;
+    private boolean immediate;
     
     private HtmlEditorModel model;
     private ControlProperty controlProperty;    
@@ -53,6 +56,7 @@ public class XHtmlEditor extends HtmlEditorPanel implements UIControl, ActiveCon
     // <editor-fold defaultstate="collapsed" desc=" initComponent "> 
 
     private void initComponent() {
+        nullWhenEmpty = true;
         varName = "item";
         
         try { 
@@ -89,7 +93,7 @@ public class XHtmlEditor extends HtmlEditorPanel implements UIControl, ActiveCon
     
     // </editor-fold>    
     
-    // <editor-fold defaultstate="collapsed" desc=" UIControl implementation "> 
+    // <editor-fold defaultstate="collapsed" desc=" UIInput implementation "> 
 
     public Binding getBinding() { return binding; }
     public void setBinding(Binding binding) { this.binding = binding; }
@@ -101,7 +105,8 @@ public class XHtmlEditor extends HtmlEditorPanel implements UIControl, ActiveCon
     public void setIndex(int index) { this.index = index; }
 
     public void load() { 
-        //setInputVerifier(UIInputUtil.VERIFIER);
+        setEditorInputVerifier(UIInputUtil.VERIFIER);
+        setEditorClientProperty(UIInput.class, this); 
         Object bean = getBinding().getBean();
         Object ohandler = UIControlUtil.getBeanValue(bean, getHandler()); 
         if (ohandler instanceof HtmlEditorModel) {
@@ -146,6 +151,34 @@ public class XHtmlEditor extends HtmlEditorPanel implements UIControl, ActiveCon
     public Map getInfo() { 
         return null; 
     } 
+    
+    public Object getValue() { 
+        return super.getValue();
+    }
+    public void setValue(Object value) {
+        super.setValue(value); 
+    }
+    
+    public boolean isNullWhenEmpty() { return nullWhenEmpty; }
+    public void setNullWhenEmpty(boolean nullWhenEmpty) {
+        this.nullWhenEmpty = nullWhenEmpty;
+    }
+    
+    public boolean isReadonly() { 
+        return !isEditable();
+    } 
+    public void setReadonly(boolean readonly) {
+        setEditable(!readonly); 
+    }
+    
+    public boolean isImmediate() { return immediate; } 
+    public void setImmediate(boolean immediate) {
+        this.immediate = immediate;
+    }
+    
+    public void setRequestFocus(boolean focus) {
+        super.setRequestFocus(focus); 
+    }
     
     // </editor-fold>    
     

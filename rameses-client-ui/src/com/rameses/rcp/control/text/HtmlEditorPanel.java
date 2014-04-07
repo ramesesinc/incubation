@@ -37,6 +37,7 @@ import java.util.Map;
 import javax.swing.AbstractAction;
 import javax.swing.Box;
 import javax.swing.ImageIcon;
+import javax.swing.InputVerifier;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -146,8 +147,8 @@ public class HtmlEditorPanel extends JPanel
         ed.addKeyListener(new KeyAdapter() {
             public void keyPressed(KeyEvent e) {
                 switch(e.getKeyCode()) {
-                    case KeyEvent.VK_DOWN: 
-                    case KeyEvent.VK_UP: break;
+//                    case KeyEvent.VK_DOWN: 
+//                    case KeyEvent.VK_UP: break;
                                         
                     case KeyEvent.VK_ENTER: 
                         if (getPopup().isVisible() && getPopup().isShowing()) { 
@@ -162,7 +163,7 @@ public class HtmlEditorPanel extends JPanel
                         
                     default: 
                         try {
-                            System.out.println("keycode: " + e.getKeyCode() + ", keychar: " + e.getKeyChar());
+                            //System.out.println("keycode: " + e.getKeyCode() + ", keychar: " + e.getKeyChar());
                             int pos = editor.getCaretPosition()-1;
                             if (pos < 0) return;
                             
@@ -237,24 +238,30 @@ public class HtmlEditorPanel extends JPanel
         return getText(); 
     }
     
-    public void setValue(Object value) throws Exception {
-        URL url = null; 
-        if (value == null) {
-            editor.setText("");
-            editor.setCaretPosition(0);
-        } else if (value instanceof URL) {
-            url = (URL) value;
-        } else if (value.toString().toLowerCase().matches("^[a-zA-Z0-9]{1,}://.*$")) {
-            url = new URL(value.toString()); 
-        } else { 
-            editor.setText(value.toString()); 
-            editor.setCaretPosition(0); 
-        } 
-        
-        if (url != null) { 
-            URLWorkerTask uwt = new URLWorkerTask(url);
-            ClientContext.getCurrentContext().getTaskManager().addTask(uwt); 
-        }        
+    public void setValue(Object value) {
+        try { 
+            URL url = null; 
+            if (value == null) {
+                editor.setText("");
+                editor.setCaretPosition(0);
+            } else if (value instanceof URL) {
+                url = (URL) value;
+            } else if (value.toString().toLowerCase().matches("^[a-zA-Z0-9]{1,}://.*$")) {
+                url = new URL(value.toString()); 
+            } else { 
+                editor.setText(value.toString()); 
+                editor.setCaretPosition(0); 
+            } 
+
+            if (url != null) { 
+                URLWorkerTask uwt = new URLWorkerTask(url);
+                ClientContext.getCurrentContext().getTaskManager().addTask(uwt); 
+            } 
+        } catch(RuntimeException re) {
+            throw re;
+        } catch(Exception e) {
+            throw new RuntimeException(e.getMessage(), e); 
+        }
     }
     
     protected HTMLDocument getDocument() {
@@ -292,6 +299,18 @@ public class HtmlEditorPanel extends JPanel
         this.toolbarVisible = toolbarVisible;
         getToolbar().setVisible(toolbarVisible);
     }
+    
+    public void setRequestFocus(boolean focus) {
+        if (editor.isEnabled()) editor.requestFocus();  
+    } 
+    
+    protected Object getEditorClientProperty(Object key) {
+        return editor.getClientProperty(key); 
+    }
+    protected void setEditorClientProperty(Object key, Object value) {
+        editor.putClientProperty(key, value);
+    }
+    
     
     // </editor-fold>
     
@@ -386,6 +405,10 @@ public class HtmlEditorPanel extends JPanel
     
     protected String getTemplate(Object item) {
         return (item == null? null: item.toString());
+    }
+    
+    protected void setEditorInputVerifier(InputVerifier inputVerifier) {
+        getEditor().setInputVerifier(inputVerifier); 
     }
     
     // </editor-fold>
