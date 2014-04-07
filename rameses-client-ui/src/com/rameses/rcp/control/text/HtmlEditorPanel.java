@@ -130,25 +130,39 @@ public class HtmlEditorPanel extends JPanel
                 fireEscapeKeyEvent(); 
             }
         }); 
-        KeyStroke vkdown = KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0); 
-        ed.getInputMap().put(vkdown, ACTION_MAPPING_VK_DOWN); 
-        ed.getActionMap().put(ACTION_MAPPING_VK_DOWN, new AbstractAction() {
-            public void actionPerformed(ActionEvent e) {
-                fireMoveDown();
-            }
-        }); 
-        KeyStroke vkup = KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0); 
-        ed.getInputMap().put(vkup, ACTION_MAPPING_VK_UP); 
-        ed.getActionMap().put(ACTION_MAPPING_VK_UP, new AbstractAction() {
-            public void actionPerformed(ActionEvent e) {
-                fireMoveUp();
-            }
-        }); 
+//        KeyStroke vkdown = KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0); 
+//        ed.getInputMap().put(vkdown, ACTION_MAPPING_VK_DOWN); 
+//        ed.getActionMap().put(ACTION_MAPPING_VK_DOWN, new AbstractAction() {
+//            public void actionPerformed(ActionEvent e) {
+//                System.out.println("fire move down");
+//                fireMoveDown();
+//            }
+//        }); 
+//        KeyStroke vkup = KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0); 
+//        ed.getInputMap().put(vkup, ACTION_MAPPING_VK_UP); 
+//        ed.getActionMap().put(ACTION_MAPPING_VK_UP, new AbstractAction() {
+//            public void actionPerformed(ActionEvent e) {
+//                System.out.println("fire move up");
+//                fireMoveUp();
+//            }
+//        }); 
         ed.addKeyListener(new KeyAdapter() {
+            
             public void keyPressed(KeyEvent e) {
                 switch(e.getKeyCode()) {
-//                    case KeyEvent.VK_DOWN: 
-//                    case KeyEvent.VK_UP: break;
+                    case KeyEvent.VK_DOWN: 
+                        if (getPopup().isVisible() && getPopup().isShowing()) { 
+                            e.consume();
+                            getPopup().moveDown(); 
+                        } 
+                        break;
+                        
+                    case KeyEvent.VK_UP: 
+                        if (getPopup().isVisible() && getPopup().isShowing()) { 
+                            e.consume();
+                            getPopup().moveUp(); 
+                        }                         
+                        break;
                                         
                     case KeyEvent.VK_ENTER: 
                         if (getPopup().isVisible() && getPopup().isShowing()) { 
@@ -169,6 +183,7 @@ public class HtmlEditorPanel extends JPanel
                             
                             String str = e.getKeyChar()+"";
                             boolean whitespace = str.matches("\\s");
+                            //System.out.println("str=" + str + ", whitespace="+whitespace);
                             if (whitespace) {
                                 getPopup().setVisible(false);     
                                 return;
@@ -181,6 +196,7 @@ public class HtmlEditorPanel extends JPanel
                                     }
                                 });
                             } 
+
                         } catch(Throwable t) {
                             t.printStackTrace();
                         }
