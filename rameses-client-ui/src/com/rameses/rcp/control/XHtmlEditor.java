@@ -153,7 +153,17 @@ public class XHtmlEditor extends HtmlEditorPanel implements UIInput, ActiveContr
     } 
     
     public Object getValue() { 
-        return super.getValue();
+        Object value = super.getValue();
+        if (value == null) return null;
+        
+        String str = (value == null? null: value.toString());
+        int idx0 = str.indexOf("<body>");
+        if (idx0 < 0) return str;
+        
+        int idx1 = str.indexOf("</body>", idx0);
+        if (idx1 < 0) return str;
+        
+        return str.substring(idx0+7, idx1); 
     }
     public void setValue(Object value) {
         super.setValue(value); 
