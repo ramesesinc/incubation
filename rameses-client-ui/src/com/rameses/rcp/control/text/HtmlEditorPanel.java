@@ -166,7 +166,6 @@ public class HtmlEditorPanel extends JPanel
                             if (pos < 0) return;
                             
                             String str = e.getKeyChar()+"";
-                            System.out.println("keychar: " + str);
                             boolean whitespace = str.matches("\\s");
                             if (whitespace) {
                                 getPopup().setVisible(false);     
