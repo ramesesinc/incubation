@@ -38,10 +38,16 @@ public class UIInputUtil {
             if ( Beans.isDesignTime() ) return true;
             
             UIInput control = null;
-            if (input instanceof UIInput) 
-                control = (UIInput) input;
-            else 
-                throw new IllegalStateException("UIInputVerifier should be used for UIInput controls only.");
+            if (input instanceof UIInput) { 
+                control = (UIInput) input; 
+            } else { 
+                Object delegator = input.getClientProperty(UIInput.class); 
+                if (delegator instanceof UIInput) {
+                    control = (UIInput) delegator; 
+                } else {
+                    throw new IllegalStateException("UIInputVerifier should be used for UIInput controls only."); 
+                }
+            }
             
             if ( control.isReadonly() || !input.isEnabled() ) return true;
             if ( input instanceof JTextComponent && !((JTextComponent) input).isEditable() ) return true;
