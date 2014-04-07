@@ -148,7 +148,7 @@ public class HtmlEditorPanel extends JPanel
                 switch(e.getKeyCode()) {
                     case KeyEvent.VK_DOWN: 
                     case KeyEvent.VK_UP: break;
-                    
+                                        
                     case KeyEvent.VK_ENTER: 
                         if (getPopup().isVisible() && getPopup().isShowing()) { 
                             e.consume();  
@@ -162,6 +162,7 @@ public class HtmlEditorPanel extends JPanel
                         
                     default: 
                         try {
+                            System.out.println("keycode: " + e.getKeyCode() + ", keychar: " + e.getKeyChar());
                             int pos = editor.getCaretPosition()-1;
                             if (pos < 0) return;
                             
