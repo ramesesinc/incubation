@@ -9,25 +9,39 @@
 
 package com.rameses.rcp.control.text;
 
+import com.rameses.rcp.common.PopupItem;
 import com.rameses.rcp.common.Task;
 import com.rameses.rcp.framework.ClientContext;
 import com.rameses.rcp.support.FontSupport;
+import com.rameses.rcp.util.TimerManager;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.EventQueue;
+import java.awt.Font;
 import java.awt.Insets;
 import java.awt.LayoutManager;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.beans.Beans;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import javax.swing.AbstractAction;
 import javax.swing.Box;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
+import javax.swing.KeyStroke;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
@@ -48,6 +62,12 @@ import javax.swing.text.html.HTMLEditorKit;
  */
 public class HtmlEditorPanel extends JPanel 
 {
+    final String ACTION_MAPPING_VK_SPACE = "ACTION_MAPPING_VK_SPACE";    
+    final String ACTION_MAPPING_VK_ESC   = "ACTION_MAPPING_VK_ESCAPE";    
+    final String ACTION_MAPPING_VK_DOWN   = "ACTION_MAPPING_VK_DOWN";    
+    final String ACTION_MAPPING_VK_UP   = "ACTION_MAPPING_VK_UP"; 
+    final String ACTION_MAPPING_VK_ENTER = "ACTION_MAPPING_VK_ENTER"; 
+    
     private JPanel toolbar;
     private JTextPane editor;    
     private JScrollPane scrollpane;
@@ -55,6 +75,7 @@ public class HtmlEditorPanel extends JPanel
     private HTMLDocument htmldoc;
     
     private String fontStyle;
+    private boolean toolbarVisible;
     
     public HtmlEditorPanel() {
         initComponent();
@@ -67,15 +88,15 @@ public class HtmlEditorPanel extends JPanel
 
         JTextPane ed = getEditor();
         ed.setDocument(new HTMLDocument());  
-        //ed.setContentType("text/html");        
         ed.setEditable(true); 
         
         if (!Beans.isDesignTime()) { 
+            ed.setContentType("text/html");
             htmldoc = (HTMLDocument) ed.getDocument();
             htmlkit = (HTMLEditorKit) ed.getEditorKit();
             htmlkit.getStyleSheet().addRule("A { color: #0000ff; }"); 
         } 
-        
+
         JPanel toolbar = getToolbar(); 
         toolbar.setLayout(new ToolbarLayout()); 
         toolbar.add(new BoldActionButton()); 
@@ -84,14 +105,87 @@ public class HtmlEditorPanel extends JPanel
         toolbar.add(new StrikeThroughActionButton()); 
         toolbar.add(Box.createHorizontalStrut(10)); 
         toolbar.add(new BulletActionButton()); 
-        //toolbar.add(new NumberListActionButton()); 
-        //toolbar.add(Box.createHorizontalStrut(10)); 
+        toolbar.add(new NumberListActionButton()); 
+        toolbar.add(Box.createHorizontalStrut(10)); 
         toolbar.add(new LinkActionButton()); 
-        //toolbar.add(new TestActionButton()); 
+        toolbar.add(new TestActionButton()); 
         add(toolbar, BorderLayout.NORTH); 
+        toolbarVisible = true;        
         
         JScrollPane scrollpane = new JScrollPane(ed); 
-        add(scrollpane);        
+        add(scrollpane); 
+        
+        KeyStroke vkspace = KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, InputEvent.CTRL_DOWN_MASK, true); 
+        ed.getInputMap().put(vkspace, ACTION_MAPPING_VK_SPACE); 
+        ed.getActionMap().put(ACTION_MAPPING_VK_SPACE, new AbstractAction() {
+            public void actionPerformed(ActionEvent e) {
+                fireSearch();
+            }
+        }); 
+        KeyStroke vkescape = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0); 
+        ed.getInputMap().put(vkescape, ACTION_MAPPING_VK_ESC); 
+        ed.getActionMap().put(ACTION_MAPPING_VK_ESC, new AbstractAction() {
+            public void actionPerformed(ActionEvent e) {
+                fireEscapeKeyEvent(); 
+            }
+        }); 
+        KeyStroke vkdown = KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0); 
+        ed.getInputMap().put(vkdown, ACTION_MAPPING_VK_DOWN); 
+        ed.getActionMap().put(ACTION_MAPPING_VK_DOWN, new AbstractAction() {
+            public void actionPerformed(ActionEvent e) {
+                fireMoveDown();
+            }
+        }); 
+        KeyStroke vkup = KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0); 
+        ed.getInputMap().put(vkup, ACTION_MAPPING_VK_UP); 
+        ed.getActionMap().put(ACTION_MAPPING_VK_UP, new AbstractAction() {
+            public void actionPerformed(ActionEvent e) {
+                fireMoveUp();
+            }
+        }); 
+        ed.addKeyListener(new KeyAdapter() {
+            public void keyPressed(KeyEvent e) {
+                switch(e.getKeyCode()) {
+                    case KeyEvent.VK_DOWN: 
+                    case KeyEvent.VK_UP: break;
+                    
+                    case KeyEvent.VK_ENTER: 
+                        if (getPopup().isVisible() && getPopup().isShowing()) { 
+                            e.consume();  
+                            EventQueue.invokeLater(new Runnable() {
+                                public void run() {
+                                    fireSelectItem();
+                                }
+                            });
+                        }                        
+                        break;
+                        
+                    default: 
+                        try {
+                            int pos = editor.getCaretPosition()-1;
+                            if (pos < 0) return;
+                            
+                            String str = e.getKeyChar()+"";
+                            System.out.println("keychar: " + str);
+                            boolean whitespace = str.matches("\\s");
+                            if (whitespace) {
+                                getPopup().setVisible(false);     
+                                return;
+                            }
+                            
+                            if (getPopup().isVisible() && getPopup().isShowing() && !whitespace) { 
+                                EventQueue.invokeLater(new Runnable() {
+                                    public void run() {
+                                        fireSearch();
+                                    }
+                                });
+                            } 
+                        } catch(Throwable t) {
+                            t.printStackTrace();
+                        }
+                }
+            }
+        });
     } 
     
     private JTextPane getEditor() {
@@ -119,6 +213,13 @@ public class HtmlEditorPanel extends JPanel
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" Getters/Setters "> 
+    
+    public void setName(String name) {
+        super.setName(name);
+        if (Beans.isDesignTime()) {
+            setText(name == null? "": name);
+        }
+    }
     
     public String getText() {
         String sval = (editor == null? null: editor.getText()); 
@@ -166,9 +267,14 @@ public class HtmlEditorPanel extends JPanel
         new FontSupport().applyStyles(this, fontStyle);
     }
     
+    public void setFont(Font font) {
+        super.setFont(font);
+        getEditor().setFont(font); 
+    }
+    
     public void setEnabled(boolean enabled) { 
         super.setEnabled(enabled); 
-        toolbar.setVisible(enabled);
+        if (isToolbarVisible()) toolbar.setVisible(enabled);
     } 
     
     public boolean isEditable() {
@@ -176,11 +282,114 @@ public class HtmlEditorPanel extends JPanel
     }
     public void setEditable(boolean editable) {
         editor.setEditable(editable);
-        toolbar.setVisible(editable); 
+        if (isToolbarVisible()) toolbar.setVisible(editable); 
+    }
+    
+    public boolean isToolbarVisible() { 
+        return toolbarVisible;
+    }
+    public void setToolbarVisible(boolean toolbarVisible) {
+        this.toolbarVisible = toolbarVisible;
+        getToolbar().setVisible(toolbarVisible);
     }
     
     // </editor-fold>
     
+    // <editor-fold defaultstate="collapsed" desc=" helper methods "> 
+    
+    private String getSearchtext() {
+        try { 
+            int caretpos = editor.getCaretPosition(); 
+            StringBuffer sb = new StringBuffer(); 
+            for (int i=caretpos-1; i>=0; i--) {
+                String str = htmldoc.getText(i, 1); 
+                if (str.matches("\\s")) break;
+                
+                if (sb.length() == 0) { 
+                    sb.append(str); 
+                } else {
+                    sb.insert(0, str); 
+                }
+            } 
+            return (sb.length() == 0? null: sb.toString()); 
+        } catch(Throwable t) {
+            t.printStackTrace();
+            return null; 
+        }        
+    }
+    
+    private void fireSearch() {
+        String searchtext = getSearchtext();
+        Map params = new HashMap();
+        params.put("searchtext", searchtext); 
+        List results = fetchList(params); 
+        if (results == null) return;
+        
+        TimerManager.getInstance().schedule(new LookupTask(params), 300); 
+    }
+    
+    private int getWhitespacePositionBefore(int pos) {
+        try { 
+            for (int i=pos-1; i>=0; i--) {
+                String str = htmldoc.getText(i, 1); 
+                if (str.matches("\\s")) return i;
+            } 
+            return -1; 
+        } catch(Throwable t) {
+            return -1;
+        } 
+    }
+    
+    private void fireSelectItem() { 
+        PopupItem pi = getPopup().getSelectedItem(); 
+        String template = getTemplate(pi.getUserObject()); 
+        if (template == null) template = "";
+        
+        int doclen = htmldoc.getLength();
+        int curpos = editor.getCaretPosition();
+        int startpos = getWhitespacePositionBefore(curpos)+1; 
+        
+        try { 
+            htmldoc.replace(startpos, curpos-startpos, "", null); 
+            htmldoc.insertString(startpos, template, null); 
+            getPopup().setVisible(false); 
+        } catch(Throwable t) {
+            t.printStackTrace(); 
+        }
+    }
+
+    private void fireEscapeKeyEvent() {
+        if (getPopup().isVisible() && getPopup().isShowing()) {
+            getPopup().setVisible(false); 
+        }
+    }
+    
+    protected void fireMoveDown() {
+        if (getPopup().isVisible() && getPopup().isShowing()) { 
+            getPopup().moveDown(); 
+        }
+    }
+    
+    protected void fireMoveUp() {
+        if (getPopup().isVisible() && getPopup().isShowing()) { 
+            getPopup().moveUp(); 
+        } 
+    }     
+    
+    protected List fetchList(Map params) {
+        return null; 
+    }
+    
+    protected Object getFormattedText(Object item) {
+        return (item == null? null: item.toString()); 
+    }
+    
+    protected String getTemplate(Object item) {
+        return (item == null? null: item.toString());
+    }
+    
+    // </editor-fold>
+            
     // <editor-fold defaultstate="collapsed" desc=" BoldActionButton ">
     
     private ImageIcon getImageIcon(String name) { 
@@ -318,12 +527,12 @@ public class HtmlEditorPanel extends JPanel
             
             String html = "<ol><li></li></ol>";
             HTMLEditorKit.InsertHTMLTextAction action = new HTMLEditorKit.InsertHTMLTextAction(
-                "NumberedList",  html, HTML.Tag.UL, HTML.Tag.LI, HTML.Tag.BODY, HTML.Tag.UL
+                "NumberedList",  html, HTML.Tag.OL, HTML.Tag.LI, HTML.Tag.BODY, HTML.Tag.OL
             );
             setAction(action);
             setText("");
             setToolTipText("Number list");
-            setIcon(getImageIcon("com/rameses/rcp/icons/editor/bullet.png")); 
+            setIcon(getImageIcon("com/rameses/rcp/icons/editor/numberlist.png")); 
         }
     }    
     
@@ -543,4 +752,95 @@ public class HtmlEditorPanel extends JPanel
     }
     
     // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" LookupTask ">
+        
+    private class LookupTask implements Runnable 
+    {
+        HtmlEditorPanel root = HtmlEditorPanel.this;
+        
+        private String searchtext; 
+        private Map params;
+        
+        LookupTask(Map params) {
+            this.params = params; 
+            this.searchtext = (params == null? null: (String)params.get("searchtext")); 
+        }
+        
+        public void run() {
+            String str = root.getSearchtext()+""; 
+            if (!str.equals(searchtext+"")) return;
+            
+            List list = root.fetchList(params); 
+            EventQueue.invokeLater(new ResultDataLoader(list)); 
+        }
+    }
+    
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" ResultDataLoader ">
+    
+    private HtmlEditorPopup jpopup;
+    
+    private HtmlEditorPopup getPopup() {
+        if (jpopup == null) {
+            jpopup = new HtmlEditorPopup(editor);
+            jpopup.add(new HtmlEditorPopup.SelectionListener(){
+                public void onselect(PopupItem item) {
+                    fireSelectItem(); 
+                }
+            });
+        }
+        return jpopup;
+    }
+    
+    private void showPopup() {
+        try { 
+            Rectangle rect = editor.modelToView(editor.getCaretPosition()); 
+            HtmlEditorPopup popup = getPopup(); 
+            popup.pack();
+            popup.setSize(100, 20);
+            popup.show(editor, rect.x, rect.y+rect.height); 
+        } catch(Throwable t) {
+            t.printStackTrace();
+        }
+    }
+
+    private class ResultDataLoader implements Runnable 
+    {
+        HtmlEditorPanel root = HtmlEditorPanel.this;
+        private List result;
+        
+        ResultDataLoader(List result) {
+            this.result = result;
+        }
+        
+        public void run() {
+            HtmlEditorPopup popup = root.getPopup(); 
+            if (result == null || result.isEmpty()) {
+                popup.setVisible(false);
+                return;
+            }
+            
+            List<PopupItem> items = new ArrayList();
+            for (int i=0; i<popup.getRowSize(); i++) { 
+                try { 
+                    Object o = result.get(i); 
+                    Object caption = root.getFormattedText(o);
+                    items.add(new PopupItem(o, (caption == null? "": caption.toString()))); 
+                } catch(Throwable t) {
+                    break; 
+                } 
+            }
+            if (items.isEmpty()) {
+                popup.setVisible(false);
+                return;
+            }
+            popup.setData(items); 
+            showPopup();
+        }
+    }
+    
+    // </editor-fold>       
+    
 }

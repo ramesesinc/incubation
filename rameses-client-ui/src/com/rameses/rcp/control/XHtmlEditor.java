@@ -9,7 +9,9 @@
 
 package com.rameses.rcp.control;
 
+import com.rameses.rcp.common.HtmlEditorModel;
 import com.rameses.rcp.common.PropertySupport;
+import com.rameses.rcp.control.table.ExprBeanSupport;
 import com.rameses.rcp.control.text.HtmlEditorPanel;
 import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.framework.ClientContext;
@@ -20,6 +22,8 @@ import com.rameses.rcp.util.UIControlUtil;
 import java.awt.Font;
 import java.awt.Insets;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javax.swing.text.html.HTMLDocument;
 
@@ -33,8 +37,13 @@ public class XHtmlEditor extends HtmlEditorPanel implements UIControl, ActiveCon
     private String[] depends;
     private int index;
     
+    private HtmlEditorModel model;
     private ControlProperty controlProperty;    
     private String visibleWhen;    
+    private String handler;
+    private String varName;
+    private String itemExpression;
+    
     
     public XHtmlEditor() {
         super(); 
@@ -44,6 +53,8 @@ public class XHtmlEditor extends HtmlEditorPanel implements UIControl, ActiveCon
     // <editor-fold defaultstate="collapsed" desc=" initComponent "> 
 
     private void initComponent() {
+        varName = "item";
+        
         try { 
             HTMLDocument doc = getDocument(); 
             ClassLoader cloader = ClientContext.getCurrentContext().getClassLoader();
@@ -61,6 +72,21 @@ public class XHtmlEditor extends HtmlEditorPanel implements UIControl, ActiveCon
         this.visibleWhen = visibleWhen; 
     }
     
+    public String getHandler() { return handler; } 
+    public void setHandler(String handler) {
+        this.handler = handler; 
+    }
+    
+    public String getVarName() { return varName; } 
+    public void setVarName(String varName) {
+        this.varName = varName; 
+    }    
+    
+    public String getItemExpression() { return itemExpression; } 
+    public void setItemExpression(String itemExpression) {
+        this.itemExpression = itemExpression; 
+    }        
+    
     // </editor-fold>    
     
     // <editor-fold defaultstate="collapsed" desc=" UIControl implementation "> 
@@ -76,6 +102,13 @@ public class XHtmlEditor extends HtmlEditorPanel implements UIControl, ActiveCon
 
     public void load() { 
         //setInputVerifier(UIInputUtil.VERIFIER);
+        Object bean = getBinding().getBean();
+        Object ohandler = UIControlUtil.getBeanValue(bean, getHandler()); 
+        if (ohandler instanceof HtmlEditorModel) {
+            this.model = (HtmlEditorModel)ohandler; 
+        } else {
+            this.model = new HtmlEditorModelImpl(); 
+        }
     }
 
     public void refresh() { 
@@ -180,6 +213,51 @@ public class XHtmlEditor extends HtmlEditorPanel implements UIControl, ActiveCon
     public void setCellPadding(Insets padding) {
         getControlProperty().setCellPadding(padding);
     }    
+    
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" helper methods "> 
+    
+    private Object createExpressionBean(Object itemBean) { 
+        Object bean = getBinding().getBean();
+        ExprBeanSupport beanSupport = new ExprBeanSupport(bean);
+        beanSupport.setItem(getVarName(), itemBean); 
+        return beanSupport.createProxy(); 
+    } 
+    
+    protected Object getFormattedText(Object item) {
+        String expression = getItemExpression();
+        if (expression == null || expression.length() == 0) {
+            return item.toString(); 
+        } else {
+            Object exprBean = createExpressionBean(item); 
+            return UIControlUtil.evaluateExpr(exprBean, expression); 
+        }
+    }
+
+    protected List fetchList(Map params) {
+        return (model == null? null: model.fetchList(params)); 
+    }
+    
+    private Map createMap(Object key, Object value) {
+        Map data = new HashMap();
+        data.put(key, value);
+        return data;
+    }
+    
+    protected String getTemplate(Object item) {
+        Object o = (model == null? null: model.getTemplate(item));
+        return (o == null? null: o.toString()); 
+    }
+    
+    // </editor-fold> 
+    
+    // <editor-fold defaultstate="collapsed" desc=" HtmlEditorModelImpl "> 
+    
+    private class HtmlEditorModelImpl extends HtmlEditorModel 
+    {
+        
+    }
     
     // </editor-fold>
 }
