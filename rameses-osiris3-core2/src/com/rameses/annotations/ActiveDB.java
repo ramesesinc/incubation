@@ -20,4 +20,5 @@ public @interface ActiveDB {
 
     String value() default "";
     String em() default "main";
+    boolean dynamic() default false;
 }

@@ -26,12 +26,28 @@ public class PersistenceContextDependencyHandler extends DependencyHandler {
     public Class getAnnotation() {
         return PersistenceContext.class;
     }
-
+    
     public Object getResource(Annotation c, ExecutionInfo einfo) {
         PersistenceContext p = (PersistenceContext)c;
         TransactionContext txn = TransactionContext.getCurrentContext();
-        DataService dataSvc = txn.getContext().getService(DataService.class);
-        return dataSvc.getEntityManager( p.value() );
+        
+        if(!p.dynamic()) {
+            DataService dataSvc = txn.getContext().getService(DataService.class);
+            return dataSvc.getEntityManager( p.value() );
+        } else {
+            return new  DynamicPersistenceContext(txn);
+        }
+    }
+    
+    public static class DynamicPersistenceContext {
+        private TransactionContext txn;
+        public DynamicPersistenceContext( TransactionContext ctx ) {
+            this.txn = ctx;
+        }
+        public Object lookup(String adapterName) {
+            DataService dataSvc = txn.getContext().getService(DataService.class);
+            return dataSvc.getEntityManager( adapterName );
+        }
     }
     
 }

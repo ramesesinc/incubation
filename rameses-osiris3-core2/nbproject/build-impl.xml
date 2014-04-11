@@ -268,6 +268,7 @@ is divided into following sections:
     -->
     <target name="deps-jar" depends="init" unless="no.deps">
         <ant target="jar" inheritall="false" antfile="${project.rameses-common2}/build.xml"/>
+        <ant target="jar" inheritall="false" antfile="${project.rameses-custom-impl}/build.xml"/>
     </target>
     <target name="-pre-pre-compile" depends="init,deps-jar">
         <mkdir dir="${build.classes.dir}"/>
@@ -565,6 +566,7 @@ is divided into following sections:
     -->
     <target name="deps-clean" depends="init" unless="no.deps">
         <ant target="clean" inheritall="false" antfile="${project.rameses-common2}/build.xml"/>
+        <ant target="clean" inheritall="false" antfile="${project.rameses-custom-impl}/build.xml"/>
     </target>
     <target name="-do-clean" depends="init">
         <delete dir="${build.dir}"/>

@@ -32,10 +32,36 @@ public class ActiveDBDependencyHandler extends DependencyHandler {
     public Object getResource(Annotation c, ExecutionInfo einfo) {
         ActiveDB adb = (ActiveDB)c;
         TransactionContext txn = TransactionContext.getCurrentContext();
-        DataService dataSvc = txn.getContext().getService(DataService.class);
-        EntityManager em = dataSvc.getEntityManager( adb.em() );
-        ActiveDBTransactionManager dbm = txn.getManager( ActiveDBTransactionManager.class );
-        return dbm.create( adb.value(), em );
+        if(!adb.dynamic()) {
+            DataService dataSvc = txn.getContext().getService(DataService.class);
+            EntityManager em = dataSvc.getEntityManager( adb.em() );
+            ActiveDBTransactionManager dbm = txn.getManager( ActiveDBTransactionManager.class );
+            return dbm.create( adb.value(), em );
+        }
+        else {
+            return new DynamicActiveDB(txn, adb.value());
+        }
     }
+    
+    public static class DynamicActiveDB {
+        private TransactionContext txn;
+        private String defaultSchemaName;
+        public DynamicActiveDB( TransactionContext ctx, String value) {
+            this.txn = ctx;
+            this.defaultSchemaName = value;
+        }
+        public Object lookup(String adapterName, String schemaName) throws Exception{
+            DataService dataSvc = txn.getContext().getService(DataService.class);
+            EntityManager em = dataSvc.getEntityManager( adapterName );
+            ActiveDBTransactionManager dbm = txn.getManager( ActiveDBTransactionManager.class );
+            return dbm.create( schemaName, em );
+        }
+        public Object lookup(String adapterName) throws Exception{
+            if( defaultSchemaName == null )
+                throw new Exception("Please indicate a value in ActiveDB dynamic");
+            return lookup( adapterName, defaultSchemaName );
+        }
+    }
+    
     
 }

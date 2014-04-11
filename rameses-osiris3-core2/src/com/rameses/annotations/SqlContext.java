@@ -19,5 +19,5 @@ import java.lang.annotation.Target;
 public @interface SqlContext {
 
     String value() default "";
-
+    boolean dynamic() default false;
 }

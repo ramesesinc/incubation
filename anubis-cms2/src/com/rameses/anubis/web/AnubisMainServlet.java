@@ -15,7 +15,6 @@ import javax.servlet.http.HttpServletResponse;
 public class AnubisMainServlet extends AbstractAnubisServlet {
     
     protected final void handle(HttpServletRequest hreq, HttpServletResponse hres) throws Exception {
-        
         AnubisContext actx = AnubisContext.getCurrentContext();
         
         String fullPath = hreq.getPathInfo();

@@ -31,8 +31,24 @@ public class SqlContextDependencyHandler extends DependencyHandler {
     public Object getResource(Annotation c, ExecutionInfo einfo) {
         SqlContext p = (SqlContext)c;
         TransactionContext txn = TransactionContext.getCurrentContext();
-        DataService dataSvc = txn.getContext().getService(DataService.class);
-        return dataSvc.getSqlContext( p.value() );
+        if( p.dynamic()) {
+            DataService dataSvc = txn.getContext().getService(DataService.class);
+            return dataSvc.getSqlContext( p.value() );
+        }
+        else {
+            return new DynamicSqlContext( txn );
+        }
+    }
+
+     public static class DynamicSqlContext {
+        private TransactionContext txn;
+        public DynamicSqlContext( TransactionContext ctx ) {
+            this.txn = ctx;
+        }
+        public Object lookup(String adapterName) {
+            DataService dataSvc = txn.getContext().getService(DataService.class);
+            return dataSvc.getSqlContext( adapterName );
+        }
     }
     
 }
