@@ -16,6 +16,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -108,7 +109,7 @@ public class IOStream
         try {
             baos = new ByteArrayOutputStream(); 
             oos = new ObjectOutputStream(baos);
-            oos.writeObject(value);             
+            oos.writeObject(value); 
             byte[] bytes = baos.toByteArray();
             return bytes;
         } catch(RuntimeException re) {
@@ -119,6 +120,26 @@ public class IOStream
             try { oos.close(); }catch(Throwable t){;} 
             try { baos.close(); }catch(Throwable t){;} 
         }
+    }
+    
+    public Object readObject(byte[] bytes) {
+        if (bytes == null || bytes.length == 0) return null; 
+        
+        ByteArrayInputStream bais = null;
+        ObjectInputStream ois = null;
+        try {
+            bais = new ByteArrayInputStream(bytes); 
+            ois = new ObjectInputStream(bais);
+            Object o = ois.readObject();
+            return o; 
+        } catch(RuntimeException re) {
+            throw re; 
+        } catch(Exception e) {
+            throw new RuntimeException(e.getMessage(), e); 
+        } finally {
+            try { ois.close(); }catch(Throwable t){;} 
+            try { bais.close(); }catch(Throwable t){;} 
+        }        
     }
     
     public static List<byte[]> chunk(File file, int size) {
