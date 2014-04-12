@@ -8,6 +8,9 @@
  */
 package com.rameses.util;
 
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectOutputStream;
+
 public class Base64Coder 
 {
     // The line separator string of the operating system.
@@ -132,7 +135,32 @@ public class Base64Coder
             out[op] = op < oDataLen ? map1[o2] : '='; op++;
             out[op] = op < oDataLen ? map1[o3] : '='; op++; 
         }
-        return out; }
+        return out; 
+    }
+    
+    public static char[] encode(Object value) 
+    {
+        if (value == null) return null;
+        
+        ByteArrayOutputStream baos = null;
+        ObjectOutputStream oos = null;
+        try {
+            baos = new ByteArrayOutputStream(5*1024);
+            oos = new ObjectOutputStream(baos); 
+            byte[] bytes = baos.toByteArray();
+            return encode(bytes); 
+        } catch(RuntimeException re) {
+            throw re; 
+        } catch(Exception e) {
+            throw new RuntimeException(e.getMessage(), e); 
+        } finally {
+            try { oos.close(); }catch(Throwable t) {;} 
+            try { oos.close(); }catch(Throwable t) {;} 
+        }
+    }
+
+    
+    
     
     /**
      * Decodes a string from Base64 format.
@@ -230,5 +258,5 @@ public class Base64Coder
             if (op<oLen) out[op++] = (byte)o2; 
         }
         return out; 
-    }    
+    } 
 }
