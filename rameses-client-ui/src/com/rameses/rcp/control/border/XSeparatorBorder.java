@@ -7,7 +7,6 @@
 
 package com.rameses.rcp.control.border;
 
-import com.sun.java.swing.SwingUtilities2;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
@@ -16,7 +15,6 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Insets;
 import java.awt.RenderingHints;
-import javax.swing.JComponent;
 import javax.swing.UIManager;
 import javax.swing.border.AbstractBorder;
 
