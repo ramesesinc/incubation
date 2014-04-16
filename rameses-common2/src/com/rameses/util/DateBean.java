@@ -9,6 +9,7 @@
 
 package com.rameses.util;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -20,6 +21,7 @@ public class DateBean {
     
     private Date date;
     private Calendar cal;
+    private SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
     
     /** Creates a new instance of DateFact */
     public DateBean() {
@@ -27,45 +29,83 @@ public class DateBean {
     }
     
     public DateBean(Date d) {
-        this.date = d;
-        cal = Calendar.getInstance();
-        cal.setTime( this.date );
+        try {
+            String s = df.format(d);
+            this.date = df.parse(s);
+            cal = Calendar.getInstance();
+            cal.setTime( this.date );
+        } catch(Exception e) {
+            throw new RuntimeException(e.getMessage(),e);
+        }
+    }
+    
+    public DateBean(String s) {
+        try {
+            this.date = df.parse(s);
+            cal = Calendar.getInstance();
+            cal.setTime( this.date );
+        } catch(Exception e) {
+            throw new RuntimeException(e.getMessage(),e);
+        }
+    }
+    
+    public DateBean(Date d, String pattern) {
+        try {
+            SimpleDateFormat df = new SimpleDateFormat(pattern);
+            String s = df.format(d);
+            this.date = df.parse(s);
+            cal = Calendar.getInstance();
+            cal.setTime( this.date );
+        } catch(Exception e) {
+            throw new RuntimeException(e.getMessage(),e);
+        }
+    }
+    
+    public DateBean(String s, String pattern) {
+        try {
+            SimpleDateFormat df = new SimpleDateFormat(pattern);
+            this.date = df.parse(s);
+            cal = Calendar.getInstance();
+            cal.setTime( this.date );
+        } catch(Exception e) {
+            throw new RuntimeException(e.getMessage(),e);
+        }
     }
     
     public Date getDate() {
         return date;
     }
-   
-
+    
+    
     public int getMonth() {
         return cal.get( Calendar.MONTH ) + 1;
     }
-
+    
     public int getDay() {
         return cal.get( Calendar.DAY_OF_MONTH );
         //return cal.get( Calendar.DATE );
     }
-
+    
     public int getYear() {
         return cal.get( Calendar.YEAR );
     }
-
+    
     public int getHour() {
         return cal.get( Calendar.HOUR );
     }
-
+    
     public int getMinute() {
         return cal.get( Calendar.MINUTE );
     }
-
+    
     public int getSecond() {
         return cal.get( Calendar.SECOND );
     }
-
+    
     public int getMillisecond() {
         return cal.get(Calendar.MILLISECOND);
     }
-
+    
     public int getQtr() {
         int month = getMonth();
         if( month >= 1 && month <= 3 )return 1;
@@ -73,10 +113,17 @@ public class DateBean {
         else if( month >= 7 && month <= 9 ) return 3;
         else return 4;
     }
-
+    
     public int getDayOfWeek() {
         return cal.get(Calendar.DAY_OF_WEEK);
     }
     
-    
+    public Date getMonthEnd() {
+        Date cloneDate = cal.getTime();
+        Calendar cal2 = Calendar.getInstance();
+        cal2.setTime( cloneDate );
+        int ds = cal2.getActualMaximum( Calendar.DAY_OF_MONTH );
+        cal2.set( Calendar.DAY_OF_MONTH, ds );
+        return cal2.getTime();
+    }
 }

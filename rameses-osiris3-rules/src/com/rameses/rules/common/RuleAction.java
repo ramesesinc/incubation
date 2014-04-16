@@ -10,7 +10,9 @@
 package com.rameses.rules.common;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
 
 public class RuleAction implements Serializable {
@@ -19,6 +21,8 @@ public class RuleAction implements Serializable {
     
     private Map<String, RuleActionHandler> commands = new Hashtable();
     private String name = "action";
+    
+    private List facts = new ArrayList();
     
     public RuleAction() {
     }
@@ -57,6 +61,14 @@ public class RuleAction implements Serializable {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public List getFacts() {
+        return facts;
+    }
+
+    public void setFacts(List facts) {
+        this.facts = facts;
     }
 
     

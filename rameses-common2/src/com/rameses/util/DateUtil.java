@@ -195,4 +195,14 @@ public final class DateUtil {
         }
     }
     
+    private static SimpleDateFormat basicFormat = new SimpleDateFormat("yyyy-MM-dd");
+    
+    public static String formatDate( Date d1 ) {
+        return formatDate(null, d1);
+    }
+    public static String formatDate(String pattern, Date d1 ) {
+        SimpleDateFormat df = null;
+        if( pattern ==null ) df = basicFormat;
+        return df.format( d1 );
+    }
 }

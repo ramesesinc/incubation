@@ -14,13 +14,19 @@ import java.text.DecimalFormat;
 
 public final class NumberUtil {
         
+    private static DecimalFormat defaultFormat = new DecimalFormat("###0.00");
+    
     public static BigDecimal formatDecimal(Number num, String pattern) {
         DecimalFormat df = new DecimalFormat(pattern);
         return new BigDecimal( df.format(num)  );
     }
     
     public static BigDecimal round(Number num) {
-        return formatDecimal(num, "###0.00");
+        return new BigDecimal(  defaultFormat.format(num) );
+    }
+    
+    public static BigDecimal round(double d) {
+        return new BigDecimal( defaultFormat.format(d) );
     }
     
 }

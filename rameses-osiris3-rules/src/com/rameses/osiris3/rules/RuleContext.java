@@ -59,6 +59,16 @@ public class RuleContext {
         for(Reader r: readers) {
             builder.add( ResourceFactory.newReaderResource(r), ResourceType.DRL );
         }
+        if(builder.hasErrors()) {
+            KnowledgeBuilderErrors  errs = builder.getErrors();
+            StringBuffer sb = new StringBuffer();
+            if(errs.size()>0) {
+                for(KnowledgeBuilderError e: errs) {
+                    sb.append( e.getMessage() + "\n");
+                }
+            }
+            throw new Exception(sb.toString());
+        }
         KnowledgeBaseConfiguration _conf = KnowledgeBaseFactory.newKnowledgeBaseConfiguration(null,this.mainContext.getClassLoader());
         knowledgeBase = KnowledgeBaseFactory.newKnowledgeBase( _conf );
         knowledgeBase.addKnowledgePackages( builder.getKnowledgePackages() );
