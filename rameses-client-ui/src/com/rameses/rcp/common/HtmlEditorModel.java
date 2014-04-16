@@ -18,15 +18,11 @@ import java.util.Map;
  */
 public class HtmlEditorModel 
 {
-    
-    public HtmlEditorModel() {
-    }
-    
     public List fetchList(Map params) {
         return null; 
     }
     
     public Object getTemplate(Object item) {
         return (item == null? null: item.toString()); 
-    }
+    }    
 }
