@@ -9,10 +9,18 @@
 
 package com.rameses.io;
 
+import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -23,6 +31,16 @@ public class IOStream
     private final static int DEFAULT_BUFFER_SIZE = 1024*4;
     
     public IOStream() {
+    }
+    
+    public void write(byte[] bytes, File file) { 
+        try { 
+            write(bytes, new FileOutputStream(file)); 
+        } catch(RuntimeException re) {
+            throw re; 
+        } catch(Exception e) {
+            throw new RuntimeException(e.getMessage(), e); 
+        }
     }
     
     public void write(byte[] bytes, OutputStream output) {
@@ -61,7 +79,17 @@ public class IOStream
             try { input.close(); } catch(Exception ign){;}            
         }
     }
-
+    
+    public static byte[] toByteArray(File file) { 
+        try { 
+            return toByteArray(new FileInputStream(file), DEFAULT_BUFFER_SIZE); 
+        } catch(RuntimeException re) { 
+            throw re; 
+        } catch(Exception e) { 
+            throw new RuntimeException(e.getMessage(), e); 
+        } 
+    } 
+    
     public static byte[] toByteArray(InputStream input) { 
         return toByteArray(input, DEFAULT_BUFFER_SIZE); 
     } 
@@ -72,4 +100,119 @@ public class IOStream
         write(input, output, bufferSize);
         return output.toByteArray();
     } 
+    
+    public static byte[] toByteArray(Object value) { 
+        if (value == null) return null;
+        
+        ByteArrayOutputStream baos = null;
+        ObjectOutputStream oos = null;
+        try {
+            baos = new ByteArrayOutputStream(); 
+            oos = new ObjectOutputStream(baos);
+            oos.writeObject(value); 
+            byte[] bytes = baos.toByteArray();
+            return bytes;
+        } catch(RuntimeException re) {
+            throw re; 
+        } catch(Exception e) {
+            throw new RuntimeException(e.getMessage(), e); 
+        } finally {
+            try { oos.close(); }catch(Throwable t){;} 
+            try { baos.close(); }catch(Throwable t){;} 
+        }
+    }
+    
+    public Object readObject(byte[] bytes) {
+        if (bytes == null || bytes.length == 0) return null; 
+        
+        ByteArrayInputStream bais = null;
+        ObjectInputStream ois = null;
+        try {
+            bais = new ByteArrayInputStream(bytes); 
+            ois = new ObjectInputStream(bais);
+            Object o = ois.readObject();
+            return o; 
+        } catch(RuntimeException re) {
+            throw re; 
+        } catch(Exception e) {
+            throw new RuntimeException(e.getMessage(), e); 
+        } finally {
+            try { ois.close(); }catch(Throwable t){;} 
+            try { bais.close(); }catch(Throwable t){;} 
+        }        
+    }
+    
+    public static List<byte[]> chunk(File file, int size) {
+        try {
+          return chunk(new FileInputStream(file), size);   
+        } catch(RuntimeException re) {
+            throw re; 
+        } catch(Exception e) {
+            throw new RuntimeException(e.getMessage(), e); 
+        } 
+    }
+    
+    public static List<byte[]> chunk(InputStream inp, int size) {
+        BufferedInputStream bis = null;
+        try {
+            List<byte[]> list = new ArrayList(); 
+            bis = new BufferedInputStream(inp); 
+            int counter=1, read=-1; 
+            byte[] chunks = new byte[size]; 
+            while ((read=bis.read(chunks)) != -1) {
+                if (read < chunks.length) {
+                    byte[] dest = new byte[read];
+                    System.arraycopy(chunks, 0, dest, 0, read); 
+                    list.add(dest); 
+                } else { 
+                    list.add(chunks); 
+                } 
+                chunks = new byte[size]; 
+                counter += 1;
+            }
+            return list;
+        } catch(RuntimeException re) {
+            throw re; 
+        } catch(Exception e) {
+            throw new RuntimeException(e.getMessage(), e); 
+        } finally {
+            try { bis.close(); } catch(Throwable ign){;}
+        }        
+    } 
+    
+    public static void chunk(File file, int size, ChunkHandler handler) {
+        try {
+            chunk(new FileInputStream(file), size, handler); 
+        } catch(RuntimeException re) { 
+            throw re; 
+        } catch(Exception e) { 
+            throw new RuntimeException(e.getMessage(), e); 
+        } 
+    }
+    
+    public static void chunk(InputStream inp, int size, ChunkHandler handler) {
+        BufferedInputStream bis = null;
+        try {
+            bis = new BufferedInputStream(inp); 
+            int counter=1, read=-1; 
+            byte[] chunks = new byte[size]; 
+            while ((read=bis.read(chunks)) != -1) {
+                if (read < chunks.length) {
+                    byte[] dest = new byte[read];
+                    System.arraycopy(chunks, 0, dest, 0, read); 
+                    handler.handle(counter, dest); 
+                } else {
+                    handler.handle(counter, chunks); 
+                }
+                chunks = new byte[size]; 
+                counter += 1;
+            }
+        } catch(RuntimeException re) {
+            throw re; 
+        } catch(Exception e) {
+            throw new RuntimeException(e.getMessage(), e); 
+        } finally {
+            try { bis.close(); } catch(Throwable ign){;}
+        }        
+    }    
 } 

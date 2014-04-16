@@ -677,8 +677,10 @@ public class XLookupField extends IconedTextField implements UILookup, UISelecto
                     return null; 
                 }
             } catch (RuntimeException re) {
+                re.printStackTrace();
                 throw re;
             } catch (Exception ex) {
+                ex.printStackTrace(); 
                 throw new IllegalStateException(ex.getMessage(), ex); 
             }
         }        
