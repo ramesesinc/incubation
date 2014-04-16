@@ -49,11 +49,13 @@ public class XTextAreaBeanInfo extends ComponentBeanInfo.Support
             new PropertyDescriptor("handler", getBeanClass()),
             new PropertyDescriptor("hint", getBeanClass()),
             new PropertyDescriptor("index", getBeanClass()),
+            new PropertyDescriptor("itemExpression", getBeanClass()),
             new PropertyDescriptor("nullWhenEmpty", getBeanClass(), "isNullWhenEmpty", "setNullWhenEmpty"),
             new PropertyDescriptor("readonly", getBeanClass(), "isReadonly", "setReadonly"),
             new PropertyDescriptor("required", getBeanClass(), "isRequired", "setRequired"),
             new PropertyDescriptor("editable", getBeanClass(), "isEditable", "setEditable"),
             new PropertyDescriptor("lineWrap", getBeanClass()),
+            new PropertyDescriptor("varName", getBeanClass()),
             new PropertyDescriptor("wrapStyleWord", getBeanClass()),
             
             installEditor(new PropertyDescriptor("textCase", getBeanClass()), TextCasePropertyEditor.class), 
