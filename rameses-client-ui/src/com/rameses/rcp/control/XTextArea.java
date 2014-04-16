@@ -1,10 +1,14 @@
 package com.rameses.rcp.control;
 
+import com.rameses.rcp.common.PopupItem;
 import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.common.TextDocumentModel;
+import com.rameses.rcp.common.TextEditorModel;
 import com.rameses.rcp.constant.TextCase;
 import com.rameses.rcp.constant.TrimSpaceOption;
+import com.rameses.rcp.control.table.ExprBeanSupport;
 import com.rameses.rcp.control.text.TextComponentSupport;
+import com.rameses.rcp.control.text.TextEditorPopupSelector;
 import com.rameses.rcp.framework.ActionHandler;
 import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.framework.ClientContext;
@@ -17,6 +21,7 @@ import com.rameses.rcp.ui.ControlProperty;
 import com.rameses.rcp.ui.UIInput;
 import com.rameses.rcp.ui.Validatable;
 import com.rameses.rcp.util.ActionMessage;
+import com.rameses.rcp.util.TimerManager;
 import com.rameses.rcp.util.UIControlUtil;
 import com.rameses.rcp.util.UIInputUtil;
 import com.rameses.util.ValueUtil;
@@ -26,14 +31,24 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Insets;
+import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.beans.Beans;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import javax.swing.AbstractAction;
 import javax.swing.JTextArea;
+import javax.swing.KeyStroke;
 import javax.swing.UIManager;
 import javax.swing.text.BadLocationException;
+import javax.swing.text.Document;
 
 /**
  *
@@ -42,6 +57,12 @@ import javax.swing.text.BadLocationException;
 public class XTextArea extends JTextArea implements UIInput, Validatable, 
     ActiveControl, MouseEventSupport.ComponentInfo 
 {
+    final String ACTION_MAPPING_VK_SPACE = "ACTION_MAPPING_VK_SPACE";    
+    final String ACTION_MAPPING_VK_ESC   = "ACTION_MAPPING_VK_ESCAPE";    
+    final String ACTION_MAPPING_VK_DOWN   = "ACTION_MAPPING_VK_DOWN";    
+    final String ACTION_MAPPING_VK_UP   = "ACTION_MAPPING_VK_UP"; 
+    final String ACTION_MAPPING_VK_ENTER = "ACTION_MAPPING_VK_ENTER"; 
+    
     private Color focusBackground;
     private Color disabledBackground;
     private Color enabledBackground;
@@ -62,6 +83,10 @@ public class XTextArea extends JTextArea implements UIInput, Validatable,
     
     private String handler;
     private TextDocumentModel handlerObject; 
+    private TextEditorModel editorModel;    
+    
+    private String itemExpression;
+    private String varName = "item";
     
     private String hint;
     private boolean showHint;
@@ -83,6 +108,83 @@ public class XTextArea extends JTextArea implements UIInput, Validatable,
         //default font
         Font f = ThemeUI.getFont("XTextArea.font");
         if ( f != null ) setFont( f );
+        
+        
+        if (Beans.isDesignTime()) return;
+        
+        KeyStroke vkspace = KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, InputEvent.CTRL_DOWN_MASK, true); 
+        getInputMap().put(vkspace, ACTION_MAPPING_VK_SPACE); 
+        getActionMap().put(ACTION_MAPPING_VK_SPACE, new AbstractAction() {
+            public void actionPerformed(ActionEvent e) {
+                fireSearch();
+            }
+        }); 
+        KeyStroke vkescape = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0); 
+        getInputMap().put(vkescape, ACTION_MAPPING_VK_ESC); 
+        getActionMap().put(ACTION_MAPPING_VK_ESC, new AbstractAction() {
+            public void actionPerformed(ActionEvent e) {
+                fireEscapeKeyEvent(); 
+            }
+        }); 
+        
+        addKeyListener(new KeyAdapter() {
+            
+            public void keyPressed(KeyEvent e) {
+                switch(e.getKeyCode()) {
+                    case KeyEvent.VK_ESCAPE: break;
+                    case KeyEvent.VK_DOWN: 
+                        if (getPopup().isVisible() && getPopup().isShowing()) { 
+                            e.consume();
+                            getPopup().moveDown(); 
+                        } 
+                        break;
+                        
+                    case KeyEvent.VK_UP: 
+                        if (getPopup().isVisible() && getPopup().isShowing()) { 
+                            e.consume();
+                            getPopup().moveUp(); 
+                        }                         
+                        break;
+                                        
+                    case KeyEvent.VK_ENTER: 
+                        if (getPopup().isVisible() && getPopup().isShowing()) { 
+                            e.consume();  
+                            EventQueue.invokeLater(new Runnable() {
+                                public void run() {
+                                    fireSelectItem();
+                                }
+                            });
+                        }                        
+                        break;
+                        
+                    default: 
+                        try {
+                            //System.out.println("keycode: " + e.getKeyCode() + ", keychar: " + e.getKeyChar());
+                            int pos = getCaretPosition()-1;
+                            if (pos < 0) return;
+                            
+                            String str = e.getKeyChar()+"";
+                            boolean whitespace = str.matches("\\s");
+                            //System.out.println("str=" + str + ", whitespace="+whitespace);
+                            if (whitespace) {
+                                getPopup().setVisible(false);     
+                                return;
+                            }
+                            
+                            if (getPopup().isVisible() && getPopup().isShowing() && !whitespace) { 
+                                EventQueue.invokeLater(new Runnable() {
+                                    public void run() {
+                                        fireSearch();
+                                    }
+                                });
+                            } 
+
+                        } catch(Throwable t) {
+                            t.printStackTrace();
+                        }
+                }
+            }
+        });        
     }
     
     public void paint(Graphics origGraphics) {
@@ -135,6 +237,9 @@ public class XTextArea extends JTextArea implements UIInput, Validatable,
             if (obj instanceof TextDocumentModel) {
                 handlerObject = (TextDocumentModel) obj;
                 handlerObject.setProvider(new DocumentProvider()); 
+            } 
+            if (obj instanceof TextEditorModel) { 
+                editorModel = (TextEditorModel)obj; 
             } 
         } 
     }
@@ -324,9 +429,19 @@ public class XTextArea extends JTextArea implements UIInput, Validatable,
     public void setPropertyInfo(PropertySupport.PropertyInfo info) {
     }
     
+    public String getItemExpression() { return itemExpression; } 
+    public void setItemExpression(String itemExpression) {
+        this.itemExpression = itemExpression; 
+    }  
+    
+    public String getVarName() { return varName; } 
+    public void setVarName(String varName) {
+        this.varName = varName; 
+    }    
+        
     // </editor-fold>
     
-    // <editor-fold defaultstate="collapsed" desc="  others methods  ">
+    // <editor-fold defaultstate="collapsed" desc=" helper/override methods  ">
     
     public Color getFocusBackground() { return focusBackground; } 
     
@@ -471,4 +586,207 @@ public class XTextArea extends JTextArea implements UIInput, Validatable,
     }
     
     // </editor-fold>    
+    
+    // <editor-fold defaultstate="collapsed" desc="  helper methods  ">
+    
+    protected List fetchList(Map params) {
+        return (editorModel == null? null: editorModel.fetchList(params)); 
+    }
+    
+    protected Object getFormattedText(Object item) {
+        String expression = getItemExpression();
+        if (expression == null || expression.length() == 0) {
+            return item.toString(); 
+        } else {
+            Object exprBean = createExpressionBean(item); 
+            return UIControlUtil.evaluateExpr(exprBean, expression); 
+        }
+    }
+    
+    protected String getTemplate(Object item) {
+        Object o = (editorModel == null? null: editorModel.getTemplate(item));
+        return (o == null? null: o.toString()); 
+    }
+    
+    private Object createExpressionBean(Object itemBean) { 
+        Object bean = getBinding().getBean();
+        ExprBeanSupport beanSupport = new ExprBeanSupport(bean);
+        beanSupport.setItem(getVarName(), itemBean); 
+        return beanSupport.createProxy(); 
+    } 
+    
+    private String getSearchtext() {
+        try { 
+            int caretpos = getCaretPosition(); 
+            StringBuffer sb = new StringBuffer(); 
+            for (int i=caretpos-1; i>=0; i--) {
+                String str = getDocument().getText(i, 1); 
+                if (str.matches("\\s")) break;
+                
+                if (sb.length() == 0) { 
+                    sb.append(str); 
+                } else {
+                    sb.insert(0, str); 
+                }
+            } 
+            return (sb.length() == 0? null: sb.toString()); 
+        } catch(Throwable t) {
+            return null; 
+        }        
+    }    
+    
+    private void fireSearch() {
+        if (!isEnabled() || !isEditable()) return;
+        
+        String searchtext = getSearchtext();
+        Map params = new HashMap();
+        params.put("searchtext", searchtext); 
+        List results = fetchList(params); 
+        if (results == null) return;
+        
+        TimerManager.getInstance().schedule(new LookupTask(params), 300); 
+    }
+    
+    private int getWhitespacePositionBefore(int pos) {
+        try { 
+            for (int i=pos-1; i>=0; i--) {
+                String str = getDocument().getText(i, 1); 
+                if (str.matches("\\s")) return i;
+            } 
+            return -1; 
+        } catch(Throwable t) {
+            return -1;
+        } 
+    }    
+    
+    private void fireSelectItem() { 
+        PopupItem pi = getPopup().getSelectedItem(); 
+        if (pi == null) return;
+        
+        String template = getTemplate(pi.getUserObject()); 
+        if (template == null) template = "";
+        
+        Document doc = getDocument();
+        int doclen = doc.getLength();
+        int curpos = getCaretPosition();
+        int startpos = getWhitespacePositionBefore(curpos)+1; 
+        
+        try { 
+            doc.remove(startpos, curpos-startpos); 
+            doc.insertString(startpos, template, null); 
+            getPopup().setVisible(false); 
+        } catch(Throwable t) {
+            t.printStackTrace(); 
+        }
+    }    
+    
+    private void fireEscapeKeyEvent() {
+        if (getPopup().isVisible() && getPopup().isShowing()) {
+            getPopup().setVisible(false); 
+        }
+    }    
+    
+    protected void fireMoveDown() {
+        if (getPopup().isVisible() && getPopup().isShowing()) { 
+            getPopup().moveDown(); 
+        }
+    }
+    
+    protected void fireMoveUp() {
+        if (getPopup().isVisible() && getPopup().isShowing()) { 
+            getPopup().moveUp(); 
+        } 
+    }     
+    
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" LookupTask ">
+        
+    private class LookupTask implements Runnable 
+    {
+        XTextArea root = XTextArea.this;
+        
+        private String searchtext; 
+        private Map params;
+        
+        LookupTask(Map params) {
+            this.params = params; 
+            this.searchtext = (params == null? null: (String)params.get("searchtext")); 
+        }
+        
+        public void run() {
+            String str = root.getSearchtext()+""; 
+            if (!str.equals(searchtext+"")) return;
+            
+            List list = root.fetchList(params); 
+            EventQueue.invokeLater(new ResultDataLoader(list)); 
+        }
+    }
+    
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" ResultDataLoader ">
+    
+    private TextEditorPopupSelector jpopup;
+    
+    private TextEditorPopupSelector getPopup() {
+        if (jpopup == null) {
+            jpopup = new TextEditorPopupSelector(this);
+            jpopup.add(new TextEditorPopupSelector.SelectionListener(){
+                public void onselect(PopupItem item) {
+                    fireSelectItem(); 
+                }
+            });
+        }
+        return jpopup;
+    }
+    
+    private void showPopup() {
+        try { 
+            Rectangle rect = modelToView(getCaretPosition()); 
+            TextEditorPopupSelector popup = getPopup(); 
+            popup.pack();
+            popup.setSize(100, 20);
+            popup.show(this, rect.x, rect.y+rect.height); 
+        } catch(Throwable t) {
+            t.printStackTrace();
+        }
+    }
+
+    private class ResultDataLoader implements Runnable 
+    {
+        XTextArea root = XTextArea.this;
+        private List result;
+        
+        ResultDataLoader(List result) {
+            this.result = result;
+        }
+        
+        public void run() {
+            TextEditorPopupSelector popup = root.getPopup(); 
+            if (result == null || result.isEmpty()) {
+                popup.setVisible(false);
+                return;
+            }
+            
+            List<PopupItem> items = new ArrayList();
+            for (int i=0; i<popup.getRowSize(); i++) { 
+                try { 
+                    Object o = result.get(i); 
+                    Object caption = root.getFormattedText(o);
+                    items.add(new PopupItem(o, (caption == null? "": caption.toString()))); 
+                } catch(Throwable t) {
+                    break; 
+                } 
+            }
+            if (items.isEmpty()) {
+                popup.setVisible(false);
+                return;
+            }
+            popup.setData(items); 
+            showPopup();
+        }
+    }
+    
+    // </editor-fold>       
 }
