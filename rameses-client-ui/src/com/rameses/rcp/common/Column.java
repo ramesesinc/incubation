@@ -389,6 +389,11 @@ public class Column implements Serializable
             res.setProperty(this, key, val); 
         }
         getProperties().putAll(data); 
+        
+        try { 
+            Object otextcase = data.get("textcase"); 
+            setTextCase(otextcase == null? null: otextcase.toString());
+        } catch(Throwable t){;} 
     }
     
     private void init(Object[] dataArray) {
