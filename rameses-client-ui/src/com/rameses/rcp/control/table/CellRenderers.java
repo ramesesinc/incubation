@@ -460,7 +460,13 @@ public class CellRenderers {
             if ( value != null && oColumn != null && oColumn.isHtmlDisplay() )
                 value = "<html>" + value + "</html>";
                         
-            label.setText((value == null ? "" : value.toString()));
+            String str = (value == null ? "" : value.toString());
+            TextCase oTextCase = (oColumn == null? null: oColumn.getTextCase());
+            if (oTextCase != null) { 
+                label.setText(oTextCase.convert(str));
+            } else {
+                label.setText(str);
+            }
         }
     }
     
