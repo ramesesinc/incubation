@@ -47,7 +47,9 @@ public final class MsgBox {
     }
     
     public static String prompt(Object msg) {
-        return ""+ ClientContext.getCurrentContext().getPlatform().showInput(null, msg);
+        Object x= ClientContext.getCurrentContext().getPlatform().showInput(null, msg);
+        if(x==null) return null;
+        return x+"";
     }
     
 }
