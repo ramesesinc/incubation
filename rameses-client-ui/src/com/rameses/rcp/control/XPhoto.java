@@ -26,6 +26,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Insets;
 import java.awt.LayoutManager;
+import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.beans.Beans;
 import java.net.URL;
@@ -59,7 +60,7 @@ public class XPhoto extends JLabel implements UIControl, MouseEventSupport.Compo
     private Color noImageForeground; 
     private boolean showNoImageText;
     private boolean showNoImageIcon;
-    
+    private boolean scaled = true;
     
     public XPhoto() { 
         initComponent();
@@ -94,12 +95,11 @@ public class XPhoto extends JLabel implements UIControl, MouseEventSupport.Compo
     public void setName(String name) { 
         super.setName(name); 
         
-        if (Beans.isDesignTime()) 
-            super.setText((name == null? "": name));
+        //if (Beans.isDesignTime()) super.setText((name == null? "": name));
     } 
         
     public void setText(String text) { 
-        if (Beans.isDesignTime()) super.setText(text); 
+        //if (Beans.isDesignTime()) super.setText(text); 
     }
     
     public void setFont(Font font) {
@@ -134,6 +134,11 @@ public class XPhoto extends JLabel implements UIControl, MouseEventSupport.Compo
     public void setShowNoImageIcon(boolean showNoImageIcon) { 
         this.showNoImageIcon = showNoImageIcon; 
     }     
+ 
+    public boolean isScaled() { return scaled; } 
+    public void setScaled(boolean scaled) {
+        this.scaled = scaled; 
+    }
     
     // </editor-fold>
     
@@ -256,6 +261,19 @@ public class XPhoto extends JLabel implements UIControl, MouseEventSupport.Compo
         g2.fillRect(0, 0, width, height); 
         g2.drawImage(anIcon.getImage(), 0, 0, null); 
     }
+    
+    private Rectangle getScaleRect(ImageIcon iicon, int width, int height) {
+        int iw = iicon.getIconWidth();
+        int ih = iicon.getIconHeight(); 
+        double scaleX = (double)width  / (double)iw;
+        double scaleY = (double)height / (double)ih;
+        double scale  = (scaleY > scaleX)? scaleX: scaleY;
+        int nw = (int) (iw * scale);
+        int nh = (int) (ih * scale);
+        int nx = (width - nw) / 2;
+        int ny = (height - nh) / 2;
+        return new Rectangle(nx, ny, nw, nh);
+    }
         
     // </editor-fold>
     
@@ -291,17 +309,18 @@ public class XPhoto extends JLabel implements UIControl, MouseEventSupport.Compo
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             
             Color bgcolor = getNoImageBackground();
-            if (bgcolor == null) bgcolor = Color.DARK_GRAY;
+            if (bgcolor != null) {
+                g2.setColor(bgcolor);
+                g2.fillRect(0, 0, width, height);
+            }
             
-            g2.setColor(bgcolor);
-            g2.fillRect(0, 0, width, height);
-
             if (isShowNoImageIcon()) { 
                 ImageIcon photoIcon = getPhotoIcon();
                 if (photoIcon != null) {
-                    g2.setColor(Color.WHITE);
-                    g2.fillRect(0, 0, width, height);                    
-                    g2.drawImage(photoIcon.getImage(), 0, 0, width, height, null); 
+                    Rectangle nrect = new Rectangle(0, 0, width, height);
+                    if (isScaled()) nrect = getScaleRect(photoIcon, width, height); 
+                    
+                    g2.drawImage(photoIcon.getImage(), nrect.x, nrect.y, nrect.width, nrect.height, null); 
                 }
             } 
             if (isShowNoImageText()) { 
@@ -346,35 +365,36 @@ public class XPhoto extends JLabel implements UIControl, MouseEventSupport.Compo
         
         ImageCanvas() {
             setHorizontalAlignment(SwingConstants.CENTER); 
-            setOpaque(true); 
-            setBackground(Color.WHITE); 
         }
 
         public void paintComponent(Graphics g) { 
             super.paintComponent(g);
-            if (root.iicon == null) return;
-
             ImageIcon iicon = root.iicon;  
-            int iw = iicon.getIconWidth(); 
-            int ih = iicon.getIconHeight(); 
+            if (iicon == null) return;
+
             int width = getWidth();
-            int height = getHeight(); 
-            int nw=0, nh=0;
-            if (iw / width <  ih / height) {
-                nw = width;
-                nh = (int) Math.floor((double)ih * (double)width / (double)iw);
-            } else {
-                nh = height;
-                nw = (int) Math.floor((double)iw * (double)height / (double)ih);
-            } 
+            int height = getHeight();             
+            Rectangle rect = new Rectangle(0, 0, width, height); 
+            if (isScaled()) rect = getScaleRect(iicon, width, height); 
             
-            if (nw > width) nw = width;
-            if (nh > height) nh = height; 
-            
-            int x = Math.max((width - nw) / 2, 0);
-            int y = Math.max((height - nh) / 2, 0);            
+//            int iw = iicon.getIconWidth(); 
+//            int ih = iicon.getIconHeight(); 
+//            int nw=0, nh=0;
+//            if (iw / width <  ih / height) {
+//                nw = width;
+//                nh = (int) Math.floor((double)ih * (double)width / (double)iw);
+//            } else {
+//                nh = height;
+//                nw = (int) Math.floor((double)iw * (double)height / (double)ih);
+//            } 
+//            
+//            if (nw > width) nw = width;
+//            if (nh > height) nh = height; 
+//            
+//            int x = Math.max((width - nw) / 2, 0);
+//            int y = Math.max((height - nh) / 2, 0);            
             Graphics2D g2 = (Graphics2D) g.create(); 
-            g2.drawImage(iicon.getImage(), x, y, nw, nh, null); 
+            g2.drawImage(iicon.getImage(), rect.x, rect.y, rect.width, rect.height, null); 
         }
     }
     

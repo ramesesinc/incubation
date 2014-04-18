@@ -39,6 +39,7 @@ public class XPhotoBeanInfo extends ComponentBeanInfo.Support
             new PropertyDescriptor("noImageIcon", getBeanClass()), 
             new PropertyDescriptor("noImageBackground", getBeanClass()), 
             new PropertyDescriptor("noImageForeground", getBeanClass()), 
+            new PropertyDescriptor("scaled", getBeanClass(), "isScaled", "setScaled"), 
             new PropertyDescriptor("showNoImageIcon", getBeanClass(), "isShowNoImageIcon", "setShowNoImageIcon"), 
             new PropertyDescriptor("showNoImageText", getBeanClass(), "isShowNoImageText", "setShowNoImageText")
         };        
