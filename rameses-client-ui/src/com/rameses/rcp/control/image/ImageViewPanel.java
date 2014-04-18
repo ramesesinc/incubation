@@ -9,6 +9,7 @@
 
 package com.rameses.rcp.control.image;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -70,6 +71,20 @@ public class ImageViewPanel extends JPanel
     public void setText(String text) {
         this.text = text; 
         if (imageView != null) imageView.setText(text); 
+    }    
+    
+    public Color getNoImageBackground() {
+        return (imageView == null? null: imageView.getNoImageBackground());
+    }
+    public void setNoImageBackground(Color color) {
+        if (imageView != null) imageView.setNoImageBackground(color); 
+    }
+    
+    public Color getNoImageForeground() {
+        return (imageView == null? null: imageView.getNoImageForeground());
+    }
+    public void setNoImageForeground(Color color) {
+        if (imageView != null) imageView.setNoImageForeground(color); 
     }    
     
     // </editor-fold>
