@@ -55,6 +55,8 @@ public class TextDocument extends PlainDocument
         dirty = false; 
     }
     
+    private boolean _replacing_;
+    
     public void insertString(int offs, String str, AttributeSet a) throws BadLocationException {
         insertString(offs, str, a, true);
     }
@@ -72,11 +74,20 @@ public class TextDocument extends PlainDocument
                 str = str.substring(0, maxlength - getLength());
             }
         }
+
+        String newstr = null;
+        try { 
+            newstr = parse(str);
+        } catch(Throwable t) {
+            //do nothing 
+        } finally {
+            newstr = str;
+        }
         
         //convert if textCase is specified
-        if (textCase != null) str = textCase.convert(str);
-        
-        super.insertString(offs, str, a);
+        if (textCase != null) newstr = textCase.convert(newstr);
+
+        super.insertString(offs, newstr, a);
         this.dirty = dirty; 
         if (dirty) fireOnupdate();
     }
@@ -101,6 +112,36 @@ public class TextDocument extends PlainDocument
         }
     }
     
+    private String parse(String text) {
+        StringBuffer sb = new StringBuffer();
+        if (text == null) return sb.toString();
+        
+        int start = 0;
+        while (true) {
+            int idx0 = text.indexOf("\\u", start); 
+            if (idx0 < 0) idx0 = text.indexOf("\\U", start); 
+            if (idx0 < 0) break;
+            
+            sb.append(text.substring(start, idx0)); 
+            try {
+                String str = text.substring(idx0+2, idx0+6); 
+                int num = Integer.parseInt(str, 16); 
+                sb.append((char) num); 
+            } catch(IndexOutOfBoundsException iobe) {
+                sb.append(text.substring(idx0));
+            } catch(NumberFormatException nfe) {
+                sb.append(text.substring(idx0));
+            } catch(Throwable t) {
+                sb.append(text.substring(idx0, idx0+6));
+            } finally {
+                start = idx0+6;
+            }
+        }
+        if (start < text.length()) {
+            sb.append(text.substring(start));
+        } 
+        return sb.toString();
+    }     
     
     public static interface DocumentListener 
     {
