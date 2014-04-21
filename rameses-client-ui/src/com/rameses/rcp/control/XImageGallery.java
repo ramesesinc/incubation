@@ -198,6 +198,8 @@ public class XImageGallery extends JPanel implements UIControl
 
             UIControlUtil.setBeanValue(bean, sname, item); 
             if (model != null) model.onselect(item); 
+            
+            getBinding().notifyDepends(root); 
         } 
 
         protected void onopen(Object item) {
