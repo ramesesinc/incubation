@@ -65,7 +65,8 @@ public class XFormPanelBeanInfo extends ComponentBeanInfo.Support
             new PropertyDescriptor("padding", getBeanClass()),
             new PropertyDescriptor("required", getBeanClass(), "isRequired", "setRequired"),
             new PropertyDescriptor("showCategory", getBeanClass(), "isShowCategory", "setShowCategory"),
-            new PropertyDescriptor("viewType", getBeanClass())            
+            new PropertyDescriptor("viewType", getBeanClass()), 
+            new PropertyDescriptor("visibleWhen", getBeanClass())  
         }; 
     }
 }

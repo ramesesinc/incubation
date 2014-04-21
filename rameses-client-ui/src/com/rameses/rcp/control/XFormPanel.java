@@ -44,7 +44,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
@@ -66,7 +65,7 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
     private int cellspacing = 2;
     private Insets cellpadding = new Insets(0,0,0,0);
     private String orientation = UIConstants.VERTICAL;
-    
+    private String visibleWhen;
     private Insets padding;
     private Border origBorder;
     
@@ -361,15 +360,27 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
     
     public void refresh() 
     {
-        if ( reloaded || (viewTypeSet && !ValueUtil.isEqual(oldViewType, viewType))) 
-        {
+        if ( reloaded || (viewTypeSet && !ValueUtil.isEqual(oldViewType, viewType))) {
             refreshForm();
             oldViewType = viewType;
             reloaded = false;
-        } 
-        else if ( ValueUtil.isEqual(viewType, HTML_VIEW)) {
+        } else if ( ValueUtil.isEqual(viewType, HTML_VIEW)) {
             refreshHtml();
         }
+        
+        try { 
+            String visibleWhen = getVisibleWhen(); 
+            if (visibleWhen != null && visibleWhen.length() > 0) { 
+                Object bean = getBinding().getBean();
+                boolean b = false; 
+                try { 
+                    b = UIControlUtil.evaluateExprBoolean(bean, visibleWhen);
+                } catch(Throwable t) {
+                    t.printStackTrace();
+                } 
+                setVisible(b); 
+            } 
+        } catch(Throwable t) {;}         
     }
     
     public void load() 
@@ -894,6 +905,11 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
     }
 
     public void setPropertyInfo(PropertySupport.PropertyInfo info) {
+    }
+    
+    public String getVisibleWhen() { return visibleWhen; } 
+    public void setVisibleWhen(String visibleWhen) {
+        this.visibleWhen = visibleWhen; 
     }
     
     // </editor-fold>
