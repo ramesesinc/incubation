@@ -51,7 +51,6 @@ public class XImageGallery extends JPanel implements UIControl
         
         panel = new ThumbnailPanelImpl(); 
         panel.setOpaque(false); 
-        panel.setCellSize(new Dimension(50,40));
         
         scrollPane = new JScrollPane(panel);
         setBackground(Color.decode("#808080"));        
