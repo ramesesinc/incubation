@@ -1,7 +1,7 @@
 /*
- * XButtonBeanInfo.java
+ * XPanelBeanInfo.java
  *
- * Created on May 4, 2013, 11:00 AM
+ * Created on April 21, 2014, 9:32 AM
  *
  * To change this template, choose Tools | Template Manager
  * and open the template in the editor.
@@ -34,11 +34,6 @@ public class XPanelBeanInfo extends ComponentBeanInfo.Support
             new PropertyDescriptor("border", getBeanClass()),
             
             new PropertyDescriptor("depends", getBeanClass()),
-            new PropertyDescriptor("emptyText", getBeanClass()),
-            new PropertyDescriptor("emptyTextFont", getBeanClass()),
-            new PropertyDescriptor("emptyTextHAlignment", getBeanClass()),
-            new PropertyDescriptor("emptyTextPadding", getBeanClass()),
-            new PropertyDescriptor("emptyTextVAlignment", getBeanClass()),
             new PropertyDescriptor("index", getBeanClass()),
             new PropertyDescriptor("visibleWhen", getBeanClass()) 
         }; 
