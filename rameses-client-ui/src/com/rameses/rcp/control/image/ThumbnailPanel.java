@@ -9,6 +9,7 @@
 
 package com.rameses.rcp.control.image;
 
+import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
@@ -18,9 +19,12 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Insets;
 import java.awt.LayoutManager;
+import java.awt.RenderingHints;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.beans.Beans;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.swing.BorderFactory;
@@ -28,6 +32,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
+import javax.swing.border.Border;
 
 /**
  *
@@ -38,17 +43,34 @@ public class ThumbnailPanel extends JPanel
     private Dimension cellSize;
     private int cellSpacing;
     private int columnCount;
+    private Color selectionBorderColor;
+    private Border cellBorder;
     
     public ThumbnailPanel() {
         super.setLayout(new DefaultLayout()); 
         setBackground(Color.decode("#808080"));
-        setBorder(BorderFactory.createEmptyBorder(5,5,5,5));         
-        cellSize = getDefaultCellSize();
-        cellSpacing = 2;
-        columnCount = 5;
+        setBorder(BorderFactory.createEmptyBorder(5,5,5,5)); 
+        selectionBorderColor = Color.decode("#505050"); 
+        cellSize = getDefaultCellSize(); 
+        cellSpacing = 5; 
+        columnCount = 5; 
+        
+        if (Beans.isDesignTime()) {
+            add(createDesignTimeImage("IMG-1"));
+            add(createDesignTimeImage("IMG-2"));
+            add(createDesignTimeImage("IMG-3"));
+        }
     }
     
     // <editor-fold defaultstate="collapsed" desc=" Getters/Setters ">
+        
+    private ImageThumbnail createDesignTimeImage(String text) {
+        ImageIcon icon = new ImageIcon(new byte[0]);
+        ImageThumbnail img = new ImageThumbnail(new HashMap(), icon); 
+        img.setBorder(BorderFactory.createLineBorder(Color.decode("#808080")));
+        img.setText(text);
+        return img; 
+    }
     
     public void setLayout(LayoutManager layout) {}
     
@@ -71,6 +93,16 @@ public class ThumbnailPanel extends JPanel
         this.cellSize = cellSize; 
     }
     
+    public Color getSelectionBorderColor() { return selectionBorderColor; } 
+    public void setSelectionBorderColor(Color selectionBorderColor) {
+        this.selectionBorderColor = selectionBorderColor; 
+    }
+    
+    public Border getCellBorder() { return cellBorder; } 
+    public void setCellBorder(Border cellBorder) {
+        this.cellBorder = cellBorder; 
+    }
+    
     private Dimension getPreferredCellSize() {
         Dimension size = getCellSize();
         if (size == null) size = getDefaultCellSize();
@@ -86,7 +118,50 @@ public class ThumbnailPanel extends JPanel
     }
     
     protected void onopen(Object item) {
+    }
+
+    public Component moveNext() {
+        if (!isEnabled()) return null;
         
+        Component[] comps = getThumbnails();
+        if (comps.length == 0) return null;
+        
+        int selIndex = getSelectedIndex();
+        if (selIndex < 0) {
+            ImageThumbnail imt = (ImageThumbnail)comps[0]; 
+            setSelectedComponent(imt); 
+            return imt;
+            
+        } else if (selIndex+1 >= 0 && selIndex+1 < comps.length){
+            ImageThumbnail imt = (ImageThumbnail)comps[selIndex+1]; 
+            setSelectedComponent(imt); 
+            return imt;
+            
+        } else {
+            return null; 
+        }
+    }
+    
+    public Component movePrevious() {
+        if (!isEnabled()) return null;
+        
+        Component[] comps = getThumbnails();
+        if (comps.length == 0) return null;
+        
+        int selIndex = getSelectedIndex();
+        if (selIndex < 0) {
+            ImageThumbnail imt = (ImageThumbnail)comps[0]; 
+            setSelectedComponent(imt); 
+            return imt;
+            
+        } else if (selIndex-1 >= 0 && selIndex-1 < comps.length){
+            ImageThumbnail imt = (ImageThumbnail)comps[selIndex-1]; 
+            setSelectedComponent(imt); 
+            return imt;
+            
+        } else {
+            return null; 
+        }
     }
     
     public void add(Map map) {
@@ -104,8 +179,71 @@ public class ThumbnailPanel extends JPanel
         
         add(img); 
     }
+        
+    public Component[] getThumbnails() {
+        List<Component> list = new ArrayList(); 
+        Component[] comps = getComponents();
+        for (int i=0; i<comps.length; i++) {
+            Component c = comps[i];
+            if (!c.isVisible()) continue;
+            if (c instanceof ImageThumbnail) {
+                list.add(c); 
+            }
+        } 
+        return (Component[]) list.toArray(new Component[]{}); 
+    }
+    
+    public int getSelectedIndex() {
+        Component[] comps = getThumbnails();
+        for (int i=0; i<comps.length; i++) {
+            Component c = comps[i];
+            ImageThumbnail im = (ImageThumbnail)c;
+            if (im.isSelected()) return i;
+        } 
+        return -1;
+    } 
+    
+    public Component getSelectedComponent() {
+        int idx = getSelectedIndex();
+        if (idx < 0) return null;
+        
+        return getComponent(idx); 
+    }    
+    
+    public Object getSelectedItem() {
+        int idx = getSelectedIndex();
+        if (idx < 0) return null;
+        
+        ImageThumbnail im = (ImageThumbnail) getComponent(idx); 
+        return im.getData();
+    }
+    
+    public void selectFirstItem() {
+        ImageThumbnail firstItem = null;
+        Component[] comps = getComponents();
+        for (int i=0; i<comps.length; i++) {
+            Component c = comps[i];
+            if (!c.isVisible()) continue;
+            if (!(c instanceof ImageThumbnail)) continue;
+            
+            ImageThumbnail im = (ImageThumbnail)c;
+            if(firstItem == null) firstItem = im;
+            
+            im.setSelected(false); 
+            im.repaint(); 
+        } 
+        if (firstItem != null) {
+            firstItem.setSelected(true);
+            firstItem.repaint();
+        }
+    }    
     
     private void setSelectedComponent(ImageThumbnail image) {
+        if (image != null) {
+            image.setSelected(true);
+            image.repaint();
+        }
+        
         ImageThumbnail firstItem = null;        
         Component[] comps = getComponents();
         for (int i=0; i<comps.length; i++) {
@@ -114,16 +252,25 @@ public class ThumbnailPanel extends JPanel
             if (!(c instanceof ImageThumbnail)) continue;
             
             ImageThumbnail im = (ImageThumbnail)c;
-            if (firstItem == null) firstItem = im;
-            
-            im.setSelected(false); 
-            im.repaint();
+            if (firstItem == null) {
+                firstItem = im;
+                if (image == null) {
+                    firstItem.setSelected(true);
+                    firstItem.repaint();
+                }
+            }
+
+            if (image != null && image.equals(im)) {
+                //do nothing 
+            } else { 
+                im.setSelected(false); 
+                im.repaint();
+            }
         }
 
         final ImageThumbnail sel = (image == null? firstItem: image);
         if (sel == null) return;
         
-        sel.setSelected(true);
         EventQueue.invokeLater(new Runnable() {
             public void run() {
                 onselect(sel.getData()); 
@@ -240,6 +387,8 @@ public class ThumbnailPanel extends JPanel
        
     private class ImageThumbnail extends JLabel 
     {
+        ThumbnailPanel root = ThumbnailPanel.this;
+        
         private Map data;
         private ImageIcon icon;
         private boolean selected;
@@ -250,6 +399,7 @@ public class ThumbnailPanel extends JPanel
             setPreferredSize(getPreferredCellSize()); 
             addMouseListener(new MouseAdapter() {
                 public void mouseClicked(MouseEvent e) {
+                    if (!root.isEnabled()) return;
                     if (!SwingUtilities.isLeftMouseButton(e)) return;
                     if (e.getClickCount() == 1) {
                         setSelectedComponent(ImageThumbnail.this); 
@@ -258,6 +408,14 @@ public class ThumbnailPanel extends JPanel
                     }
                 }
             }); 
+        }
+        
+        public Border getBorder() {
+            if (getCellBorder() == null) {
+                return super.getBorder(); 
+            } else {
+                return null; 
+            }
         }
         
         public ImageIcon getOriginalIcon() { return icon; }
@@ -289,9 +447,28 @@ public class ThumbnailPanel extends JPanel
             g2.drawImage(icon.getImage(), nx, ny, newsize.width, newsize.height, null);
             g2.dispose();
 
-            if (isSelected()) {
+            Border cellBorder = getCellBorder();
+            if (cellBorder != null) {
                 g2 = (Graphics2D)g.create(); 
-                g2.setColor(Color.WHITE);
+                cellBorder.paintBorder(this, g2, 0, 0, width, height); 
+                g2.dispose(); 
+            } 
+            
+            if (!root.isEnabled()) {
+                g2 = (Graphics2D)g.create(); 
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.70f)); 
+                g2.setColor(Color.decode("#d5d5d5"));
+                g2.fillRect(nx, ny, newsize.width, newsize.height);      
+                g2.dispose(); 
+            }
+            
+            if (isSelected()) {
+                Color borderColor = getSelectionBorderColor();
+                if (borderColor == null) borderColor = Color.GRAY;
+                
+                g2 = (Graphics2D)g.create(); 
+                g2.setColor(borderColor);
                 g2.drawRect(0, 0, width-1, height-1); 
                 g2.dispose();
                 return; 

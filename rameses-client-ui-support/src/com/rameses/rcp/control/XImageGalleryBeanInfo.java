@@ -33,12 +33,16 @@ public class XImageGalleryBeanInfo extends ComponentBeanInfo.Support
         return new PropertyDescriptor[] {
             new PropertyDescriptor("border", getBeanClass()),
             
+            new PropertyDescriptor("cellBorder", getBeanClass()),             
             new PropertyDescriptor("cellSpacing", getBeanClass()), 
             new PropertyDescriptor("cellSize", getBeanClass()), 
-            new PropertyDescriptor("depends", getBeanClass()),
+            new PropertyDescriptor("cols", getBeanClass()), 
+            new PropertyDescriptor("depends", getBeanClass()), 
+            new PropertyDescriptor("enabledWhen", getBeanClass()),  
             new PropertyDescriptor("index", getBeanClass()), 
             new PropertyDescriptor("handler", getBeanClass()), 
+            new PropertyDescriptor("selectionBorderColor", getBeanClass()), 
             new PropertyDescriptor("visibleWhen", getBeanClass()) 
-        };        
+        }; 
     }
 }
