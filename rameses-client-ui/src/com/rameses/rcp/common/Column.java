@@ -391,8 +391,8 @@ public class Column implements Serializable
         getProperties().putAll(data); 
         
         try { 
-            Object otextcase = data.get("textcase"); 
-            setTextCase(otextcase == null? null: otextcase.toString());
+            //Object otextcase = data.get("textcase"); 
+            //setTextCase(otextcase == null? null: otextcase.toString());
         } catch(Throwable t){;} 
     }
     
