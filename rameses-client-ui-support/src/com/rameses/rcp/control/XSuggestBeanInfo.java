@@ -10,6 +10,7 @@
 package com.rameses.rcp.control;
 
 import com.rameses.beaninfo.ComponentBeanInfo;
+import com.rameses.beaninfo.editor.SuggestTypePropertyEditor;
 import com.rameses.beaninfo.editor.TextCasePropertyEditor;
 import com.rameses.beaninfo.editor.TrimSpaceOptionPropertyEditor;
 import java.beans.IntrospectionException;
@@ -59,6 +60,7 @@ public class XSuggestBeanInfo extends ComponentBeanInfo.Support
             
             installEditor(new PropertyDescriptor("textCase", getBeanClass()), TextCasePropertyEditor.class),
             installEditor(new PropertyDescriptor("trimSpaceOption", getBeanClass()), TrimSpaceOptionPropertyEditor.class),
+            installEditor(new PropertyDescriptor("type", getBeanClass()), SuggestTypePropertyEditor.class), 
             
             new PropertyDescriptor("readonly", getBeanClass(), "isReadonly", "setReadonly"),  
             new PropertyDescriptor("required", getBeanClass(), "isRequired", "setRequired")
