@@ -30,4 +30,9 @@ public interface UIConstants {
     static final String HTML_VIEW = "html";
     static final String INPUT_VIEW = "input";
     
+    static interface SuggestTypes  
+    {
+        final static String BASIC   = "BASIC";
+        final static String LOOKUP  = "LOOKUP";    
+    }
 }
