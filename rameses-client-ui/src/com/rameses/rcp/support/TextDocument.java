@@ -47,12 +47,16 @@ public class TextDocument extends PlainDocument
     }  
     
     public void loadValue(Object value) {
+        loadValue(value, false);
+    }
+    
+    public void loadValue(Object value, boolean dirty) {
         try {
             super.remove(0, getLength());
             insertString(0, (value == null? "": value.toString()), null, false);
         } catch(Throwable ex) {;}
         
-        dirty = false; 
+        this.dirty = dirty; 
     }
     
     private boolean _replacing_;
