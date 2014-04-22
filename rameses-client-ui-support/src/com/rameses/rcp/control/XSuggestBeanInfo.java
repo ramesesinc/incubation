@@ -57,6 +57,7 @@ public class XSuggestBeanInfo extends ComponentBeanInfo.Support
             new PropertyDescriptor("index", getBeanClass()),
             new PropertyDescriptor("itemExpression", getBeanClass()),
             new PropertyDescriptor("varName", getBeanClass()),
+            new PropertyDescriptor("visibleWhen", getBeanClass()),
             
             installEditor(new PropertyDescriptor("textCase", getBeanClass()), TextCasePropertyEditor.class),
             installEditor(new PropertyDescriptor("trimSpaceOption", getBeanClass()), TrimSpaceOptionPropertyEditor.class),
