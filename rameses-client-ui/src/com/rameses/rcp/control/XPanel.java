@@ -65,6 +65,9 @@ public class XPanel extends JPanel implements UIControl, ControlContainer
                 setVisible(b); 
             } 
         } catch(Throwable t) {;} 
+        
+        revalidate();
+        repaint();
     }
 
     public void setPropertyInfo(PropertySupport.PropertyInfo info) {

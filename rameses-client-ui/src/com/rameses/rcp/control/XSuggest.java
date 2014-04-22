@@ -28,6 +28,7 @@ import com.rameses.rcp.util.ActionMessage;
 import com.rameses.rcp.util.ErrorDialog;
 import com.rameses.rcp.util.TimerManager;
 import com.rameses.rcp.util.UIControlUtil;
+import com.rameses.rcp.util.UIInputUtil;
 import com.rameses.util.ValueUtil;
 import java.awt.Component;
 import java.awt.EventQueue;
@@ -444,7 +445,7 @@ public class XSuggest extends IconedTextField implements MouseEventSupport.Compo
             model.onselect(si.getUserObject()); 
             getPopup().setVisible(false); 
             
-            refreshTextValue();
+            //refreshTextValue();
             transferFocus(); 
         } catch(Throwable t) { 
             ErrorDialog.show(t, this); 
@@ -658,6 +659,12 @@ public class XSuggest extends IconedTextField implements MouseEventSupport.Compo
 
         public boolean verify(JComponent input) {
             if (Beans.isDesignTime()) return true;
+            
+            try {
+                UIInputUtil.updateBeanValue(root, true, true); 
+            } catch(Throwable t) { 
+                t.printStackTrace();
+            }
             
             try {
                 root.refreshTextValue(); 

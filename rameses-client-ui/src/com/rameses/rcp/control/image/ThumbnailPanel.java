@@ -95,7 +95,7 @@ public class ThumbnailPanel extends JPanel
         Object ocaption = map.get("caption");
         Object oimage = map.get("image");
         if (!(oimage instanceof byte[])) {
-            oimage = null;
+            oimage = new byte[0];
         }
         
         ImageIcon icon = new ImageIcon((byte[]) oimage);
