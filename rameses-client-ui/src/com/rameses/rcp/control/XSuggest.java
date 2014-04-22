@@ -13,6 +13,7 @@ import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.common.SuggestModel;
 import com.rameses.rcp.constant.TextCase;
 import com.rameses.rcp.constant.TrimSpaceOption;
+import com.rameses.rcp.constant.UIConstants;
 import com.rameses.rcp.control.suggest.SuggestItem;
 import com.rameses.rcp.control.suggest.SuggestPopup;
 import com.rameses.rcp.control.table.ExprBeanSupport;
@@ -73,7 +74,8 @@ public class XSuggest extends IconedTextField implements MouseEventSupport.Compo
     private Object handlerObject;
     private String expression;
     private String itemExpression;
-    
+    private String type;
+    private String visibleWhen;
     private String origtext;
     
     private Object value;
@@ -96,7 +98,7 @@ public class XSuggest extends IconedTextField implements MouseEventSupport.Compo
     private void initComponent() {
         setOrientation( super.ICON_ON_RIGHT );  
         setVarName("item");
-        
+        type = UIConstants.SuggestTypes.BASIC; 
         trimSpaceOption = TrimSpaceOption.ALL; 
         document = new TextDocument();
         document.setTextCase(TextCase.NONE); 
@@ -205,7 +207,16 @@ public class XSuggest extends IconedTextField implements MouseEventSupport.Compo
     public TrimSpaceOption getTrimSpaceOption() { return trimSpaceOption; }    
     public void setTrimSpaceOption(TrimSpaceOption option) {
         this.trimSpaceOption = option;
-    }    
+    }   
+    
+    public String getType() { return type; } 
+    public void setType(String type) {
+        if (UIConstants.SuggestTypes.LOOKUP.equals(type)) {
+            this.type = type; 
+        } else {
+            this.type = UIConstants.SuggestTypes.BASIC; 
+        }
+    }
                
     // </editor-fold> 
     
@@ -227,7 +238,12 @@ public class XSuggest extends IconedTextField implements MouseEventSupport.Compo
     
     // <editor-fold defaultstate="collapsed" desc=" UIInput implementation ">
     
-    public Object getValue() { return value; } 
+    public String getVisibleWhen() { return visibleWhen; } 
+    public void setVisibleWhen(String visibleWhen) {
+        this.visibleWhen = visibleWhen; 
+    }
+    
+    public Object getValue() { return value; }
     public void setValue(Object value) {
         this.value = value;
     }
@@ -285,6 +301,20 @@ public class XSuggest extends IconedTextField implements MouseEventSupport.Compo
         } catch(Throwable t) {
             ErrorDialog.show(t, this); 
         }
+        
+        try {
+            String visibleWhen = getVisibleWhen(); 
+            if (visibleWhen != null && visibleWhen.length() > 0) { 
+                Object exprBean = createExpressionBean(getValue()); 
+                boolean b = false; 
+                try { 
+                    b = UIControlUtil.evaluateExprBoolean(exprBean, visibleWhen);
+                } catch(Throwable t) {
+                    t.printStackTrace();
+                } 
+                setVisible(b); 
+            }             
+        } catch(Throwable t) {;} 
     }
     
     public void setPropertyInfo(PropertySupport.PropertyInfo info) {
@@ -292,7 +322,13 @@ public class XSuggest extends IconedTextField implements MouseEventSupport.Compo
     
     public int compareTo(Object o) {
         return UIControlUtil.compare(this, o);
-    }
+    } 
+    
+    private Object createExpressionBean(Object itemBean) { 
+        ExprBeanSupport beanSupport = new ExprBeanSupport(binding.getBean());
+        beanSupport.setItem(getVarName(), itemBean); 
+        return beanSupport.createProxy(); 
+    } 
     
     // </editor-fold>    
     
@@ -433,20 +469,23 @@ public class XSuggest extends IconedTextField implements MouseEventSupport.Compo
         if (!enable_search) return;
         if (model == null) return;
         
-        SuggestItem si = getPopup().getSuggestedItem(); 
-        onselectImpl(si); 
+        if (getPopup().isVisible()) {
+            SuggestItem si = getPopup().getSuggestedItem(); 
+            onselectImpl(si); 
+        } 
     } 
     
     private void onselectImpl(SuggestItem si) {
         try { 
             if (si == null) return;
             
-            refreshTextValue(si.getUserObject());
             model.onselect(si.getUserObject()); 
+            refreshTextValue(si.getUserObject(), true); 
             getPopup().setVisible(false); 
             
-            //refreshTextValue();
-            transferFocus(); 
+            if (UIConstants.SuggestTypes.LOOKUP.equals(getType())) { 
+                transferFocus(); 
+            } 
         } catch(Throwable t) { 
             ErrorDialog.show(t, this); 
         } 
@@ -469,15 +508,24 @@ public class XSuggest extends IconedTextField implements MouseEventSupport.Compo
     }
         
     private void refreshTextValue(Object value) {
+        refreshTextValue(value, false); 
+    }
+    
+    private void refreshTextValue(Object value, boolean makeDirty) {
         setValue(value);
         
-        String expression = getExpression();
-        if (expression != null && expression.length() > 0) {
-            Object exprBean = createExpressionBean(value);
-            value = UIControlUtil.evaluateExpr(exprBean, expression);
+        if (value == null) {
+            //do nothing 
+        } else if (value != null && value.getClass().getName().startsWith("java.lang.")) {
+            //do nothing, no expression to apply 
+        } else { 
+            String expression = getExpression();
+            if (expression != null && expression.length() > 0) {
+                Object exprBean = createExpressionBean(value);
+                value = UIControlUtil.evaluateExpr(exprBean, expression);
+            }
         }
-        
-        document.loadValue(value);
+        document.loadValue(value, makeDirty); 
     }
     
     private void onupdate_document() {
@@ -491,13 +539,6 @@ public class XSuggest extends IconedTextField implements MouseEventSupport.Compo
         params.put("_limit", (model == null? 10: model.getRows())); 
         TimerManager.getInstance().schedule(new LookupTask(params), 300); 
     }
-    
-    private Object createExpressionBean(Object itemBean) { 
-        Object bean = getBinding().getBean();
-        ExprBeanSupport beanSupport = new ExprBeanSupport(bean);
-        beanSupport.setItem(getVarName(), itemBean); 
-        return beanSupport.createProxy(); 
-    } 
     
     // </editor-fold>    
  
@@ -660,13 +701,18 @@ public class XSuggest extends IconedTextField implements MouseEventSupport.Compo
         public boolean verify(JComponent input) {
             if (Beans.isDesignTime()) return true;
             
-            try {
-                UIInputUtil.updateBeanValue(root, true, true); 
-            } catch(Throwable t) { 
-                t.printStackTrace();
-            }
+            if (root.document.isDirty()) {
+                try {
+                    boolean typeBasic = UIConstants.SuggestTypes.BASIC.equals(root.getType()); 
+                    if (typeBasic) root.setValue(root.getText()); 
+
+                    UIInputUtil.updateBeanValue(root, true, false); 
+                } catch(Throwable t) { 
+                    t.printStackTrace(); 
+                } 
+            } 
             
-            try {
+            try { 
                 root.refreshTextValue(); 
             } catch(Throwable t) {;} 
             
