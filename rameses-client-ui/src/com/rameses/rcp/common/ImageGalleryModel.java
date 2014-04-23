@@ -43,6 +43,10 @@ public class ImageGalleryModel
         if (provider != null) provider.reload(); 
     }
     
+    public void refresh() {
+        if (provider != null) provider.refresh(); 
+    }    
+    
     public void moveNext() {
         if (provider != null) provider.moveNext();
     }
@@ -57,6 +61,7 @@ public class ImageGalleryModel
     {
         Object getBinding();
         void reload(); 
+        void refresh();
         void moveNext();
         void movePrevious();
     } 

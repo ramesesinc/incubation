@@ -53,6 +53,8 @@ public class XImageGallery extends JPanel implements UIControl
     
     private Color selectionBorderColor;
     private Border cellBorder;
+    private int scrollbarHPolicy;
+    private int scrollbarVPolicy;
         
     public XImageGallery() {
         super();
@@ -68,6 +70,8 @@ public class XImageGallery extends JPanel implements UIControl
         selectionBorderColor = panel.getSelectionBorderColor(); 
         
         scrollPane = new JScrollPane(panel);
+        scrollbarHPolicy = scrollPane.getHorizontalScrollBarPolicy();
+        scrollbarVPolicy = scrollPane.getVerticalScrollBarPolicy();
         setBackground(Color.WHITE);        
         add(scrollPane);      
     }
@@ -75,6 +79,22 @@ public class XImageGallery extends JPanel implements UIControl
     // <editor-fold defaultstate="collapsed" desc=" Getters/Setters ">
     
     public void setLayout(LayoutManager layout) {} 
+    
+    public int getScrollbarHPolicy() { return scrollbarHPolicy; } 
+    public void setScrollbarHPolicy(int scrollbarHPolicy) {
+        this.scrollbarHPolicy = scrollbarHPolicy; 
+        if (scrollPane != null) {
+            scrollPane.setHorizontalScrollBarPolicy(scrollbarHPolicy);
+        }
+    }
+    
+    public int getScrollbarVPolicy() { return scrollbarVPolicy; } 
+    public void setScrollbarVPolicy(int scrollbarVPolicy) {
+        this.scrollbarVPolicy = scrollbarVPolicy; 
+        if (scrollPane != null) {
+            scrollPane.setVerticalScrollBarPolicy(scrollbarVPolicy);
+        }
+    }    
     
     public void setBackground(Color background) {
         super.setBackground(background);
@@ -263,15 +283,19 @@ public class XImageGallery extends JPanel implements UIControl
     private class DefaultImageGalleryModelProvider implements ImageGalleryModel.Provider 
     {
         XImageGallery root = XImageGallery.this;
+
+        public Object getBinding() {
+            return root.getBinding(); 
+        }
         
         public void reload() {
             refreshImages(); 
         }
 
-        public Object getBinding() {
-            return root.getBinding(); 
-        }
-
+        public void refresh() {
+            root.panel.refresh(); 
+        }        
+        
         public void moveNext() {
             Component c = root.panel.moveNext();
             if (c == null) return;
@@ -317,6 +341,11 @@ public class XImageGallery extends JPanel implements UIControl
             Object outcome = model.onopen(item); 
             if (outcome != null) getBinding().fireNavigation(outcome);
         }  
+        
+        protected void onrefresh() {
+            Binding binding = getBinding();
+            if (binding != null) binding.notifyDepends(root); 
+        }
     }
     
     // </editor-fold>

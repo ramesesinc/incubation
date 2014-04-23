@@ -119,6 +119,9 @@ public class ThumbnailPanel extends JPanel
     
     protected void onopen(Object item) {
     }
+    
+    protected void onrefresh() {
+    }
 
     public Component moveNext() {
         if (!isEnabled()) return null;
@@ -164,6 +167,23 @@ public class ThumbnailPanel extends JPanel
         }
     }
     
+    public void refresh() {
+        Component c = getSelectedComponent(); 
+        if (!(c instanceof ImageThumbnail)) return;
+        
+        ImageThumbnail imt = (ImageThumbnail)c; 
+        Map map = imt.getData();
+        Object ocaption = map.get("caption");
+        Object oimage = map.get("image");
+        if (!(oimage instanceof byte[])) {
+            oimage = new byte[0];
+        } 
+        imt.icon = new ImageIcon((byte[]) oimage); 
+        imt.setToolTipText(ocaption == null? null: ocaption.toString()); 
+        imt.repaint(); 
+        onrefresh(); 
+    }
+    
     public void add(Map map) {
         if (map == null) return;
         
@@ -173,12 +193,12 @@ public class ThumbnailPanel extends JPanel
             oimage = new byte[0];
         }
         
-        ImageIcon icon = new ImageIcon((byte[]) oimage);
+        ImageIcon icon = new ImageIcon((byte[]) oimage); 
         ImageThumbnail img = new ImageThumbnail(map, icon); 
         if (ocaption != null) img.setToolTipText(ocaption.toString()); 
         
         add(img); 
-    }
+    } 
         
     public Component[] getThumbnails() {
         List<Component> list = new ArrayList(); 
