@@ -10,6 +10,8 @@
 package com.rameses.rcp.control;
 
 import com.rameses.beaninfo.ComponentBeanInfo;
+import com.rameses.beaninfo.editor.ScrollbarHPolicyPropertyEditor;
+import com.rameses.beaninfo.editor.ScrollbarVPolicyPropertyEditor;
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
 
@@ -41,8 +43,11 @@ public class XImageGalleryBeanInfo extends ComponentBeanInfo.Support
             new PropertyDescriptor("enabledWhen", getBeanClass()),  
             new PropertyDescriptor("index", getBeanClass()), 
             new PropertyDescriptor("handler", getBeanClass()), 
-            new PropertyDescriptor("selectionBorderColor", getBeanClass()), 
-            new PropertyDescriptor("visibleWhen", getBeanClass()) 
+            new PropertyDescriptor("selectionBorderColor", getBeanClass()),             
+            new PropertyDescriptor("visibleWhen", getBeanClass()), 
+            
+            installEditor(new PropertyDescriptor("scrollbarHPolicy", getBeanClass()), ScrollbarHPolicyPropertyEditor.class), 
+            installEditor(new PropertyDescriptor("scrollbarVPolicy", getBeanClass()), ScrollbarVPolicyPropertyEditor.class) 
         }; 
     }
 }

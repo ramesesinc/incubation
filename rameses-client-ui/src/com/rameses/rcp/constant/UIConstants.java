@@ -34,7 +34,5 @@ public interface UIConstants {
     {
         final static String BASIC   = "BASIC";
         final static String LOOKUP  = "LOOKUP";    
-    }
-    
-    
+    }  
 }

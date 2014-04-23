@@ -300,7 +300,7 @@ public class ThumbnailPanel extends JPanel
             }
         });
     }
-
+    
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" DefaultLayout "> 
@@ -415,6 +415,7 @@ public class ThumbnailPanel extends JPanel
         private Map data;
         private ImageIcon icon;
         private boolean selected;
+        private boolean hover;
         
         ImageThumbnail(Map data, ImageIcon icon) {
             this.data = data;
@@ -424,11 +425,27 @@ public class ThumbnailPanel extends JPanel
                 public void mouseClicked(MouseEvent e) {
                     if (!root.isEnabled()) return;
                     if (!SwingUtilities.isLeftMouseButton(e)) return;
-                    if (e.getClickCount() == 1) {
-                        setSelectedComponent(ImageThumbnail.this); 
-                    } else if (e.getClickCount() == 2) {
+                    if (e.getClickCount() == 2) {
                         fireOnOpen();
                     }
+                }
+
+                public void mousePressed(MouseEvent e) {
+                    if (!root.isEnabled()) return;
+                    if (!SwingUtilities.isLeftMouseButton(e)) return;
+                    if (e.getClickCount() == 1) {
+                        setSelectedComponent(ImageThumbnail.this); 
+                    } 
+                }
+
+                public void mouseExited(MouseEvent e) {
+                    hover = false;
+                    ImageThumbnail.this.repaint();
+                }
+
+                public void mouseEntered(MouseEvent e) {
+                    hover = true;
+                    ImageThumbnail.this.repaint();
                 }
             }); 
         }
@@ -447,6 +464,7 @@ public class ThumbnailPanel extends JPanel
         public boolean isSelected() { return selected; } 
         public void setSelected(boolean selected) {
             this.selected = selected; 
+            setFocusable(selected); 
         }
         
         private void fireOnOpen() {
@@ -477,7 +495,20 @@ public class ThumbnailPanel extends JPanel
                 g2.dispose(); 
             } 
             
-            if (!root.isEnabled()) {
+            if (root.isEnabled()) {
+                if (hover) {
+                    g2 = (Graphics2D)g.create(); 
+                    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                    g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.20f)); 
+                    g2.setColor(Color.BLUE); 
+                    for (int i=0; i<3; i++) {
+                        g2.drawRect(i, i, width-1-(i*2), height-1-(i*2));
+                    }
+                    g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
+                    g2.drawRect(1, 1, width-2, height-2);                     
+                    g2.dispose(); 
+                }                
+            } else {
                 g2 = (Graphics2D)g.create(); 
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.70f)); 

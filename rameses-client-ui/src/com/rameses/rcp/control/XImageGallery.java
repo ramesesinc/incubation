@@ -20,12 +20,16 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.EventQueue;
 import java.awt.LayoutManager;
 import java.awt.Rectangle;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.swing.JPanel;
+import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.border.Border;
 
@@ -70,10 +74,13 @@ public class XImageGallery extends JPanel implements UIControl
         selectionBorderColor = panel.getSelectionBorderColor(); 
         
         scrollPane = new JScrollPane(panel);
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER); 
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER); 
         scrollbarHPolicy = scrollPane.getHorizontalScrollBarPolicy();
         scrollbarVPolicy = scrollPane.getVerticalScrollBarPolicy();
         setBackground(Color.WHITE);        
-        add(scrollPane);      
+        add(scrollPane);          
+        scrollPane.addMouseWheelListener(new MouseWheelListenerImpl()); 
     }
     
     // <editor-fold defaultstate="collapsed" desc=" Getters/Setters ">
@@ -149,7 +156,10 @@ public class XImageGallery extends JPanel implements UIControl
     public int getCols() { return cols; }
     public void setCols(int cols) {
         this.cols = cols;
-        if(panel != null) panel.setColumnCount(cols); 
+        if(panel != null) {
+            panel.setColumnCount(cols);
+            updateScrollbarPolicy(); 
+        } 
     }
     
     public boolean isDynamic() { return dynamic; } 
@@ -245,13 +255,25 @@ public class XImageGallery extends JPanel implements UIControl
     // </editor-fold> 
     
     // <editor-fold defaultstate="collapsed" desc=" helper methods ">
+    
+    private void updateScrollbarPolicy() {
+        if (panel == null || scrollPane == null) return;
         
+        if (panel.getColumnCount() <= 0) { 
+            scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER); 
+        } else {
+            scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER); 
+        }
+    }
+    
     private void refreshImages() { 
         panel.removeAll();
         if (model == null) return;
         
         int cols = model.getCols();
         if (cols > 0) panel.setColumnCount(cols);
+     
+        updateScrollbarPolicy(); 
         
         Map params = new HashMap(); 
         Map query = model.getQuery(); 
@@ -322,6 +344,11 @@ public class XImageGallery extends JPanel implements UIControl
         XImageGallery root = XImageGallery.this;
         
         protected void onselect(Object item) { 
+            EventQueue.invokeLater(new Runnable() {
+                public void run() {
+                    scrollPane.requestFocus(); 
+                }
+            }); 
             Binding binding = getBinding();
             Object bean = binding.getBean();
             String sname = root.getName();
@@ -345,6 +372,30 @@ public class XImageGallery extends JPanel implements UIControl
         protected void onrefresh() {
             Binding binding = getBinding();
             if (binding != null) binding.notifyDepends(root); 
+        }
+    }
+    
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" MouseWheelListenerImpl ">
+    
+    private class MouseWheelListenerImpl implements MouseWheelListener 
+    {
+        XImageGallery root = XImageGallery.this; 
+        
+        public void mouseWheelMoved(MouseWheelEvent e) {
+            int vpolicy = root.scrollPane.getVerticalScrollBarPolicy(); 
+            if (vpolicy != JScrollPane.VERTICAL_SCROLLBAR_NEVER) return;
+            
+            JScrollBar scroller = scrollPane.getVerticalScrollBar();
+            Dimension dim = panel.getCellSize();
+            int scrollAmount = (dim == null? 10: dim.height); 
+            int value = scroller.getValue();            
+            if (e.getWheelRotation() > 0) {
+                scroller.setValue(value + scrollAmount); 
+            } else {
+                scroller.setValue(Math.max(value-scrollAmount, 0)); 
+            }
         }
     }
     
