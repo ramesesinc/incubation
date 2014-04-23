@@ -514,9 +514,7 @@ public class XSuggest extends IconedTextField implements MouseEventSupport.Compo
     private void refreshTextValue(Object value, boolean makeDirty) {
         setValue(value);
         
-        if (value == null) {
-            //do nothing 
-        } else if (value != null && value.getClass().getName().startsWith("java.lang.")) {
+        if (value != null && value.getClass().getName().startsWith("java.lang.")) {
             //do nothing, no expression to apply 
         } else { 
             String expression = getExpression();
