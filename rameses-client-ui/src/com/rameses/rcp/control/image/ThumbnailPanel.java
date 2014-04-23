@@ -235,6 +235,7 @@ public class ThumbnailPanel extends JPanel
         if (firstItem != null) {
             firstItem.setSelected(true);
             firstItem.repaint();
+            fireOnSelect(firstItem.getData()); 
         }
     }    
     
@@ -269,11 +270,13 @@ public class ThumbnailPanel extends JPanel
         }
 
         final ImageThumbnail sel = (image == null? firstItem: image);
-        if (sel == null) return;
-        
+        if (sel != null) fireOnSelect(sel.getData());
+    } 
+    
+    private void fireOnSelect(final Object data) {
         EventQueue.invokeLater(new Runnable() {
             public void run() {
-                onselect(sel.getData()); 
+                onselect(data); 
             }
         });
     }
