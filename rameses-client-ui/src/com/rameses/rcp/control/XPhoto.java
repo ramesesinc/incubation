@@ -24,10 +24,15 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.GraphicsConfiguration;
+import java.awt.GraphicsEnvironment;
+import java.awt.Image;
 import java.awt.Insets;
 import java.awt.LayoutManager;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
+import java.awt.Transparency;
+import java.awt.image.BufferedImage;
 import java.beans.Beans;
 import java.net.URL;
 import java.util.HashMap;
@@ -51,6 +56,7 @@ public class XPhoto extends JLabel implements UIControl, MouseEventSupport.Compo
     
     private boolean dynamic;
     private ImageIcon iicon; 
+    private BufferedImage iiconImage; 
     
     private NoImageCanvas noImageCanvas;
     private ImageCanvas imageCanvas;
@@ -180,12 +186,13 @@ public class XPhoto extends JLabel implements UIControl, MouseEventSupport.Compo
             } else { 
                 iicon = null; 
             }             
-        } 
-        catch(Throwable e) { 
+        } catch(Throwable e) { 
             iicon = null; 
             
             if (ClientContext.getCurrentContext().isDebugMode()) e.printStackTrace();
-        } 
+        } finally {
+            iiconImage = null; 
+        }
         
         removeAll();
         revalidate(); 
@@ -273,6 +280,22 @@ public class XPhoto extends JLabel implements UIControl, MouseEventSupport.Compo
         int nx = (width - nw) / 2;
         int ny = (height - nh) / 2;
         return new Rectangle(nx, ny, nw, nh);
+    }
+    
+    private BufferedImage getIconImage() {
+        if (iiconImage == null) {
+            ImageIcon icon = iicon;
+            int iw = icon.getIconWidth();
+            int ih = icon.getIconHeight();            
+            BufferedImage bi = new BufferedImage(iw, ih, BufferedImage.TYPE_INT_ARGB); 
+            Graphics2D gbi = bi.createGraphics();
+            gbi.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+            gbi.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);        
+            gbi.drawImage(icon.getImage(), 0, 0, null); 
+            gbi.dispose(); 
+            iiconImage = bi; 
+        } 
+        return iiconImage;
     }
         
     // </editor-fold>
@@ -376,25 +399,22 @@ public class XPhoto extends JLabel implements UIControl, MouseEventSupport.Compo
             int height = getHeight();             
             Rectangle rect = new Rectangle(0, 0, width, height); 
             if (isScaled()) rect = getScaleRect(iicon, width, height); 
-            
-//            int iw = iicon.getIconWidth(); 
-//            int ih = iicon.getIconHeight(); 
-//            int nw=0, nh=0;
-//            if (iw / width <  ih / height) {
-//                nw = width;
-//                nh = (int) Math.floor((double)ih * (double)width / (double)iw);
-//            } else {
-//                nh = height;
-//                nw = (int) Math.floor((double)iw * (double)height / (double)ih);
-//            } 
-//            
-//            if (nw > width) nw = width;
-//            if (nh > height) nh = height; 
-//            
-//            int x = Math.max((width - nw) / 2, 0);
-//            int y = Math.max((height - nh) / 2, 0);            
+
+            BufferedImage bi = getIconImage();
+            Image scaledImage = bi.getScaledInstance(rect.width, rect.height, Image.SCALE_SMOOTH);
             Graphics2D g2 = (Graphics2D) g.create(); 
-            g2.drawImage(iicon.getImage(), rect.x, rect.y, rect.width, rect.height, null); 
+            g2.drawImage(scaledImage, rect.x, rect.y, rect.width, rect.height, null); 
+            g2.dispose();
+        }
+        
+        private BufferedImage createCompatibleImage(int width, int height) {
+            GraphicsConfiguration gc = getGC();
+            BufferedImage bi = gc.createCompatibleImage(width, height, Transparency.TRANSLUCENT);
+            return bi;
+        }    
+
+        private GraphicsConfiguration getGC() {
+            return GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDefaultConfiguration();    
         }
     }
     
