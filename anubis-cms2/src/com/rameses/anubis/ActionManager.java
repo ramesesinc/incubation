@@ -50,8 +50,9 @@ public class ActionManager {
             for( MappingEntry me: mappings ) {
                 if(me.matches(path)) {
                     String[] actions = me.getTemplates();
-                    for(String s: actions) {
-                        list.add( s );
+                    //reverse the actions because getTemplates is reusable
+                    for (int i=actions.length-1; i>=0; i--) {
+                        list.add(actions[i]); 
                     }
                 }
             }
