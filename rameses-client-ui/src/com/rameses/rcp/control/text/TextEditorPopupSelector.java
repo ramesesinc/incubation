@@ -24,7 +24,7 @@ import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPopupMenu;
-import javax.swing.JTextPane;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.text.JTextComponent;
 
@@ -176,6 +176,7 @@ public class TextEditorPopupSelector extends JPopupMenu
         TextEditorPopupSelector root = TextEditorPopupSelector.this;
         
         private int SPACING = 1;
+        private int MAX_WIDTH = 200;
         
         public void addLayoutComponent(String name, Component comp) {}
         public void removeLayoutComponent(Component comp) {}
@@ -199,16 +200,14 @@ public class TextEditorPopupSelector extends JPopupMenu
                     if (has_visibled_items) h += SPACING;
                     
                     Dimension dim = c.getPreferredSize();
-                    w = Math.max(dim.width, w); 
+                    int cw = dim.width;
+                    if (cw > MAX_WIDTH) cw = MAX_WIDTH;
+                    
+                    w = Math.max(cw, w); 
                     h += root.getRowHeight();
                     has_visibled_items = true;
                 }
-                
-//                if (root.invoker != null) {
-//                    Insets m = root.invoker.getInsets(); 
-//                    w = Math.max(w, (root.invoker.getWidth()-m.left)+1); 
-//                }
-                
+                                
                 Insets margin = parent.getInsets();
                 w += (margin.left + margin.right);
                 h += (margin.top + margin.bottom);
@@ -259,6 +258,7 @@ public class TextEditorPopupSelector extends JPopupMenu
             setOpaque(true);            
             setBackground(Color.WHITE); 
             setBorder(BorderFactory.createEmptyBorder(2,5,2,5)); 
+            setVerticalAlignment(SwingConstants.TOP); 
             addMouseListener(this); 
             
             String caption = (item == null? null: item.getCaption());
