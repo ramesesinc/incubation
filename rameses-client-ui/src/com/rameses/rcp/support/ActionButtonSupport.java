@@ -47,11 +47,26 @@ public class ActionButtonSupport {
     public ActionButtonSupport() {
     }
     
-    public void loadDefaults(JButton button, String actionName, ActionListener listener) {
-        String resname = "button." + actionName;
-        Properties props = getConfig().find(resname);
-        if (props.isEmpty()) return;
-        
+    public void loadDefaults(JButton button, String actionName, String caption, ActionListener listener) {
+        if (caption != null && caption.length() > 0) { 
+            String resname = "button." + caption;
+            Properties props = getConfig().find(resname);
+            if (!props.isEmpty()) {
+                applyDefaults(button, resname, props, listener); 
+                return;
+            }
+        }
+        if (actionName != null && actionName.length() > 0) { 
+            String resname = "button." + actionName;
+            Properties props = getConfig().find(resname);
+            if (!props.isEmpty()) {
+                applyDefaults(button, resname, props, listener); 
+            }
+        } 
+    }
+
+    private void applyDefaults(JButton button, String resname, Properties props, ActionListener listener) {
+        resname = resname.toLowerCase();
         String caption = props.getProperty(resname + ".caption");
         if (caption != null && caption.trim().length() > 0) {
             button.setText(caption); 
@@ -75,9 +90,9 @@ public class ActionButtonSupport {
                 button.getActionMap().remove("fireActionPerformed");
                 button.getActionMap().put("fireActionPerformed", new ActionProxy(listener)); 
             } catch(Throwable t){;} 
-        }
+        }        
     }
-
+    
     private synchronized ActionThemeConfig getConfig() {
         if (actionThemeConfig == null) {
             actionThemeConfig = new ActionThemeConfig();
@@ -106,12 +121,13 @@ public class ActionButtonSupport {
         }
         
         Properties find(String name) {
+            String lname = name.toLowerCase();
             Properties results = new Properties(); 
             Set entries = properties.entrySet(); 
             for (Object o: entries) {
                 Map.Entry me = (Map.Entry)o;
-                String key = me.getKey().toString(); 
-                if (key.startsWith(name)) {
+                String key = me.getKey().toString().toLowerCase(); 
+                if (key.startsWith(lname)) {
                     results.put(key, me.getValue()); 
                 }
             }
