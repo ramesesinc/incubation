@@ -7,7 +7,6 @@
 
 package com.rameses.rcp.control;
 
-import com.rameses.common.ExpressionResolver;
 import com.rameses.rcp.common.Action;
 import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.control.border.BorderProxy;
@@ -212,8 +211,12 @@ public class XActionBar extends JPanel implements UIComposite, MouseEventSupport
     }
     
     private XButton createButton(Action action) {
+        String caption = action.getCaption();
+        if (caption == null || caption.length() == 0) caption = null; 
+        else if ("[no caption]".equalsIgnoreCase(caption+"")) caption = null;
+        
         XButton btn = new XButton();
-        ActionButtonSupport.getInstance().loadDefaults(btn, action.getName(), btn);
+        ActionButtonSupport.getInstance().loadDefaults(btn, action.getName(), caption, btn);
 
         btn.setFocusable(false);
         btn.setMargin(new Insets(2, 2, 2, 2)); 
@@ -223,10 +226,6 @@ public class XActionBar extends JPanel implements UIComposite, MouseEventSupport
         btn.setName(action.getName());
         btn.setFont(buttonTpl.getFont());
         btn.setForeground(buttonTpl.getForeground());
-        
-        String caption = action.getCaption();
-        if ("[no caption]".equalsIgnoreCase(caption+"")) caption = btn.getText();
-        if (caption != null && caption.length() == 0) caption = null;
         
         if (!ValueUtil.isEmpty(caption)) {
             if ( isButtonAsHyperlink() ) {
