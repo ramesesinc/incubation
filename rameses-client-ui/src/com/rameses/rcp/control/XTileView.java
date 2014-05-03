@@ -212,7 +212,7 @@ public class XTileView extends JPanel implements UIComposite, MouseEventSupport.
                 }
             }
         };        
-        ActionButtonSupport.getInstance().loadDefaults(btn, item.getName(), btn);
+        ActionButtonSupport.getInstance().loadDefaults(btn, item.getName(), null, btn);
         btn.putClientProperty(TileViewItem.class, item);
         btn.setFocusable(false);
         btn.setMargin(new Insets(2, 2, 2, 2)); 
