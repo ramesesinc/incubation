@@ -89,6 +89,7 @@ public class DefaultTextField extends JTextField
         focusBackground = ThemeUI.getColor("XTextField.focusBackground");
         
         this.setActionCommand("");
+        setDisabledTextColor(Color.decode("#303030"));
     }
     
     protected Map getFontAttributes() {
