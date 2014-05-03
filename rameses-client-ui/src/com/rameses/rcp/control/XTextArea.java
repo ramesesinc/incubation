@@ -44,6 +44,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.swing.AbstractAction;
+import javax.swing.BorderFactory;
 import javax.swing.JTextArea;
 import javax.swing.KeyStroke;
 import javax.swing.UIManager;
@@ -98,6 +99,8 @@ public class XTextArea extends JTextArea implements UIInput, Validatable,
 
     private void initComponent() {
         TextComponentSupport.getInstance().installUIDefaults(this); 
+        setBorder(BorderFactory.createEmptyBorder(5,5,0,0)); 
+        setDisabledTextColor(Color.BLACK); 
         setColumns(5);
         setRows(4); 
         
@@ -159,13 +162,17 @@ public class XTextArea extends JTextArea implements UIInput, Validatable,
                         
                     default: 
                         try {
-                            //System.out.println("keycode: " + e.getKeyCode() + ", keychar: " + e.getKeyChar());
+                            boolean ctrlDown = ((e.getModifiers() & InputEvent.CTRL_MASK) == InputEvent.CTRL_MASK);
+                            if (ctrlDown && e.getKeyCode() == KeyEvent.VK_SPACE) {
+                                e.consume(); 
+                                return;
+                            } 
+                            
                             int pos = getCaretPosition()-1;
                             if (pos < 0) return;
                             
                             String str = e.getKeyChar()+"";
                             boolean whitespace = str.matches("\\s");
-                            //System.out.println("str=" + str + ", whitespace="+whitespace);
                             if (whitespace) {
                                 getPopup().setVisible(false);     
                                 return;
@@ -173,7 +180,7 @@ public class XTextArea extends JTextArea implements UIInput, Validatable,
                             
                             if (getPopup().isVisible() && getPopup().isShowing() && !whitespace) { 
                                 EventQueue.invokeLater(new Runnable() {
-                                    public void run() {
+                                    public void run() { 
                                         fireSearch();
                                     }
                                 });
@@ -638,12 +645,8 @@ public class XTextArea extends JTextArea implements UIInput, Validatable,
     private void fireSearch() {
         if (!isEnabled() || !isEditable()) return;
         
-        String searchtext = getSearchtext();
         Map params = new HashMap();
-        params.put("searchtext", searchtext); 
-        List results = fetchList(params); 
-        if (results == null) return;
-        
+        params.put("searchtext", getSearchtext());         
         TimerManager.getInstance().schedule(new LookupTask(params), 300); 
     }
     
