@@ -107,6 +107,9 @@ public final class Modal
         map.putAll(props); 
         map.put("id", sid);
         map.put("immediate", true); 
+        if (map.get("title") == null) {
+            map.put("title", opener.getCaption()); 
+        }
         
         UIControllerContext uicx = new UIControllerContext(uic);
         UIControllerPanel uicp = new UIControllerPanel(uicx);        
