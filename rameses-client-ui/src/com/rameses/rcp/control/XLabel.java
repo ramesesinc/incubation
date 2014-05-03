@@ -251,6 +251,17 @@ public class XLabel extends DefaultLabel implements UIOutput, ActiveControl,
         this.antiAliasOn = antiAliasOn;
     }
     
+    public Color getBackground() {
+        try {
+            if (isOpaque() && !isEnabled()) {
+                Color bgcolor = UIManager.getLookAndFeelDefaults().getColor("ComboBox.disabledBackground"); 
+                if (bgcolor != null) return bgcolor; 
+            } 
+        } catch(Throwable t) {;} 
+        
+        return super.getBackground(); 
+    }
+    
     // </editor-fold>    
     
     // <editor-fold defaultstate="collapsed" desc=" UIOutput implementation ">    
