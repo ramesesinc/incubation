@@ -45,6 +45,7 @@ public class XImage extends JLabel implements UIControl, MouseEventSupport.Compo
     private Insets padding;
     private String iconResource;
     private String borderCSS;
+    private boolean hideWhenNoIcon;
     
     public XImage() 
     {
@@ -127,6 +128,11 @@ public class XImage extends JLabel implements UIControl, MouseEventSupport.Compo
     
     // <editor-fold defaultstate="collapsed" desc=" UIControl implementation ">    
     
+    public boolean isHideWhenNoIcon() { return hideWhenNoIcon; } 
+    public void setHideWhenNoIcon(boolean hideWhenNoIcon) {
+        this.hideWhenNoIcon = hideWhenNoIcon; 
+    }
+    
     public int getIndex() { return index; }
     public void setIndex(int index) { this.index = index; }
 
@@ -139,8 +145,23 @@ public class XImage extends JLabel implements UIControl, MouseEventSupport.Compo
     public void load() {
     }
 
-    public void refresh() {
+    public void refresh() { 
+        try { 
+            String name = getName(); 
+            if (name != null && name.length() > 0) { 
+                Object value = UIControlUtil.getBeanValue(getBinding(), name); 
+                if (value != null) { 
+                    ImageIcon icon = ImageIconSupport.getInstance().getIcon(value.toString()); 
+                    if (icon != null) setIcon(icon); 
+                } 
+            } 
+        } catch(Throwable t){;} 
         
+        if (isHideWhenNoIcon() && getIcon() == null) { 
+            setVisible(false); 
+        } else { 
+            setVisible(true); 
+        } 
     }
 
     public void setPropertyInfo(PropertySupport.PropertyInfo info) {
