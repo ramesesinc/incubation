@@ -72,6 +72,8 @@ public final class ReportUtil {
         //otherwise use the original requested report name
         
         String cusDir = (String) OsirisContext.getSession().getEnv().get("report.custom");
+        if (cusDir == null) cusDir = (String) OsirisContext.getSession().getEnv().get("app.custom");
+        
         if (cusDir != null) {
             String oDir = name.substring(0, name.lastIndexOf("/"));
             String oFname = name.substring(name.lastIndexOf("/"));
