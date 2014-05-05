@@ -42,8 +42,25 @@ public class DateParser {
         this.advanceYearLimit = advanceYearLimit; 
     }
     
+    private Date convert(String text) {
+        try {
+            Date dt = java.sql.Date.valueOf(text);
+            return dt;
+        } catch(Throwable t){;} 
+        
+        try {
+            Date dt = java.sql.Timestamp.valueOf(text);
+            return dt;
+        } catch(Throwable t){
+            return null; 
+        }
+    }
+    
     public Date parse(String text) {
         if (text == null || text.length() == 0) return null; 
+        
+        Date dtc = convert(text);
+        if (dtc != null) return dtc; 
         
         int _advanceYearLimit = getAdvanceYearLimit();
         _advanceYearLimit = (_advanceYearLimit < 0? 0: _advanceYearLimit+1);
