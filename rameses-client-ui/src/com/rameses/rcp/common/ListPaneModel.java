@@ -9,6 +9,10 @@
 
 package com.rameses.rcp.common;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
 /**
  *
  * @author wflores
@@ -19,14 +23,30 @@ public class ListPaneModel
     public ListPaneModel() {
     }
 
+    @Deprecated
     public void afterLoadItems() {}
+    
+    @Deprecated
+    public Object getItems() { return null; }
     
     public boolean beforeSelect(Object item) { return true; }    
     public void onselect(Object item) {}
-    
-    public Object getItems() { return null; }
+        
     public String getDefaultIcon() { return null; } 
-    
+
+    public List fetchList( Map params ) {
+        Object items = getItems(); 
+        if (items instanceof Object[]) {
+            Object[] values = (Object[])items; 
+            return Arrays.asList(values); 
+        } else {
+            return (List)items;
+        }
+    }
+        
+    public void afterFetchList() {
+        afterLoadItems(); 
+    }    
     
     // <editor-fold defaultstate="collapsed" desc=" proxying methods ">
     

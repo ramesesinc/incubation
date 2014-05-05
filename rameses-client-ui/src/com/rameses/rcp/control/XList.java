@@ -17,6 +17,7 @@ import com.rameses.rcp.support.FontSupport;
 import com.rameses.rcp.support.ImageIconSupport;
 import com.rameses.rcp.support.MouseEventSupport;
 import com.rameses.rcp.ui.UIControl;
+import com.rameses.rcp.util.ControlSupport;
 import com.rameses.rcp.util.UIControlUtil;
 import com.rameses.util.ValueUtil;
 import java.awt.Component;
@@ -29,6 +30,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.beans.Beans;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -309,21 +311,22 @@ public class XList extends JList implements UIControl, MouseEventSupport.Compone
     private void loadItems(ListPaneModel newModel) {
         if (newModel == null) return;
 
-        List list = new ArrayList();        
-        Object value = newModel.getItems();
-        if (value == null) {
-            //do nothing 
-        } else if (value instanceof Collection) {
-            list.addAll((Collection) value);
-        } else if (value.getClass().isArray()) {
-            for (Object o: (Object[]) value) {
-                list.add(o);
-            }
-        }
-        //--
+        Map params = new HashMap(); 
+        List list = newModel.fetchList(params); 
+        if (list == null) list = new ArrayList();
+            
         model.clear(); 
         int i = 0; 
         for (Object o: list) { 
+            if (o instanceof Map) {
+                Map map = (Map) o;
+                String domain = getProperty(map, "domain");
+                String role = getProperty(map, "role");
+                String permission = getProperty(map, "permission");
+                boolean allowed = ControlSupport.isPermitted(domain, role, permission); 
+                if (!allowed) continue; 
+            } 
+            
             model.add(i++, o); 
         } 
         
@@ -332,7 +335,7 @@ public class XList extends JList implements UIControl, MouseEventSupport.Compone
         
         listPaneModel = newModel;
         newModel.setProvider(new ProviderImpl()); 
-        newModel.afterLoadItems(); 
+        newModel.afterFetchList();
     } 
         
     private void selectSelectedItems() 
@@ -589,13 +592,19 @@ public class XList extends JList implements UIControl, MouseEventSupport.Compone
     
     private class DefaultListPaneModel extends ListPaneModel 
     {
-        private Object items;
+        private List list;
         
         DefaultListPaneModel(Object items) {
-            this.items = items;
+            if (items instanceof Object[]) {
+                this.list = Arrays.asList((Object[]) items);
+            } else if (items instanceof List) {
+                this.list = (List) items;
+            } 
         }
         
-        public Object getItems() { return items; } 
+        public List fetchList(Map params) {
+            return list; 
+        }
     }
     
     // </editor-fold> 
@@ -652,6 +661,12 @@ public class XList extends JList implements UIControl, MouseEventSupport.Compone
         
         super.setSelectionInterval(anchor, lead); 
     } 
+    
+    private String getProperty(Map map, String name) {
+        Object value = (map == null? null: map.get(name));
+        return (value == null? null: value.toString()); 
+    }
+            
     
     // </editor-fold>
 }
