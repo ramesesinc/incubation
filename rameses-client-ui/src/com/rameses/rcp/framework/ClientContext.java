@@ -17,6 +17,7 @@ import com.rameses.rcp.impl.NavigationHandlerImpl;
 import com.rameses.common.ValueResolver;
 import com.rameses.util.Service;
 import java.lang.ref.WeakReference;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -156,6 +157,22 @@ public abstract class ClientContext
     public boolean isDebugMode() { return debugMode; }
     public void setDebugMode(boolean debugMode) {
         this.debugMode = debugMode;
+    }
+    
+    public URL getResource(String name) {
+        try { 
+            ClassLoader classLoader = getClassLoader();
+            URL url = classLoader.getResource(name);
+            if (url != null) return url; 
+            
+            classLoader = getClass().getClassLoader(); 
+            url = classLoader.getResource(name); 
+            if (url != null) return url;
+            
+            return classLoader.getSystemClassLoader().getResource(name);
+        } catch(Throwable t) {
+            return null; 
+        }        
     }
     
     public void registerExecutor(ExecutorService svc) {
