@@ -19,6 +19,7 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,6 +52,18 @@ public class IOStream
         write(new ByteArrayInputStream(bytes), output, bufferSize); 
     } 
     
+    public static void write(URL url, OutputStream output) {
+        try { 
+            if (url == null) return; 
+            
+            write(url.openStream(), output); 
+        } catch(RuntimeException re) { 
+            throw re; 
+        } catch(Exception e) { 
+            throw new RuntimeException(e.getMessage(), e); 
+        }         
+    }    
+    
     public static void write(InputStream input, OutputStream output) {
         write(input, output, DEFAULT_BUFFER_SIZE);
     }
@@ -66,15 +79,11 @@ public class IOStream
                 output.write(buffer, 0, len);
             }  
             output.flush();
-        }
-        catch(RuntimeException re) {
+        } catch(RuntimeException re) {
             throw re;
-        }
-        catch(Exception ex) {
+        } catch(Exception ex) {
             throw new RuntimeException(ex.getMessage(), ex);
-        }
-        finally 
-        {
+        } finally {
             try { output.close(); }  catch(Exception ign){;}
             try { input.close(); } catch(Exception ign){;}            
         }
@@ -89,6 +98,19 @@ public class IOStream
             throw new RuntimeException(e.getMessage(), e); 
         } 
     } 
+
+    public static byte[] toByteArray(URL url) { 
+        try { 
+            if (url == null) return null; 
+            
+            InputStream inp = url.openStream();
+            return toByteArray(inp, DEFAULT_BUFFER_SIZE); 
+        } catch(RuntimeException re) { 
+            throw re; 
+        } catch(Exception e) { 
+            throw new RuntimeException(e.getMessage(), e); 
+        } 
+    }     
     
     public static byte[] toByteArray(InputStream input) { 
         return toByteArray(input, DEFAULT_BUFFER_SIZE); 
@@ -141,7 +163,7 @@ public class IOStream
             try { bais.close(); }catch(Throwable t){;} 
         }        
     }
-    
+        
     public static List<byte[]> chunk(File file, int size) {
         try {
           return chunk(new FileInputStream(file), size);   
