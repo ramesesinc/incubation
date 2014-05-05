@@ -62,18 +62,40 @@ public class ImageIconSupport
                     return new ImageIcon(new URL(path)); 
                 
                 byte[] bytes = ControlSupport.getByteFromResource(path);
-                if (bytes == null) return null; 
-                
-                ImageIcon icon = new ImageIcon(bytes); 
-                cache.put(path, icon.getImage());
-                return icon;
+                if (bytes == null) {
+                    URL url = getResource(path);
+                    if (url == null) return null; 
+                    
+                    ImageIcon icon = new ImageIcon(url);
+                    cache.put(path, icon.getImage());
+                    return icon;
+                    
+                } else {
+                    ImageIcon icon = new ImageIcon(bytes); 
+                    cache.put(path, icon.getImage());
+                    return icon;
+                }
             } 
             catch(Throwable ex) {
                 return null; 
             } 
         }
         return new ImageIcon(image); 
-    }    
+    }   
+    
+    private URL getResource(String path) {
+        try { 
+            ClassLoader classLoader = getClass().getClassLoader();
+            URL url = classLoader.getResource(path);
+            if (url == null) {
+                return classLoader.getSystemClassLoader().getResource(path);
+            } else {
+                return url;
+            } 
+        } catch(Throwable t) {
+            return null; 
+        }
+    }
     
     // <editor-fold defaultstate="collapsed" desc=" Resizer "> 
     
