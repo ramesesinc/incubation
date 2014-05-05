@@ -14,6 +14,8 @@ import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.ui.ControlContainer;
 import com.rameses.rcp.ui.UIControl;
 import com.rameses.rcp.util.UIControlUtil;
+import java.awt.CardLayout;
+import java.awt.LayoutManager;
 import javax.swing.JPanel;
 
 /**
@@ -52,6 +54,15 @@ public class XPanel extends JPanel implements UIControl, ControlContainer
     }
 
     public void refresh() {
+        try {
+            Object value = UIControlUtil.getBeanValue(getBinding(), getName());
+            LayoutManager lm = getLayout();
+            if (lm instanceof CardLayout) { 
+                CardLayout cardlayout = (CardLayout)lm; 
+                cardlayout.show(this, value+""); 
+            } 
+        } catch(Throwable t){;}
+        
         try { 
             String visibleWhen = getVisibleWhen(); 
             if (visibleWhen != null && visibleWhen.length() > 0) { 
@@ -65,9 +76,9 @@ public class XPanel extends JPanel implements UIControl, ControlContainer
                 setVisible(b); 
             } 
         } catch(Throwable t) {;} 
-        
+                
         revalidate();
-        repaint();
+        repaint();        
     }
 
     public void setPropertyInfo(PropertySupport.PropertyInfo info) {
@@ -98,5 +109,10 @@ public class XPanel extends JPanel implements UIControl, ControlContainer
         this.visibleWhen = visibleWhen; 
     }
     
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" helper methods ">
+    
+
     // </editor-fold>
 }
