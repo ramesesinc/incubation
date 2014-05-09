@@ -195,7 +195,9 @@ public class ColumnEditorController
         
         try 
         {
-            Class valueType = gm.getReturnType();
+            Class objClass = source.getClass();       
+            Method getter = toGetterMethod(objClass, name);
+            Class valueType = (getter == null? Object.class: getter.getReturnType()); 
             if (valueType == Object.class) {
                 //do nothing 
             }
@@ -206,14 +208,47 @@ public class ColumnEditorController
             else if (valueType == double.class || valueType.isAssignableFrom(Double.class)) 
                 value = toDouble(value); 
 
-            //logger.log(Level.INFO, "setValue("+name+", "+value+")"); 
-            m.invoke(source, new Object[]{value}); 
+            //m.invoke(source, new Object[]{value}); 
+            Method setter = toSetterMethod(objClass, name);
+            if (setter == null) return;
+            
+            setter.invoke(source, new Object[]{value});
             onvalueChanged(name);  
         } 
         catch(Throwable ex) {
             System.out.println("[ERROR] setValue: ("+name+") " + ex.getMessage());
+            //ex.printStackTrace();
         }
     }
+    
+    private Method toGetterMethod(Class objClass, String name) {
+        if (name == null || name.length() == 0) return null;
+        
+        try { 
+            String methodName = "get" + Character.toUpperCase(name.charAt(0)) + name.substring(1); 
+            return objClass.getMethod(methodName, new Class[0]); 
+        } catch(Throwable t) {;}
+        
+        try { 
+            String methodName = "is" + Character.toUpperCase(name.charAt(0)) + name.substring(1); 
+            return objClass.getMethod(methodName, new Class[0]); 
+        } catch(Throwable t) {
+            return null; 
+        }        
+    } 
+    
+    private Method toSetterMethod(Class objClass, String name) {
+        if (name == null || name.length() == 0) return null;
+        
+        try { 
+            Method getter = toGetterMethod(objClass, name); 
+            Class returnType = (getter == null? Object.class: getter.getReturnType()); 
+            String methodName = "set" + Character.toUpperCase(name.charAt(0)) + name.substring(1); 
+            return objClass.getMethod(methodName, new Class[]{ returnType }); 
+        } catch(Throwable t) {
+            return null; 
+        }
+    }    
     
     protected void onvalueChanged(String name) {}
     
