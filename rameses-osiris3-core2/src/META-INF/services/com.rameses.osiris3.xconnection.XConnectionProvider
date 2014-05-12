@@ -1,2 +1,3 @@
 com.rameses.osiris3.script.messaging.ScriptConnectionProvider
+com.rameses.osiris3.xconnection.email.EmailConnectionProvider
 com.rameses.osiris3.cache.DefaultCacheProvider

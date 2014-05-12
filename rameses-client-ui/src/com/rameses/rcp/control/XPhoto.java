@@ -34,9 +34,11 @@ import java.awt.RenderingHints;
 import java.awt.Transparency;
 import java.awt.image.BufferedImage;
 import java.beans.Beans;
+import java.io.File;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
@@ -286,7 +288,8 @@ public class XPhoto extends JLabel implements UIControl, MouseEventSupport.Compo
         if (iiconImage == null) {
             ImageIcon icon = iicon;
             int iw = icon.getIconWidth();
-            int ih = icon.getIconHeight();            
+            int ih = icon.getIconHeight();  
+            //System.out.println("iw=" + iw + ", ih="+ih);
             BufferedImage bi = new BufferedImage(iw, ih, BufferedImage.TYPE_INT_ARGB); 
             Graphics2D gbi = bi.createGraphics();
             gbi.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);

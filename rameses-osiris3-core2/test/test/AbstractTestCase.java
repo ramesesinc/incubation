@@ -9,7 +9,6 @@ package test;
 
 import com.rameses.osiris3.core.OsirisServer;
 import com.rameses.osiris3.custom.CustomOsirisServer;
-import com.rameses.osiris3.sql.SqlContext;
 import java.util.HashMap;
 import java.util.Map;
 import junit.framework.*;
