@@ -32,6 +32,45 @@ public class ServiceProxyInvocationHandler implements InvocationHandler{
         this.proxy = p;
     }
     
+    //do not use invokeMethod because it is a reserved word in groovy
+    public Object invokeMethod(String methodName, Object[] args) throws Throwable 
+    {
+        if (methodName.equals("toString")) return proxy.getClass().getName();
+                
+        try {
+            if( args == null || args.length == 0 ) {
+                return this.proxy.invoke(methodName);
+            } else {
+                AsyncHandler handler = null;
+                if(args[args.length-1] instanceof AsyncHandler ) {
+                    Object[] newArgs = new Object[args.length-1];
+                    for(int i=0; i<newArgs.length; i++) {
+                        newArgs[i] = args[i];
+                    }
+                    handler = (AsyncHandler)args[args.length-1];
+                    args = newArgs;
+                }
+                
+                if(handler !=null) {
+                    thread.submit( new AsyncTask(methodName, args, handler) );
+                    return null;
+                } else {
+                    return this.proxy.invoke( methodName, args );
+                }
+            }
+        } 
+        catch(Throwable t) 
+        {
+            t.printStackTrace();
+            if (t instanceof AppException)
+                throw t;
+            else if (t instanceof RuntimeException) 
+                throw (RuntimeException) t;
+            else
+                throw new RuntimeException(t.getMessage(), t);
+        }
+    }
+    
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable 
     {
         if (method.getName().equals("toString")) return proxy.getClass().getName();

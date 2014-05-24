@@ -36,6 +36,8 @@ public class ManagedScriptExecutor {
     public static final String ASYNC_ID = "_async_";
     
     private static String GET_STRING_INTERFACE = "getStringInterface";
+    private static String GET_META_INFO = "getMetaInfo";
+    private static String INIT = "init";
     
     private ScriptExecutor scriptExecutor;
     
@@ -51,9 +53,20 @@ public class ManagedScriptExecutor {
     public Object execute( final String method, final Object[] args, boolean fireInterceptors  ) throws Exception {
         try {
             ScriptInfo scriptInfo = scriptExecutor.getScriptInfo();
-
+            TransactionContext txn = TransactionContext.getCurrentContext();
+            OsirisServer svr = txn.getServer();
+            MainContext ct = txn.getContext();
+            ScriptService scriptSvc = ct.getService( ScriptService.class );
+            
             if( method.equals( GET_STRING_INTERFACE )) {
                 return scriptInfo.getStringInterface();
+            }
+            else if( method.equals( GET_META_INFO )) {
+                return scriptInfo.getMetaInfo(ct);
+            }
+            else if( method.equals( INIT ) ) {
+                scriptSvc.removeScript( scriptInfo.getName() );
+                return null;
             }
             
             //get first the necessary resources
@@ -61,9 +74,7 @@ public class ManagedScriptExecutor {
             Method m = scriptInfo.getClassDef().findMethodByName( method );
             if (m == null) throw new NoSuchMethodException("'"+method+"' method does not exist");
 
-            TransactionContext txn = TransactionContext.getCurrentContext();
-            OsirisServer svr = txn.getServer();
-            MainContext ct = txn.getContext();
+            
             
             ProxyMethod pma = m.getAnnotation(ProxyMethod.class);
             boolean isProxyMethod = (pma!=null);
@@ -136,7 +147,7 @@ public class ManagedScriptExecutor {
             //inject the dependencies
             
 
-            ScriptService scriptSvc = ct.getService( ScriptService.class );
+            
             DependencyInjector di = scriptSvc.getDependencyInjector();
             di.injectDependencies( scriptExecutor, e );
             

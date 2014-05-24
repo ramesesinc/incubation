@@ -11,6 +11,8 @@ package com.rameses.osiris3.script;
 
 import com.rameses.osiris3.core.*;
 import groovy.lang.GroovyClassLoader;
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.HashMap;
@@ -35,8 +37,7 @@ public class ScriptInfoContextResource extends ContextResource {
             GroovyClassLoader gc = (GroovyClassLoader)ctx.getClassLoader();
             Class clazz = gc.parseClass( is );
             return new ScriptInfo(name, u, clazz,  ctx, gc);
-        }
-        catch(Exception e) {
+        } catch(Exception e) {
             e.printStackTrace();
             throw e;
         }
@@ -45,22 +46,21 @@ public class ScriptInfoContextResource extends ContextResource {
     public ScriptInfo findResource(String name) {
         InputStream is = null;
         try {
+            //we use context classloader bec. we need this to be dynamic
             URL u = context.getClassLoader().getResource( "scripts/"+name );
             if (u == null) throw new ResourceNotFoundException("File " + name + " not found" );
-            
             is = u.openStream();
-            if (is == null) throw new NullPointerException("Resource " + name + " has no available stream");
-                     
             return parseScript(name, is, u, context);
+            
         } catch(ResourceNotFoundException rnfe) {
             throw rnfe;
         } catch(RuntimeException re) {
             throw re;
         } catch(Exception e) {
             throw new RuntimeException(e.getMessage(), e);
-        } finally { 
+        } finally {
             try { is.close(); } catch(Exception ign){;}
-        } 
+        }
     }
     
     public void remove(String key) {
