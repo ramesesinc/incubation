@@ -9,24 +9,74 @@
 
 package com.rameses.common;
 
-import java.util.HashMap;
+import java.rmi.server.UID;
+import java.util.Map;
 
-public class AsyncRequest extends HashMap  {
+public class AsyncRequest {
     
-    public String getProvider() {
-        return (String) get("provider");
+    private String id;
+    private String connection;
+    
+    private String methodName;
+    private String serviceName;
+    private Object[] args;
+    private Map env;
+    
+    
+    public AsyncRequest() {
+        id = "ASYNC"+ new UID();
     }
     
-    public void setProvider(String conn) {
-        put("provider", conn);
+    public AsyncRequest(String serviceName, String methodName, Object[] args, Map env) {
+        id = "ASYNC"+ new UID();
+        this.serviceName = serviceName;
+        this.methodName = methodName;
+        this.args = args;
+        this.env = env;
     }
 
-    public String getChannel() {
-        return (String) get("channel");
+    public String getId() {
+        return id;
     }
-    
-    public void setChannel(String channel) {
-        put("channel", channel);
+
+    public String getConnection() {
+        return connection;
+    }
+
+    public void setConnection(String connection) {
+        this.connection = connection;
+    }
+
+    public String getMethodName() {
+        return methodName;
+    }
+
+    public void setMethodName(String methodName) {
+        this.methodName = methodName;
+    }
+
+    public String getServiceName() {
+        return serviceName;
+    }
+
+    public void setServiceName(String serviceName) {
+        this.serviceName = serviceName;
+    }
+
+    public Object[] getArgs() {
+        return args;
+    }
+
+    public void setArgs(Object[] args) {
+        this.args = args;
+    }
+
+    public Map getEnv() {
+        return env;
+    }
+
+    public void setEnv(Map env) {
+        this.env = env;
     }
     
     

@@ -9,11 +9,13 @@
 
 package com.rameses.osiris3.server;
 
+import com.rameses.common.AsyncRequest;
 import com.rameses.osiris3.core.AppContext;
 import com.rameses.osiris3.core.MainContext;
 import com.rameses.osiris3.core.OsirisServer;
 import com.rameses.osiris3.script.ScriptRunnable;
 import com.rameses.osiris3.server.common.AbstractServlet;
+import com.rameses.osiris3.xconnection.XAsyncConnection;
 import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -81,13 +83,15 @@ public class ServiceInvokerServlet extends AbstractServlet {
     
     protected void service(final HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
         ScriptRunnable tr = (ScriptRunnable) req.getAttribute( ScriptRunnable.class.getName() );
+        
+        
         if(tr==null) {
-            
             ContinuationListener listener = new ContinuationListener(req);
             //replace the values
             Object[] params = readRequest(req);
             RequestParser p = new RequestParser(req);
             AppContext ct = OsirisServer.getInstance().getContext( AppContext.class, p.getContextName() );
+                        
             tr = new ScriptRunnable( (MainContext)ct );
             tr.setServiceName(p.getServiceName() );
             tr.setMethodName(p.getMethodName());
@@ -99,19 +103,33 @@ public class ServiceInvokerServlet extends AbstractServlet {
             req.setAttribute(  ScriptRunnable.class.getName(), tr );
             listener.future = taskPool.submit(tr);
             
-        } else {
+        } 
+        else {
             ContinuationListener listener = (ContinuationListener)tr.getListener();
             Object response= null;
             if( listener.isExpired() ) {
                 tr.cancel();
                 response = new Exception("Timeout exception. Transaction was not processed");
-            } else {
+            } 
+            else {
                 if( tr.hasErrs()) {
                     response = tr.getErr();
                     System.out.println("error "+tr.getErr().getClass() + " " + tr.getErr().getMessage());
                 }    
-                else
+                else {
                     response = tr.getResult();
+                    if(response instanceof AsyncRequest) {
+                        AsyncRequest ar = (AsyncRequest)response;
+                        XAsyncConnection ac = (XAsyncConnection) tr.getContext().getContextResource( ar.getConnection() );
+                        try {
+                            ac.register( ar.getId() );
+                            //ac.send( ar );
+                        }
+                        catch(Exception e) {
+                            response = e;
+                        }
+                    }
+                }
             }
             writeResponse( response, res );
         }

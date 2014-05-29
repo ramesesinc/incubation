@@ -9,8 +9,6 @@
 package com.rameses.service;
 
 import com.rameses.common.AsyncHandler;
-import com.rameses.common.AsyncRequest;
-import com.rameses.common.AsyncResponse;
 import com.rameses.util.AppException;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -52,7 +50,7 @@ public class ServiceProxyInvocationHandler implements InvocationHandler{
                 }
                 
                 if(handler !=null) {
-                    thread.submit( new AsyncTask(methodName, args, handler) );
+                    thread.submit( new AsyncTask(proxy, methodName, args, handler) );
                     return null;
                 } else {
                     return this.proxy.invoke( methodName, args );
@@ -71,7 +69,7 @@ public class ServiceProxyInvocationHandler implements InvocationHandler{
         }
     }
     
-    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable 
+    public Object invoke(Object sproxy, Method method, Object[] args) throws Throwable 
     {
         if (method.getName().equals("toString")) return proxy.getClass().getName();
                 
@@ -90,7 +88,7 @@ public class ServiceProxyInvocationHandler implements InvocationHandler{
                 }
                 
                 if(handler !=null) {
-                    thread.submit( new AsyncTask(method.getName(), args, handler) );
+                    thread.submit( new AsyncTask( proxy, method.getName(), args, handler) );
                     return null;
                 } else {
                     return this.proxy.invoke( method.getName(), args );
@@ -108,61 +106,6 @@ public class ServiceProxyInvocationHandler implements InvocationHandler{
                 throw new RuntimeException(t.getMessage(), t);
         }
     }
-    
-    class AsyncTask implements Runnable {
-        private String methodName;
-        private Object[] args;
-        private AsyncHandler handler;
-        
-        public AsyncTask( String methodName, Object[] args, AsyncHandler handler ) {
-            this.methodName = methodName;
-            this.args = args;
-            this.handler = handler;
-            if( this.handler == null ) {
-                this.handler = new AsyncHandler() {
-                    public void onMessage(AsyncResponse ar) {
-                        System.out.println("unhandled message. No handler passed " + ar.getNextValue());
-                    }
-                    public void onError(Exception e) {
-                        e.printStackTrace();
-                    }
-                    public void call(Object o) {
-                        
-                    }
-                };
-            }
-        }
-        public void run() {
-            try {
-                Object result = proxy.invoke( methodName, args );
-                
-                if(result!=null && (result instanceof AsyncRequest) ) {
-                    
-                    //get the location of queue
-                    AsyncRequest arequest = (AsyncRequest)result;
-                    
-                    String provider = arequest.getProvider();
-                    String channel = arequest.getChannel();
-                    AsyncPoller poller = new AsyncPoller(proxy.getConf(), provider, channel);
-                    boolean completed = false;
-                    
-                    while(!completed) {
-                        completed = true;
-                        //this is blocking until message arrives
-                        AsyncResponse response = poller.poll();
-                        if(response.getStatus() != AsyncResponse.COMPLETED) {
-                            completed = false;
-                        }
-                        handler.onMessage(response);
-                    }
-                    
-                } else {
-                    handler.onMessage( new AsyncResponse(result) );
-                }
-            } catch(Exception e) {
-                handler.onError( e );
-            }
-        }
-    }
+
     
 }

@@ -13,8 +13,8 @@ import com.rameses.annotations.Async;
 import com.rameses.annotations.LogEvent;
 
 import com.rameses.annotations.ProxyMethod;
+import com.rameses.annotations.RemoteService;
 import com.rameses.common.AsyncRequest;
-import com.rameses.osiris3.cache.CacheConnection;
 
 import com.rameses.osiris3.data.DataService;
 import com.rameses.osiris3.core.MainContext;
@@ -22,7 +22,6 @@ import com.rameses.osiris3.core.OsirisServer;
 import com.rameses.osiris3.core.TransactionContext;
 import com.rameses.osiris3.xconnection.XConnection;
 import java.lang.reflect.Method;
-import java.rmi.server.UID;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
@@ -35,8 +34,8 @@ public class ManagedScriptExecutor {
     
     public static final String ASYNC_ID = "_async_";
     
-    private static String GET_STRING_INTERFACE = "getStringInterface";
-    private static String GET_META_INFO = "getMetaInfo";
+    private static String GET_STRING_INTERFACE = "stringInterface";
+    private static String GET_META_INFO = "metaInfo";
     private static String INIT = "init";
     
     private ScriptExecutor scriptExecutor;
@@ -57,6 +56,9 @@ public class ManagedScriptExecutor {
             OsirisServer svr = txn.getServer();
             MainContext ct = txn.getContext();
             ScriptService scriptSvc = ct.getService( ScriptService.class );
+            ExecutionInfo e = new ExecutionInfo(scriptInfo.getName(),method, args);
+            Method m = scriptInfo.getClassDef().findMethodByName( method );
+            Map _env = txn.getEnv();
             
             if( method.equals( GET_STRING_INTERFACE )) {
                 return scriptInfo.getStringInterface();
@@ -69,23 +71,31 @@ public class ManagedScriptExecutor {
                 return null;
             }
             
-            //get first the necessary resources
-            ExecutionInfo e = new ExecutionInfo(scriptInfo.getName(),method, args);
-            Method m = scriptInfo.getClassDef().findMethodByName( method );
-            if (m == null) throw new NoSuchMethodException("'"+method+"' method does not exist");
-
+            //check if this class is a remote method
+            RemoteService rs = scriptInfo.getClassDef().findClassAnnotation(RemoteService.class);
+            if( rs!=null) {
+                AsyncRequest ar = new AsyncRequest();
+                return ar;
+            }
+            Async async = m.getAnnotation(Async.class);
+            if( async !=null ) {
+                AsyncRequest ar = new AsyncRequest(scriptInfo.getName(), method, args, txn.getEnv());
+                ar.setConnection( "local-async" );
+                return ar;
+            }
             
+            //get the necessary resources
+            if (m == null) throw new NoSuchMethodException("'"+method+"' method does not exist");
             
             ProxyMethod pma = m.getAnnotation(ProxyMethod.class);
             boolean isProxyMethod = (pma!=null);
             if (isProxyMethod) e.setTag(pma.tag());
-            
             //this is to support old methods. if proxy method marked as local, do not fire interceptors
-            if(isProxyMethod && pma.local())fireInterceptors = false;
+            if(isProxyMethod && pma.local()) fireInterceptors = false;
+           
             
             //check async
-            Async async = m.getAnnotation(Async.class);
-            Map _env = txn.getEnv();
+            /*
             
             //we need to do this to avoid recursion.
             if(isProxyMethod && async!=null && !_env.containsKey(ASYNC_ID)) {
@@ -128,9 +138,7 @@ public class ManagedScriptExecutor {
                 ct.submitAsync( sr );
                 return result;
             }
-            
-            
-            
+            */
             
             //we need to check validation in @Params
             CheckedParameter[] checkParams = scriptInfo.getCheckedParameters( method );
@@ -145,9 +153,6 @@ public class ManagedScriptExecutor {
             }
             
             //inject the dependencies
-            
-
-            
             DependencyInjector di = scriptSvc.getDependencyInjector();
             di.injectDependencies( scriptExecutor, e );
             
@@ -164,7 +169,6 @@ public class ManagedScriptExecutor {
             } else {
                 result = scriptExecutor.invokeMethod( method, args );
             }
-            
             
             //If method is evented, we publish it in the esb connector
             LogEvent logEvent = m.getAnnotation(LogEvent.class);

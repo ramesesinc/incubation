@@ -63,7 +63,9 @@ public class ScriptRunnable implements Runnable {
             ScriptTransactionManager t = txn.getManager( ScriptTransactionManager.class );
             ManagedScriptExecutor mse = t.create( getServiceName());
             result = mse.execute( getMethodName(), getArgs());
-            if (result == null) {
+            
+            //if result is instanceof remote service. we are going to wait for a response from the subscribers
+            if(result == null) {
                 result = "#NULL";
             }
             txn.commit();
