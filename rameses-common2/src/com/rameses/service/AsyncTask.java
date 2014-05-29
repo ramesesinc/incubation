@@ -1,8 +1,10 @@
 package com.rameses.service;
 
+import com.rameses.common.AsyncBatchResult;
 import com.rameses.common.AsyncHandler;
-import com.rameses.common.AsyncRequest;
-import com.rameses.common.AsyncResponse;
+import com.rameses.common.AsyncToken;
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class AsyncTask implements Runnable {
@@ -19,8 +21,8 @@ public class AsyncTask implements Runnable {
         this.handler = handler;
         if (this.handler == null) {
             this.handler = new AsyncHandler() {
-                public void onMessage(AsyncResponse ar) {
-                    System.out.println("unhandled message. No handler passed " + ar.getNextValue());
+                public void onMessage(Object value) {
+                    System.out.println("unhandled message. No handler passed ");
                 }
                 public void onError(Exception e) {
                     e.printStackTrace();
@@ -35,31 +37,43 @@ public class AsyncTask implements Runnable {
     public void run() {
         try {
             Object result = proxy.invoke( methodName, args );
-            if (result!=null && (result instanceof AsyncRequest)) {
-                //get the location of queue
-                AsyncRequest arequest = (AsyncRequest)result;
-                String provider = null;
-                String channel = null;
-                //String provider = arequest.getProvider();
-                //String channel = arequest.getChannel();
-                AsyncPoller poller = new AsyncPoller(proxy.getConf(), provider, channel);
-                boolean completed = false;
-                
-                while (!completed) {
-                    completed = true;
-                    //this is blocking until message arrives
-                    AsyncResponse response = poller.poll();
-                    if (response.getStatus()  != AsyncResponse.COMPLETED) {
-                        completed = false;
-                    }
-                    handler.onMessage(response);
+            if (result!=null && (result instanceof AsyncToken)) {
+                AsyncToken token = (AsyncToken)result;                
+                result = new AsyncPoller(proxy.getConf(), token).poll();
+            } 
+            if (result instanceof AsyncBatchResult) {
+                for (Object o : (AsyncBatchResult)result) {
+                    handler.onMessage(o); 
                 }
-                
-            }  else {
-                handler.onMessage( new AsyncResponse(result) );
+            } else {
+                handler.onMessage( result );
             }
         }  catch (Exception e) {
             handler.onError( e );
         }
+    }
+    
+    
+    private class AsyncPoller extends AbstractServiceProxy 
+    {
+        private AsyncToken token;
+        
+        AsyncPoller(Map appenv, AsyncToken token) {
+            super(null, appenv);
+            this.token = token;
+        }      
+        
+        public Object poll() throws Exception {
+            String appcontext = (String) super.conf.get("app.context");
+            String path = "async/poll";
+            String cluster = (String) super.conf.get("app.cluster");
+            if( cluster !=null ) path = cluster + "/" + path;
+
+            Map params = new HashMap();
+            params.put("id", token.getId()); 
+            params.put("connection", token.getConnection());
+            params.put("context", appcontext); 
+            return client.post(path, new Object[]{params});
+        }        
     }
 }

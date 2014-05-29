@@ -9,10 +9,11 @@
 
 package com.rameses.common;
 
+import java.io.Serializable;
 import java.rmi.server.UID;
 import java.util.Map;
 
-public class AsyncRequest {
+public class AsyncRequest implements Serializable {
     
     private String id;
     private String connection;
@@ -21,11 +22,9 @@ public class AsyncRequest {
     private String serviceName;
     private Object[] args;
     private Map env;
+    private String contextName;
+    private String varStatus;
     
-    
-    public AsyncRequest() {
-        id = "ASYNC"+ new UID();
-    }
     
     public AsyncRequest(String serviceName, String methodName, Object[] args, Map env) {
         id = "ASYNC"+ new UID();
@@ -77,6 +76,22 @@ public class AsyncRequest {
 
     public void setEnv(Map env) {
         this.env = env;
+    }
+
+    public String getContextName() {
+        return contextName;
+    }
+
+    public void setContextName(String contextName) {
+        this.contextName = contextName;
+    }
+
+    public String getVarStatus() {
+        return varStatus;
+    }
+
+    public void setVarStatus(String varStatus) {
+        this.varStatus = varStatus;
     }
     
     

@@ -33,7 +33,7 @@ public class AsyncPoller extends AbstractServiceProxy {
     
     public AsyncResponse poll() throws Exception {
         String appContext = (String) super.conf.get("app.context");
-        String path = "poll/" + appContext+"/"+connection+"/"+channel;
+        String path = "async/" + appContext+"/poll/"+connection+"/"+channel;
         String cluster = (String) super.conf.get("app.cluster");
         if( cluster !=null ) path = cluster + "/" + path;
         
