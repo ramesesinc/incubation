@@ -47,6 +47,13 @@ public abstract class AbstractServlet extends HttpServlet {
                 obj = ((SealedMessage)obj).getMessage();
             }
             
+            if (obj instanceof Object[]) {
+                //do nothing 
+            } else {
+                Object old = obj;
+                obj = new Object[]{old};
+            }
+            
             Object[] o = (Object[])obj;
             return  filterInput(obj);
         } 

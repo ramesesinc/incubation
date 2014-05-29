@@ -10,6 +10,7 @@
 package com.rameses.osiris3.server;
 
 import com.rameses.common.AsyncRequest;
+import com.rameses.common.AsyncToken;
 import com.rameses.osiris3.core.AppContext;
 import com.rameses.osiris3.core.MainContext;
 import com.rameses.osiris3.core.OsirisServer;
@@ -71,27 +72,27 @@ public class ServiceInvokerServlet extends AbstractServlet {
                 continuation = null;
             }
         }
-
+        
         public void onCancel() {
-            future.cancel(true);            
+            future.cancel(true);
         }
         
         public boolean isExpired() {
-            return (continuation!=null && continuation.isExpired());            
+            return (continuation!=null && continuation.isExpired());
         }
     }
     
     protected void service(final HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
         ScriptRunnable tr = (ScriptRunnable) req.getAttribute( ScriptRunnable.class.getName() );
-        
+        RequestParser p = new RequestParser(req);
         
         if(tr==null) {
             ContinuationListener listener = new ContinuationListener(req);
             //replace the values
             Object[] params = readRequest(req);
-            RequestParser p = new RequestParser(req);
+            
             AppContext ct = OsirisServer.getInstance().getContext( AppContext.class, p.getContextName() );
-                        
+            
             tr = new ScriptRunnable( (MainContext)ct );
             tr.setServiceName(p.getServiceName() );
             tr.setMethodName(p.getMethodName());
@@ -103,35 +104,35 @@ public class ServiceInvokerServlet extends AbstractServlet {
             req.setAttribute(  ScriptRunnable.class.getName(), tr );
             listener.future = taskPool.submit(tr);
             
-        } 
-        else {
+        } else {
             ContinuationListener listener = (ContinuationListener)tr.getListener();
             Object response= null;
             if( listener.isExpired() ) {
                 tr.cancel();
                 response = new Exception("Timeout exception. Transaction was not processed");
-            } 
-            else {
+            } else {
                 if( tr.hasErrs()) {
                     response = tr.getErr();
                     System.out.println("error "+tr.getErr().getClass() + " " + tr.getErr().getMessage());
-                }    
-                else {
+                } else {
                     response = tr.getResult();
                     if(response instanceof AsyncRequest) {
                         AsyncRequest ar = (AsyncRequest)response;
-                        XAsyncConnection ac = (XAsyncConnection) tr.getContext().getContextResource( ar.getConnection() );
-                        try {
-                            ac.register( ar.getId() );
-                            //ac.send( ar );
+                        ar.setContextName( p.getContextName());
+                        if( ar.getConnection()!=null) {
+                            try {
+                                XAsyncConnection ac = (XAsyncConnection) tr.getContext().getContextResource( ar.getConnection() );
+                                ac.register( ar.getId() );
+                                ac.submitAsync( ar );
+                            } catch(Exception e) {
+                                response = e;
+                            }
                         }
-                        catch(Exception e) {
-                            response = e;
-                        }
+                        response = new AsyncToken(ar.getId(), ar.getConnection());
                     }
                 }
             }
             writeResponse( response, res );
         }
-    }    
+    }
 }
