@@ -15,10 +15,10 @@ import java.util.Map;
  *
  * @author Elmo
  */
-public class XAsyncLocalConnectionProvider extends XConnectionProvider {
+public class XAsyncConnectionProvider extends XConnectionProvider {
     
     /** Creates a new instance of XAsyncLocalConnectionProvider */
-    public XAsyncLocalConnectionProvider() {
+    public XAsyncConnectionProvider() {
     }
 
     public String getProviderName() {
@@ -26,7 +26,11 @@ public class XAsyncLocalConnectionProvider extends XConnectionProvider {
     }
 
     public XConnection createConnection(String name, Map conf) {
-        return new XAsyncLocalConnection(name,conf);
+        String host = (String) conf.get("host");
+        if(host==null)
+            return new XAsyncLocalConnection(name,conf);
+        else
+            return new XAsyncRemoteConnection(name,conf);
     }
     
 }

@@ -9,8 +9,10 @@
 
 package com.rameses.osiris3.script;
 
+import com.rameses.common.AsyncRequest;
 import com.rameses.osiris3.core.MainContext;
 import com.rameses.osiris3.core.TransactionContext;
+import com.rameses.osiris3.xconnection.XAsyncConnection;
 import com.rameses.util.ExceptionManager;
 import java.util.Map;
 
@@ -25,12 +27,13 @@ public class ScriptRunnable implements Runnable {
     private String methodName;
     private Object[] args;
     private Map env;
-    private boolean fireInterceptors = true;
+    private boolean bypassAsync = false;
     
     private Object result;
     private Exception err;
     private Listener listener;
     private boolean cancelled = false;
+    private AsyncRequest asyncRequest;
     
     /**
      * Creates a new instance of ScriptRunnable
@@ -49,7 +52,7 @@ public class ScriptRunnable implements Runnable {
         this.setMethodName(methodName);
         this.setArgs(args);
         this.setEnv(env);
-        this.setFireInterceptors(fireInterceptors);
+        this.setBypassAsync(isBypassAsync());
     }
     
     public void run() {
@@ -63,7 +66,6 @@ public class ScriptRunnable implements Runnable {
             ScriptTransactionManager t = txn.getManager( ScriptTransactionManager.class );
             ManagedScriptExecutor mse = t.create( getServiceName());
             result = mse.execute( getMethodName(), getArgs());
-            
             //if result is instanceof remote service. we are going to wait for a response from the subscribers
             if(result == null) {
                 result = "#NULL";
@@ -159,18 +161,27 @@ public class ScriptRunnable implements Runnable {
         this.env = env;
     }
     
-    public boolean isFireInterceptors() {
-        return fireInterceptors;
-    }
-    
-    public void setFireInterceptors(boolean fireInterceptors) {
-        this.fireInterceptors = fireInterceptors;
-    }
     
     public boolean hasErrs() {
         return err!=null;
     }
-
-
+    
+    public boolean isBypassAsync() {
+        return bypassAsync;
+    }
+    
+    public void setBypassAsync(boolean bypassAsync) {
+        this.bypassAsync = bypassAsync;
+    }
+    
+    public AsyncRequest getAsyncRequest() {
+        return asyncRequest;
+    }
+    
+    public void setAsyncRequest(AsyncRequest asyncRequest) {
+        this.asyncRequest = asyncRequest;
+    }
+    
+    
     
 }

@@ -10,7 +10,7 @@ import java.lang.annotation.Target;
 public @interface Async {
     
     String type() default "topic";
-    boolean loop() default false;
-    String connection() default "local-async";
+    String varStatus() default "varStatus";
+    String connection() default "async";
     
 }

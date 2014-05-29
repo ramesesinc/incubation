@@ -9,7 +9,9 @@
 
 package com.rameses.osiris3.xconnection;
 
+import com.rameses.common.AsyncBatchResult;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -41,7 +43,7 @@ public final class AsyncQueue {
         if(h==null) throw new Exception("Async id " + id + " not registered" );
         return h.poll();
     }
-
+    
     public void clear() {
         map.clear();
     }
@@ -61,11 +63,21 @@ public final class AsyncQueue {
         }
         
         public void push(Object obj) {
-            queue.add(obj); 
+            queue.add(obj);
         }
         
         public Object poll() throws Exception {
-            return queue.poll( timeout, TimeUnit.MILLISECONDS );
+            Object o = queue.poll( timeout, TimeUnit.MILLISECONDS );
+            if (!queue.isEmpty()) {
+                List list = new AsyncBatchResult();
+                list.add(o);
+                while (!queue.isEmpty()) {
+                    list.add(queue.poll());
+                }
+                return list;
+            } else {
+                return o;
+            }
         }
     }
     

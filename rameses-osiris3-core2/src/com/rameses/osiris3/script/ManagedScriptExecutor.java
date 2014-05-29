@@ -49,8 +49,9 @@ public class ManagedScriptExecutor {
         return execute(method, args, true );
     }
     
-    public Object execute( final String method, final Object[] args, boolean fireInterceptors  ) throws Exception {
+    public Object execute( final String method, final Object[] args, boolean bypassAsync  ) throws Exception {
         try {
+            boolean fireInterceptors = true;
             ScriptInfo scriptInfo = scriptExecutor.getScriptInfo();
             TransactionContext txn = TransactionContext.getCurrentContext();
             OsirisServer svr = txn.getServer();
@@ -74,14 +75,19 @@ public class ManagedScriptExecutor {
             //check if this class is a remote method
             RemoteService rs = scriptInfo.getClassDef().findClassAnnotation(RemoteService.class);
             if( rs!=null) {
-                AsyncRequest ar = new AsyncRequest();
-                return ar;
+                return null;
             }
-            Async async = m.getAnnotation(Async.class);
-            if( async !=null ) {
-                AsyncRequest ar = new AsyncRequest(scriptInfo.getName(), method, args, txn.getEnv());
-                ar.setConnection( "local-async" );
-                return ar;
+            
+            if(!bypassAsync) {
+                Async async = m.getAnnotation(Async.class);
+                if( async !=null ) {
+                    AsyncRequest ar = new AsyncRequest(scriptInfo.getName(), method, args, txn.getEnv());
+                    ar.setVarStatus(async.varStatus()); 
+                    if(m.getReturnType() != void.class ) {
+                        ar.setConnection( async.connection() );                   
+                    }
+                    return ar;
+                }
             }
             
             //get the necessary resources
@@ -93,52 +99,6 @@ public class ManagedScriptExecutor {
             //this is to support old methods. if proxy method marked as local, do not fire interceptors
             if(isProxyMethod && pma.local()) fireInterceptors = false;
            
-            
-            //check async
-            /*
-            
-            //we need to do this to avoid recursion.
-            if(isProxyMethod && async!=null && !_env.containsKey(ASYNC_ID)) {
-                AsyncRequest result = null;
-                //determine if we need to respond to this request through the provider
-                String provider = async.provider();
-                if(provider==null || provider.trim().length()==0) provider = "default";
-                
-                //test if connection in async exists! if not throw an error bec. it will be pointless to continue
-                final CacheConnection cache = (CacheConnection) ct.getResource(XConnection.class, CacheConnection.CACHE_KEY);
-                
-                //add the async info in the env. This is to avoid recursion.
-                final String channelId = "ASYNC" + new UID();
-                result = new AsyncRequest();
-                result.setChannel( channelId );
-                result.setProvider( provider );
-                _env.put(ASYNC_ID, result );
-                
-                //prepare the bulk entry.
-                int timeout = (async.timeout() == 0)? 30 : async.timeout();
-                cache.createBulk( channelId, timeout, 0 );
-                
-                ScriptRunnable.Listener listener = new ScriptRunnable.AbstractListener(){
-                    public void onComplete(Object obj){
-                        try {
-                            cache.appendToBulk( channelId, null, obj );
-                        } catch(Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                };
-                
-                ScriptRunnable sr = new ScriptRunnable(ct);
-                sr.setServiceName( scriptInfo.getName() );
-                sr.setMethodName( method );
-                sr.setArgs(args);
-                sr.setEnv( _env );
-                sr.setFireInterceptors( fireInterceptors );
-                sr.setListener(listener);
-                ct.submitAsync( sr );
-                return result;
-            }
-            */
             
             //we need to check validation in @Params
             CheckedParameter[] checkParams = scriptInfo.getCheckedParameters( method );

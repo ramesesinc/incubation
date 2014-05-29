@@ -54,25 +54,6 @@ public class InterceptorChain {
                 if( b == false ) continue;
             }
             
-            /*
-            if( info.isAsync()) {
-                ScriptRunnable sr = new ScriptRunnable(context);
-                sr.setArgs( new Object[]{einfo} );
-                sr.setMethodName( info.getMethodName() );
-                sr.setFireInterceptors( false );
-                sr.setServiceName( info.getServiceName() );
-                sr.setEnv( tc.getEnv() );
-                sr.setListener( new ScriptRunnable.AbstractListener(){
-                    public void onComplete(Object obj){
-                        try {
-                            cache.appendToBulk( arequest.getChannel(), null, obj );
-                        } catch(Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
-                context.submitAsync( sr );
-            } else {*/
             try {
                 ManagedScriptExecutor me = smr.create(info.getServiceName() );
                 Object vresult = me.execute( info.getMethodName(), new Object[]{einfo}, false );
@@ -82,7 +63,6 @@ public class InterceptorChain {
             } catch(Exception e) {
                 throw e;
             }
-            /*}*/
         }
     }
     
@@ -91,14 +71,7 @@ public class InterceptorChain {
         OsirisServer server  = tc.getServer();
         AbstractContext context = tc.getContext();
         ScriptTransactionManager smr = tc.getManager( ScriptTransactionManager.class );
-        
-        /*
-        CacheConnection cache = null;
-        AsyncRequest arequest = (AsyncRequest) tc.getEnv().get( ManagedScriptExecutor.ASYNC_ID );
-        if(arequest!=null && (context instanceof MainContext)) {
-            cache = (CacheConnection) context.getResource(XConnection.class, CacheConnection.CACHE_KEY);
-        }
-         */
+       
         fireInterceptorList( interceptorSet.getBeforeInterceptors(), einfo );
         Object result = callable.call();
         einfo.setResult( result );
