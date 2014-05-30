@@ -45,7 +45,14 @@ public abstract class AbstractServlet extends HttpServlet {
             Object obj = in.readObject();
             if (obj instanceof SealedMessage) {
                 obj = ((SealedMessage)obj).getMessage();
-            }
+            } 
+            
+            if (obj instanceof Object[]) {
+                //do nothing 
+            } else { 
+                Object oo = obj; 
+                obj = new Object[]{oo}; 
+            } 
             
             if (obj instanceof Object[]) {
                 //do nothing 
