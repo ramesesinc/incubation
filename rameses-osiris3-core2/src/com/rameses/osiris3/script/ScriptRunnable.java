@@ -12,7 +12,6 @@ package com.rameses.osiris3.script;
 import com.rameses.common.AsyncRequest;
 import com.rameses.osiris3.core.MainContext;
 import com.rameses.osiris3.core.TransactionContext;
-import com.rameses.osiris3.xconnection.XAsyncConnection;
 import com.rameses.util.ExceptionManager;
 import java.util.Map;
 
@@ -43,16 +42,11 @@ public class ScriptRunnable implements Runnable {
     }
     
     public ScriptRunnable(MainContext context, String serviceName, String methodName, Object[] args, Map env) {
-        this(context,serviceName,methodName,args,env,true);
-    }
-    
-    public ScriptRunnable(MainContext context, String serviceName, String methodName, Object[] args, Map env, boolean fireInterceptors) {
         this.setContext(context);
         this.setServiceName(serviceName);
         this.setMethodName(methodName);
         this.setArgs(args);
         this.setEnv(env);
-        this.setBypassAsync(isBypassAsync());
     }
     
     public void run() {
@@ -65,7 +59,7 @@ public class ScriptRunnable implements Runnable {
             //call the service here.
             ScriptTransactionManager t = txn.getManager( ScriptTransactionManager.class );
             ManagedScriptExecutor mse = t.create( getServiceName());
-            result = mse.execute( getMethodName(), getArgs());
+            result = mse.execute( getMethodName(), getArgs(), isBypassAsync());
             //if result is instanceof remote service. we are going to wait for a response from the subscribers
             if(result == null) {
                 result = "#NULL";

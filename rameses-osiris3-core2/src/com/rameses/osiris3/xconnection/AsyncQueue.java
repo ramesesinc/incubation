@@ -35,6 +35,7 @@ public final class AsyncQueue {
     public void push(String id, Object data ) throws Exception {
         AsyncQueueHolder h = map.get(id);
         if(h==null) throw new Exception("Async id " + id + " not registered" );
+        
         h.push(data);
     }
     
@@ -52,7 +53,7 @@ public final class AsyncQueue {
         private LinkedBlockingQueue queue = new LinkedBlockingQueue();
         private Map options;
         private String id;
-        private long timeout = 10000;
+        private long timeout = 20000;
         
         public AsyncQueueHolder(String id, Map options ) {
             this.id = id;

@@ -19,7 +19,7 @@ import java.util.concurrent.Executors;
  *
  * @author jzamss
  */
-public class ServiceProxyInvocationHandler implements InvocationHandler{
+public class ServiceProxyInvocationHandler implements InvocationHandler {
     
     private static final ExecutorService thread = Executors.newFixedThreadPool(10);
     
@@ -71,8 +71,9 @@ public class ServiceProxyInvocationHandler implements InvocationHandler{
     
     public Object invoke(Object sproxy, Method method, Object[] args) throws Throwable 
     {
+        return invokeMethod( method.getName(), args );
+        /*
         if (method.getName().equals("toString")) return proxy.getClass().getName();
-                
         try {
             if( args == null ) {
                 return this.proxy.invoke(method.getName());
@@ -105,7 +106,8 @@ public class ServiceProxyInvocationHandler implements InvocationHandler{
             else
                 throw new RuntimeException(t.getMessage(), t);
         }
+         */
     }
-
+    
     
 }

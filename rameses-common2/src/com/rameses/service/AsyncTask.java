@@ -3,9 +3,6 @@ package com.rameses.service;
 import com.rameses.common.AsyncBatchResult;
 import com.rameses.common.AsyncHandler;
 import com.rameses.common.AsyncToken;
-import java.util.HashMap;
-import java.util.Map;
-
 
 public class AsyncTask implements Runnable {
     
@@ -13,6 +10,8 @@ public class AsyncTask implements Runnable {
     private Object[] args;
     private AsyncHandler handler;
     private ServiceProxy proxy;
+    
+    private AsyncPoller poller; 
     
     public AsyncTask(ServiceProxy proxy, String methodName, Object[] args, AsyncHandler handler) {
         this.proxy = proxy;
@@ -37,43 +36,54 @@ public class AsyncTask implements Runnable {
     public void run() {
         try {
             Object result = proxy.invoke( methodName, args );
-            if (result!=null && (result instanceof AsyncToken)) {
-                AsyncToken token = (AsyncToken)result;                
-                result = new AsyncPoller(proxy.getConf(), token).poll();
-            } 
-            if (result instanceof AsyncBatchResult) {
-                for (Object o : (AsyncBatchResult)result) {
-                    handler.onMessage(o); 
-                }
-            } else {
-                handler.onMessage( result );
-            }
+            if (result instanceof AsyncToken) {
+                AsyncToken token = (AsyncToken)result; 
+                if (token.isClosed()) return;
+                
+                AsyncPoller poller = new AsyncPoller(proxy.getConf(), token); 
+                handle(poller, poller.poll()); 
+                return;
+            }             
+            notify( result );
+            
         }  catch (Exception e) {
             handler.onError( e );
         }
-    }
+    } 
     
+    private void handle(AsyncPoller poller, Object result) throws Exception {
+        System.out.println("result is " + result);
+        if (result instanceof AsyncToken) {
+            AsyncToken at = (AsyncToken)result;
+            if (at.isClosed()) return; 
+        } 
+        
+        if (!notify( result )) return; 
+        
+        Object o = poller.poll(); 
+        if (o == null) {
+            handler.onMessage( o ); 
+        } else {
+            handle(poller, o); 
+        } 
+    } 
     
-    private class AsyncPoller extends AbstractServiceProxy 
-    {
-        private AsyncToken token;
-        
-        AsyncPoller(Map appenv, AsyncToken token) {
-            super(null, appenv);
-            this.token = token;
-        }      
-        
-        public Object poll() throws Exception {
-            String appcontext = (String) super.conf.get("app.context");
-            String path = "async/poll";
-            String cluster = (String) super.conf.get("app.cluster");
-            if( cluster !=null ) path = cluster + "/" + path;
-
-            Map params = new HashMap();
-            params.put("id", token.getId()); 
-            params.put("connection", token.getConnection());
-            params.put("context", appcontext); 
-            return client.post(path, new Object[]{params});
-        }        
+    private boolean notify(Object o) {
+        if (o instanceof AsyncBatchResult) {
+            System.out.println("result is AsyncBatchResult");
+            boolean is_closed = false;
+            AsyncBatchResult batch = (AsyncBatchResult)o;
+            for (Object item : batch) {
+                if (item instanceof AsyncToken) {
+                    is_closed = ((AsyncToken)item).isClosed(); 
+                } else {
+                    handler.onMessage(item); 
+                } 
+            } 
+            return !is_closed; 
+        } else {
+            handler.onMessage(o); 
+            return (o == null? false: true); 
+        } 
     }
 }

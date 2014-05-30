@@ -10,6 +10,7 @@
 package com.rameses.osiris3.xconnection;
 
 import com.rameses.common.AsyncRequest;
+import com.rameses.common.AsyncToken;
 import com.rameses.osiris3.core.AppContext;
 import com.rameses.osiris3.core.OsirisServer;
 import com.rameses.osiris3.script.ScriptRunnable;
@@ -73,13 +74,10 @@ public class XAsyncLocalConnection extends XConnection implements XAsyncConnecti
         sr.setMethodName(ar.getMethodName());
         sr.setArgs(ar.getArgs());
         sr.setEnv( ar.getEnv() );
-        if(ar.getConnection()!=null) {
-            sr.setListener( new MyListener(ar) );
-        }    
+        sr.setBypassAsync(true);
+        sr.setListener( new MyListener(ar) );
         taskPool.submit( sr );
     } 
-    
-    
     
     public class MyListener implements ScriptRunnable.Listener {
         private AsyncRequest ar;
@@ -92,11 +90,15 @@ public class XAsyncLocalConnection extends XConnection implements XAsyncConnecti
 
         public void onComplete(Object result) {
             try {
-                System.out.println("env-> " + ar.getEnv());                
-                XAsyncLocalConnection.this.push(ar.getId(), result );
-                if ("true".equals(ar.getEnv().get(ar.getVarStatus())+"")) {
+                boolean hasmore = "true".equals(ar.getEnv().get(ar.getVarStatus())+""); 
+                XAsyncLocalConnection.this.push(ar.getId(), result);
+                if (hasmore) {
                     ar.getEnv().put(ar.getVarStatus(), null); 
                     XAsyncLocalConnection.this.submitAsync(ar); 
+                } else {
+                    AsyncToken at = new AsyncToken();
+                    at.setClosed(true);
+                    XAsyncLocalConnection.this.push(ar.getId(), at);
                 }
             } catch(Exception e) {
                 e.printStackTrace();

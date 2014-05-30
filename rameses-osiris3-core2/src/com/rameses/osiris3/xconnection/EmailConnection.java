@@ -7,10 +7,9 @@
  * and open the template in the editor.
  */
 
-package com.rameses.osiris3.xconnection.email;
+package com.rameses.osiris3.xconnection;
 
 import com.rameses.osiris3.core.AbstractContext;
-import com.rameses.osiris3.xconnection.XConnection;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;

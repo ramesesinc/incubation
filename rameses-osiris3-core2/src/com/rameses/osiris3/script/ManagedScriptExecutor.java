@@ -80,7 +80,7 @@ public class ManagedScriptExecutor {
             
             if(!bypassAsync) {
                 Async async = m.getAnnotation(Async.class);
-                if( async !=null ) {
+               if( async !=null ) {
                     AsyncRequest ar = new AsyncRequest(scriptInfo.getName(), method, args, txn.getEnv());
                     ar.setVarStatus(async.varStatus()); 
                     if(m.getReturnType() != void.class ) {

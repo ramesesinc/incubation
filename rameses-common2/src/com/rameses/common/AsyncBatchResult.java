@@ -16,10 +16,8 @@ import java.util.ArrayList;
  *
  * @author Elmo
  */
-public class AsyncBatchResult extends ArrayList implements Serializable {
-    
-
+public class AsyncBatchResult extends ArrayList implements Serializable  
+{
     public AsyncBatchResult() {
     }
-    
 }

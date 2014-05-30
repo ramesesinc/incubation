@@ -15,7 +15,10 @@ public class AsyncToken implements Serializable{
     
     private String id;
     private String connection;
+    private boolean is_closed;
     
+    public AsyncToken() {
+    }
     
     public AsyncToken(String id, String connection) {
         this.id =id;
@@ -30,4 +33,8 @@ public class AsyncToken implements Serializable{
         return connection;
     }
 
+    public boolean isClosed() { return is_closed; } 
+    public void setClosed(boolean is_closed) {
+        this.is_closed = is_closed; 
+    }
 }

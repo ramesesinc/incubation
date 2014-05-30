@@ -9,6 +9,7 @@
 
 package com.rameses.osiris3.server;
 
+
 import com.rameses.common.AsyncRequest;
 import com.rameses.common.AsyncToken;
 import com.rameses.osiris3.core.AppContext;
@@ -17,6 +18,7 @@ import com.rameses.osiris3.core.OsirisServer;
 import com.rameses.osiris3.script.ScriptRunnable;
 import com.rameses.osiris3.server.common.AbstractServlet;
 import com.rameses.osiris3.xconnection.XAsyncConnection;
+import com.rameses.osiris3.xconnection.XConnection;
 import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -99,6 +101,7 @@ public class ServiceInvokerServlet extends AbstractServlet {
             tr.setArgs((Object[])params[0] );
             tr.setEnv( (Map)params[1] );
             tr.setListener( listener );
+            tr.setBypassAsync(false);
             listener.start();
             
             req.setAttribute(  ScriptRunnable.class.getName(), tr );
@@ -121,7 +124,7 @@ public class ServiceInvokerServlet extends AbstractServlet {
                         ar.setContextName( p.getContextName());
                         if( ar.getConnection()!=null) {
                             try {
-                                XAsyncConnection ac = (XAsyncConnection) tr.getContext().getContextResource( ar.getConnection() );
+                                XAsyncConnection ac = (XAsyncConnection) tr.getContext().getResource( XConnection.class, ar.getConnection() );
                                 ac.register( ar.getId() );
                                 ac.submitAsync( ar );
                             } catch(Exception e) {

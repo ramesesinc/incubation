@@ -17,18 +17,15 @@ import java.util.Map;
  */
 public class XAsyncConnectionProvider extends XConnectionProvider {
     
-    /** Creates a new instance of XAsyncLocalConnectionProvider */
-    public XAsyncConnectionProvider() {
-    }
-
     public String getProviderName() {
         return "async";
     }
 
     public XConnection createConnection(String name, Map conf) {
         String host = (String) conf.get("host");
-        if(host==null)
+        if(host==null) {
             return new XAsyncLocalConnection(name,conf);
+        }    
         else
             return new XAsyncRemoteConnection(name,conf);
     }

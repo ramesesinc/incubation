@@ -7,9 +7,8 @@
  * and open the template in the editor.
  */
 
-package com.rameses.osiris3.xconnection.email;
+package com.rameses.osiris3.xconnection;
 
-import com.rameses.osiris3.xconnection.*;
 import java.util.Map;
 
 /**

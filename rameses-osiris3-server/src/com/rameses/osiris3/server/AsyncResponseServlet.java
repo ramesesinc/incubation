@@ -13,6 +13,7 @@ import com.rameses.osiris3.core.AppContext;
 import com.rameses.osiris3.core.OsirisServer;
 import com.rameses.osiris3.server.common.AbstractServlet;
 import com.rameses.osiris3.xconnection.XAsyncConnection;
+import com.rameses.osiris3.xconnection.XConnection;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -50,12 +51,13 @@ public class AsyncResponseServlet extends AbstractServlet
     }
     
     protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {        
+        System.out.println("entering servlet ->"+req.getServletPath());
         String reqid = AsyncResponseServlet.class.getName();
         PollTask atask = (PollTask) req.getAttribute(reqid);
         if (atask == null) {
             Object[] args = readRequest(req); 
             Map params = (args.length > 0? (Map)args[0]: new HashMap()); 
-                        
+            
             require(params, "id", "Please specify id");
             require(params, "connection", "Please specify connection");
             require(params, "context", "Please specify context");
@@ -126,8 +128,10 @@ public class AsyncResponseServlet extends AbstractServlet
         
         public void run() {
             try {
+                System.out.println("run poll task in server");
                 AppContext ctx = OsirisServer.getInstance().getContext( AppContext.class, context );
-                XAsyncConnection ac = (XAsyncConnection) ctx.getContextResource( connection );
+                XAsyncConnection ac = (XAsyncConnection) ctx.getResource(XConnection.class, connection );
+                System.out.println("async connection is "+ac);
                 if (ac == null) throw new Exception("async connection '"+ connection +"' not found");
                 
                 result = ac.poll(id); 

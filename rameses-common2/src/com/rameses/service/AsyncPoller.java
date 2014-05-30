@@ -1,7 +1,7 @@
 /*
  * AsyncPoller.java
  *
- * Created on January 20, 2013, 3:35 PM
+ * Created on May 30, 2014, 2:06 PM
  *
  * To change this template, choose Tools | Template Manager
  * and open the template in the editor.
@@ -9,44 +9,39 @@
 
 package com.rameses.service;
 
-import com.rameses.common.AsyncResponse;
-import java.rmi.server.UID;
+import com.rameses.common.AsyncToken;
+import com.rameses.http.HttpClient;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
  *
  * @author Elmo
  */
-public class AsyncPoller extends AbstractServiceProxy {
+public class AsyncPoller 
+{
+    private AsyncToken token;
+    private HttpClient client;
+    private Map conf;
     
-    private String connection;
-    private String channel;
-    
-    /**
-     * Creates a new instance of AsyncPoller
-     */
-    public AsyncPoller(Map conf, String connection, String channel) {
-        super(null, conf);
-        this.connection = connection;
-        this.channel = channel;
+    public AsyncPoller(Map conf, AsyncToken token) {
+        this.conf = conf;        
+        this.token = token;
+        
+        String host = (String) conf.get("app.host");
+        client = new HttpClient(host, true);
     }
     
-    public AsyncResponse poll() throws Exception {
-        String appContext = (String) super.conf.get("app.context");
-        String path = "async/" + appContext+"/poll/"+connection+"/"+channel;
-        String cluster = (String) super.conf.get("app.cluster");
-        if( cluster !=null ) path = cluster + "/" + path;
+    public Object poll() throws Exception {
+        String path = "async/poll";        
+        String appcontext = (String) conf.get("app.context");
+        String cluster = (String) conf.get("app.cluster");
+        if (cluster != null) path = cluster + "/" + path;
         
-        //add a version to enure it will always be new
-        Object result = client.post( path+"?" + (new UID()).hashCode() );
-        
-        if( !(result instanceof AsyncResponse )) {
-            return new AsyncResponse(result);
-        }
-        else {
-            return (AsyncResponse)result;
-        }
+        Map params = new HashMap();
+        params.put("id", token.getId());
+        params.put("connection", token.getConnection());
+        params.put("context", appcontext);
+        return client.post(path, new Object[]{params});
     }
-    
-    
 }
