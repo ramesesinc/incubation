@@ -32,6 +32,7 @@ public class XAsyncRemoteConnection extends XConnection implements XAsyncConnect
     
     public void start() {
         String host = (String)conf.get("host");
+        if(host==null) host = (String)conf.get("app.host");
         client = new HttpClient(host,true);
     }
     
@@ -43,10 +44,15 @@ public class XAsyncRemoteConnection extends XConnection implements XAsyncConnect
         return conf;
     }
     
-    public void register(String id) throws Exception {
+    public MessageQueue register(String id) throws Exception {
         Map params = new HashMap();
         params.put("id", id);
         client.post( "register", new Object[]{params} );
+        return null;
+    }
+    
+    public MessageQueue getQueue(String id) throws Exception {
+        return null;
     }
     
     public void unregister(String id) throws Exception {
@@ -70,4 +76,5 @@ public class XAsyncRemoteConnection extends XConnection implements XAsyncConnect
     
     public void submitAsync(AsyncRequest ar) {
     }     
+
 }
