@@ -13,8 +13,8 @@ import com.rameses.annotations.Async;
 import com.rameses.annotations.LogEvent;
 
 import com.rameses.annotations.ProxyMethod;
+import com.rameses.annotations.RemoteService;
 import com.rameses.common.AsyncRequest;
-import com.rameses.osiris3.cache.CacheConnection;
 
 import com.rameses.osiris3.data.DataService;
 import com.rameses.osiris3.core.MainContext;
@@ -22,7 +22,6 @@ import com.rameses.osiris3.core.OsirisServer;
 import com.rameses.osiris3.core.TransactionContext;
 import com.rameses.osiris3.xconnection.XConnection;
 import java.lang.reflect.Method;
-import java.rmi.server.UID;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
@@ -35,7 +34,9 @@ public class ManagedScriptExecutor {
     
     public static final String ASYNC_ID = "_async_";
     
-    private static String GET_STRING_INTERFACE = "getStringInterface";
+    private static String GET_STRING_INTERFACE = "stringInterface";
+    private static String GET_META_INFO = "metaInfo";
+    private static String INIT = "init";
     
     private ScriptExecutor scriptExecutor;
     
@@ -48,78 +49,56 @@ public class ManagedScriptExecutor {
         return execute(method, args, true );
     }
     
-    public Object execute( final String method, final Object[] args, boolean fireInterceptors  ) throws Exception {
+    public Object execute( final String method, final Object[] args, boolean bypassAsync  ) throws Exception {
         try {
+            boolean fireInterceptors = true;
             ScriptInfo scriptInfo = scriptExecutor.getScriptInfo();
-
-            if( method.equals( GET_STRING_INTERFACE )) {
-                return scriptInfo.getStringInterface();
-            }
-            
-            //get first the necessary resources
-            ExecutionInfo e = new ExecutionInfo(scriptInfo.getName(),method, args);
-            Method m = scriptInfo.getClassDef().findMethodByName( method );
-            if (m == null) throw new NoSuchMethodException("'"+method+"' method does not exist");
-
             TransactionContext txn = TransactionContext.getCurrentContext();
             OsirisServer svr = txn.getServer();
             MainContext ct = txn.getContext();
+            ScriptService scriptSvc = ct.getService( ScriptService.class );
+            ExecutionInfo e = new ExecutionInfo(scriptInfo.getName(),method, args);
+            Method m = scriptInfo.getClassDef().findMethodByName( method );
+            Map _env = txn.getEnv();
+            
+            if( method.equals( GET_STRING_INTERFACE )) {
+                return scriptInfo.getStringInterface();
+            }
+            else if( method.equals( GET_META_INFO )) {
+                return scriptInfo.getMetaInfo(ct);
+            }
+            else if( method.equals( INIT ) ) {
+                scriptSvc.removeScript( scriptInfo.getName() );
+                return null;
+            }
+            
+            //check if this class is a remote method
+            RemoteService rs = scriptInfo.getClassDef().findClassAnnotation(RemoteService.class);
+            if( rs!=null) {
+                return null;
+            }
+            
+            if(!bypassAsync) {
+                Async async = m.getAnnotation(Async.class);
+               if( async !=null ) {
+                    AsyncRequest ar = new AsyncRequest(scriptInfo.getName(), method, args, txn.getEnv());
+                    ar.setVarStatus(async.varStatus()); 
+                    if(m.getReturnType() != void.class ) {
+                        ar.setConnection( async.connection() );                   
+                    }
+                    return ar;
+                }
+            }
+            
+            //get the necessary resources
+            if (m == null) throw new NoSuchMethodException("'"+method+"' method does not exist");
             
             ProxyMethod pma = m.getAnnotation(ProxyMethod.class);
             boolean isProxyMethod = (pma!=null);
             if (isProxyMethod) e.setTag(pma.tag());
-            
             //this is to support old methods. if proxy method marked as local, do not fire interceptors
-            if(isProxyMethod && pma.local())fireInterceptors = false;
-            
-            //check async
-            Async async = m.getAnnotation(Async.class);
-            Map _env = txn.getEnv();
-            
-            //we need to do this to avoid recursion.
-            if(isProxyMethod && async!=null && !_env.containsKey(ASYNC_ID)) {
-                AsyncRequest result = null;
-                //determine if we need to respond to this request through the provider
-                String provider = async.provider();
-                if(provider==null || provider.trim().length()==0) provider = "default";
-                
-                //test if connection in async exists! if not throw an error bec. it will be pointless to continue
-                final CacheConnection cache = (CacheConnection) ct.getResource(XConnection.class, CacheConnection.CACHE_KEY);
-                
-                //add the async info in the env. This is to avoid recursion.
-                final String channelId = "ASYNC" + new UID();
-                result = new AsyncRequest();
-                result.setChannel( channelId );
-                result.setProvider( provider );
-                _env.put(ASYNC_ID, result );
-                
-                //prepare the bulk entry.
-                int timeout = (async.timeout() == 0)? 30 : async.timeout();
-                cache.createBulk( channelId, timeout, 0 );
-                
-                ScriptRunnable.Listener listener = new ScriptRunnable.AbstractListener(){
-                    public void onComplete(Object obj){
-                        try {
-                            cache.appendToBulk( channelId, null, obj );
-                        } catch(Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                };
-                
-                ScriptRunnable sr = new ScriptRunnable(ct);
-                sr.setServiceName( scriptInfo.getName() );
-                sr.setMethodName( method );
-                sr.setArgs(args);
-                sr.setEnv( _env );
-                sr.setFireInterceptors( fireInterceptors );
-                sr.setListener(listener);
-                ct.submitAsync( sr );
-                return result;
-            }
-            
-            
-            
+            if(isProxyMethod && pma.local()) fireInterceptors = false;
+           
             
             //we need to check validation in @Params
             CheckedParameter[] checkParams = scriptInfo.getCheckedParameters( method );
@@ -134,9 +113,6 @@ public class ManagedScriptExecutor {
             }
             
             //inject the dependencies
-            
-
-            ScriptService scriptSvc = ct.getService( ScriptService.class );
             DependencyInjector di = scriptSvc.getDependencyInjector();
             di.injectDependencies( scriptExecutor, e );
             
@@ -153,7 +129,6 @@ public class ManagedScriptExecutor {
             } else {
                 result = scriptExecutor.invokeMethod( method, args );
             }
-            
             
             //If method is evented, we publish it in the esb connector
             LogEvent logEvent = m.getAnnotation(LogEvent.class);

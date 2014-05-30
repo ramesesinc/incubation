@@ -49,17 +49,16 @@ public class ScriptService extends ContextService {
                 try {
                     if (sctx != null) return sctx.getResource(ScriptInfo.class, name);
                 } catch(ResourceNotFoundException nfe) {
-                    //do nothing, proceed below 
-                } 
+                    //do nothing, proceed below
+                }
                 try {
                     return context.getResource( ScriptInfo.class, name );
                 } catch(ResourceNotFoundException nfe) {
-                } 
+                }
             } else {
                 try {
                     return context.getResource( ScriptInfo.class, name );
-                }
-                catch(ResourceNotFoundException ign){;}
+                } catch(ResourceNotFoundException ign){;}
             }
             throw new ResourceNotFoundException("resource " + name + " not found");
             //check if in database
@@ -69,7 +68,7 @@ public class ScriptService extends ContextService {
             return spe.findResource( name );
             }
             catch(Exception ign) {
-                
+             
             }
              */
         } catch(ResourceNotFoundException nfe) {
@@ -86,7 +85,24 @@ public class ScriptService extends ContextService {
         return sinfo.newInstance();
     }
     
-    
+    public void removeScript(String key) {
+        if( context instanceof AppContext ) {
+            SharedContext sctx = ((AppContext)context).getSharedContext();
+            try {
+                sctx.getContextResource(ScriptInfo.class).remove(key);
+            } catch(ResourceNotFoundException nfe) {
+                //do nothing, proceed below
+            }
+            try {
+                context.getContextResource( ScriptInfo.class ).remove(key);
+            } catch(ResourceNotFoundException nfe) {
+            }
+        } else {
+            try {
+                context.getContextResource( ScriptInfo.class ).remove(key);
+            } catch(ResourceNotFoundException ign){;}
+        }
+    }
     
     
     public DependencyInjector getDependencyInjector() {

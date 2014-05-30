@@ -11,6 +11,7 @@ package com.rameses.osiris3.script;
 
 import com.rameses.classutils.ClassDef;
 import com.rameses.osiris3.core.AbstractContext;
+import com.rameses.osiris3.core.MainContext;
 import groovy.lang.GroovyClassLoader;
 import java.net.URL;
 import java.util.Collections;
@@ -120,5 +121,9 @@ public class ScriptInfo {
 
     public ClassLoader getClassLoader() {
         return classLoader;
+    }
+    
+    public Map getMetaInfo(MainContext ct) {
+        return MetaInfoMapInterface.buildInterface( this.getName(), clazz, ct );
     }
 }

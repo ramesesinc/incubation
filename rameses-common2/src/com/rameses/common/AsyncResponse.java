@@ -8,10 +8,12 @@
 package com.rameses.common;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
 
-public class AsyncResponse implements Serializable {
+public class AsyncResponse extends HashMap implements Serializable 
+{
     
     private static final long serialVersionUID = 1L;
     

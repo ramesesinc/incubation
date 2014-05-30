@@ -9,13 +9,8 @@ import java.lang.annotation.Target;
 @Target(value=ElementType.METHOD)
 public @interface Async {
     
-    String type() default "";
-    boolean loop() default false;
-    String loopVar() default "";
-    String responseHandler() default "";
+    String type() default "topic";
+    String varStatus() default "varStatus";
+    String connection() default "async";
     
-    String provider() default "";
-    
-    //timeout in seconds
-    int timeout() default 0;
 }

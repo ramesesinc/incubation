@@ -2,3 +2,4 @@ com.rameses.osiris3.server.JsonServlet
 com.rameses.osiris3.server.ServiceInvokerServlet
 com.rameses.osiris3.server.AsyncPollServlet
 com.rameses.osiris3.server.JsonPollServlet
+com.rameses.osiris3.server.AsyncResponseServlet

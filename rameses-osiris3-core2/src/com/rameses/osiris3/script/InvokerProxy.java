@@ -15,7 +15,7 @@ import com.rameses.service.ScriptServiceContext;
 import com.rameses.service.ServiceProxy;
 import com.rameses.service.ServiceProxyInvocationHandler;
 import groovy.lang.GroovyClassLoader;
-import java.lang.reflect.Proxy;
+import groovy.lang.GroovyObject;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -45,6 +45,7 @@ public final class InvokerProxy {
         return create(serviceName, env, null);
     }
     public Object create(String serviceName, Map env, Class localInterface) throws Exception{
+        System.out.println("about to ctreate script " +serviceName);
         ScriptServiceContext ect = new ScriptServiceContext(conf);
         //context.get
         if(localInterface!=NullIntf.class && localInterface!=null) {
@@ -52,17 +53,39 @@ public final class InvokerProxy {
         }
         if( !scripts.containsKey(serviceName) ) {
             try {
+                StringBuilder builder = new StringBuilder();
+                builder.append( "public class MyMetaClass  { \n" );
+                builder.append( "    def invoker; \n");
+                builder.append( "    public Object invokeMethod(String string, Object args) { \n");
+                builder.append( "        return invoker.invokeMethod(string, args); \n" );
+                builder.append( "    } \n");
+                builder.append(" } ");
+                Class metaClass = classLoader.parseClass( builder.toString() );                    
+                scripts.put( serviceName, metaClass  );                                
+                /*
                 ScriptInfoInf si = ect.create( serviceName,  ScriptInfoInf.class  );
                 Class clz = classLoader.parseClass( si.getStringInterface() );
                 scripts.put( serviceName, clz );
-            } catch(Exception e) {
+                 */
+            } 
+            catch(Exception e) {
                 e.printStackTrace();
                 throw e;
             }
         }
+    
+        ServiceProxy sp = ect.create( serviceName, env );
+        ServiceProxyInvocationHandler si = new ServiceProxyInvocationHandler(sp);
+                
+        Object obj = scripts.get(serviceName).newInstance();
+        ((GroovyObject)obj).setProperty( "invoker", si );
+        return obj;        
+                
+        /*
         Class clz  = scripts.get(serviceName);
         ServiceProxy sp = ect.create( serviceName, env );
         return Proxy.newProxyInstance( classLoader, new Class[]{clz}, new ServiceProxyInvocationHandler(sp) );
+         */
     }
     
 }

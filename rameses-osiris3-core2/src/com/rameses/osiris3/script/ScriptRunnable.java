@@ -9,6 +9,7 @@
 
 package com.rameses.osiris3.script;
 
+import com.rameses.common.AsyncRequest;
 import com.rameses.osiris3.core.MainContext;
 import com.rameses.osiris3.core.TransactionContext;
 import com.rameses.util.ExceptionManager;
@@ -25,12 +26,13 @@ public class ScriptRunnable implements Runnable {
     private String methodName;
     private Object[] args;
     private Map env;
-    private boolean fireInterceptors = true;
+    private boolean bypassAsync = false;
     
     private Object result;
     private Exception err;
     private Listener listener;
     private boolean cancelled = false;
+    private AsyncRequest asyncRequest;
     
     /**
      * Creates a new instance of ScriptRunnable
@@ -40,16 +42,11 @@ public class ScriptRunnable implements Runnable {
     }
     
     public ScriptRunnable(MainContext context, String serviceName, String methodName, Object[] args, Map env) {
-        this(context,serviceName,methodName,args,env,true);
-    }
-    
-    public ScriptRunnable(MainContext context, String serviceName, String methodName, Object[] args, Map env, boolean fireInterceptors) {
         this.setContext(context);
         this.setServiceName(serviceName);
         this.setMethodName(methodName);
         this.setArgs(args);
         this.setEnv(env);
-        this.setFireInterceptors(fireInterceptors);
     }
     
     public void run() {
@@ -62,8 +59,9 @@ public class ScriptRunnable implements Runnable {
             //call the service here.
             ScriptTransactionManager t = txn.getManager( ScriptTransactionManager.class );
             ManagedScriptExecutor mse = t.create( getServiceName());
-            result = mse.execute( getMethodName(), getArgs());
-            if (result == null) {
+            result = mse.execute( getMethodName(), getArgs(), isBypassAsync());
+            //if result is instanceof remote service. we are going to wait for a response from the subscribers
+            if(result == null) {
                 result = "#NULL";
             }
             txn.commit();
@@ -157,18 +155,27 @@ public class ScriptRunnable implements Runnable {
         this.env = env;
     }
     
-    public boolean isFireInterceptors() {
-        return fireInterceptors;
-    }
-    
-    public void setFireInterceptors(boolean fireInterceptors) {
-        this.fireInterceptors = fireInterceptors;
-    }
     
     public boolean hasErrs() {
         return err!=null;
     }
-
-
+    
+    public boolean isBypassAsync() {
+        return bypassAsync;
+    }
+    
+    public void setBypassAsync(boolean bypassAsync) {
+        this.bypassAsync = bypassAsync;
+    }
+    
+    public AsyncRequest getAsyncRequest() {
+        return asyncRequest;
+    }
+    
+    public void setAsyncRequest(AsyncRequest asyncRequest) {
+        this.asyncRequest = asyncRequest;
+    }
+    
+    
     
 }

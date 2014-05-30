@@ -20,6 +20,7 @@ public final class ClassDef {
         this.clazz = clazz;
         annotatedFields =  new ArrayList<AnnotationField>();
         annotatedMethods = new ArrayList<AnnotationMethod>();
+
         methods = new ArrayList<Method>();
         
         //parse annotated fields
@@ -84,6 +85,15 @@ public final class ClassDef {
                 System.out.println("ERROR field->" + fld.getName() + " annotation->" + annot + " " + ex.getMessage());
             }
         }
+    }
+    
+    public <T> T findClassAnnotation( Class<T>  a) {
+        for(Annotation an: this.clazz.getAnnotations()) {
+            if(an.annotationType().getName().equals(a.getName())) {
+                return (T)an;
+            }
+        }
+        return  null;
     }
     
     public Method findAnnotatedMethod( Class a ) {

@@ -51,7 +51,6 @@ public class ScriptMessageHandler implements MessageHandler {
             if( getScriptListener()!=null )sr.setListener(getScriptListener());
             sr.setArgs( new Object[]{data} );
             sr.setEnv( new HashMap() );
-            sr.setFireInterceptors(false);
             sr.setMethodName( methodName );
             sr.setServiceName( serviceName );
             context.submitAsync( sr );

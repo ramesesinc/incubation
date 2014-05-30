@@ -9,11 +9,16 @@
 
 package com.rameses.osiris3.server;
 
+
+import com.rameses.common.AsyncRequest;
+import com.rameses.common.AsyncToken;
 import com.rameses.osiris3.core.AppContext;
 import com.rameses.osiris3.core.MainContext;
 import com.rameses.osiris3.core.OsirisServer;
 import com.rameses.osiris3.script.ScriptRunnable;
 import com.rameses.osiris3.server.common.AbstractServlet;
+import com.rameses.osiris3.xconnection.XAsyncConnection;
+import com.rameses.osiris3.xconnection.XConnection;
 import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -69,31 +74,34 @@ public class ServiceInvokerServlet extends AbstractServlet {
                 continuation = null;
             }
         }
-
+        
         public void onCancel() {
-            future.cancel(true);            
+            future.cancel(true);
         }
         
         public boolean isExpired() {
-            return (continuation!=null && continuation.isExpired());            
+            return (continuation!=null && continuation.isExpired());
         }
     }
     
     protected void service(final HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
         ScriptRunnable tr = (ScriptRunnable) req.getAttribute( ScriptRunnable.class.getName() );
+        RequestParser p = new RequestParser(req);
+        
         if(tr==null) {
-            
             ContinuationListener listener = new ContinuationListener(req);
             //replace the values
             Object[] params = readRequest(req);
-            RequestParser p = new RequestParser(req);
+            
             AppContext ct = OsirisServer.getInstance().getContext( AppContext.class, p.getContextName() );
+            
             tr = new ScriptRunnable( (MainContext)ct );
             tr.setServiceName(p.getServiceName() );
             tr.setMethodName(p.getMethodName());
             tr.setArgs((Object[])params[0] );
             tr.setEnv( (Map)params[1] );
             tr.setListener( listener );
+            tr.setBypassAsync(false);
             listener.start();
             
             req.setAttribute(  ScriptRunnable.class.getName(), tr );
@@ -109,11 +117,25 @@ public class ServiceInvokerServlet extends AbstractServlet {
                 if( tr.hasErrs()) {
                     response = tr.getErr();
                     System.out.println("error "+tr.getErr().getClass() + " " + tr.getErr().getMessage());
-                }    
-                else
+                } else {
                     response = tr.getResult();
+                    if(response instanceof AsyncRequest) {
+                        AsyncRequest ar = (AsyncRequest)response;
+                        ar.setContextName( p.getContextName());
+                        if( ar.getConnection()!=null) {
+                            try {
+                                XAsyncConnection ac = (XAsyncConnection) tr.getContext().getResource( XConnection.class, ar.getConnection() );
+                                ac.register( ar.getId() );
+                                ac.submitAsync( ar );
+                            } catch(Exception e) {
+                                response = e;
+                            }
+                        }
+                        response = new AsyncToken(ar.getId(), ar.getConnection());
+                    }
+                }
             }
             writeResponse( response, res );
         }
-    }    
+    }
 }

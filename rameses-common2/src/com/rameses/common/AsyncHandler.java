@@ -16,7 +16,7 @@ package com.rameses.common;
  */
 public interface AsyncHandler {
     
-    void onMessage(AsyncResponse o);
+    void onMessage(Object o);
     void onError(Exception e);
     
     //alternative method
