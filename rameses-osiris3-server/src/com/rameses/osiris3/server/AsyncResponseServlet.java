@@ -61,7 +61,6 @@ public class AsyncResponseServlet extends AbstractServlet
             Map params = (args.length > 0? (Map)args[0]: new HashMap()); 
             
             require(params, "id", "Please specify id");
-            require(params, "connection", "Please specify connection");
             require(params, "context", "Please specify context");
 
             Continuation cont = ContinuationSupport.getContinuation(req);
@@ -106,8 +105,9 @@ public class AsyncResponseServlet extends AbstractServlet
             this.cont = cont; 
             this.params = params; 
             this.context = params.get("context").toString();
-            this.connection = params.get("connection").toString();
             this.id = params.get("id").toString();
+            this.connection = (String) params.get("connection");
+            if (this.connection == null) this.connection = "async"; 
         }
         
         Continuation getContinuation() { 
