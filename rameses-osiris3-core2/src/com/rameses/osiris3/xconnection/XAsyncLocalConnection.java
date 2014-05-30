@@ -31,7 +31,7 @@ public class XAsyncLocalConnection extends XConnection implements XAsyncConnecti
     }
     
     public MessageQueue register( String id ) throws Exception {
-        MessageQueue mq = new MessageQueue(id, conf);
+        MessageQueue mq = new LocalMessageQueue(id, conf);
         map.put( id, mq );
         return mq;
     }

@@ -76,5 +76,34 @@ public class XAsyncRemoteConnection extends XConnection implements XAsyncConnect
     
     public void submitAsync(AsyncRequest ar) {
     }     
+    
+    public class RemoteMessageQueue implements MessageQueue
+    {
+        private HttpClient client;
+        private String context;
+        private String id;
+        
+        public RemoteMessageQueue(String host, String context, String id) {
+            client = new HttpClient(host, true);
+            this.context = context;
+            this.id = id;
+        }
+        
+        public void push(Object obj) throws Exception {
+            String path = "/async/push";
+            Map params = new HashMap();
+            params.put("id", id);
+            params.put("context", context);
+            params.put("data", obj);
+            client.post(path, new Object[]{ params });
+        }
 
+        public Object poll() throws Exception {
+            String path = "/async/poll";
+            Map params = new HashMap();
+            params.put("id", id);
+            params.put("context", context);
+            return client.post(path, new Object[]{ params });            
+        } 
+    }
 }
