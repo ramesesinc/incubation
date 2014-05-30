@@ -9,9 +9,12 @@
 
 package com.rameses.osiris3.server;
 
+import com.rameses.common.AsyncBatchResult;
+import com.rameses.common.AsyncToken;
 import com.rameses.osiris3.core.AppContext;
 import com.rameses.osiris3.core.OsirisServer;
 import com.rameses.osiris3.server.common.AbstractServlet;
+import com.rameses.osiris3.xconnection.MessageQueue;
 import com.rameses.osiris3.xconnection.XAsyncConnection;
 import com.rameses.osiris3.xconnection.XConnection;
 import java.io.IOException;
@@ -51,7 +54,6 @@ public class AsyncResponseServlet extends AbstractServlet
     }
     
     protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {        
-        System.out.println("entering servlet ->"+req.getServletPath());
         String reqid = AsyncResponseServlet.class.getName();
         PollTask atask = (PollTask) req.getAttribute(reqid);
         if (atask == null) {
@@ -131,10 +133,17 @@ public class AsyncResponseServlet extends AbstractServlet
                 System.out.println("run poll task in server");
                 AppContext ctx = OsirisServer.getInstance().getContext( AppContext.class, context );
                 XAsyncConnection ac = (XAsyncConnection) ctx.getResource(XConnection.class, connection );
+                MessageQueue queue = ac.getQueue( id );
                 System.out.println("async connection is "+ac);
                 if (ac == null) throw new Exception("async connection '"+ connection +"' not found");
-                
-                result = ac.poll(id); 
+                result = queue.poll(); 
+                if (result instanceof AsyncBatchResult) {
+                    AsyncBatchResult batch = (AsyncBatchResult)result; 
+                    if (batch.hasEOF()) ac.unregister(id); 
+                } else if (result instanceof AsyncToken) {
+                    AsyncToken at = (AsyncToken)result; 
+                    if (at.isClosed()) ac.unregister(id); 
+                } 
             } catch (Exception ex) {
                 result = ex; 
             } finally {
