@@ -61,7 +61,7 @@ public class AsyncResponseServlet extends AbstractServlet
             Map params = (args.length > 0? (Map)args[0]: new HashMap()); 
             
             require(params, "id", "Please specify id");
-            require(params, "context", "Please specify context");
+            //require(params, "context", "Please specify context");
 
             Continuation cont = ContinuationSupport.getContinuation(req);
             if( cont.isInitial() ) {
@@ -90,6 +90,9 @@ public class AsyncResponseServlet extends AbstractServlet
         if (value == null) throw new ServletException(msg);
     }
 
+    
+    // <editor-fold defaultstate="collapsed" desc=" PollTask ">
+    
     private class PollTask implements Runnable 
     {
         private Continuation cont;
@@ -104,10 +107,13 @@ public class AsyncResponseServlet extends AbstractServlet
         PollTask(Continuation cont, Map params) {
             this.cont = cont; 
             this.params = params; 
-            this.context = params.get("context").toString();
             this.id = params.get("id").toString();
-            this.connection = (String) params.get("connection");
-            if (this.connection == null) this.connection = "async"; 
+            
+            context = (String) params.get("context");
+            if (context == null) context = "default";
+            
+            connection = (String) params.get("connection");
+            if (connection == null) connection = "async"; 
         }
         
         Continuation getContinuation() { 
@@ -130,12 +136,11 @@ public class AsyncResponseServlet extends AbstractServlet
         
         public void run() {
             try {
-                System.out.println("run poll task in server");
                 AppContext ctx = OsirisServer.getInstance().getContext( AppContext.class, context );
                 XAsyncConnection ac = (XAsyncConnection) ctx.getResource(XConnection.class, connection );
                 MessageQueue queue = ac.getQueue( id );
-                System.out.println("async connection is "+ac);
                 if (ac == null) throw new Exception("async connection '"+ connection +"' not found");
+                
                 result = queue.poll(); 
                 if (result instanceof AsyncBatchResult) {
                     AsyncBatchResult batch = (AsyncBatchResult)result; 
@@ -151,5 +156,7 @@ public class AsyncResponseServlet extends AbstractServlet
             }
         } 
     }
+    
+    // </editor-fold>
     
 } 
