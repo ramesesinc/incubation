@@ -52,7 +52,6 @@ public class AsyncTask implements Runnable {
     } 
     
     private void handle(AsyncPoller poller, Object result) throws Exception {
-        System.out.println("result is " + result);
         if (result instanceof AsyncToken) {
             AsyncToken at = (AsyncToken)result;
             if (at.isClosed()) return; 
@@ -70,7 +69,6 @@ public class AsyncTask implements Runnable {
     
     private boolean notify(Object o) {
         if (o instanceof AsyncBatchResult) {
-            System.out.println("result is AsyncBatchResult");
             boolean is_closed = false;
             AsyncBatchResult batch = (AsyncBatchResult)o;
             for (Object item : batch) {

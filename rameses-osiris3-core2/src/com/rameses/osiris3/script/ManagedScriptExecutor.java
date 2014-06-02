@@ -84,7 +84,13 @@ public class ManagedScriptExecutor {
                     AsyncRequest ar = new AsyncRequest(scriptInfo.getName(), method, args, txn.getEnv());
                     ar.setVarStatus(async.varStatus()); 
                     if(m.getReturnType() != void.class ) {
-                        ar.setConnection( async.connection() );                   
+                        ar.setConnection( async.connection() );
+                        
+                        XConnection xconn = ct.getResource(XConnection.class, async.connection());
+                        if (xconn == null) throw new Exception("XConnnection "+async.connection()+" does not exist. Please register in connections");
+                        
+                        String context = (String) xconn.getConf().get("context");
+                        ar.setContextName(context == null? ct.getName(): context); 
                     }
                     return ar;
                 }

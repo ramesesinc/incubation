@@ -20,4 +20,14 @@ public class AsyncBatchResult extends ArrayList implements Serializable
 {
     public AsyncBatchResult() {
     }
+    
+    public boolean hasEOF() {
+        Object o = isEmpty()? null: get(size()-1); 
+        if (o instanceof AsyncToken) {
+            AsyncToken at = (AsyncToken)o;
+            return at.isClosed(); 
+        } else {
+            return false; 
+        }
+    }
 }

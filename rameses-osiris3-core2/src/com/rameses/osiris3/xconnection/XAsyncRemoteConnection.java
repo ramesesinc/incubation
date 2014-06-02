@@ -32,6 +32,7 @@ public class XAsyncRemoteConnection extends XConnection implements XAsyncConnect
     
     public void start() {
         String host = (String)conf.get("host");
+        if(host==null) host = (String)conf.get("app.host");
         client = new HttpClient(host,true);
     }
     
@@ -43,10 +44,15 @@ public class XAsyncRemoteConnection extends XConnection implements XAsyncConnect
         return conf;
     }
     
-    public void register(String id) throws Exception {
+    public MessageQueue register(String id) throws Exception {
         Map params = new HashMap();
         params.put("id", id);
         client.post( "register", new Object[]{params} );
+        return null;
+    }
+    
+    public MessageQueue getQueue(String id) throws Exception {
+        return null;
     }
     
     public void unregister(String id) throws Exception {
@@ -70,4 +76,34 @@ public class XAsyncRemoteConnection extends XConnection implements XAsyncConnect
     
     public void submitAsync(AsyncRequest ar) {
     }     
+    
+    public class RemoteMessageQueue implements MessageQueue
+    {
+        private HttpClient client;
+        private String context;
+        private String id;
+        
+        public RemoteMessageQueue(String host, String context, String id) {
+            client = new HttpClient(host, true);
+            this.context = context;
+            this.id = id;
+        }
+        
+        public void push(Object obj) throws Exception {
+            String path = "/async/push";
+            Map params = new HashMap();
+            params.put("id", id);
+            params.put("context", context);
+            params.put("data", obj);
+            client.post(path, new Object[]{ params });
+        }
+
+        public Object poll() throws Exception {
+            String path = "/async/poll";
+            Map params = new HashMap();
+            params.put("id", id);
+            params.put("context", context);
+            return client.post(path, new Object[]{ params });            
+        } 
+    }
 }

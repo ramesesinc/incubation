@@ -17,6 +17,7 @@ import com.rameses.osiris3.core.MainContext;
 import com.rameses.osiris3.core.OsirisServer;
 import com.rameses.osiris3.script.ScriptRunnable;
 import com.rameses.osiris3.server.common.AbstractServlet;
+import com.rameses.osiris3.xconnection.MessageQueue;
 import com.rameses.osiris3.xconnection.XAsyncConnection;
 import com.rameses.osiris3.xconnection.XConnection;
 import java.io.IOException;
@@ -126,7 +127,10 @@ public class ServiceInvokerServlet extends AbstractServlet {
                             try {
                                 XAsyncConnection ac = (XAsyncConnection) tr.getContext().getResource( XConnection.class, ar.getConnection() );
                                 ac.register( ar.getId() );
-                                ac.submitAsync( ar );
+                                tr.setBypassAsync(true);
+                                tr.setAsyncRequest(ar);
+                                tr.setListener(new AsyncListener(tr, ac));
+                                taskPool.submit( tr );
                             } catch(Exception e) {
                                 response = e;
                             }
@@ -138,4 +142,50 @@ public class ServiceInvokerServlet extends AbstractServlet {
             writeResponse( response, res );
         }
     }
+    
+    
+    private class AsyncListener implements ScriptRunnable.Listener {
+        private ScriptRunnable sr;
+        private XAsyncConnection conn;
+        
+        public AsyncListener(ScriptRunnable sr, XAsyncConnection conn) {
+            this.sr = sr; 
+            this.conn = conn;
+        }
+        
+        public void onBegin() {
+        }
+
+        public void onComplete(Object result) {
+            try {
+                AsyncRequest ar = sr.getAsyncRequest();
+                boolean hasmore = "true".equals(sr.getEnv().get(ar.getVarStatus())+""); 
+                MessageQueue queue = conn.getQueue( ar.getId() );
+                queue.push( result);
+                if (hasmore) {
+                    ar.getEnv().put(ar.getVarStatus(), null); 
+                    taskPool.submit( sr );
+                } 
+                else {
+                    AsyncToken at = new AsyncToken();
+                    at.setClosed(true);
+                    queue.push( at);
+                }
+            } catch(Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        public void onRollback(Exception e) {
+        }
+
+        public void onClose() {
+        }
+
+        public void onCancel() {
+        }
+        
+    }
+    
+    
 }

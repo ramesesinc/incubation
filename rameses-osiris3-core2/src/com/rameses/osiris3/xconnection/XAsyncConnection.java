@@ -9,18 +9,14 @@
 
 package com.rameses.osiris3.xconnection;
 
-import com.rameses.common.AsyncRequest;
-
 /**
  *
  * @author Elmo
  */
 public interface XAsyncConnection  {
     
-    void register(String id) throws Exception;
+    MessageQueue register(String id) throws Exception;
     void unregister(String id) throws Exception;
-    Object poll(String id) throws Exception;
-    void push(String id, Object data) throws Exception;
-    void submitAsync( AsyncRequest ar );
+    MessageQueue getQueue( String id ) throws Exception;
     
 }
