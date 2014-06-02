@@ -3,6 +3,7 @@ package com.rameses.custom.impl;
 
 import com.rameses.common.MethodResolver;
 import com.rameses.common.PropertyResolver;
+import groovy.lang.GroovyObject;
 import org.apache.commons.beanutils.MethodUtils;
 
 
@@ -20,6 +21,10 @@ public class MethodResolverImpl extends MethodResolver {
             String p = action.substring(0, action.lastIndexOf("."));
             PropertyResolver resolver = PropertyResolver.getInstance();
             xbean = resolver.getProperty(bean, p);
+        }
+        
+        if(xbean instanceof GroovyObject) {
+            return ((GroovyObject)xbean).invokeMethod( action, args );
         }
         
         if( paramTypes == null )
