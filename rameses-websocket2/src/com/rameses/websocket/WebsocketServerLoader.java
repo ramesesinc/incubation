@@ -23,8 +23,8 @@ import org.eclipse.jetty.servlet.ServletHolder;
  *
  * @author Elmo
  */
-public class WebsocketServerLoader implements ServerLoader {
-    
+public class WebsocketServerLoader implements ServerLoader 
+{
     private String name;
     private Map conf;
     private int port;
@@ -33,7 +33,7 @@ public class WebsocketServerLoader implements ServerLoader {
     
     private String[] topicChannels;
     private String[] queueChannels;
-    
+    private BasicWebsocketHandler wshandler;
     
     public WebsocketServerLoader(String name) {
         this.name = name;
@@ -59,8 +59,7 @@ public class WebsocketServerLoader implements ServerLoader {
         if(conf.containsKey("context")) {
             context = (String) conf.get("context");
             if(!context.startsWith("/"))context = "/"+context;
-        }
-        
+        }        
         if(conf.containsKey("topic-channels")) {
             topicChannels = conf.get("topic-channels").toString().split(",");
         }
@@ -108,21 +107,23 @@ public class WebsocketServerLoader implements ServerLoader {
         servletContext.addServlet( new ServletHolder( new AddChannelServlet(conn)),  "/addchannel" );
         servletContext.addServlet( new ServletHolder( new RemoveChannelServlet(conn)), "/removechannel" );
         
-        HandlerList list = new HandlerList();
-        list.addHandler( new BasicWebsocketHandler(conn));
-        list.addHandler( servletContext );
-        server.setHandler(list);
-        server.start();
-        server.join();
-    }
+        wshandler = new BasicWebsocketHandler(conn, conf); 
+        HandlerList list = new HandlerList(); 
+        list.addHandler( wshandler ); 
+        list.addHandler( servletContext ); 
+        server.setHandler(list); 
+        server.start(); 
+        server.join(); 
+    } 
     
     public void stop() throws Exception {
         System.out.println("STOPPING WEBSOCKET SERVER @ port:" + port + " " + new Date());
         server.stop();
+        
+        if (wshandler != null) wshandler.close(); 
     }
 
     public String getName() {
         return name;
-    }
-    
+    }    
 }

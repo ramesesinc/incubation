@@ -18,8 +18,8 @@ import org.eclipse.jetty.websocket.WebSocket;
  *
  * @author Elmo
  */
-public class TopicChannel extends Channel {
-    
+public class TopicChannel extends Channel 
+{    
     private Set<WebSocket.Connection> connections = new CopyOnWriteArraySet();
     
     public TopicChannel(String name) {
@@ -60,5 +60,4 @@ public class TopicChannel extends Channel {
             conn.close(status, msg);
         }
     }
-    
 }

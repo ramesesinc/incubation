@@ -9,8 +9,8 @@
 
 package com.rameses.websocket;
 
+import com.rameses.util.MessageObject;
 import com.rameses.util.SealedMessage;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -73,7 +73,8 @@ public class SendMessageServlet extends HttpServlet
             {
                 Map map = (Map) itr.next();
                 String channel = (String) map.get("channel");
-                send(channel, map); 
+                String group = (String) map.get("group");
+                send(channel, group, map); 
             }
             
             out = new ObjectOutputStream(resp.getOutputStream());
@@ -97,8 +98,10 @@ public class SendMessageServlet extends HttpServlet
         try 
         {
             String channel = req.getParameter("channel") ;
+            String group = req.getParameter("group");
+            
             Map params = buildParams( req );
-            send(channel, params);
+            send(channel, group, params);
         } 
         catch(IOException ioe) { throw ioe; }
         catch(ServletException se) { throw se; }
@@ -109,28 +112,12 @@ public class SendMessageServlet extends HttpServlet
         } 
     }
     
-    private void send(String channel, Object params) throws Exception
-    {
-        ByteArrayOutputStream bos = null;
-        ObjectOutputStream oos = null;
-        try 
-        {
-            bos = new ByteArrayOutputStream();
-            oos = new ObjectOutputStream(bos);
-            oos.writeObject( params );
-            bos.flush();
-            
-            byte[] bytes = bos.toByteArray();
-            sockets.getChannel(channel).send( bytes, 0, bytes.length );
-        } 
-        catch(Exception e) {
-            throw e;
-        } 
-        finally 
-        {
-            try {bos.close();} catch(Exception ign){;}
-            try {oos.close();} catch(Exception ign){;}
-        }        
-    }
-    
+    private void send(String channel, String group, Object params) throws Exception { 
+        MessageObject mo = new MessageObject();
+        mo.setConnectionId("send-message-servlet");
+        mo.setGroupId(group == null? channel: group);
+        mo.setData(params); 
+        byte[] bytes = mo.encrypt();
+        sockets.getChannel(channel).send( bytes, 0, bytes.length );                
+    }    
 }

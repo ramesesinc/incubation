@@ -9,8 +9,8 @@
 
 package com.rameses.websocket;
 
+import com.rameses.util.MessageObject;
 import com.rameses.util.SealedMessage;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -104,25 +104,18 @@ public class PostMessageServlet extends HttpServlet
             throw new ServletException(e.getMessage(), e);
         } 
     }
-    
+        
     private void processSendAction(Map params) throws Exception {
         String channel = (String) params.get("channel");
-        ByteArrayOutputStream bos = null;
-        ObjectOutputStream oos = null;
-        try {
-            bos = new ByteArrayOutputStream();
-            oos = new ObjectOutputStream(bos);
-            oos.writeObject( params );
-            bos.flush();
-            
-            byte[] bytes = bos.toByteArray();
-            sockets.getChannel(channel).send( bytes, 0, bytes.length );
-        } catch(Exception e) {
-            throw e;
-        } finally {
-            try { bos.close(); } catch(Exception ign){;}
-            try { oos.close(); } catch(Exception ign){;}
-        }        
+        String group = (String) params.get("group");
+        if (group == null) group = channel;
+        
+        MessageObject mo = new MessageObject();
+        mo.setConnectionId("post-message-servlet");
+        mo.setGroupId(group);
+        mo.setData(params); 
+        byte[] bytes = mo.encrypt();
+        sockets.getChannel(channel).send( bytes, 0, bytes.length );        
     }
     
     private void processAddChannelAction(Map params) throws Exception {
