@@ -71,7 +71,8 @@ public class XConnectionContextResource extends ContextResource {
         } catch(FileNotFoundException nfe) {
             //attempt to find the default. we do this by appending default to the key
             String newKey = "default-"+key;
-            XConnection xc = providers.get(newKey).createConnection(newKey, null);
+            XConnectionProvider xcp = providers.get(newKey);
+            XConnection xc = (xcp == null? null: xcp.createConnection(newKey, null));
             if (xc == null) throw new RuntimeException("connection key "+key+ " not found!");
             
             return xc;
