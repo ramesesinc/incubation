@@ -1,5 +1,5 @@
 /*
- * AsyncSendServlet.java
+ * AsyncPushServlet.java
  *
  * Created on May 29, 2014, 5:22 PM
  *
@@ -16,7 +16,10 @@ import com.rameses.osiris3.xconnection.MessageQueue;
 import com.rameses.osiris3.xconnection.XAsyncConnection;
 import com.rameses.osiris3.xconnection.XConnection;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -50,37 +53,45 @@ public class AsyncPushServlet extends AbstractServlet
     
     protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {        
         Object[] args = readRequest(req); 
-        Map params = (args.length > 0? (Map)args[0]: new HashMap()); 
-
-        require(params, "id", "Please specify id");
-        require(params, "data", "Please specify data");
-
-        String context = (String) params.get("context");
-        if (context == null) context = "default"; 
+        Object arg0 = (args.length > 0? args[0]: null);        
+        List items = new ArrayList();
+        if (arg0 instanceof List) {
+            items = (List)arg0; 
+        } else if (arg0 instanceof Object[]) {
+            items = Arrays.asList((Object[]) arg0);
+        } else {
+            items.add(arg0); 
+        }
         
-        String connection = (String) params.get("connection"); 
-        if (connection == null) connection = "async"; 
-                
-        AppContext ctx = OsirisServer.getInstance().getContext(AppContext.class, context); 
-        XAsyncConnection ac = (XAsyncConnection) ctx.getResource(XConnection.class, connection);
-        
-        String id = params.get("id").toString(); 
-        try { 
-            MessageQueue mq = ac.getQueue(id); 
-            Object data = params.get("data"); 
-            mq.push(data); 
-        } catch (Exception ex) {
-            throw new ServletException(ex.getMessage(), ex); 
+        for (Object obj : items) {
+            Map params = (Map)obj;
+
+            String id = (String) params.get("id");
+            if (id == null || id.length() == 0) 
+                throw new ServletException("Please specify id");
+           
+            Object odata = params.get("data"); 
+            if (odata == null) throw new ServletException("Please specify data");
+            
+            String context = (String) params.get("context");
+            if (context == null) context = "default"; 
+
+            String connection = (String) params.get("connection"); 
+            if (connection == null) connection = "async"; 
+
+            AppContext ctx = OsirisServer.getInstance().getContext(AppContext.class, context); 
+            XAsyncConnection ac = (XAsyncConnection) ctx.getResource(XConnection.class, connection);
+
+            try { 
+                MessageQueue mq = ac.getQueue(id); 
+                mq.push(odata); 
+            } catch (Exception ex) {
+                throw new ServletException(ex.getMessage(), ex); 
+            } 
         } 
         
-        Map result = new HashMap();
-        result.put("id", id);
-        result.put("status", "SUCCESS");
+        Map result = new HashMap(); 
+        result.put("status", "SUCCESS"); 
         writeResponse(result, resp); 
     } 
-    
-    private void require(Map params, String name, String msg) throws ServletException {
-        Object value = params.get(name); 
-        if (value == null) throw new ServletException(msg);
-    }
 } 

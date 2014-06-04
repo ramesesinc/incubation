@@ -18,7 +18,10 @@ import com.rameses.osiris3.xconnection.MessageQueue;
 import com.rameses.osiris3.xconnection.XAsyncConnection;
 import com.rameses.osiris3.xconnection.XConnection;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -58,10 +61,20 @@ public class AsyncResponseServlet extends AbstractServlet
         PollTask atask = (PollTask) req.getAttribute(reqid);
         if (atask == null) {
             Object[] args = readRequest(req); 
-            Map params = (args.length > 0? (Map)args[0]: new HashMap()); 
+            Object arg0 = (args.length > 0? args[0]: null);    
+            List items = new ArrayList();
+            if (arg0 instanceof List) {
+                items = (List)arg0; 
+            } else if (arg0 instanceof Object[]) {
+                items = Arrays.asList((Object[]) arg0);
+            } else { 
+                items.add(arg0); 
+            } 
             
-            require(params, "id", "Please specify id");
-            //require(params, "context", "Please specify context");
+            Map params = (items.isEmpty()? new HashMap(): (Map)items.get(0)); 
+            String id = (String) params.get("id");
+            if (id == null || id.length() == 0) 
+                throw new ServletException("Please specify id");
 
             Continuation cont = ContinuationSupport.getContinuation(req);
             if( cont.isInitial() ) {
@@ -84,11 +97,6 @@ public class AsyncResponseServlet extends AbstractServlet
             writeResponse(result, resp); 
         }
     } 
-    
-    private void require(Map params, String name, String msg) throws ServletException {
-        Object value = params.get(name); 
-        if (value == null) throw new ServletException(msg);
-    }
 
     
     // <editor-fold defaultstate="collapsed" desc=" PollTask ">
