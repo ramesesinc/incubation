@@ -15,6 +15,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import javax.servlet.ServletException;
@@ -39,8 +41,7 @@ public class AddChannelServlet extends HttpServlet
     {
         ObjectInputStream in = null;
         ObjectOutputStream out = null;
-        try 
-        {
+        try {
             in = new ObjectInputStream(req.getInputStream());
             
             Object o = in.readObject();
@@ -56,48 +57,55 @@ public class AddChannelServlet extends HttpServlet
             
             if (collection != null) { 
                 Iterator itr = collection.iterator(); 
-                while (itr.hasNext()) 
-                {
-                    Map map = (Map) itr.next();
-                    String name  = (String) map.get("channel");
-                    String type  = (String) map.get("type");
-                    addChannel(name, type); 
+                while (itr.hasNext()) {
+                    Map conf = (Map) itr.next();
+                    addChannel(conf); 
                 }
                 collection.clear(); 
             }
             out = new ObjectOutputStream(resp.getOutputStream());
             out.writeObject("OK"); 
-        } 
-        catch(IOException ioe) { throw ioe; }
-        catch(Exception e) { 
+        } catch(IOException ioe) { 
+            throw ioe; 
+        } catch(Exception e) { 
             e.printStackTrace(); 
             throw new ServletException(e.getMessage(), e); 
-        } 
-        finally { 
+        } finally { 
             try {in.close();} catch(Exception ign){;}
             try {out.close();} catch(Exception ign){;}
         }        
     }
     
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException 
-    {
-        String name = req.getParameter("channel");
-        String type = req.getParameter("type");
-        addChannel(name, type); 
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        addChannel(buildParams(req)); 
     } 
     
-    private void addChannel(String name, String type) 
-    {
-        if (name == null) return;
+    private void addChannel(Map conf) {
+        String name = (String) conf.remove("channel");
+        if (name == null || name.length() == 0) return;
         if (sockets.isChannelExist(name)) return;
-                
+        
         Channel channel = null;
+        String type = (String) conf.remove("type");        
         if (type != null && type.equalsIgnoreCase("queue")) 
-            channel = new QueueChannel(name);
+            channel = new QueueChannel(name, conf);
         else 
-            channel = new TopicChannel(name);
+            channel = new TopicChannel(name, conf);
 
         sockets.addChannel(channel);
         System.out.println("channel "+name +" added");        
+    }
+    
+    private Map buildParams(HttpServletRequest req) {
+        Map params = new HashMap(); 
+        Enumeration names = req.getParameterNames(); 
+        while (names.hasMoreElements()) { 
+            Object oname = names.nextElement(); 
+            if(oname == null) continue; 
+            
+            String sval = req.getParameter(oname.toString()); 
+            params.put(oname.toString(), sval); 
+        } 
+        return params; 
     }
 }

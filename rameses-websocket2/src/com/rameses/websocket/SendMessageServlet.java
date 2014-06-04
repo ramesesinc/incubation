@@ -36,6 +36,79 @@ public class SendMessageServlet extends HttpServlet
     public SendMessageServlet(SocketConnections s) {
         this.sockets = s;
     }
+  
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException 
+    {
+        ObjectInputStream in = null;
+        ObjectOutputStream out = null;
+        try {
+            in = new ObjectInputStream(req.getInputStream());
+            
+            Object o = in.readObject();
+            if (o instanceof SealedMessage) { 
+                o = ((SealedMessage)o).getMessage(); 
+            }
+            
+            Collection collection = null;
+            if (o instanceof Collection) { 
+                collection = (Collection) o; 
+            } else if (o instanceof Object[]) { 
+                collection = Arrays.asList((Object[]) o);
+            } 
+            
+            if (collection == null) return;
+
+            Iterator itr = collection.iterator(); 
+            while (itr.hasNext()) {
+                Map map = (Map) itr.next();
+                send(map); 
+            }
+            
+            out = new ObjectOutputStream(resp.getOutputStream());
+            out.writeObject("OK"); 
+        } catch(IOException ioe) { 
+            throw ioe; 
+        } catch(ServletException se) { 
+            throw se;
+        } catch(Exception e) {
+            e.printStackTrace();
+            throw new ServletException(e.getMessage(), e);
+        } finally {
+            try {in.close();} catch(Exception ign){;}
+            try {out.close();} catch(Exception ign){;}
+        }
+    }
+
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        try {
+            Map params = buildParams( req );
+            send(params);
+        } catch(IOException ioe) { 
+            throw ioe; 
+        } catch(ServletException se) { 
+            throw se; 
+        } catch(Exception e) {
+            e.printStackTrace();
+            throw new ServletException(e.getMessage(), e);
+        } 
+    }
+    
+    private void send(Map params) throws Exception {
+        String channel = (String) params.get("channel");
+        String group = (String) params.get("group");
+        Channel oChannel = sockets.getChannel(channel);
+        if (group == null) group = oChannel.getGroup();
+        
+        Object odata = params.get("data");
+        if (odata == null) odata = params; 
+        
+        MessageObject mo = new MessageObject();
+        mo.setConnectionId(oChannel.getId());
+        mo.setGroupId(group == null? channel: group);
+        mo.setData(odata); 
+        byte[] bytes = mo.encrypt();
+        sockets.getChannel(channel).send( bytes, 0, bytes.length );                
+    } 
     
     private Map buildParams(HttpServletRequest hreq) {
         Map params = new HashMap();
@@ -45,79 +118,5 @@ public class SendMessageServlet extends HttpServlet
             params.put( name, hreq.getParameter(name) );
         }
         return params;
-    }
-    
-  
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException 
-    {
-        ObjectInputStream in = null;
-        ObjectOutputStream out = null;
-        try 
-        {
-            in = new ObjectInputStream(req.getInputStream());
-            
-            Object o = in.readObject();
-            if (o instanceof SealedMessage) 
-                o = ((SealedMessage)o).getMessage(); 
-
-            Collection collection = null;
-            if (o instanceof Collection)
-                collection = (Collection) o; 
-            else if (o instanceof Object[]) 
-                collection = Arrays.asList((Object[]) o);
-            
-            if (collection == null) return;
-
-            Iterator itr = collection.iterator(); 
-            while (itr.hasNext()) 
-            {
-                Map map = (Map) itr.next();
-                String channel = (String) map.get("channel");
-                String group = (String) map.get("group");
-                send(channel, group, map); 
-            }
-            
-            out = new ObjectOutputStream(resp.getOutputStream());
-            out.writeObject("OK"); 
-        } 
-        catch(IOException ioe) { throw ioe; }
-        catch(ServletException se) { throw se; }
-        catch(Exception e) 
-        {
-            e.printStackTrace();
-            throw new ServletException(e.getMessage(), e);
-        }
-        finally {
-            try {in.close();} catch(Exception ign){;}
-            try {out.close();} catch(Exception ign){;}
-        }
-    }
-
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-
-        try 
-        {
-            String channel = req.getParameter("channel") ;
-            String group = req.getParameter("group");
-            
-            Map params = buildParams( req );
-            send(channel, group, params);
-        } 
-        catch(IOException ioe) { throw ioe; }
-        catch(ServletException se) { throw se; }
-        catch(Exception e) 
-        {
-            e.printStackTrace();
-            throw new ServletException(e.getMessage(), e);
-        } 
-    }
-    
-    private void send(String channel, String group, Object params) throws Exception { 
-        MessageObject mo = new MessageObject();
-        mo.setConnectionId("send-message-servlet");
-        mo.setGroupId(group == null? channel: group);
-        mo.setData(params); 
-        byte[] bytes = mo.encrypt();
-        sockets.getChannel(channel).send( bytes, 0, bytes.length );                
-    }    
+    }        
 }

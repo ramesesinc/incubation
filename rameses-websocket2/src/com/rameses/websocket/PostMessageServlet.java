@@ -47,6 +47,7 @@ public class PostMessageServlet extends HttpServlet
             if (o instanceof SealedMessage) { 
                 o = ((SealedMessage)o).getMessage(); 
             } 
+            
             Collection collection = null;
             if (o instanceof Collection) { 
                 collection = (Collection) o; 
@@ -106,14 +107,18 @@ public class PostMessageServlet extends HttpServlet
     }
         
     private void processSendAction(Map params) throws Exception {
-        String channel = (String) params.get("channel");
+        String channel = (String) params.get("channel"); 
         String group = (String) params.get("group");
-        if (group == null) group = channel;
+        Channel oChannel = sockets.getChannel(channel); 
+        if (group == null) group = oChannel.getGroup(); 
+        
+        Object odata = params.get("data");
+        if (odata == null) odata = params; 
         
         MessageObject mo = new MessageObject();
-        mo.setConnectionId("post-message-servlet");
-        mo.setGroupId(group);
-        mo.setData(params); 
+        mo.setConnectionId(oChannel.getId());
+        mo.setGroupId(group == null? channel: group);
+        mo.setData(odata); 
         byte[] bytes = mo.encrypt();
         sockets.getChannel(channel).send( bytes, 0, bytes.length );        
     }
@@ -122,13 +127,13 @@ public class PostMessageServlet extends HttpServlet
         String name  = (String) params.get("channel");
         if (name == null || name.length() == 0) return;
         if (sockets.isChannelExist(name)) return;
-        
+
+        Channel channel = null;        
         String type = (String) params.get("type");
-        Channel channel = null;
         if (type != null && type.equalsIgnoreCase("queue")) 
-            channel = new QueueChannel(name);
+            channel = new QueueChannel(name, params);
         else 
-            channel = new TopicChannel(name);
+            channel = new TopicChannel(name, params);
 
         sockets.addChannel(channel);
         System.out.println("channel "+name +" added"); 
