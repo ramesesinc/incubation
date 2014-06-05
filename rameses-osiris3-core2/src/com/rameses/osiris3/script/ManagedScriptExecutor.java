@@ -13,13 +13,14 @@ import com.rameses.annotations.Async;
 import com.rameses.annotations.LogEvent;
 
 import com.rameses.annotations.ProxyMethod;
-import com.rameses.annotations.RemoteService;
+import com.rameses.annotations.RemoteInterface;
 import com.rameses.common.AsyncRequest;
 
 import com.rameses.osiris3.data.DataService;
 import com.rameses.osiris3.core.MainContext;
 import com.rameses.osiris3.core.OsirisServer;
 import com.rameses.osiris3.core.TransactionContext;
+import com.rameses.osiris3.xconnection.XAsyncConnection;
 import com.rameses.osiris3.xconnection.XConnection;
 import java.lang.reflect.Method;
 import java.util.Map;
@@ -73,10 +74,19 @@ public class ManagedScriptExecutor {
             }
             
             //check if this class is a remote method
-            RemoteService rs = scriptInfo.getClassDef().findClassAnnotation(RemoteService.class);
-            if( rs!=null) {
-                return null;
-            }
+            RemoteInterface rs = scriptInfo.getClassDef().findClassAnnotation(RemoteInterface.class);
+            if( rs != null) { 
+                String conn = rs.connection();
+                XConnection xconn = ct.getResource(XConnection.class, conn);
+                if (xconn == null) throw new Exception("XConnnection "+conn+" does not exist. Please register in connections");
+                
+                AsyncRequest ar = new AsyncRequest(scriptInfo.getName(), method, args, _env); 
+		ar.setContextName((String) xconn.getConf().get("context")); 
+		ar.setConnection(conn);
+                
+                
+                return ar;
+            } 
             
             if(!bypassAsync) {
                 Async async = m.getAnnotation(Async.class);
