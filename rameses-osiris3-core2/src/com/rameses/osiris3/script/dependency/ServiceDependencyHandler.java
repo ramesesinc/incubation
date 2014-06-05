@@ -9,6 +9,7 @@
 
 package com.rameses.osiris3.script.dependency;
 
+import com.rameses.annotations.NullIntf;
 import com.rameses.osiris3.core.AbstractContext;
 import com.rameses.osiris3.core.MainContext;
 
@@ -41,7 +42,7 @@ public class ServiceDependencyHandler extends DependencyHandler {
     }
     
     public Object getResource(Annotation c, ExecutionInfo einfo) {
-       
+        
         TransactionContext txn = TransactionContext.getCurrentContext();
         AbstractContext ac = txn.getContext();
         try {
@@ -64,34 +65,38 @@ public class ServiceDependencyHandler extends DependencyHandler {
                 InvocationHandler ih = null;
                 if( !async ) {
                     ih = new ScriptInvocation(executor,managed);
-                }
-                else {
+                } else {
                     ih = new AsyncScriptInvocation((MainContext)ac, serviceName, txn.getEnv() );
                 }
-                return Proxy.newProxyInstance( sinfo.getInterfaceClass().getClassLoader(), new Class[]{sinfo.getInterfaceClass()}, ih);
-            }
-            else {
+                Class localIntf = s.localInterface();
+                if(localIntf!=NullIntf.class) {
+                    return Proxy.newProxyInstance(sinfo.getClassLoader(), new Class[]{localIntf }, ih);
+                }    
+                else {
+                    return Proxy.newProxyInstance( sinfo.getInterfaceClass().getClassLoader(), new Class[]{sinfo.getInterfaceClass()}, ih);
+                }    
+            } else {
                 Class localIntf = s.localInterface();
                 ScriptConnection sc = (ScriptConnection)ac.getResource(XConnection.class, conn);
                 Map env = new HashMap();
                 env.putAll(txn.getEnv());
                 
-                Iterator keys = sc.getConf().keySet().iterator(); 
+                Iterator keys = sc.getConf().keySet().iterator();
                 while (keys.hasNext()) {
                     String key = keys.next()+"";
-                    if (key.startsWith("env.") && key.length() > 4) { 
-                        env.put(key.substring(4), sc.getConf().get(key)); 
-                    } 
+                    if (key.startsWith("env.") && key.length() > 4) {
+                        env.put(key.substring(4), sc.getConf().get(key));
+                    }
                 }
                 
                 if(localIntf!=null)
-                    return sc.create(serviceName, env, localIntf); 
+                    return sc.create(serviceName, env, localIntf);
                 else
                     return sc.create(serviceName, env);
             }
             
         } catch(Exception e) {
-            System.out.println("error injecting resource caused by "+ ExceptionManager.getOriginal(e).getMessage());            
+            System.out.println("error injecting resource caused by "+ ExceptionManager.getOriginal(e).getMessage());
             e.printStackTrace();
             return null;
         } finally {
