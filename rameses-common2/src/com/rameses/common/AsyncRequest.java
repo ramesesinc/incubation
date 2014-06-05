@@ -26,6 +26,7 @@ public class AsyncRequest implements Serializable {
     private String varStatus;
     
     
+    
     public AsyncRequest(String serviceName, String methodName, Object[] args, Map env) {
         id = "ASYNC"+ new UID();
         this.serviceName = serviceName;
