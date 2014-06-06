@@ -9,11 +9,8 @@
 
 package com.rameses.util;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  *
@@ -21,7 +18,9 @@ import java.util.HashMap;
  */
 public class MessageObject 
 {
-    public final static String PROTOCOL = "MessageObject://";
+    private final static String MSG_OBJECT_KEY = "2460ae670e45f5c00e10a05eecf98137";
+    
+    public final static String PROTOCOL = "MessageObject://";    
     
     private String connectionid;
     private String groupid;
@@ -68,25 +67,26 @@ public class MessageObject
 
         if (encdata.startsWith(PROTOCOL)) { 
             encdata = encdata.replaceFirst(PROTOCOL, ""); 
-            byte[] bytes = new Base64CoderImpl().decode(encdata.toCharArray());
-            Object[] datas = (Object[]) toObject(bytes); 
-            MessageObject mo = new MessageObject();
-            mo.setConnectionId(datas[0] == null? null: datas[0].toString()); 
-            mo.setGroupId(datas[1] == null? null: datas[1].toString()); 
-            
-            String sdata = (datas[2] == null? null: datas[2].toString()); 
-            if (sdata == null || sdata.trim().length() == 0) return mo;
-            
-            byte[] decbytes = null; 
-            try { 
-                decbytes = new Base64CoderImpl().decode(sdata.toCharArray());
-            } catch(IllegalArgumentException iae) {
-                mo.setData(datas[2]); 
-            } 
-            
-            if (decbytes != null) {
-                mo.setData(toObject(decbytes)); 
+            Base64Cipher cipher = new Base64Cipher(); 
+            Map map = (Map) cipher.decode(encdata); 
+            Object omsgkey = map.get("MSG_OBJECT_KEY"); 
+            Object oconnid = map.get("connectionid"); 
+            Object ogroupid = map.get("groupid"); 
+            Object odata = map.get("data"); 
+            if (omsgkey == null || !MSG_OBJECT_KEY.equals(omsgkey.toString())) {
+                odata = map; 
             }
+
+            MessageObject mo = new MessageObject();             
+            mo.setConnectionId(oconnid == null? null: oconnid.toString()); 
+            mo.setGroupId(ogroupid == null? null: ogroupid.toString()); 
+            if (odata == null || odata.toString().length() == 0) return mo;
+            
+            try { 
+                mo.setData( cipher.decode(odata) ); 
+            } catch(IllegalArgumentException iae) {
+                mo.setData(odata); 
+            } 
             return mo; 
         } 
 
@@ -105,50 +105,13 @@ public class MessageObject
         Object data = getData();
         if (data == null) data = new HashMap(); 
         
-        Object[] datas = new Object[]{ connectionid, groupid, data };
-        byte[] bytes = toByteArray(datas); 
-        char[] chars = new Base64CoderImpl().encode(bytes); 
-        String str = PROTOCOL + new String(chars); 
+        Map map = new HashMap();
+        map.put("MSG_OBJECT_KEY", MSG_OBJECT_KEY); 
+        map.put("connectionid", connectionid);
+        map.put("groupid", groupid);
+        map.put("data", data);
+        String str = PROTOCOL + new Base64Cipher().encode(map); 
         return str.getBytes(); 
-    }
-    
-    private byte[] toByteArray(Object value) { 
-        if (value == null) return null;
-        
-        ByteArrayOutputStream baos = null;
-        ObjectOutputStream oos = null;
-        try {
-            baos = new ByteArrayOutputStream(); 
-            oos = new ObjectOutputStream(baos);
-            oos.writeObject(value); 
-            return baos.toByteArray();
-        } catch(RuntimeException re) {
-            throw re; 
-        } catch(Exception e) {
-            throw new RuntimeException(e.getMessage(), e); 
-        } finally {
-            try { oos.close(); }catch(Throwable t){;} 
-            try { baos.close(); }catch(Throwable t){;} 
-        }
-    } 
-    
-    private Object toObject(byte[] bytes) {
-        if (bytes == null || bytes.length == 0) return null; 
-        
-        ByteArrayInputStream bais = null;
-        ObjectInputStream ois = null;
-        try {
-            bais = new ByteArrayInputStream(bytes); 
-            ois = new ObjectInputStream(bais);
-            return ois.readObject();
-        } catch(RuntimeException re) {
-            throw re; 
-        } catch(Exception e) {
-            throw new RuntimeException(e.getMessage(), e); 
-        } finally {
-            try { ois.close(); }catch(Throwable t){;} 
-            try { bais.close(); }catch(Throwable t){;} 
-        }        
     }
 }
 
