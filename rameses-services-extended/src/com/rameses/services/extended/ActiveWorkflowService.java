@@ -272,7 +272,7 @@ public abstract class ActiveWorkflowService {
     }
     
     @ProxyMethod
-    public List signal( Map r ) throws Exception {
+    public Map signal( Map r ) throws Exception {
         if( r.get("taskid")==null && r.get("refid")==null ) 
                 throw new Exception("taskid or refid is required in WorkflowService.signal");
         
@@ -297,7 +297,9 @@ public abstract class ActiveWorkflowService {
         for(Map t1: coll) {
             t1.put("transitions", getTaskInfoTransitions(t1));
         }
-        return coll;
+        Map result = new HashMap();
+        result.put("tasks", coll);
+        return result;
     }
 
     @ProxyMethod
