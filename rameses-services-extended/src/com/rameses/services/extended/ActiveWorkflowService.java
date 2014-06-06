@@ -1,0 +1,324 @@
+/*
+ * ActiveWorkflowService.java
+ *
+ * Created on June 3, 2014, 8:06 PM
+ *
+ * To change this template, choose Tools | Template Manager
+ * and open the template in the editor.
+ */
+package com.rameses.services.extended;
+
+import com.rameses.annotations.ActiveDB;
+import com.rameses.annotations.Env;
+import com.rameses.annotations.ProxyMethod;
+import com.rameses.annotations.Service;
+import groovy.lang.GroovyObject;
+import java.rmi.server.UID;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ *
+ * @author Elmo
+ */
+public abstract class ActiveWorkflowService {
+    
+    @ActiveDB("wf")
+    private Object wf;
+    
+    protected abstract Object getTask();
+    protected abstract String getProcessname();
+    
+    public Object getWf() {
+        return wf;
+    }
+
+    public void setWf(Object wf) {
+        this.wf = wf;
+    }
+    
+    protected String getTaskTablename() {
+        return getProcessname().toLowerCase()+"_task";
+    }
+
+    protected String getSubtaskTablename() {
+        return getProcessname().toLowerCase()+"_subtask";
+    }
+    
+    private GroovyObject getTaskObj() {
+        return (GroovyObject)getTask();
+    }
+    
+    private GroovyObject getWfObj() {
+        return (GroovyObject)wf;
+    }
+     
+    @Service(value="DateService", localInterface=DateService.class)
+    protected DateService dateSvc;
+    
+    @Env
+    protected Map env;
+    
+    @ProxyMethod
+    public Object start( Map r ) throws Exception {
+        if( r.get("refid") == null ) throw new Exception("refid is required in WorkflowService.start");
+        r.put("nodename", "start");
+        findNextTransition(r, false);
+        return null;
+    }
+    
+    public void beforeCreateTask(Object o) {;}
+    public void afterCreateTask(Object o) {;}
+    public void beforeCloseTask(Object o) {;}
+    public void afterCloseTask(Object o) {;}
+
+    protected Map createNodeInstance(Map t) throws Exception {
+        Map m = new HashMap();
+        m.put("objid", "WF"+new UID());
+        m.put("refid", t.get("refid"));
+        m.put("state", t.get("state"));
+        m.put("startdate", dateSvc.getServerDate());
+        m.put("parentprocessid", t.get("parentprocessid"));
+        m.put("assignee", t.get("assignee"));
+        m.put("data", t.get("data"));
+        beforeCreateTask( m );
+        getTaskObj().invokeMethod( "create", new Object[]{m} );
+        afterCreateTask( m );
+        return m;
+    }
+    
+    private Map closeNodeInstance(Map r) throws Exception {
+        Map t = findTask( r.get("taskid").toString() );
+        if(t.get("enddate")!=null) throw new Exception("Task has already ended");
+        t.put("enddate", dateSvc.getServerDate());
+        
+        //check first if there are open subtasks
+        List openSubTask = getOpenSubtaskList(r);
+        if(openSubTask.size()>0) 
+            throw new Exception("There are still open subtasks for " + t.get("state"));
+        
+        Map actor = new HashMap();
+        actor.put("objid", env.get("USERID"));
+        actor.put("name", env.get("USERNAME"));
+        t.put("actor", actor);
+        t.put("data", r.get("data"));
+        beforeCloseTask(t);
+        getTaskObj().invokeMethod("update", new Object[]{t} );
+        afterCloseTask(t);
+        return t;
+    }
+    
+    public List getOpenForkList( String parentProcessId, Map currentTask ) throws Exception {
+        Map parm = new HashMap();
+        parm.put( "parentprocessid",parentProcessId );
+        parm.put( "taskTablename",getTaskTablename() );
+        parm.put( "processname",getProcessname() );
+        List<Map> list = (List)getWfObj().invokeMethod("getOpenForkList", new Object[]{parm} );    
+        if( currentTask.get("salience")!=null) {
+            int sal = Integer.parseInt( currentTask.get("salience").toString());
+            StringBuilder sb = new StringBuilder();
+            //check if current task salience must be greater than existing.
+            boolean passed =false;
+            for( Map st: list ) {
+                //compare the saliences
+                int isal = -1;
+                if( st.get("salience")!=null ) isal = Integer.parseInt(st.get("salience").toString());
+                if( isal < sal ) {
+                    if(passed) 
+                        sb.append(",");
+                    else 
+                        passed = true;
+                    sb.append(st.get("title")+"");
+                }
+            }
+            String err = sb.toString();
+            if(err.length()>0) {
+                throw new Exception("Cannot proceed because the following tasks must be completed: \n"+err);
+            }
+        }
+        return list;
+    }
+            
+    @ProxyMethod
+    public List getOpenTaskList( Map parm ) throws Exception {
+        parm.put( "taskTablename",getTaskTablename() );
+        parm.put( "processname",getProcessname() );
+        List<Map> list =(List)getWfObj().invokeMethod("getOpenTaskList", new Object[]{parm} );
+        String state = (String)parm.get("state");
+        List mlist = new ArrayList();
+        for(Map m: list) {
+            String mstate = (String)m.get("state");
+            if(state!=null && state.equals(mstate) ) {
+                mlist.add( m );
+                break;
+            }
+            else if( !mstate.startsWith("fork")) {
+                //do not include forked states
+                mlist.add( m );
+            }
+        }
+        if(mlist.size()==0) throw new Exception("No open tasks for document with state " + state);
+        return mlist;
+    }
+
+    @ProxyMethod
+    public List getOpenSubtaskList( Map parm ) throws Exception {
+         parm.put( "subtaskTablename",getSubtaskTablename() );
+         parm.put( "processname",getProcessname() );
+         return (List)getWfObj().invokeMethod("getOpenSubtaskList", new Object[]{parm} );
+    }
+    
+    private Map findTask(String taskId) throws Exception {
+        Map prm = new HashMap();
+        prm.put( "taskTablename",getTaskTablename() );
+        prm.put( "processname",getProcessname() );
+        prm.put( "objid", taskId );
+        Map m = (Map)getWfObj().invokeMethod( "findTask", new Object[]{prm}  );
+        if(m==null)
+            throw new Exception("Cannot find task with id " + taskId);
+        return m;
+    }
+    
+    private void findNextTransition( Map r, boolean fireAll ) throws Exception {
+        Map pr = new HashMap();
+        String nodeName = (String)r.get("nodename");
+        if(nodeName==null) nodeName = (String)r.get("state");
+        if(nodeName==null) throw new Exception("state or nodename is required for nextTransition");
+        pr.put( "nodename", nodeName);
+        pr.put("processname", getProcessname());
+        
+        //this assures only the first transition that matches will be executed. except for forks
+        boolean breakTransition = false;
+        List<Map> transitions = (List)getWfObj().invokeMethod( "getTransitionList", new Object[]{ pr } );
+        for(Map o : transitions) {
+            if( breakTransition ) break;
+            String action = (String)r.get("action");
+            if( action!=null &&  !action.equals(o.get("action"))) continue;
+            if(!fireAll) breakTransition = true;
+            if( "fork".equals( o.get("tonodetype") )) {
+                //create fork instance
+                Map z = new HashMap();
+                z.putAll(r);
+                z.put("state", o.get("to"));
+                Map p = createNodeInstance( z );
+                
+                //create subsequent fork children 
+                Map param = new HashMap();
+                param.putAll( r );
+                param.put("nodename", o.get("to"));
+                param.put("parentprocessid", p.get("objid"));
+                param.put( "data", r.get("data") );
+                findNextTransition(param, true);
+            } 
+            else if( "join".equals(o.get("tonodetype")) ) {
+                String parentProcessId = (String)r.get("parentprocessid");
+                List pendingList = getOpenForkList( parentProcessId, r );
+                if(pendingList.size()==0) {
+                    Map z = new HashMap();
+                    z.putAll( r );
+                    z.put("taskid", parentProcessId);
+                    closeNodeInstance(z);
+                    
+                    Map zz = new HashMap();
+                    zz.put( "refid", r.get("refid") );
+                    zz.put( "nodename", o.get("to") );
+                    zz.put( "data", r.get("data") );
+                    findNextTransition( zz, false );
+                }
+            } 
+            else if( "end".equals(o.get("to"))) {
+                break;
+            }
+            else {
+                Map z = new HashMap();
+                z.putAll(r);
+                z.put("state", o.get("to"));
+                createNodeInstance( z );
+            }
+        }
+    }
+    
+    @ProxyMethod
+    public Map signal( Map r ) throws Exception {
+        if( r.get("taskid")==null && r.get("refid")==null ) 
+                throw new Exception("taskid or refid is required in WorkflowService.signal");
+        
+        if( r.get("taskid")==null)  {
+            Map p = new HashMap();
+            p.put("objid", r.get("refid") );
+            p.put("state", r.get("state") );
+            List openList = this.getOpenTaskList( p );
+            if(openList.size()>1) throw new Exception("There are more than 1 open tasks for this document. Please specify a state");
+            Map ff = (Map)openList.iterator().next();
+            r.put("taskid", ff.get("objid"));
+        }
+        
+        Map t = closeNodeInstance( r );
+        //close the existing task and find the next instance
+        Map m = new HashMap();
+        m.putAll( r );
+        m.putAll( t );
+        findNextTransition( m, false );
+        t.put("action", r.get("action"));
+        return t;
+    }
+
+    @ProxyMethod
+    public List getTransitionList( Map r ) throws Exception {
+        if( r.get("state") == null ) throw new Exception("state is required in WorkflowService.getTransitionList");
+        Map pr = new HashMap();
+        pr.put("nodename", r.get("state"));
+        pr.put("processname", getProcessname() );
+        return (List)getWfObj().invokeMethod( "getTransitionList", new Object[]{ pr } );
+    }
+
+    @ProxyMethod
+    public Map addSubtask( Map t ) throws Exception {
+        if( t.get("taskid") == null ) throw new Exception("taskid is required in WorkflowService.addSubtask");
+        
+        //check first if task is already closed, you cannot add a subtask to it.
+        Map tsk =  findTask( t.get("taskid").toString() );
+        
+        if(tsk.get("enddate")!=null) throw new Exception("Task has already ended");
+        
+        if( t.get("assignee") == null ) throw new Exception("assignee is required in WorkflowService.addSubtask");
+        Map m = new HashMap();
+        m.put("objid", "WFST"+new UID());
+        m.put("taskid", t.get("taskid"));
+        m.put("action", t.get("action"));
+        m.put("message", t.get("message"));
+        m.put("startdate", dateSvc.getServerDate());
+        m.put("assignee", t.get("assignee"));
+        getTaskObj().invokeMethod( "create", new Object[]{  m, "subtask"} );
+        return m;
+    }
+    
+    @ProxyMethod
+    public Map closeSubtask(Map r) throws Exception {
+        if( r.get("objid") == null ) throw new Exception("objid is required in WorkflowService.addSubtask");
+        Map t = (Map)getTaskObj().invokeMethod( "read", new Object[]{r,"subtask"}  );
+        if(t.get("enddate")!=null) throw new Exception("subtask is already closed");
+        t.put("enddate", dateSvc.getServerDate());
+        t.put("remarks", r.get("remarks"));
+        Map actor = new HashMap();
+        actor.put("objid", env.get("USERID"));
+        actor.put("name", env.get("USERNAME"));
+        t.put("actor", actor);
+        getTaskObj().invokeMethod("update", new Object[]{t, "subtask"} );
+        return t;
+    }
+    
+    public static interface DateService {
+        Object getServerDate();
+    }
+
+    @ProxyMethod
+    public List getStates() {
+        Map r = new HashMap();
+        r.put("processname", getProcessname());
+        return (List)getWfObj().invokeMethod( "getStates", new Object[]{r}  );
+    }
+    
+}
