@@ -10,6 +10,8 @@
 package com.rameses.websocket;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import org.eclipse.jetty.websocket.WebSocket;
@@ -18,13 +20,17 @@ import org.eclipse.jetty.websocket.WebSocket;
  *
  * @author Elmo
  */
-public class TopicChannel extends Channel {
-    
+public class TopicChannel extends Channel 
+{    
     private Set<WebSocket.Connection> connections = new CopyOnWriteArraySet();
     
     public TopicChannel(String name) {
-        super(name);
+        this(name, null);
     }
+    
+    public TopicChannel(String name, Map conf) {
+        super(name, conf);
+    }    
     
     public void addSocket(WebSocket.Connection conn) {
         connections.add( conn );
@@ -60,5 +66,4 @@ public class TopicChannel extends Channel {
             conn.close(status, msg);
         }
     }
-    
 }

@@ -47,6 +47,7 @@ public class AsyncTask implements Runnable {
             notify( result );
             
         }  catch (Exception e) {
+            e.printStackTrace();
             handler.onError( e );
         }
     } 

@@ -18,79 +18,101 @@ import java.util.Map;
  *
  * @author Elmo
  */
-public class XAsyncRemoteConnection extends XConnection implements XAsyncConnection  {
-    
+public class XAsyncRemoteConnection extends XConnection implements XAsyncConnection  
+{
     private Map conf;
     private String name;
-    private HttpClient client;
+    private String host;    
+    private String cluster;
+    private String context;
     
-    /** Creates a new instance of XAsyncLocalConnection */
     public XAsyncRemoteConnection(String name, Map conf) {
         this.name = name;
         this.conf = conf;
     }
     
     public void start() {
-        String host = (String)conf.get("host");
-        if(host==null) host = (String)conf.get("app.host");
-        client = new HttpClient(host,true);
+        host = (String)conf.get("host");
+        if (host == null) host = (String) conf.get("app.host");
+        
+        cluster = (String) conf.get("cluster"); 
+        if (cluster == null) cluster = (String)conf.get("app.cluster"); 
+        if (cluster == null) cluster = "osiris3"; 
+        
+        context = (String) conf.get("context"); 
+        if (context == null) context = (String)conf.get("app.context"); 
     }
     
     public void stop() {
-        client = null;
     }
     
     public Map getConf() {
         return conf;
     }
     
-    public MessageQueue register(String id) throws Exception {
-        Map params = new HashMap();
-        params.put("id", id);
-        client.post( "register", new Object[]{params} );
-        return null;
-    }
-    
     public MessageQueue getQueue(String id) throws Exception {
-        return null;
+        return new RemoteMessageQueue(id, host, cluster, context);
     }
     
+    public MessageQueue register(String id) throws Exception {
+        RemoteMessageQueue mq = new RemoteMessageQueue(id, host, cluster, context);
+        mq.register(); 
+        return mq; 
+    }
+        
     public void unregister(String id) throws Exception {
-        Map params = new HashMap();
-        params.put("id", id);
-        client.post( "unregister", new Object[]{params} );
+        RemoteMessageQueue mq = new RemoteMessageQueue(id, host, cluster, context);
+        mq.unregister(); 
     }
     
     public Object poll(String id) throws Exception {
-        Map params = new HashMap();
-        params.put("id", id);
-        return client.post( "poll", new Object[]{params} );
+        RemoteMessageQueue mq = new RemoteMessageQueue(id, host, cluster, context);
+        return mq.poll(); 
     }
     
     public void push(String id, Object data) throws Exception {
-        Map params = new HashMap();
-        params.put("id", id);
-        params.put("data", data);
-        client.post( "push", new Object[]{params} );
+        RemoteMessageQueue mq = new RemoteMessageQueue(id, host, cluster, context);
+        mq.push(data); 
     }
     
     public void submitAsync(AsyncRequest ar) {
     }     
     
+    
+    // <editor-fold defaultstate="collapsed" desc=" RemoteMessageQueue ">
+    
     public class RemoteMessageQueue implements MessageQueue
     {
         private HttpClient client;
+        private String cluster;
         private String context;
         private String id;
         
-        public RemoteMessageQueue(String host, String context, String id) {
-            client = new HttpClient(host, true);
+        public RemoteMessageQueue(String id, String host, String cluster, String context) {
+            this.client = new HttpClient(host, true);
+            this.cluster = cluster;
             this.context = context;
-            this.id = id;
+            this.id = id;             
         }
         
+        public void register() throws Exception {
+            String path = cluster + "/async/register";
+            Map params = new HashMap();
+            params.put("id", id);
+            params.put("context", context);
+            client.post(path, new Object[]{ params });
+        }     
+        
+        public void unregister() throws Exception {
+            String path = cluster + "/async/unregister";
+            Map params = new HashMap();
+            params.put("id", id);
+            params.put("context", context);
+            client.post(path, new Object[]{ params });
+        }        
+        
         public void push(Object obj) throws Exception {
-            String path = "/async/push";
+            String path = cluster + "/async/push";
             Map params = new HashMap();
             params.put("id", id);
             params.put("context", context);
@@ -99,11 +121,13 @@ public class XAsyncRemoteConnection extends XConnection implements XAsyncConnect
         }
 
         public Object poll() throws Exception {
-            String path = "/async/poll";
+            String path = cluster + "/async/poll";
             Map params = new HashMap();
             params.put("id", id);
             params.put("context", context);
             return client.post(path, new Object[]{ params });            
         } 
-    }
+    } 
+    
+    // </editor-fold>
 }

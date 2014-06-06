@@ -10,6 +10,7 @@
 package com.rameses.websocket;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.concurrent.LinkedBlockingQueue;
 import org.eclipse.jetty.websocket.WebSocket;
 
@@ -22,8 +23,12 @@ public class QueueChannel extends Channel {
     private LinkedBlockingQueue<WebSocket.Connection> queue = new LinkedBlockingQueue();
     
     public QueueChannel(String name) {
-        super( name );
+        this(name, null); 
     }
+    
+    public QueueChannel(String name, Map conf) {
+        super( name, conf );
+    }    
     
     public void addSocket(WebSocket.Connection conn) {
         queue.add( conn );

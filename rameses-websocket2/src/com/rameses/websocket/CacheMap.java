@@ -57,6 +57,8 @@ class CacheMap implements Map
 
     public Object get(Object key) {
         synchronized (CACHE_LOCK) { 
+            if (key == null) return null;
+            
             TimeoutEntry e = cache.get(key); 
             if (e == null) return null; 
             if (e.isExpired()) {

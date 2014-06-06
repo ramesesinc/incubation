@@ -143,6 +143,7 @@ public class ServiceInvokerServlet extends AbstractServlet {
         }
     }
     
+    // <editor-fold defaultstate="collapsed" desc=" AsyncListener ">
     
     private class AsyncListener implements ScriptRunnable.Listener {
         private ScriptRunnable sr;
@@ -153,20 +154,18 @@ public class ServiceInvokerServlet extends AbstractServlet {
             this.conn = conn;
         }
         
-        public void onBegin() {
-        }
+        public void onBegin() {}
 
         public void onComplete(Object result) {
             try {
                 AsyncRequest ar = sr.getAsyncRequest();
                 boolean hasmore = "true".equals(sr.getEnv().get(ar.getVarStatus())+""); 
                 MessageQueue queue = conn.getQueue( ar.getId() );
-                queue.push( result);
-                if (hasmore) {
+                queue.push( result ); 
+                if (hasmore) { 
                     ar.getEnv().put(ar.getVarStatus(), null); 
-                    taskPool.submit( sr );
-                } 
-                else {
+                    taskPool.submit( sr ); 
+                } else { 
                     AsyncToken at = new AsyncToken();
                     at.setClosed(true);
                     queue.push( at);
@@ -176,16 +175,11 @@ public class ServiceInvokerServlet extends AbstractServlet {
             }
         }
 
-        public void onRollback(Exception e) {
-        }
-
-        public void onClose() {
-        }
-
-        public void onCancel() {
-        }
-        
+        public void onRollback(Exception e) {}
+        public void onClose() {}
+        public void onCancel() {}
     }
     
+    // </editor-fold>
     
 }

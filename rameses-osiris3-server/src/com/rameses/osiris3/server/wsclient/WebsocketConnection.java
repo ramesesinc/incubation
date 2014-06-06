@@ -12,16 +12,12 @@ package com.rameses.osiris3.server.wsclient;
 import com.rameses.osiris3.core.AbstractContext;
 import com.rameses.osiris3.xconnection.MessageConnection;
 import com.rameses.util.Base64CoderImpl;
-import com.rameses.util.CipherUtil;
-
-
-import java.io.ByteArrayInputStream;
+import com.rameses.util.MessageObject;
 import java.io.ByteArrayOutputStream;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.net.URI;
 import java.rmi.server.UID;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import org.eclipse.jetty.websocket.WebSocket;
@@ -43,11 +39,11 @@ public class WebsocketConnection extends MessageConnection implements WebSocket.
     private Map conf;
     private String connectionid;
 
-    private WebSocketClientFactory factory;    
-    private WebSocket.Connection connection;
-    private WebSocketClient wsclient;
-    private String protocol;
-    private String group;     
+    private WebSocketClientFactory factory;     
+    private WebSocket.Connection connection; 
+    private WebSocketClient wsclient; 
+    private String protocol; 
+    private String group; 
     private String host; 
     private long maxConnection;
     
@@ -82,12 +78,12 @@ public class WebsocketConnection extends MessageConnection implements WebSocket.
     
     public void start() {
         try {
-            StringBuffer req = new StringBuffer();
-            req.append("connectionid=").append(connectionid).append(";");
-            req.append("group=").append(group).append(";");
-            req.append("acctname=").append(acctname).append(";");
-            req.append("apikey=").append(apikey).append(";");
-            char[] chars = new Base64CoderImpl().encode(req.toString());
+            Map headers = new HashMap();
+            headers.put("connectionid", connectionid);
+            headers.put("acctname", acctname);  
+            headers.put("apikey", apikey);
+            headers.put("group", group);
+            char[] chars = new Base64CoderImpl().encode(headers); 
             
             factory = new WebSocketClientFactory();
             factory.start();
@@ -116,46 +112,28 @@ public class WebsocketConnection extends MessageConnection implements WebSocket.
     } 
     
     public void send(Object data) { 
-        if (connection == null) return; 
-        
-        ByteArrayOutputStream bos = null; 
-        ObjectOutputStream oos = null; 
-        try { 
-            Object encdata = encryptMessage(data); 
-            bos = new ByteArrayOutputStream(); 
-            oos = new ObjectOutputStream(bos); 
-            oos.writeObject( encdata ); 
-            byte[] bytes = bos.toByteArray(); 
-            connection.sendMessage( bytes, 0, bytes.length ); 
-        } catch(Exception e) { 
-            e.printStackTrace(); 
-        } finally { 
-            try { bos.close(); } catch(Throwable e){;} 
-            try { oos.close(); } catch(Throwable e){;} 
+        if (connection == null) {
+            System.out.println("[WebsocketConnection] connection is not set");
+            return;
         } 
+        
+        try {
+            System.out.println("[WebsocketConnection] send " + data);
+            MessageObject mo = new MessageObject();
+            mo.setConnectionId(connectionid);
+            mo.setGroupId(group);
+            mo.setData(data); 
+            byte[] bytes = mo.encrypt();            
+            connection.sendMessage( bytes, 0, bytes.length );        
+        } catch (Throwable ex) {
+            ex.printStackTrace();
+        }        
     }
     
     public void sendText(String data) {
         send( data );
     }
-    
-    private Object encryptMessage( Object data ) {
-        Object[] datas = new Object[]{ connectionid, group, data };
-        return new CipherUtil().encodeObject(datas);        
-    }
-    
-    private Object[] decryptMessage( Object data ) {
-        if (data == null) return null;
-        
-        Object o = new CipherUtil().decodeObject((Serializable) data); 
-        if (o instanceof Object[]) {
-            Object[] datas = (Object[]) o;  
-            if (datas.length == 3) return datas; 
-        } 
-        
-        throw new IllegalStateException("failed to decode message caused by invalid headers"); 
-    } 
-    
+            
     public void onOpen(WebSocket.Connection connection) {
         this.connection = connection;
         connection.setMaxIdleTime( MAX_IDLE_TIME );
@@ -188,34 +166,18 @@ public class WebsocketConnection extends MessageConnection implements WebSocket.
     }
     
     public void onMessage(byte[] bytes, int offset, int length) {
-        ByteArrayInputStream bis = null;
-        ObjectInputStream ois = null;
         try {
-            bis = new ByteArrayInputStream(bytes, offset, length);
-            ois = new ObjectInputStream(bis);
-            Object o = ois.readObject();
-            Object data = decryptMessage(o);
-            if (data instanceof Object[]) {
-                Object[] datas = (Object[]) data;
+            MessageObject mo = new MessageObject().decrypt(bytes, offset, length); 
+            //if the sender and receiver uses the same connection, do not process
+            if (connectionid.equals(mo.getConnectionId())) return; 
 
-                //if the sender and receiver uses the same connection, do not process
-                if (connectionid.equals(datas[0])) return;
-                
-                Object msggroup = datas[1];
-                if ((msggroup == null && group == null) || (group != null && group.equals(msggroup))) { 
-                    super.notifyHandlers( datas[2] );    
-                }
-            } else {
-                throw new IllegalStateException("Invalid message header format");
-            }
+            String msggroup = mo.getGroupId();
+            if ((msggroup == null && group == null) || (group != null && group.equals(msggroup))) { 
+                super.notifyHandlers( mo.getData() );    
+            } 
         } catch(Exception e) {
             System.out.println("[WebsocketConnection, "+ protocol +"] " + "onMessage failed caused by " + e.getMessage());
             e.printStackTrace();
-        } finally { 
-            try { bis.close(); } catch(Exception e){;}
-            try { ois.close(); } catch(Exception e){;}
         } 
     } 
-    
-    
 } 
