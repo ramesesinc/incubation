@@ -9,9 +9,7 @@
 
 package com.rameses.websocket;
 
-import com.rameses.util.Base64CoderImpl;
-import java.io.ByteArrayInputStream;
-import java.io.ObjectInputStream;
+import com.rameses.util.Base64Cipher;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Timer;
@@ -75,8 +73,7 @@ public class BasicWebsocketHandler extends WebSocketHandler
     private Properties toProperties(String text) {
         Properties props = new Properties();
         try { 
-            byte[] bytes = new Base64CoderImpl().decode(text.toCharArray()); 
-            Object obj = toObject(bytes); 
+            Object obj = new Base64Cipher().decode(text); 
             if (obj instanceof Map) {
                 props.putAll((Map) obj); 
             }
@@ -85,25 +82,6 @@ public class BasicWebsocketHandler extends WebSocketHandler
             return props;
         } 
     } 
-    
-    private Object toObject(byte[] bytes) {
-        if (bytes == null || bytes.length == 0) return null; 
-        
-        ByteArrayInputStream bais = null;
-        ObjectInputStream ois = null;
-        try {
-            bais = new ByteArrayInputStream(bytes); 
-            ois = new ObjectInputStream(bais);
-            return ois.readObject();
-        } catch(RuntimeException re) {
-            throw re; 
-        } catch(Exception e) {
-            throw new RuntimeException(e.getMessage(), e); 
-        } finally {
-            try { ois.close(); }catch(Throwable t){;} 
-            try { bais.close(); }catch(Throwable t){;} 
-        }        
-    }    
     
     // </editor-fold>
         
