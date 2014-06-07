@@ -77,7 +77,7 @@ public abstract class ActiveWorkflowService {
     public void beforeCloseTask(Object o) {;}
     public void afterCloseTask(Object o) {;}
 
-    protected Map createNodeInstance(Map t) throws Exception {
+    protected Map createTaskInstance(Map t) throws Exception {
         Map m = new HashMap();
         m.put("objid", "TSK"+new UID());
         m.put("startdate", dateSvc.getServerDate());
@@ -97,7 +97,7 @@ public abstract class ActiveWorkflowService {
         return m;
     }
     
-    private Map closeNodeInstance(Map r) throws Exception {
+    private Map closeTaskInstance(Map r) throws Exception {
         String taskId = (String) r.get("taskid");
         if(taskId==null)
             throw new Exception("closeNodeInstance error. taskid is required");
@@ -237,7 +237,7 @@ public abstract class ActiveWorkflowService {
                 z.put("refid", r.get("refid"));
                 z.put("parentprocessid", r.get("parentprocessid"));
                 z.put("prevtask", r.get("prevtask"));
-                Map p = createNodeInstance( z );
+                Map p = createTaskInstance( z );
                 String forkId = (String)p.get("objid");
                 
                 //create subsequent fork children 
@@ -259,7 +259,7 @@ public abstract class ActiveWorkflowService {
                     z.put("taskid", parentProcessId);
                     z.put("message", r.get("message"));
                     z.put("prevtask", r.get("prevtask"));
-                    closeNodeInstance(z);
+                    closeTaskInstance(z);
                     
                     
                     Map zz = new HashMap();
@@ -283,7 +283,7 @@ public abstract class ActiveWorkflowService {
                 z.put("extended", r.get("extended"));
                 z.put("state", o.get("to"));
                 z.put("prevtask", r.get("prevtask"));
-                Map tsk = createNodeInstance( z );
+                Map tsk = createTaskInstance( z );
                 collector.add( tsk );
             }
         }
@@ -301,7 +301,7 @@ public abstract class ActiveWorkflowService {
             Map ff = (Map)openList.iterator().next();
             r.put("taskid", ff.get("objid"));
         }
-        Map t = closeNodeInstance( r );
+        Map t = closeTaskInstance( r );
         //close the existing task and find the next instance
         Map m = new HashMap();
         m.put("state", t.get("state"));
@@ -385,7 +385,7 @@ public abstract class ActiveWorkflowService {
     
     
     @ProxyMethod
-    public Map getTaskInfo( Map map ) throws Exception {
+    public Map openTask( Map map ) throws Exception {
         if(map.get("taskid") == null) throw new Exception("taskid is required in getTaskInfo");
         String taskId = map.get("taskid").toString();
         Map task = findTask(taskId);
@@ -402,7 +402,7 @@ public abstract class ActiveWorkflowService {
         Map parm = new HashMap();
         for(Map t: tsks) {
             parm.put( "taskid", t.get("objid") );
-            tskList.add( getTaskInfo( parm ) );
+            tskList.add( openTask( parm ) );
         }
         return tskList;
     }
