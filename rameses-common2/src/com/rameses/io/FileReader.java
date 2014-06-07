@@ -1,5 +1,5 @@
 /*
- * XFile.java
+ * FileReader.java
  *
  * Created on April 11, 2014, 11:29 AM
  *
@@ -11,7 +11,7 @@ package com.rameses.io;
 
 import com.rameses.service.ScriptServiceContext;
 import com.rameses.service.ServiceProxy;
-import com.rameses.util.Base64Coder;
+import com.rameses.util.Base64Cipher;
 import com.rameses.util.Encoder;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -36,8 +36,13 @@ public class FileReader
     private OutputListener outputListener;
     
     public FileReader() {
-        cache = true; 
+        this(null);
     }
+    
+    public FileReader(Map conf) {
+        this.conf = conf;
+        this.cache = true; 
+    }    
 
     public void setConf(Map conf) {
         this.conf = conf;
@@ -162,8 +167,7 @@ public class FileReader
             byte[] bytes = IOStream.toByteArray(file);
             if (bytes == null || bytes.length == 0) return null;
             
-            bytes = Base64Coder.decode(new String(bytes).toCharArray());
-            return readObject(bytes); 
+            return new Base64Cipher().decode(new String(bytes));
         }
                 
         private File getBaseFolder() {
@@ -193,9 +197,8 @@ public class FileReader
             byte[] data_bytes = IOStream.toByteArray(data);
             if (data_bytes == null) data_bytes = new byte[0]; 
             
-            char[] header_chars = Base64Coder.encode(data_bytes); 
-            byte[] header_bytes = new String(header_chars).getBytes();
-            if (isCache()) new IOStream().write(header_bytes, file); 
+            String encstr = new Base64Cipher().encode(data_bytes); 
+            if (isCache()) new IOStream().write(encstr.getBytes(), file); 
             
             return data_bytes; 
         }

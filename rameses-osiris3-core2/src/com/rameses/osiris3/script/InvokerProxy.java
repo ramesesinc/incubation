@@ -45,7 +45,6 @@ public final class InvokerProxy {
         return create(serviceName, env, null);
     }
     public Object create(String serviceName, Map env, Class localInterface) throws Exception{
-        System.out.println("about to ctreate script " +serviceName);
         ScriptServiceContext ect = new ScriptServiceContext(conf);
         //context.get
         if(localInterface!=NullIntf.class && localInterface!=null) {

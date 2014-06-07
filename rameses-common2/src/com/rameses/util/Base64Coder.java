@@ -11,9 +11,9 @@ package com.rameses.util;
 public final class Base64Coder 
 {
     // The line separator string of the operating system.
-    private static final String systemLineSeparator = System.getProperty("line.separator");
+    private final static String systemLineSeparator = System.getProperty("line.separator");
     
-    private static Base64CoderImpl impl = new Base64CoderImpl();
+    private final static Base64Cipher cipher = new Base64Cipher();
         
     /**
      * Encodes a string into Base64 format.
@@ -22,7 +22,7 @@ public final class Base64Coder
      * @return   A String containing the Base64 encoded data.
      */
     public static String encodeString(String s) {
-        return impl.encodeString(s); 
+        return cipher.encodeString(s); 
     }
     
     /**
@@ -32,7 +32,7 @@ public final class Base64Coder
      * @return    A String containing the Base64 encoded data, broken into lines.
      */
     public static String encodeLines(byte[] in) {
-        return encodeLines(in, 0, in.length, 76, systemLineSeparator); 
+        return cipher.encodeLines(in);
     }
     
     /**
@@ -45,7 +45,7 @@ public final class Base64Coder
      * @return              A String containing the Base64 encoded data, broken into lines.
      */
     public static String encodeLines(byte[] in, int iOff, int iLen, int lineLen, String lineSeparator) {
-        return impl.encodeLines(in, iOff, iLen, lineLen, lineSeparator);
+        return cipher.encodeLines(in, iOff, iLen, lineLen, lineSeparator);
     }
     
     /**
@@ -55,7 +55,7 @@ public final class Base64Coder
      * @return    A character array containing the Base64 encoded data.
      */
     public static char[] encode(byte[] in) {
-        return encode(in, 0, in.length); 
+        return encode(in, in.length); 
     }
     
     /**
@@ -78,11 +78,12 @@ public final class Base64Coder
      * @return      A character array containing the Base64 encoded data.
      */
     public static char[] encode(byte[] in, int iOff, int iLen) {
-        return impl.encode(in, iOff, iLen); 
+        return cipher.encode(in, iOff, iLen); 
     }
         
     public char[] encode(Object value) {
-        return impl.encode(value); 
+        String encstr = cipher.encode(value); 
+        return (encstr == null? null: encstr.toCharArray()); 
     }
     
     /**
@@ -93,7 +94,8 @@ public final class Base64Coder
      * @throws   IllegalArgumentException If the input is not valid Base64 encoded data.
      */
     public static String decodeString(String s) {
-        return impl.decodeString(s);
+        Object o = cipher.decode(s); 
+        return (o == null? null: o.toString()); 
     }
     
     /**
@@ -105,7 +107,7 @@ public final class Base64Coder
      * @throws   IllegalArgumentException If the input is not valid Base64 encoded data.
      */
     public static byte[] decodeLines(String s) {
-        return impl.decodeLines(s);
+        return cipher.decodeLines(s); 
     }
     
     /**
@@ -140,6 +142,6 @@ public final class Base64Coder
      * @throws      IllegalArgumentException If the input is not valid Base64 encoded data.
      */
     public static byte[] decode(char[] in, int iOff, int iLen) { 
-        return impl.decode(in, iOff, iLen); 
+        return cipher.decode(in, iOff, iLen); 
     } 
 } 

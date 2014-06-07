@@ -11,10 +11,8 @@ package com.rameses.osiris3.server.wsclient;
 
 import com.rameses.osiris3.core.AbstractContext;
 import com.rameses.osiris3.xconnection.MessageConnection;
-import com.rameses.util.Base64CoderImpl;
+import com.rameses.util.Base64Cipher;
 import com.rameses.util.MessageObject;
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectOutputStream;
 import java.net.URI;
 import java.rmi.server.UID;
 import java.util.HashMap;
@@ -83,12 +81,11 @@ public class WebsocketConnection extends MessageConnection implements WebSocket.
             headers.put("acctname", acctname);  
             headers.put("apikey", apikey);
             headers.put("group", group);
-            char[] chars = new Base64CoderImpl().encode(headers); 
             
             factory = new WebSocketClientFactory();
             factory.start();
             wsclient = factory.newWebSocketClient();
-            wsclient.setProtocol(protocol + ";" + new String(chars));
+            wsclient.setProtocol(protocol + ";" + new Base64Cipher().encode(headers));
             open();
         } catch(RuntimeException re) {
             throw re;
