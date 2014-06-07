@@ -313,7 +313,7 @@ public abstract class ActiveWorkflowService {
         m.put("action", r.get("action"));
         m.put("message", r.get("message"));
         m.put("prevtask", t);
-        m.put("data", r.get("task"));
+        m.put("data", r.get("data"));
          
         List<Map> coll = new ArrayList();
         findNextTransition( m, false, coll );
