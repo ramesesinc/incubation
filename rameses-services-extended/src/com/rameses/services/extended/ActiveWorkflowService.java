@@ -87,6 +87,11 @@ public abstract class ActiveWorkflowService {
         m.put("assignee", t.get("assignee"));
         m.put("data", t.get("data"));
         m.put("prevtask", t.get("prevtask"));
+        
+        Map prevtask = (Map)t.get("prevtask");
+        if(prevtask!=null) {
+            m.put("message", prevtask.get("message"));
+        }
         Object extended = t.get("extended");
         if( extended!=null && (extended instanceof Map)) {
             m.putAll( (Map)extended);
@@ -104,7 +109,6 @@ public abstract class ActiveWorkflowService {
         Map t = findTask( taskId );
         if(t.get("enddate")!=null) throw new Exception("Task has already ended");
         t.put("enddate", dateSvc.getServerDate());
-        t.put("message", r.get("message"));
         
         //check first if there are open subtasks
         List openSubTask = getOpenSubtaskList(r);
