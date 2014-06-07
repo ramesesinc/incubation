@@ -116,7 +116,6 @@ public abstract class ActiveWorkflowService {
         actor.put("name", env.get("FULLNAME"));
         actor.put("title", env.get("JOBTITLE"));
         t.put("actor", actor);
-        t.put("data", r.get("data"));
         beforeCloseTask(t);
         getTaskObj().invokeMethod("update", new Object[]{t} );
         afterCloseTask(t);
@@ -314,6 +313,7 @@ public abstract class ActiveWorkflowService {
         m.put("action", r.get("action"));
         m.put("message", r.get("message"));
         m.put("prevtask", t);
+        m.put("data", r.get("task"));
          
         List<Map> coll = new ArrayList();
         findNextTransition( m, false, coll );
