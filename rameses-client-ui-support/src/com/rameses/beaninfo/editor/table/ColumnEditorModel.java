@@ -10,6 +10,7 @@
 package com.rameses.beaninfo.editor.table;
 
 import com.rameses.rcp.common.Column;
+import com.rameses.rcp.constant.TextCase;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.table.AbstractTableModel;
@@ -73,6 +74,7 @@ public class ColumnEditorModel extends AbstractTableModel
     public Column addRow() 
     {
         Column col = new Column();
+        col.setTextCase(TextCase.NONE); 
         int index = rows.size(); 
         rows.add(col); 
         fireTableRowsInserted(index, index); 
