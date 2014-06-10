@@ -2,11 +2,11 @@ package com.rameses.osiris2.client;
 
 import com.rameses.rcp.framework.UIController;
 import com.rameses.osiris2.SessionContext;
+import com.rameses.osiris2.WorkUnit;
 import com.rameses.osiris2.WorkUnitInstance;
 import com.rameses.rcp.framework.ControllerProvider;
 
-public class OsirisUIControllerProvider extends ControllerProvider 
-{
+public class OsirisUIControllerProvider extends ControllerProvider {
     
     protected UIController provide(String name, UIController caller) {
         if( name == null )
@@ -19,10 +19,15 @@ public class OsirisUIControllerProvider extends ControllerProvider
             WorkUnitUIController wuuc = (WorkUnitUIController) caller;
             name = wuuc.getWorkunit().getModule().getName() + ":" + name;
         }
-            
-        SessionContext app = OsirisContext.getSession();
-        WorkUnitInstance wi = app.getWorkUnit(name).newInstance();
-        return new WorkUnitUIController( wi );
+        
+        try {
+            SessionContext app = OsirisContext.getSession();
+            WorkUnit wu = app.getWorkUnit(name);
+            WorkUnitInstance wi = wu.newInstance();
+            return new WorkUnitUIController( wi );
+        } catch(Exception e) {
+            throw new RuntimeException("Workunit not found ->"+name);
+        }
     }
     
     

@@ -37,7 +37,7 @@ public class ManagedScriptExecutor {
     
     private static String GET_STRING_INTERFACE = "stringInterface";
     private static String GET_META_INFO = "metaInfo";
-    private static String INIT = "init";
+    private static String INIT = "_init";
     
     private ScriptExecutor scriptExecutor;
     
