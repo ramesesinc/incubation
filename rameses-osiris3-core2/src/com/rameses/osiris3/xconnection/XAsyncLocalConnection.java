@@ -23,12 +23,16 @@ public class XAsyncLocalConnection extends XConnection implements XAsyncConnecti
     
     private Map conf;
     private String name;
+    private boolean debug;
     private int poolSize = 100;
     
-    /** Creates a new instance of XAsyncLocalConnection */
     public XAsyncLocalConnection(String name, Map conf) {
         this.name = name;
         this.conf = conf;
+        
+        if (conf != null) {
+            debug = "true".equals(conf.get("debug")+"");
+        }
     }
     
     public MessageQueue register( String id ) throws Exception {
@@ -37,7 +41,9 @@ public class XAsyncLocalConnection extends XConnection implements XAsyncConnecti
             if (map.containsKey(id)) {
                 return map.get(id); 
             } else {
-                System.out.println("register-> " + id);
+                if (debug) {
+                    System.out.println("[" + getClass().getSimpleName() + "_register] " + id);
+                }
                 map.put( id, mq );
                 return mq;
             }
@@ -45,6 +51,9 @@ public class XAsyncLocalConnection extends XConnection implements XAsyncConnecti
     }
     
     public void unregister( String id ) {
+        if (debug) {
+            System.out.println("[" + getClass().getSimpleName() + "_unregister] " + id);
+        }        
         map.remove( id );
     }
     
@@ -59,22 +68,26 @@ public class XAsyncLocalConnection extends XConnection implements XAsyncConnecti
     }
     
     public void clear() {
+        if (debug) {
+            System.out.println("[" + getClass().getSimpleName() + "_clear] " + name);
+        }         
         map.clear();
     }
     
     public void start() {
-       
+        if (debug) {
+            System.out.println("[" + getClass().getSimpleName() + "_start] " + name);
+        } 
     }
     
     public void stop() {
+        if (debug) {
+            System.out.println("[" + getClass().getSimpleName() + "_stop] " + name);
+        } 
         map.clear();
     }
     
     public Map getConf() {
         return conf;
     }
-    
-    
-    
-
 }
