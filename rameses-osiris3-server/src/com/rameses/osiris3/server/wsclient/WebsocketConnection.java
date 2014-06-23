@@ -28,9 +28,10 @@ import org.eclipse.jetty.websocket.WebSocketClientFactory;
  */
 public class WebsocketConnection extends MessageConnection implements WebSocket.OnTextMessage, WebSocket.OnBinaryMessage 
 {
-    private final static int DEFAULT_MAX_CONNECTION = 35000; 
-    private final static int MAX_IDLE_TIME          = 60000; 
-    private final static int RECONNECT_DELAY        = 2000; 
+    private final static int DEFAULT_MAX_CONNECTION     = 35000; 
+    private final static int MAX_BINARY_MESSAGE_SIZE    = 16384;    
+    private final static int MAX_IDLE_TIME              = 60000; 
+    private final static int RECONNECT_DELAY            = 2000; 
     
     private String name;
     private AbstractContext context;
@@ -86,7 +87,7 @@ public class WebsocketConnection extends MessageConnection implements WebSocket.
             factory.start();
             wsclient = factory.newWebSocketClient();
             wsclient.setProtocol(protocol + ";" + new Base64Cipher().encode(headers));
-            wsclient.setMaxBinaryMessageSize(16384);
+            wsclient.setMaxBinaryMessageSize(MAX_BINARY_MESSAGE_SIZE);
             open();
         } catch(RuntimeException re) {
             throw re;
