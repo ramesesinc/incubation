@@ -89,23 +89,27 @@ public abstract class ScrollListModel extends AbstractListDataProvider implement
         
         if (getDataList() == null || forceLoad) 
         {
-            preferredRows = getRows() * 3;            
-            minlimit = toprow - getRows();
-            if (minlimit < 0) minlimit = 0;
+            int _preferredRows = getRows() * 3;            
+            int _minlimit = toprow - getRows();
+            if (_minlimit < 0) _minlimit = 0;
             
             Map params = new HashMap();
             onbeforeFetchList(params);
             
             params.put("_toprow", toprow);
-            params.put("_start", minlimit);
-            params.put("_rowsize", preferredRows+1);
-            params.put("_limit", preferredRows+1);
+            params.put("_start", _minlimit);
+            params.put("_rowsize", _preferredRows+1);
+            params.put("_limit", _preferredRows+1);
             
             List resultList = fetchList(params); 
             if (resultList == null) resultList = new ArrayList();
             
             onafterFetchList(resultList); 
+            if (resultList.isEmpty()) return;
+            
             fetchedRows = resultList.size(); 
+            preferredRows = _preferredRows;
+            minlimit = _minlimit;
             hasMoreRecords = false; 
             if (resultList.size() > preferredRows) 
             {
