@@ -86,6 +86,7 @@ public class WebsocketConnection extends MessageConnection implements WebSocket.
             factory.start();
             wsclient = factory.newWebSocketClient();
             wsclient.setProtocol(protocol + ";" + new Base64Cipher().encode(headers));
+            wsclient.setMaxBinaryMessageSize(16384);
             open();
         } catch(RuntimeException re) {
             throw re;
