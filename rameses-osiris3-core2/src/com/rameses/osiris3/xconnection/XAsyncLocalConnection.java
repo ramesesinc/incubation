@@ -16,9 +16,10 @@ import java.util.Map;
  *
  * @author Elmo
  */
-public class XAsyncLocalConnection extends XConnection implements XAsyncConnection  {
-    
+public class XAsyncLocalConnection extends XConnection implements XAsyncConnection  
+{
     private final Map<String, MessageQueue> map = new Hashtable();
+    private final Object REGISTRY_LOCK = new Object();
     
     private Map conf;
     private String name;
@@ -31,9 +32,16 @@ public class XAsyncLocalConnection extends XConnection implements XAsyncConnecti
     }
     
     public MessageQueue register( String id ) throws Exception {
-        MessageQueue mq = new LocalMessageQueue(id, conf);
-        map.put( id, mq );
-        return mq;
+        synchronized (REGISTRY_LOCK) {
+            MessageQueue mq = new LocalMessageQueue(id, conf);
+            if (map.containsKey(id)) {
+                return map.get(id); 
+            } else {
+                System.out.println("register-> " + id);
+                map.put( id, mq );
+                return mq;
+            }
+        }
     }
     
     public void unregister( String id ) {
