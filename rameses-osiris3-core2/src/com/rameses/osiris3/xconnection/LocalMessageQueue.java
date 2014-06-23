@@ -35,10 +35,12 @@ public final class LocalMessageQueue implements MessageQueue {
     }
     
     public void push(Object obj) throws Exception {
+        System.out.println("push: id="+id + ", obj=" + obj);
         queue.add(obj);
     }
     
     public Object poll() throws Exception {
+        System.out.println("poll: id="+id + ", empty=" + queue.isEmpty());
         Object o = queue.poll( timeout, TimeUnit.MILLISECONDS );
         if (!queue.isEmpty()) {
             List list = new AsyncBatchResult();
