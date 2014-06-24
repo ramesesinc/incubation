@@ -74,6 +74,24 @@ public class FileReader
         }
     }
     
+    public void remove(String id) {
+        try { 
+            String serviceName = getPropertyString("serviceName");
+            if (serviceName == null) serviceName = "FileService"; 
+            if (env == null) env = new HashMap();
+                        
+            ServiceProxy proxy = getServiceContext().create(serviceName, env);
+            
+            Map params = new HashMap();
+            params.put("objid", id);            
+            proxy.invoke("removeFile", new Object[]{ params }); 
+        } catch(RuntimeException re) {
+            throw re; 
+        } catch(Exception e) {
+            throw new RuntimeException(e.getMessage(), e); 
+        } 
+    } 
+    
     // <editor-fold defaultstate="collapsed" desc=" helper methods "> 
     
     private Object getProperty(String name) {
