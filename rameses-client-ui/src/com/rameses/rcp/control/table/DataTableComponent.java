@@ -698,9 +698,11 @@ public class DataTableComponent extends JTable implements TableControl
         
     public void tableChanged(TableModelEvent e) 
     {
-        if (getSelectedRow() >= getRowCount()) 
-            setRowSelectionInterval(0, 0); 
-
+        if (getSelectedRow() >= getRowCount()) { 
+            try { 
+                setRowSelectionInterval(0, 0); 
+            } catch(Throwable t) {;} 
+        }
         super.tableChanged(e); 
     }        
         

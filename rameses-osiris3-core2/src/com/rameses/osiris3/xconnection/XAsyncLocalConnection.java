@@ -16,27 +16,44 @@ import java.util.Map;
  *
  * @author Elmo
  */
-public class XAsyncLocalConnection extends XConnection implements XAsyncConnection  {
-    
+public class XAsyncLocalConnection extends XConnection implements XAsyncConnection  
+{
     private final Map<String, MessageQueue> map = new Hashtable();
+    private final Object REGISTRY_LOCK = new Object();
     
     private Map conf;
     private String name;
+    private boolean debug;
     private int poolSize = 100;
     
-    /** Creates a new instance of XAsyncLocalConnection */
     public XAsyncLocalConnection(String name, Map conf) {
         this.name = name;
         this.conf = conf;
+        
+        if (conf != null) {
+            debug = "true".equals(conf.get("debug")+"");
+        }
     }
     
     public MessageQueue register( String id ) throws Exception {
-        MessageQueue mq = new LocalMessageQueue(id, conf);
-        map.put( id, mq );
-        return mq;
+        synchronized (REGISTRY_LOCK) {
+            MessageQueue mq = new LocalMessageQueue(id, conf);
+            if (map.containsKey(id)) {
+                return map.get(id); 
+            } else {
+                if (debug) {
+                    System.out.println("[" + getClass().getSimpleName() + "_register] " + id);
+                }
+                map.put( id, mq );
+                return mq;
+            }
+        }
     }
     
     public void unregister( String id ) {
+        if (debug) {
+            System.out.println("[" + getClass().getSimpleName() + "_unregister] " + id);
+        }        
         map.remove( id );
     }
     
@@ -51,22 +68,26 @@ public class XAsyncLocalConnection extends XConnection implements XAsyncConnecti
     }
     
     public void clear() {
+        if (debug) {
+            System.out.println("[" + getClass().getSimpleName() + "_clear] " + name);
+        }         
         map.clear();
     }
     
     public void start() {
-       
+        if (debug) {
+            System.out.println("[" + getClass().getSimpleName() + "_start] " + name);
+        } 
     }
     
     public void stop() {
+        if (debug) {
+            System.out.println("[" + getClass().getSimpleName() + "_stop] " + name);
+        } 
         map.clear();
     }
     
     public Map getConf() {
         return conf;
     }
-    
-    
-    
-
 }

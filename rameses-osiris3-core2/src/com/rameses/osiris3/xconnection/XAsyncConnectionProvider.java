@@ -23,12 +23,12 @@ public class XAsyncConnectionProvider extends XConnectionProvider {
 
     public XConnection createConnection(String name, Map conf) {
         String host = (String) conf.get("host");
-        if(host==null) host = (String)conf.get("app.host");
-        if(host==null) {
-            return new XAsyncLocalConnection(name,conf);
-        }    
-        else
-            return new XAsyncRemoteConnection(name,conf);
-    }
-    
+        if(host == null) host = (String) conf.get("app.host");
+        
+        if(host == null) { 
+            return new XAsyncLocalConnection(name, conf); 
+        } else { 
+            return new XAsyncRemoteConnection(name, conf); 
+        } 
+    } 
 }

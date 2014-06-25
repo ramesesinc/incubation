@@ -25,13 +25,23 @@ public class XAsyncRemoteConnection extends XConnection implements XAsyncConnect
     private String host;    
     private String cluster;
     private String context;
+    private String connection;
+    private boolean debug;
     
     public XAsyncRemoteConnection(String name, Map conf) {
         this.name = name;
         this.conf = conf;
-    }
+        
+        if (conf != null) {
+            debug = "true".equals(conf.get("debug")+"");
+        } 
+    } 
     
     public void start() {
+        if (debug) {
+            System.out.println("[" + getClass().getSimpleName() + "_start] " + name);
+        } 
+        
         host = (String)conf.get("host");
         if (host == null) host = (String) conf.get("app.host");
         
@@ -41,9 +51,14 @@ public class XAsyncRemoteConnection extends XConnection implements XAsyncConnect
         
         context = (String) conf.get("context"); 
         if (context == null) context = (String)conf.get("app.context"); 
+        
+        connection = (String) conf.get("connection"); 
     }
     
     public void stop() {
+        if (debug) {
+            System.out.println("[" + getClass().getSimpleName() + "_stop] " + name);
+        }        
     }
     
     public Map getConf() {
@@ -60,7 +75,7 @@ public class XAsyncRemoteConnection extends XConnection implements XAsyncConnect
         return mq; 
     }
         
-    public void unregister(String id) throws Exception {
+    public void unregister(String id) throws Exception {        
         RemoteMessageQueue mq = new RemoteMessageQueue(id, host, cluster, context);
         mq.unregister(); 
     }
@@ -83,48 +98,68 @@ public class XAsyncRemoteConnection extends XConnection implements XAsyncConnect
     
     public class RemoteMessageQueue implements MessageQueue
     {
+        XAsyncRemoteConnection root = XAsyncRemoteConnection.this;
+        
         private HttpClient client;
         private String cluster;
         private String context;
         private String id;
         
         public RemoteMessageQueue(String id, String host, String cluster, String context) {
-            this.client = new HttpClient(host, true);
+            this.id = id;             
             this.cluster = cluster;
             this.context = context;
-            this.id = id;             
+            this.client = new HttpClient(host, true);
         }
         
         public void register() throws Exception {
+            if (debug) {
+                System.out.println("[" + getClass().getSimpleName() + "_register] " + id);
+            } 
+            
             String path = cluster + "/async/register";
             Map params = new HashMap();
             params.put("id", id);
             params.put("context", context);
-            client.post(path, new Object[]{ params });
-        }     
+            params.put("connection", root.connection); 
+            client.post(path, new Object[]{ params }); 
+        } 
         
         public void unregister() throws Exception {
+            if (debug) { 
+                System.out.println("[" + getClass().getSimpleName() + "_unregister] " + id);
+            } 
+            
             String path = cluster + "/async/unregister";
             Map params = new HashMap();
             params.put("id", id);
             params.put("context", context);
+            params.put("connection", root.connection); 
             client.post(path, new Object[]{ params });
         }        
         
         public void push(Object obj) throws Exception {
+            if (debug) {
+                System.out.println("[" + getClass().getSimpleName() + "_push] id="+ id +", obj"+ obj);
+            }
             String path = cluster + "/async/push";
             Map params = new HashMap();
             params.put("id", id);
             params.put("context", context);
+            params.put("connection", root.connection); 
             params.put("data", obj);
             client.post(path, new Object[]{ params });
         }
 
         public Object poll() throws Exception {
+            if (debug) {
+                System.out.println("[" + getClass().getSimpleName() + "_poll] id="+ id);
+            }
             String path = cluster + "/async/poll";
             Map params = new HashMap();
             params.put("id", id);
             params.put("context", context);
+            params.put("connection", root.connection); 
             return client.post(path, new Object[]{ params });            
         } 
     } 
