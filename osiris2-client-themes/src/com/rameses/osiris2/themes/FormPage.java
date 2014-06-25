@@ -79,6 +79,7 @@ public class FormPage extends javax.swing.JPanel {
 
         xActionBar1.setBorder(null);
         xActionBar1.setDepends(new String[] {"entity"});
+        xActionBar1.setDynamic(true);
         xActionBar1.setFormName("entityName");
         xActionBar1.setName("extActions");
         leftactionpanel.add(xActionBar1);

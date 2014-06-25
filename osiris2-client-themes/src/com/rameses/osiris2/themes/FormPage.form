@@ -97,6 +97,7 @@
                         <StringItem index="0" value="entity"/>
                       </StringArray>
                     </Property>
+                    <Property name="dynamic" type="boolean" value="true"/>
                     <Property name="formName" type="java.lang.String" value="entityName"/>
                     <Property name="name" type="java.lang.String" value="extActions"/>
                   </Properties>
