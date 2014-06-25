@@ -464,7 +464,7 @@ public abstract class ActiveWorkflowService {
     
     //overridable
     public boolean checkTaskOwner( Map task ) {
-        return false;
+        return true;
     }
     
     private boolean isTaskOwner( Map task ) throws Exception {
@@ -472,7 +472,7 @@ public abstract class ActiveWorkflowService {
         if( userId == null ) 
             throw new Exception("USERID is null. Please check if you have logged in");
         Map assignee = (Map)task.get("assignee");
-        if(assignee!=null) {
+        if(assignee!=null && assignee.get("objid") != null) {
             String assigneeId = (String)assignee.get("objid");
             if(assigneeId == null) return true;
             if(userId.equals(assigneeId)) {
