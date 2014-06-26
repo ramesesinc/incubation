@@ -12,11 +12,13 @@ package com.rameses.osiris3.xconnection;
 import com.rameses.osiris3.core.ContextResource;
 import com.rameses.util.Service;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
 
@@ -54,8 +56,7 @@ public class XConnectionContextResource extends ContextResource {
             if (u == null) throw new Exception("Connection " + key + " not found");
 
             InputStream is  = u.openStream();
-            Properties props = new Properties();
-            props.load(is);
+            Map props = new Config().read(is); 
             is.close();
             
             //load the connection
@@ -64,9 +65,18 @@ public class XConnectionContextResource extends ContextResource {
                 throw new Exception("Provider must be specified for connection " + key);
             
             XConnectionProvider cp = providers.get( providerType );
-            XConnection conn = cp.createConnection(  key, props );
-            conn.start();
-            return conn;
+            
+            Map conf = new HashMap();
+            Iterator keys = props.keySet().iterator(); 
+            while (keys.hasNext()) {
+                Object pkey = keys.next();
+                Object pval = cp.resolveConfValue( props.get(pkey) ); 
+                conf.put(pkey, pval); 
+            }
+
+            XConnection conn = cp.createConnection( key, conf );
+            conn.start(); 
+            return conn; 
             
         } catch(FileNotFoundException nfe) {
             //attempt to find the default. we do this by appending default to the key
@@ -84,5 +94,21 @@ public class XConnectionContextResource extends ContextResource {
             e.printStackTrace();
             throw new RuntimeException(e.getMessage(), e);
         }
-    }
-}
+    } 
+    
+    
+    private class Config extends Properties 
+    {
+        private Map conf = new LinkedHashMap();
+        
+        public Map read(InputStream inp) throws IOException {
+            super.load(inp);
+            return conf; 
+        }
+        
+        public Object put(Object key, Object value) {
+            conf.put(key, value);             
+            return super.put(key, value); 
+        } 
+    } 
+} 

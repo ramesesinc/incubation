@@ -87,10 +87,14 @@ public class ManagedScriptExecutor {
                 
                 return ar;
             } 
+
+            if (m == null) {
+                throw new NoSuchMethodException("'"+method+"' method does not exist");
+            }
             
             if(!bypassAsync) {
                 Async async = m.getAnnotation(Async.class);
-               if( async !=null ) {
+                if( async !=null ) {
                     AsyncRequest ar = new AsyncRequest(scriptInfo.getName(), method, args, txn.getEnv());
                     ar.setVarStatus(async.varStatus()); 
                     if(m.getReturnType() != void.class ) {
@@ -107,8 +111,6 @@ public class ManagedScriptExecutor {
             }
             
             //get the necessary resources
-            if (m == null) throw new NoSuchMethodException("'"+method+"' method does not exist");
-            
             ProxyMethod pma = m.getAnnotation(ProxyMethod.class);
             boolean isProxyMethod = (pma!=null);
             if (isProxyMethod) e.setTag(pma.tag());
