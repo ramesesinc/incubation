@@ -32,11 +32,11 @@ public class WebsocketConnection extends MessageConnection implements WebSocket.
     private final static int MAX_BINARY_MESSAGE_SIZE    = 16384;    
     private final static int MAX_IDLE_TIME              = 60000; 
     private final static int RECONNECT_DELAY            = 2000; 
-    
-    private String name;
-    private AbstractContext context;
-    private Map conf;
+
     private String connectionid;
+    private String name;
+    private Map conf; 
+    private AbstractContext context;
 
     private WebSocketClientFactory factory;     
     private WebSocket.Connection connection; 
@@ -45,44 +45,56 @@ public class WebsocketConnection extends MessageConnection implements WebSocket.
     private String group; 
     private String host; 
     private long maxConnection;
-    
+
+    private boolean enabled;
     private String acctname;
     private String apikey;
     
     public WebsocketConnection(String name, AbstractContext context, Map conf) {
         this.connectionid = "WS"+ new UID();
         this.name = name;
-        this.context = context;
         this.conf = conf;
-        this.protocol = (String) conf.get("ws.protocol");
+        this.context = context;
+        
+        protocol = (String) conf.get("ws.protocol");
 
-        maxConnection = DEFAULT_MAX_CONNECTION;
-        if (conf.containsKey("ws.maxConnection")) {
-            maxConnection = Long.parseLong(conf.get("ws.maxConnection")+"");
-        }
-        host = (String)conf.get("ws.host");
+        maxConnection = DEFAULT_MAX_CONNECTION; 
+        if (conf.containsKey("ws.maxConnection")) { 
+            maxConnection = Long.parseLong(conf.get("ws.maxConnection")+""); 
+        } 
+        
+        host = (String) conf.get("ws.host");
         if (!host.startsWith("ws")) {
             host = "ws://"+host;
         }
-        group = (String)conf.get("ws.group");   
-        if (group == null) group = protocol;
+        
+        group = (String) conf.get("ws.group");   
+        if (group == null || group.length() == 0) group = protocol;
 
-        acctname = (String)conf.get("acctname");
-        apikey = (String)conf.get("apikey");
-    }
+        acctname = (String) conf.get("acctname"); 
+        apikey = (String) conf.get("apikey"); 
+        
+        if ("false".equals(conf.get("ws.enabled")+"")) { 
+            enabled = false; 
+        } else {
+            enabled = true; 
+        }
+    } 
     
-    public Map getConf() {
-        return conf;
-    }
+    public Map getConf() { 
+        return conf; 
+    } 
     
     public void start() {
         try {
+            if (!enabled) return;
+            
             Map headers = new HashMap();
             headers.put("connectionid", connectionid);
             headers.put("acctname", acctname);  
             headers.put("apikey", apikey);
             headers.put("group", group);
-            
+
             factory = new WebSocketClientFactory();
             factory.start();
             wsclient = factory.newWebSocketClient();
@@ -102,7 +114,8 @@ public class WebsocketConnection extends MessageConnection implements WebSocket.
         } catch( InterruptedException e) {
             System.out.println("[WebsocketConnection, "+ protocol +"] " + "error " + e.getClass() + " message:" + e.getMessage());
         } catch(Exception ce) {
-            System.out.println("[WebsocketConnection, "+ protocol +"] " + ce.getClass() + " " + ce.getMessage() );
+            String shost = host.replaceFirst("ws://", ""); 
+            System.out.println("[WebsocketConnection, "+ protocol +", "+ shost +"] " + ce.getClass() + " " + ce.getMessage() );
             try {
                 Thread.sleep( RECONNECT_DELAY );
                 open();
@@ -178,5 +191,42 @@ public class WebsocketConnection extends MessageConnection implements WebSocket.
             System.out.println("[WebsocketConnection, "+ protocol +"] " + "onMessage failed caused by " + e.getMessage());
             e.printStackTrace();
         } 
+    } 
+    
+    private Object resolveValue(Object value, Map appconf) { 
+        if (value == null) return null;
+                 
+        int startidx = 0; 
+        boolean has_expression = false; 
+        String str = value.toString();         
+        StringBuilder builder = new StringBuilder(); 
+        while (true) {
+            int idx0 = str.indexOf("${", startidx);
+            if (idx0 < 0) break;
+            
+            int idx1 = str.indexOf("}", idx0); 
+            if (idx1 < 0) break;
+            
+            has_expression = true; 
+            String skey = str.substring(idx0+2, idx1); 
+            builder.append(str.substring(startidx, idx0)); 
+            
+            Object objval = appconf.get(skey); 
+            if (objval == null) objval = System.getProperty(skey); 
+            
+            if (objval == null) { 
+                builder.append(str.substring(idx0, idx1+1)); 
+            } else { 
+                builder.append(objval); 
+            } 
+            startidx = idx1+1; 
+        } 
+        
+        if (has_expression) {
+            builder.append(str.substring(startidx));  
+            return builder.toString(); 
+        } else {
+            return value; 
+        }
     } 
 } 

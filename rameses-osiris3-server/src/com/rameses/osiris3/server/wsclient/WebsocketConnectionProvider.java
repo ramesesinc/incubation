@@ -31,5 +31,5 @@ public class WebsocketConnectionProvider extends XConnectionProvider
         } catch(Exception e) {
             throw new RuntimeException(e.getMessage(), e);
         }
-    }    
+    } 
 }
