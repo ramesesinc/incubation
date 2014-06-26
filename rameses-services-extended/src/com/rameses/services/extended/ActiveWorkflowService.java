@@ -72,13 +72,22 @@ public abstract class ActiveWorkflowService {
         return list;
     }
     
-    public void beforeCreateTask(Object o) {;}
-    public void afterCreateTask(Object o) {;}
+    //overridable
+    public void beforeCreateTask(Object o, Object prevTask) {;}
+    public void afterCreateTask(Object o, Object prevTask) {;}
     public void beforeCloseTask(Object o) {;}
     public void afterCloseTask(Object o) {;}
     public void beforeOpenTask(Object o) {;}
     public void afterOpenTask(Object o) {;}
+    public void beforeSignal(Object params) {;}
+    public void afterSignal(Object result) {;}
+    public void afterLoadTask(Object newTask, Object prevTask) {;}
+    public void onEndTask(Object lastTask) {;}
+    public void loadWorkitem( Object workitem, Object task ) {;}
+    public void loadTransition( Object transition, Object task ) {;}
     
+    public boolean checkTaskOwner( Map task ) {return true; }
+
     protected Map createTaskInstance(Map t, Map params) throws Exception {
         Map m = new HashMap();
         m.put("objid", "TSK"+new UID());
@@ -87,7 +96,6 @@ public abstract class ActiveWorkflowService {
         m.put("refid", t.get("refid"));
         m.put("parentprocessid", t.get("parentprocessid"));
         m.put("data", t.get("data"));
-        m.put("prevtask", t.get("prevtask"));
         
         //from parameters
         m.put("message", params.get("message"));
@@ -97,9 +105,9 @@ public abstract class ActiveWorkflowService {
             m.putAll( (Map)extended);
         }
         m.putAll( findNodeInfo(t.get("state").toString()) );
-        beforeCreateTask( m );
+        beforeCreateTask( m, t.get("prevtask") );
         getTaskObj().invokeMethod( "create", new Object[]{m} );
-        afterCreateTask( m );
+        afterCreateTask( m, t.get("prevtask") );
         return m;
     }
     
@@ -278,6 +286,7 @@ public abstract class ActiveWorkflowService {
                     findNextTransition( zz, false, collector, params );
                 }
             } else if( "end".equals(o.get("to"))) {
+                onEndTask( r.get("prevtask"));
                 break;
             } else {
                 Map z = new HashMap();
@@ -307,8 +316,13 @@ public abstract class ActiveWorkflowService {
             r.put("taskid", ff.get("objid"));
         }
         
+        beforeSignal(r);
+        
         //if there is an assignee, move it out from previous task and place it in the new task
         Map t = closeTaskInstance( r );
+        t.put("action", r.get("action"));
+        t.put("data", r.get("data"));
+        
         //close the existing task and find the next instance
         Map m = new HashMap();
         m.put("state", t.get("state"));
@@ -316,9 +330,9 @@ public abstract class ActiveWorkflowService {
         m.put("taskid", t.get("objid"));
         m.put("parentprocessid", t.get("parentprocessid"));
         m.put("salience", t.get("salience")); //this is very impt. for checking salience
-        m.put("action", r.get("action"));
+        m.put("action", t.get("action"));
+        m.put("data", t.get("data"));
         m.put("prevtask", t);
-        m.put("data", r.get("data"));
         
         //get possible concurrent tasks
         List<Map> tsks = new ArrayList();
@@ -339,7 +353,16 @@ public abstract class ActiveWorkflowService {
         Map result = new HashMap();
         result.put("tasks", newTasks);
         result.put("task", newTask );
-        //get the first task and open it.
+        result.put("prevtask", t);
+        result.put("data", t.get("data"));
+        result.put("action", t.get("action"));
+        if(newTask!=null) {
+            loadTask(newTask, newTask);
+        }
+        afterSignal(result);
+        result.remove("prevtask");
+        result.remove("data");
+        result.remove("action");
         return result;
     }
     
@@ -410,34 +433,41 @@ public abstract class ActiveWorkflowService {
      */
     @ProxyMethod
     public Map openTask( Map map ) throws Exception {
+        beforeOpenTask(map);
         Map t = getTaskInfo(map);
         isTaskOwner(t);
+        afterOpenTask(t);
+        loadTask(t, null);
         return t;
     }
     
-    //overridable
-    public void initWorkitem( Object workitem, Map task ) {
-        //do nothing
+    private void loadTask( Map task, Map prevTask ) {
+        List  transitions = (List) task.get("transitions");
+        if( transitions.size() > 0 ) {
+            for(Object t: transitions) {
+                loadTransition( t, task );
+            }
+        }
+        List  workitemTypes = (List) task.get("workitemtypes");
+        if( workitemTypes.size() > 0 ) {
+            for(Object o: workitemTypes) {
+                loadWorkitem( o, task );
+            }
+        }
+        afterLoadTask( task, prevTask );
     }
+    
     
     private Map getTaskInfo( Map map ) throws Exception {
         if(map.get("taskid") == null) throw new Exception("taskid is required in getTaskInfo");
-        beforeOpenTask(map);
         String taskId = map.get("taskid").toString();
         Map task = findTask(taskId);
-        
         //check assignees. if a task has assignee, do not display
         List transitions = getTaskInfoTransitions(task);
         task.put("transitions", transitions );
         //attach also workitem types
         List workitemTypes = getWorkitemTypes( task );
-        if( workitemTypes.size() > 0 ) {
-            for(Object o: workitemTypes) {
-                initWorkitem( o, task );
-            }
-        }
         task.put("workitemtypes", workitemTypes );
-        afterOpenTask(task);
         return task;
     }
     
@@ -449,8 +479,12 @@ public abstract class ActiveWorkflowService {
         List tskList = new ArrayList();
         Map parm = new HashMap();
         for(Map t: tsks) {
-            parm.put( "taskid", t.get("objid") );
-            tskList.add( getTaskInfo( parm ) );
+            if( isTaskOwner(t)) { 
+                parm.put( "taskid", t.get("objid") );
+                Map eTsk = getTaskInfo( parm );
+                eTsk.put("owner", true);
+                tskList.add( eTsk );
+            }
         }
         return tskList;
     }
@@ -463,9 +497,6 @@ public abstract class ActiveWorkflowService {
     }
     
     //overridable
-    public boolean checkTaskOwner( Map task ) {
-        return true;
-    }
     
     private boolean isTaskOwner( Map task ) throws Exception {
         String userId = (String) env.get("USERID");
