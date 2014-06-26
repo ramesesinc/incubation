@@ -64,11 +64,13 @@ public abstract class ContextProvider {
         InputStream is = null;
         try {
             String path = getConfUrl(name);
-            if(path==null) return new HashMap();
+            if(path == null) return new HashMap(); 
+            
             URL u = new URL( path );
             is = u.openStream();
             Properties props = new Properties();
-            if(is!=null) props.load( is );
+            if(is != null) props.load( is );
+            
             return props;
         } catch(FileNotFoundException fnfe) {
             throw new RuntimeException("'"+name+"' conf not found"); 
