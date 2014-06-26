@@ -44,8 +44,8 @@ public abstract class ActiveWorkflowService {
         return getProcessname().toLowerCase()+"_task";
     }
     
-    protected String getSubtaskTablename() {
-        return getProcessname().toLowerCase()+"_subtask";
+    protected String getWorkitemTablename() {
+        return getProcessname().toLowerCase()+"_workitem";
     }
     
     private GroovyObject getTaskObj() {
@@ -111,10 +111,10 @@ public abstract class ActiveWorkflowService {
         if(t.get("enddate")!=null) throw new Exception("Task has already ended");
         t.put("enddate", dateSvc.getServerDate());
         
-        //check first if there are open subtasks
-        List openSubTask = getOpenSubtaskList(r);
-        if(openSubTask.size()>0)
-            throw new Exception("There are still open subtasks for " + t.get("state"));
+        //check first if there are open workitems
+        List openWorkitems = getOpenWorkitemList(r);
+        if(openWorkitems.size()>0)
+            throw new Exception("There are still open work items for " + t.get("state"));
         
         Map actor = new HashMap();
         actor.put("objid", env.get("USERID"));
@@ -190,10 +190,10 @@ public abstract class ActiveWorkflowService {
     }
     
     @ProxyMethod
-    public List getOpenSubtaskList( Map parm ) throws Exception {
-        parm.put( "subtaskTablename",getSubtaskTablename() );
+    public List getOpenWorkitemList( Map parm ) throws Exception {
+        parm.put( "workitemTablename",getWorkitemTablename() );
         parm.put( "processname",getProcessname() );
-        return (List)getWfObj().invokeMethod("getOpenSubtaskList", new Object[]{parm} );
+        return (List)getWfObj().invokeMethod("getOpenWorkitemList", new Object[]{parm} );
     }
     
     private Map findNodeInfo(  String state ) {
@@ -320,26 +320,39 @@ public abstract class ActiveWorkflowService {
         m.put("prevtask", t);
         m.put("data", r.get("data"));
         
-        List<Map> coll = new ArrayList();
-        findNextTransition( m, false, coll, r );
-        for(Map t1: coll) {
-            t1.put("transitions", getTaskInfoTransitions(t1));
+        //get possible concurrent tasks
+        List<Map> tsks = new ArrayList();
+        findNextTransition( m, false, tsks, r );
+        Map newTask = null;
+        List newTasks = new ArrayList();
+        for( Map tk : tsks ) {
+            if( isTaskOwner(tk) ) {
+                newTasks.add(  tk );
+                tk.put("taskid", tk.get("objid"));
+                if(newTask==null) {
+                    newTask = getTaskInfo(tk);
+                    newTask.put("owner",true);
+                }
+            }
         }
+        
         Map result = new HashMap();
-        result.put("tasks", coll);
+        result.put("tasks", newTasks);
+        result.put("task", newTask );
+        //get the first task and open it.
         return result;
     }
     
     @ProxyMethod
-    public Map addSubtask( Map t ) throws Exception {
-        if( t.get("taskid") == null ) throw new Exception("taskid is required in WorkflowService.addSubtask");
+    public Map addWorkitem( Map t ) throws Exception {
+        if( t.get("taskid") == null ) throw new Exception("taskid is required in WorkflowService.addWorkitem");
         
-        //check first if task is already closed, you cannot add a subtask to it.
+        //check first if task is already closed, you cannot add a workitem to it.
         Map tsk =  findTask( t.get("taskid").toString() );
         
         if(tsk.get("enddate")!=null) throw new Exception("Task has already ended");
         
-        if( t.get("assignee") == null ) throw new Exception("assignee is required in WorkflowService.addSubtask");
+        if( t.get("assignee") == null ) throw new Exception("assignee is required in WorkflowService.addWorkitem");
         Map m = new HashMap();
         m.put("objid", "WFST"+new UID());
         m.put("taskid", t.get("taskid"));
@@ -347,15 +360,15 @@ public abstract class ActiveWorkflowService {
         m.put("message", t.get("message"));
         m.put("startdate", dateSvc.getServerDate());
         m.put("assignee", t.get("assignee"));
-        getTaskObj().invokeMethod( "create", new Object[]{  m, "subtask"} );
+        getTaskObj().invokeMethod( "create", new Object[]{  m, "workitem"} );
         return m;
     }
     
     @ProxyMethod
-    public Map closeSubtask(Map r) throws Exception {
-        if( r.get("objid") == null ) throw new Exception("objid is required in WorkflowService.addSubtask");
-        Map t = (Map)getTaskObj().invokeMethod( "read", new Object[]{r,"subtask"}  );
-        if(t.get("enddate")!=null) throw new Exception("subtask is already closed");
+    public Map closeWorkitem(Map r) throws Exception {
+        if( r.get("objid") == null ) throw new Exception("objid is required in WorkflowService.addWorkitem");
+        Map t = (Map)getTaskObj().invokeMethod( "read", new Object[]{r,"workitem"}  );
+        if(t.get("enddate")!=null) throw new Exception("workitem is already closed");
         t.put("enddate", dateSvc.getServerDate());
         t.put("remarks", r.get("remarks"));
         Map actor = new HashMap();
@@ -363,7 +376,7 @@ public abstract class ActiveWorkflowService {
         actor.put("name", env.get("FULLNAME"));
         actor.put("title", env.get("JOBTITLE"));
         t.put("actor", actor);
-        getTaskObj().invokeMethod("update", new Object[]{t, "subtask"} );
+        getTaskObj().invokeMethod("update", new Object[]{t, "workitem"} );
         return t;
     }
     
@@ -397,7 +410,14 @@ public abstract class ActiveWorkflowService {
      */
     @ProxyMethod
     public Map openTask( Map map ) throws Exception {
-        return getTaskInfo(map);
+        Map t = getTaskInfo(map);
+        isTaskOwner(t);
+        return t;
+    }
+    
+    //overridable
+    public void initWorkitem( Object workitem, Map task ) {
+        //do nothing
     }
     
     private Map getTaskInfo( Map map ) throws Exception {
@@ -409,6 +429,14 @@ public abstract class ActiveWorkflowService {
         //check assignees. if a task has assignee, do not display
         List transitions = getTaskInfoTransitions(task);
         task.put("transitions", transitions );
+        //attach also workitem types
+        List workitemTypes = getWorkitemTypes( task );
+        if( workitemTypes.size() > 0 ) {
+            for(Object o: workitemTypes) {
+                initWorkitem( o, task );
+            }
+        }
+        task.put("workitemtypes", workitemTypes );
         afterOpenTask(task);
         return task;
     }
@@ -426,4 +454,39 @@ public abstract class ActiveWorkflowService {
         }
         return tskList;
     }
+    
+    @ProxyMethod
+    public List getWorkitemTypes( Map map ) throws Exception {
+        if(!map.containsKey( "state")) throw new Exception("state is required");
+        map.put("processname", getProcessname() );
+        return (List)getWfObj().invokeMethod("getWorkitemTypes", new Object[]{map} );
+    }
+    
+    //overridable
+    public boolean checkTaskOwner( Map task ) {
+        return true;
+    }
+    
+    private boolean isTaskOwner( Map task ) throws Exception {
+        String userId = (String) env.get("USERID");
+        if( userId == null ) 
+            throw new Exception("USERID is null. Please check if you have logged in");
+        Map assignee = (Map)task.get("assignee");
+        if(assignee!=null && assignee.get("objid") != null) {
+            String assigneeId = (String)assignee.get("objid");
+            if(assigneeId == null) return true;
+            if(userId.equals(assigneeId)) {
+                task.put("owner", true);
+                return true;
+            }
+        } 
+        boolean test = checkTaskOwner( task );
+        if(test==true) {
+            task.put("owner", true);
+            return true;
+        }
+        task.put("owner", false);
+        return false;
+    }
+    
 }
