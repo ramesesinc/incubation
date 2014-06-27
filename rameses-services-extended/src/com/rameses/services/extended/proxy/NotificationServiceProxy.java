@@ -9,7 +9,8 @@
 
 package com.rameses.services.extended.proxy;
 
-import groovy.lang.GroovyObject;
+import com.rameses.common.MethodResolver;
+import com.rameses.util.ExceptionManager;
 import java.util.Map;
 
 /**
@@ -18,15 +19,20 @@ import java.util.Map;
  */
 public class NotificationServiceProxy {
     
-    private GroovyObject svc;
+    private Object svc;
     
     /** Creates a new instance of WrokflowServiceProxy */
     public NotificationServiceProxy(Object w) {
-        this.svc = (GroovyObject)w;
+        this.svc = w;
     }
 
-    public void addMessage(Map msg) {
-        svc.invokeMethod( "addMessage", new Object[]{msg} );   
+    public void addMessage(Map msg) throws Exception{
+        try {
+            MethodResolver.getInstance().invoke(svc, "addMessage", new Object[]{msg});
+        }
+        catch(Exception e) {
+            throw ExceptionManager.getOriginal(e);
+        }
     }
      
     
