@@ -94,4 +94,8 @@ public class WorkitemServiceProxy {
         return (Map)workitemDb.invokeMethod("update", new Object[]{t} );
     }
     
+    public Map openWorkitem(Map r) throws Exception {
+        return (Map)workitemDb.invokeMethod( "read", new Object[]{r}  );
+    }
+    
 }

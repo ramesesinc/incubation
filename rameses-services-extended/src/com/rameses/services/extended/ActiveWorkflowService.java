@@ -100,6 +100,8 @@ public abstract class ActiveWorkflowService {
     public void onEndTask() {;}
     public void loadWorkitem( Object workitem, Object task ) {;}
     public void loadTransition( Object transition, Object task ) {;}
+    public void beforeOpenWorkitem(Object o) {;}
+    public void afterOpenWorkitem(Object o) {;}    
     
     public Object getNotificationMessage( Object o ) {return null;}
     
@@ -324,13 +326,18 @@ public abstract class ActiveWorkflowService {
         if( getNotificationService()!=null ) {
             Map msg = (Map)getNotificationMessage(newTask);
             if(msg!=null) {
-                if(msg.get("receipientid")==null) throw new Exception("receipientid is required in getNotificationService");
-                if(msg.get("receipienttype")==null) throw new Exception("receipienttype is required in getNotificationService");
+                if(msg.get("recipientid")==null) throw new Exception("recipientid is required in getNotificationService");
+                if(msg.get("recipienttype")==null) throw new Exception("recipienttype is required in getNotificationService");
                 if(msg.get("senderid")==null) throw new Exception("senderid is required in getNotificationService");
                 if(msg.get("sender")==null) throw new Exception("sender is required in getNotificationService");
                 if(msg.get("message")==null) throw new Exception("message is required in getNotificationService");
                 if(msg.get("filetype")==null) throw new Exception("filetype is required in getNotificationService");
-                getNotificationServiceProxy().addMessage(msg);
+                try {
+                    getNotificationServiceProxy().addMessage(msg);
+                }
+                catch(Exception e) {
+                    System.out.println("Cannot send message due to:" + e.getMessage() + ". message is " + msg );
+                }
             }
         }
         return result;
@@ -345,6 +352,14 @@ public abstract class ActiveWorkflowService {
         Map tsk = getWfProxy().findTask( taskid );
         if(tsk.get("enddate")!=null) throw new Exception("Task has already ended");
         return  getWorkitemProxy().createWorkitem( t,  (Date) dateSvc.getServerDate() );
+    }
+    
+    @ProxyMethod
+    public Map openWorkitem( Map r ) throws Exception {
+        beforeOpenWorkitem(r);
+        Map wi = getWorkitemProxy().openWorkitem(r);
+        afterOpenWorkitem(wi);
+        return wi;
     }
     
     @ProxyMethod
