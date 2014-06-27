@@ -38,6 +38,7 @@ public class ScriptInfoContextResource extends ContextResource {
             Class clazz = gc.parseClass( is );
             return new ScriptInfo(name, u, clazz,  ctx, gc);
         } catch(Exception e) {
+            System.out.println("[ScriptInfo] failed to parse script " + name);
             e.printStackTrace();
             throw e;
         }

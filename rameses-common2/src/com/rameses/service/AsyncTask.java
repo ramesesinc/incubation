@@ -38,7 +38,10 @@ public class AsyncTask implements Runnable {
             Object result = proxy.invoke( methodName, args );
             if (result instanceof AsyncToken) {
                 AsyncToken token = (AsyncToken)result; 
-                if (token.isClosed()) return;
+                if (token.isClosed()) {
+                    handler.onMessage(AsyncHandler.EOF); 
+                    return;
+                }
                 
                 AsyncPoller poller = new AsyncPoller(proxy.getConf(), token); 
                 handle(poller, poller.poll()); 
@@ -55,10 +58,16 @@ public class AsyncTask implements Runnable {
     private void handle(AsyncPoller poller, Object result) throws Exception {
         if (result instanceof AsyncToken) {
             AsyncToken at = (AsyncToken)result;
-            if (at.isClosed()) return; 
+            if (at.isClosed()) {
+                handler.onMessage(AsyncHandler.EOF); 
+                return;
+            } 
         } 
         
-        if (!notify( result )) return; 
+        if (!notify( result )) {
+            handler.onMessage(AsyncHandler.EOF); 
+            return;
+        } 
         
         Object o = poller.poll(); 
         if (o == null) {
