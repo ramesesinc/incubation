@@ -14,10 +14,12 @@ package com.rameses.common;
  *
  * @author ms
  */
-public interface AsyncHandler {
+public interface AsyncHandler 
+{
+    public final static int EOF = -1;
     
+    void onError(Exception e);    
     void onMessage(Object o);
-    void onError(Exception e);
     
     //alternative method
     void call(Object o);
