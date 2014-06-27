@@ -218,7 +218,7 @@ public abstract class ActiveWorkflowService {
         List<Map> transitions = getWfProxy().getTransitionList(nodeName);
         for(Map o : transitions) {
             if( breakTransition ) break;
-            String action = (String)env.get("ACTION");
+            String action = (String)env.get("action");
             if( action!=null &&  !action.equals(o.get("action"))) continue;
             if(!fireAll) breakTransition = true;
             if( "fork".equals( o.get("tonodetype") )) {
