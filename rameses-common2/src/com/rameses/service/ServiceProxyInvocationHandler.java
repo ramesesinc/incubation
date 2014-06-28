@@ -24,10 +24,15 @@ public class ServiceProxyInvocationHandler implements InvocationHandler {
     private static final ExecutorService thread = Executors.newFixedThreadPool(10);
     
     private ServiceProxy proxy;
+    private boolean failOnConnectionError;
     
-    /** Creates a new instance of ServiceProxyInvocationHandler */
-    public ServiceProxyInvocationHandler(ServiceProxy p) {
-        this.proxy = p;
+    public ServiceProxyInvocationHandler(ServiceProxy proxy) {
+        this(proxy, true);
+    }
+    
+    public ServiceProxyInvocationHandler(ServiceProxy proxy, boolean failOnConnectionError) {
+        this.proxy = proxy;
+        this.failOnConnectionError = failOnConnectionError; 
     }
     
     //do not use invokeMethod because it is a reserved word in groovy
@@ -38,6 +43,7 @@ public class ServiceProxyInvocationHandler implements InvocationHandler {
         try {
             if( args == null || args.length == 0 ) {
                 return this.proxy.invoke(methodName);
+                
             } else {
                 AsyncHandler handler = null;
                 if(args[args.length-1] instanceof AsyncHandler ) {
@@ -59,13 +65,20 @@ public class ServiceProxyInvocationHandler implements InvocationHandler {
         } 
         catch(Throwable t) 
         {
+            System.out.println("ServiceProxyInvocationHandler_connectionError-> " + isConnectionError(t));
+            System.out.println("ServiceProxyInvocationHandler_failOnConnectionError-> " + failOnConnectionError);
+            
             t.printStackTrace();
-            if (t instanceof AppException)
-                throw t;
-            else if (t instanceof RuntimeException) 
-                throw (RuntimeException) t;
-            else
-                throw new RuntimeException(t.getMessage(), t);
+            
+            if (isConnectionError(t) && !failOnConnectionError) {
+                return null; 
+            } else if (t instanceof AppException) { 
+                throw t; 
+            } else if (t instanceof RuntimeException) { 
+                throw (RuntimeException) t; 
+            } else { 
+                throw new RuntimeException(t.getMessage(), t); 
+            } 
         }
     }
     
@@ -109,5 +122,14 @@ public class ServiceProxyInvocationHandler implements InvocationHandler {
          */
     }
     
-    
+    private boolean isConnectionError(Throwable e) {
+        if (e instanceof java.net.ConnectException) return true; 
+        else if (e instanceof java.net.SocketException) return true; 
+        else if (e instanceof java.net.SocketTimeoutException) return true; 
+        else if (e instanceof java.net.UnknownHostException) return true; 
+        else if (e instanceof java.net.MalformedURLException) return true; 
+        else if (e instanceof java.net.ProtocolException) return true; 
+        else if (e instanceof java.net.UnknownServiceException) return true; 
+        else return false; 
+    }    
 }
