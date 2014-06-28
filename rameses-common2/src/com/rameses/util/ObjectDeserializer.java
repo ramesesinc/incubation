@@ -214,6 +214,7 @@ public class ObjectDeserializer
                 ((Map)obj).put(key, value);
             }
             else {
+                System.out.println("ObjectNode [ERROR] " + value);
                 throw new RuntimeException("Object is not a map.");
             }
         }
@@ -223,6 +224,7 @@ public class ObjectDeserializer
                 ((List)obj).add(value);
             }
             else {
+                System.out.println("ObjectNode [ERROR] " + value);
                 throw new RuntimeException("Object is not a list.");
             }
         }
