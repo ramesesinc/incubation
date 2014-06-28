@@ -30,13 +30,17 @@ public final class InvokerProxy {
     private Map conf;
     private Map<String, Class> scripts = Collections.synchronizedMap(  new HashMap() );
     private GroovyClassLoader classLoader;
-    
-    /** Creates a new instance of InvokerProxy */
+    private boolean failOnConnectionError;
+
     public InvokerProxy(AppContext ctx, Map conf) {
         this.conf = conf;
         this.context = ctx;
         this.classLoader = new GroovyClassLoader(ctx.getClassLoader());
-    }
+        this.failOnConnectionError = true;
+
+        Object val = (conf == null? null: conf.get("failOnConnectionError"));
+        if ("false".equals(val+"")) this.failOnConnectionError = false; 
+    } 
     
     private interface ScriptInfoInf  {
         String getStringInterface();
@@ -74,7 +78,7 @@ public final class InvokerProxy {
         }
     
         ServiceProxy sp = ect.create( serviceName, env );
-        ServiceProxyInvocationHandler si = new ServiceProxyInvocationHandler(sp);
+        ServiceProxyInvocationHandler si = new ServiceProxyInvocationHandler(sp, failOnConnectionError);
                 
         Object obj = scripts.get(serviceName).newInstance();
         ((GroovyObject)obj).setProperty( "invoker", si );

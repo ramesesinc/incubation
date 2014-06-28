@@ -37,13 +37,15 @@ public class XAsyncLocalConnection extends XConnection implements XAsyncConnecti
     
     public MessageQueue register( String id ) throws Exception {
         synchronized (REGISTRY_LOCK) {
-            MessageQueue mq = new LocalMessageQueue(id, conf);
             if (map.containsKey(id)) {
                 return map.get(id); 
+                
             } else {
                 if (debug) {
                     System.out.println("[" + getClass().getSimpleName() + "_register] " + id);
                 }
+                
+                MessageQueue mq = new LocalMessageQueue(id, conf);
                 map.put( id, mq );
                 return mq;
             }

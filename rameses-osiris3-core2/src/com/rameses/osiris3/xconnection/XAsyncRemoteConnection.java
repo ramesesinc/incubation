@@ -27,13 +27,18 @@ public class XAsyncRemoteConnection extends XConnection implements XAsyncConnect
     private String context;
     private String connection;
     private boolean debug;
+    private boolean failOnConnectionError;
     
     public XAsyncRemoteConnection(String name, Map conf) {
         this.name = name;
         this.conf = conf;
+        this.failOnConnectionError = true;
         
         if (conf != null) {
             debug = "true".equals(conf.get("debug")+"");
+            if ("false".equals(conf.get("failOnConnectionError")+"")) {
+                failOnConnectionError = false;
+            } 
         } 
     } 
     
@@ -112,6 +117,30 @@ public class XAsyncRemoteConnection extends XConnection implements XAsyncConnect
             this.client = new HttpClient(host, true);
         }
         
+        private Object post(String path, Object params) throws Exception {
+            try {
+                return client.post(path, new Object[]{ params }); 
+            } catch(Exception e) {
+                if (isConnectionError(e) && root.failOnConnectionError) {
+                    throw e; 
+                } else {
+                    e.printStackTrace();
+                    return null; 
+                }
+            }
+        } 
+            
+        private boolean isConnectionError(Exception e) {
+            if (e instanceof java.net.ConnectException) return true; 
+            else if (e instanceof java.net.SocketException) return true; 
+            else if (e instanceof java.net.SocketTimeoutException) return true; 
+            else if (e instanceof java.net.UnknownHostException) return true; 
+            else if (e instanceof java.net.MalformedURLException) return true; 
+            else if (e instanceof java.net.ProtocolException) return true; 
+            else if (e instanceof java.net.UnknownServiceException) return true; 
+            else return false; 
+        }
+        
         public void register() throws Exception {
             if (debug) {
                 System.out.println("[" + getClass().getSimpleName() + "_register] " + id);
@@ -122,7 +151,7 @@ public class XAsyncRemoteConnection extends XConnection implements XAsyncConnect
             params.put("id", id);
             params.put("context", context);
             params.put("connection", root.connection); 
-            client.post(path, new Object[]{ params }); 
+            post(path, params); 
         } 
         
         public void unregister() throws Exception {
@@ -135,7 +164,7 @@ public class XAsyncRemoteConnection extends XConnection implements XAsyncConnect
             params.put("id", id);
             params.put("context", context);
             params.put("connection", root.connection); 
-            client.post(path, new Object[]{ params });
+            post(path, params); 
         }        
         
         public void push(Object obj) throws Exception {
@@ -148,7 +177,7 @@ public class XAsyncRemoteConnection extends XConnection implements XAsyncConnect
             params.put("context", context);
             params.put("connection", root.connection); 
             params.put("data", obj);
-            client.post(path, new Object[]{ params });
+            post(path, params); 
         }
 
         public Object poll() throws Exception {
@@ -160,7 +189,7 @@ public class XAsyncRemoteConnection extends XConnection implements XAsyncConnect
             params.put("id", id);
             params.put("context", context);
             params.put("connection", root.connection); 
-            return client.post(path, new Object[]{ params });            
+            return post(path, params); 
         } 
     } 
     
