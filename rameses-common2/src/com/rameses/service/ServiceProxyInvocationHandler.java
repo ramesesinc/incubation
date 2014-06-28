@@ -65,9 +65,6 @@ public class ServiceProxyInvocationHandler implements InvocationHandler {
         } 
         catch(Throwable t) 
         {
-            System.out.println("ServiceProxyInvocationHandler_connectionError-> " + isConnectionError(t));
-            System.out.println("ServiceProxyInvocationHandler_failOnConnectionError-> " + failOnConnectionError);
-            
             t.printStackTrace();
             
             if (isConnectionError(t) && !failOnConnectionError) {
