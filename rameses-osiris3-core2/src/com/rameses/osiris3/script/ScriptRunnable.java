@@ -69,7 +69,7 @@ public class ScriptRunnable implements Runnable {
         } catch(Exception ex) {
             txn.rollback();
             err = ExceptionManager.getOriginal(ex);
-            err.printStackTrace();
+            ex.printStackTrace();
             if(listener!=null) listener.onRollback(ex);
         } finally {
             txn.close();
