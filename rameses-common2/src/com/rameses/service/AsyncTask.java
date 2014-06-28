@@ -12,6 +12,7 @@ public class AsyncTask implements Runnable {
     private ServiceProxy proxy;
     
     private AsyncPoller poller; 
+    private int retrycount;
     
     public AsyncTask(ServiceProxy proxy, String methodName, Object[] args, AsyncHandler handler) {
         this.proxy = proxy;
@@ -35,6 +36,8 @@ public class AsyncTask implements Runnable {
     
     public void run() {
         try {
+            retrycount = 0;
+            
             Object result = proxy.invoke( methodName, args );
             if (result instanceof AsyncToken) {
                 AsyncToken token = (AsyncToken)result; 
@@ -64,16 +67,19 @@ public class AsyncTask implements Runnable {
             } 
         } 
         
-        if (!notify( result )) {
-            handler.onMessage(AsyncHandler.EOF); 
-            return;
-        } 
-        
-        Object o = poller.poll(); 
-        if (o == null) {
-            handler.onMessage( o ); 
-        } else {
-            handle(poller, o); 
+        if (result == null) {
+            retrycount++; 
+            if (retrycount < 3) {
+                handle(poller, poller.poll()); 
+            } else {
+                handler.onMessage(AsyncHandler.EOF); 
+            }
+        } else { 
+            if (notify( result )) { 
+                handle(poller, poller.poll()); 
+            } else { 
+                handler.onMessage(AsyncHandler.EOF); 
+            } 
         } 
     } 
     
@@ -91,7 +97,7 @@ public class AsyncTask implements Runnable {
             return !is_closed; 
         } else {
             handler.onMessage(o); 
-            return (o == null? false: true); 
+            return true; 
         } 
     }
 }

@@ -83,7 +83,7 @@ public abstract class ActiveWorkflowService {
         r.put("nodename", "start");
         r.put("prevtask", new HashMap());
         List list = new ArrayList();
-        findNextTransition(r, false, list);
+        findNextTransition(r, false, list, null);
         return list;
     }
     
@@ -103,6 +103,9 @@ public abstract class ActiveWorkflowService {
     public void beforeOpenWorkitem(Object o) {;}
     public void afterOpenWorkitem(Object o) {;}    
     
+    public void beforeCloseWorkitem(Object o) {;}
+    public void afterCloseWorkitem(Object o) {;}    
+
     public Object getNotificationMessage( Object o ) {return null;}
     
     public boolean checkTaskOwner( Map task ) {return true; }
@@ -135,7 +138,7 @@ public abstract class ActiveWorkflowService {
         t.put("enddate", dateSvc.getServerDate());
         
         //check first if there are open workitems
-        if(getWorkitemDB()==null ) getWorkitemProxy().checkHasOpenWorkitems(r);
+        if(getWorkitemDB()!=null ) getWorkitemProxy().checkHasOpenWorkitems(r);
         
         Map actor = new HashMap();
         actor.put("objid", env.get("USERID"));
@@ -207,7 +210,7 @@ public abstract class ActiveWorkflowService {
         return mlist;
     }
     
-    private void findNextTransition( Map r, boolean fireAll, List collector ) throws Exception {
+    private void findNextTransition( Map r, boolean fireAll, List collector, String tAction ) throws Exception {
         String nodeName = (String)r.get("nodename");
         if(nodeName==null) nodeName = (String)r.get("state");
         if(nodeName==null) throw new Exception("state or nodename is required for nextTransition");
@@ -218,8 +221,7 @@ public abstract class ActiveWorkflowService {
         List<Map> transitions = getWfProxy().getTransitionList(nodeName);
         for(Map o : transitions) {
             if( breakTransition ) break;
-            String action = (String)env.get("action");
-            if( action!=null &&  !action.equals(o.get("action"))) continue;
+            if( tAction!=null &&  !tAction.equals(o.get("action"))) continue;
             if(!fireAll) breakTransition = true;
             if( "fork".equals( o.get("tonodetype") )) {
                 //create fork instance
@@ -235,7 +237,7 @@ public abstract class ActiveWorkflowService {
                 param.put("nodename", o.get("to"));
                 param.put("parentprocessid", forkId);
                 param.put( "refid", r.get("refid") );
-                findNextTransition(param, true, collector);
+                findNextTransition(param, true, collector, null);
             } else if( "join".equals(o.get("tonodetype")) ) {
                 String parentProcessId = (String)r.get("parentprocessid");
                 List pendingList = getOpenForkList( parentProcessId, r );
@@ -250,12 +252,14 @@ public abstract class ActiveWorkflowService {
                     zz.put( "refid", r.get("refid") );
                     zz.put( "nodename", o.get("to") );
                     
-                    findNextTransition( zz, false, collector );
+                    findNextTransition( zz, false, collector, null );
                 }
-            } else if( "end".equals(o.get("to"))) {
+            } 
+            else if( "end".equals(o.get("to"))) {
                 onEndTask();
                 break;
-            } else {
+            } 
+            else {
                 Map z = new HashMap();
                 z.put("refid", r.get("refid"));
                 z.put("parentprocessid", r.get("parentprocessid"));
@@ -279,6 +283,7 @@ public abstract class ActiveWorkflowService {
             r.put("taskid", ff.get("objid"));
         }
         
+        String action = (String)r.get("action");
         env.put("data", r.get("data"));
         env.put("action", r.get("action"));
         env.put("message", r.get("message"));
@@ -300,7 +305,7 @@ public abstract class ActiveWorkflowService {
         
         //get possible concurrent tasks
         List<Map> tsks = new ArrayList();
-        findNextTransition( m, false, tsks );
+        findNextTransition( m, false, tsks, action );
         Map newTask = null;
         List newTasks = new ArrayList();
         for( Map tk : tsks ) {
@@ -365,12 +370,15 @@ public abstract class ActiveWorkflowService {
     @ProxyMethod
     public Map closeWorkitem(Map r) throws Exception {
         if( getWorkitemDB()==null ) throw new Exception("WorkitemDb not defined");
+        beforeCloseWorkitem(r);
         if( r.get("objid") == null ) throw new Exception("objid is required in WorkflowService.closeWorkitem");
         Map actor = new HashMap();
         actor.put("objid", env.get("USERID"));
         actor.put("name", env.get("FULLNAME"));
         actor.put("title", env.get("JOBTITLE"));
-        return getWorkitemProxy().closeWorkItem( r,(Date)dateSvc.getServerDate(),actor );
+        Map w = (Map) getWorkitemProxy().closeWorkItem( r,(Date)dateSvc.getServerDate(),actor );
+        afterCloseWorkitem(w);
+        return w;
     }
     
     
@@ -414,7 +422,7 @@ public abstract class ActiveWorkflowService {
         task.put("transitions", xtransitions );
         
         //attach also workitem types
-        if( getWorkitemDB()==null ) {
+        if( getWorkitemDB()!=null ) {
             Map parm = new HashMap();
             parm.put("data", data);
             parm.put("task", task);
