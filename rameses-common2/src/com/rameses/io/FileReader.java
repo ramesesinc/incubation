@@ -82,8 +82,8 @@ public class FileReader
                         
             ServiceProxy proxy = getServiceContext().create(serviceName, env);
             
-            Map params = new HashMap();
-            params.put("objid", id);            
+            Map params = new HashMap(); 
+            params.put("objid", id); 
             proxy.invoke("removeFile", new Object[]{ params }); 
         } catch(RuntimeException re) {
             throw re; 
