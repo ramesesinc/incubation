@@ -24,20 +24,24 @@ public class AsyncRequest implements Serializable {
     private Map env;
     private String contextName;
     private String varStatus;
-    
-    
-    
+
     public AsyncRequest(String serviceName, String methodName, Object[] args, Map env) {
-        id = "ASYNC"+ new UID();
+        this(serviceName, methodName, args, env, "ASYNC"+ new UID()); 
+    }
+    
+    public AsyncRequest(String serviceName, String methodName, Object[] args, Map env, String id) { 
+        if (id == null || id.trim().length() == 0) { 
+            throw new NullPointerException("Please specify id");
+        }
+        
+        this.id = id; 
         this.serviceName = serviceName;
         this.methodName = methodName;
         this.args = args;
         this.env = env;
     }
 
-    public String getId() {
-        return id;
-    }
+    public String getId() { return id; }
 
     public String getConnection() { return connection; }
     public void setConnection(String connection) {
