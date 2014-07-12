@@ -1,0 +1,8 @@
+{
+  caption: 'ROUNDTOTEN',
+  description: 'returns the number of rounded to nearest ten value.',
+  code: 'com.rameses.functions.NumberFunc.roundToTen',
+  title: '@ROUNDTOTEN( value )', 
+  signature: '@ROUNDTOTEN( | )',
+  group: 'number'  
+}
