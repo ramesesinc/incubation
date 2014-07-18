@@ -25,6 +25,16 @@ public final class DateFunc {
         return m2 - m1;
     }
     
+    public static long yearsDiff( Date startDate, Date endDate) {
+        if (startDate == null || endDate == null ) 
+            return 0;
+        
+        long m = monthsDiff(startDate, endDate);
+        if (m <= 0)
+            return 0;
+        return m % 12;
+    }
+    
     public static long daysDiff( Date startMonth, Date endMonth ) {
         return DateUtil.diff(startMonth, endMonth, Calendar.DATE);
     }
