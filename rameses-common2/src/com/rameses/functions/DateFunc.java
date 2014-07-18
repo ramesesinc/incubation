@@ -76,4 +76,22 @@ public final class DateFunc {
         return cal.getTime();
     }
     
+    public static int getMonth( Date dt ) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(dt);
+        return cal.get(Calendar.MONTH)+1;
+    }
+
+    public static int getYear( Date dt ) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(dt);
+        return cal.get(Calendar.YEAR);
+    }
+    
+    public static int getDay( Date dt ) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(dt);
+        return cal.get(Calendar.DATE);
+    }
+
 }

@@ -1,0 +1,8 @@
+{
+  caption: 'YEAR',
+  description: 'returns the year based on the date',
+  code: 'com.rameses.functions.DateFunc.getYear',
+  title: '@YEAR( date )', 
+  signature: '@YEAR( | )', 
+  group: 'date' 
+}

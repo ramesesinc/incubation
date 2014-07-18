@@ -1,0 +1,8 @@
+{
+  caption: 'MONTH',
+  description: 'returns the month based on the date',
+  code: 'com.rameses.functions.DateFunc.getMonth',
+  title: '@MONTH( date )', 
+  signature: '@MONTH( | )', 
+  group: 'date' 
+}
