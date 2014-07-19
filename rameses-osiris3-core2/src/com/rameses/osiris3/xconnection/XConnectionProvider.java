@@ -50,7 +50,10 @@ public abstract class XConnectionProvider {
             builder.append(str.substring(startidx, idx0)); 
             
             Object objval = appconf.get(skey); 
-            if (objval == null) objval = System.getProperty(skey); 
+            if ("app.name".equals(skey)) {
+                objval = (context==null? null: context.getName());
+            }
+            if (objval == null) objval = System.getProperty(skey);             
             
             if (objval == null) { 
                 builder.append(str.substring(idx0, idx1+1)); 
