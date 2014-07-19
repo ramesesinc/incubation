@@ -63,6 +63,8 @@ public class HttpClientConnection extends XConnection
     } 
 
     public void send(Object message) {
+        if (message == null) return; 
+        
         queue.add(message); 
     }
     
