@@ -14,11 +14,13 @@ import com.rameses.osiris3.core.ServerResource;
 
 import com.rameses.util.Service;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
 
@@ -49,9 +51,7 @@ public class DsServerResource extends ServerResource {
         try {
             String rootUrl = server.getRootUrl();
             is = new URL( rootUrl +  "/datasources/" + name ).openStream();
-            Properties props = new Properties();
-            props.load(is);
-            return props;
+            return new Config().read(is); 
         } catch(FileNotFoundException fnfe) {
             throw new RuntimeException("'"+name+"' datasource not found"); 
         } catch(RuntimeException re) {
@@ -87,4 +87,20 @@ public class DsServerResource extends ServerResource {
             }
         }
     } 
+    
+    
+    private class Config extends Properties 
+    {
+        private Map conf = new LinkedHashMap();
+        
+        public Map read(InputStream inp) throws IOException {
+            super.load(inp);
+            return conf; 
+        }
+        
+        public Object put(Object key, Object value) {
+            conf.put(key, value);             
+            return super.put(key, value); 
+        } 
+    }     
 }
