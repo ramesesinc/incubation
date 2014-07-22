@@ -365,6 +365,7 @@ public class XHtmlView extends JEditorPane implements UIControl, ActiveControl, 
         XHtmlView root = XHtmlView.this;
         
         public void insertText(String text) {}
+        public void appendText(String text) {} 
 
         public String getText() { return root.getText(); } 
         public void setText(String text) {}
