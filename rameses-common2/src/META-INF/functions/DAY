@@ -1,0 +1,8 @@
+{
+  caption: 'DAY',
+  description: 'returns the day based on the date',
+  code: 'com.rameses.functions.DateFunc.getDay',
+  title: '@DAY( date )', 
+  signature: '@DAY( | )', 
+  group: 'date' 
+}
