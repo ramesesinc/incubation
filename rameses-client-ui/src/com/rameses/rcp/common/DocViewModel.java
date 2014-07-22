@@ -39,6 +39,10 @@ public class DocViewModel {
     public void insertText(String text) {
         if (provider != null) provider.insertText(text); 
     }
+    
+    public void appendText(String text) {
+        if (provider != null) provider.appendText(text); 
+    }
 
     public void requestFocus() { 
         if (provider != null) provider.requestFocus();
@@ -62,6 +66,7 @@ public class DocViewModel {
     public static interface Provider 
     {
         void insertText(String text); 
+        void appendText(String text); 
         
         String getText(); 
         void setText(String text);
