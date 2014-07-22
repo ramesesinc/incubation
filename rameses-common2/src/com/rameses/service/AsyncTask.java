@@ -3,6 +3,7 @@ package com.rameses.service;
 import com.rameses.common.AsyncBatchResult;
 import com.rameses.common.AsyncHandler;
 import com.rameses.common.AsyncToken;
+import java.util.concurrent.TimeoutException;
 
 public class AsyncTask implements Runnable {
     
@@ -72,7 +73,7 @@ public class AsyncTask implements Runnable {
             if (retrycount < 3) {
                 handle(poller, poller.poll()); 
             } else {
-                handler.onMessage(AsyncHandler.EOF); 
+                handler.onError(new TimeoutException("poll failed after 3 retries")); 
             }
         } else { 
             if (notify( result )) { 
