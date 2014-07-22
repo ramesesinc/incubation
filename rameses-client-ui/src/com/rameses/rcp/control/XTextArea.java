@@ -4,6 +4,7 @@ import com.rameses.rcp.common.PopupItem;
 import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.common.TextDocumentModel;
 import com.rameses.rcp.common.TextEditorModel;
+import com.rameses.rcp.common.TextWriter;
 import com.rameses.rcp.constant.TextCase;
 import com.rameses.rcp.constant.TrimSpaceOption;
 import com.rameses.rcp.control.table.ExprBeanSupport;
@@ -33,6 +34,8 @@ import java.awt.Graphics;
 import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
+import java.awt.event.AdjustmentEvent;
+import java.awt.event.AdjustmentListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.InputEvent;
@@ -45,7 +48,9 @@ import java.util.List;
 import java.util.Map;
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.JViewport;
 import javax.swing.KeyStroke;
 import javax.swing.UIManager;
 import javax.swing.text.BadLocationException;
@@ -83,6 +88,7 @@ public class XTextArea extends JTextArea implements UIInput, Validatable,
     private ActionHandlerImpl actionHandler = new ActionHandlerImpl();
     
     private String handler;
+    private TextWriter textWriterObject; 
     private TextDocumentModel handlerObject; 
     private TextEditorModel editorModel;    
     
@@ -91,7 +97,11 @@ public class XTextArea extends JTextArea implements UIInput, Validatable,
     
     private String hint;
     private boolean showHint;
+    private boolean autoScrollDown;
         
+    private VerticalAdjustmentListener verticalAdjHandler;
+    private TextWriterHandler textWriterHandler; 
+    
     public XTextArea() {
         super();
         initComponent();
@@ -114,6 +124,9 @@ public class XTextArea extends JTextArea implements UIInput, Validatable,
         
         
         if (Beans.isDesignTime()) return;
+         
+        verticalAdjHandler = new VerticalAdjustmentListener(); 
+        textWriterHandler = new TextWriterHandler(); 
         
         KeyStroke vkspace = KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, InputEvent.CTRL_DOWN_MASK, true); 
         getInputMap().put(vkspace, ACTION_MAPPING_VK_SPACE); 
@@ -217,8 +230,11 @@ public class XTextArea extends JTextArea implements UIInput, Validatable,
         try {
             //force to update component's status
             updateBackground();
-            
+
             Object value = UIControlUtil.getBeanValue(this);
+            if (textWriterObject != null) {
+                value = textWriterObject.getText(); 
+            } 
             setValue(value);
             
         } catch(Exception e) {
@@ -231,10 +247,14 @@ public class XTextArea extends JTextArea implements UIInput, Validatable,
         try {
             setCaretPosition(oldCaretPos); 
         } catch(Exception ign){;} 
+        
+        
+        if (textWriterObject != null) {
+            setEditable(false); 
+        } 
     }
     
-    public void load() 
-    {
+    public void load() {
         setInputVerifier(UIInputUtil.VERIFIER);
         setDocument(textDocument);
         
@@ -244,14 +264,33 @@ public class XTextArea extends JTextArea implements UIInput, Validatable,
             if (obj instanceof TextDocumentModel) {
                 handlerObject = (TextDocumentModel) obj;
                 handlerObject.setProvider(new DocumentProvider()); 
-            } 
+            } else {
+                handlerObject = null; 
+            }
+            
             if (obj instanceof TextEditorModel) { 
                 editorModel = (TextEditorModel)obj; 
-            } 
+            } else {
+                editorModel = null; 
+            }
+            
+            if (obj instanceof TextWriter) {
+                textWriterObject = (TextWriter)obj;
+                textWriterObject.setHandler(textWriterHandler); 
+            } else {
+                textWriterObject = null; 
+            }
         } 
+        
+        if (getParent() instanceof JViewport) {
+            if (getParent().getParent() instanceof JScrollPane) {
+                JScrollPane jsp = (JScrollPane) getParent().getParent(); 
+                jsp.getVerticalScrollBar().addAdjustmentListener(verticalAdjHandler);
+            }
+        }
     }
     
-    public int compareTo(Object o) {
+    public int compareTo(Object o) { 
         return UIControlUtil.compare(this, o);
     }    
     
@@ -277,6 +316,11 @@ public class XTextArea extends JTextArea implements UIInput, Validatable,
         
     // <editor-fold defaultstate="collapsed" desc="  Getters/Setters  "> 
 
+    public boolean isAutoScrollDown() { return autoScrollDown; } 
+    public void setAutoScrollDown(boolean autoScrollDown) {
+        this.autoScrollDown = autoScrollDown; 
+    }
+    
     public void setName(String name) 
     {
         super.setName(name);
@@ -286,7 +330,7 @@ public class XTextArea extends JTextArea implements UIInput, Validatable,
     
     public Object getValue() 
     {
-        String text = getText();
+        String text = (textWriterObject == null? getText(): null); 
         if ( ValueUtil.isEmpty(text) && nullWhenEmpty ) return null;
         
         if ( trimSpaceOption != null ) text = trimSpaceOption.trim(text);
@@ -522,7 +566,7 @@ public class XTextArea extends JTextArea implements UIInput, Validatable,
         public void setText(String text) 
         {
             root.setText((text==null? "": text)); 
-            root.repaint();
+            repaint();
         }
         
         public void insertText(String text) 
@@ -554,11 +598,15 @@ public class XTextArea extends JTextArea implements UIInput, Validatable,
             }
         } 
         
-        public void requestFocus() 
-        {
+        public void appendText(String text) {
+            root.append(text == null? "null": text); 
+            root.verticalAdjHandler.setAllowScrollDown(true); 
+            repaint(); 
+        }
+        
+        public void requestFocus() {
             EventQueue.invokeLater(new Runnable() {
-                public void run() 
-                {
+                public void run() {
                     root.requestFocus();
                     root.grabFocus();
                 }
@@ -567,6 +615,14 @@ public class XTextArea extends JTextArea implements UIInput, Validatable,
         
         public void load() { root.load(); }
         public void refresh() { root.refresh(); } 
+        
+        private void repaint() {
+            EventQueue.invokeLater(new Runnable() {
+                public void run() {
+                    root.repaint(); 
+                }
+            }); 
+        }
     }
     
     // </editor-fold>
@@ -792,4 +848,54 @@ public class XTextArea extends JTextArea implements UIInput, Validatable,
     }
     
     // </editor-fold>       
+    
+    // <editor-fold defaultstate="collapsed" desc=" VerticalAdjustmentListener ">
+    
+    private class VerticalAdjustmentListener implements AdjustmentListener {
+        
+        XTextArea root = XTextArea.this;
+        private boolean allowScrollDown;
+        
+        public void setAllowScrollDown(boolean allowScrollDown) {
+            this.allowScrollDown = allowScrollDown; 
+        }
+        
+        public void adjustmentValueChanged(AdjustmentEvent e) {
+            if (e.getValueIsAdjusting()) return; 
+            if (allowScrollDown || root.isAutoScrollDown()) { 
+                e.getAdjustable().setValue(e.getAdjustable().getMaximum()); 
+                allowScrollDown = false; 
+            } 
+        } 
+    }
+    
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" TextWriterHandler ">
+    
+    private class TextWriterHandler implements TextWriter.Handler 
+    {
+        XTextArea root = XTextArea.this;
+        
+        public void write(String str) {
+            root.append(str == null? "null": str); 
+            root.verticalAdjHandler.setAllowScrollDown(true); 
+            repaint();
+        }
+
+        public void clear() {
+            root.setText(""); 
+            repaint();
+        }
+        
+        private void repaint() {
+            EventQueue.invokeLater(new Runnable() {
+                public void run() {
+                    root.repaint(); 
+                }
+            }); 
+        }        
+    }
+    
+    // </editor-fold>
 }
