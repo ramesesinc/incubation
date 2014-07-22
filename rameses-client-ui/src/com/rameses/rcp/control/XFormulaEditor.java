@@ -332,12 +332,13 @@ public class XFormulaEditor extends JTextPane implements UIInput, MouseEventSupp
                 repaint(); 
             }
         } 
+        
+        public void appendText(String text) {
+        }
 
-        public void requestFocus() 
-        {
+        public void requestFocus() {
             EventQueue.invokeLater(new Runnable() {
-                public void run() 
-                {
+                public void run() {
                     root.requestFocus();
                     root.grabFocus();
                 }
@@ -346,6 +347,15 @@ public class XFormulaEditor extends JTextPane implements UIInput, MouseEventSupp
         
         public void load() { root.load(); }
         public void refresh() { root.refresh(); } 
+        
+        private void repaint() {
+            EventQueue.invokeLater(new Runnable() {
+                public void run() {
+                    root.repaint(); 
+                }
+            }); 
+        }
+
     }
     
     // </editor-fold>    
