@@ -131,12 +131,13 @@ public class WebsocketConnection extends MessageConnection implements WebSocket.
         
         try {
             System.out.println("[WebsocketConnection] send " + data);
+            String[] gnames = group.split(",");
             MessageObject mo = new MessageObject();
             mo.setConnectionId(connectionid);
-            mo.setGroupId(group);
+            mo.setGroupId(gnames[0].trim());
             mo.setData(data); 
             byte[] bytes = mo.encrypt();            
-            connection.sendMessage( bytes, 0, bytes.length );        
+            connection.sendMessage( bytes, 0, bytes.length ); 
         } catch (Throwable ex) {
             ex.printStackTrace();
         }        
@@ -184,9 +185,18 @@ public class WebsocketConnection extends MessageConnection implements WebSocket.
             if (connectionid.equals(mo.getConnectionId())) return; 
 
             String msggroup = mo.getGroupId();
-            if ((msggroup == null && group == null) || (group != null && group.equals(msggroup))) { 
-                super.notifyHandlers( mo.getData() );    
-            } 
+            if (msggroup == null && group == null) {
+                super.notifyHandlers( mo.getData() ); 
+                
+            } else if (msggroup != null) { 
+                String[] gnames = (group == null? new String[0]: group.split(",")); 
+                for (String gname: gnames) {
+                    if (msggroup.equalsIgnoreCase(gname)) { 
+                        super.notifyHandlers(mo.getData()); 
+                        break; 
+                    }
+                }
+            }
         } catch(Exception e) {
             System.out.println("[WebsocketConnection, "+ protocol +"] " + "onMessage failed caused by " + e.getMessage());
             e.printStackTrace();
