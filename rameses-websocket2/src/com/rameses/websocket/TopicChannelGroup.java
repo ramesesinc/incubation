@@ -9,6 +9,7 @@
 
 package com.rameses.websocket;
 
+import com.rameses.util.MessageObject;
 import java.io.IOException;
 import java.rmi.server.UID;
 import java.util.ArrayList;
@@ -50,20 +51,10 @@ class TopicChannelGroup extends ChannelGroup
         removelist.clear(); 
     }
 
-    public void send(String data) {
+    public void send(MessageObject msgobj) {
         for (Channel.Connection info: connections) {
             try {
-                info.send(data); 
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
-        }        
-    }
-
-    public void send(byte[] b, int offset, int len) {
-        for (Channel.Connection info: connections) {
-            try {
-                info.send(b, offset, len); 
+                info.send(msgobj); 
             } catch (IOException ex) {
                 ex.printStackTrace();
             }

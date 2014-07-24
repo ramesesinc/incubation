@@ -9,6 +9,7 @@
 
 package com.rameses.websocket;
 
+import com.rameses.util.MessageObject;
 import java.io.IOException;
 import java.rmi.server.UID;
 import java.util.HashMap;
@@ -35,23 +36,14 @@ public abstract class Channel
         this.conf = (conf == null? new HashMap(): conf); 
     }    
     
-    //public abstract void addSocket(WebSocket.Connection conn);
     public abstract void removeSocket(WebSocket.Connection conn);
-    public abstract void send(String data);
-    public abstract void send(byte[] b, int offset, int len);
+    public abstract void send(MessageObject msgobj);
     public abstract void close(int status, String msg );
 
-    public String getName() {
-        return name;
-    }
+    public String getName() { return name; }
+    public String getId() { return id; }
     
-    public String getId() {
-        return id; 
-    }
-    
-    public Map getConf() {
-        return conf; 
-    }
+    public Map getConf() { return conf; }
     
     public String getGroup() {
         return getProperty("group"); 
@@ -66,7 +58,6 @@ public abstract class Channel
     
     public abstract ChannelGroup addGroup(String name); 
     public abstract ChannelGroup getGroup(String name); 
-    
     
     public static class Connection 
     {
@@ -95,14 +86,15 @@ public abstract class Channel
                 return false; 
             }
         }
-        
-        public void send(String data) throws IOException {
-            if (conn != null) conn.sendMessage( data ); 
-        }
-        
-        public void send(byte[] b, int offset, int len) throws IOException {
-            if (conn != null) conn.sendMessage(b, offset, len); 
-        }
+                
+        public void send(MessageObject msgobj) throws IOException {
+            if (conn == null) return; 
+            
+            if (!(connid+"").equals(msgobj.getConnectionId())) { 
+                byte[] bytes = msgobj.encrypt(); 
+                conn.sendMessage(bytes, 0, bytes.length); 
+            }
+        }        
         
         public void close(int status, String msg ) {
             if (conn == null) return;
@@ -115,25 +107,5 @@ public abstract class Channel
                 conn = null; 
             }
         }
-
-//        public boolean equals(Object obj) {
-//            if (obj == null) return false; 
-//            if (obj instanceof WebSocket.Connection) {
-//                return obj.equals( getConnection() ); 
-//            } else if (obj instanceof Channel.ConnectionInfo) {
-//                Channel.ConnectionInfo info = (Channel.ConnectionInfo)obj;
-//                if (info.getConnection() == null && getConnection() == null) {
-//                    return true; 
-//                } else if (getConnection() != null) {
-//                    return getConnection().equals(info.getConnection()); 
-//                } else if (info.getConnection() != null) {
-//                    return info.getConnection().equals(getConnection()); 
-//                } else {
-//                    return false; 
-//                }
-//            } else {
-//                return super.equals(obj); 
-//            }
-//        }
     }
 }

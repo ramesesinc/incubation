@@ -9,6 +9,7 @@
 
 package com.rameses.websocket;
 
+import com.rameses.util.MessageObject;
 import org.eclipse.jetty.websocket.WebSocket;
 
 /**
@@ -30,7 +31,6 @@ public abstract class ChannelGroup
     public abstract void addSocket(WebSocket.Connection conn);
     public abstract void addSocket(WebSocket.Connection conn, String connid);
     public abstract void removeSocket(WebSocket.Connection conn);
-    public abstract void send(String data);
-    public abstract void send(byte[] b, int offset, int len);
+    public abstract void send(MessageObject msgobj);
     public abstract void close(int status, String msg );
 }

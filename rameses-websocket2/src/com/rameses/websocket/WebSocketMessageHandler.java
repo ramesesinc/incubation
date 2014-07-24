@@ -105,7 +105,7 @@ public class WebSocketMessageHandler implements WebSocket, WebSocket.OnTextMessa
     }
     
     public void onMessage(String data) {
-        channel.send( data );
+        //no implementation, we will only use array of bytes
     }
     
     public void onMessage(byte[] bytes, int offset, int length) {
@@ -121,7 +121,7 @@ public class WebSocketMessageHandler implements WebSocket, WebSocket.OnTextMessa
             if (cg == null) {
                 System.out.println("ChannelGroup '"+msggroup+"' not found in "+channelName+" channel");
             } else {
-                cg.send(bytes, offset, length); 
+                cg.send( mo ); 
             }
         } catch(Exception e) {
             System.out.println("[WebSocketMessageHandler, "+ channelName +"] " + "onMessage failed caused by " + e.getMessage());

@@ -119,13 +119,12 @@ public class PostMessageServlet extends HttpServlet
         mo.setConnectionId(oChannel.getId());
         mo.setGroupId(group == null? channel: group);
         mo.setData(odata); 
-        byte[] bytes = mo.encrypt();
         
         ChannelGroup cg = oChannel.getGroup(mo.getGroupId()); 
         if (cg == null) {
             System.out.println("ChannelGroup '"+ mo.getGroupId() +"' not found in "+ channel +" channel");
         } else {
-            cg.send(bytes, 0, bytes.length); 
+            cg.send(mo); 
         }
     }
     

@@ -9,6 +9,7 @@
 
 package com.rameses.websocket;
 
+import com.rameses.util.MessageObject;
 import java.io.IOException;
 import java.rmi.server.UID;
 import java.util.ArrayList;
@@ -47,34 +48,20 @@ class QueueChannelGroup extends ChannelGroup
         queue.removeAll(removelist); 
         removelist.clear(); 
     }
-
-    public void send(String data) {
+    
+    public void send(MessageObject msgobj) {
         Channel.Connection info = queue.poll(); 
         if (info == null) return;
         
         try {
-            info.send( data );
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        } finally {
-            //send back to pool for reuse
-            queue.add( info );
-        }
-    }
-
-    public void send(byte[] b, int offset, int len) {
-        Channel.Connection info = queue.poll(); 
-        if (info == null) return;
-        
-        try {
-            info.send(b, offset, len); 
+            info.send(msgobj); 
         } catch (IOException ex) {
             ex.printStackTrace(); 
         } finally {
             //send back to pool for reuse
             queue.add( info );
         }
-    }
+    } 
 
     public void close(int status, String msg) {
         List removelist = new ArrayList();

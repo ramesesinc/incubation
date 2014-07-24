@@ -9,6 +9,7 @@
 
 package com.rameses.websocket;
 
+import com.rameses.util.MessageObject;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
@@ -48,19 +49,11 @@ public class TopicChannel extends Channel
         return groups.get(name.toLowerCase());
     }    
     
-    public void send(String data) {
+    public void send(MessageObject mo) {
         Iterator<ChannelGroup> items = groups.values().iterator(); 
         while (items.hasNext()) {
             ChannelGroup cg = items.next(); 
-            if (cg != null) cg.send( data ); 
-        }
-    }
-    
-    public void send(byte[] b, int offset, int len) {
-        Iterator<ChannelGroup> items = groups.values().iterator(); 
-        while (items.hasNext()) {
-            ChannelGroup cg = items.next(); 
-            if (cg != null) cg.send(b, offset, len); 
+            if (cg != null) cg.send(mo); 
         }
     }
     

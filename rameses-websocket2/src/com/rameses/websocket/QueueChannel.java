@@ -9,6 +9,7 @@
 
 package com.rameses.websocket;
 
+import com.rameses.util.MessageObject;
 import java.util.Map;
 import org.eclipse.jetty.websocket.WebSocket;
 
@@ -40,14 +41,10 @@ public class QueueChannel extends Channel {
         defaultgroup.removeSocket(conn); 
     }
     
-    public void send(String data) {
-        defaultgroup.send( data );
+    public void send(MessageObject msgobj) {
+        defaultgroup.send( msgobj );
     }
-    
-    public void send(byte[] b, int offset, int len) {
-        defaultgroup.send(b, offset, len); 
-    }
-    
+        
     //closes all connections
     public void close(int status, String msg ) {
         defaultgroup.close(status, msg); 
