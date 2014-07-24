@@ -11,8 +11,12 @@ package com.rameses.websocket;
 
 import com.rameses.http.HttpClient;
 import com.rameses.util.AccessDeniedException;
+import com.rameses.util.Base64Cipher;
 import com.rameses.util.ExceptionManager;
+import com.rameses.util.MessageObject;
+import java.rmi.server.UID;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 import org.eclipse.jetty.websocket.WebSocket;
@@ -30,6 +34,7 @@ public class WebSocketMessageHandler implements WebSocket, WebSocket.OnTextMessa
 
     private String channelName;
     private String connectionid;
+    private String ownerid;
     
     private WebSocket.Connection connection;
     private Channel channel;
@@ -39,8 +44,11 @@ public class WebSocketMessageHandler implements WebSocket, WebSocket.OnTextMessa
         this.conf = conf; 
         this.cache = cache;         
         this.headers = headers;         
-        this.channelName = headers.getProperty("channel"); 
-        this.connectionid = headers.getProperty("connectionid");
+        
+        ownerid = "WSMH" + new UID();
+        channelName = headers.getProperty("channel"); 
+        connectionid = headers.getProperty("connectionid");
+        if (connectionid == null) connectionid = "X"+ownerid; 
     }
     
     public void onOpen(WebSocket.Connection connection) {
@@ -66,7 +74,18 @@ public class WebSocketMessageHandler implements WebSocket, WebSocket.OnTextMessa
         try {
             this.connection = connection; 
             this.channel = sockets.getChannel( channelName );
-            this.channel.addSocket( this.connection );
+            
+            //System.out.println("connection_protocol-> " + this.connection.getProtocol());
+            Properties props = decodeProtocol(this.connection.getProtocol()); 
+            String group = props.getProperty("group", ""); 
+            if (group.length() == 0) group = channelName;
+            
+            String[] gnames = group.split(","); 
+            for (String gname: gnames) {
+                if (gname.trim().length() == 0) continue;
+                
+                this.channel.addGroup(gname).addSocket(this.connection, this.connectionid); 
+            }
         } catch(ChannelNotFoundException e) {
             e.printStackTrace();
         }
@@ -89,8 +108,25 @@ public class WebSocketMessageHandler implements WebSocket, WebSocket.OnTextMessa
         channel.send( data );
     }
     
-    public void onMessage(byte[] b, int i, int i0) {
-        channel.send( b, i, i0 );
+    public void onMessage(byte[] bytes, int offset, int length) {
+        try {
+            MessageObject mo = new MessageObject().decrypt(bytes, offset, length); 
+            //if the sender and receiver uses the same connection, do not process
+            if (ownerid.equals(mo.getConnectionId())) return; 
+
+            String msggroup = mo.getGroupId();
+            if (msggroup == null) msggroup = channelName;
+            
+            ChannelGroup cg = channel.getGroup(msggroup); 
+            if (cg == null) {
+                System.out.println("ChannelGroup '"+msggroup+"' not found in "+channelName+" channel");
+            } else {
+                cg.send(bytes, offset, length); 
+            }
+        } catch(Exception e) {
+            System.out.println("[WebSocketMessageHandler, "+ channelName +"] " + "onMessage failed caused by " + e.getMessage());
+            e.printStackTrace();
+        }         
     }
     
     
@@ -108,6 +144,33 @@ public class WebSocketMessageHandler implements WebSocket, WebSocket.OnTextMessa
         HttpClient httpc = new HttpClient("localhost:"+authPort, true);
         httpc.post(authPath, new Object[]{ new Object[]{headers}, new HashMap()}); 
     }    
+    
+    private Properties decodeProtocol(String text) {
+        Properties props = new Properties();
+        String channel = null; 
+        String extended = null; 
+        try { 
+            int idx = text.indexOf(';'); 
+            if (idx > 0) {
+                channel = text.substring(0, idx); 
+                extended = text.substring(idx+1);
+            } 
+
+            Object obj = new Base64Cipher().decode(extended); 
+            if (obj instanceof Map) {
+                Map map = (Map)obj;
+                Iterator keys = map.keySet().iterator();
+                while (keys.hasNext()) {
+                    Object key = keys.next();
+                    Object val = map.get(key); 
+                    if (val != null) props.put(key, val); 
+                }
+            }
+        } catch(Throwable t) {;} 
+        
+        props.put("channel", channel); 
+        return props; 
+    } 
     
     // </editor-fold>
     

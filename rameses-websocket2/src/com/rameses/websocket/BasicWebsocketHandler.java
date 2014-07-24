@@ -10,6 +10,7 @@
 package com.rameses.websocket;
 
 import com.rameses.util.Base64Cipher;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Timer;
@@ -33,7 +34,7 @@ public class BasicWebsocketHandler extends WebSocketHandler
         this.sockets = conn;
         this.conf = conf;
         
-        cacheMap = new CacheMap();         
+        cacheMap = new CacheMap(); 
     }
     
     /***
@@ -72,15 +73,23 @@ public class BasicWebsocketHandler extends WebSocketHandler
     
     private Properties toProperties(String text) {
         Properties props = new Properties();
+        
         try { 
             Object obj = new Base64Cipher().decode(text); 
             if (obj instanceof Map) {
-                props.putAll((Map) obj); 
+                Map map = (Map)obj;
+                Iterator keys = map.keySet().iterator();
+                while (keys.hasNext()) {
+                    Object key = keys.next();
+                    Object val = map.get(key); 
+                    if (val != null) props.put(key, val); 
+                }
             }
-            return props;
         } catch(Throwable t) {
-            return props;
-        } 
+            //do nothing 
+        } finally {
+            return props; 
+        }
     } 
     
     // </editor-fold>

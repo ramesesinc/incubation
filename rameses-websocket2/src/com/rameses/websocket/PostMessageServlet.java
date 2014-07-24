@@ -120,7 +120,13 @@ public class PostMessageServlet extends HttpServlet
         mo.setGroupId(group == null? channel: group);
         mo.setData(odata); 
         byte[] bytes = mo.encrypt();
-        sockets.getChannel(channel).send( bytes, 0, bytes.length );        
+        
+        ChannelGroup cg = oChannel.getGroup(mo.getGroupId()); 
+        if (cg == null) {
+            System.out.println("ChannelGroup '"+ mo.getGroupId() +"' not found in "+ channel +" channel");
+        } else {
+            cg.send(bytes, 0, bytes.length); 
+        }
     }
     
     private void processAddChannelAction(Map params) throws Exception {

@@ -9,11 +9,9 @@
 
 package com.rameses.websocket;
 
-import java.io.IOException;
-import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.CopyOnWriteArraySet;
 import org.eclipse.jetty.websocket.WebSocket;
 
 /**
@@ -22,8 +20,8 @@ import org.eclipse.jetty.websocket.WebSocket;
  */
 public class TopicChannel extends Channel 
 {    
-    private Set<WebSocket.Connection> connections = new CopyOnWriteArraySet();
-    
+    private Hashtable<String,ChannelGroup> groups = new Hashtable();
+        
     public TopicChannel(String name) {
         this(name, null);
     }
@@ -32,38 +30,54 @@ public class TopicChannel extends Channel
         super(name, conf);
     }    
     
-    public void addSocket(WebSocket.Connection conn) {
-        connections.add( conn );
+    public synchronized ChannelGroup addGroup(String name) {
+        if (name == null) name = "default";
+        
+        String keyname = name.toLowerCase();
+        ChannelGroup grp = groups.get(keyname); 
+        if (grp != null) return grp;
+        
+        grp = new TopicChannelGroup(keyname);
+        groups.put(keyname, grp);
+        return grp; 
     }
     
-    public void removeSocket(WebSocket.Connection conn) {
-        connections.remove( conn );
-    }
+    public ChannelGroup getGroup(String name) {
+        if (name == null) name = "default";
+        
+        return groups.get(name.toLowerCase());
+    }    
     
     public void send(String data) {
-        for(WebSocket.Connection conn: connections) {
-            try {
-                conn.sendMessage( data );
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
+        Iterator<ChannelGroup> items = groups.values().iterator(); 
+        while (items.hasNext()) {
+            ChannelGroup cg = items.next(); 
+            if (cg != null) cg.send( data ); 
         }
     }
     
     public void send(byte[] b, int offset, int len) {
-        for(WebSocket.Connection conn: connections) {
-            try {
-                conn.sendMessage( b, offset, len );
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
+        Iterator<ChannelGroup> items = groups.values().iterator(); 
+        while (items.hasNext()) {
+            ChannelGroup cg = items.next(); 
+            if (cg != null) cg.send(b, offset, len); 
         }
     }
     
     //closes all connections
     public void close(int status, String msg ) {
-        for(WebSocket.Connection conn: connections) {
-            conn.close(status, msg);
+        Iterator<ChannelGroup> items = groups.values().iterator(); 
+        while (items.hasNext()) {
+            ChannelGroup cg = items.next(); 
+            if (cg != null) cg.close(status, msg); 
         }
+    }
+
+    public void removeSocket(WebSocket.Connection conn) {
+        Iterator<ChannelGroup> items = groups.values().iterator(); 
+        while (items.hasNext()) {
+            ChannelGroup cg = items.next(); 
+            if (cg != null) cg.removeSocket(conn); 
+        }        
     }
 }
