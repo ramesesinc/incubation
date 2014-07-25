@@ -224,12 +224,15 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
         
         applyExpressions();
         
-        if ( dataProvider != null ) 
-        {
-            if ( !refreshed || dynamic ) 
-                EventQueue.invokeLater(loader.load()); 
-            else  
+        if ( dataProvider != null ) {
+            boolean empty = (dataProvider.getDataListSize() == 0); 
+            if ( !refreshed && !empty ) {
                 EventQueue.invokeLater(loader.refresh());  
+            } else if ( !refreshed || dynamic ) { 
+                EventQueue.invokeLater(loader.load()); 
+            } else { 
+                EventQueue.invokeLater(loader.refresh());  
+            } 
         } 
         refreshed = true;
     }
