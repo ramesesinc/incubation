@@ -19,6 +19,7 @@ import com.rameses.rcp.common.DecimalColumnHandler;
 import com.rameses.rcp.common.IconColumnHandler;
 import com.rameses.rcp.common.IntegerColumnHandler;
 import com.rameses.rcp.common.LabelColumnHandler;
+import com.rameses.rcp.common.ListItem;
 import com.rameses.rcp.common.LookupColumnHandler;
 import com.rameses.rcp.common.OpenerColumnHandler;
 import com.rameses.rcp.common.StyleRule;
@@ -29,6 +30,7 @@ import com.rameses.rcp.support.FontSupport;
 import com.rameses.rcp.support.ImageIconSupport;
 import com.rameses.rcp.util.ControlSupport;
 import com.rameses.rcp.util.UIControlUtil;
+import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.GradientPaint;
@@ -420,15 +422,19 @@ public class CellRenderers {
     // <editor-fold defaultstate="collapsed" desc="  TextRenderer (class)  ">
     
     public static class TextRenderer extends AbstractRenderer {
-        private JLabel label;
+        
+        private LabelControl label;
         
         public TextRenderer() {
             label = createComponent();
             label.setVerticalAlignment(SwingConstants.CENTER);
+            initComponent(label); 
         }
         
-        private JLabel createComponent() {
-            label = new JLabel(){};
+        protected void initComponent(LabelControl label) {}
+        
+        private LabelControl createComponent() {
+            label = new LabelControl();
             return label;
         }
         
@@ -452,8 +458,17 @@ public class CellRenderers {
             //set alignment if it is specified in the Column model
             if ( oColumn != null && oColumn.getAlignment() != null )
                 getComponentSupport().alignText(label, oColumn.getAlignment());
+
+            try { 
+                ListItem li = getContext().getDataProvider().getListItem(rowIndex); 
+                decorate(label, oColumn, li); 
+            } catch(Throwable t) {;} 
             
             setValue(label, oColumn, columnValue);
+        }
+        
+        protected void decorate(LabelControl label, Column oColumn, ListItem li) {
+            //to be implemented
         }
         
         protected void setValue(JLabel label, Column oColumn, Object value) {
@@ -710,6 +725,13 @@ public class CellRenderers {
     // <editor-fold defaultstate="collapsed" desc="  LookupRenderer (class)  ">
     
     public static class LookupRenderer extends TextRenderer {
+        private ImageIcon icon;
+        
+        protected void initComponent(CellRenderers.LabelControl label) {
+            String iconpath = "com/rameses/rcp/icons/search.png";
+            icon = ImageIconSupport.getInstance().getIcon(iconpath); 
+        }        
+        
         protected Object resolveValue(CellRenderers.Context ctx) {
             String expression = null;
             Column oColumn = ctx.getColumn();
@@ -726,6 +748,18 @@ public class CellRenderers {
                 } catch(Exception e) {;}
             }
             return cellValue;
+        }
+
+        protected void decorate(CellRenderers.LabelControl label, Column oColumn, ListItem li) {
+            if (li == null) {
+                label.setRightIcon(null); 
+            } else if (li.getIndex() == 0) {
+                label.setRightIcon(icon); 
+            } else if (li.getState() == ListItem.STATE_EMPTY) { 
+                label.setRightIcon(null); 
+            } else { 
+                label.setRightIcon(icon); 
+            } 
         }
     }
     
@@ -800,4 +834,49 @@ public class CellRenderers {
     }
     
     // </editor-fold>    
+    
+    // <editor-fold defaultstate="collapsed" desc=" LabelControl ">
+    
+    static class LabelControl extends JLabel {
+        
+        private ImageIcon rightIcon;
+        
+        public ImageIcon getRightIcon() { return rightIcon; } 
+        public void setRightIcon(ImageIcon rightIcon) {
+            this.rightIcon = rightIcon; 
+        } 
+        
+        public Insets getInsets(Insets insets) {
+            Insets ins = super.getInsets(insets); 
+            if (ins == null) ins = new Insets(0, 0, 0, 0); 
+
+            ImageIcon iicon = getRightIcon();
+            if (iicon == null) return ins;
+
+            Insets ins0 = new Insets(ins.top, ins.left, ins.bottom, ins.right); 
+            int iconWidth = iicon.getIconWidth(); 
+            int rightPad = Math.max(ins0.right, iconWidth+3); 
+            ins0.right = rightPad;
+            return ins0; 
+        }        
+
+        public void paint(Graphics g) { 
+            super.paint(g);
+
+            ImageIcon iicon = getRightIcon();
+            if (iicon != null) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_ATOP, 0.8f));
+
+                int imgWidth = iicon.getIconWidth();
+                int imgHeight = iicon.getIconHeight();
+                int x = this.getWidth() - (imgWidth + 3);
+                int y = (this.getHeight() - imgHeight) / 2;
+                iicon.paintIcon(this, g2, x, y);
+                g2.dispose();
+            }        
+        }            
+    }
+    
+    // </editor-fold>
 }
