@@ -100,13 +100,10 @@ public abstract class ScrollListModel extends AbstractListDataProvider implement
             params.put("_start", _minlimit);
             params.put("_rowsize", _preferredRows+1);
             params.put("_limit", _preferredRows+1);
-            
             List resultList = fetchList(params); 
             if (resultList == null) resultList = new ArrayList();
             
             onafterFetchList(resultList); 
-            if (resultList.isEmpty()) return;
-            
             fetchedRows = resultList.size(); 
             preferredRows = _preferredRows;
             minlimit = _minlimit;
@@ -185,7 +182,7 @@ public abstract class ScrollListModel extends AbstractListDataProvider implement
         //do not scroll when there are error in validation
         if (getMessageSupport().hasErrorMessages()) return;
         if (getSelectedItem() == null) return; 
-                
+
         int newToprow = getSelectedItem().getRownum()+1;
         if (isTopRowVisible(newToprow))
         {
@@ -313,11 +310,14 @@ public abstract class ScrollListModel extends AbstractListDataProvider implement
     
     private void moveTopRowDown(int newToprow) 
     {
+        //System.out.println("moveTopRowDown... " + newToprow);
         this.toprow = Math.max(newToprow, 0);        
-        if (newToprow < minlimit && minlimit > 0) 
-            refresh(true);
-        else 
-            refresh();
+        if (newToprow < minlimit && minlimit > 0) { 
+            //System.out.println("moveTopRowDown: newToprow="+newToprow + ", minlimit="+minlimit);
+            refresh(true); 
+        } else { 
+            refresh(); 
+        } 
     }   
     
     private int getPageViewIndex(int toprow) 
