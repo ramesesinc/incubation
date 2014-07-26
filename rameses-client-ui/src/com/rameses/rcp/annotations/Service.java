@@ -19,5 +19,6 @@ import java.lang.annotation.Target;
 public @interface Service {
     String value() default "";
     String host() default "";
+    String connection() default "";
     Class interfaceClass() default Object.class;
 }
