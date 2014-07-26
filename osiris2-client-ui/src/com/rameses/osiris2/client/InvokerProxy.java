@@ -17,6 +17,7 @@ import com.rameses.service.ServiceProxyInvocationHandler;
 import groovy.lang.GroovyClassLoader;
 import groovy.lang.GroovyObject;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 public class InvokerProxy  {
@@ -56,11 +57,49 @@ public class InvokerProxy  {
     private Map<String,Class> services = new HashMap();
     
     public synchronized Object create(String name, Class localInterface) {
+        return create(name, localInterface, null); 
+    }
+    
+    public synchronized Object create(String name, Class localInterface, String connectionName) {
         try {
             if (classLoader == null) 
                 classLoader = new GroovyClassLoader(ClientContext.getCurrentContext().getClassLoader());
             
-            ScriptServiceContext ect = new ScriptServiceContext(getAppEnv());
+            Map appenv = new HashMap(); 
+            if (connectionName == null || connectionName.length() == 0) {
+                appenv.putAll(getAppEnv()); 
+            } else {
+                Map map = getAppEnv();
+                boolean connection_found = false;
+                Iterator keys = map.keySet().iterator(); 
+                while (keys.hasNext()) {
+                    Object key = keys.next();
+                    if (key == null) continue;
+                    
+                    String skey = key.toString();
+                    if (skey.startsWith(connectionName+".")) {
+                        int idx = skey.indexOf('.');
+                        skey = skey.substring(idx+1);
+                        if (skey.matches("host|cluster|context")) {
+                            appenv.put("app."+skey, map.get(key));     
+                        } else {
+                            appenv.put(skey, map.get(key)); 
+                        }
+                        connection_found = true;
+                    }
+                }
+                if (!connection_found) {
+                    throw new NullPointerException("connection '"+connectionName+"' not found in app env");
+                }
+                if (appenv.get("app.host") == null) 
+                    appenv.put("app.host", map.get("app.host"));
+                if (appenv.get("app.context") == null) 
+                    appenv.put("app.context", map.get("app.context"));
+                if (appenv.get("app.cluster") == null) 
+                    appenv.put("app.cluster", map.get("app.cluster"));
+            }
+            
+            ScriptServiceContext ect = new ScriptServiceContext(appenv);
             Map _env = OsirisContext.getSessionEnv();
             
             if(localInterface != null) {
