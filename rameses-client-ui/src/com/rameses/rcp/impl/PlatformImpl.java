@@ -127,8 +127,12 @@ public class PlatformImpl implements Platform
         d.setId( id );
         d.setPlatformImpl(this);
         d.setModal( !"false".equals(modal) );
-        d.pack();
         
+        if ("false".equals(properties.get("resizable")+"")) d.setResizable(false);
+        if ("true".equals(properties.get("alwaysOnTop")+"")) d.setAlwaysOnTop(true);
+        if ("true".equals(properties.get("undecorated")+"")) d.setUndecorated(true); 
+
+        d.pack();
         Dimension dim = d.getSize();
         int width = toInt(properties.get("width"));
         int height = toInt(properties.get("height"));
@@ -137,11 +141,7 @@ public class PlatformImpl implements Platform
         d.setSize(pWidth, pHeight); 
         d.setLocationRelativeTo(parent);
         d.setSource(actionSource);
-        
-        if ("false".equals(properties.get("resizable")+"")) d.setResizable(false);
-        if ("true".equals(properties.get("alwaysOnTop")+"")) d.setAlwaysOnTop(true);
-        if ("true".equals(properties.get("undecorated")+"")) d.setUndecorated(true); 
-        
+                
         KeyStroke ks = KeyStroke.getKeyStroke("ctrl shift I");  
         ActionListener al = new ShowInfoAction(comp); 
         JRootPane rootPane = d.getRootPane(); 
