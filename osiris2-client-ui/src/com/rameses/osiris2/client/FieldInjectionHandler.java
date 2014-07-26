@@ -30,11 +30,12 @@ public class FieldInjectionHandler implements AnnotationFieldHandler
             if (serviceName == null || serviceName.trim().length() == 0) { 
                 return InvokerProxy.getInstance();
             } else {
+                String connectionName = s.connection();                
                 Class intfClass = s.interfaceClass();
                 if( intfClass != Object.class) {
-                    return InvokerProxy.getInstance().create( serviceName, intfClass );
+                    return InvokerProxy.getInstance().create(serviceName, intfClass, connectionName);
                 } else {
-                    return InvokerProxy.getInstance().create(serviceName);
+                    return InvokerProxy.getInstance().create(serviceName, null, connectionName);
                 }
             }
         } else if ( a.annotationType() == Script.class ) {
