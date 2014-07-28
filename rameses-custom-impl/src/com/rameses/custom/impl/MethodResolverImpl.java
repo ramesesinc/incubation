@@ -24,7 +24,7 @@ public class MethodResolverImpl extends MethodResolver {
         }
         
         if(xbean instanceof GroovyObject) {
-            return ((GroovyObject)xbean).invokeMethod( action, args );
+            return ((GroovyObject)xbean).invokeMethod( xaction, args );
         }
         
         if( paramTypes == null )
