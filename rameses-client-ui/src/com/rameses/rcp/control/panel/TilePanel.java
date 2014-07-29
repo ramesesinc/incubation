@@ -26,6 +26,7 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 
 /**
  *
@@ -37,8 +38,8 @@ public class TilePanel extends JPanel
     private Dimension cellSize;
     private Insets padding;
     private int cellSpacing;
+    private String alignment;
     private String textAlignment;
-    private String textPosition; 
     private boolean showCaptions;
     
     public TilePanel() {
@@ -63,16 +64,16 @@ public class TilePanel extends JPanel
     }
     
     public void setLayout(LayoutManager mgr) {;}
-    
+        
     public String getTextAlignment() { return this.textAlignment; }
     public void setTextAlignment(String textAlignment) {
         this.textAlignment = textAlignment;
     }
     
-    public String getTextPosition() { return this.textPosition; }
-    public void setTextPosition(String textPosition) {
-        this.textPosition = textPosition;
-    }
+    public String getAlignment() { return this.alignment; }
+    public void setAlignment(String alignment) {
+        this.alignment = alignment;
+    }    
     
     public boolean isShowCaptions() { return showCaptions; }
     public void setShowCaptions(boolean showCaptions) { 
@@ -151,6 +152,9 @@ public class TilePanel extends JPanel
 
     protected void addImpl(Component comp, Object constraints, int index) {
         if (comp instanceof TileItem) {
+            TileItem ti = (TileItem) comp;
+            ti.setAlignment(getAlignment());
+            ti.setTextAlignment(getTextAlignment()); 
             super.addImpl(comp, constraints, index); 
         } else {
             throw new IllegalStateException("This container only supports TileItem component. Please use addItem to correct this.");
@@ -195,11 +199,15 @@ public class TilePanel extends JPanel
             this.userObject = userObject;  
             
             if (isShowCaptions()) { 
-                setText("<html>"+ text +"</html>"); 
+                setText("<html><center>"+ text +"</center></html>"); 
             }
             selBackground = Color.decode("#c1dcfc");
             selBorderBackground = Color.decode("#7da2ce"); 
             setBorder(BorderFactory.createEmptyBorder(0,0,0,3));
+            setVerticalAlignment(SwingConstants.TOP); 
+            setHorizontalAlignment(SwingConstants.CENTER);      
+            setVerticalTextPosition(SwingConstants.BOTTOM);
+            setHorizontalTextPosition(SwingConstants.CENTER);             
             new TileItemMouseAdapter(this); 
         } 
         
@@ -212,6 +220,70 @@ public class TilePanel extends JPanel
         public void setIcon(ImageIcon icon) {
             this.icon = icon; 
         }
+        
+        public void setTextAlignment(String alignment) {
+            if (alignment == null) return;
+            if (alignment.equalsIgnoreCase("TOP")) {
+                setVerticalTextPosition(SwingConstants.TOP);
+                setHorizontalTextPosition(SwingConstants.CENTER); 
+            } else if (alignment.equalsIgnoreCase("BOTTOM")) {
+                setVerticalTextPosition(SwingConstants.BOTTOM);
+                setHorizontalTextPosition(SwingConstants.CENTER); 
+            } else if (alignment.equalsIgnoreCase("TOP_LEFT")) {
+                setVerticalTextPosition(SwingConstants.TOP);
+                setHorizontalTextPosition(SwingConstants.LEFT); 
+            } else if (alignment.equalsIgnoreCase("TOP_CENTER")) {
+                setVerticalTextPosition(SwingConstants.TOP);
+                setHorizontalTextPosition(SwingConstants.CENTER); 
+            } else if (alignment.equalsIgnoreCase("TOP_RIGHT")) {
+                setVerticalTextPosition(SwingConstants.TOP);
+                setHorizontalTextPosition(SwingConstants.RIGHT); 
+            } else if (alignment.equalsIgnoreCase("BOTTOM_LEFT")) {
+                setVerticalTextPosition(SwingConstants.BOTTOM);
+                setHorizontalTextPosition(SwingConstants.LEFT); 
+            } else if (alignment.equalsIgnoreCase("BOTTOM_CENTER")) {
+                setVerticalTextPosition(SwingConstants.BOTTOM);
+                setHorizontalTextPosition(SwingConstants.CENTER); 
+            } else if (alignment.equalsIgnoreCase("BOTTOM_RIGHT")) {
+                setVerticalTextPosition(SwingConstants.BOTTOM);
+                setHorizontalTextPosition(SwingConstants.RIGHT); 
+            } else {
+                setVerticalTextPosition(SwingConstants.CENTER);
+                setHorizontalTextPosition(SwingConstants.CENTER); 
+            } 
+        }
+
+        public void setAlignment(String alignment) {
+            if (alignment == null) return;
+            if (alignment.equalsIgnoreCase("TOP")) {
+                setVerticalAlignment(SwingConstants.TOP);
+                setHorizontalAlignment(SwingConstants.CENTER); 
+            } else if (alignment.equalsIgnoreCase("BOTTOM")) {
+                setVerticalAlignment(SwingConstants.BOTTOM);
+                setHorizontalAlignment(SwingConstants.CENTER); 
+            } else if (alignment.equalsIgnoreCase("TOP_LEFT")) {
+                setVerticalAlignment(SwingConstants.TOP);
+                setHorizontalAlignment(SwingConstants.LEFT); 
+            } else if (alignment.equalsIgnoreCase("TOP_CENTER")) {
+                setVerticalAlignment(SwingConstants.TOP);
+                setHorizontalAlignment(SwingConstants.CENTER); 
+            } else if (alignment.equalsIgnoreCase("TOP_RIGHT")) {
+                setVerticalAlignment(SwingConstants.TOP);
+                setHorizontalAlignment(SwingConstants.RIGHT); 
+            } else if (alignment.equalsIgnoreCase("BOTTOM_LEFT")) {
+                setVerticalAlignment(SwingConstants.BOTTOM);
+                setHorizontalAlignment(SwingConstants.LEFT); 
+            } else if (alignment.equalsIgnoreCase("BOTTOM_CENTER")) {
+                setVerticalAlignment(SwingConstants.BOTTOM);
+                setHorizontalAlignment(SwingConstants.CENTER); 
+            } else if (alignment.equalsIgnoreCase("BOTTOM_RIGHT")) {
+                setVerticalAlignment(SwingConstants.BOTTOM);
+                setHorizontalAlignment(SwingConstants.RIGHT); 
+            } else {
+                setVerticalAlignment(SwingConstants.CENTER);
+                setHorizontalAlignment(SwingConstants.CENTER); 
+            } 
+        }          
         
         boolean isMouseEntered() { return mouse_entered; } 
         void setMouseEntered(boolean mouse_entered) {
