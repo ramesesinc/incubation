@@ -87,6 +87,7 @@ public class XSuggest extends IconedTextField implements MouseEventSupport.Compo
     
     private SuggestModel model; 
     private boolean enable_search;
+    private String currentTextValue;
     
     public XSuggest() {
         super("com/rameses/rcp/icons/dropdown.png");
@@ -243,7 +244,18 @@ public class XSuggest extends IconedTextField implements MouseEventSupport.Compo
         this.visibleWhen = visibleWhen; 
     }
     
-    public Object getValue() { return value; }
+    public Object getValue() { 
+        if (document.isDirty()) {
+            if (UIConstants.SuggestTypes.LOOKUP.equals(getType())) { 
+                String text = getText();
+                if (text == null) text = "";
+
+                String ctextvalue = (currentTextValue==null? "": currentTextValue); 
+                if (!text.equals(ctextvalue)) return null; 
+            }
+        }
+        return value; 
+    }
     public void setValue(Object value) {
         this.value = value;
     }
@@ -524,6 +536,7 @@ public class XSuggest extends IconedTextField implements MouseEventSupport.Compo
             }
         }
         document.loadValue(value, makeDirty); 
+        currentTextValue = (value == null? null: value.toString()); 
     }
     
     private void onupdate_document() {
@@ -614,7 +627,6 @@ public class XSuggest extends IconedTextField implements MouseEventSupport.Compo
         Point point = getLocationOnScreen(); 
         SuggestPopup popup = getPopup(); 
         popup.pack();
-        //popup.show(null, point.x, point.y + rect.height);
         popup.show(this, 0, rect.height); 
     }
 

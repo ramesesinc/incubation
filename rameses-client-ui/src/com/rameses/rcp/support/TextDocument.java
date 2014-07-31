@@ -147,8 +147,7 @@ public class TextDocument extends PlainDocument
         return sb.toString();
     }     
     
-    public static interface DocumentListener 
-    {
+    public static interface DocumentListener {
         void onupdate(); 
     }
 }
