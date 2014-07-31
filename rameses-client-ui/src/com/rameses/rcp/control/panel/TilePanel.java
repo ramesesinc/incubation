@@ -45,7 +45,7 @@ public class TilePanel extends JPanel
     public TilePanel() {
         super.setLayout(new ContainerLayout()); 
         cellSize = new Dimension(120, 80);
-        padding = new Insets(5,5,5,5); 
+        padding = new Insets(5, 5, 5, 5); 
         cellSpacing = 5;
         showCaptions = true;
         addMouseListener(new MouseListener() {
@@ -203,7 +203,7 @@ public class TilePanel extends JPanel
             }
             selBackground = Color.decode("#c1dcfc");
             selBorderBackground = Color.decode("#7da2ce"); 
-            setBorder(BorderFactory.createEmptyBorder(0,0,0,3));
+            setBorder(BorderFactory.createEmptyBorder(3,3,0,3));
             setVerticalAlignment(SwingConstants.TOP); 
             setHorizontalAlignment(SwingConstants.CENTER);      
             setVerticalTextPosition(SwingConstants.BOTTOM);
