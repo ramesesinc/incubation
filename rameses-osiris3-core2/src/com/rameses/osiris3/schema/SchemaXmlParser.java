@@ -27,6 +27,7 @@ public class SchemaXmlParser extends DefaultHandler{
     private Schema schema; 
     private SchemaManager schemaManager;
     private IRelationalField currentRelationalField;
+    private Relation currentRelation;
     
     /** Creates a new instance of XmlSchemaParser */
     public SchemaXmlParser(SchemaManager sm) {
@@ -64,10 +65,25 @@ public class SchemaXmlParser extends DefaultHandler{
             currentRelationalField = field;
         }
         else if(qName.equals("relation")) {
+            currentRelation = new Relation(schema.getName());
+            ParserUtil.loadAttributes( currentRelation, null, attributes );
+            schema.addRelation( currentRelation );
+            /*
             RelationKey rk = new RelationKey();
             ParserUtil.loadAttributes(rk,null, attributes);
             if(currentRelationalField!=null) {
                 currentRelationalField.getRelationKeys().add(rk);
+            }
+             */
+        }
+        else if(qName.equals("key")) {
+            RelationKey rk = new RelationKey();
+            ParserUtil.loadAttributes( rk, null, attributes );
+            if(currentRelation!=null) {
+                currentRelation.addKey( rk );    
+            }
+            else {
+                currentRelationalField.addKey(rk);
             }
         }
         else {
@@ -79,7 +95,11 @@ public class SchemaXmlParser extends DefaultHandler{
         if(qName.equals("element")) {
             currentElement = null;
         }
+        else if(qName.equals("relation")) {
+            currentRelation = null;
+        }
     }
     
     
 }
+

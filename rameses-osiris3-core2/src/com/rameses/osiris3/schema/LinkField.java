@@ -80,4 +80,15 @@ public class LinkField extends SchemaField implements IRelationalField {
     }
     
     
+    public void addKey(RelationKey rk) {
+        relationKeys.add( rk );
+    }
+    
+    public String getRelation() {
+        return (String)super.getProperty("relation");
+    }
+    
+    public String getTarget() {
+        return (String)super.getProperty("target");
+    }
 }

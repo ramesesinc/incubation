@@ -15,18 +15,18 @@ package com.rameses.osiris3.schema;
  */
 public class RelationKey {
    
-    private String key;
+    private String field;
     private String target;
     
     public RelationKey() {
     }
 
-    public String getKey() {
-        return key;
+    public String getField() {
+        return field;
     }
 
-    public void setKey(String key) {
-        this.key = key;
+    public void setField(String key) {
+        this.field = key;
     }
 
     public String getTarget() {

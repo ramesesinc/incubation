@@ -17,4 +17,6 @@ import java.util.List;
  */
 public interface IRelationalField {
    List<RelationKey> getRelationKeys();
+   void addKey(RelationKey rk);
+   String getTarget();
 }

@@ -18,5 +18,5 @@ import java.lang.reflect.Field;
  */
 public interface AnnotationFieldHandler {
 
-    Object getResource( Field f, Annotation a ) throws Exception;
+    Object getResource( Object o, Field f, Annotation a ) throws Exception;
 }

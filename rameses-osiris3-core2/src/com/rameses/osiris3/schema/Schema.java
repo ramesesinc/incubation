@@ -11,6 +11,7 @@ package com.rameses.osiris3.schema;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +33,7 @@ public class Schema implements Serializable {
 
     private Map<String,SchemaField> schemaFields = new Hashtable();
     
+    private Map<String, Relation> relations = new Hashtable();
     
     /** Creates a new instance of Schema */
     Schema(String n, SchemaManager sm) {
@@ -152,6 +154,36 @@ public class Schema implements Serializable {
             }
             if(attrValue!=null && attrValue.matches(matchPattern)) {
                 list.add(element);
+            }
+        }
+        return list;
+    }
+    
+    
+    //new addition to schema. Relations
+    public void addRelation(Relation r) {
+        if(!relations.containsKey(r.getName())) {
+            relations.put( r.getName(), r );
+        }
+    }
+    
+    public Relation getRelation(String name) {
+        return relations.get(name);
+    }
+    
+    public List<Relation> getAllRelations() {
+        return findRelations(null);
+    }
+    
+    public List<Relation> findRelations( String target ) {
+        List<Relation> list = new ArrayList();
+        Collection<Relation> values = relations.values();
+        if(target==null || target.trim().length()==0) {
+            list.addAll( values );
+        }
+        else {
+            for(Relation r: values) {
+                if(target.equals( r.getTarget() )) list.add( r );
             }
         }
         return list;

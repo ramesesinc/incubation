@@ -71,6 +71,22 @@ public class SimpleField extends SchemaField implements SimpleFieldTypes {
         this.mapfield = mapfield;
     }
 
+    public boolean isPrimary() {
+        try {
+            Object prim = super.getProperties().get("primary");
+            if( prim == null ) return false;
+            if(prim instanceof Boolean) return ((Boolean)prim).booleanValue();
+            String s = prim + "";
+            return Boolean.parseBoolean(s);
+        }
+        catch(Exception e) {
+            return false;
+        }
+    }
+    
+    public String getFieldname() {
+        return (String)super.getProperties().get("fieldname");
+    }
     
     
     

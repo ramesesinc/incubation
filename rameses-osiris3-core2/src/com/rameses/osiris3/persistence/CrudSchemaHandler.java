@@ -105,11 +105,11 @@ public class CrudSchemaHandler implements SchemaHandler {
             fieldName = paramName;
         }
         CrudField cf = new CrudField();
-        String sprimary = (String)sf.getProperties().get(PRIMARY);
+        Object sprimary = sf.getProperties().get(PRIMARY);
         boolean primary = false;
         if( sprimary!=null) {
             try {
-                primary = Boolean.parseBoolean(sprimary);
+                primary = Boolean.parseBoolean(sprimary+"");
             } catch(Exception ign){;}
         }
         cf.setName(paramName);

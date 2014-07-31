@@ -71,7 +71,7 @@ public final class ClassDef {
             Annotation annot = f.getAnnotation();
             
             try {
-                Object res = handler.getResource( fld, annot );
+                Object res = handler.getResource( o, fld, annot );
                 if( res != null ) {
                     boolean accessible = fld.isAccessible();
                     //synchronized(fld) {

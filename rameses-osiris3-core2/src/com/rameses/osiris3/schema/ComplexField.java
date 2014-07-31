@@ -35,7 +35,6 @@ public class ComplexField extends SchemaField implements IRelationalField {
         this.type = t;
     }
     
-    
     public String getName() {
         return name;
     }
@@ -88,5 +87,19 @@ public class ComplexField extends SchemaField implements IRelationalField {
         return relationKeys;
     }
 
+    public void addKey(RelationKey rk) {
+        relationKeys.add( rk );
+    }
+
+    public String getRelation() {
+        return (String)super.getProperty("relation");
+    }
     
+    public String getTarget() {
+        return (String)super.getProperty("target");
+    }
+    
+    public String getJoinType() {
+        return (String)super.getProperty("jointype");
+    }
 }

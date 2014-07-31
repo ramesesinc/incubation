@@ -103,4 +103,11 @@ public class SchemaElement implements Serializable {
         return this.properties.get( name );
     }
     
+    public String getExtends() {
+        return (String) this.properties.get("extends");
+    }
+    
+    public String getTablename() {
+        return (String) this.properties.get("tablename");
+    }
 }
