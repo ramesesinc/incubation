@@ -248,13 +248,33 @@ public class RadioListPanel extends JPanel
             if (Beans.isDesignTime()) return;
             
             if (root.selectedButton != null && root.selectedButton.equals(this)) {
-                //do nothing 
-            } else { 
+                boolean toggle = SelectionMode.TOGGLE.equals(root.getSelectionMode()); 
+                if (toggle) {
+                    root.buttonGroup.clearSelection(); 
+                    repaint(); 
+                    
+                    root.selectedButton = null; 
+                    root.onselect(null); 
+                }
+            } else {
                 root.selectedButton = this; 
                 root.onselect(getUserObject()); 
             } 
         }
     }
+    
+    private class ToggleSelectionProcess implements Runnable
+    {
+        private RadioComponent comp;
+        
+        ToggleSelectionProcess(RadioComponent comp) {
+            this.comp = comp; 
+        }
+                
+        public void run() {
+        }
+    }
+    
     
     // </editor-fold>
     
@@ -479,5 +499,5 @@ public class RadioListPanel extends JPanel
     }
     
     //</editor-fold>        
-
+    
 }
