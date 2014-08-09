@@ -145,15 +145,15 @@ public class XButton extends JButton implements UICommand, ActionListener,
         this.defaultCommand = defaultCommand;
     }
     
-    public String getExpression() { return expression; }
-    public void setExpression(String expression) {
-        this.expression = expression;
-        setText(expression);
-    }
+    public String getExpression() { return expression; } 
+    public void setExpression(String expression) { 
+        this.expression = expression; 
+        setText(expression); 
+    } 
     
     public Map getParams() { return params; }
     public void setParams(Map params) { this.params = params; }
-    
+        
     public String getPermission() { return permission; }
     public void setPermission(String permission) { this.permission = permission; }
     

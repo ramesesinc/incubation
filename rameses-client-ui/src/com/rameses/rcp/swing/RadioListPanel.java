@@ -34,6 +34,7 @@ public class RadioListPanel extends JPanel
     private int itemCount;
     private int orientation;
     private Insets padding;
+    private String selectionMode; 
     
     private ButtonGroup buttonGroup; 
     private RadioComponent selectedButton; 
@@ -49,6 +50,7 @@ public class RadioListPanel extends JPanel
         itemGap = 5; 
         itemCount = 2; 
         orientation = SwingConstants.HORIZONTAL; 
+        selectionMode = SelectionMode.SINGLE; 
         setPreferredSize(new Dimension(100, 50)); 
         super.setLayout(new ContainerLayout()); 
         setOpaque(false); 
@@ -65,6 +67,11 @@ public class RadioListPanel extends JPanel
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" Getters/Setters ">
+    
+    public String getSelectionMode() { return selectionMode; } 
+    public void setSelectionMode(String selectionMode) {
+        this.selectionMode = selectionMode; 
+    }
     
     public int getItemGap() { return itemGap; } 
     public void setItemGap(int itemGap) {
@@ -159,6 +166,21 @@ public class RadioListPanel extends JPanel
     protected void onselect(Object obj) {
         //to be implemented 
     }
+
+    public void repaint(long tm, int x, int y, int width, int height) {
+        enableComponents(isEnabled()); 
+        super.repaint(tm, x, y, width, height); 
+    }
+    
+    public void enableComponents(boolean enabled) {
+        Component[] comps = getComponents();
+        for (int i=0; i<comps.length; i++) {
+            if (comps[i] instanceof RadioComponent) {
+                comps[i].setEnabled(enabled); 
+                comps[i].repaint(); 
+            } 
+        } 
+    } 
 
     // </editor-fold>
     

@@ -20,6 +20,8 @@ import com.rameses.rcp.swing.RadioListPanel;
 import com.rameses.rcp.ui.ActiveControl;
 import com.rameses.rcp.ui.ControlProperty;
 import com.rameses.rcp.ui.UIControl;
+import com.rameses.rcp.ui.Validatable;
+import com.rameses.rcp.util.ActionMessage;
 import com.rameses.rcp.util.UIControlUtil;
 import java.awt.EventQueue;
 import java.awt.Font;
@@ -33,7 +35,8 @@ import java.util.Map;
  *
  * @author wflores
  */
-public class XRadioList extends RadioListPanel implements UIControl, ActiveControl, MouseEventSupport.ComponentInfo 
+public class XRadioList extends RadioListPanel implements UIControl, 
+    Validatable, ActiveControl, MouseEventSupport.ComponentInfo 
 {
     private ControlProperty property;    
     private Binding binding;
@@ -41,6 +44,7 @@ public class XRadioList extends RadioListPanel implements UIControl, ActiveContr
     private int index;
     
     private boolean dynamic;
+    private boolean required;
     private String fontStyle;
     private String visibleWhen;
     private String handler;
@@ -164,6 +168,7 @@ public class XRadioList extends RadioListPanel implements UIControl, ActiveContr
         
         if (!refreshed) refreshed = true; 
         
+        enableComponents(isEnabled()); 
         revalidate();
         repaint();
     }
@@ -179,6 +184,48 @@ public class XRadioList extends RadioListPanel implements UIControl, ActiveContr
         return null; 
     } 
     
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" Validatable implementation "> 
+    
+    private ActionMessage actionMessage;
+    
+    private Object getBeanValue() {
+        String name = getName();
+        if (name == null || name.length() == 0) return null;
+        
+        Binding binding = getBinding();
+        Object bean = (binding == null? null: binding.getBean()); 
+        if (bean == null) return null; 
+        
+        return UIControlUtil.getBeanValue(bean, name); 
+    }
+    
+    public ActionMessage getActionMessage() {
+        if (actionMessage == null) {
+            actionMessage = new ActionMessage();
+        }
+        return actionMessage;
+    }
+    
+    public void validateInput() {
+        getControlProperty().setErrorMessage(null);
+        getActionMessage().clearMessages();
+        if (!isRequired()) return; 
+
+        Object value = getBeanValue();
+        if (value == null || value.toString().length() == 0) {
+            String caption = getCaption(); 
+            if (caption == null) caption = getName(); 
+            
+            ActionMessage amsg = getActionMessage(); 
+            amsg.addMessage("1001", "{0} is required.", new Object[]{caption}); 
+            if (amsg.hasMessages()) { 
+                getControlProperty().setErrorMessage(amsg.toString()); 
+            }
+        } 
+    } 
+
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" ActiveControl implementation "> 

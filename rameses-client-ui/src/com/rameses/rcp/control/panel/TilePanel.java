@@ -44,7 +44,7 @@ public class TilePanel extends JPanel
     
     public TilePanel() {
         super.setLayout(new ContainerLayout()); 
-        cellSize = new Dimension(120, 80);
+        cellSize = new Dimension(80, 80);
         padding = new Insets(5, 5, 5, 5); 
         cellSpacing = 5;
         showCaptions = true;
@@ -177,7 +177,155 @@ public class TilePanel extends JPanel
     
     // <editor-fold defaultstate="collapsed" desc=" TileItem ">
     
-    class TileItem extends JLabel 
+    class TileItem extends TileLabel  
+    {
+        private Color selBackground;
+        private Color selBorderBackground;
+        private Object userObject;
+        
+        private boolean mouse_entered;
+        private boolean selected;
+        
+        public TileItem(String text, Object userObject) {
+            this(text, userObject, null); 
+        }
+        
+        public TileItem(String text, Object userObject, ImageIcon icon) {
+            super();
+            
+            this.userObject = userObject;  
+            setText(text);
+            setImageIcon(icon); 
+            
+            selBackground = Color.decode("#c1dcfc");
+            selBorderBackground = Color.decode("#7da2ce"); 
+//            setBorder(BorderFactory.createEmptyBorder(3,3,0,3));
+//            setVerticalAlignment(SwingConstants.TOP); 
+//            setHorizontalAlignment(SwingConstants.CENTER);      
+//            setVerticalTextPosition(SwingConstants.TOP);
+//            setHorizontalTextPosition(SwingConstants.CENTER);             
+            new TileItemMouseAdapter(this); 
+        } 
+        
+        public Object getUserObject() { return userObject; } 
+        public void setUserObject(Object userObject) {
+            this.userObject = userObject; 
+        }
+                
+        public void setTextAlignment(String alignment) {
+            if (alignment == null) return;
+            if (alignment.equalsIgnoreCase("TOP")) {
+                setVerticalTextPosition(SwingConstants.TOP);
+                setHorizontalTextPosition(SwingConstants.CENTER); 
+            } else if (alignment.equalsIgnoreCase("BOTTOM")) {
+                setVerticalTextPosition(SwingConstants.BOTTOM);
+                setHorizontalTextPosition(SwingConstants.CENTER); 
+            } else if (alignment.equalsIgnoreCase("TOP_LEFT")) {
+                setVerticalTextPosition(SwingConstants.TOP);
+                setHorizontalTextPosition(SwingConstants.LEFT); 
+            } else if (alignment.equalsIgnoreCase("TOP_CENTER")) {
+                setVerticalTextPosition(SwingConstants.TOP);
+                setHorizontalTextPosition(SwingConstants.CENTER); 
+            } else if (alignment.equalsIgnoreCase("TOP_RIGHT")) {
+                setVerticalTextPosition(SwingConstants.TOP);
+                setHorizontalTextPosition(SwingConstants.RIGHT); 
+            } else if (alignment.equalsIgnoreCase("BOTTOM_LEFT")) {
+                setVerticalTextPosition(SwingConstants.BOTTOM);
+                setHorizontalTextPosition(SwingConstants.LEFT); 
+            } else if (alignment.equalsIgnoreCase("BOTTOM_CENTER")) {
+                setVerticalTextPosition(SwingConstants.BOTTOM);
+                setHorizontalTextPosition(SwingConstants.CENTER); 
+            } else if (alignment.equalsIgnoreCase("BOTTOM_RIGHT")) {
+                setVerticalTextPosition(SwingConstants.BOTTOM);
+                setHorizontalTextPosition(SwingConstants.RIGHT); 
+            } else {
+                setVerticalTextPosition(SwingConstants.CENTER);
+                setHorizontalTextPosition(SwingConstants.CENTER); 
+            } 
+        }
+
+        public void setAlignment(String alignment) {
+            if (alignment == null) return;
+            if (alignment.equalsIgnoreCase("TOP")) {
+                setVerticalAlignment(SwingConstants.TOP);
+                setHorizontalAlignment(SwingConstants.CENTER); 
+            } else if (alignment.equalsIgnoreCase("BOTTOM")) {
+                setVerticalAlignment(SwingConstants.BOTTOM);
+                setHorizontalAlignment(SwingConstants.CENTER); 
+            } else if (alignment.equalsIgnoreCase("TOP_LEFT")) {
+                setVerticalAlignment(SwingConstants.TOP);
+                setHorizontalAlignment(SwingConstants.LEFT); 
+            } else if (alignment.equalsIgnoreCase("TOP_CENTER")) {
+                setVerticalAlignment(SwingConstants.TOP);
+                setHorizontalAlignment(SwingConstants.CENTER); 
+            } else if (alignment.equalsIgnoreCase("TOP_RIGHT")) {
+                setVerticalAlignment(SwingConstants.TOP);
+                setHorizontalAlignment(SwingConstants.RIGHT); 
+            } else if (alignment.equalsIgnoreCase("BOTTOM_LEFT")) {
+                setVerticalAlignment(SwingConstants.BOTTOM);
+                setHorizontalAlignment(SwingConstants.LEFT); 
+            } else if (alignment.equalsIgnoreCase("BOTTOM_CENTER")) {
+                setVerticalAlignment(SwingConstants.BOTTOM);
+                setHorizontalAlignment(SwingConstants.CENTER); 
+            } else if (alignment.equalsIgnoreCase("BOTTOM_RIGHT")) {
+                setVerticalAlignment(SwingConstants.BOTTOM);
+                setHorizontalAlignment(SwingConstants.RIGHT); 
+            } else {
+                setVerticalAlignment(SwingConstants.CENTER);
+                setHorizontalAlignment(SwingConstants.CENTER); 
+            } 
+        }          
+        
+        boolean isMouseEntered() { return mouse_entered; } 
+        void setMouseEntered(boolean mouse_entered) {
+            this.mouse_entered = mouse_entered; 
+        }
+        
+        boolean isSelected() { return selected; } 
+        void setSelected(boolean selected) { 
+            this.selected = selected; 
+        } 
+
+        protected void paintComponent(Graphics g) {
+            int width = getWidth();
+            int height = getHeight();
+            Graphics2D g2 = (Graphics2D) g.create();
+            if (isSelected()) {
+                g2.setColor(selBackground);
+                g2.fillRoundRect(0, 0, width-1, height-1, 3, 3); 
+            } else if (isMouseEntered()) {
+                g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_ATOP, 0.4f)); 
+                g2.setColor(selBackground);
+                g2.fillRoundRect(0, 0, width-1, height-1, 3, 3); 
+            }
+            g2.dispose(); 
+            
+            super.paintComponent(g); 
+        }
+
+        public void paint(Graphics g) {
+            super.paint(g); 
+            
+            int width = getWidth();
+            int height = getHeight();
+            Graphics2D g2 = (Graphics2D) g.create();
+            if (isSelected()) {
+                g2.setColor(selBorderBackground);
+                g2.drawRoundRect(0, 0, width-1, height-1, 3, 3); 
+            } else if (isMouseEntered()) {
+                g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_ATOP, 0.4f)); 
+                g2.setColor(selBorderBackground);
+                g2.drawRoundRect(0, 0, width-1, height-1, 3, 3);
+            } 
+            g2.dispose(); 
+        }
+    }
+    
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" XTileItem ">
+    
+    class XTileItem extends JLabel 
     {
         private Color selBackground;
         private Color selBorderBackground;
@@ -188,11 +336,11 @@ public class TilePanel extends JPanel
         private boolean mouse_entered;
         private boolean selected;
         
-        public TileItem(String text, Object userObject) {
+        public XTileItem(String text, Object userObject) {
             this(text, userObject, null); 
         }
         
-        public TileItem(String text, Object userObject, ImageIcon icon) {
+        public XTileItem(String text, Object userObject, ImageIcon icon) {
             super();
             this.text = text; 
             this.icon = icon; 
@@ -206,9 +354,9 @@ public class TilePanel extends JPanel
             setBorder(BorderFactory.createEmptyBorder(3,3,0,3));
             setVerticalAlignment(SwingConstants.TOP); 
             setHorizontalAlignment(SwingConstants.CENTER);      
-            setVerticalTextPosition(SwingConstants.BOTTOM);
+            setVerticalTextPosition(SwingConstants.TOP);
             setHorizontalTextPosition(SwingConstants.CENTER);             
-            new TileItemMouseAdapter(this); 
+            //new TileItemMouseAdapter(this); 
         } 
         
         public Object getUserObject() { return userObject; } 
