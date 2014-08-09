@@ -17,4 +17,5 @@ public interface SelectionMode
 {
     public final static String SINGLE   = "SINGLE";
     public final static String MULTIPLE = "MULTIPLE";
+    public final static String TOGGLE   = "TOGGLE";
 }
