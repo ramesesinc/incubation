@@ -10,6 +10,7 @@ public class SelectionModePropertyEditor extends PropertyEditorSupport
     public SelectionModePropertyEditor() {
         values = new String[] { 
             SelectionMode.SINGLE, 
+            SelectionMode.TOGGLE, 
             SelectionMode.MULTIPLE 
         }; 
     }
