@@ -10,6 +10,7 @@
 package com.rameses.rcp.control;
 
 import com.rameses.beaninfo.ComponentBeanInfo;
+import com.rameses.beaninfo.editor.SelectionModePropertyEditor;
 import com.rameses.beaninfo.editor.SwingConstantsOrientation;
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
@@ -38,9 +39,11 @@ public class XRadioListBeanInfo extends ComponentBeanInfo.Support
             new PropertyDescriptor("caption", getBeanClass()),
             new PropertyDescriptor("captionFont", getBeanClass()),
             new PropertyDescriptor("captionFontStyle", getBeanClass()),
+            new PropertyDescriptor("captionMnemonic", getBeanClass()),
             new PropertyDescriptor("captionWidth", getBeanClass()),
             new PropertyDescriptor("showCaption", getBeanClass(), "isShowCaption", "setShowCaption"),            
             new PropertyDescriptor("cellPadding", getBeanClass()),
+            new PropertyDescriptor("required", getBeanClass(), "isRequired", "setRequired"),
                         
             new PropertyDescriptor("depends", getBeanClass()),
             new PropertyDescriptor("dynamic", getBeanClass(), "isDynamic", "setDynamic"),
@@ -52,6 +55,7 @@ public class XRadioListBeanInfo extends ComponentBeanInfo.Support
             new PropertyDescriptor("itemCount", getBeanClass()),
             
             installEditor(new PropertyDescriptor("orientation", getBeanClass()), SwingConstantsOrientation.class), 
+            installEditor(new PropertyDescriptor("selectionMode", getBeanClass()), SelectionModePropertyEditor.class), 
             
             new PropertyDescriptor("padding", getBeanClass()),
             new PropertyDescriptor("varName", getBeanClass()),  
