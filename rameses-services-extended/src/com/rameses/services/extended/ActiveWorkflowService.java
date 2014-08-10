@@ -84,6 +84,9 @@ public abstract class ActiveWorkflowService {
         r.put("prevtask", new HashMap());
         List list = new ArrayList();
         findNextTransition(r, false, list, null);
+        
+        if( list.size() == 0 ) 
+            throw new Exception("No workflow task found. Please check the workflow definition");
         return list;
     }
     
@@ -471,10 +474,13 @@ public abstract class ActiveWorkflowService {
         Map assignee = (Map)task.get("assignee");
         if(assignee!=null && assignee.get("objid") != null) {
             String assigneeId = (String)assignee.get("objid");
-            if(assigneeId == null) return true;
             if(userId.equals(assigneeId)) {
                 task.put("owner", true);
                 return true;
+            }
+            else {
+                task.put("owner",false);
+                return false;
             }
         }
         boolean test = checkTaskOwner( task );

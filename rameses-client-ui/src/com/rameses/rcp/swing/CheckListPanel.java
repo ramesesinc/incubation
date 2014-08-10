@@ -1,7 +1,7 @@
 /*
- * RadioListPanel.java
+ * CheckListPanel.java
  *
- * Created on July 30, 2014, 10:29 AM
+ * Created on August 9, 2014, 4:57 PM
  *
  * To change this template, choose Tools | Template Manager
  * and open the template in the editor.
@@ -20,15 +20,15 @@ import java.beans.Beans;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.ButtonGroup;
+import javax.swing.JCheckBox;
 import javax.swing.JPanel;
-import javax.swing.JRadioButton;
 import javax.swing.SwingConstants;
 
 /**
  *
  * @author wflores 
  */
-public class RadioListPanel extends JPanel 
+public class CheckListPanel extends JPanel 
 {
     private int itemGap;
     private int itemCount;
@@ -37,9 +37,9 @@ public class RadioListPanel extends JPanel
     private String selectionMode; 
     
     private ButtonGroup buttonGroup; 
-    private RadioComponent selectedButton; 
+    private CheckButton selectedButton; 
     
-    public RadioListPanel() {
+    public CheckListPanel() {
         super();
         initComponent();
     }
@@ -104,8 +104,8 @@ public class RadioListPanel extends JPanel
         List list = new ArrayList(); 
         Component[] comps = getComponents();
         for (int i=0; i<comps.length; i++) {
-            if (comps[i] instanceof RadioComponent) {
-                RadioComponent rc = (RadioComponent)comps[i]; 
+            if (comps[i] instanceof CheckButton) {
+                CheckButton rc = (CheckButton)comps[i]; 
                 list.add(rc.getUserObject()); 
             }
         }
@@ -113,18 +113,24 @@ public class RadioListPanel extends JPanel
     }
     
     public void setSelectedIndex(int index) {
-        clearSelection(); 
+        setSelectedIndex(index, true, true); 
+    }
+    
+    public void setSelectedIndex(int index, boolean allowClearSelection, boolean allowRepaint) {
+        if (allowClearSelection) clearSelection(); 
         
-        RadioComponent rc = null; 
+        CheckButton rc = null; 
         try { 
-            rc = (RadioComponent) getComponent(index); 
+            rc = (CheckButton) getComponent(index); 
         } catch(Throwable t){;} 
         
         if (rc != null) rc.setSelected(true); 
         
-        revalidate();
-        repaint(); 
-    }
+        if (allowRepaint) {
+            revalidate(); 
+            repaint(); 
+        } 
+    } 
     
     private Insets getPreferredPadding() {
         Insets pads = getPadding(); 
@@ -145,11 +151,11 @@ public class RadioListPanel extends JPanel
     public void addItem(Item item) {
         if (item == null) return;
         
-        add(new RadioComponent(item));  
+        add(new CheckButton(item));  
     }
     
     protected void addImpl(Component comp, Object constraints, int index) {
-        if (comp instanceof RadioComponent) {
+        if (comp instanceof CheckButton) {
             super.addImpl(comp, constraints, index); 
         }
     }
@@ -175,11 +181,53 @@ public class RadioListPanel extends JPanel
     public void enableComponents(boolean enabled) {
         Component[] comps = getComponents();
         for (int i=0; i<comps.length; i++) {
-            if (comps[i] instanceof RadioComponent) {
+            if (comps[i] instanceof CheckButton) {
                 comps[i].setEnabled(enabled); 
                 comps[i].repaint(); 
             } 
         } 
+    } 
+
+    public boolean requestFocusInWindow() {
+        if (!isEnabled()) return false; 
+        
+        Component[] comps = getComponents();
+        for (int i=0; i<comps.length; i++) {
+            if (!(comps[i] instanceof CheckButton)) continue; 
+            
+            CheckButton btn = (CheckButton)comps[i]; 
+            if (btn.isEnabled() && btn.isFocusable()) {
+                return btn.requestFocusInWindow(); 
+            }
+        } 
+        return false; 
+    }
+    
+    public final boolean isSingleSelection() {
+        return SelectionMode.SINGLE.equals(getSelectionMode()); 
+    } 
+    
+    public final Object getSelectedValue() {
+        List results = new ArrayList(); 
+        Component[] comps = getComponents();
+        for (int i=0; i<comps.length; i++) {
+            if (!(comps[i] instanceof CheckButton)) continue; 
+            
+            CheckButton btn = (CheckButton)comps[i]; 
+            if (btn.isSelected()) results.add(btn.getUserObject()); 
+        } 
+        
+        if (results.isEmpty()) return null; 
+        
+        try {
+            if (isSingleSelection()) {
+                return results.get(0); 
+            } else { 
+                return results.toArray(); 
+            } 
+        } finally {
+            results.clear(); 
+        }
     } 
 
     // </editor-fold>
@@ -208,19 +256,19 @@ public class RadioListPanel extends JPanel
     
     // </editor-fold>
     
-    // <editor-fold defaultstate="collapsed" desc=" RadioComponent ">
+    // <editor-fold defaultstate="collapsed" desc=" CheckButton ">
     
-    class RadioComponent extends JRadioButton implements ActionListener
+    class CheckButton extends JCheckBox implements ActionListener
     {
-        RadioListPanel root = RadioListPanel.this; 
+        CheckListPanel root = CheckListPanel.this; 
         
         private Item item;
         
-        public RadioComponent(Item item) {
+        public CheckButton(Item item) {
             super(); 
             this.item = item; 
+            setOpaque(false);             
             setMargin(new Insets(0,0,0,0)); 
-            setOpaque(false); 
             addActionListener(this); 
         }
         
@@ -236,45 +284,31 @@ public class RadioListPanel extends JPanel
 
         public void addNotify() {
             super.addNotify(); 
-            root.buttonGroup.add(this); 
+            if (isSingleSelection()) {
+                root.buttonGroup.add(this);  
+            } 
         }
 
         public void removeNotify() {
             super.removeNotify();
-            root.buttonGroup.remove(this); 
+            if (isSingleSelection()) {
+                root.buttonGroup.remove(this); 
+            }
         }
 
         public void actionPerformed(ActionEvent e) {
             if (Beans.isDesignTime()) return;
             
+            Object value = root.getSelectedValue();
             if (root.selectedButton != null && root.selectedButton.equals(this)) {
-                boolean toggle = SelectionMode.TOGGLE.equals(root.getSelectionMode()); 
-                if (toggle) {
-                    root.buttonGroup.clearSelection(); 
-                    repaint(); 
-                    
-                    root.selectedButton = null; 
-                    root.onselect(null); 
-                }
-            } else {
+                root.selectedButton = null; 
+                root.onselect(value); 
+            } else { 
                 root.selectedButton = this; 
-                root.onselect(getUserObject()); 
+                root.onselect(value); 
             } 
         }
     }
-    
-    private class ToggleSelectionProcess implements Runnable
-    {
-        private RadioComponent comp;
-        
-        ToggleSelectionProcess(RadioComponent comp) {
-            this.comp = comp; 
-        }
-                
-        public void run() {
-        }
-    }
-    
     
     // </editor-fold>
     
@@ -282,24 +316,24 @@ public class RadioListPanel extends JPanel
     
     private class ContainerLayout implements LayoutManager 
     {
-        RadioListPanel root = RadioListPanel.this;
+        CheckListPanel root = CheckListPanel.this;
         
         public void addLayoutComponent(String name, Component comp) {}
         public void removeLayoutComponent(Component comp) {}
         
-        private List<RadioComponent> getRadioItems(Container parent) {
-            List<RadioComponent> items = new ArrayList();
+        private List<CheckButton> getRadioItems(Container parent) {
+            List<CheckButton> items = new ArrayList();
             Component[] comps = parent.getComponents();
             for (int i=0; i<comps.length; i++) {
-                if (comps[i] instanceof RadioComponent) {
-                    RadioComponent c = (RadioComponent) comps[i];
+                if (comps[i] instanceof CheckButton) {
+                    CheckButton c = (CheckButton) comps[i];
                     if (c.isVisible()) items.add(c); 
                 } 
             }
             return items;
         }
         
-        private Dimension computePageSize(List<RadioComponent> items, int pageindex) {
+        private Dimension computePageSize(List<CheckButton> items, int pageindex) {
             Dimension dim = new Dimension(0, 0);
             int itemcount = items.size();
             if (itemcount == 0) return dim;
@@ -317,12 +351,12 @@ public class RadioListPanel extends JPanel
                     int index = (pageindex*cellcount)+cellindex; 
                     if (index >= itemcount) break; 
                     
-                    RadioComponent ri = items.get(index); 
+                    CheckButton ri = items.get(index); 
                     int cwidth = ri.getPreferredSize().width;
                     int cheight = ri.getPreferredSize().height;
                     int ii = cellindex + cellcount; 
                     while (ii < itemcount) {
-                        RadioComponent o = items.get(ii); 
+                        CheckButton o = items.get(ii); 
                         Dimension odim = o.getPreferredSize();
                         cheight = Math.max(cheight, odim.height); 
                         ii += cellcount; 
@@ -340,12 +374,12 @@ public class RadioListPanel extends JPanel
                     int index = (pageindex*cellcount)+cellindex; 
                     if (index >= itemcount) break; 
                     
-                    RadioComponent ri = items.get(index); 
+                    CheckButton ri = items.get(index); 
                     int cwidth = ri.getPreferredSize().width;
                     int cheight = ri.getPreferredSize().height;
                     int ii = cellindex + cellcount; 
                     while (ii < itemcount) {
-                        RadioComponent o = items.get(ii); 
+                        CheckButton o = items.get(ii); 
                         Dimension odim = o.getPreferredSize();
                         cwidth = Math.max(cwidth, odim.width); 
                         ii += cellcount; 
@@ -365,7 +399,7 @@ public class RadioListPanel extends JPanel
         public Dimension getLayoutSize(Container parent) {
             synchronized (parent.getTreeLock()) {
                 Dimension newdim = new Dimension(0, 0);                
-                List<RadioComponent> items = getRadioItems(parent); 
+                List<CheckButton> items = getRadioItems(parent); 
                 int itemcount = items.size(); 
                 if (itemcount > 0) {
                     int cellpad = root.getPreferredCellPadding();                
@@ -411,7 +445,7 @@ public class RadioListPanel extends JPanel
                 int h = ph - (margin.top + margin.bottom + pads.top + pads.bottom);
                 int x = sx, y = sy;
                 
-                List<RadioComponent> items = getRadioItems(parent); 
+                List<CheckButton> items = getRadioItems(parent); 
                 int itemcount = items.size(); 
                 if (itemcount == 0) return;
                 
@@ -432,7 +466,7 @@ public class RadioListPanel extends JPanel
                             int index = (pageindex*cellcount)+cellindex; 
                             if (index >= itemcount) break; 
                             
-                            RadioComponent ri = items.get(index); 
+                            CheckButton ri = items.get(index); 
                             Dimension rdim = ri.getPreferredSize(); 
                             maxwidth = Math.max(maxwidth, rdim.width); 
                         }
@@ -441,14 +475,14 @@ public class RadioListPanel extends JPanel
                             int index = (pageindex*cellcount)+cellindex; 
                             if (index >= itemcount) break; 
 
-                            RadioComponent ri = items.get(index); 
+                            CheckButton ri = items.get(index); 
                             Dimension rdim = ri.getPreferredSize(); 
                             int maxheight = rdim.height;
                             for (int pgidx=0; pgidx<pagecount; pgidx++) {
                                 int idx = (pgidx*cellcount)+cellindex; 
                                 if(idx >= itemcount) break; 
                                 
-                                RadioComponent o = items.get(idx); 
+                                CheckButton o = items.get(idx); 
                                 Dimension odim = o.getPreferredSize();
                                 maxheight = Math.max(maxheight, odim.height); 
                             }
@@ -467,7 +501,7 @@ public class RadioListPanel extends JPanel
                             int index = (pageindex*cellcount)+cellindex; 
                             if (index >= itemcount) break; 
                             
-                            RadioComponent ri = items.get(index); 
+                            CheckButton ri = items.get(index); 
                             Dimension rdim = ri.getPreferredSize(); 
                             maxheight = Math.max(maxheight, rdim.height); 
                         } 
@@ -476,14 +510,14 @@ public class RadioListPanel extends JPanel
                             int index = (pageindex*cellcount)+cellindex; 
                             if (index >= itemcount) break; 
 
-                            RadioComponent ri = items.get(index); 
+                            CheckButton ri = items.get(index); 
                             Dimension rdim = ri.getPreferredSize(); 
                             int maxwidth = rdim.width;
                             for (int pgidx=0; pgidx<pagecount; pgidx++) {
                                 int idx = (pgidx*cellcount)+cellindex; 
                                 if(idx >= itemcount) break; 
                                 
-                                RadioComponent o = items.get(idx); 
+                                CheckButton o = items.get(idx); 
                                 Dimension odim = o.getPreferredSize();
                                 maxwidth = Math.max(maxwidth, odim.width); 
                             }
