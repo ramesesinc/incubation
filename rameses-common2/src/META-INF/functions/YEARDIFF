@@ -1,0 +1,8 @@
+{
+  caption: 'YEARDIFF',
+  description: 'returns the number of years difference between two dates',
+  code: 'com.rameses.functions.DateFunc.yearsDiff',
+  title: '@YEARDIFF( startdate, enddate )', 
+  signature: '@YEARDIFF( |, )', 
+  group: 'date' 
+}
