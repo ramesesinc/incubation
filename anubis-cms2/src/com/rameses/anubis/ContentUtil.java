@@ -168,9 +168,11 @@ public class ContentUtil {
             String s = m.group();
             s = s.replaceAll("\\$|\\{|\\}","");
             
-            String value = "";
+            String value = null;
             if( proj!=null ) value = (String)proj.get(s);
-            if(value==null) value = System.getProperty(s);
+            if (value==null) value = System.getProperty(s);
+            if (value==null) value = "";
+            
             sb.append(value);
             start = m.end();
         }

@@ -1,5 +1,5 @@
 /*
- * XRadioListBeanInfo.java
+ * XCheckListBeanInfo.java
  *
  * Created on May 4, 2013, 11:00 AM
  *
@@ -19,12 +19,12 @@ import java.beans.PropertyDescriptor;
  *
  * @author wflores
  */
-public class XRadioListBeanInfo extends ComponentBeanInfo.Support
+public class XCheckListBeanInfo extends ComponentBeanInfo.Support
 {
     private Class beanClass;
     
     protected Class getBeanClass() {
-        if (beanClass == null) beanClass = XRadioList.class;
+        if (beanClass == null) beanClass = XCheckList.class;
         
         return beanClass; 
     }

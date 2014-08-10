@@ -125,11 +125,13 @@ public abstract class DBReportModel {
         return reportOutput;
     }
     
+    /*
     public List getReportActions() {
         List list = new ArrayList();
         list.add( new Action("_close", "Close", null));
         return list;
     }
+     */
     
     //this method is invoked by the back button
     public Object back() {

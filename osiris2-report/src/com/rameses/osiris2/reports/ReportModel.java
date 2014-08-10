@@ -9,6 +9,9 @@
 
 package com.rameses.osiris2.reports;
 
+import com.rameses.osiris2.client.InvokerFilter;
+import com.rameses.osiris2.client.InvokerUtil;
+import com.rameses.rcp.annotations.Invoker;
 import com.rameses.rcp.common.Action;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,23 +30,26 @@ import net.sf.jasperreports.engine.JasperReport;
  */
 public abstract class ReportModel {
     
+    @Invoker
+    protected com.rameses.osiris2.Invoker invoker;
+    
     private boolean allowSave = false;
     private boolean allowPrint = true;
-        
+    
     public abstract Object getReportData();
     public abstract String getReportName();
     
-    public boolean isAllowSave() { return allowSave; } 
-    public void setAllowSave(boolean allowSave) { 
-        this.allowSave = allowSave; 
+    public boolean isAllowSave() { return allowSave; }
+    public void setAllowSave(boolean allowSave) {
+        this.allowSave = allowSave;
     }
     
-    public boolean isAllowPrint() { return allowPrint; } 
+    public boolean isAllowPrint() { return allowPrint; }
     public void setAllowPrint(boolean allowPrint) {
         this.allowPrint = allowPrint;
     }
     
-    public SubReport[] getSubReports() { return null; }    
+    public SubReport[] getSubReports() { return null; }
     
     public Map getParameters() { return null; }
     
@@ -57,7 +63,7 @@ public abstract class ReportModel {
                 mainReport = ReportUtil.getJasperReport(getReportName());
             }
             
-            Map conf = new HashMap(); 
+            Map conf = new HashMap();
             SubReport[] subReports = getSubReports();
             
             if (subReports != null) {
@@ -74,13 +80,12 @@ public abstract class ReportModel {
                 ds = new ReportDataSource(data);
             } else {
                 ds = new JREmptyDataSource();
-            } 
+            }
             
-            conf.put("REPORT_UTIL", new ReportDataUtil());             
+            conf.put("REPORT_UTIL", new ReportDataUtil());
             return JasperFillManager.fillReport(mainReport, conf, ds);
-        } 
-        catch (RuntimeException re) {
-            throw re; 
+        } catch (RuntimeException re) {
+            throw re;
         } catch (JRException ex) {
             ex.printStackTrace();
             throw new IllegalStateException(ex.getMessage(), ex);
@@ -92,17 +97,52 @@ public abstract class ReportModel {
         return "report";
     }
     
-    public JasperPrint getReport() { 
+    public JasperPrint getReport() {
         return reportOutput;
     }
-        
+    
     public List getReportActions() {
         List list = new ArrayList();
         list.add( new Action("_close", "Close", null));
+        
+        List<Action> xactions = lookupActions("reportActions");
+        while (!xactions.isEmpty()) {
+            Action a = xactions.remove(0);
+            if ( ! containsAction(list, a)){
+                list.add(a);
+            }
+        }
         return list;
-    } 
+    }
+    
+    private boolean containsAction(List<Action> list, Action a){
+        for (Action aa : list){
+            if (aa.getName().equals(a.getName()))
+                return true;
+        }
+        return false;
+    }
+    
+    protected final List<Action> lookupActions(String type) {
+        List<Action> actions = new ArrayList();
+        try {
+            actions = InvokerUtil.lookupActions(type, new InvokerFilter() {
+                public boolean accept(com.rameses.osiris2.Invoker o) {
+                    return o.getWorkunitid().equals(invoker.getWorkunitid());
+                }
+            });
+        } catch(Throwable t) {
+            System.out.println("[WARN] error lookup actions caused by " + t.getMessage());
+        }
+        
+        for (int i=0; i<actions.size(); i++) {
+            Action newAction = actions.get(i).clone();
+            actions.set(i, newAction);
+        }
+        return actions;
+    }
     
     //this method is invoked by the back button
-    public Object back() { return "_close"; } 
+    public Object back() { return "_close"; }
     
 }

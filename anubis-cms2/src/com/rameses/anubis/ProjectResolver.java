@@ -36,6 +36,8 @@ public class ProjectResolver {
             public void read(String text) {
                 if(text==null || text.trim().length()<=0 || !text.contains("=")) return;
                 if( text.startsWith("#")) return;
+                
+                text = parse(text); 
                 String key = text.substring(0, text.indexOf("=")).trim();
                 String value = text.substring(text.indexOf("=")+1).trim();
                 
@@ -49,6 +51,12 @@ public class ProjectResolver {
             }
         });
     }
+    
+    protected String parse(String text) {
+        //override here for expression values
+        return text; 
+    }
+    
     /*
     public Project findProject(String serverName) {
         PermalinkEntry np = findNameParser(serverName);

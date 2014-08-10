@@ -1,5 +1,5 @@
 /*
- * XRadioList.java
+ * XCheckList.java
  *
  * Created on July 30, 2014, 3:37 PM
  *
@@ -16,7 +16,7 @@ import com.rameses.rcp.control.table.ExprBeanSupport;
 import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.support.FontSupport;
 import com.rameses.rcp.support.MouseEventSupport;
-import com.rameses.rcp.swing.RadioListPanel;
+import com.rameses.rcp.swing.CheckListPanel;
 import com.rameses.rcp.ui.ActiveControl;
 import com.rameses.rcp.ui.ControlProperty;
 import com.rameses.rcp.ui.UIControl;
@@ -27,6 +27,7 @@ import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.Insets;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,7 +36,7 @@ import java.util.Map;
  *
  * @author wflores
  */
-public class XRadioList extends RadioListPanel implements UIControl, 
+public class XCheckList extends CheckListPanel implements UIControl, 
     Validatable, ActiveControl, MouseEventSupport.ComponentInfo 
 {
     private ControlProperty property;    
@@ -55,7 +56,7 @@ public class XRadioList extends RadioListPanel implements UIControl,
     private RadioListModel model;
     private Object modelObject;
     
-    public XRadioList() {
+    public XCheckList() {
         super(); 
         varName = "item"; 
         setItemCount(2); 
@@ -142,16 +143,29 @@ public class XRadioList extends RadioListPanel implements UIControl,
     public void refresh() { 
         boolean reload = (!refreshed || isDynamic()); 
         try {
-            if (reload) buildItems(); 
+            if (reload) buildItems();
         } catch(Throwable t) { 
             t.printStackTrace(); 
         } 
 
+        clearSelection(); 
         Binding binding = getBinding(); 
         Object bean = (binding == null? null: binding.getBean()); 
         Object value = UIControlUtil.getBeanValue(bean, getName()); 
-        int idx = indexOfItemKey(value); 
-        setSelectedIndex(idx); 
+        if (isSingleSelection()) {
+            int idx = indexOfItemKey(value); 
+            setSelectedIndex(idx); 
+        } else if (value != null) {
+            Object[] arrays = {};
+            if (value instanceof Object[]) {
+                arrays = (Object[])value;
+            } else if (value instanceof List) {
+                arrays = ((List)value).toArray(); 
+            } else {
+                arrays = new Object[]{ value }; 
+            }
+            setSelectedValues(arrays); 
+        }
         
         try { 
             String visibleWhen = getVisibleWhen(); 
@@ -318,18 +332,42 @@ public class XRadioList extends RadioListPanel implements UIControl,
         if (model == null) return;
         
         try {
-            String skey = getItemKey();
-            if (skey != null && skey.length() > 0) {
-                obj = UIControlUtil.getBeanValue(obj, skey); 
+            Object[] arrays = {};            
+            String skey = getItemKey(); 
+            if (obj == null) {
+                //do nothing 
+            } else if (obj instanceof Object[]) {
+                arrays = (Object[])obj;
+            } else {
+                arrays = new Object[]{ obj };
+            }
+            
+            List resultlist = new ArrayList(); 
+            for (int i=0; i<arrays.length; i++) {
+                if (skey != null && skey.length() > 0) {
+                    resultlist.add(UIControlUtil.getBeanValue(arrays[i], skey)); 
+                } else {
+                    resultlist.add(arrays[i]); 
+                } 
             } 
+            
+            Object resultobj = null; 
+            if (resultlist.isEmpty()) {
+                //do nothing 
+            } else if (isSingleSelection()) {
+                resultobj = resultlist.get(0); 
+            } else {
+                resultobj = resultlist.toArray(); 
+            }
+            resultlist.clear();
             
             if (getCallbackMethod(modelObject, "onselect") == null) {
                 Binding binding = getBinding();
                 Object bean = binding.getBean();
-                UIControlUtil.setBeanValue(bean, getName(), obj);
-                EventQueue.invokeLater(new NotifyDependsRunnable(binding, getName(), obj));
+                UIControlUtil.setBeanValue(bean, getName(), resultobj);
+                EventQueue.invokeLater(new NotifyDependsRunnable(binding, getName(), resultobj));
             } else {
-                EventQueue.invokeLater(new OnSelectRunnable(obj));
+                EventQueue.invokeLater(new OnSelectRunnable(resultobj));
             }
         } catch(Throwable t) {
             MsgBox.err(t); 
@@ -365,6 +403,22 @@ public class XRadioList extends RadioListPanel implements UIControl,
         }
     } 
     
+    private void setSelectedValues(Object[] values) {
+        if (values == null || values.length == 0) return; 
+        
+        List list = getUserObjects(); 
+        if (list.isEmpty()) return;
+        
+        clearSelection();
+        for (int i=0; i<values.length; i++) {
+            int idx = indexOfItemKey(values[i]); 
+            if (idx >= 0) setSelectedIndex(idx, false, false); 
+        }
+        
+        revalidate();
+        repaint(); 
+    }
+    
     private Object createExpressionBean(Object itemBean) { 
         ExprBeanSupport beanSupport = new ExprBeanSupport(binding.getBean());
         beanSupport.setItem(getVarName(), itemBean); 
@@ -372,8 +426,11 @@ public class XRadioList extends RadioListPanel implements UIControl,
     }     
     
     private int indexOfItemKey(Object key) {
+        return indexOfItemKey(key, getUserObjects()); 
+    }
+    
+    private int indexOfItemKey(Object key, List list) {
         String skey = getItemKey();
-        List list = getUserObjects(); 
         for (int i=0; i<list.size(); i++) { 
             Object o = list.get(i); 
             if (skey != null && skey.length() > 0) {
@@ -385,7 +442,7 @@ public class XRadioList extends RadioListPanel implements UIControl,
             else if (key != null && key.equals(o)) return i; 
         } 
         return -1;
-    }
+    }    
     
     private Method getCallbackMethod(Object obj, String name) {
         if (obj == null || name == null) return null;
