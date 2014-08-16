@@ -44,12 +44,12 @@ public class ScriptServiceHandler  extends AbstractServiceHandler {
         IScriptService svc = ctx.create(name, IScriptService.class );
         GroovyClassLoader loader = new GroovyClassLoader();
         
-        Class clazz = loader.parseClass(svc.getStringInterface(name));
-        return  ClassDefMap.toMap(clazz);
+        Class clazz = loader.parseClass(svc.stringInterface());
+        return  ClassDefMap.toMap(svc.getClass());
     }
     
     private interface IScriptService  {
-        String getStringInterface(String name);
+        String stringInterface();
     }
     
     private class MyScriptInvoker implements ServiceInvoker {

@@ -49,7 +49,7 @@ public abstract class AbstractServiceHandler implements ServiceAdapter {
             return obj;
         } catch(Exception e) {
             e.printStackTrace();
-            throw new RuntimeException(e);
+            throw new RuntimeException(e.getMessage(), e);
         }
     }
 
