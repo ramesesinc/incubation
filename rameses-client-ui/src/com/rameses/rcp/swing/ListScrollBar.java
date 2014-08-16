@@ -7,7 +7,7 @@
  * and open the template in the editor.
  */
 
-package com.rameses.rcp.control.list;
+package com.rameses.rcp.swing;
 
 import com.rameses.rcp.common.AbstractListDataProvider;
 import com.rameses.rcp.common.MsgBox;

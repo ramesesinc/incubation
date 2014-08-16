@@ -181,6 +181,21 @@ public class RadioListPanel extends JPanel
             } 
         } 
     } 
+    
+    public boolean requestFocusInWindow() {
+        if (!isEnabled()) return false; 
+        
+        Component[] comps = getComponents();
+        for (int i=0; i<comps.length; i++) {
+            if (!(comps[i] instanceof RadioComponent)) continue; 
+            
+            RadioComponent btn = (RadioComponent)comps[i]; 
+            if (btn.isEnabled() && btn.isFocusable()) {
+                return btn.requestFocusInWindow(); 
+            }
+        } 
+        return false; 
+    }
 
     // </editor-fold>
     
