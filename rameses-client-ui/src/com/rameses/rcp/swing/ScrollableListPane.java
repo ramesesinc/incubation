@@ -1,5 +1,5 @@
 /*
- * ListPane.java
+ * ScrollableListPane.java
  *
  * Created on June 9, 2014, 2:33 PM
  *
@@ -7,7 +7,7 @@
  * and open the template in the editor.
  */
 
-package com.rameses.rcp.control.list;
+package com.rameses.rcp.swing;
 
 import com.rameses.rcp.common.AbstractListDataProvider;
 import com.rameses.rcp.common.ListItem;
@@ -50,7 +50,7 @@ import javax.swing.SwingUtilities;
  *
  * @author wflores
  */
-public class ListPane extends JPanel 
+public class ScrollableListPane extends JPanel 
 {
     private ListScrollBar scrollBar;
     private JScrollPane scrollPane;
@@ -61,7 +61,7 @@ public class ListPane extends JPanel
     private Object modelObject;
     private int fixedCellHeight;
     
-    public ListPane() {
+    public ScrollableListPane() {
         initComponent();
     }
     
@@ -143,7 +143,7 @@ public class ListPane extends JPanel
     
     private class JListImpl extends JList 
     {
-        ListPane root = ListPane.this; 
+        ScrollableListPane root = ScrollableListPane.this; 
 
         JListImpl() {
             super(); 
@@ -168,7 +168,7 @@ public class ListPane extends JPanel
     
     private class ViewportImpl extends JViewport
     {
-        ListPane root = ListPane.this; 
+        ScrollableListPane root = ScrollableListPane.this; 
         
         private Color defaultBgcolor = java.awt.SystemColor.control; 
         private Color bgcolor = Color.WHITE;
@@ -219,7 +219,7 @@ public class ListPane extends JPanel
     
     private class ScrollBarPanel extends JPanel 
     {
-        ListPane root = ListPane.this;
+        ScrollableListPane root = ScrollableListPane.this;
         
         private Rectangle oldBounds = new Rectangle(); 
         
@@ -250,7 +250,7 @@ public class ListPane extends JPanel
     
     private class ScrollListModelImpl extends ScrollListModel 
     {
-        ListPane root = ListPane.this;
+        ScrollableListPane root = ScrollableListPane.this;
         
         public List fetchList(Map params) {
             AbstractListDataProvider model = root.getModel();
@@ -266,7 +266,7 @@ public class ListPane extends JPanel
     
     private class CellRendererImpl implements ListCellRenderer
     {
-        ListPane root = ListPane.this;
+        ScrollableListPane root = ScrollableListPane.this;
         
         private JLabel label;
         
@@ -298,7 +298,7 @@ public class ListPane extends JPanel
     
     private class ListMouseHandler implements MouseWheelListener, MouseListener
     {
-        ListPane root = ListPane.this;
+        ScrollableListPane root = ScrollableListPane.this;
         
         private void scroll() {
             JList jList = root.jList;
@@ -366,7 +366,7 @@ public class ListPane extends JPanel
     
     private class PropertyChangeHandlerImpl implements PropertyChangeHandler 
     {
-        ListPane root = ListPane.this; 
+        ScrollableListPane root = ScrollableListPane.this; 
         
         public void firePropertyChange(String name, int value) {
         }
@@ -400,7 +400,7 @@ public class ListPane extends JPanel
     
     private class TableModelHandlerImpl implements TableModelHandler 
     {
-        ListPane root = ListPane.this; 
+        ScrollableListPane root = ScrollableListPane.this; 
 
         public void fireTableCellUpdated(int row, int column) {}
         public void fireTableRowsDeleted(int firstRow, int lastRow) {}
@@ -428,7 +428,7 @@ public class ListPane extends JPanel
     
     private class TableKeyAdapter extends KeyAdapter 
     {       
-        ListPane root = ListPane.this; 
+        ScrollableListPane root = ScrollableListPane.this; 
         
         private void scroll() { 
             JList jList = root.jList;
@@ -520,7 +520,7 @@ public class ListPane extends JPanel
     
     private class OnselectNotifier implements Runnable 
     {
-        ListPane root = ListPane.this;
+        ScrollableListPane root = ScrollableListPane.this;
         
         private ListItem item; 
         

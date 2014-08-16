@@ -30,7 +30,7 @@ public class MySqlCrudSqlBuilder extends CrudSqlBuilder {
                 sb.append(",");
                 tail.append(",");
             }
-            sb.append( cf.getFieldName() );
+            sb.append( "`"+cf.getFieldName()+"`" );
             tail.append( "?");
             paramNames.add( cf.getName() );
         }
@@ -59,7 +59,7 @@ public class MySqlCrudSqlBuilder extends CrudSqlBuilder {
                 sb.append(",");
             }
             if(!cf.isLinked()) sb.append( cp.getTableName() + ".");
-            sb.append( cf.getFieldName() + " AS " + cf.getName());
+            sb.append( cf.getFieldName() + " AS `" + cf.getName() + "`");
         }
         sb.append( " FROM " + cp.getTableName());
         
@@ -97,7 +97,7 @@ public class MySqlCrudSqlBuilder extends CrudSqlBuilder {
             else {
                 sb.append(",");
             }
-            sb.append( cf.getFieldName() + "=?" );
+            sb.append( "`" + cf.getFieldName() + "`" + "=?" );
             paramNames.add( cf.getName() );
         }
         if (primKeys.size()== 0)
@@ -107,7 +107,7 @@ public class MySqlCrudSqlBuilder extends CrudSqlBuilder {
         int i = 0;
         for(CrudModel.CrudField p : primKeys) {
             if( i>0) sb.append( " AND " );
-            sb.append( p.getFieldName() + "=?" );
+            sb.append( "`" + p.getFieldName() + "`" + "=?" );
             paramNames.add( p.getName() );
             i++;
         }
