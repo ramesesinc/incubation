@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
-<Form version="1.0" type="org.netbeans.modules.form.forminfo.JPanelFormInfo">
+<Form version="1.2" maxVersion="1.2" type="org.netbeans.modules.form.forminfo.JPanelFormInfo">
   <AuxValues>
+    <AuxValue name="FormSettings_autoResourcing" type="java.lang.Integer" value="0"/>
+    <AuxValue name="FormSettings_autoSetComponentName" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_generateFQN" type="java.lang.Boolean" value="true"/>
     <AuxValue name="FormSettings_generateMnemonicsCode" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_i18nAutoMode" type="java.lang.Boolean" value="false"/>
     <AuxValue name="FormSettings_layoutCodeTarget" type="java.lang.Integer" value="2"/>
     <AuxValue name="FormSettings_listenerGenerationStyle" type="java.lang.Integer" value="0"/>
     <AuxValue name="FormSettings_variablesLocal" type="java.lang.Boolean" value="false"/>
@@ -84,7 +88,7 @@
                       </StringArray>
                     </Property>
                     <Property name="dynamic" type="boolean" value="true"/>
-                    <Property name="name" type="java.lang.String" value="formActions"/>
+                    <Property name="name" type="java.lang.String" value="formActions" noResource="true"/>
                   </Properties>
                 </Component>
                 <Component class="com.rameses.rcp.control.XActionBar" name="xActionBar1">
@@ -99,7 +103,7 @@
                     </Property>
                     <Property name="dynamic" type="boolean" value="true"/>
                     <Property name="formName" type="java.lang.String" value="entityName"/>
-                    <Property name="name" type="java.lang.String" value="extActions"/>
+                    <Property name="name" type="java.lang.String" value="extActions" noResource="true"/>
                   </Properties>
                 </Component>
               </SubComponents>
@@ -129,9 +133,26 @@
                         <StringItem index="0" value="entity"/>
                       </StringArray>
                     </Property>
-                    <Property name="name" type="java.lang.String" value="navActions"/>
+                    <Property name="name" type="java.lang.String" value="navActions" noResource="true"/>
                     <Property name="showCaptions" type="boolean" value="false"/>
                   </Properties>
+                </Component>
+                <Component class="com.rameses.rcp.control.XDropDownList" name="xDropDownList1">
+                  <Properties>
+                    <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
+                      <Image iconType="3" name="/images/note.png"/>
+                    </Property>
+                    <Property name="contentAreaFilled" type="boolean" value="false"/>
+                    <Property name="focusable" type="boolean" value="false"/>
+                    <Property name="handler" type="java.lang.String" value="messagelist"/>
+                    <Property name="hideOnEmptyResult" type="boolean" value="true"/>
+                    <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+                      <Insets value="[0, 2, 0, 2]"/>
+                    </Property>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="xDropDownList1ActionPerformed"/>
+                  </Events>
                 </Component>
               </SubComponents>
             </Container>
@@ -141,7 +162,7 @@
     </Container>
     <Container class="com.rameses.rcp.control.XStyleRule" name="stylerule">
       <Properties>
-        <Property name="name" type="java.lang.String" value="styleRules"/>
+        <Property name="name" type="java.lang.String" value="styleRules" noResource="true"/>
       </Properties>
       <Constraints>
         <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
