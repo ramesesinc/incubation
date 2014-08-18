@@ -131,17 +131,29 @@ public class PostMessageServlet extends HttpServlet
     private void processAddChannelAction(Map params) throws Exception {
         String name  = (String) params.get("channel");
         if (name == null || name.length() == 0) return;
-        if (sockets.isChannelExist(name)) return;
-
+        
         Channel channel = null;        
-        String type = (String) params.get("type");
-        if (type != null && type.equalsIgnoreCase("queue")) 
-            channel = new QueueChannel(name, params);
-        else 
-            channel = new TopicChannel(name, params);
-
-        sockets.addChannel(channel);
-        System.out.println("channel "+name +" added"); 
+        if (sockets.isChannelExist(name)) {
+            channel = sockets.getChannel(name); 
+        } else {
+            String type = (String) params.get("type");
+            if (type != null && type.equalsIgnoreCase("queue")) { 
+                channel = new QueueChannel(name, params); 
+            } else { 
+                channel = new TopicChannel(name, params);
+            } 
+            sockets.addChannel(channel); 
+            System.out.println("channel "+name +" added"); 
+        } 
+        
+        String group = (String) params.get("group");
+        if (group == null) {
+            group = name;
+        } 
+        ChannelGroup cg = channel.getGroup(group); 
+        if (cg == null) { 
+            channel.addGroup(group); 
+        }
     }
     
     private void processRemoveChannelAction(Map params) throws Exception {
