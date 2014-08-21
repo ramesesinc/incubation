@@ -122,6 +122,7 @@ public class XSuggest extends IconedTextField implements MouseEventSupport.Compo
         });  
         new MouseEventSupport(this).install(); 
         addMouseListener(new MouseListenerImpl()); 
+        putClientProperty(UIInputUtil.EventHandler.class, new EventHandlerImpl());
     }
 
     protected void initActionKeys(InputMap inputMap, ActionMap actionMap) {
@@ -248,10 +249,14 @@ public class XSuggest extends IconedTextField implements MouseEventSupport.Compo
         if (document.isDirty()) {
             if (UIConstants.SuggestTypes.LOOKUP.equals(getType())) { 
                 String text = getText();
-                if (text == null) text = "";
+                if (text == null) {
+                    text = "";
+                }
 
                 String ctextvalue = (currentTextValue==null? "": currentTextValue); 
-                if (!text.equals(ctextvalue)) return null; 
+                if (!text.equals(ctextvalue)) {
+                    return null;
+                } 
             }
         }
         return value; 
@@ -728,6 +733,23 @@ public class XSuggest extends IconedTextField implements MouseEventSupport.Compo
             
             return true; 
         }
+    }
+    
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" EventHandlerImpl ">
+    
+    private class EventHandlerImpl implements UIInputUtil.EventHandler 
+    {
+        XSuggest root = XSuggest.this;
+        
+        @Override
+        public void afterUpdate(UIInput ui, Object value) {
+            if (root.model != null && value == null) {
+                root.model.onempty(); 
+            }
+        }
+        
     }
     
     // </editor-fold>
