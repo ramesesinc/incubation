@@ -56,21 +56,31 @@ public class PayoutTest extends TestCase {
         final List resultList = new ArrayList();
         try {
             test.payoutSearch( m, new AsyncHandler(){
-                public void onMessage(AsyncResponse o) {
-                    if(o.getStatus()==AsyncResponse.PROCESSING) {
-                        Object val = null;
-                        while((val=o.getNextValue())!=null) {
-                            System.out.println("received value->"+val);
-                            resultList.add( val );
-                        }
-                    }
-                    else if( o.getStatus() == AsyncResponse.COMPLETED ) {
-                        System.out.println("asyn COMPLETED!");
-                        queue.add( "ok" );
-                    }
-                }
+//                public void onMessage(AsyncResponse o) {
+//                    if(o.getStatus()==AsyncResponse.PROCESSING) {
+//                        Object val = null;
+//                        while((val=o.getNextValue())!=null) {
+//                            System.out.println("received value->"+val);
+//                            resultList.add( val );
+//                        }
+//                    }
+//                    else if( o.getStatus() == AsyncResponse.COMPLETED ) {
+//                        System.out.println("asyn COMPLETED!");
+//                        queue.add( "ok" );
+//                    }
+//                }
                 public void onError(Exception e) {
                     e.printStackTrace();
+                }
+
+                @Override
+                public void onMessage(Object o) {
+                    throw new UnsupportedOperationException("Not supported yet.");
+                }
+
+                @Override
+                public void call(Object o) {
+                    throw new UnsupportedOperationException("Not supported yet.");
                 }
             });
             
