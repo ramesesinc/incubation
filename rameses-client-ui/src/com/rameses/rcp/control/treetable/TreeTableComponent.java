@@ -201,6 +201,7 @@ public class TreeTableComponent extends JTable implements ListModelListener, Tab
     }
 
     //</editor-fold>
+    
     //<editor-fold defaultstate="collapsed" desc="  buildColumns  ">
     private void buildColumns() {
         int length = tableModel.getColumnCount();
@@ -230,6 +231,7 @@ public class TreeTableComponent extends JTable implements ListModelListener, Tab
     }
     //</editor-fold>
 
+    @Override
     protected JTableHeader createDefaultTableHeader() {
         return new TreeTableHeader(columnModel);
     }

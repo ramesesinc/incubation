@@ -77,23 +77,44 @@ public class AddChannelServlet extends HttpServlet
     }
     
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        addChannel(buildParams(req)); 
+        try { 
+            addChannel(buildParams(req));
+        } catch(IOException ioe) { 
+            throw ioe; 
+        } catch(ServletException se) { 
+            throw se; 
+        } catch(Exception e) {
+            e.printStackTrace();
+            throw new ServletException(e.getMessage(), e);
+        } 
     } 
     
-    private void addChannel(Map conf) {
+    private void addChannel(Map conf) throws Exception {
         String name = (String) conf.remove("channel");
         if (name == null || name.length() == 0) return;
-        if (sockets.isChannelExist(name)) return;
         
-        Channel channel = null;
-        String type = (String) conf.remove("type");        
-        if (type != null && type.equalsIgnoreCase("queue")) 
-            channel = new QueueChannel(name, conf);
-        else 
-            channel = new TopicChannel(name, conf);
-
-        sockets.addChannel(channel);
-        System.out.println("channel "+name +" added");        
+        Channel channel = null;        
+        if (sockets.isChannelExist(name)) {
+            channel = sockets.getChannel(name); 
+        } else {
+            String type = (String) conf.get("type");
+            if (type != null && type.equalsIgnoreCase("queue")) { 
+                channel = new QueueChannel(name, conf); 
+            } else { 
+                channel = new TopicChannel(name, conf);
+            } 
+            sockets.addChannel(channel); 
+            System.out.println("channel "+name +" added"); 
+        } 
+        
+        String group = (String) conf.get("group");
+        if (group == null) {
+            group = name;
+        } 
+        ChannelGroup cg = channel.getGroup(group); 
+        if (cg == null) { 
+            channel.addGroup(group); 
+        }        
     }
     
     private Map buildParams(HttpServletRequest req) {

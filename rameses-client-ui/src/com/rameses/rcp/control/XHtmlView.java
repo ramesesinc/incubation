@@ -23,6 +23,7 @@ import com.rameses.rcp.framework.ClientContext;
 import com.rameses.rcp.support.FontSupport;
 import com.rameses.rcp.support.ImageIconSupport;
 import com.rameses.rcp.support.MouseEventSupport;
+import com.rameses.rcp.swing.HtmlViewPane;
 import com.rameses.rcp.ui.ActiveControl;
 import com.rameses.rcp.ui.ControlProperty;
 import com.rameses.rcp.ui.UIControl;
@@ -61,85 +62,28 @@ import javax.swing.text.html.HTMLDocument;
  *
  * @author wflores
  */
-public class XHtmlView extends JEditorPane implements UIControl, ActiveControl, MouseEventSupport.ComponentInfo 
+public class XHtmlView extends HtmlViewPane implements UIControl, ActiveControl, MouseEventSupport.ComponentInfo 
 {
     private ControlProperty controlProperty;    
     private Binding binding;
     private String[] depends;
     private int index;
     
-    private String fontStyle;
     private DocViewModel docModel; 
-    private Point mousePoint; 
-    
     private String visibleWhen;
     
     public XHtmlView() {
         super(); 
-        super.setContentType("text/html");
-        super.setEditable(false); 
-        addHyperlinkListener(new HyperlinkListener() {
-            public void hyperlinkUpdate(HyperlinkEvent e) {
-                hyperlinkUpdateImpl(e); 
-            }
-        });
-        addMouseListener(new MouseListener() {
-            public void mouseClicked(MouseEvent e) {}
-            public void mouseEntered(MouseEvent e) {}
-            public void mouseExited(MouseEvent e) {}
-            public void mousePressed(MouseEvent e) {}
-            public void mouseReleased(MouseEvent e) {
-                mousePoint = e.getPoint(); 
-            } 
-        }); 
         
+        if (Beans.isDesignTime()) { return; }
         new MouseEventSupport(this).install(); 
-        
-        try { 
-            Font font = UIManager.getLookAndFeelDefaults().getFont("TextField.font"); 
-            super.setFont(font); 
-        } catch(Throwable t) {;} 
-        
-        if (Beans.isDesignTime()) {
-            setPreferredSize(new Dimension(100,50));
-        }
     }
     
     // <editor-fold defaultstate="collapsed" desc=" Getters / Setters "> 
     
-    public String getFontStyle() { return fontStyle; } 
-    public void setFontStyle(String fontStyle) {
-        this.fontStyle = fontStyle;
-        new FontSupport().applyStyles(this, fontStyle);
-    }
-
-    public void setDocument(Document doc) {
-        try { 
-            if (doc instanceof HTMLDocument) {
-                ClassLoader cloader = ClientContext.getCurrentContext().getClassLoader();
-                URL url = cloader.getResource("images"); 
-                if (url != null) ((HTMLDocument) doc).setBase(url); 
-            } 
-        } catch(Throwable t) {;}
-        
-        super.setDocument(doc); 
-    }
-    
     public String getVisibleWhen() { return visibleWhen; } 
     public void setVisibleWhen(String visibleWhen) {
         this.visibleWhen = visibleWhen; 
-    }
-
-    public void setVisible(boolean visible) {
-        Container parent = getParent(); 
-        if (parent instanceof JViewport) {
-            parent = parent.getParent(); 
-            if (parent instanceof JScrollPane) {
-                parent.setVisible(visible); 
-                return;
-            }
-        }
-        super.setVisible(visible); 
     }
     
     // </editor-fold>
@@ -295,39 +239,17 @@ public class XHtmlView extends JEditorPane implements UIControl, ActiveControl, 
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" helper methods "> 
-    
-    private void hyperlinkUpdateImpl(HyperlinkEvent e) {
-        if (!(e.getEventType() == HyperlinkEvent.EventType.ACTIVATED)) return;
 
-        Map params = new HashMap(); 
-        AttributeSet aset = e.getSourceElement().getAttributes();
-        Enumeration en = aset.getAttributeNames();
-        while (en.hasMoreElements()) {
-            Object k = en.nextElement();
-            Object v = aset.getAttribute(k);
-            if (v instanceof AttributeSet) {
-                AttributeSet vset = (AttributeSet) v; 
-                Enumeration ven = vset.getAttributeNames();
-                while (ven.hasMoreElements()) {
-                    Object vk = ven.nextElement();
-                    Object vv = vset.getAttribute(vk); 
-                    params.put(vk.toString(), vv); 
-                }
-            }
-        } 
-        
-        Object href = params.get("href");
-        if (href == null) return;
-        
-        String shref = href.toString();
-        if (!shref.matches("[a-zA-Z0-9_]{1,}")) return;
+    @Override
+    protected void processAction(String name, Map params) {
+        if (name == null || name.length() == 0) return;
         
         Object outcome = null; 
         try { 
             MethodResolver mresolver = MethodResolver.getInstance();
-            outcome = mresolver.invoke(getBinding().getBean(), shref, new Object[]{params}); 
+            outcome = mresolver.invoke(getBinding().getBean(), name, new Object[]{params}); 
         } catch(Throwable t) {
-            System.out.println("[WARN] error invoking method '"+shref+"' caused by " + t.getMessage()); 
+            System.out.println("[WARN] error invoking method '"+name+"' caused by " + t.getMessage()); 
         } 
         
         if (outcome instanceof Opener) {
@@ -353,7 +275,7 @@ public class XHtmlView extends JEditorPane implements UIControl, ActiveControl, 
             } else { 
                 getBinding().fireNavigation((Opener)outcome); 
             } 
-        } 
+        }         
     }
     
     // </editor-fold>
@@ -377,7 +299,7 @@ public class XHtmlView extends JEditorPane implements UIControl, ActiveControl, 
         } 
         
         public void requestFocus() { 
-            if (!root.isEnabled()) return;
+            if (!root.isEnabled()) { return; } 
             
             root.grabFocus(); 
             root.requestFocusInWindow(); 
@@ -445,6 +367,7 @@ public class XHtmlView extends JEditorPane implements UIControl, ActiveControl, 
         }
         popup.pack();
         
+        Point mousePoint = getMousePoint(); 
         Rectangle rect = XHtmlView.this.getBounds();
         int x = rect.x + (mousePoint == null? 0: mousePoint.x); 
         int y = rect.y + (mousePoint == null? 0: mousePoint.y); 

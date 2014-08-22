@@ -62,7 +62,6 @@ public class FileDirTest extends TestCase {
          */
         byte[] b = new byte[0];
         String s = new String(b);
-       S
     }
     
 }

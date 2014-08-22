@@ -59,20 +59,30 @@ public class AsyncTest extends TestCase {
         final LinkedBlockingQueue queue = new LinkedBlockingQueue();
         try {
             test.sendMessage( m, new AsyncHandler(){
-                public void onMessage(AsyncResponse o) {
-                    if(o.getStatus()==AsyncResponse.PROCESSING) {
-                        Object val = null;
-                        while((val=o.getNextValue())!=null) {
-                            System.out.println("received value->"+val);
-                        }
-                    }
-                    else if( o.getStatus() == AsyncResponse.COMPLETED ) {
-                        System.out.println("asyn COMPLETED!");
-                        queue.add( "ok" );
-                    }
-                }
+//                public void onMessage(AsyncResponse o) {
+//                    if(o.getStatus()==AsyncResponse.PROCESSING) {
+//                        Object val = null;
+//                        while((val=o.getNextValue())!=null) {
+//                            System.out.println("received value->"+val);
+//                        }
+//                    }
+//                    else if( o.getStatus() == AsyncResponse.COMPLETED ) {
+//                        System.out.println("asyn COMPLETED!");
+//                        queue.add( "ok" );
+//                    }
+//                }
                 public void onError(Exception e) {
                     e.printStackTrace();
+                }
+
+                @Override
+                public void onMessage(Object o) {
+                    throw new UnsupportedOperationException("Not supported yet.");
+                }
+
+                @Override
+                public void call(Object o) {
+                    throw new UnsupportedOperationException("Not supported yet.");
                 }
             });
             

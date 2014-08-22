@@ -151,6 +151,12 @@ public class UIInputUtil {
             }
             //notify dependencies
             binding.notifyDepends(control);
+            
+            Object o = control.getClientProperty(UIInputUtil.EventHandler.class); 
+            if (o instanceof UIInputUtil.EventHandler) {
+                UIInputUtil.EventHandler eh = (UIInputUtil.EventHandler)o;
+                eh.afterUpdate(control, inputValue); 
+            }
         }
         else if (control instanceof JComboBox) {
             //do nothing, we dont want to fire the refresh to prevent cyclic updating 
@@ -162,9 +168,12 @@ public class UIInputUtil {
         }
     }    
     
-    public static interface Support 
-    {
+    public static interface Support {
         Object setValue(String name, Object value);         
         Object setValue(String name, Object value, JComponent jcomp); 
     }    
+    
+    public static interface EventHandler {
+         void afterUpdate(UIInput ui, Object value);
+    }
 }
