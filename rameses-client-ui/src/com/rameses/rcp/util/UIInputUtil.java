@@ -105,12 +105,18 @@ public class UIInputUtil {
         Object bean = binding.getBean();
         if (bean == null) return;
 
+        EventHelper eventHelper = new EventHelper();
+        if (eventHelper.allowCustomUpdate(control)) {
+            eventHelper.fireCustomUpdate(control); 
+            return; 
+        } 
+        
         ClientContext ctx = ClientContext.getCurrentContext();
         PropertyResolver resolver = PropertyResolver.getInstance();
         String name = control.getName();
-        if (ValueUtil.isEmpty(name)) return;
+        if (ValueUtil.isEmpty(name)) { return; }
 
-        Object inputValue = control.getValue();
+        Object inputValue = control.getValue();        
         Object beanValue = resolver.getProperty(bean, name);
         boolean forceUpdate = false;
         if (control instanceof JComponent) {
@@ -149,20 +155,14 @@ public class UIInputUtil {
 
                 jtxt.putClientProperty("CaretPosition", oldCaretPos); 
             }
+            
             //notify dependencies
             binding.notifyDepends(control);
-            
-            Object o = control.getClientProperty(UIInputUtil.EventHandler.class); 
-            if (o instanceof UIInputUtil.EventHandler) {
-                UIInputUtil.EventHandler eh = (UIInputUtil.EventHandler)o;
-                eh.afterUpdate(control, inputValue); 
-            }
-        }
-        else if (control instanceof JComboBox) {
+            eventHelper.fireAfterUpdate(control, inputValue);
+        } else if (control instanceof JComboBox) {
             //do nothing, we dont want to fire the refresh to prevent cyclic updating 
             //or never ending update 
-        }
-        else {
+        } else {
             //refresh component
             control.refresh(); 
         }
@@ -174,6 +174,34 @@ public class UIInputUtil {
     }    
     
     public static interface EventHandler {
-         void afterUpdate(UIInput ui, Object value);
+        boolean allowCustomUpdate(); 
+        void customUpdate();
+        
+        void afterUpdate(Object value);
+    }
+    
+    private static class EventHelper {
+        boolean allowCustomUpdate(UIInput ui) {
+            Object o = ui.getClientProperty(UIInputUtil.EventHandler.class); 
+            if (o instanceof UIInputUtil.EventHandler) {
+                return ((UIInputUtil.EventHandler)o).allowCustomUpdate();
+            } else {
+                return false; 
+            }
+        }
+        
+        void fireCustomUpdate(UIInput ui) {
+            Object o = ui.getClientProperty(UIInputUtil.EventHandler.class); 
+            if (o instanceof UIInputUtil.EventHandler) {
+                ((UIInputUtil.EventHandler)o).customUpdate();
+            }
+        }
+        
+        void fireAfterUpdate(UIInput ui, Object value) {
+            Object o = ui.getClientProperty(UIInputUtil.EventHandler.class); 
+            if (o instanceof UIInputUtil.EventHandler) {
+                ((UIInputUtil.EventHandler)o).afterUpdate(value);
+            }
+        }
     }
 }
