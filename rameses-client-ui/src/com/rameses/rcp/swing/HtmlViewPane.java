@@ -240,8 +240,8 @@ public class HtmlViewPane extends JEditorPane
         @Override
         public void actionPerformed(ActionEvent e) {
             Map params = taginfo.getProperties(); 
-            Object oname = params.get("name");
-            processAction(oname==null? null: oname.toString(), params);
+            Object obj = params.get("onclick");
+            processAction(obj==null? null: obj.toString(), params);
         }
     }
     
@@ -268,18 +268,13 @@ public class HtmlViewPane extends JEditorPane
                 Object v = aset.getAttribute(k);
                 if (v == null) continue;
                 
+                //System.out.println(k + ", " + k.getClass().getName() + ", "+ v + ", " + v.getClass().getName()); 
                 if (k instanceof HTML.Attribute) {
                     attrs.put(k.toString(), v.toString()); 
                 } else if (k instanceof CSS.Attribute) {
                     css.put(k.toString(), v.toString()); 
-                } else if (v instanceof AttributeSet) {
-//                    AttributeSet vset = (AttributeSet) v; 
-//                    Enumeration ven = vset.getAttributeNames();
-//                    while (ven.hasMoreElements()) {
-//                        Object vk = ven.nextElement();
-//                        Object vv = vset.getAttribute(vk); 
-//                        map.put(vk.toString(), vv); 
-//                    }
+                } else {
+                    attrs.put(k.toString(), v.toString());
                 } 
             } 
             cssinfo = new CSSInfo(elem, css); 

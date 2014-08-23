@@ -26,14 +26,7 @@ public class SuggestModel
     
     public List fetchList(Map params) {
         return null; 
-    }
-    
-    public void onselect(Object item) {
-    }  
-    
-    public void onempty() {
-    }
-    
+    } 
     
     // <editor-fold defaultstate="collapsed" desc=" Provider ">
     
