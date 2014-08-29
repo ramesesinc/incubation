@@ -35,8 +35,8 @@ public final class DateFunc {
         return m % 12;
     }
     
-    public static long daysDiff( Date startMonth, Date endMonth ) {
-        return DateUtil.diff(startMonth, endMonth, Calendar.DATE);
+    public static long daysDiff( Date startDate, Date endDate ) {
+        return DateUtil.diff(startDate, endDate, Calendar.DATE);
     }
     
     public static Date startQtrDate( int year, int qtr ) {
@@ -103,5 +103,14 @@ public final class DateFunc {
         cal.setTime(dt);
         return cal.get(Calendar.DATE);
     }
+    
+    public static Date getDate( int year, int month, int day ) {
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.YEAR, year);
+        cal.set(Calendar.MONTH, month-1);
+        cal.set(Calendar.DATE, day);
+        return cal.getTime();
+    }
+    
 
 }
