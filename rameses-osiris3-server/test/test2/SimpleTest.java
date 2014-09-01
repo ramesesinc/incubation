@@ -44,12 +44,20 @@ public class SimpleTest extends TestCase {
     }
 
     class MyHandler implements AsyncHandler {
-        public void onMessage(AsyncResponse o) {
-            System.out.println("received message " + o.getNextValue());
-        }
-
+        @Override
         public void onError(Exception e) {
         }
+
+        @Override
+        public void onMessage(Object o) {
+            System.out.println("received message " + o);
+        }
+
+        @Override
+        public void call(Object o) {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
     }
     
     public void xxtestSimple() throws Exception {

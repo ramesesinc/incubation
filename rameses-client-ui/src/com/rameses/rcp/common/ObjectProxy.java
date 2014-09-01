@@ -24,6 +24,9 @@ public class ObjectProxy
     public ObjectProxy() {
     }
     
+    public static synchronized MetaInfo getMetaInfo(Object source) {
+        return new MetaInfo(source); 
+    }
     
     public <T> T create(Object source, Class<T> interface0) {
         return create(source, interface0, ObjectProxy.class.getClassLoader()); 
@@ -34,6 +37,77 @@ public class ObjectProxy
         return (T) Proxy.newProxyInstance(classLoader, new Class[]{interface0}, handler); 
     }    
     
+    public static class MetaInfo 
+    {
+        private Object source;
+        private Class sourceClass;
+        
+        MetaInfo(Object source) {
+            this.source = source; 
+            this.sourceClass = source.getClass(); 
+        }
+        
+        public Object getSource() { return source; } 
+        
+        public boolean containsMethod(String name) {
+            Method m = getMethod(name); 
+            return (m == null? false: true); 
+        }
+        
+        public boolean containsMethod(String name, Class[] argtypes) {
+            Method m = getMethod(name, argtypes); 
+            return (m == null? false: true); 
+        } 
+        
+        private Method getMethod(String name) {
+            if (name == null) return null;
+
+            try {
+                Method m = sourceClass.getMethod(name, new Class[]{Object[].class});
+                if (m != null) return m; 
+            } catch(Throwable t) {;} 
+
+            try {
+                Method m = sourceClass.getMethod(name, new Class[]{Object.class});
+                if (m != null) return m; 
+            } catch(Throwable t) {;} 
+            
+            try {
+                Method m = sourceClass.getMethod(name, new Class[]{});
+                if (m != null) return m; 
+            } catch(Throwable t) {;} 
+            
+            return null; 
+        } 
+        
+        public Method getMethod(String name, Class[] argtypes) {
+            if (name == null) return null;
+            if (argtypes == null) argtypes = new Class[]{};
+            
+            try {
+                Method m = sourceClass.getMethod(name, argtypes);
+                if (m != null) return m; 
+            } catch(Throwable t) {;} 
+            
+            return null; 
+        } 
+        
+        public Object invoke(Method method, Object[] args) {
+            try { 
+                if (args == null) args = new Object[]{};
+                
+                return method.invoke(source, args);
+            } catch(Throwable t) { 
+                if (t instanceof AppException) {
+                    throw (AppException) t;
+                } else if (t instanceof RuntimeException) {
+                    throw (RuntimeException) t;
+                } else { 
+                    throw new RuntimeException(t.getMessage(), t); 
+                }
+            }  
+        }
+    } 
     
     private class InvocationHandlerImpl implements InvocationHandler 
     {

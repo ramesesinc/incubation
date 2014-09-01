@@ -9,6 +9,8 @@
 
 package com.rameses.rcp.control;
 
+import com.rameses.rcp.common.ObjectProxy;
+import com.rameses.rcp.common.Opener;
 import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.common.SuggestModel;
 import com.rameses.rcp.constant.TextCase;
@@ -44,6 +46,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.beans.Beans;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -85,6 +88,9 @@ public class XSuggest extends IconedTextField implements MouseEventSupport.Compo
     private int index; 
     private ControlProperty property; 
     
+    private CallbackHandler onselectHandler;
+    private CallbackHandler onemptyHandler;
+    
     private SuggestModel model; 
     private boolean enable_search;
     private String currentTextValue;
@@ -122,6 +128,7 @@ public class XSuggest extends IconedTextField implements MouseEventSupport.Compo
         });  
         new MouseEventSupport(this).install(); 
         addMouseListener(new MouseListenerImpl()); 
+        putClientProperty(UIInputUtil.EventHandler.class, new EventHandlerImpl());
     }
 
     protected void initActionKeys(InputMap inputMap, ActionMap actionMap) {
@@ -245,16 +252,11 @@ public class XSuggest extends IconedTextField implements MouseEventSupport.Compo
     }
     
     public Object getValue() { 
-        if (document.isDirty()) {
-            if (UIConstants.SuggestTypes.LOOKUP.equals(getType())) { 
-                String text = getText();
-                if (text == null) text = "";
-
-                String ctextvalue = (currentTextValue==null? "": currentTextValue); 
-                if (!text.equals(ctextvalue)) return null; 
-            }
-        }
-        return value; 
+        if (value instanceof String) {
+            return (value.toString().length()==0? null: value); 
+        } else {
+            return value; 
+        } 
     }
     public void setValue(Object value) {
         this.value = value;
@@ -293,6 +295,8 @@ public class XSuggest extends IconedTextField implements MouseEventSupport.Compo
     
     public void refresh() {
         try { 
+            onselectHandler = null;  
+            onemptyHandler = null;
             Object bean = getBinding().getBean();        
             Object handlerObj = getHandlerObject();
             if (handlerObj == null) {
@@ -304,6 +308,13 @@ public class XSuggest extends IconedTextField implements MouseEventSupport.Compo
 
             if (handlerObj instanceof SuggestModel) {
                 model = (SuggestModel) handlerObj; 
+                ObjectProxy.MetaInfo meta = ObjectProxy.getMetaInfo(handlerObj);
+                if (meta.containsMethod("onselect")) {
+                    onselectHandler = new CallbackHandler(meta, "onselect"); 
+                } 
+                if (meta.containsMethod("onempty")) {
+                    onemptyHandler = new CallbackHandler(meta, "onempty"); 
+                }
             } else {
                 model = new DefaultSuggestModel(); 
             }
@@ -491,13 +502,20 @@ public class XSuggest extends IconedTextField implements MouseEventSupport.Compo
         try { 
             if (si == null) return;
             
-            model.onselect(si.getUserObject()); 
-            refreshTextValue(si.getUserObject(), true); 
+            Object outcome = null;
+            Object userobj = si.getUserObject(); 
+            if (onselectHandler != null) { 
+                outcome = onselectHandler.invoke(userobj);
+            } 
+            
+            refreshTextValue(userobj, true); 
             getPopup().setVisible(false); 
             
             if (UIConstants.SuggestTypes.LOOKUP.equals(getType())) { 
                 transferFocus(); 
             } 
+            
+            EventQueue.invokeLater(new ProcessOutcome(outcome));
         } catch(Throwable t) { 
             ErrorDialog.show(t, this); 
         } 
@@ -584,10 +602,39 @@ public class XSuggest extends IconedTextField implements MouseEventSupport.Compo
     
     // <editor-fold defaultstate="collapsed" desc=" DefaultSuggestModel ">
     
-    private class DefaultSuggestModel extends SuggestModel 
-    {
-        XSuggest root = XSuggest.this;        
-    }
+    private class DefaultSuggestModel extends SuggestModel { 
+        XSuggest root = XSuggest.this; 
+    } 
+
+    private class CallbackHandler {
+        
+        private ObjectProxy.MetaInfo meta; 
+        private String name;
+        
+        CallbackHandler(ObjectProxy.MetaInfo meta, String name) {
+            this.meta = meta; 
+            this.name = name; 
+        }
+        
+        Object invoke(Object value) {
+            Method method = meta.getMethod(name, new Class[]{Object[].class}); 
+            if (method != null) {
+                Object[] args = (value==null? new Object[]{}: new Object[]{value});
+                return meta.invoke(method, new Object[]{args}); 
+            }
+            
+            method = meta.getMethod(name, new Class[]{Object.class}); 
+            if (method != null) {
+                return meta.invoke(method, new Object[]{value}); 
+            }
+            
+            method = meta.getMethod(name, new Class[]{}); 
+            if (method != null) {
+                return meta.invoke(method, new Object[]{}); 
+            }
+            return null; 
+        }
+    }    
     
     // </editor-fold>     
     
@@ -731,4 +778,72 @@ public class XSuggest extends IconedTextField implements MouseEventSupport.Compo
     }
     
     // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" EventHandlerImpl ">
+    
+    private class EventHandlerImpl implements UIInputUtil.EventHandler 
+    {
+        XSuggest root = XSuggest.this;
+        
+        @Override
+        public boolean allowCustomUpdate() {
+            if (root.document.isDirty()) {
+                if (root.onemptyHandler == null) return false; 
+                
+                String text = root.getText();
+                if ((text == null || text.length() == 0)) {
+                    return true; 
+                } else {
+                    return false; 
+                }
+            } else {
+                return false; 
+            } 
+        }
+
+        @Override
+        public void customUpdate() {
+            if (root.onemptyHandler == null) return;
+            if (!root.document.isDirty()) return; 
+            
+            String text = root.getText();
+            if (text == null || text.length() == 0) {
+                onemptyHandler.invoke(null); 
+            } 
+        }        
+        
+        @Override
+        public void afterUpdate(Object value) {
+        }
+    } 
+    
+    private class ProcessOutcome implements Runnable {
+        
+        XSuggest root = XSuggest.this;
+        private Object result;
+        
+        ProcessOutcome(Object result) {
+            this.result = result; 
+        }
+        
+        @Override
+        public void run() {
+            if (result instanceof Opener) {
+                Binding binding = root.getBinding(); 
+                if (binding != null) {
+                    Opener opener = (Opener)result;
+                    String target = opener.getTarget();
+                    if ((target+"").matches("window|_window|popup|_popup")) {
+                        //do nothing 
+                    } else {
+                        opener.setTarget("popup");
+                    }
+                    binding.fireNavigation(opener);
+                }
+            }
+        }
+    }
+    
+    // </editor-fold>
+    
 }

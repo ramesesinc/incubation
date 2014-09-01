@@ -54,8 +54,8 @@ public final class OsirisTestPlatform {
         profile = aProfile;
     }
     
-    private static Platform buildPlatform() throws Exception {
-        if( conf == null ) throw new Exception("Please set a conf");
+    private static Map buildEnv() throws Exception {
+        if( conf == null ) conf = getTestConf();
         if(roles==null) roles = new HashMap();
         if(profile==null) profile = new HashMap();
         //add the client env here.    
@@ -63,9 +63,13 @@ public final class OsirisTestPlatform {
         clientEnv.putAll(profile);
         clientEnv.put("ROLES", roles);
         conf.put("CLIENT_ENV", clientEnv);
+        return conf;
+    } 
+    
+    private static Platform buildPlatform() throws Exception {
         OsirisAppLoader loader = new OsirisAppLoader();
         Platform platform = ClientContext.getCurrentContext().getPlatform();
-        loader.load(ClientContext.getCurrentContext().getClassLoader(), conf, platform);
+        loader.load(ClientContext.getCurrentContext().getClassLoader(), buildEnv(), platform);
         return platform;
     }
     
@@ -113,7 +117,7 @@ public final class OsirisTestPlatform {
         
         OsirisAppLoader loader = new OsirisAppLoader();
         Platform platform = ClientContext.getCurrentContext().getPlatform();
-        loader.load(Thread.currentThread().getContextClassLoader(), getTestConf(), platform);
+        loader.load(Thread.currentThread().getContextClassLoader(), buildEnv(), platform);
         
         Opener opener = Inv.lookupOpener(name, params); 
         ControlSupport.initOpener(opener, null);

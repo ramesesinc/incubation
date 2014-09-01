@@ -48,10 +48,12 @@ public class TreeTableComponentModel extends AbstractTableModel implements Table
         return dataProvider;
     }
 
+    @Override
     public int getRowCount() {
         return this.dataProvider.getRowCount();
     }
 
+    @Override
     public Column getColumn(int index) {
         if (index >= 0 && index < columnList.size()) {
             return columnList.get(index);
@@ -60,10 +62,12 @@ public class TreeTableComponentModel extends AbstractTableModel implements Table
         return null;
     }
 
+    @Override
     public int getColumnCount() {
         return columnList.size();
     }
 
+    @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
         PropertyResolver resolver = PropertyResolver.getInstance();
         try {

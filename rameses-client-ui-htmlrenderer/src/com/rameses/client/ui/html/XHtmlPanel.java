@@ -259,6 +259,10 @@ public class XHtmlPanel extends JPanel implements UIControl, ActiveControl
             root.grabFocus(); 
             root.requestFocusInWindow(); 
         } 
+
+        public void appendText(String string) {
+            
+        }
     }
     
     // </editor-fold> 
