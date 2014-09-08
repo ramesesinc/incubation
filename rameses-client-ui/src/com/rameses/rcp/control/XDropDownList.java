@@ -20,6 +20,7 @@ import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.support.FontSupport;
 import com.rameses.rcp.support.ImageIconSupport;
 import com.rameses.rcp.swing.ListPane;
+import com.rameses.rcp.swing.UIVisibility;
 import com.rameses.rcp.ui.ActiveControl;
 import com.rameses.rcp.ui.ControlProperty;
 import com.rameses.rcp.ui.UIControl;
@@ -81,6 +82,7 @@ public class XDropDownList extends JButton implements UIControl, ActiveControl {
     
     private boolean hideOnEmptyResult;
     private LabelCounter labelCounter;
+    private UIVisibility visibility;
     
     public XDropDownList() {
         initComponent();
@@ -112,58 +114,37 @@ public class XDropDownList extends JButton implements UIControl, ActiveControl {
         this.hideOnEmptyResult = hideOnEmptyResult; 
     }
     
-    public String getExpression() {
-        return expression;
-    }
-    
+    public String getExpression() { return expression; }
     public void setExpression(String expression) {
         this.expression = expression;
     }
     
-    public String getItemExpression() {
-        return itemExpression;
-    }
-    
+    public String getItemExpression() { return itemExpression; }
     public void setItemExpression(String itemExpression) {
         this.itemExpression = itemExpression;
     }
     
-    public String getHandler() {
-        return handler;
-    }
-    
+    public String getHandler() { return handler; }
     public void setHandler(String handler) {
         this.handler = handler;
     }
     
-    public Object getHandlerObject() {
-        return handlerObject;
-    }
-    
+    public Object getHandlerObject() { return handlerObject; }
     public void setHandlerObject(Object handlerObject) {
         this.handlerObject = handlerObject;
     }
     
-    public String getVisibleWhen() {
-        return visibleWhen;
-    }
-    
+    public String getVisibleWhen() { return visibleWhen; }
     public void setVisibleWhen(String visibleWhen) {
         this.visibleWhen = visibleWhen;
     }
     
-    public String getVarName() {
-        return varName;
-    }
-    
+    public String getVarName() { return varName; }
     public void setVarName(String varName) {
         this.varName = varName;
     }
     
-    public String getAccelerator() {
-        return accelerator;
-    }
-    
+    public String getAccelerator() { return accelerator; }
     public void setAccelerator(String accelerator) {
         this.accelerator = accelerator;
         
@@ -181,37 +162,27 @@ public class XDropDownList extends JButton implements UIControl, ActiveControl {
         }
     }
     
-    public String getIconResource() {
-        return iconResource;
-    }
-    
+    public String getIconResource() { return iconResource; }
     public void setIconResource(String iconResource) {
         this.iconResource = iconResource;
         setIcon(ImageIconSupport.getInstance().getIcon(iconResource));
     }
     
-    public String getTitle() {
-        return title;
-    }
+    public String getTitle() { return title; }
+    public void setTitle(String title) { this.title = title; }
     
-    public void setTitle(String title) {
-        this.title = title;
-    }
-    
-    public int getCellHeight() {
-        return cellHeight;
-    }
-    
+    public int getCellHeight() { return cellHeight; }
     public void setCellHeight(int cellHeight) {
         this.cellHeight = cellHeight;
     }
     
-    public Dimension getPopupSize() {
-        return popupSize;
-    }
-    
+    public Dimension getPopupSize() { return popupSize; }
     public void setPopupSize(Dimension popupSize) {
         this.popupSize = popupSize;
+    }
+    
+    public void setVisibility(UIVisibility visibility) {
+        this.visibility = visibility;
     }
     
     // </editor-fold>
@@ -362,6 +333,12 @@ public class XDropDownList extends JButton implements UIControl, ActiveControl {
         
         revalidate(); 
         repaint(); 
+        
+        Renderer renderer = getRenderer();
+        if (renderer != null) {
+            renderer.setModel(model);
+            renderer.refresh();
+        }
     }
     
     private Object createExpressionBean(Object itemBean) {
@@ -492,6 +469,14 @@ public class XDropDownList extends JButton implements UIControl, ActiveControl {
     // <editor-fold defaultstate="collapsed" desc=" popup helper methods ">
 
     @Override
+    public boolean isVisible() {
+        if (visibility != null) {
+            return visibility.isVisible(); 
+        }
+        return super.isVisible(); 
+    }
+    
+    @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         
@@ -515,6 +500,14 @@ public class XDropDownList extends JButton implements UIControl, ActiveControl {
             JPopupMenu jpm = root.getPopup();
             jpm.setVisible(false);
             
+            Renderer renderer = getRenderer();
+            if (renderer != null) {
+                boolean oldvisible = renderer.isVisible();
+                renderer.refresh();
+                renderer.setVisible(!oldvisible);
+                return;
+            }
+
             final ListPane lp = new ListPane() {
                 protected String getItemText(Object item) {
                     return root.getItemText(item);
@@ -561,7 +554,7 @@ public class XDropDownList extends JButton implements UIControl, ActiveControl {
         }
     }
     
-    protected String getItemText(Object item) {
+    public String getItemText(Object item) {
         try {
             Object o = metaInfo.getItemText(item); 
             if (o != null) return o.toString(); 
@@ -899,5 +892,24 @@ public class XDropDownList extends JButton implements UIControl, ActiveControl {
         
         int getWidth();
     }
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" Renderer ">
+    
+    private Renderer renderer; 
+    public Renderer getRenderer() { return renderer; } 
+    public void setRenderer(Renderer renderer) {
+        this.renderer = renderer; 
+    }
+    
+    public static interface Renderer {
+        void setModel(AbstractListDataProvider model);
+        void refresh();
+        
+        boolean isVisible();
+        void setVisible(boolean visible); 
+    }
+    
+    
     // </editor-fold>
 }

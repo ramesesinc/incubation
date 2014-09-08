@@ -55,6 +55,7 @@ public class XDropDownListBeanInfo extends ComponentBeanInfo.Support
             new PropertyDescriptor("depends", getBeanClass()),
             new PropertyDescriptor("expression", getBeanClass()),
             new PropertyDescriptor("focusable", getBeanClass(), "isFocusable", "setFocusable"),            
+            new PropertyDescriptor("hideOnEmptyResult", getBeanClass(), "isHideOnEmptyResult", "setHideOnEmptyResult"),            
             new PropertyDescriptor("handler", getBeanClass()),
             new PropertyDescriptor("handlerObject", getBeanClass()),
             new PropertyDescriptor("index", getBeanClass()),
