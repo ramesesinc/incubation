@@ -16,6 +16,7 @@ import com.rameses.anubis.Project;
 import java.io.ByteArrayInputStream;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
@@ -49,7 +50,7 @@ public class JsProxyServlet extends AbstractAnubisServlet {
             Map info = project.getServiceManager().getClassInfo( connection+"/"+service );
             StringWriter w = new StringWriter();
             if ( info !=null ) writeJs( info, w );
-            
+
             ByteArrayInputStream bis = new ByteArrayInputStream(w.toString().getBytes());
             ResponseUtil.write(hreq, hres, "text/javascript", bis);
         } 
@@ -66,13 +67,13 @@ public class JsProxyServlet extends AbstractAnubisServlet {
         w.write( "function " + m.get("name") + "( p ) {\n"  );
         w.write( "this.proxy =  p;\n"  );
         
-        List<Map> methods = (List)m.get("methods");
+        Collection<Map> methods = (Collection)m.get("methods");
         for( Map mth : methods ) {
             StringBuffer args = new StringBuffer();
             StringBuffer parms = new StringBuffer();
             
             String methodName = (String)mth.get("name");
-            List params = (List)mth.get("params");
+            List params = (List)mth.get("parameters");
             
             int i=0;
             for (i=0; i<params.size(); i++) {

@@ -13,11 +13,14 @@ import com.rameses.anubis.JsonUtil;
 import com.rameses.util.SealedMessage;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
@@ -44,14 +47,20 @@ import org.eclipse.jetty.continuation.ContinuationSupport;
  *
  * http://host/poll/channel1?data=hello
  */
-public class AnubisPollServlet extends HttpServlet {
-    
-    private static Map<String, Channel> channels = new Hashtable();
+public class AnubisPollServlet extends HttpServlet 
+{
     private static ExecutorService thread = Executors.newCachedThreadPool();
+    private static Map<String, Channel> channels = new Hashtable();
+    private static final long EXPIRY_TIME = 60000;
+    
+    static {
+        Scheduler.schedule(new MessageTokenCleaner(), 0, EXPIRY_TIME);
+    }
     
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException 
     {
         ObjectInputStream in = null;
+        ObjectOutputStream out = null;
         try 
         {
             in = new ObjectInputStream(req.getInputStream());
@@ -72,21 +81,30 @@ public class AnubisPollServlet extends HttpServlet {
             Channel channel = getChannel(channelName);
             
             Iterator itr = collection.iterator(); 
-            while (itr.hasNext()) 
-            {
+            while (itr.hasNext()) {
                 Map data = (Map) itr.next();
                 if (data == null) continue;
                 
-                channel.send(data);
-            }
-        } 
-        catch(IOException ioe) { throw ioe; }
-        catch(Exception e) {
+                Object oid = data.get("tokenid"); 
+                String tokenid = (oid == null? null: oid.toString()); 
+                if (tokenid == null || tokenid.length() == 0) {
+                    channel.send(data); 
+                } else {
+                    MessageToken mt = channel.createToken(tokenid); 
+                    if (mt != null) mt.handle(data); 
+                } 
+            } 
+            
+            out = new ObjectOutputStream(resp.getOutputStream());
+            out.writeObject("OK");
+        } catch(IOException ioe) { 
+            throw ioe; 
+        } catch(Exception e) {
             throw new ServletException(e.getMessage(), e);
-        }
-        finally {
-            try {in.close();} catch(Exception ign){;}
-        }        
+        } finally {
+            try {in.close();} catch(Throwable ign){;}
+            try {out.close();} catch(Throwable ign){;}
+        }      
     }
     
     private void writeResponse(String msg, HttpServletResponse res)  throws ServletException, IOException{
@@ -99,7 +117,7 @@ public class AnubisPollServlet extends HttpServlet {
     
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         PollWorker worker = (PollWorker)req.getAttribute(PollWorker.class.getName());
-        if(worker==null) {
+        if (worker == null) { 
             String path = req.getPathInfo().substring(1);
             String[] arr = path.split("/");
             String channelName = arr[0];
@@ -121,9 +139,7 @@ public class AnubisPollServlet extends HttpServlet {
             if(worker.continuation.isExpired()) {
                 writeResponse("{status: 'timeout'}", resp);
             } else {
-                
                 String result = worker.result;
-                //System.out.println("token "+worker.token.tokenId + " ->"+result);
                 writeResponse(result, resp);
             }
             worker.destroy();
@@ -143,13 +159,23 @@ public class AnubisPollServlet extends HttpServlet {
         }
         
         public void run() {
-            Map map = token.read();
-            if(map!=null) {
-                map.put("status", "OK");
-                result = JsonUtil.toString( map );
-            } else {
-                result = null;
+            boolean has_entries = false; 
+            StringBuilder buffer = new StringBuilder();
+            buffer.append("["); 
+            LinkedBlockingQueue<Map> queue = token.readQueue(); 
+            while (!queue.isEmpty()) { 
+                Map map = queue.poll(); 
+                if (map != null) {
+                    map.put("status", "OK"); 
+                    if (has_entries) {
+                        buffer.append(", "); 
+                    }
+                    buffer.append(JsonUtil.toString(map));
+                    has_entries = true; 
+                }
             }
+            buffer.append("]"); 
+            result = buffer.toString(); 
             continuation.resume();
         }
         
@@ -160,10 +186,7 @@ public class AnubisPollServlet extends HttpServlet {
             result = null;
             future = null;
         }
-        
     }
-    
-    
     
     private class Channel {
         
@@ -173,40 +196,87 @@ public class AnubisPollServlet extends HttpServlet {
         public Channel(String name) {
             this.name = name;
         }
+        
         public void send(Map map) {
             for(MessageToken mh: handlers) {
                 mh.handle( map );
             }
         }
-        public synchronized MessageToken createToken(String token) {
-            for(MessageToken mh: handlers) {
-                if(mh.tokenId.equals(token)) {
-                    return mh;
+        
+        public synchronized MessageToken createToken(String id) {
+            MessageToken mt = getToken(id);
+            if (mt == null) {
+                mt = new MessageToken(id);
+                handlers.add(mt); 
+            } 
+            return mt;
+        } 
+        
+        public MessageToken getToken(String id) {
+            if (id == null || id.length() == 0) {
+                return null; 
+            }
+            
+            for (MessageToken handler : handlers) {
+                if(handler.tokenId.equals(id)) {
+                    return handler; 
                 }
             }
-            MessageToken mt = new MessageToken(token);
-            handlers.add( mt );
-            return mt;
+            return null; 
+        }
+        
+        void removeExpiredTokens() {
+            List<MessageToken> list = new ArrayList();
+            for (MessageToken mt : handlers) {
+                if (mt.isExpired()) {
+                    mt.queue.clear(); 
+                    list.add(mt); 
+                }
+            }
+            handlers.removeAll(list); 
         }
     }
     
     public class MessageToken {
         private String tokenId;
         private LinkedBlockingQueue<Map> queue = new LinkedBlockingQueue();
+        private long last_time_accessed;
+                
         public MessageToken(String tokenid) {
             this.tokenId = tokenid;
         }
+        
         public void handle(Map map) {
-            queue.add( map );
+            if (map != null) {
+                queue.add( map );
+                last_time_accessed = System.currentTimeMillis(); 
+            }
         }
+        
         public Map read() {
             try {
                 return (Map) queue.poll( 30, TimeUnit.SECONDS );
             } catch (InterruptedException ex) {
                 return null;
+            } finally {
+                last_time_accessed = System.currentTimeMillis();
             }
         }
         
+        LinkedBlockingQueue<Map> readQueue() {
+            try { 
+                LinkedBlockingQueue<Map> result = queue; 
+                queue = new LinkedBlockingQueue();
+                return result; 
+            } finally {
+                last_time_accessed = System.currentTimeMillis();
+            }
+        }
+        
+        boolean isExpired() {
+            long diff = (System.currentTimeMillis() - last_time_accessed);
+            return (diff >= EXPIRY_TIME); 
+        }
     }
     
     public synchronized Channel getChannel(String name) {
@@ -224,4 +294,14 @@ public class AnubisPollServlet extends HttpServlet {
     }
     
     
+    private static class MessageTokenCleaner implements Runnable {
+        
+        @Override
+        public void run() {
+            Iterator<Channel> itr = channels.values().iterator(); 
+            while (itr.hasNext()) {
+                itr.next().removeExpiredTokens(); 
+            }
+        }
+    }
 }
