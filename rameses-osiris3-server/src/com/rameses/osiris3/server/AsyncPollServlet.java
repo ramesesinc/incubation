@@ -65,11 +65,9 @@ public class AsyncPollServlet extends AbstractServlet {
             
             //suspend the continuation
             poll.continuation = ContinuationSupport.getContinuation(req);
-            
             poll.continuation.setTimeout( TIMEOUT );
             poll.timeout = TIMEOUT;
             poll.continuation.suspend();
-            
             poll.future = thread.submit( poll );
             req.setAttribute( "QP", poll );
         }
@@ -139,4 +137,7 @@ public class AsyncPollServlet extends AbstractServlet {
         }
     }
     
+    private void println(Object value) {
+        System.out.println("AsyncPollServlet: " + value); 
+    }
 }

@@ -107,34 +107,45 @@ public class ServiceInvokerServlet extends AbstractServlet {
             
             req.setAttribute(  ScriptRunnable.class.getName(), tr );
             listener.future = taskPool.submit(tr);
-            
         } else {
             ContinuationListener listener = (ContinuationListener)tr.getListener();
             Object response= null;
             if( listener.isExpired() ) {
                 tr.cancel();
                 response = new Exception("Timeout exception. Transaction was not processed");
+                
             } else {
                 if( tr.hasErrs()) {
                     response = tr.getErr();
                     System.out.println("error "+tr.getErr().getClass() + " " + tr.getErr().getMessage());
+                    
                 } else {
                     response = tr.getResult();
                     if(response instanceof AsyncRequest) {
                         AsyncRequest ar = (AsyncRequest)response;
                         ar.setContextName( p.getContextName());
-                        if( ar.getConnection()!=null) {
+                        
+                        XAsyncConnection ac = null; 
+                        if( ar.getConnection() != null) {
                             try {
-                                XAsyncConnection ac = (XAsyncConnection) tr.getContext().getResource( XConnection.class, ar.getConnection() );
+                                ac = (XAsyncConnection) tr.getContext().getResource( XConnection.class, ar.getConnection() );
                                 ac.register( ar.getId() );
-                                tr.setBypassAsync(true);
-                                tr.setAsyncRequest(ar);
-                                tr.setListener(new AsyncListener(tr, ac));
-                                taskPool.submit( tr );
                             } catch(Exception e) {
-                                response = e;
+                                writeResponse( e, res );
+                                return; 
                             }
                         }
+                        
+                        try {
+                            tr.setBypassAsync(true);
+                            tr.setAsyncRequest(ar);
+                            tr.setListener(new AsyncListener(tr, ac));
+                            taskPool.submit( tr );
+                        } catch(Exception e) {
+                            writeResponse( e, res );
+                            return; 
+                        }
+                        
                         response = new AsyncToken(ar.getId(), ar.getConnection());
                     }
                 }
@@ -155,29 +166,33 @@ public class ServiceInvokerServlet extends AbstractServlet {
         }
         
         public void onBegin() {}
-
-        public void onComplete(Object result) {
-            try {
-                AsyncRequest ar = sr.getAsyncRequest();
-                boolean hasmore = "true".equals(sr.getEnv().get(ar.getVarStatus())+""); 
-                MessageQueue queue = conn.getQueue( ar.getId() );
-                queue.push( result ); 
-                if (hasmore) { 
-                    ar.getEnv().put(ar.getVarStatus(), null); 
-                    taskPool.submit( sr ); 
-                } else { 
-                    AsyncToken at = new AsyncToken();
-                    at.setClosed(true);
-                    queue.push( at);
-                }
-            } catch(Exception e) {
-                e.printStackTrace();
-            }
-        }
-
-        public void onRollback(Exception e) {}
         public void onClose() {}
         public void onCancel() {}
+        public void onRollback(Exception e) {}
+
+        public void onComplete(Object result) {
+            if (conn == null) {
+               //do nothing, exit immediately
+                
+            } else {
+                try {
+                    AsyncRequest ar = sr.getAsyncRequest();
+                    boolean hasmore = "true".equals(sr.getEnv().get(ar.getVarStatus())+""); 
+                    MessageQueue queue = conn.getQueue( ar.getId() );
+                    queue.push( result ); 
+                    if (hasmore) { 
+                        ar.getEnv().put(ar.getVarStatus(), null); 
+                        taskPool.submit( sr ); 
+                    } else { 
+                        AsyncToken at = new AsyncToken();
+                        at.setClosed(true);
+                        queue.push( at);
+                    }
+                } catch(Exception e) {
+                    e.printStackTrace();
+                } 
+            } 
+        } 
     }
     
     // </editor-fold>
