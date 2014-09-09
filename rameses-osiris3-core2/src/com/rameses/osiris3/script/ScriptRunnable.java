@@ -67,10 +67,15 @@ public class ScriptRunnable implements Runnable {
             txn.commit();
             if(listener!=null) listener.onComplete( result );
         } catch(Exception ex) {
-            txn.rollback();
+            txn.rollback(); 
+            ex.printStackTrace(); 
             err = ExceptionManager.getOriginal(ex);
-            ex.printStackTrace();
             if(listener!=null) listener.onRollback(ex);
+        } catch(Throwable t) {
+            txn.rollback();
+            t.printStackTrace();
+            err = new Exception(t.getMessage(), t);
+            if(listener!=null) listener.onRollback(err);
         } finally {
             txn.close();
             if(listener!=null) listener.onClose();

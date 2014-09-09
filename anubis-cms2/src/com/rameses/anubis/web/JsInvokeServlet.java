@@ -34,9 +34,18 @@ public class JsInvokeServlet extends AbstractAnubisServlet {
             Project project = actx.getProject();
             
             String[] arr = pathInfo.substring(1).split("/");
-            String connection = (arr.length >= 3? arr[1]: arr[0]);
-            String service    = (arr.length >= 3? arr[2]: arr[1]);            
-            service = service.substring(0, service.indexOf("."));
+            String moduleName = (arr.length >= 3? arr[0]: null);
+            String connectionName = (arr.length >= 3? arr[1]: arr[0]);
+            String serviceName = (arr.length >= 3? arr[2]: arr[1]);
+            
+            if (connectionName == null || connectionName.length() == 0) {
+                throw new NullPointerException("Please specify a connection name");
+            }
+            if (serviceName == null || serviceName.length() == 0) {
+                throw new NullPointerException("Please specify a service name");
+            }
+
+            serviceName = serviceName.substring(0, serviceName.indexOf("."));
             String action = pathInfo.substring(pathInfo.lastIndexOf(".")+1);
             
             Module module = actx.getModule();
@@ -54,7 +63,7 @@ public class JsInvokeServlet extends AbstractAnubisServlet {
                 args = JsonUtil.toObjectArray( _args );
             }
             
-            GroovyObject gobj =(GroovyObject) project.getServiceManager().lookup( service, connection );
+            GroovyObject gobj =(GroovyObject) project.getServiceManager().lookup(serviceName, connectionName);
             if (args == null) args = new Object[]{};
             Object result = gobj.invokeMethod( action, args  );
             writeResponse( JsonUtil.toString(result), hres );
