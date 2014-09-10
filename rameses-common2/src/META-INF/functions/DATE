@@ -1,0 +1,8 @@
+{
+  caption: 'DATE',
+  description: 'returns the date based on year,month,day',
+  code: 'com.rameses.functions.DateFunc.getDate',
+  title: '@DATE( year, month, day )', 
+  signature: '@DATE( |,, )', 
+  group: 'date' 
+}
