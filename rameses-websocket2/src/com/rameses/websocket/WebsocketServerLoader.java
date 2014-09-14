@@ -10,6 +10,7 @@
 package com.rameses.websocket;
 
 import com.rameses.server.ServerLoader;
+import com.rameses.server.ServerPID;
 import com.rameses.util.Service;
 import java.util.Date;
 import java.util.Iterator;
@@ -113,6 +114,8 @@ public class WebsocketServerLoader implements ServerLoader
         list.addHandler( servletContext ); 
         server.setHandler(list); 
         server.start(); 
+        ServerPID.remove(this.name); 
+        System.out.println("Server: " + this.name + " has started.");
         server.join(); 
     } 
     
