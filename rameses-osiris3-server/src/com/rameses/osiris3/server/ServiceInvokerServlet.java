@@ -20,6 +20,7 @@ import com.rameses.osiris3.server.common.AbstractServlet;
 import com.rameses.osiris3.xconnection.MessageQueue;
 import com.rameses.osiris3.xconnection.XAsyncConnection;
 import com.rameses.osiris3.xconnection.XConnection;
+import com.rameses.server.ServerPID;
 import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -86,6 +87,12 @@ public class ServiceInvokerServlet extends AbstractServlet {
     }
     
     protected void service(final HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+        if (!ServerPID.isCleared()) {
+            Object o = new Exception("Server is initializing please wait.");
+            writeResponse( o, res );
+            return;
+        }
+        
         ScriptRunnable tr = (ScriptRunnable) req.getAttribute( ScriptRunnable.class.getName() );
         RequestParser p = new RequestParser(req);
         
@@ -168,8 +175,12 @@ public class ServiceInvokerServlet extends AbstractServlet {
         public void onBegin() {}
         public void onClose() {}
         public void onCancel() {}
-        public void onRollback(Exception e) {}
-
+        public void onRollback(Exception e) {
+            if (conn != null) {
+                taskPool.submit(new ErrorHandler(e));
+            }
+        } 
+        
         public void onComplete(Object result) {
             if (conn == null) {
                //do nothing, exit immediately
@@ -193,6 +204,42 @@ public class ServiceInvokerServlet extends AbstractServlet {
                 } 
             } 
         } 
+        
+        class ErrorHandler implements Runnable {
+            private Exception e;
+            
+            ErrorHandler(Exception e) {
+                this.e = e; 
+            }
+            
+            Exception resolve(Throwable e) {
+                if (e.getClass().getName().indexOf(".groovy.") > 1) {
+                    Throwable t = e.getCause(); 
+                    return resolve(t); 
+                }
+                
+                if (e instanceof Exception) {
+                    return (Exception)e; 
+                } else {
+                    return new Exception(e.getMessage(), e); 
+                } 
+            } 
+            
+            public void run() {
+                try {
+                    if (e == null) return;
+                    
+                    AsyncRequest ar = sr.getAsyncRequest();
+                    MessageQueue queue = conn.getQueue( ar.getId() );
+                    AsyncToken at = new AsyncToken();
+                    at.setClosed(true);
+                    queue.push(resolve(e)); 
+                    queue.push(at);
+                } catch(Throwable t) {
+                    t.printStackTrace();
+                } 
+            }
+        }
     }
     
     // </editor-fold>
