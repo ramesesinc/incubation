@@ -10,6 +10,7 @@
 package com.rameses.anubis.web;
 
 import com.rameses.server.ServerLoader;
+import com.rameses.server.ServerPID;
 import java.util.Map;
 import java.util.Properties;
 import org.eclipse.jetty.server.Server;
@@ -107,7 +108,11 @@ public class AnubisResourceServer implements ServerLoader
         } catch(Exception ex) {
             System.out.println("Failed to start server!");
             return;
+        } finally {
+            ServerPID.remove(this.name); 
         }
+        
+        System.out.println("Server: "+ this.name +" has started");        
         
         try {
             svr.join();
