@@ -65,6 +65,7 @@ public final class BootLoader
                 ServerLoader loader = sp.createServer( groupName );
                 loader.init( baseURL, groupConf );
                 servers.put( groupName, loader );
+                ServerPID.add( groupName ); 
             }
         }
         

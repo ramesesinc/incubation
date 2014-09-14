@@ -85,7 +85,11 @@ public class AsyncTask implements Runnable {
     } 
     
     private boolean notify(Object o) {
-        if (o instanceof AsyncBatchResult) {
+        if (o instanceof Exception) {
+            handler.onError((Exception) o);
+            return false;
+            
+        } else if (o instanceof AsyncBatchResult) {
             boolean is_closed = false;
             AsyncBatchResult batch = (AsyncBatchResult)o;
             for (Object item : batch) {
@@ -96,6 +100,7 @@ public class AsyncTask implements Runnable {
                 } 
             } 
             return !is_closed; 
+            
         } else {
             handler.onMessage(o); 
             return true; 
