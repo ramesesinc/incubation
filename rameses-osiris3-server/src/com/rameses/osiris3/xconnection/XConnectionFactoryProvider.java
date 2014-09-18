@@ -10,15 +10,15 @@ import java.util.Map;
  *
  * @author wflores
  */
-public class XNotificationProvider extends XConnectionProvider {
+public class XConnectionFactoryProvider extends XConnectionProvider {
 
     @Override
     public String getProviderName() {
-        return "notification"; 
+        return "connectionfactory"; 
     }
 
     @Override
     public XConnection createConnection(String name, Map conf) {
-        return new XNotificationImpl(name, context, conf); 
+        return new XConnectionFactoryImpl(name, context, conf); 
     } 
 }

@@ -16,13 +16,13 @@ import java.util.Map;
  *
  * @author wflores
  */
-class XNotificationImpl extends XConnectionFactory {
+class XConnectionFactoryImpl extends XConnectionFactory {
 
     private AbstractContext ctx;
     private String name;
     private Map conf;
     
-    public XNotificationImpl(String name, AbstractContext ctx, Map conf) {
+    public XConnectionFactoryImpl(String name, AbstractContext ctx, Map conf) {
         this.name = name; 
         this.ctx = ctx;
         this.conf = conf; 
@@ -45,26 +45,52 @@ class XNotificationImpl extends XConnectionFactory {
     
 
     
-    private Map<Annotation,XConnection> conns = new HashMap(); 
+    private Map<String,XConnection> conns = new HashMap(); 
     
     @Override
     public XConnection getConnection(Annotation anno) {
         if (anno == null) { return null; } 
+
+        String providerName = null; 
+        if (anno instanceof com.rameses.annotations.Service) {
+            providerName = "script"; 
+        } else if (anno instanceof com.rameses.annotations.OnMessage) {
+            providerName = "websocket";
+        } else {
+            return this; 
+        } 
         
-        XConnection xc = conns.get(anno); 
+        XConnection xc = conns.get(providerName); 
         if (xc == null) {
-            String providerName = null; 
-            if (anno instanceof com.rameses.annotations.Service) {
-                providerName = "script"; 
-            } else if (anno instanceof com.rameses.annotations.OnMessage) {
-                providerName = "websocket";
-            } else {
-                throw new IllegalStateException("@"+ anno.getClass().getSimpleName() +" is currently not supported by "+ getClass().getSimpleName()); 
-            } 
-            
             XConnectionContextResource xcr = (XConnectionContextResource) ctx.getContextResource(XConnection.class);
             xc = xcr.getProvider(providerName).createConnection(name, getGroupConf(providerName));
-            conns.put(anno, xc); 
+            conns.put(providerName, xc); 
+            xc.start();
+        }
+        return xc; 
+    }
+    
+    @Override
+    public XConnection getConnection(String category) {
+        if (category == null) { return null; } 
+
+        XConnection xc = conns.get(category); 
+        if (xc == null) {
+            Map catconf = getGroupConf(category);
+            if (catconf == null || catconf.isEmpty()) { return null; }
+            
+            String providerName = (String) catconf.get("provider");
+            if (providerName == null || providerName.trim().length() == 0) {
+                providerName = category; 
+            }
+            
+            XConnectionContextResource xcr = (XConnectionContextResource) ctx.getContextResource(XConnection.class);
+            XConnectionProvider xp = xcr.getProvider(providerName); 
+            if (xp == null) {
+                throw new NullPointerException("XConnectionProvider '"+ providerName + "' not found");
+            }
+            xc = xp.createConnection(category, catconf);
+            conns.put(category, xc); 
             xc.start();
         }
         return xc; 
