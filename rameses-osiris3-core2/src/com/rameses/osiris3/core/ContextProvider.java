@@ -9,6 +9,7 @@
 
 package com.rameses.osiris3.core;
 
+import com.rameses.util.ConfigProperties;
 import com.rameses.util.URLDirectory;
 import com.rameses.util.URLDirectory.URLFilter;
 import groovy.lang.GroovyClassLoader;
@@ -61,26 +62,22 @@ public abstract class ContextProvider {
     
     //INFORMATION OF THE CONTEXT
     protected Map getConf(String name) {
-        InputStream is = null;
         try {
             String path = getConfUrl(name);
             if(path == null) return new HashMap(); 
             
-            URL u = new URL( path );
-            is = u.openStream();
-            Properties props = new Properties();
-            if(is != null) props.load( is );
+            URL url = new URL( path );
+            return ConfigProperties.newParser().parse(url, null); 
             
-            return props;
-        } catch(FileNotFoundException fnfe) {
-            throw new RuntimeException("'"+name+"' conf not found"); 
-        } catch(RuntimeException re) {
-            throw re;
         } catch(Exception e) {
-            throw new RuntimeException(e.getMessage(), e);
-        } finally {
-            try {is.close();} catch(Exception ign){;}
-        }
+            if (e instanceof FileNotFoundException) {
+                throw new RuntimeException("'"+name+"' conf not found"); 
+            } else if (e instanceof RuntimeException) {
+                throw (RuntimeException)e; 
+            } else {
+                throw new RuntimeException(e.getMessage(), e);
+            }
+        } 
     }
     
     //CLASSLOADER OF THE CONTEXT

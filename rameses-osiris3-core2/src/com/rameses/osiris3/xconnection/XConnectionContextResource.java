@@ -10,6 +10,7 @@
 package com.rameses.osiris3.xconnection;
 
 import com.rameses.osiris3.core.ContextResource;
+import com.rameses.util.ConfigProperties;
 import com.rameses.util.Service;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -43,6 +44,10 @@ public class XConnectionContextResource extends ContextResource {
         return XConnection.class;
     }
     
+    public XConnectionProvider getProvider(String name) {
+        return providers.get(name); 
+    }
+    
     protected XConnection findResource(String key) {
         try {
             if(key.startsWith("default-")) {
@@ -55,25 +60,15 @@ public class XConnectionContextResource extends ContextResource {
             URL u = new URL(context.getRootUrl() +  "/connections/" + key );
             if (u == null) throw new Exception("Connection " + key + " not found");
 
-            InputStream is  = u.openStream();
-            Map props = new Config().read(is); 
-            is.close();
+            InputStream inp  = u.openStream();
+            Map conf = ConfigProperties.newParser().parse(inp, context.getConf()); 
             
             //load the connection
-            String providerType = (String) props.get("provider");
+            String providerType = (String) conf.get("provider");
             if( providerType == null || providerType.trim().length()==0)
                 throw new Exception("Provider must be specified for connection " + key);
             
             XConnectionProvider cp = providers.get( providerType );
-            
-            Map conf = new HashMap();
-            Iterator keys = props.keySet().iterator(); 
-            while (keys.hasNext()) {
-                Object pkey = keys.next();
-                Object pval = cp.resolveConfValue( props.get(pkey) ); 
-                conf.put(pkey, pval); 
-            }
-
             XConnection conn = cp.createConnection( key, conf );
             conn.start(); 
             return conn; 
@@ -94,21 +89,5 @@ public class XConnectionContextResource extends ContextResource {
             e.printStackTrace();
             throw new RuntimeException(e.getMessage(), e);
         }
-    } 
-    
-    
-    private class Config extends Properties 
-    {
-        private Map conf = new LinkedHashMap();
-        
-        public Map read(InputStream inp) throws IOException {
-            super.load(inp);
-            return conf; 
-        }
-        
-        public Object put(Object key, Object value) {
-            conf.put(key, value);             
-            return super.put(key, value); 
-        } 
     } 
 } 
