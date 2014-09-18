@@ -89,12 +89,22 @@ public class AsyncTask implements Runnable {
             handler.onError((Exception) o);
             return false;
             
+        } else if (o instanceof Throwable) {
+            Throwable t = (Throwable)o;
+            handler.onError(new RuntimeException(t)); 
+            return false;
+            
         } else if (o instanceof AsyncBatchResult) {
             boolean is_closed = false;
             AsyncBatchResult batch = (AsyncBatchResult)o;
             for (Object item : batch) {
                 if (item instanceof AsyncToken) {
                     is_closed = ((AsyncToken)item).isClosed(); 
+                } else if (item instanceof Exception) {
+                    handler.onError((Exception) item); 
+                } else if (item instanceof Throwable) {
+                    Throwable t = (Throwable)o;
+                    handler.onError(new RuntimeException(t)); 
                 } else {
                     handler.onMessage(item); 
                 } 
