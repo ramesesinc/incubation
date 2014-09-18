@@ -82,11 +82,19 @@ public class ScriptMessagingService extends ContextService {
                     try {
                         OnMessage om = m.getAnnotation(OnMessage.class);
                         String connName = om.value();
-                        if( connName ==null || connName.trim().length()==0) connName = "default-messaging";
-                        
+                        if (connName==null || connName.trim().length()==0) { 
+                            connName = "default-messaging";
+                        }
+
                         XConnection xconn = context.getResource( XConnection.class, connName );
                         if (xconn instanceof XConnectionFactory) {
-                            xconn = ((XConnectionFactory) xconn).getConnection(om); 
+                            XConnectionFactory factory = (XConnectionFactory) xconn;
+                            String category = factory.extractCategory(connName); 
+                            if (category==null || category.length()==0) {
+                                xconn = factory.getConnection(om); 
+                            } else {
+                                xconn = factory.getConnection(category); 
+                            } 
                         }
                         
                         MessageConnection mconn = (MessageConnection) xconn;

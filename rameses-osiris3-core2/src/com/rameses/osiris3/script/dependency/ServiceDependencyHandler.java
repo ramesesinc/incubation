@@ -80,8 +80,15 @@ public class ServiceDependencyHandler extends DependencyHandler {
                 Class localIntf = s.localInterface();
                 XConnection xconn = ac.getResource(XConnection.class, conn);
                 if (xconn instanceof XConnectionFactory) {
-                    xconn = ((XConnectionFactory) xconn).getConnection(s); 
+                    XConnectionFactory factory = (XConnectionFactory) xconn;
+                    String category = factory.extractCategory(conn);
+                    if (category==null || category.length()==0) {
+                        xconn = factory.getConnection(s); 
+                    } else {
+                        xconn = factory.getConnection(category); 
+                    } 
                 }
+                
                 ScriptConnection sc = (ScriptConnection)xconn;
                 Map env = new HashMap();
                 env.putAll(txn.getEnv());

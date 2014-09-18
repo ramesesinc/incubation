@@ -57,8 +57,9 @@ public class XConnectionContextResource extends ContextResource {
                 return xc; 
             }
             
-            URL u = new URL(context.getRootUrl() +  "/connections/" + key );
-            if (u == null) throw new Exception("Connection " + key + " not found");
+            String resourceName = key.split(":")[0];
+            URL u = new URL(context.getRootUrl() +  "/connections/" + resourceName );
+            if (u == null) throw new Exception("Connection " + resourceName + " not found");
 
             InputStream inp  = u.openStream();
             Map conf = ConfigProperties.newParser().parse(inp, context.getConf()); 
