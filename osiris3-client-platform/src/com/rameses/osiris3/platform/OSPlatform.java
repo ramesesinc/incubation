@@ -142,8 +142,17 @@ class OSPlatform implements Platform
         if ("false".equalsIgnoreCase(modal)) {
             dx.setModal(false); 
         } 
-        dx.pack();
+        if ("false".equals(props.get("resizable")+"")) {
+            dx.setResizable(false);
+        }
+        if ("true".equals(props.get("alwaysOnTop")+"")) {
+            dx.setAlwaysOnTop(true);
+        }
+        if ("true".equals(props.get("undecorated")+"")) {
+            dx.setUndecorated(true);
+        } 
         
+        dx.pack();
         Dimension dim = dx.getSize();
         int width = toInt(props.get("width"));
         int height = toInt(props.get("height"));
@@ -153,9 +162,6 @@ class OSPlatform implements Platform
         dx.setLocationRelativeTo(parent);
         dx.setSource(actionSource);
         
-        if ("false".equals(props.get("resizable")+"")) dx.setResizable(false);
-        if ("true".equals(props.get("alwaysOnTop")+"")) dx.setAlwaysOnTop(true);
-        if ("true".equals(props.get("undecorated")+"")) dx.setUndecorated(true); 
         
         KeyStroke ks = KeyStroke.getKeyStroke("ctrl shift I");  
         ActionListener al = new ShowInfoAction(comp); 
