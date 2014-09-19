@@ -15,6 +15,14 @@ public abstract class XConnectionFactory extends XConnection {
     public abstract XConnection getConnection(Annotation anno);
     public abstract XConnection getConnection(String category);
     
+    public String extractName(String value) {
+        if (value == null || value.trim().length() == 0) { 
+            return null; 
+        } else {
+            return value.split(":")[0]; 
+        } 
+    }
+    
     public String extractCategory(String value) {
         if (value == null || value.trim().length() == 0) { return null; }
         

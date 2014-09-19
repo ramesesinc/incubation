@@ -102,7 +102,7 @@ public class ScriptMessagingService extends ContextService {
                             mconn.addHandler( new ScriptMessageHandler(context, sname, m.getName(), om.eval()) );
                         }
                     } catch(Exception e) {
-                        System.out.println("error unable to load handler "+ sname + "."+ m.getName() +" cause by "+ e.getMessage());
+                        System.out.println(sname +"."+ m.getName() +": failed to load handler caused by "+ e.getMessage());
                     }
                 }
 
