@@ -10,6 +10,7 @@
 package com.rameses.osiris3.server;
 
 
+import com.rameses.common.AsyncException;
 import com.rameses.common.AsyncRequest;
 import com.rameses.common.AsyncToken;
 import com.rameses.osiris3.core.AppContext;
@@ -212,16 +213,17 @@ public class ServiceInvokerServlet extends AbstractServlet {
                 this.e = e; 
             }
             
-            Exception resolve(Throwable e) {
+            AsyncException resolve(Throwable e) {
                 if (e.getClass().getName().indexOf(".groovy.") > 1) {
                     Throwable t = e.getCause(); 
                     return resolve(t); 
                 }
                 
                 if (e instanceof Exception) {
-                    return (Exception)e; 
+                    Exception err = (Exception) e; 
+                    return new AsyncException(err.getMessage(), err); 
                 } else {
-                    return new Exception(e.getMessage(), e); 
+                    return new AsyncException(e.getMessage(), e); 
                 } 
             } 
             
