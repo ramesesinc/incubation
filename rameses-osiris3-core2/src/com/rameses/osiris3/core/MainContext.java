@@ -9,6 +9,7 @@
 
 package com.rameses.osiris3.core;
 
+import com.rameses.server.ServerPID;
 import com.rameses.util.Service;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -37,6 +38,17 @@ public class MainContext extends AbstractContext {
     }
     
     public void start() {
+        try {
+            ServerPID.add(getClass().getName()); 
+            startImpl(); 
+        } catch(Throwable t) {
+            t.printStackTrace(); 
+        } finally {
+            ServerPID.remove(getClass().getName()); 
+        }
+    }
+    
+    private void startImpl() {
         asyncExecutor = Executors.newCachedThreadPool();
         //load the services
         List<ContextService> list = new ArrayList();
@@ -44,7 +56,6 @@ public class MainContext extends AbstractContext {
         while(iter.hasNext()) {
             ContextService cs = iter.next();
             cs.setContext( this );
-            //System.out.println("add service " + cs);
             addService( cs.getProviderClass(), cs );
             list.add( cs );
         }
@@ -55,7 +66,7 @@ public class MainContext extends AbstractContext {
                c.start();
             } catch(Exception e) {
                 System.out.println("error starting service " + super.getName()+":"+c.getName() +" " +e.getMessage());
-            }
+            } 
         }
         list.clear();
     }

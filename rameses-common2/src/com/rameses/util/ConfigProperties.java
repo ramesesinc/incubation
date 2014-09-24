@@ -11,8 +11,11 @@ package com.rameses.util;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -31,63 +34,62 @@ public class ConfigProperties {
     private File file;
     private boolean updatable = true;
     
-    /** Creates a new instance of ConfigProperties */
-    public ConfigProperties(File sfile ) {
-        BufferedReader reader = null;
-        try {
-            this.file = sfile;
-            if( file.getParentFile()!=null && !file.getParentFile().exists()) {
-                file.getParentFile().mkdirs();
-            }
-            if(!file.exists()){
-                file.createNewFile();
-            }
-            reader = new BufferedReader(new FileReader(file));
-            load( reader );
-        } 
-        catch(RuntimeException re) {
-            throw re;
-        } 
-        catch(Exception e) {
-            throw new RuntimeException(e.getMessage(), e);
-        } 
-        finally {
-            try { reader.close(); } catch(Exception e){;}
-        }
-    }
+    private ConfigProperties() {}
     
     public ConfigProperties(String filename) {
         this( new File(filename));
     }
     
-    public ConfigProperties(InputStream is) {
+    public ConfigProperties(File sfile ) {
+        try {
+            this.file = sfile;
+            if( file.getParentFile()!=null && !file.getParentFile().exists()) {
+                file.getParentFile().mkdirs();
+            }
+            if(!file.exists()) { 
+                file.createNewFile();
+            }
+            parse(new FileInputStream(file), null); 
+            
+        } catch(RuntimeException re) {
+            throw re;
+        } catch(Exception e) {
+            throw new RuntimeException(e.getMessage(), e);
+        } 
+    }
+    
+    public ConfigProperties(InputStream inp) {
         try {
             updatable = false;
-            load( new BufferedReader(new InputStreamReader(is)));
+            parse(inp, null); 
         } catch(Exception e) {
             e.printStackTrace();
-        }
-        finally {
-            try {is.close();} catch(Exception ign){;}
-        }
+        } 
     }
     
     public ConfigProperties(URL u) {
-        InputStream is = null;
         try {
             updatable = false;
-            is = u.openStream();
-            load( new BufferedReader(new InputStreamReader(is)));
+            parse(u.openStream(), null);
         } catch(Exception e) {
             e.printStackTrace();
         }
-        finally {
-            try {is.close();} catch(Exception ign){;}
-        }
     }
     
-    private void load( BufferedReader reader ) throws Exception {
+    private void parse(InputStream inp, Map ref) {
+        try {
+            updatable = false;
+            load( new BufferedReader(new InputStreamReader(inp)), ref );
+        } catch(Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {inp.close();} catch(Exception ign){;}
+        }        
+    }
+    
+    private void load( BufferedReader reader, Map ref) throws Exception {
         map = new LinkedHashMap();
+        Map[] refs = {map, ref};
         String s = null;
         Map groupMap = null;
         while( (s=reader.readLine())!=null ) {
@@ -96,7 +98,7 @@ public class ConfigProperties {
             if( s.startsWith("#")) continue;
             if( s.startsWith("[") ) {
                 String groupName = s.substring(1, s.lastIndexOf("]"));
-                groupMap = new LinkedHashMap();
+                groupMap = new Group(refs);
                 groups.put( groupName.trim(), groupMap );
                 continue;
             }
@@ -105,7 +107,7 @@ public class ConfigProperties {
             if( groupMap!=null ) {
                 groupMap.put(name, value );
             } else {
-                map.put( name, value );
+                map.put(name, resolveValue(value, refs));
             }
         }
     }
@@ -197,4 +199,114 @@ public class ConfigProperties {
         return updatable;
     }
     
+    class Group extends LinkedHashMap {
+        private Map[] refs;
+        
+        Group(Map[] deps) {
+            if (deps == null) {
+                deps = new Map[0]; 
+            }
+            
+            refs = new Map[deps.length+1];
+            refs[0] = this; 
+            for (int i=0; i<deps.length; i++) {
+                refs[i+1] = deps[i]; 
+            } 
+        }
+
+        @Override
+        public Object put(Object key, Object value) {
+            value = resolveValue(value, refs); 
+            return super.put(key, value);
+        }
+    }
+    
+    private Object resolveValue(Object value, Map[] refs) { 
+        if (value == null) { 
+            return null; 
+        } else if (!(value instanceof String)) {
+            return value; 
+        }
+        
+        int startidx = 0; 
+        boolean has_expression = false; 
+        String str = value.toString();         
+        StringBuilder builder = new StringBuilder(); 
+        while (true) {
+            int idx0 = str.indexOf("${", startidx);
+            if (idx0 < 0) break;
+            
+            int idx1 = str.indexOf("}", idx0); 
+            if (idx1 < 0) break;
+            
+            has_expression = true; 
+            String skey = str.substring(idx0+2, idx1); 
+            builder.append(str.substring(startidx, idx0)); 
+            
+            Object objval = null; 
+            for (Map mref : refs) {
+                if (mref == null) { continue; }
+                
+                objval = mref.get(skey); 
+                if (objval != null) { break; }
+            }
+            
+            if (objval == null) {
+                objval = System.getProperty(skey);
+            } 
+            
+            if (objval == null) { 
+                builder.append(str.substring(idx0, idx1+1)); 
+            } else { 
+                builder.append(objval); 
+            } 
+            startidx = idx1+1; 
+        } 
+        
+        if (has_expression) {
+            builder.append(str.substring(startidx));  
+            return builder.toString(); 
+        } else {
+            return value; 
+        }
+    }     
+    
+    
+    public static synchronized Parser newParser() {
+        return new Parser();
+    }
+    
+    public static class Parser {
+        
+        public Map parse(File file, Map ref) {
+            try { 
+                return parse(new FileInputStream(file), ref);
+            } catch (FileNotFoundException e) {
+                throw new RuntimeException(e.getMessage(), e); 
+            }
+        }
+        
+        public Map parse(URL url, Map ref) {
+            try {
+                InputStream inp = url.openStream();
+                return parse(inp, ref); 
+            } catch (IOException e) {
+                throw new RuntimeException(e.getMessage(), e); 
+            } 
+        }        
+        
+        public Map parse(InputStream inp, Map ref) {
+            ConfigProperties conf = new ConfigProperties();
+            conf.parse(inp, ref); 
+
+            Map result = new LinkedHashMap(); 
+            result.putAll(conf.map); 
+            for (Map.Entry<String,Map> me : conf.groups.entrySet()) {
+                Map grp = new LinkedHashMap(); 
+                grp.putAll(me.getValue()); 
+                result.put(me.getKey(), grp); 
+            } 
+            return result; 
+        }
+    }
 }

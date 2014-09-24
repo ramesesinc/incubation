@@ -1,6 +1,7 @@
 package com.rameses.service;
 
 import com.rameses.common.AsyncBatchResult;
+import com.rameses.common.AsyncException;
 import com.rameses.common.AsyncHandler;
 import com.rameses.common.AsyncToken;
 import java.util.concurrent.TimeoutException;
@@ -85,7 +86,11 @@ public class AsyncTask implements Runnable {
     } 
     
     private boolean notify(Object o) {
-        if (o instanceof AsyncBatchResult) {
+        if (o instanceof AsyncException) {
+            handler.onError((AsyncException) o);
+            return false;
+            
+        } else if (o instanceof AsyncBatchResult) {
             boolean is_closed = false;
             AsyncBatchResult batch = (AsyncBatchResult)o;
             for (Object item : batch) {
@@ -96,6 +101,7 @@ public class AsyncTask implements Runnable {
                 } 
             } 
             return !is_closed; 
+            
         } else {
             handler.onMessage(o); 
             return true; 

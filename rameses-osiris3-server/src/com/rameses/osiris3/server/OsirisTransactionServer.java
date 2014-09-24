@@ -13,6 +13,7 @@ import com.rameses.osiris3.core.OsirisServer;
 import com.rameses.osiris3.custom.CustomOsirisServer;
 import com.rameses.osiris3.server.common.AbstractServlet;
 import com.rameses.server.ServerLoader;
+import com.rameses.server.ServerPID;
 import com.rameses.util.Service;
 import java.util.Date;
 import java.util.Iterator;
@@ -45,13 +46,18 @@ import org.eclipse.jetty.servlet.ServletHolder;
  */
 public class OsirisTransactionServer implements ServerLoader  {
     
+    private String name;
     private Server server;
     private Map conf;
     private String home;
     
     private int port = 8090;
-    private long blockingTimeout =  20000;
     private int taskPoolSize = 100;
+    private long blockingTimeout =  20000;
+    
+    public OsirisTransactionServer(String name) {
+        this.name = name; 
+    }
     
     public void init(String baseUrl, Map info) throws Exception {
 
@@ -106,6 +112,8 @@ public class OsirisTransactionServer implements ServerLoader  {
         }
         server.setHandler(context);
         server.start();
+        ServerPID.remove(this.name); 
+        System.out.println("Server: "+ this.name +" has started");
         server.join();
     }
     
@@ -118,6 +126,4 @@ public class OsirisTransactionServer implements ServerLoader  {
     public Map getInfo() {
         return conf;
     }
-    
-    
 }

@@ -10,6 +10,7 @@
 package com.rameses.osiris3.server;
 
 
+import com.rameses.common.AsyncException;
 import com.rameses.common.AsyncRequest;
 import com.rameses.common.AsyncToken;
 import com.rameses.osiris3.core.AppContext;
@@ -20,6 +21,7 @@ import com.rameses.osiris3.server.common.AbstractServlet;
 import com.rameses.osiris3.xconnection.MessageQueue;
 import com.rameses.osiris3.xconnection.XAsyncConnection;
 import com.rameses.osiris3.xconnection.XConnection;
+import com.rameses.server.ServerPID;
 import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -86,6 +88,12 @@ public class ServiceInvokerServlet extends AbstractServlet {
     }
     
     protected void service(final HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+        if (!ServerPID.isCleared()) {
+            Object o = new Exception("Server is initializing please wait.");
+            writeResponse( o, res );
+            return;
+        }
+        
         ScriptRunnable tr = (ScriptRunnable) req.getAttribute( ScriptRunnable.class.getName() );
         RequestParser p = new RequestParser(req);
         
@@ -107,34 +115,45 @@ public class ServiceInvokerServlet extends AbstractServlet {
             
             req.setAttribute(  ScriptRunnable.class.getName(), tr );
             listener.future = taskPool.submit(tr);
-            
         } else {
             ContinuationListener listener = (ContinuationListener)tr.getListener();
             Object response= null;
             if( listener.isExpired() ) {
                 tr.cancel();
                 response = new Exception("Timeout exception. Transaction was not processed");
+                
             } else {
                 if( tr.hasErrs()) {
                     response = tr.getErr();
                     System.out.println("error "+tr.getErr().getClass() + " " + tr.getErr().getMessage());
+                    
                 } else {
                     response = tr.getResult();
                     if(response instanceof AsyncRequest) {
                         AsyncRequest ar = (AsyncRequest)response;
                         ar.setContextName( p.getContextName());
-                        if( ar.getConnection()!=null) {
+                        
+                        XAsyncConnection ac = null; 
+                        if( ar.getConnection() != null) {
                             try {
-                                XAsyncConnection ac = (XAsyncConnection) tr.getContext().getResource( XConnection.class, ar.getConnection() );
+                                ac = (XAsyncConnection) tr.getContext().getResource( XConnection.class, ar.getConnection() );
                                 ac.register( ar.getId() );
-                                tr.setBypassAsync(true);
-                                tr.setAsyncRequest(ar);
-                                tr.setListener(new AsyncListener(tr, ac));
-                                taskPool.submit( tr );
                             } catch(Exception e) {
-                                response = e;
+                                writeResponse( e, res );
+                                return; 
                             }
                         }
+                        
+                        try {
+                            tr.setBypassAsync(true);
+                            tr.setAsyncRequest(ar);
+                            tr.setListener(new AsyncListener(tr, ac));
+                            taskPool.submit( tr );
+                        } catch(Exception e) {
+                            writeResponse( e, res );
+                            return; 
+                        }
+                        
                         response = new AsyncToken(ar.getId(), ar.getConnection());
                     }
                 }
@@ -155,29 +174,74 @@ public class ServiceInvokerServlet extends AbstractServlet {
         }
         
         public void onBegin() {}
-
-        public void onComplete(Object result) {
-            try {
-                AsyncRequest ar = sr.getAsyncRequest();
-                boolean hasmore = "true".equals(sr.getEnv().get(ar.getVarStatus())+""); 
-                MessageQueue queue = conn.getQueue( ar.getId() );
-                queue.push( result ); 
-                if (hasmore) { 
-                    ar.getEnv().put(ar.getVarStatus(), null); 
-                    taskPool.submit( sr ); 
-                } else { 
-                    AsyncToken at = new AsyncToken();
-                    at.setClosed(true);
-                    queue.push( at);
-                }
-            } catch(Exception e) {
-                e.printStackTrace();
-            }
-        }
-
-        public void onRollback(Exception e) {}
         public void onClose() {}
         public void onCancel() {}
+        public void onRollback(Exception e) {
+            if (conn != null) {
+                taskPool.submit(new ErrorHandler(e));
+            }
+        } 
+        
+        public void onComplete(Object result) {
+            if (conn == null) {
+               //do nothing, exit immediately
+                
+            } else {
+                try {
+                    AsyncRequest ar = sr.getAsyncRequest();
+                    boolean hasmore = "true".equals(sr.getEnv().get(ar.getVarStatus())+""); 
+                    MessageQueue queue = conn.getQueue( ar.getId() );
+                    queue.push( result ); 
+                    if (hasmore) { 
+                        ar.getEnv().put(ar.getVarStatus(), null); 
+                        taskPool.submit( sr ); 
+                    } else { 
+                        AsyncToken at = new AsyncToken();
+                        at.setClosed(true);
+                        queue.push( at);
+                    }
+                } catch(Exception e) {
+                    e.printStackTrace();
+                } 
+            } 
+        } 
+        
+        class ErrorHandler implements Runnable {
+            private Exception e;
+            
+            ErrorHandler(Exception e) {
+                this.e = e; 
+            }
+            
+            AsyncException resolve(Throwable e) {
+                if (e.getClass().getName().indexOf(".groovy.") > 1) {
+                    Throwable t = e.getCause(); 
+                    return resolve(t); 
+                }
+                
+                if (e instanceof Exception) {
+                    Exception err = (Exception) e; 
+                    return new AsyncException(err.getMessage(), err); 
+                } else {
+                    return new AsyncException(e.getMessage(), e); 
+                } 
+            } 
+            
+            public void run() {
+                try {
+                    if (e == null) return;
+                    
+                    AsyncRequest ar = sr.getAsyncRequest();
+                    MessageQueue queue = conn.getQueue( ar.getId() );
+                    AsyncToken at = new AsyncToken();
+                    at.setClosed(true);
+                    queue.push(resolve(e)); 
+                    queue.push(at);
+                } catch(Throwable t) {
+                    t.printStackTrace();
+                } 
+            }
+        }
     }
     
     // </editor-fold>

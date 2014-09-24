@@ -238,9 +238,9 @@ public class HttpClient implements Serializable {
                         try {
                             in = new ObjectInputStream(is);
                             retval =  in.readObject();
-                        } 
-                        catch(Exception ign){
-                            System.out.println("error HttpClient. " + ign.getMessage() + " "+ ign.getClass());
+                        } catch(Throwable tt){
+                            System.out.println("error HttpClient. " + tt.getClass().getName() + ": "+ tt.getMessage());
+                            //tt.printStackTrace(); 
                         }
                     }
                 }

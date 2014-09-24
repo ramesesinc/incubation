@@ -55,12 +55,14 @@ public class InterceptorChain {
             }
             
             try {
+                //System.out.println("InterceptorChain "+ einfo.getServiceName() + "."+ einfo.getMethodName() + " execute..."); 
                 ManagedScriptExecutor me = smr.create(info.getServiceName() );
                 Object vresult = me.execute( info.getMethodName(), new Object[]{einfo}, false );
             } catch(BreakException be) {
                 System.out.println("Interceptor error " + info.getServiceName()+"."+info.getMethodName() );
                 be.printStackTrace();
             } catch(Exception e) {
+                System.out.println("Interceptor error " + info.getServiceName()+"."+info.getMethodName() );
                 throw e;
             }
         }
@@ -72,9 +74,11 @@ public class InterceptorChain {
         AbstractContext context = tc.getContext();
         ScriptTransactionManager smr = tc.getManager( ScriptTransactionManager.class );
        
+        //System.out.println("InterceptorChain "+ einfo.getServiceName() + "."+ einfo.getMethodName() + " before interceptors..."); 
         fireInterceptorList( interceptorSet.getBeforeInterceptors(), einfo );
         Object result = callable.call();
         einfo.setResult( result );
+        //System.out.println("InterceptorChain "+ einfo.getServiceName() + "."+ einfo.getMethodName() + " after interceptors..."); 
         fireInterceptorList( interceptorSet.getAfterInterceptors(), einfo );
         return result;
     }

@@ -82,8 +82,14 @@ public abstract class ActiveWorkflowService {
         if( r.get("refid") == null ) throw new Exception("refid is required in WorkflowService.start");
         r.put("nodename", "start");
         r.put("prevtask", new HashMap());
+        env.put("data", r.get("data"));
+        
         List list = new ArrayList();
         findNextTransition(r, false, list, null);
+        for( Object o: list ) {
+            notifyTask((Map)o);
+            onStartTask(o);
+        }
         
         if( list.size() == 0 ) 
             throw new Exception("No workflow task found. Please check the workflow definition");
@@ -91,6 +97,7 @@ public abstract class ActiveWorkflowService {
     }
     
     //overridable
+    public void onStartTask(Object tsk) {;}
     public void beforeCreateTask(Object o) {;}
     public void afterCreateTask(Object o) {;}
     public void beforeCloseTask(Object o) {;}
@@ -112,6 +119,7 @@ public abstract class ActiveWorkflowService {
     public Object getNotificationMessage( Object o ) {return null;}
     
     public boolean checkTaskOwner( Map task ) {return true; }
+    public void notifyTask(Object task) {;}
     
     protected Map createTaskInstance(Map t) throws Exception {
         Map m = new HashMap();
@@ -311,6 +319,14 @@ public abstract class ActiveWorkflowService {
         findNextTransition( m, false, tsks, action );
         Map newTask = null;
         List newTasks = new ArrayList();
+        
+        /*************************************************************
+        * added by Elmo to support business. there is a bug. Only
+        * 'owned' tasks by the submitter will be displayed. we want
+        * to notify all tasks. We do not want to touch this bec,
+        * Jessie is using this, for some reason it seems to be correct for him.
+        *****************************************************************/
+        List<Map> notifyTasks = new ArrayList();
         for( Map tk : tsks ) {
             if( isTaskOwner(tk) ) {
                 newTasks.add(  tk );
@@ -320,6 +336,7 @@ public abstract class ActiveWorkflowService {
                     newTask.put("owner",true);
                 }
             }
+            notifyTasks.add(tk);
         }
         
         Map result = new HashMap();
@@ -330,6 +347,11 @@ public abstract class ActiveWorkflowService {
             loadTask(newTask);
         }
         afterSignal(result);
+        
+        //load the task
+        for(Map tsk: notifyTasks) {
+            notifyTask(tsk);
+        }
         
         if( getNotificationService()!=null ) {
             Map msg = (Map)getNotificationMessage(newTask);

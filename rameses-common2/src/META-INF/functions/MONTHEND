@@ -1,0 +1,8 @@
+{
+  caption: 'MONTHEND',
+  description: 'returns the end of month based on the date',
+  code: 'com.rameses.functions.DateFunc.monthEnd',
+  title: '@MONTHEND( date )', 
+  signature: '@MONTHEND( | )', 
+  group: 'date' 
+}

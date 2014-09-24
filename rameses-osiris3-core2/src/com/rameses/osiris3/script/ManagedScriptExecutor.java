@@ -83,8 +83,6 @@ public class ManagedScriptExecutor {
                 AsyncRequest ar = new AsyncRequest(scriptInfo.getName(), method, args, _env); 
 		ar.setContextName((String) xconn.getConf().get("context")); 
 		ar.setConnection(conn);
-                
-                
                 return ar;
             } 
 

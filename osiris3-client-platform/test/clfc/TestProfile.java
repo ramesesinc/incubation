@@ -69,6 +69,7 @@ public class TestProfile extends TestCase
         ObjectOutputStream oos = null;
         try {
             File f = new File(filename);
+            System.out.println(f.getAbsolutePath());
             Object o = CipherUtil.encode((Serializable) data);
             fos = new FileOutputStream(f);
             oos = new ObjectOutputStream(fos);

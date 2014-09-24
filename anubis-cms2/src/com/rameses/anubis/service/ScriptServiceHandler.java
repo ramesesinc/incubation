@@ -11,10 +11,8 @@ package com.rameses.anubis.service;
 
 import com.rameses.anubis.AnubisContext;
 import com.rameses.anubis.ServiceInvoker;
-import com.rameses.classutils.ClassDefMap;
 import com.rameses.service.ScriptServiceContext;
 import com.rameses.service.ServiceProxy;
-import groovy.lang.GroovyClassLoader;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -42,14 +40,17 @@ public class ScriptServiceHandler  extends AbstractServiceHandler {
         
         ScriptServiceContext ctx = new ScriptServiceContext(conf);
         IScriptService svc = ctx.create(name, IScriptService.class );
-        GroovyClassLoader loader = new GroovyClassLoader();
-        
-        Class clazz = loader.parseClass(svc.stringInterface());
-        return  ClassDefMap.toMap(svc.getClass());
+        Map metainfo = svc.metaInfo();
+        Map methods = (Map) metainfo.get("methods"); 
+        Map results = new HashMap();
+        results.put("methods", methods.values()); 
+        results.put("name", metainfo.get("serviceName")); 
+        return results; 
     }
     
     private interface IScriptService  {
         String stringInterface();
+        Map metaInfo();
     }
     
     private class MyScriptInvoker implements ServiceInvoker {

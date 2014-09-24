@@ -20,6 +20,7 @@ import com.rameses.osiris3.script.ScriptInfo;
 import com.rameses.osiris3.script.ScriptService;
 import com.rameses.osiris3.xconnection.MessageConnection;
 import com.rameses.osiris3.xconnection.XConnection;
+import com.rameses.osiris3.xconnection.XConnectionFactory;
 import com.rameses.util.URLDirectory;
 import com.rameses.util.URLDirectory.URLFilter;
 import java.lang.reflect.Method;
@@ -81,13 +82,27 @@ public class ScriptMessagingService extends ContextService {
                     try {
                         OnMessage om = m.getAnnotation(OnMessage.class);
                         String connName = om.value();
-                        if( connName ==null || connName.trim().length()==0) connName = "default-messaging";
-                        MessageConnection conn = (MessageConnection) context.getResource( XConnection.class, connName );
-                        if(conn!=null) {
-                            conn.addHandler( new ScriptMessageHandler(context, sname, m.getName(), om.eval()) );
+                        if (connName==null || connName.trim().length()==0) { 
+                            connName = "default-messaging";
+                        }
+
+                        XConnection xconn = context.getResource( XConnection.class, connName );
+                        if (xconn instanceof XConnectionFactory) {
+                            XConnectionFactory factory = (XConnectionFactory) xconn;
+                            String category = factory.extractCategory(connName); 
+                            if (category==null || category.length()==0) {
+                                xconn = factory.getConnection(om); 
+                            } else {
+                                xconn = factory.getConnection(category); 
+                            } 
+                        }
+                        
+                        MessageConnection mconn = (MessageConnection) xconn;
+                        if(mconn != null) {
+                            mconn.addHandler( new ScriptMessageHandler(context, sname, m.getName(), om.eval()) );
                         }
                     } catch(Exception e) {
-                        System.out.println("error unable to load handler " + sname + "."+m.getName() + " cause:"+e.getMessage());
+                        System.out.println(sname +"."+ m.getName() +": failed to load handler caused by "+ e.getMessage());
                     }
                 }
 

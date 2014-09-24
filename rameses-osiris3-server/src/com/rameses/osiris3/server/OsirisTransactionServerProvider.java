@@ -24,7 +24,7 @@ public class OsirisTransactionServerProvider implements ServerLoaderProvider {
     }
 
     public ServerLoader createServer(String name) {
-        return new OsirisTransactionServer();
+        return new OsirisTransactionServer(name);
     }
     
 }

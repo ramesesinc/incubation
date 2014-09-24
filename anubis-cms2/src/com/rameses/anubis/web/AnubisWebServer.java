@@ -2,6 +2,7 @@ package com.rameses.anubis.web;
 
 import com.rameses.server.BootLoader;
 import com.rameses.server.ServerLoader;
+import com.rameses.server.ServerPID;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.util.Map;
@@ -145,7 +146,11 @@ public class AnubisWebServer implements ServerLoader  {
         } catch(Exception ex) {
             System.out.println("Failed to start server!");
             return;
+        } finally {
+            ServerPID.remove(this.name); 
         }
+        
+        System.out.println("Server: "+ this.name +" has started");
         
         try {
             svr.join();

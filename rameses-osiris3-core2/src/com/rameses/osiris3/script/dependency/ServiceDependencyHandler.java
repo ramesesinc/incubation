@@ -23,6 +23,7 @@ import com.rameses.osiris3.script.ScriptInvocation;
 import com.rameses.osiris3.script.ScriptTransactionManager;
 import com.rameses.osiris3.script.messaging.ScriptConnection;
 import com.rameses.osiris3.xconnection.XConnection;
+import com.rameses.osiris3.xconnection.XConnectionFactory;
 import com.rameses.util.ExceptionManager;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationHandler;
@@ -77,7 +78,18 @@ public class ServiceDependencyHandler extends DependencyHandler {
                 }    
             } else {
                 Class localIntf = s.localInterface();
-                ScriptConnection sc = (ScriptConnection)ac.getResource(XConnection.class, conn);
+                XConnection xconn = ac.getResource(XConnection.class, conn);
+                if (xconn instanceof XConnectionFactory) {
+                    XConnectionFactory factory = (XConnectionFactory) xconn;
+                    String category = factory.extractCategory(conn);
+                    if (category==null || category.length()==0) {
+                        xconn = factory.getConnection(s); 
+                    } else {
+                        xconn = factory.getConnection(category); 
+                    } 
+                }
+                
+                ScriptConnection sc = (ScriptConnection)xconn;
                 Map env = new HashMap();
                 env.putAll(txn.getEnv());
                 

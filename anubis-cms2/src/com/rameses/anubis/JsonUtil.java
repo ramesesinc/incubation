@@ -9,6 +9,7 @@
 
 package com.rameses.anubis;
 
+import com.rameses.common.AsyncToken;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.text.Format;
@@ -40,7 +41,15 @@ public final class JsonUtil {
         
         parseDateToString(o);
         
-        if( o instanceof Map ) {
+        if (o instanceof AsyncToken) {
+            AsyncToken at = (AsyncToken)o;
+            Map map = new HashMap();
+            map.put("className", "AsyncToken"); 
+            map.put("id", at.getId());
+            map.put("connection", at.getConnection());
+            map.put("closed", at.isClosed());
+            return JSONObject.fromObject(map).toString();
+        } else if( o instanceof Map ) {
             return JSONObject.fromObject(o).toString();
         } else if(o instanceof List) {
             return JSONArray.fromObject(o).toString();

@@ -70,7 +70,4 @@ public class CustomOsirisServer extends OsirisServer {
             svc.shutdown();
         }
     }
-    
-    
-    
 }
