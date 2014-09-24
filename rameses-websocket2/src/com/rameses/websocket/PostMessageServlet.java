@@ -13,97 +13,97 @@ import com.rameses.util.MessageObject;
 import com.rameses.util.SealedMessage;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Future;
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.eclipse.jetty.continuation.Continuation;
+import org.eclipse.jetty.continuation.ContinuationSupport;
 
 /**
  *
  * @author wflores
  */
-public class PostMessageServlet extends HttpServlet 
+public class PostMessageServlet extends AbstractServlet 
 {    
     private SocketConnections sockets;
     
-    public PostMessageServlet(SocketConnections s) {
-        this.sockets = s;
+    public PostMessageServlet(SocketConnections sockets) {
+        this.sockets = sockets;
     }
-    
+        
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        ObjectInputStream in = null;
-        ObjectOutputStream out = null;
-        try {
-            in = new ObjectInputStream(req.getInputStream());
-            
-            Object o = in.readObject();
-            if (o instanceof SealedMessage) { 
-                o = ((SealedMessage)o).getMessage(); 
-            } 
-            
-            Collection collection = null;
-            if (o instanceof Collection) { 
-                collection = (Collection) o; 
-            } else if (o instanceof Object[]) { 
-                collection = Arrays.asList((Object[]) o);
-            } 
-            if (collection == null) return;
-
-            Iterator itr = collection.iterator(); 
-            while (itr.hasNext()) {
-                Map map = (Map) itr.next();
-                String action = map.remove("action")+"";
-                if ("addchannel".equals(action)) { 
-                    processAddChannelAction(map); 
-                } else if ("removechannel".equals(action)) {
-                    processRemoveChannelAction(map);
-                } else {
-                    processSendAction(map); 
-                }
+        String taskid = getClass().getName();
+        TaskProcess atask = (TaskProcess) req.getAttribute(taskid);
+        if (atask == null) {
+            Object o = readRequest(req); 
+            if (o instanceof Exception) {
+                writeResponse(resp, o); 
+                return; 
             }
             
-            out = new ObjectOutputStream(resp.getOutputStream());
-            out.writeObject("OK"); 
+            Collection list = null;
+            if (o instanceof Collection) { 
+                list = (Collection) o; 
+            } else if (o instanceof Object[]) { 
+                list = Arrays.asList((Object[]) o);
+            } else {
+                list = new ArrayList();
+            } 
             
-        } catch(IOException ioe) { 
-            throw ioe; 
-        } catch(ServletException se) { 
-            throw se; 
-        } catch(Exception e) {
-            e.printStackTrace();
-            throw new ServletException(e.getMessage(), e);
-        } finally {
-            try { in.close(); } catch(Exception ign){;}
-            try { out.close(); } catch(Exception ign){;}
+            Continuation cont = ContinuationSupport.getContinuation(req);
+            if( cont.isInitial() ) {
+                cont.setTimeout(getBlockingTimeout());
+                cont.suspend();
+            }
+
+            atask = new TaskProcess(cont, list); 
+            req.setAttribute(taskid, atask);            
+            atask.future = submit(atask); 
+        } else {
+            Object result = null; 
+            if (atask.isExpired()) {
+                atask.cancel();
+                result = new Exception("Timeout exception. Transaction was not processed");
+            } else {
+                result = atask.result; 
+            }
+            writeResponse(resp, result);
         }
     }
 
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        try {
-            Map params = buildParams(req);
-            String action = params.remove("action")+"";
-            if ("addchannel".equals(action)) {
-                processAddChannelAction(params);
-            } else if ("removechannel".equals(action)) {
-                processRemoveChannelAction(params);
-            } else { 
-                processSendAction(params); 
-            } 
-        } catch(IOException ioe) { 
-            throw ioe; 
-        } catch(ServletException se) { 
-            throw se; 
-        } catch(Exception e) {
-            e.printStackTrace();
-            throw new ServletException(e.getMessage(), e);
-        } 
+        String taskid = getClass().getName();
+        TaskProcess atask = (TaskProcess) req.getAttribute(taskid);
+        if (atask == null) {
+            List list = new ArrayList();
+            list.add(buildParams(req));
+            
+            Continuation cont = ContinuationSupport.getContinuation(req);
+            if( cont.isInitial() ) {
+                cont.setTimeout(getBlockingTimeout());
+                cont.suspend();
+            }
+
+            atask = new TaskProcess(cont, list); 
+            req.setAttribute(taskid, atask);            
+            atask.future = submit(atask); 
+        } else {
+            Object result = null; 
+            if (atask.isExpired()) {
+                atask.cancel();
+                result = new Exception("Timeout exception. Transaction was not processed");
+            } else {
+                result = atask.result; 
+            }
+            writeResponse(resp, result);
+        }
     }
         
     private void processSendAction(Map params) throws Exception {
@@ -162,13 +162,61 @@ public class PostMessageServlet extends HttpServlet
         System.out.println("channel "+ name +" removed");
     }    
     
-    private Map buildParams(HttpServletRequest hreq) {
-        Map params = new HashMap();
-        Enumeration e = hreq.getParameterNames();
-        while(e.hasMoreElements()) {
-            String name = (String)e.nextElement();
-            params.put( name, hreq.getParameter(name) );
+    
+    // <editor-fold defaultstate="collapsed" desc=" TaskProcess ">
+    
+    private class TaskProcess implements Runnable {
+        private Continuation cont;
+        private Collection list;
+        private Future future;
+        private Object result;
+        
+        TaskProcess(Continuation cont, Collection list) {
+            this.cont = cont; 
+            this.list = list; 
         }
-        return params;
-    }    
+        
+        boolean isExpired() {
+            return (cont == null || cont.isExpired()); 
+        }
+        
+        void cancel() {
+            try { 
+                if (future != null) {
+                    future.cancel(true);
+                } 
+            } catch(Throwable t) {
+                t.printStackTrace();
+            }
+        }
+                
+        @Override
+        public void run() {
+            try {
+                Iterator itr = list.iterator(); 
+                while (itr.hasNext()) {
+                    Map map = (Map) itr.next();
+                    String action = map.remove("action")+"";
+                    if ("addchannel".equals(action)) { 
+                        processAddChannelAction(map); 
+                    } else if ("removechannel".equals(action)) {
+                        processRemoveChannelAction(map);
+                    } else {
+                        processSendAction(map); 
+                    }
+                } 
+                result = "OK";
+            } catch(Exception e) {
+                result = e; 
+            } catch(Throwable t) {
+                result = new Exception(t.getMessage(), t); 
+            } finally {
+                cont.resume();
+                cont = null;
+            }
+        }
+    }
+    
+    // </editor-fold>
+
 }

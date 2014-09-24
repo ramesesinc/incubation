@@ -13,80 +13,101 @@ import com.rameses.util.SealedMessage;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Future;
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.eclipse.jetty.continuation.Continuation;
+import org.eclipse.jetty.continuation.ContinuationSupport;
 
 /**
  *
  * @author Elmo
+ * modified-by: wflores
  */
-public class AddChannelServlet extends HttpServlet 
+public class AddChannelServlet extends AbstractServlet  
 {
     
     private SocketConnections sockets;
     
-    public AddChannelServlet(SocketConnections s) {
-        this.sockets = s;
+    public AddChannelServlet(SocketConnections sockets) {
+        this.sockets = sockets;
     }
 
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException 
-    {
-        ObjectInputStream in = null;
-        ObjectOutputStream out = null;
-        try {
-            in = new ObjectInputStream(req.getInputStream());
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String taskid = getClass().getName();
+        TaskProcess atask = (TaskProcess) req.getAttribute(taskid);
+        if (atask == null) {
+            Object o = readRequest(req); 
+            if (o instanceof Exception) {
+                writeResponse(resp, o); 
+                return; 
+            }
             
-            Object o = in.readObject();
-            if (o instanceof SealedMessage) 
-                o = ((SealedMessage)o).getMessage(); 
-
-            Collection collection = null;
+            Collection list = null;
             if (o instanceof Collection) { 
-                collection = (Collection) o; 
+                list = (Collection) o; 
             } else if (o instanceof Object[]) { 
-                collection = Arrays.asList((Object[]) o); 
+                list = Arrays.asList((Object[]) o);
+            } else {
+                list = new ArrayList();
             } 
             
-            if (collection != null) { 
-                Iterator itr = collection.iterator(); 
-                while (itr.hasNext()) {
-                    Map conf = (Map) itr.next();
-                    addChannel(conf); 
-                }
-                collection.clear(); 
+            Continuation cont = ContinuationSupport.getContinuation(req);
+            if( cont.isInitial() ) {
+                cont.setTimeout(getBlockingTimeout());
+                cont.suspend();
             }
-            out = new ObjectOutputStream(resp.getOutputStream());
-            out.writeObject("OK"); 
-        } catch(IOException ioe) { 
-            throw ioe; 
-        } catch(Exception e) { 
-            e.printStackTrace(); 
-            throw new ServletException(e.getMessage(), e); 
-        } finally { 
-            try {in.close();} catch(Exception ign){;}
-            try {out.close();} catch(Exception ign){;}
-        }        
+
+            atask = new TaskProcess(cont, list); 
+            req.setAttribute(taskid, atask);            
+            atask.future = submit(atask); 
+        } else {
+            Object result = null; 
+            if (atask.isExpired()) {
+                atask.cancel();
+                result = new Exception("Timeout exception. Transaction was not processed");
+            } else {
+                result = atask.result; 
+            }
+            writeResponse(resp, result);
+        }
     }
     
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        try { 
-            addChannel(buildParams(req));
-        } catch(IOException ioe) { 
-            throw ioe; 
-        } catch(ServletException se) { 
-            throw se; 
-        } catch(Exception e) {
-            e.printStackTrace();
-            throw new ServletException(e.getMessage(), e);
-        } 
+        String taskid = getClass().getName();
+        TaskProcess atask = (TaskProcess) req.getAttribute(taskid);
+        if (atask == null) {
+            List list = new ArrayList();
+            list.add(buildParams(req));
+            
+            Continuation cont = ContinuationSupport.getContinuation(req);
+            if( cont.isInitial() ) {
+                cont.setTimeout(getBlockingTimeout());
+                cont.suspend();
+            }
+
+            atask = new TaskProcess(cont, list); 
+            req.setAttribute(taskid, atask);            
+            atask.future = submit(atask); 
+        } else {
+            Object result = null; 
+            if (atask.isExpired()) {
+                atask.cancel();
+                result = new Exception("Timeout exception. Transaction was not processed");
+            } else {
+                result = atask.result; 
+            }
+            writeResponse(resp, result);
+        }
     } 
     
     private void addChannel(Map conf) throws Exception {
@@ -117,16 +138,53 @@ public class AddChannelServlet extends HttpServlet
         }        
     }
     
-    private Map buildParams(HttpServletRequest req) {
-        Map params = new HashMap(); 
-        Enumeration names = req.getParameterNames(); 
-        while (names.hasMoreElements()) { 
-            Object oname = names.nextElement(); 
-            if(oname == null) continue; 
-            
-            String sval = req.getParameter(oname.toString()); 
-            params.put(oname.toString(), sval); 
-        } 
-        return params; 
+    // <editor-fold defaultstate="collapsed" desc=" TaskProcess ">
+    
+    private class TaskProcess implements Runnable {
+        private Continuation cont;
+        private Collection list;
+        private Future future;
+        private Object result;
+        
+        TaskProcess(Continuation cont, Collection list) {
+            this.cont = cont; 
+            this.list = list; 
+        }
+        
+        boolean isExpired() {
+            return (cont == null || cont.isExpired()); 
+        }
+        
+        void cancel() {
+            try { 
+                if (future != null) {
+                    future.cancel(true);
+                } 
+            } catch(Throwable t) {
+                t.printStackTrace();
+            }
+        }
+                
+        @Override
+        public void run() {
+            try {
+                Iterator itr = list.iterator(); 
+                while (itr.hasNext()) {
+                    Map conf = (Map) itr.next();
+                    addChannel(conf); 
+                } 
+                list.clear(); 
+                result = "OK";
+            } catch(Exception e) {
+                result = e; 
+            } catch(Throwable t) {
+                result = new Exception(t.getMessage(), t); 
+            } finally {
+                cont.resume();
+                cont = null;
+            }
+        }
     }
+    
+    // </editor-fold>    
 }
