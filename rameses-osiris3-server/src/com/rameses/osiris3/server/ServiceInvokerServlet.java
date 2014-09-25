@@ -23,6 +23,8 @@ import com.rameses.osiris3.xconnection.XAsyncConnection;
 import com.rameses.osiris3.xconnection.XConnection;
 import com.rameses.server.ServerPID;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.Writer;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -219,12 +221,9 @@ public class ServiceInvokerServlet extends AbstractServlet {
                     return resolve(t); 
                 }
                 
-                if (e instanceof Exception) {
-                    Exception err = (Exception) e; 
-                    return new AsyncException(err.getMessage(), err); 
-                } else {
-                    return new AsyncException(e.getMessage(), e); 
-                } 
+                WriterImpl wi = new WriterImpl();
+                e.printStackTrace(new PrintWriter(wi)); 
+                return new AsyncException(e.getMessage(), new Exception(wi.getText())); 
             } 
             
             public void run() {
@@ -235,6 +234,7 @@ public class ServiceInvokerServlet extends AbstractServlet {
                     MessageQueue queue = conn.getQueue( ar.getId() );
                     AsyncToken at = new AsyncToken();
                     at.setClosed(true);
+                    
                     queue.push(resolve(e)); 
                     queue.push(at);
                 } catch(Throwable t) {
@@ -245,5 +245,22 @@ public class ServiceInvokerServlet extends AbstractServlet {
     }
     
     // </editor-fold>
+ 
+    // <editor-fold defaultstate="collapsed" desc=" WriterImpl ">
+    
+    private class WriterImpl extends Writer{
+        StringBuffer buffer = new StringBuffer();
+        
+        public void write(char[] cbuf, int off, int len) throws IOException {
+            buffer.append(cbuf, off, len);
+        }
+
+        public String getText() { return buffer.toString(); }
+        
+        public void flush() throws IOException {;}
+        public void close() throws IOException {;}
+    }
+    
+    // </editor-fold>   
     
 }

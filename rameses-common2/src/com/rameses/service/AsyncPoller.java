@@ -44,4 +44,28 @@ public class AsyncPoller
         params.put("context", appcontext);
         return client.post(path, new Object[]{params});
     }
+    
+    public void close() {
+        new Thread(new CloseSessionProcess()).start(); 
+    }
+    
+    private class CloseSessionProcess implements Runnable {
+
+        public void run() {
+            try {
+                String path = "async/unregister";        
+                String appcontext = (String) conf.get("app.context");
+                String cluster = (String) conf.get("app.cluster");
+                if (cluster != null) path = cluster + "/" + path;
+
+                Map params = new HashMap();
+                params.put("id", token.getId());
+                params.put("connection", token.getConnection());
+                params.put("context", appcontext);
+                client.post(path, new Object[]{params});
+            } catch(Throwable t) {
+                t.printStackTrace(); 
+            }
+        }
+    }
 }

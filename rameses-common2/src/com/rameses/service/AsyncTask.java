@@ -64,6 +64,7 @@ public class AsyncTask implements Runnable {
         if (result instanceof AsyncToken) {
             AsyncToken at = (AsyncToken)result;
             if (at.isClosed()) {
+                poller.close(); 
                 handler.onMessage(AsyncHandler.EOF); 
                 return;
             } 
@@ -80,6 +81,7 @@ public class AsyncTask implements Runnable {
             if (notify( result )) { 
                 handle(poller, poller.poll()); 
             } else { 
+                poller.close(); 
                 handler.onMessage(AsyncHandler.EOF); 
             } 
         } 
@@ -96,6 +98,11 @@ public class AsyncTask implements Runnable {
             for (Object item : batch) {
                 if (item instanceof AsyncToken) {
                     is_closed = ((AsyncToken)item).isClosed(); 
+                    
+                } else if (item instanceof AsyncException) {
+                    handler.onError((AsyncException) item);
+                    return false; 
+                    
                 } else {
                     handler.onMessage(item); 
                 } 
