@@ -68,8 +68,8 @@ public class FormPage extends javax.swing.JPanel {
         leftactionpanel = new com.rameses.rcp.control.XHorizontalPanel();
         xabFormActions = new com.rameses.rcp.control.XActionBar();
         xActionBar1 = new com.rameses.rcp.control.XActionBar();
-        rightactionpanel = new com.rameses.rcp.control.XHorizontalPanel();
         xSubFormPanel1 = new com.rameses.rcp.control.XSubFormPanel();
+        rightactionpanel = new com.rameses.rcp.control.XHorizontalPanel();
         xabNavActions = new com.rameses.rcp.control.XActionBar();
         xDropDownList1 = new com.rameses.rcp.control.XDropDownList();
         stylerule = new com.rameses.rcp.control.XStyleRule();
@@ -107,11 +107,6 @@ public class FormPage extends javax.swing.JPanel {
         xActionBar1.setName("extActions"); // NOI18N
         leftactionpanel.add(xActionBar1);
 
-        headertoolbar.add(leftactionpanel, java.awt.BorderLayout.WEST);
-
-        rightactionpanel.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 5, 0, 5));
-        rightactionpanel.setShowLeftSeparator(true);
-
         xSubFormPanel1.setHandler("queryForm");
         xSubFormPanel1.setName("queryForm"); // NOI18N
 
@@ -126,7 +121,12 @@ public class FormPage extends javax.swing.JPanel {
             .add(0, 25, Short.MAX_VALUE)
         );
 
-        rightactionpanel.add(xSubFormPanel1);
+        leftactionpanel.add(xSubFormPanel1);
+
+        headertoolbar.add(leftactionpanel, java.awt.BorderLayout.WEST);
+
+        rightactionpanel.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 5, 0, 5));
+        rightactionpanel.setShowLeftSeparator(true);
 
         xabNavActions.setBorder(null);
         xabNavActions.setDepends(new String[] {"entity"});

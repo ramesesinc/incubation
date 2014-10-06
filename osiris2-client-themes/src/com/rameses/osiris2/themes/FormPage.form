@@ -106,23 +106,6 @@
                     <Property name="name" type="java.lang.String" value="extActions" noResource="true"/>
                   </Properties>
                 </Component>
-              </SubComponents>
-            </Container>
-            <Container class="com.rameses.rcp.control.XHorizontalPanel" name="rightactionpanel">
-              <Properties>
-                <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-                  <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
-                    <EmptyBorder bottom="0" left="5" right="5" top="0"/>
-                  </Border>
-                </Property>
-                <Property name="showLeftSeparator" type="boolean" value="true"/>
-              </Properties>
-              <Constraints>
-                <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
-                  <BorderConstraints direction="East"/>
-                </Constraint>
-              </Constraints>
-              <SubComponents>
                 <Container class="com.rameses.rcp.control.XSubFormPanel" name="xSubFormPanel1">
                   <Properties>
                     <Property name="handler" type="java.lang.String" value="queryForm"/>
@@ -142,6 +125,23 @@
                     </DimensionLayout>
                   </Layout>
                 </Container>
+              </SubComponents>
+            </Container>
+            <Container class="com.rameses.rcp.control.XHorizontalPanel" name="rightactionpanel">
+              <Properties>
+                <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+                  <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+                    <EmptyBorder bottom="0" left="5" right="5" top="0"/>
+                  </Border>
+                </Property>
+                <Property name="showLeftSeparator" type="boolean" value="true"/>
+              </Properties>
+              <Constraints>
+                <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
+                  <BorderConstraints direction="East"/>
+                </Constraint>
+              </Constraints>
+              <SubComponents>
                 <Component class="com.rameses.rcp.control.XActionBar" name="xabNavActions">
                   <Properties>
                     <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
