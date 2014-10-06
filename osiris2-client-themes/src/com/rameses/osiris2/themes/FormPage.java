@@ -69,6 +69,7 @@ public class FormPage extends javax.swing.JPanel {
         xabFormActions = new com.rameses.rcp.control.XActionBar();
         xActionBar1 = new com.rameses.rcp.control.XActionBar();
         rightactionpanel = new com.rameses.rcp.control.XHorizontalPanel();
+        xSubFormPanel1 = new com.rameses.rcp.control.XSubFormPanel();
         xabNavActions = new com.rameses.rcp.control.XActionBar();
         xDropDownList1 = new com.rameses.rcp.control.XDropDownList();
         stylerule = new com.rameses.rcp.control.XStyleRule();
@@ -110,6 +111,22 @@ public class FormPage extends javax.swing.JPanel {
 
         rightactionpanel.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 5, 0, 5));
         rightactionpanel.setShowLeftSeparator(true);
+
+        xSubFormPanel1.setHandler("queryForm");
+        xSubFormPanel1.setName("queryForm"); // NOI18N
+
+        org.jdesktop.layout.GroupLayout xSubFormPanel1Layout = new org.jdesktop.layout.GroupLayout(xSubFormPanel1);
+        xSubFormPanel1.setLayout(xSubFormPanel1Layout);
+        xSubFormPanel1Layout.setHorizontalGroup(
+            xSubFormPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(0, 40, Short.MAX_VALUE)
+        );
+        xSubFormPanel1Layout.setVerticalGroup(
+            xSubFormPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(0, 25, Short.MAX_VALUE)
+        );
+
+        rightactionpanel.add(xSubFormPanel1);
 
         xabNavActions.setBorder(null);
         xabNavActions.setDepends(new String[] {"entity"});
@@ -645,6 +662,7 @@ public class FormPage extends javax.swing.JPanel {
     private com.rameses.rcp.control.XStyleRule stylerule;
     private com.rameses.rcp.control.XActionBar xActionBar1;
     private com.rameses.rcp.control.XDropDownList xDropDownList1;
+    private com.rameses.rcp.control.XSubFormPanel xSubFormPanel1;
     private com.rameses.rcp.control.XActionBar xabFormActions;
     private com.rameses.rcp.control.XActionBar xabNavActions;
     // End of variables declaration//GEN-END:variables
