@@ -155,6 +155,16 @@ public abstract class PageListModel extends AbstractListDataProvider
             refreshSelectedItem();
         }
     }
+    
+    public void moveToPage(int index) {
+        //do not scroll when there are error in validation
+        if (getMessageSupport().hasErrorMessages()) return;
+        
+        pageIndex = Math.max(index, 1); 
+        pageCount = Math.max(pageIndex, pageCount); 
+        refresh(true);
+        refreshSelectedItem();
+    }
                 
     public final void doSearch() {
         load();
