@@ -20,11 +20,11 @@ public final class ServerPID {
     }
     
     public static void add(String name) {
-        synchronized (LOCK) {
-            if (name != null && !list.contains(name)) {
-                list.add(name); 
-            }
-        }
+//        synchronized (LOCK) {
+//            if (name != null && !list.contains(name)) {
+//                list.add(name); 
+//            }
+//        }
     }
     
     public static void remove(String name) {

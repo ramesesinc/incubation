@@ -68,6 +68,7 @@ public class FormPage extends javax.swing.JPanel {
         leftactionpanel = new com.rameses.rcp.control.XHorizontalPanel();
         xabFormActions = new com.rameses.rcp.control.XActionBar();
         xActionBar1 = new com.rameses.rcp.control.XActionBar();
+        xSubFormPanel1 = new com.rameses.rcp.control.XSubFormPanel();
         rightactionpanel = new com.rameses.rcp.control.XHorizontalPanel();
         xabNavActions = new com.rameses.rcp.control.XActionBar();
         xDropDownList1 = new com.rameses.rcp.control.XDropDownList();
@@ -105,6 +106,22 @@ public class FormPage extends javax.swing.JPanel {
         xActionBar1.setFormName("entityName");
         xActionBar1.setName("extActions"); // NOI18N
         leftactionpanel.add(xActionBar1);
+
+        xSubFormPanel1.setHandler("queryForm");
+        xSubFormPanel1.setName("queryForm"); // NOI18N
+
+        org.jdesktop.layout.GroupLayout xSubFormPanel1Layout = new org.jdesktop.layout.GroupLayout(xSubFormPanel1);
+        xSubFormPanel1.setLayout(xSubFormPanel1Layout);
+        xSubFormPanel1Layout.setHorizontalGroup(
+            xSubFormPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(0, 40, Short.MAX_VALUE)
+        );
+        xSubFormPanel1Layout.setVerticalGroup(
+            xSubFormPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(0, 25, Short.MAX_VALUE)
+        );
+
+        leftactionpanel.add(xSubFormPanel1);
 
         headertoolbar.add(leftactionpanel, java.awt.BorderLayout.WEST);
 
@@ -645,6 +662,7 @@ public class FormPage extends javax.swing.JPanel {
     private com.rameses.rcp.control.XStyleRule stylerule;
     private com.rameses.rcp.control.XActionBar xActionBar1;
     private com.rameses.rcp.control.XDropDownList xDropDownList1;
+    private com.rameses.rcp.control.XSubFormPanel xSubFormPanel1;
     private com.rameses.rcp.control.XActionBar xabFormActions;
     private com.rameses.rcp.control.XActionBar xabNavActions;
     // End of variables declaration//GEN-END:variables

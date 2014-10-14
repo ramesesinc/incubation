@@ -680,8 +680,17 @@ public class Binding
             
             ClientContext ctx = ClientContext.getCurrentContext();
             NavigationHandler handler = ctx.getNavigationHandler();
-            NavigatablePanel navPanel = UIControlUtil.getParentPanel(owner, target);
-            if (handler != null) handler.navigate(navPanel, null, outcome);
+            if (handler != null) {
+                NavigatablePanel navPanel = UIControlUtil.getParentPanel(owner, target);
+                if (navPanel == null) {
+                    Object viewctx = getViewContext(); 
+                    if (viewctx instanceof NavigatablePanel) { 
+                        navPanel = (NavigatablePanel) viewctx; 
+                    } 
+                } 
+                
+                handler.navigate(navPanel, null, outcome);
+            }
         } 
         catch(Exception e) {
             ClientContext.getCurrentContext().getPlatform().showError(owner, e);

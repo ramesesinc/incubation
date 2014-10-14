@@ -141,7 +141,29 @@ public abstract class PageListModel extends AbstractListDataProvider
     }  
     
     public void moveLastPage() {
-        //no implementation yet
+        //do not scroll when there are error in validation
+        if (getMessageSupport().hasErrorMessages()) return;
+        
+        if (!isLastPage()) 
+        {
+            int lastPageIndex = getLastPageIndex();
+            if (lastPageIndex <= 0) return;
+            
+            pageIndex = lastPageIndex; 
+            pageCount = Math.max(pageIndex, pageCount); 
+            refresh(true);
+            refreshSelectedItem();
+        }
+    }
+    
+    public void moveToPage(int index) {
+        //do not scroll when there are error in validation
+        if (getMessageSupport().hasErrorMessages()) return;
+        
+        pageIndex = Math.max(index, 1); 
+        pageCount = Math.max(pageIndex, pageCount); 
+        refresh(true);
+        refreshSelectedItem();
     }
                 
     public final void doSearch() {
@@ -151,6 +173,8 @@ public abstract class PageListModel extends AbstractListDataProvider
     public int getPageIndex() { return pageIndex; }
     
     public int getPageCount() { return pageCount; }
+    
+    public int getLastPageIndex() { return -1; }
     
     public boolean isLastPage() 
     {

@@ -17,6 +17,8 @@ import java.net.URI;
 import java.rmi.server.UID;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import org.eclipse.jetty.websocket.WebSocket;
 import org.eclipse.jetty.websocket.WebSocketClient;
@@ -28,6 +30,8 @@ import org.eclipse.jetty.websocket.WebSocketClientFactory;
  */
 public class WebsocketConnection extends MessageConnection implements WebSocket.OnTextMessage, WebSocket.OnBinaryMessage 
 {
+    private final static ExecutorService TASKS = Executors.newFixedThreadPool(100);
+    
     private final static int DEFAULT_MAX_CONNECTION     = 35000; 
     private final static int MAX_BINARY_MESSAGE_SIZE    = 16384;    
     private final static int MAX_IDLE_TIME              = 60000; 
@@ -116,10 +120,15 @@ public class WebsocketConnection extends MessageConnection implements WebSocket.
         } catch(Exception ce) {
             String shost = host.replaceFirst("ws://", ""); 
             System.out.println("[WebsocketConnection, "+ protocol +", "+ shost +"] " + ce.getClass() + " " + ce.getMessage() );
-            try {
-                Thread.sleep( RECONNECT_DELAY );
-                open();
-            } catch(InterruptedException ie){;} 
+            
+            TASKS.submit(new Runnable() {
+                public void run() {
+                    try {
+                        Thread.sleep( RECONNECT_DELAY );
+                        open(); 
+                    } catch(Throwable ign){;} 
+                } 
+            }); 
         } 
     } 
     

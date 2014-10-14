@@ -36,9 +36,11 @@ public class TomcatCpDsProvider implements DsProvider
     
     public class TomcatCPDataSource extends AbstractDataSource 
     {
+        private String name;
         private DataSource datasource;
         
         public TomcatCPDataSource(String name, Map map) {
+            this.name = name; 
             init(map);
         }
         
@@ -53,8 +55,6 @@ public class TomcatCpDsProvider implements DsProvider
                 p.setPassword(getPwd());
                 
                 p.setJmxEnabled(true); 
-                p.setTestWhileIdle(false); 
-                p.setTestOnReturn(false); 
                 p.setTestOnBorrow(true); 
                 
                 String validationQuery = null; 
@@ -70,69 +70,90 @@ public class TomcatCpDsProvider implements DsProvider
                 int validationInterval = 30000;
                 if (map.containsKey("validationInterval")) {
                     Object ov = map.get("validationInterval");
-                    if (ov != null) validationInterval = Integer.parseInt(ov.toString()); 
-                }                 
+                    if (ov != null) {
+                        validationInterval = Integer.parseInt(ov.toString());
+                    } 
+                } 
                 p.setValidationInterval(validationInterval); 
-                
-                int timeBetweenEvictionRunsMillis = 30000;
+                                
                 if (map.containsKey("timeBetweenEvictionRunsMillis")) {
                     Object ov = map.get("timeBetweenEvictionRunsMillis");
-                    if (ov != null) timeBetweenEvictionRunsMillis = Integer.parseInt(ov.toString()); 
+                    if (ov != null) {
+                        int timeBetweenEvictionRunsMillis = Integer.parseInt(ov.toString());
+                        p.setTimeBetweenEvictionRunsMillis(timeBetweenEvictionRunsMillis);
+                    } 
                 } 
-                p.setTimeBetweenEvictionRunsMillis(timeBetweenEvictionRunsMillis);
                 
-                int initialSize = 5;
-                if (map.containsKey("initialSize")) {
-                    Object ov = map.get("initialSize");
-                    if (ov != null) initialSize = Integer.parseInt(ov.toString()); 
-                } 
-                p.setInitialSize(initialSize); 
-
-                int minIdle = initialSize;
-                if (map.containsKey("minIdle")) {
-                    Object ov = map.get("minIdle");
-                    if (ov != null) minIdle = Integer.parseInt(ov.toString()); 
-                }                 
-                p.setMinIdle(minIdle); 
-                
-                int minEvictableIdleTimeMillis = 60000;
                 if (map.containsKey("minEvictableIdleTimeMillis")) {
                     Object ov = map.get("minEvictableIdleTimeMillis");
-                    if (ov != null) minEvictableIdleTimeMillis = Integer.parseInt(ov.toString()); 
+                    if (ov != null) {
+                        int minEvictableIdleTimeMillis = Integer.parseInt(ov.toString());
+                        p.setMinEvictableIdleTimeMillis(minEvictableIdleTimeMillis); 
+                    } 
                 } 
-                p.setMinEvictableIdleTimeMillis(minEvictableIdleTimeMillis); 
                 
                 int maxActive = 100;
                 if (map.containsKey("maxActive")) {
                     Object ov = map.get("maxActive");
                     if (ov != null) maxActive = Integer.parseInt(ov.toString()); 
                 } 
-                p.setMaxActive(maxActive);
+                p.setMaxActive(maxActive);    
+
+                int initialSize = 5;
+                if (map.containsKey("initialSize")) {
+                    Object ov = map.get("initialSize");
+                    if (ov != null) initialSize = Integer.parseInt(ov.toString()); 
+                } 
+                p.setInitialSize(initialSize); 
                 
-                int maxIdle = maxActive;
-                if (map.containsKey("maxIdle")) {
-                    Object ov = map.get("maxIdle");
-                    if (ov != null) maxIdle = Integer.parseInt(ov.toString()); 
-                }                                 
-                p.setMaxIdle(maxIdle);
-                
-                int maxWait = 30000;
+                int maxWait = 10;
                 if (map.containsKey("maxWait")) {
                     Object ov = map.get("maxWait");
-                    if (ov != null) maxWait = Integer.parseInt(ov.toString()); 
+                    if (ov != null) {
+                        maxWait = Integer.parseInt(ov.toString());
+                        p.setMaxWait(maxWait); 
+                    } 
                 } 
-                p.setMaxWait(maxWait);
+                   
+                int maxIdle = 10;
+                if (map.containsKey("maxIdle")) {
+                    Object ov = map.get("maxIdle");
+                    if (ov != null) {
+                        maxIdle = Integer.parseInt(ov.toString());
+                        p.setMaxIdle(maxIdle); 
+                    } 
+                }                                 
                 
+                int minIdle = initialSize;
+                if (map.containsKey("minIdle")) {
+                    Object ov = map.get("minIdle");
+                    if (ov != null) minIdle = Integer.parseInt(ov.toString()); 
+                }                 
+                p.setMinIdle(minIdle); 
+                                
+                int maxAge = -1; 
+                if (map.containsKey("maxAge")) {
+                    Object ov = map.get("maxAge");
+                    if (ov != null) {
+                        maxAge = Integer.parseInt(ov.toString());
+                    } 
+                } 
+                p.setMaxAge(maxAge);                
+                                
                 //database connection pool leak settings
                 p.setRemoveAbandoned(true);
                 p.setLogAbandoned(true);
+                p.setAbandonWhenPercentageFull(50);
 
-                int removeAbandonedTimeout = 300;
                 if (map.containsKey("removeAbandonedTimeout")) {
                     Object ov = map.get("removeAbandonedTimeout");
-                    if (ov != null) removeAbandonedTimeout = Integer.parseInt(ov.toString()); 
+                    if (ov != null) {
+                        int removeAbandonedTimeout = Integer.parseInt(ov.toString());
+                        p.setRemoveAbandonedTimeout(removeAbandonedTimeout); 
+                    } 
                 }                 
-                p.setRemoveAbandonedTimeout(removeAbandonedTimeout); 
+                
+                
                 //
                 //
                 p.setJdbcInterceptors("org.apache.tomcat.jdbc.pool.interceptor.ConnectionState;"
@@ -145,12 +166,13 @@ public class TomcatCpDsProvider implements DsProvider
                 System.out.println(" validationQuery="+p.getValidationQuery());
                 System.out.println(" validationInterval="+p.getValidationInterval());
                 System.out.println(" timeBetweenEvictionRunsMillis="+p.getTimeBetweenEvictionRunsMillis());
+                System.out.println(" minEvictableIdleTimeMillis="+p.getMinEvictableIdleTimeMillis());                
                 System.out.println(" initialSize="+p.getInitialSize());
                 System.out.println(" minIdle="+p.getMinIdle());
-                System.out.println(" minEvictableIdleTimeMillis="+p.getMinEvictableIdleTimeMillis());
                 System.out.println(" maxActive="+p.getMaxActive());
                 System.out.println(" maxIdle="+p.getMaxIdle());
                 System.out.println(" maxWait="+p.getMaxWait());
+                System.out.println(" suspectTimeout="+p.getSuspectTimeout());
                 System.out.println(" removeAbandonedTimeout="+p.getRemoveAbandonedTimeout());
                 System.out.println(" ");
             } catch(RuntimeException re) {
@@ -161,11 +183,35 @@ public class TomcatCpDsProvider implements DsProvider
         }
         
         protected Connection createConnection(String username, String pwd) throws SQLException {
-            return datasource.getConnection();
+            return datasource.getConnection(); 
         }
         
         public void destroy() {
             datasource.close();
         }
+        
+//        private void dump(PoolProperties p) {
+//            System.out.println("#######################################");
+//            System.out.println("# dump datasource config:             ");
+//            System.out.println("#######################################");
+//            System.out.println(" TestOnBorrow="+p.isTestOnBorrow());
+//            System.out.println(" TestWhileIdle="+p.isTestWhileIdle());
+//            System.out.println(" TestOnReturn="+p.isTestOnReturn());
+//            System.out.println(" TestOnConnect="+p.isTestOnConnect());
+//            System.out.println(" validationQuery="+p.getValidationQuery());
+//            System.out.println(" validationInterval="+p.getValidationInterval());
+//            System.out.println(" timeBetweenEvictionRunsMillis="+p.getTimeBetweenEvictionRunsMillis());
+//            System.out.println(" minEvictableIdleTimeMillis="+p.getMinEvictableIdleTimeMillis());                
+//            System.out.println(" initialSize="+p.getInitialSize());
+//            System.out.println(" minIdle="+p.getMinIdle());
+//            System.out.println(" maxActive="+p.getMaxActive());
+//            System.out.println(" maxIdle="+p.getMaxIdle());
+//            System.out.println(" maxWait="+p.getMaxWait());
+//            System.out.println(" maxAge="+p.getMaxAge());
+//            System.out.println(" removeAbandoned="+p.isRemoveAbandoned());
+//            System.out.println(" LogAbandoned="+p.isLogAbandoned());
+//            System.out.println(" removeAbandonedTimeout="+p.getRemoveAbandonedTimeout());
+//            System.out.println(" ");
+//        }
     }
 }

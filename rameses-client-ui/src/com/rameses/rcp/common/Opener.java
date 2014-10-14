@@ -11,6 +11,7 @@ import java.util.Map;
 public class Opener 
 {    
     private static final long serialVersionUID = 1L;
+    public final static String INVOKER_OBJECT_KEY = "_INVOKER_";
     
     private String id;
     private String caption;
