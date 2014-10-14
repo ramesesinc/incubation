@@ -22,6 +22,7 @@ import com.rameses.rcp.common.Validator;
 import com.rameses.rcp.common.ValidatorEvent;
 import com.rameses.rcp.common.ViewHandler;
 import com.rameses.rcp.ui.UIFocusableContainer;
+import com.rameses.util.BreakException;
 import com.rameses.util.BusinessException;
 import com.rameses.util.ValueUtil;
 import java.awt.Component;
@@ -691,8 +692,9 @@ public class Binding
                 
                 handler.navigate(navPanel, null, outcome);
             }
-        } 
-        catch(Exception e) {
+        } catch(BreakException be) {
+            //do nothing 
+        } catch(Exception e) {
             ClientContext.getCurrentContext().getPlatform().showError(owner, e);
         }
     }
