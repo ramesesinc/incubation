@@ -22,6 +22,7 @@ import com.rameses.rcp.common.MsgBox;
 import com.rameses.rcp.common.Opener;
 import com.rameses.rcp.common.TileViewModel;
 import com.rameses.rcp.control.panel.TilePanel;
+import com.rameses.util.BreakException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -184,6 +185,11 @@ public class XTileView extends TilePanel implements UIControl, MouseEventSupport
     
     public void setPropertyInfo(PropertySupport.PropertyInfo info) {
     }
+    
+    public String getTarget() { return target; } 
+    public void setTarget(String target) { 
+        this.target = target; 
+    } 
     
     // </editor-fold>
             
@@ -420,13 +426,17 @@ public class XTileView extends TilePanel implements UIControl, MouseEventSupport
 
                 Opener opener = (Opener)result;
                 String target = opener.getTarget()+"";
-                if (!target.matches("process|_process|window|_window|popup|_popup")) {
+                if (!target.matches("process|_process|window|_window|popup|_popup|self|_self")) {
                     opener.setTarget("window"); 
                 }
                 Binding binding = getBinding();
                 if (binding != null) binding.fireNavigation(opener); 
                 
+            } catch(BreakException be) {
+                be.printStackTrace(); 
+                //do nothing 
             } catch(Throwable t) {
+                t.printStackTrace(); 
                 MsgBox.err(t); 
                 
             } finally { 

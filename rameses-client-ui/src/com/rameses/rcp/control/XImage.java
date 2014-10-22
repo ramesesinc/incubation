@@ -18,9 +18,12 @@ import com.rameses.rcp.support.ThemeUI;
 import com.rameses.rcp.ui.UIControl;
 import com.rameses.rcp.util.UIControlUtil;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Insets;
+import java.awt.image.BufferedImage;
 import java.beans.Beans;
 import java.util.HashMap;
 import java.util.Map;
@@ -47,6 +50,10 @@ public class XImage extends JLabel implements UIControl, MouseEventSupport.Compo
     private String borderCSS;
     private boolean hideWhenNoIcon;
     
+    private ImageIcon iconResourceObj;
+    private ImageIcon imageIcon;
+    private Dimension scaleSize;
+        
     public XImage() 
     {
         super();
@@ -104,15 +111,14 @@ public class XImage extends JLabel implements UIControl, MouseEventSupport.Compo
     public String getIconResource() { return iconResource; } 
     public void setIconResource(String iconResource) { 
         this.iconResource = iconResource; 
-        ImageIcon iicon = getImageIcon(); //loads the icon
-        setIcon(iicon);
-        repaint(); 
+        this.iconResourceObj = getImageIcon(); //loads the icon
+        setIcon( scaleIcon(this.iconResourceObj) ); 
+        repaint();
     } 
     
     public boolean isDynamic() { return dynamic; } 
     public void setDynamic(boolean dynamic) { this.dynamic = dynamic; } 
     
-        
     private ImageIcon getImageIcon() 
     {
         String iconRes = getIconResource();
@@ -123,7 +129,15 @@ public class XImage extends JLabel implements UIControl, MouseEventSupport.Compo
 
         return iis.getIcon(iconRes); 
     } 
-        
+    
+    public Dimension getScaleSize() { return scaleSize; } 
+    public void setScaleSize(Dimension scaleSize) {
+        this.scaleSize = scaleSize; 
+        ImageIcon iicon = (this.imageIcon == null? this.iconResourceObj: this.imageIcon); 
+        setIcon(iicon);
+        repaint();
+    }
+            
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" UIControl implementation ">    
@@ -147,21 +161,27 @@ public class XImage extends JLabel implements UIControl, MouseEventSupport.Compo
 
     public void refresh() { 
         try { 
+            ImageIcon iicon = null; 
             String name = getName(); 
             if (name != null && name.length() > 0) { 
                 Object value = UIControlUtil.getBeanValue(getBinding(), name); 
                 if (value != null) { 
-                    ImageIcon icon = ImageIconSupport.getInstance().getIcon(value.toString()); 
-                    if (icon != null) setIcon(icon); 
+                    iicon = ImageIconSupport.getInstance().getIcon(value.toString()); 
                 } 
             } 
-        } catch(Throwable t){;} 
+            this.imageIcon = iicon; 
+            setIcon( scaleIcon(this.imageIcon) );
+        } catch(Throwable t){ 
+            this.imageIcon = null; 
+        } 
         
         if (isHideWhenNoIcon() && getIcon() == null) { 
             setVisible(false); 
         } else { 
             setVisible(true); 
         } 
+        
+        repaint();
     }
 
     public void setPropertyInfo(PropertySupport.PropertyInfo info) {
@@ -233,5 +253,33 @@ public class XImage extends JLabel implements UIControl, MouseEventSupport.Compo
         }
     }
 
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" helper/override methods ">
+    
+    private ImageIcon scaleIcon(ImageIcon iicon) {
+        if (iicon == null) { return null; } 
+        
+        Dimension scaledim = getScaleSize(); 
+        if (scaledim == null) { scaledim = new Dimension(0,0); } 
+        if (scaledim.width == 0 && scaledim.height == 0) { return iicon; } 
+        
+        int iw = iicon.getIconWidth();
+        int ih = iicon.getIconHeight(); 
+        double scaleX = (double)scaledim.width  / (double)iw;
+        double scaleY = (double)scaledim.height / (double)ih;
+        double scale  = (scaleY > scaleX)? scaleX: scaleY;
+        int nw = (int) (iw * scale);
+        int nh = (int) (ih * scale);
+        //int nx = (scaledim.width - nw) / 2;
+        //int ny = (scaledim.height - nh) / 2;
+        
+        BufferedImage bi = new BufferedImage(nw, nh, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g2 = (Graphics2D) bi.createGraphics(); 
+        g2.drawImage(bi, 0, 0, null);
+        g2.dispose(); 
+        return new ImageIcon(bi); 
+    }
+    
     // </editor-fold>
 }
