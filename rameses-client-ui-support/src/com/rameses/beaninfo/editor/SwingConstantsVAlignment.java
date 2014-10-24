@@ -19,7 +19,7 @@ public class SwingConstantsVAlignment extends PropertyEditorSupport {
     public String getAsText() {
         if( getValue() == null );
         else if( getValue().equals(SwingConstants.CENTER) ) return "CENTER";
-        else if( getValue().equals(SwingConstants.RIGHT) ) return "BOTTOM";
+        else if( getValue().equals(SwingConstants.BOTTOM) ) return "BOTTOM";
         
         return "TOP";
     }
