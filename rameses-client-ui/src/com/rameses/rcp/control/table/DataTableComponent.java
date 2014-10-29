@@ -382,11 +382,10 @@ public class DataTableComponent extends JTable implements TableControl
             
             JComponent editor = TableUtil.createCellEditor(col);
             if (editor == null) continue; 
-            if (!(editor instanceof UIControl))
-            {
+            if (!(editor instanceof UIControl)) { 
                 System.out.println("Column editor must be an instance of UIControl "); 
-                continue;
-            }
+                continue; 
+            } 
 
             editor.setVisible(false);
             editor.setName(col.getName());
@@ -746,6 +745,21 @@ public class DataTableComponent extends JTable implements TableControl
         //dataProvider.updateSelectedItem();
     }
     
+    private boolean canRemoveItem() {
+        if (isReadonly()) { return false; } 
+        if (editorSupport == null) { return false; } 
+        
+        int rowIndex = getSelectedRow();
+        if (rowIndex < 0) { return false; } 
+
+        AbstractListDataProvider ldp = editorSupport.getSource();
+        ListItem li = ldp.getSelectedItem(); 
+        if (li == null) { return false; } 
+        if (li.getState() == ListItem.STATE_EMPTY) { return false; }
+        
+        return true; 
+    }
+    
     public final void removeItem() 
     {
         if (isReadonly()) return;
@@ -761,8 +775,14 @@ public class DataTableComponent extends JTable implements TableControl
             return;
         
         try {
+            ListItem li = ldp.getListItem(rowIndex);
+            if (li.getState() == ListItem.STATE_EMPTY && ldp.isLastItem(li)) {
+                //do nothing 
+                return;
+            }
+            
             ldp.setSelectedItem(rowIndex); 
-            editorSupport.fireRemoveItem(ldp.getListItem(rowIndex)); 
+            editorSupport.fireRemoveItem( li ); 
         } catch(Exception ex) {
             MsgBox.err(ex); 
         }
@@ -793,6 +813,14 @@ public class DataTableComponent extends JTable implements TableControl
         if (col == null || !col.isEditable()) return;
                 
         try {
+            if (e instanceof KeyEvent) {
+                KeyEvent ke = (KeyEvent)e; 
+                if (ke.getKeyCode() == KeyEvent.VK_DELETE && dataProvider.isLastItem(oListItem)) { 
+                    //do nothing 
+                    return;
+                }
+            }
+            
             if (oListItem.getItem() == null || oListItem.getState() == ListItem.STATE_EMPTY) {
                 editorSupport.loadTemporaryItem(oListItem);
                 oListItem.setRoot(binding.getBean()); 
@@ -1396,19 +1424,17 @@ public class DataTableComponent extends JTable implements TableControl
                     }
                     break;
                     
-                case KeyEvent.VK_PAGE_UP:
-                    if (pageModel != null) 
-                    {
-                        e.consume();
+                case KeyEvent.VK_PAGE_UP: 
+                    if (pageModel != null) { 
+                        e.consume(); 
                         pageModel.moveBackPage(); 
-                    }
-                    break;
+                    } 
+                    break; 
                     
                 case KeyEvent.VK_DELETE:
-                    removeItem();       
+                    removeItem();  
                     EventQueue.invokeLater(new Runnable() {
-                        public void run() 
-                        {
+                        public void run() {
                             requestFocusInWindow(); 
                             grabFocus();
                         }
