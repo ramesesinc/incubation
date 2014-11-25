@@ -23,6 +23,7 @@ import com.rameses.util.ValueUtil;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.EventQueue;
+import java.awt.Font;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -71,7 +72,14 @@ public class XList extends JList implements UIControl, MouseEventSupport.Compone
     private Insets padding = new Insets(1,3,1,3);    
     private int cellVerticalAlignment = SwingConstants.CENTER;
     private int cellHorizontalAlignment = SwingConstants.LEADING;
+    private int cellHorizontalTextPosition = SwingConstants.TRAILING; 
+    private int cellVecticalTextPosition = SwingConstants.CENTER;     
+    
     private boolean enableNavigation;
+    
+    private FontSupport fontSupport; 
+    private Font sourceFont; 
+    private String fontStyle; 
         
     public XList() 
     {
@@ -160,14 +168,57 @@ public class XList extends JList implements UIControl, MouseEventSupport.Compone
     public void setCellHorizontalAlignment(int cellHorizontalAlignment) {
         this.cellHorizontalAlignment = cellHorizontalAlignment;
     }
+
+    public int getCellVerticalTextPosition() { return cellVecticalTextPosition; }    
+    public void setCellVerticalTextPosition(int cellVecticalTextPosition) {
+        this.cellVecticalTextPosition = cellVecticalTextPosition;
+    }
+        
+    public int getCellHorizontalTextPosition() { return cellHorizontalTextPosition; }    
+    public void setCellHorizontalTextPosition(int cellHorizontalTextPosition) {
+        this.cellHorizontalTextPosition = cellHorizontalTextPosition;
+    }    
     
     public String getOpenAction() { return openAction; }
     public void setOpenAction(String openAction) {
         this.openAction = openAction;
     }
 
-    public void setPropertyInfo(PropertySupport.PropertyInfo info) {
+    private FontSupport getFontSupport() {
+        if (fontSupport == null) { 
+            fontSupport = new FontSupport();
+        } 
+        return fontSupport; 
     }
+    
+    public void setFont(Font font) {
+        sourceFont = font; 
+        if (sourceFont != null) {
+            Map attrs = getFontSupport().createFontAttributes(getFontStyle()); 
+            if (!attrs.isEmpty()) { 
+                sourceFont = sourceFont.deriveFont(attrs);
+            }
+        }
+        super.setFont(sourceFont);         
+    }
+    
+    public String getFontStyle() { return fontStyle; } 
+    public void setFontStyle(String fontStyle) {
+        this.fontStyle = fontStyle;
+        if (sourceFont == null) {
+            sourceFont = super.getFont();
+        } 
+        
+        Font font = sourceFont;
+        if (font == null) { return; } 
+        
+        Map attrs = getFontSupport().createFontAttributes(getFontStyle()); 
+        if (!attrs.isEmpty()) { 
+            font = font.deriveFont(attrs);
+        } 
+        super.setFont(font); 
+    }     
+    
     
     // </editor-fold>    
     
@@ -216,6 +267,9 @@ public class XList extends JList implements UIControl, MouseEventSupport.Compone
         map.put("varStatus", getVarStatus());
         return map;
     }     
+    
+    public void setPropertyInfo(PropertySupport.PropertyInfo info) {
+    }
     
     // </editor-fold>
    
@@ -440,6 +494,8 @@ public class XList extends JList implements UIControl, MouseEventSupport.Compone
             cellLabel.setFont(list.getFont());
             cellLabel.setVerticalAlignment(getCellVerticalAlignment());
             cellLabel.setHorizontalAlignment(getCellHorizontalAlignment());
+            cellLabel.setVerticalTextPosition(getCellVerticalTextPosition());
+            cellLabel.setHorizontalTextPosition(getCellHorizontalTextPosition());
             if (cellLabel.isEnabled()) cellLabel.setEnabled(root.isEnableNavigation());
             
             if (isSelected) {
@@ -469,8 +525,9 @@ public class XList extends JList implements UIControl, MouseEventSupport.Compone
             cellLabel.setText((cellValue == null? " ": cellValue.toString()));            
             
             String strIcon = new MapObject(value).getString("icon");
-            if (strIcon == null || strIcon.length() == 0) 
+            if (strIcon == null || strIcon.length() == 0) { 
                 strIcon = (root.listPaneModel == null? null: root.listPaneModel.getDefaultIcon()); 
+            } 
             if (strIcon != null && strIcon.length() > 0) {
                 Icon anIcon = ImageIconSupport.getInstance().getIcon(strIcon);
                 if (anIcon == null) {
