@@ -156,6 +156,7 @@ public abstract class ActiveWorkflowService {
         actor.put("name", env.get("FULLNAME"));
         actor.put("title", env.get("JOBTITLE"));
         t.put("actor", actor);
+        t.put("signature", r.get("signature"));
         beforeCloseTask(t);
         getWfProxy().updateTask(t);
         afterCloseTask(t);
