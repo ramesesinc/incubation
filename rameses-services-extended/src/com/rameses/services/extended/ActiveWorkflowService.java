@@ -16,6 +16,7 @@ import com.rameses.services.extended.proxy.DateServiceLocalInterface;
 import com.rameses.services.extended.proxy.NotificationServiceProxy;
 import com.rameses.services.extended.proxy.WorkflowServiceProxy;
 import com.rameses.services.extended.proxy.WorkitemServiceProxy;
+import com.rameses.util.Base64Cipher;
 import java.rmi.server.UID;
 import java.util.ArrayList;
 import java.util.Date;
@@ -156,11 +157,22 @@ public abstract class ActiveWorkflowService {
         actor.put("name", env.get("FULLNAME"));
         actor.put("title", env.get("JOBTITLE"));
         t.put("actor", actor);
-        t.put("signature", r.get("signature"));
+        t.put("signature", encodeSignature(r));
         beforeCloseTask(t);
         getWfProxy().updateTask(t);
         afterCloseTask(t);
         return t;
+    }
+    
+    private String encodeSignature(Map r){
+        if (r.get("signature") == null)
+            return null;
+        Map s = new HashMap();
+        s.put("taskid", r.get("taskid"));
+        s.put("signature", r.get("signature"));
+        
+        Base64Cipher cipher = new Base64Cipher();
+        return cipher.encode(s);
     }
     
     public List getOpenForkList( String parentProcessId, Map currentTask ) throws Exception {
