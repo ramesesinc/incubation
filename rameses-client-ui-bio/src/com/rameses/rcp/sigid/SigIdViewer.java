@@ -13,6 +13,7 @@ import com.rameses.rcp.common.CallbackHandlerProxy;
 import com.rameses.rcp.common.MsgBox;
 import com.rameses.rcp.common.SigIdResult;
 import com.rameses.rcp.common.SigIdModel;
+import com.rameses.rcp.sigid.SigIdPanel.SigIdParams;
 import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.EventQueue;
@@ -62,9 +63,7 @@ public class SigIdViewer
     public byte[] open() { 
         Window win = KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusedWindow(); 
         final SigIdPanel panel = new SigIdPanel(); 
-        panel.setPenWidth(model.getPenWidth()); 
-        panel.setImageXSize(model.getImageXSize());
-        panel.setImageYSize(model.getImageYSize());
+        panel.setParams(new SigIdParamsImpl(model)); 
         
         JDialog dialog = null; 
         if (win instanceof Frame) {
@@ -168,6 +167,7 @@ public class SigIdViewer
         private Integer penWidth;
         private Integer imageXSize;
         private Integer imageYSize;
+        private String key;
         private CallbackHandlerProxy onselectCallback;
         private CallbackHandlerProxy oncloseCallback;
         
@@ -177,6 +177,9 @@ public class SigIdViewer
             this.width = getInt(options, "width"); 
             this.height = getInt(options, "height");
             this.penWidth = getInt(options, "penWidth"); 
+            this.imageXSize = getInt(options, "imageXSize"); 
+            this.imageYSize = getInt(options, "imageYSize");
+            this.key = getString(options, "key"); 
             
             Object source = get(options, "onselect"); 
             if (source != null) onselectCallback = new CallbackHandlerProxy(source); 
@@ -229,7 +232,10 @@ public class SigIdViewer
             } else {
                 return imageYSize.intValue(); 
             }
-        }        
+        }  
+        public String getKey() {
+            return (key == null? super.getKey(): key); 
+        } 
 
         public void onselect(Object result) {
             if (onselectCallback == null) return;
@@ -266,4 +272,33 @@ public class SigIdViewer
     }
     
     // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" SigIdParamsImpl "> 
+    
+    private class SigIdParamsImpl implements SigIdParams {
+        private SigIdModel model; 
+        
+        SigIdParamsImpl(SigIdModel model) {
+            this.model = model; 
+        }
+        
+        public int getPenWidth() { 
+            return model.getPenWidth(); 
+        }
+
+        public int getImageXSize() {
+            return model.getImageXSize(); 
+        }
+
+        public int getImageYSize() {
+            return model.getImageYSize(); 
+        }
+
+        public String getKey() {
+            return model.getKey(); 
+        }
+    }
+    
+    // </editor-fold>
+    
 }

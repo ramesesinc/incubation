@@ -40,9 +40,7 @@ class SigIdPanel extends JPanel
     private JPanel toolbar;
     private SigPlus sigplus; 
     private Repainter repainter; 
-    private int penWidth;
-    private int imageXSize; 
-    private int imageYSize;
+    private SigIdParams params;
     
     public SigIdPanel() {
         initComponent(); 
@@ -93,15 +91,26 @@ class SigIdPanel extends JPanel
         sigplus.setTabletModel("SignatureGem1X5"); 
         sigplus.setTabletComPort("HID1"); 
         sigplus.clearTablet();
+        
+        String keystr = (params == null? null: params.getKey()); 
+        if (keystr != null && keystr.trim().length() > 0) {
+            sigplus.setKeyString(keystr); 
+        }
+
         sigplus.setTabletState(0);
         sigplus.setTabletState(1);
         repainter.start();
     }
     
     void stop() {
-        int pensize = (penWidth <= 0? 8: penWidth);
-        int imgxsize = (imageXSize <= 0? 1000: imageXSize);
-        int imgysize = (imageYSize <= 0? 350: imageYSize);
+        int pensize = (params == null? 0: params.getPenWidth()); 
+        if (pensize <= 0) pensize = 8; 
+        
+        int imgxsize = (params == null? 0: params.getImageXSize()); 
+        if (imgxsize <= 0) imgxsize = 1000;
+        
+        int imgysize = (params == null? 0: params.getImageYSize()); 
+        if (imgysize <= 0) imgysize = 350;
         
         sigplus.setTabletState(0); 
         sigplus.setImagePenWidth(pensize); 
@@ -116,15 +125,9 @@ class SigIdPanel extends JPanel
         }         
     }
     
-    public void setPenWidth(int penWidth) {
-        this.penWidth = penWidth;
-    }
-    public void setImageXSize(int imageXSize) {
-        this.imageXSize = imageXSize;
-    }
-    public void setImageYSize(int imageYSize) {
-        this.imageYSize = imageYSize;
-    }
+    public void setParams(SigIdParams params) { 
+        this.params = params; 
+    } 
     
     private void onclearTablet() {
         sigplus.clearTablet();
@@ -137,10 +140,10 @@ class SigIdPanel extends JPanel
         siginfo.sigString = sigplus.getSigString(); 
         siginfo.keyReceipt = sigplus.getKeyReceipt();
         siginfo.keyString = sigplus.getKeyString(); 
+        siginfo.numOfStrokes = sigplus.getNumberOfStrokes();
         siginfo.sigImage = sigplus.sigImage();  
-        //siginfo.getImageData(); 
-        //siginfo.dump(); 
-        
+        siginfo.dump();
+
         for (SelectionListener sl : listeners) { 
             sl.onselect(siginfo); 
         } 
@@ -151,6 +154,8 @@ class SigIdPanel extends JPanel
         stop(); 
         fireOnclose(); 
     }
+
+    
     
     // <editor-fold defaultstate="collapsed" desc=" Repainter "> 
     
@@ -284,16 +289,25 @@ class SigIdPanel extends JPanel
     
     // <editor-fold defaultstate="collapsed" desc=" SigInfoImpl "> 
     
+    public static interface SigIdParams {
+        int getPenWidth();
+        int getImageXSize();
+        int getImageYSize();
+        String getKey();
+    }
+    
     private class SigInfoImpl implements SigIdResult {
         private BufferedImage sigImage;
         private byte[] imageData;
         private String sigString;
         private String keyString;
         private int keyReceipt; 
+        private int numOfStrokes; 
         
         public String getSigString() { return sigString; }
         public String getKeyString() { return keyString; } 
         public int getKeyReceipt() { return keyReceipt; }
+        public int getNumberOfStrokes() { return numOfStrokes; } 
 
         public byte[] getImageData() { 
             if (sigImage == null) return null; 
@@ -327,6 +341,7 @@ class SigIdPanel extends JPanel
             System.out.println("keyReceipt=" + keyReceipt);
             System.out.println("keyString=" + keyString);
             System.out.println("sigString=" + sigString);
+            System.out.println("numOfStrokes=" + numOfStrokes);
         }
     }
     

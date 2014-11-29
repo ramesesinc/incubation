@@ -10,9 +10,10 @@ package com.rameses.rcp.common;
  */
 public interface SigIdResult {
     
-    String getSigString();
-    String getKeyString();
-    int getKeyReceipt();
-    byte[] getImageData();
+    byte[] getImageData(); 
+    String getSigString(); 
+    String getKeyString(); 
+    int getKeyReceipt(); 
+    int getNumberOfStrokes(); 
     
 }
