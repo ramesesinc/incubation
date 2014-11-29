@@ -11,6 +11,7 @@ package com.rameses.rcp.sigid;
 
 import com.rameses.rcp.common.CallbackHandlerProxy;
 import com.rameses.rcp.common.MsgBox;
+import com.rameses.rcp.common.SigIdResult;
 import com.rameses.rcp.common.SigIdModel;
 import java.awt.Dialog;
 import java.awt.Dimension;
@@ -22,10 +23,7 @@ import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
 import java.util.Map;
-import javax.imageio.ImageIO;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 
@@ -64,6 +62,9 @@ public class SigIdViewer
     public byte[] open() { 
         Window win = KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusedWindow(); 
         final SigIdPanel panel = new SigIdPanel(); 
+        panel.setPenWidth(model.getPenWidth()); 
+        panel.setImageXSize(model.getImageXSize());
+        panel.setImageYSize(model.getImageYSize());
         
         JDialog dialog = null; 
         if (win instanceof Frame) {
@@ -112,9 +113,9 @@ public class SigIdViewer
             }
         }); 
         panel.add(new SigIdPanel.SelectionListener(){
-            public void onselect(BufferedImage image) {
+            public void onselect(SigIdResult info) {
                 jdialog.dispose(); 
-                onselectImpl(image);
+                onselectImpl(info);
             }
 
             public void onclose() {
@@ -139,15 +140,17 @@ public class SigIdViewer
         win.setLocation(x, y); 
     }
     
-    private void onselectImpl(BufferedImage image) {
-        byte[] data = null;
-        try {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream(); 
-            ImageIO.write(image, "JPG", baos); 
-            data = baos.toByteArray();
-        } catch(Throwable t) {;} 
+    private void onselectImpl(SigIdResult info) {
+//        byte[] data = null;
+//        try {
+//            ByteArrayOutputStream baos = new ByteArrayOutputStream(); 
+//            ImageIO.write(image, "JPG", baos); 
+//            data = baos.toByteArray();
+//        } catch(Throwable t) {;} 
         
-        if (model != null) model.onselect(data); 
+        if (model != null) {
+            model.onselect(info);
+        } 
     }
     
     private void oncloseImpl() {
@@ -162,6 +165,9 @@ public class SigIdViewer
         private String title;
         private Integer width; 
         private Integer height;
+        private Integer penWidth;
+        private Integer imageXSize;
+        private Integer imageYSize;
         private CallbackHandlerProxy onselectCallback;
         private CallbackHandlerProxy oncloseCallback;
         
@@ -170,6 +176,7 @@ public class SigIdViewer
             this.title = getString(options, "title"); 
             this.width = getInt(options, "width"); 
             this.height = getInt(options, "height");
+            this.penWidth = getInt(options, "penWidth"); 
             
             Object source = get(options, "onselect"); 
             if (source != null) onselectCallback = new CallbackHandlerProxy(source); 
@@ -199,6 +206,28 @@ public class SigIdViewer
                 return super.getHeight(); 
             } else {
                 return height.intValue(); 
+            }
+        }        
+        
+        public int getPenWidth() {
+            if (penWidth == null) {
+                return super.getPenWidth(); 
+            } else {
+                return penWidth.intValue(); 
+            }
+        }
+        public int getImageXSize() {
+            if (imageXSize == null) {
+                return super.getImageXSize(); 
+            } else {
+                return imageXSize.intValue(); 
+            }
+        }    
+        public int getImageYSize() {
+            if (imageYSize == null) {
+                return super.getImageYSize(); 
+            } else {
+                return imageYSize.intValue(); 
             }
         }        
 

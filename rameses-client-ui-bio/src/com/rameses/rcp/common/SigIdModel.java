@@ -18,17 +18,24 @@ public class SigIdModel
     private String title;
     private int width;
     private int height;
+    private int penWidth;
+    private int imageXSize; 
+    private int imageYSize; 
     
     public SigIdModel() {
         setTitle("Signature Capture"); 
         setWidth(640);
         setHeight(300);
+        setPenWidth(8); 
     }
     
     public String getTitle() { return title; } 
     public void setTitle(String title) {
         this.title = title;
     }
+    
+    public int getImageXSize() { return imageXSize; } 
+    public int getImageYSize() { return imageYSize; } 
     
     public int getWidth() { return width; } 
     public void setWidth(int width) {
@@ -39,8 +46,13 @@ public class SigIdModel
     public void setHeight(int height) {
         this.height = height;
     }
-
-    public void onselect(byte[] data) {
+    
+    public int getPenWidth() { return penWidth; } 
+    public void setPenWidth(int penWidth) {
+        this.penWidth = penWidth;
+    } 
+    
+    public void onselect(Object result) {
     }
     
     public void onclose() {
@@ -48,8 +60,14 @@ public class SigIdModel
     
     // <editor-fold defaultstate="collapsed" desc=" Provider ">
     
-    public static interface Provider 
-    {
+    public static interface SigInfo {
+        String getSigString();
+        String getKeyString();
+        int getKeyReceipt();
+        byte[] getImageData();
+    }
+    
+    public static interface Provider {
         Object getBinding();
         void showDialog(SigIdModel model);
     } 

@@ -9,6 +9,9 @@
 
 package com.rameses.rcp.sigid;
 
+import com.rameses.rcp.common.SigIdResult;
+import com.sun.image.codec.jpeg.JPEGCodec;
+import com.sun.image.codec.jpeg.JPEGImageEncoder;
 import com.topaz.sigplus.SigPlus;
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -20,6 +23,7 @@ import java.awt.LayoutManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.BorderFactory;
@@ -36,6 +40,9 @@ class SigIdPanel extends JPanel
     private JPanel toolbar;
     private SigPlus sigplus; 
     private Repainter repainter; 
+    private int penWidth;
+    private int imageXSize; 
+    private int imageYSize;
     
     public SigIdPanel() {
         initComponent(); 
@@ -92,7 +99,14 @@ class SigIdPanel extends JPanel
     }
     
     void stop() {
+        int pensize = (penWidth <= 0? 8: penWidth);
+        int imgxsize = (imageXSize <= 0? 1000: imageXSize);
+        int imgysize = (imageYSize <= 0? 350: imageYSize);
+        
         sigplus.setTabletState(0); 
+        sigplus.setImagePenWidth(pensize); 
+        sigplus.setImageXSize(imgxsize); 
+        sigplus.setImageYSize(imgysize); 
         repainter.stop();
     }
     
@@ -102,6 +116,16 @@ class SigIdPanel extends JPanel
         }         
     }
     
+    public void setPenWidth(int penWidth) {
+        this.penWidth = penWidth;
+    }
+    public void setImageXSize(int imageXSize) {
+        this.imageXSize = imageXSize;
+    }
+    public void setImageYSize(int imageYSize) {
+        this.imageYSize = imageYSize;
+    }
+    
     private void onclearTablet() {
         sigplus.clearTablet();
     }
@@ -109,9 +133,16 @@ class SigIdPanel extends JPanel
     private void onselect() {
         stop();
         
-        BufferedImage bi = sigplus.sigImage(); 
+        SigInfoImpl siginfo = new SigInfoImpl();
+        siginfo.sigString = sigplus.getSigString(); 
+        siginfo.keyReceipt = sigplus.getKeyReceipt();
+        siginfo.keyString = sigplus.getKeyString(); 
+        siginfo.sigImage = sigplus.sigImage();  
+        //siginfo.getImageData(); 
+        //siginfo.dump(); 
+        
         for (SelectionListener sl : listeners) { 
-            sl.onselect(bi); 
+            sl.onselect(siginfo); 
         } 
         fireOnclose(); 
     }
@@ -244,10 +275,59 @@ class SigIdPanel extends JPanel
         }
     }
     
-    public static interface SelectionListener 
-    {
-        void onselect(BufferedImage image);
+    public static interface SelectionListener {
+        void onselect(SigIdResult info);
         void onclose();
+    }
+        
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" SigInfoImpl "> 
+    
+    private class SigInfoImpl implements SigIdResult {
+        private BufferedImage sigImage;
+        private byte[] imageData;
+        private String sigString;
+        private String keyString;
+        private int keyReceipt; 
+        
+        public String getSigString() { return sigString; }
+        public String getKeyString() { return keyString; } 
+        public int getKeyReceipt() { return keyReceipt; }
+
+        public byte[] getImageData() { 
+            if (sigImage == null) return null; 
+            
+            if (imageData == null) {
+                int w = sigImage.getWidth(null); 
+                int h = sigImage.getHeight(null); 
+                int[] pixels = new int[(w * h) * 2];
+                sigImage.setRGB(0, 0, 0, 0, pixels, 0, 0); 
+
+                ByteArrayOutputStream fos = null; 
+                try { 
+                    fos = new ByteArrayOutputStream(); 
+                    JPEGImageEncoder jpeg = JPEGCodec.createJPEGEncoder(fos); 
+                    jpeg.encode(sigImage); 
+                    return fos.toByteArray(); 
+                } catch(RuntimeException re) { 
+                    throw re; 
+                } catch(Exception e) { 
+                    throw new RuntimeException(e.getMessage(), e);  
+                } finally {
+                    try { fos.close(); }catch(Throwable t){;} 
+                }
+            } 
+            return imageData; 
+        } 
+        
+        void dump() {
+            System.out.println("image=" + getImageData());  
+            System.out.println("sigImage=" + sigImage); 
+            System.out.println("keyReceipt=" + keyReceipt);
+            System.out.println("keyString=" + keyString);
+            System.out.println("sigString=" + sigString);
+        }
     }
     
     // </editor-fold>
