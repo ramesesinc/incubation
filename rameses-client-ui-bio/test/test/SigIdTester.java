@@ -9,6 +9,10 @@ package test;
 
 import com.rameses.rcp.common.SigIdModel;
 import com.rameses.rcp.sigid.SigIdViewer;
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.UIManager;
 import junit.framework.*;
 
 /**
@@ -22,15 +26,20 @@ public class SigIdTester extends TestCase {
     }
 
     protected void setUp() throws Exception {
+        UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName()); 
     }
 
     protected void tearDown() throws Exception {
     }
     
     public void testMain() throws Exception {
+        
         SigIdModel model = new SigIdModel(){
             public void onselect(byte[] data) {
                 System.out.println("onselect-> " + data);
+                
+                ImageIcon iicon = new ImageIcon(data);
+                JOptionPane.showMessageDialog(null, new JLabel(iicon)); 
             }
 
             public void onclose() {

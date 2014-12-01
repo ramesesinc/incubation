@@ -30,6 +30,11 @@ public class SigIdModel
         this.title = title;
     }
     
+    public int getPenWidth() { return 8; } 
+    public int getImageXSize() { return 0; } 
+    public int getImageYSize() { return 0; } 
+    public String getKey() { return null; } 
+    
     public int getWidth() { return width; } 
     public void setWidth(int width) {
         this.width = width;
@@ -39,8 +44,8 @@ public class SigIdModel
     public void setHeight(int height) {
         this.height = height;
     }
-
-    public void onselect(byte[] data) {
+        
+    public void onselect(Object result) {
     }
     
     public void onclose() {
@@ -48,8 +53,14 @@ public class SigIdModel
     
     // <editor-fold defaultstate="collapsed" desc=" Provider ">
     
-    public static interface Provider 
-    {
+    public static interface SigInfo {
+        String getSigString();
+        String getKeyString();
+        int getKeyReceipt();
+        byte[] getImageData();
+    }
+    
+    public static interface Provider {
         Object getBinding();
         void showDialog(SigIdModel model);
     } 
