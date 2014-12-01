@@ -12,6 +12,7 @@ import com.rameses.annotations.ActiveDB;
 import com.rameses.annotations.Env;
 import com.rameses.annotations.ProxyMethod;
 import com.rameses.annotations.Service;
+import com.rameses.common.ExpressionResolver;
 import com.rameses.services.extended.proxy.DateServiceLocalInterface;
 import com.rameses.services.extended.proxy.NotificationServiceProxy;
 import com.rameses.services.extended.proxy.WorkflowServiceProxy;
@@ -247,6 +248,18 @@ public abstract class ActiveWorkflowService {
             if( breakTransition ) break;
             if( tAction!=null &&  !tAction.equals(o.get("action"))) continue;
             if(!fireAll) breakTransition = true;
+            
+            //add an eval
+            String eval = (String)o.get("eval");
+            if(eval!=null) {
+                System.out.println("eval is "+eval);
+                Map m = new HashMap();
+                m.put("data", env.get("data"));
+                boolean b = ExpressionResolver.getInstance().evalBoolean(eval, m);
+                System.out.println("resolved expression->"+b);
+                if(!b) continue;
+            }
+            
             if( "fork".equals( o.get("tonodetype") )) {
                 //create fork instance
                 Map z = new HashMap();
