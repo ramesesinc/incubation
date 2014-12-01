@@ -87,7 +87,7 @@ public abstract class ActiveWorkflowService {
         env.put("data", r.get("data"));
         
         List list = new ArrayList();
-        findNextTransition(r, false, list, null);
+        findNextTransition(r, true, list, null);
         for( Object o: list ) {
             notifyTask((Map)o);
             onStartTask(o);
@@ -252,11 +252,9 @@ public abstract class ActiveWorkflowService {
             //add an eval
             String eval = (String)o.get("eval");
             if(eval!=null) {
-                System.out.println("eval is "+eval);
                 Map m = new HashMap();
                 m.put("data", env.get("data"));
                 boolean b = ExpressionResolver.getInstance().evalBoolean(eval, m);
-                System.out.println("resolved expression->"+b);
                 if(!b) continue;
             }
             
