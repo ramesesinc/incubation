@@ -115,7 +115,8 @@ public class MsSqlDialect implements SqlDialect  {
                 currentBuilder.append( " " + s );
                 currentState = STATE_HAVING;
             }
-            else if( s.equalsIgnoreCase("order") && currentState <= STATE_HAVING && currentState != STATE_COLUMNS && stack.empty() ) 
+            //else if( s.equalsIgnoreCase("order") && currentState <= STATE_HAVING && currentState != STATE_COLUMNS && stack.empty() ) 
+            else if( s.equalsIgnoreCase("order") ) 
             {
                 currentBuilder = orderBuilder;
                 currentBuilder.append( " " + s );
@@ -158,10 +159,10 @@ public class MsSqlDialect implements SqlDialect  {
         sresult.append( " " + fromBuilder.toString());
         sresult.append( " " + whereBuilder.toString());
         sresult.append( " " + groupBuilder.toString());
-        sresult.append(" " + orderBuilder.toString());
-        sresult.append(")");
+        //sresult.append(" " + orderBuilder.toString());
+        sresult.append( " )" );
         sresult.append( " " + groupBuilder.toString());
-        sresult.append(orderBuilder.toString());
+        sresult.append( " " + orderBuilder);
         
         if( "true".equals((System.getProperty("app.debugMode")+"").toLowerCase()) ) {
             System.out.println("mssql dialect debug: ");

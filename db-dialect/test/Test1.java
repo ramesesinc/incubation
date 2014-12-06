@@ -28,7 +28,7 @@ public class Test1 extends TestCase {
     // TODO add test methods here. The name must begin with 'test'. For example:
     public void testHello() 
     {
-        String sql = getSql("query1.sql");
+        String sql = getSql("query5.sql");
 
         MsSqlDialect d = new MsSqlDialect();
         String res = d.getPagingStatement(sql, 0, 10, new String[]{"objid"});
