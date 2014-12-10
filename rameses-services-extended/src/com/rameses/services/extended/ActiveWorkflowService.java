@@ -87,7 +87,7 @@ public abstract class ActiveWorkflowService {
         env.put("data", r.get("data"));
         
         List list = new ArrayList();
-        findNextTransition(r, true, list, null);
+        findNextTransition(r, false, list, null);
         for( Object o: list ) {
             notifyTask((Map)o);
             onStartTask(o);
@@ -255,7 +255,10 @@ public abstract class ActiveWorkflowService {
                 Map m = new HashMap();
                 m.put("data", env.get("data"));
                 boolean b = ExpressionResolver.getInstance().evalBoolean(eval, m);
-                if(!b) continue;
+                if(!b) {
+                    breakTransition = false;  
+                    continue;
+                }
             }
             
             if( "fork".equals( o.get("tonodetype") )) {
