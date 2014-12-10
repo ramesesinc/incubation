@@ -42,6 +42,7 @@ public final class FolderParser {
                     sp.parse( is, fp );
                 } catch(Exception fex) {
                     //do nothing
+                    System.out.println("failed to parse " + u);
                     fex.printStackTrace();
                 } finally {
                     try { is.close(); } catch(Exception ign) {;}
