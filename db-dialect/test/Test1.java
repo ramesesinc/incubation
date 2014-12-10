@@ -31,7 +31,7 @@ public class Test1 extends TestCase {
         String sql = getSql("query5.sql");
 
         MsSqlDialect d = new MsSqlDialect();
-        String res = d.getPagingStatement(sql, 0, 10, new String[]{"objid"});
+        String res = d.getPagingStatement(sql, 0, 10, new String[]{"ugm.objid"});
         System.out.println( res );
     }
     

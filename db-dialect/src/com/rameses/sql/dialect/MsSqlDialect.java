@@ -142,26 +142,26 @@ public class MsSqlDialect implements SqlDialect  {
         }
 
         StringBuilder sresult = new StringBuilder();
-        sresult.append(selectBuilder.toString());
+        sresult.append(selectBuilder);
         sresult.append( " top " + limit + " ");
-        sresult.append(columnBuilder.toString());
-        sresult.append(fromBuilder.toString());
+        sresult.append(columnBuilder);
+        sresult.append(fromBuilder);
         if( whereBuilder.length() == 0 ) {
             sresult.append(" where ");
         }
         else {
-            sresult.append(" " + whereBuilder.toString());
+            sresult.append(" " + whereBuilder);
             sresult.append(" and ");
         }
         sresult.append( " " + ids + " not in ");
 
         sresult.append("( select top " +  start + " " + ids + " ");
-        sresult.append( " " + fromBuilder.toString());
-        sresult.append( " " + whereBuilder.toString());
-        sresult.append( " " + groupBuilder.toString());
-        //sresult.append(" " + orderBuilder.toString());
+        sresult.append( " " + fromBuilder);
+        sresult.append( " " + whereBuilder);
+        sresult.append( " " + groupBuilder);
+        sresult.append( " " + orderBuilder);
         sresult.append( " )" );
-        sresult.append( " " + groupBuilder.toString());
+        sresult.append( " " + groupBuilder);
         sresult.append( " " + orderBuilder);
         
         if( "true".equals((System.getProperty("app.debugMode")+"").toLowerCase()) ) {
