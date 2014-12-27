@@ -43,6 +43,16 @@ public class SqlManager {
         return conf;
     }
     
+    public boolean isCached() {
+        boolean _cached = true;
+        try {
+            String t = System.getProperty("cached_resource");
+            if(t!=null)_cached = Boolean.parseBoolean(""+t);
+        }
+        catch(Exception ign){;}
+        return _cached;
+    } 
+    
     private Map<String,SqlUnit> cache = Collections.synchronizedMap(new Hashtable());
     
     public SqlManager(SqlConf conf) {
@@ -55,7 +65,7 @@ public class SqlManager {
         SqlUnit su = cache.get(key);
         if(su==null) {
             su = new SqlUnit(statement);
-            cache.put(key, su);
+            if(isCached()) cache.put(key, su);
         }
         return su;
     }
@@ -64,7 +74,7 @@ public class SqlManager {
         SqlUnit su = cache.get(key);
         if(su==null) {
             su = src.getStatement();
-            cache.put(key, su);
+            if(isCached()) cache.put(key, su);
         }
         return su;
     }
@@ -89,7 +99,7 @@ public class SqlManager {
             throw new RuntimeException("Sql unit " + name + " is not found");
         }
         
-        cache.put(name, su);
+        if(isCached()) cache.put(name, su);
         
         return su;
     }
