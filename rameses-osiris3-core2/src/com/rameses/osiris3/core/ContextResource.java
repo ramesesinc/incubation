@@ -27,12 +27,23 @@ public abstract class ContextResource {
     public abstract void init();
     public abstract Class getResourceClass();
     
+    public boolean isCached() {
+        boolean _cached = true;
+        try {
+            String t = System.getProperty("cached_resource");
+            if(t!=null)_cached = Boolean.parseBoolean(""+t);
+        }
+        catch(Exception ign){;}
+        return _cached;
+    } 
     
     public final <T> T getResource(String key) {
         Object res = null;
         if( !resources.containsKey(key) ) {
             res = findResource(key);
-            resources.put(key,res);
+            if(isCached()) {
+                resources.put(key,res);
+            }
         } else {
             res = (T)resources.get(key);
         }
