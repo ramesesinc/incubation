@@ -520,8 +520,7 @@ public class Binding
             throw new BusinessException(am.toString());
         }
 
-        //fire non-immediate field validators
-        getFieldValidatorSupport().fireValidators(getBean()); 
+        getValidatorSupport().fireBeanValidators( getBean() ); 
         
         ValidatorEvent evt = new ValidatorEvent(this);
         validateBean(evt);
@@ -951,15 +950,23 @@ public class Binding
                 } 
                 f.setAccessible(accessible); 
             }
-            else if (f.isAnnotationPresent(com.rameses.rcp.annotations.Validators.class)) {
+            else if (f.isAnnotationPresent(com.rameses.rcp.annotations.FieldValidator.class)) {
                 f.setAccessible(true);
                 try {
-                    Map map = (Map) f.get(getBean());
-                    Object ov = f.getAnnotation(com.rameses.rcp.annotations.Validators.class); 
-                    com.rameses.rcp.annotations.Validators v = (com.rameses.rcp.annotations.Validators)ov; 
-                    getFieldValidatorSupport().add(map, v.immediate()); 
+                    Object obj = f.get(getBean()); 
+                    getValidatorSupport().addFieldValidator( obj ); 
                 } catch(Throwable t) { 
-                    System.out.println("ERROR injecting @Validators caused by " + t.getClass().getName() + ": " + t.getMessage() );
+                    System.out.println("ERROR injecting @FieldValidator caused by " + t.getClass().getName() + ": " + t.getMessage() );
+                } 
+                f.setAccessible(accessible); 
+            } 
+            else if (f.isAnnotationPresent(com.rameses.rcp.annotations.BeanValidator.class)) {
+                f.setAccessible(true);
+                try {
+                    Object obj = f.get(getBean());
+                    getValidatorSupport().addBeanValidator( obj );
+                } catch(Throwable t) { 
+                    System.out.println("ERROR injecting @BeanValidator caused by " + t.getClass().getName() + ": " + t.getMessage() );
                 } 
                 f.setAccessible(accessible); 
             } 
@@ -1064,17 +1071,27 @@ public class Binding
     
     // </editor-fold>
         
-    // <editor-fold defaultstate="collapsed" desc=" FieldValidatorSupport helper methods "> 
+    // <editor-fold defaultstate="collapsed" desc=" ValidatorSupport helper methods "> 
     
-    private FieldValidatorSupport fieldValidatorSupport;
+//    private BeanValidatorSupport beanValidatorSupport;
+//    public BeanValidatorSupport getBeanValidatorSupport() 
+//    {
+//        if (beanValidatorSupport == null) 
+//            beanValidatorSupport = new BeanValidatorSupport(); 
+//        
+//        return beanValidatorSupport; 
+//    } 
     
-    public FieldValidatorSupport getFieldValidatorSupport() 
-    {
-        if (fieldValidatorSupport == null) 
-            fieldValidatorSupport = new FieldValidatorSupport(); 
-        
-        return fieldValidatorSupport; 
-    } 
+    private BindingValidatorSupport validatorSupport;
+
+    public BindingValidatorSupport getValidatorSupport() {
+        if (validatorSupport == null) {
+            validatorSupport = new BindingValidatorSupport();             
+        }
+        return validatorSupport; 
+    }
+    
+    
     
     // </editor-fold>
     

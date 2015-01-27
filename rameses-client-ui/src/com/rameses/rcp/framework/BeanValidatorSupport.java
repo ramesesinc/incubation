@@ -1,5 +1,5 @@
 /*
- * FieldValidatorSupport.java
+ * BeanValidatorSupport.java
  *
  * Created on October 1, 2013, 9:32 AM
  *
@@ -21,12 +21,12 @@ import java.util.Map;
  *
  * @author wflores
  */
-public class FieldValidatorSupport 
+public class BeanValidatorSupport 
 {
     private Map<String,List<Map.Entry>> handlers; 
     private PropertyResolver propertyResolver; 
     
-    public FieldValidatorSupport() {
+    public BeanValidatorSupport() {
         handlers = new HashMap(); 
         propertyResolver = PropertyResolver.getInstance(); 
     }

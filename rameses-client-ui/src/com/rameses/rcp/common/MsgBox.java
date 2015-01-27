@@ -33,7 +33,7 @@ public final class MsgBox {
     }
     
     public static void err(Object message) {
-        Exception e = new IllegalStateException(message.toString());
+        Exception e = new IllegalStateException(message==null? "null": message.toString());
         ClientContext.getCurrentContext().getPlatform().showError(null, e);
     }
     

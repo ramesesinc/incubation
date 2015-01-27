@@ -127,7 +127,7 @@ public class UIInputUtil {
 
         if (forceUpdate || !ValueUtil.isEqual(inputValue, beanValue)) {
             //fire field validators before committing to the bean 
-            binding.getFieldValidatorSupport().fireImmediateValidators(name, inputValue); 
+            binding.getValidatorSupport().fireFieldValidators(name, inputValue);
             //commit to bean
             resolver.setProperty(bean, name, inputValue);
             if (addLog) {

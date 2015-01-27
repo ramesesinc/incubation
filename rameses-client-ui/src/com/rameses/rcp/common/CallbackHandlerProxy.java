@@ -37,7 +37,7 @@ public class CallbackHandlerProxy implements CallbackHandler
     public Object call(Object[] values) {
         return invoke(source, values); 
     }
-    
+        
     public Object invoke(Object source) {
         if (source instanceof CallbackHandler) {
             return ((CallbackHandler) source).call(); 
@@ -61,7 +61,7 @@ public class CallbackHandlerProxy implements CallbackHandler
             return invokeMethod(source, new Object[]{ values });
         } 
     } 
-       
+        
     private Object invokeMethod(Object source, Object[] args) 
     {
         try {
@@ -69,9 +69,15 @@ public class CallbackHandlerProxy implements CallbackHandler
                 throw new NullPointerException("failed to invoke method call caused by source object null");
 
             Object[] params = (args == null? new Object[]{}: args); 
-            Class[] classes = new Class[params.length];
-            if (params.length > 0) classes[0] = Object.class; 
-                
+            Class[] classes = new Class[ params.length ];
+            if ( params.length > 0 ) {
+                if (params[0] instanceof Object[]) {
+                    classes[0] = Object[].class;
+                } else {
+                    classes[0] = Object.class; 
+                }
+            } 
+            
             Class sourceClass = source.getClass();
             Method m = sourceClass.getMethod("call", classes); 
             return m.invoke(source, params); 
