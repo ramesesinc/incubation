@@ -248,7 +248,18 @@ public class XTabbedPane extends JTabbedPane implements UIControl, MouseEventSup
             itemPanel.setProvider(new TabbedItemProvider()); 
             try {
                 noSelectionAllowed = true;
+                
+                char mnemonic = '\u0000'; 
+                Object propval = op.getProperties().get("mnemonic"); 
+                String sval = (propval == null? null: propval.toString()); 
+                if (sval != null && sval.length() > 0) {
+                    mnemonic = propval.toString().charAt(0); 
+                } 
                 super.addTab(op.getCaption(), getOpenerIcon(op), itemPanel); 
+                int tabindex = super.getTabCount(); 
+                if (tabindex > 0) {
+                    super.setMnemonicAt(tabindex-1, mnemonic);
+                } 
             } catch(Throwable t) {
                 //do nothing 
             } finally {

@@ -21,9 +21,18 @@ import java.lang.reflect.Method;
 public class CallbackHandlerProxy implements CallbackHandler 
 {
     private Object source;
+    private boolean handleBreakException;
     
     public CallbackHandlerProxy(Object source) {
         this.source = source; 
+        this.handleBreakException = true; 
+    }
+    
+    public boolean isHandleBreakException() { 
+        return handleBreakException; 
+    }
+    public void setHandleBreakException(boolean handleBreakException) {
+        this.handleBreakException = handleBreakException; 
     }
 
     public Object call() {
@@ -85,8 +94,14 @@ public class CallbackHandlerProxy implements CallbackHandler
         } catch(Throwable t) {
             if (t instanceof Exception) { 
                 Exception e = ExceptionManager.getOriginal((Exception) t); 
-                if (e instanceof IgnoreException || e instanceof BreakException) {
-                    return null; 
+                if (e instanceof IgnoreException) {
+                    if (isHandleBreakException()) return null;
+                    
+                    throw (IgnoreException)e; 
+                } else if (e instanceof BreakException) {
+                    if (isHandleBreakException()) return null;
+                    
+                    throw (BreakException)e; 
                 }
                 
                 if (t instanceof RuntimeException) throw (RuntimeException)t;

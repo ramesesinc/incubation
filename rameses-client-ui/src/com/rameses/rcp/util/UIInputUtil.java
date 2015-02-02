@@ -14,6 +14,7 @@ import com.rameses.rcp.framework.ClientContext;
 import com.rameses.rcp.ui.UIInput;
 import com.rameses.common.PropertyResolver;
 import com.rameses.rcp.framework.ValidatorException;
+import com.rameses.util.BreakException;
 import com.rameses.util.ExceptionManager;
 import com.rameses.util.ValueUtil;
 import java.beans.Beans;
@@ -55,6 +56,10 @@ public class UIInputUtil {
             
             try {
                 updateBeanValueImpl(control, true, true); 
+            } catch(BreakException be) {
+                if (control != null) {
+                    control.refresh(); 
+                }
             } catch(Exception e) { 
                 Exception src = ExceptionManager.getOriginal(e);
                 if ( !ExceptionManager.getInstance().handleError(src) ) {
@@ -79,6 +84,10 @@ public class UIInputUtil {
     public static synchronized void updateBeanValue(UIInput control, boolean addLog, boolean refresh) {
         try {
             updateBeanValueImpl(control, addLog, refresh); 
+        } catch(BreakException be) {
+            if (control != null) {
+                control.refresh(); 
+            }
         } catch(Exception e) {
             Exception src = ExceptionManager.getOriginal(e);
             if ( !ExceptionManager.getInstance().handleError(src) ) {
