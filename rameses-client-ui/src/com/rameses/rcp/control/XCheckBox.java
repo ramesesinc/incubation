@@ -44,6 +44,9 @@ public class XCheckBox extends JCheckBox implements UIInput, ActiveControl, Mous
     private Class valueType = Boolean.class; 
     private Object uncheckValue = false;    
     private Object checkValue = true;
+
+    private int stretchWidth;
+    private int stretchHeight;
     
     public XCheckBox() 
     {
@@ -117,6 +120,16 @@ public class XCheckBox extends JCheckBox implements UIInput, ActiveControl, Mous
         map.put("checkValue", getCheckValue());
         map.put("uncheckValue", getUncheckValue()); 
         return map;
+    }     
+    
+    public int getStretchWidth() { return stretchWidth; } 
+    public void setStretchWidth(int stretchWidth) {
+        this.stretchWidth = stretchWidth; 
+    }
+    
+    public int getStretchHeight() { return stretchHeight; } 
+    public void setStretchHeight(int stretchHeight) {
+        this.stretchHeight = stretchHeight;
     }     
     
     // <editor-fold defaultstate="collapsed" desc="  Getters/Setters  ">

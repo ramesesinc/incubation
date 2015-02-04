@@ -96,6 +96,9 @@ public class XOpenerField extends DefaultTextField implements UIInput,
     
     private Object oldValue;
     private Object value;
+    
+    private int stretchWidth;
+    private int stretchHeight;     
 
     public XOpenerField() {
         super();
@@ -533,6 +536,16 @@ public class XOpenerField extends DefaultTextField implements UIInput,
         map.put("required", isRequired()); 
         return map;
     }     
+    
+    public int getStretchWidth() { return stretchWidth; } 
+    public void setStretchWidth(int stretchWidth) {
+        this.stretchWidth = stretchWidth; 
+    }
+
+    public int getStretchHeight() { return stretchHeight; } 
+    public void setStretchHeight(int stretchHeight) {
+        this.stretchHeight = stretchHeight;
+    }    
 
     // </editor-fold>
     

@@ -55,6 +55,9 @@ public class XRadioList extends RadioListPanel implements UIControl,
     private RadioListModel model;
     private Object modelObject;
     
+    private int stretchWidth;
+    private int stretchHeight;     
+    
     public XRadioList() {
         super(); 
         varName = "item"; 
@@ -183,6 +186,16 @@ public class XRadioList extends RadioListPanel implements UIControl,
     public Map getInfo() { 
         return null; 
     } 
+    
+    public int getStretchWidth() { return stretchWidth; } 
+    public void setStretchWidth(int stretchWidth) {
+        this.stretchWidth = stretchWidth; 
+    }
+
+    public int getStretchHeight() { return stretchHeight; } 
+    public void setStretchHeight(int stretchHeight) {
+        this.stretchHeight = stretchHeight;
+    }    
     
     // </editor-fold>
     

@@ -68,7 +68,10 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
     private ListItem currentItem;    
     private RowChangeNotifier rowChangeNotifier; 
     private ListModelLoader loader;
-        
+
+    private int stretchWidth;
+    private int stretchHeight;
+    
     public XDataTable() 
     {
         init();        
@@ -320,6 +323,16 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
         map.put("required", isRequired()); 
         return map;
     }     
+    
+    public int getStretchWidth() { return stretchWidth; }
+    public void setStretchWidth(int stretchWidth) {
+        this.stretchWidth = stretchWidth; 
+    }
+
+    public int getStretchHeight() { return stretchHeight; }
+    public void setStretchHeight(int stretchHeight) {
+        this.stretchHeight = stretchHeight; 
+    }    
     
     private void applyExpressions() {
         String expr = getReadonlyWhen();

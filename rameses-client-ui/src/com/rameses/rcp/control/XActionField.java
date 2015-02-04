@@ -61,6 +61,9 @@ public class XActionField extends JPanel implements MouseEventSupport.ComponentI
     private String[] depends; 
     private int index;
     
+    private int stretchWidth;
+    private int stretchHeight;
+    
     public XActionField() { 
         initComponent(); 
     } 
@@ -273,6 +276,16 @@ public class XActionField extends JPanel implements MouseEventSupport.ComponentI
     
     public int compareTo(Object o) { 
         return UIControlUtil.compare(this, o);
+    }    
+    
+    public int getStretchWidth() { return stretchWidth; } 
+    public void setStretchWidth(int stretchWidth) {
+        this.stretchWidth = stretchWidth; 
+    }
+    
+    public int getStretchHeight() { return stretchHeight; } 
+    public void setStretchHeight(int stretchHeight) {
+        this.stretchHeight = stretchHeight;
     }    
     
     // </editor-fold>

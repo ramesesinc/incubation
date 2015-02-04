@@ -47,6 +47,9 @@ public class XTabbedList extends JTabbedPane implements UIControl, MouseEventSup
     
     private TabbedListModel model;
     private boolean noSelectionAllowed;
+    
+    private int stretchWidth;
+    private int stretchHeight;     
         
     public XTabbedList() 
     {
@@ -156,6 +159,16 @@ public class XTabbedList extends JTabbedPane implements UIControl, MouseEventSup
         map.put("dynamic", isDynamic()); 
         map.put("disableWhen", getDisableWhen());
         return map;
+    }    
+    
+    public int getStretchWidth() { return stretchWidth; } 
+    public void setStretchWidth(int stretchWidth) {
+        this.stretchWidth = stretchWidth; 
+    }
+
+    public int getStretchHeight() { return stretchHeight; } 
+    public void setStretchHeight(int stretchHeight) {
+        this.stretchHeight = stretchHeight;
     }    
     
     // </editor-fold>

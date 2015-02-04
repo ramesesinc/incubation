@@ -56,6 +56,9 @@ public class XCheckList extends CheckListPanel implements UIControl,
     private RadioListModel model;
     private Object modelObject;
     
+    private int stretchWidth;
+    private int stretchHeight;
+    
     public XCheckList() {
         super(); 
         varName = "item"; 
@@ -197,6 +200,16 @@ public class XCheckList extends CheckListPanel implements UIControl,
     public Map getInfo() { 
         return null; 
     } 
+    
+    public int getStretchWidth() { return stretchWidth; } 
+    public void setStretchWidth(int stretchWidth) {
+        this.stretchWidth = stretchWidth; 
+    }
+    
+    public int getStretchHeight() { return stretchHeight; } 
+    public void setStretchHeight(int stretchHeight) {
+        this.stretchHeight = stretchHeight;
+    }     
     
     // </editor-fold>
     

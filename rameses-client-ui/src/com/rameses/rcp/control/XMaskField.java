@@ -48,6 +48,9 @@ public class XMaskField extends AbstractMaskField implements UIInput, ActiveCont
     private ControlProperty controlProperty;    
     private ActionCommandInvoker actionCommandInvoker;
     
+    private int stretchWidth;
+    private int stretchHeight;     
+    
     public XMaskField() {
         super();
         initComponent();
@@ -158,7 +161,17 @@ public class XMaskField extends AbstractMaskField implements UIInput, ActiveCont
     }
     public void setValue(Object value) {
         super.setValue(value); 
-    }         
+    }      
+    
+    public int getStretchWidth() { return stretchWidth; } 
+    public void setStretchWidth(int stretchWidth) {
+        this.stretchWidth = stretchWidth; 
+    }
+
+    public int getStretchHeight() { return stretchHeight; } 
+    public void setStretchHeight(int stretchHeight) {
+        this.stretchHeight = stretchHeight;
+    }    
     
     // </editor-fold>
     

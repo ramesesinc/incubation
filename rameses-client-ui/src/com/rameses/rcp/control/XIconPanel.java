@@ -48,6 +48,9 @@ public class XIconPanel extends JPanel implements UIControl
     private boolean buttonContentFilled;
     private String captionOrientation = "BOTTOM";
     
+    private int stretchWidth;
+    private int stretchHeight;    
+    
     public XIconPanel() {
         //setBorder(BorderFactory.createEtchedBorder());
         setLayout(new BorderLayout());
@@ -215,6 +218,16 @@ public class XIconPanel extends JPanel implements UIControl
 
     public void setPropertyInfo(PropertySupport.PropertyInfo info) {
     }
+    
+    public int getStretchWidth() { return stretchWidth; } 
+    public void setStretchWidth(int stretchWidth) {
+        this.stretchWidth = stretchWidth; 
+    }
+
+    public int getStretchHeight() { return stretchHeight; } 
+    public void setStretchHeight(int stretchHeight) {
+        this.stretchHeight = stretchHeight;
+    }    
     
     // </editor-fold>
     

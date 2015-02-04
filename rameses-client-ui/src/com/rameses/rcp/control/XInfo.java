@@ -16,6 +16,9 @@ public class XInfo extends JButton implements UIControl, ActionListener
 {
     private Binding binding;
     
+    private int stretchWidth;
+    private int stretchHeight;     
+    
     public XInfo() {
         setOpaque(false);
         setText("Info");
@@ -53,4 +56,14 @@ public class XInfo extends JButton implements UIControl, ActionListener
 
     public void setPropertyInfo(PropertySupport.PropertyInfo info) {
     }     
+    
+    public int getStretchWidth() { return stretchWidth; } 
+    public void setStretchWidth(int stretchWidth) {
+        this.stretchWidth = stretchWidth; 
+    }
+
+    public int getStretchHeight() { return stretchHeight; } 
+    public void setStretchHeight(int stretchHeight) {
+        this.stretchHeight = stretchHeight;
+    }    
 }

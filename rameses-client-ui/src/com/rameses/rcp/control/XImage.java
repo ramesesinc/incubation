@@ -53,6 +53,9 @@ public class XImage extends JLabel implements UIControl, MouseEventSupport.Compo
     private ImageIcon iconResourceObj;
     private ImageIcon imageIcon;
     private Dimension scaleSize;
+    
+    private int stretchWidth;
+    private int stretchHeight;     
         
     public XImage() 
     {
@@ -196,6 +199,16 @@ public class XImage extends JLabel implements UIControl, MouseEventSupport.Compo
         map.put("dynamic", isDynamic()); 
         return map;
     }       
+    
+    public int getStretchWidth() { return stretchWidth; } 
+    public void setStretchWidth(int stretchWidth) {
+        this.stretchWidth = stretchWidth; 
+    }
+
+    public int getStretchHeight() { return stretchHeight; } 
+    public void setStretchHeight(int stretchHeight) {
+        this.stretchHeight = stretchHeight;
+    }    
     
     // </editor-fold>
     

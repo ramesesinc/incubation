@@ -71,6 +71,9 @@ public class XHtmlView extends HtmlViewPane implements UIControl, ActiveControl,
     
     private DocViewModel docModel; 
     private String visibleWhen;
+
+    private int stretchWidth;
+    private int stretchHeight;    
     
     public XHtmlView() {
         super(); 
@@ -168,6 +171,16 @@ public class XHtmlView extends HtmlViewPane implements UIControl, ActiveControl,
     public Map getInfo() { 
         return null; 
     } 
+    
+    public int getStretchWidth() { return stretchWidth; } 
+    public void setStretchWidth(int stretchWidth) {
+        this.stretchWidth = stretchWidth; 
+    }
+
+    public int getStretchHeight() { return stretchHeight; } 
+    public void setStretchHeight(int stretchHeight) {
+        this.stretchHeight = stretchHeight;
+    }    
     
     // </editor-fold>
     

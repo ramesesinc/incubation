@@ -71,6 +71,9 @@ public class XComboBox extends JComboBox implements UIInput, Validatable, Active
     protected ComboBoxModelImpl model;
     private Class fieldType;    
     private boolean updating;    
+    
+    private int stretchWidth;
+    private int stretchHeight;    
         
     public XComboBox() {
         initComponents();
@@ -571,7 +574,17 @@ public class XComboBox extends JComboBox implements UIInput, Validatable, Active
         map.put("required", isRequired());
         map.put("varName", getVarName()); 
         return map;
-    }       
+    }    
+    
+    public int getStretchWidth() { return stretchWidth; } 
+    public void setStretchWidth(int stretchWidth) {
+        this.stretchWidth = stretchWidth; 
+    }
+    
+    public int getStretchHeight() { return stretchHeight; } 
+    public void setStretchHeight(int stretchHeight) {
+        this.stretchHeight = stretchHeight;
+    }     
     
     protected void onItemStateChanged(ItemEvent e) {
         if ( e.getStateChange() == ItemEvent.SELECTED && !updating ) {

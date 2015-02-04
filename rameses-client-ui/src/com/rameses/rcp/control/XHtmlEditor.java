@@ -47,7 +47,9 @@ public class XHtmlEditor extends HtmlEditorPanel implements UIInput, ActiveContr
     private String varName;
     private String itemExpression;
     
-    
+    private int stretchWidth;
+    private int stretchHeight;
+        
     public XHtmlEditor() {
         super(); 
         initComponent();
@@ -189,6 +191,16 @@ public class XHtmlEditor extends HtmlEditorPanel implements UIInput, ActiveContr
     public void setRequestFocus(boolean focus) {
         super.setRequestFocus(focus); 
     }
+    
+    public int getStretchWidth() { return stretchWidth; } 
+    public void setStretchWidth(int stretchWidth) {
+        this.stretchWidth = stretchWidth; 
+    }
+
+    public int getStretchHeight() { return stretchHeight; } 
+    public void setStretchHeight(int stretchHeight) {
+        this.stretchHeight = stretchHeight;
+    }    
     
     // </editor-fold>    
     

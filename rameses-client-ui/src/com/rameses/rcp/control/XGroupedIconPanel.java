@@ -47,6 +47,9 @@ public class XGroupedIconPanel extends JPanel implements UIControl
     private Binding binding;
     private String[] depends;
     private int index;
+
+    private int stretchWidth;
+    private int stretchHeight;    
     
     public XGroupedIconPanel() {
         setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
@@ -71,6 +74,16 @@ public class XGroupedIconPanel extends JPanel implements UIControl
     
     public void setPropertyInfo(PropertySupport.PropertyInfo info) {
     }
+    
+    public int getStretchWidth() { return stretchWidth; } 
+    public void setStretchWidth(int stretchWidth) {
+        this.stretchWidth = stretchWidth; 
+    }
+
+    public int getStretchHeight() { return stretchHeight; } 
+    public void setStretchHeight(int stretchHeight) {
+        this.stretchHeight = stretchHeight;
+    }    
     
     // </editor-fold>
     

@@ -40,6 +40,9 @@ public class XImagePanel extends JPanel implements UIControl, MouseEventSupport.
     private int index; 
     private String iconResource; 
     
+    private int stretchWidth;
+    private int stretchHeight;     
+    
     public XImagePanel() {
         dynamic = true; 
         new MouseEventSupport(this).install(); 
@@ -222,5 +225,15 @@ public class XImagePanel extends JPanel implements UIControl, MouseEventSupport.
             g.drawImage(imageIcon.getImage(), 0, 0, imgWidth, imgHeight, null);
         }        
     }
+    
+    public int getStretchWidth() { return stretchWidth; } 
+    public void setStretchWidth(int stretchWidth) {
+        this.stretchWidth = stretchWidth; 
+    }
+
+    public int getStretchHeight() { return stretchHeight; } 
+    public void setStretchHeight(int stretchHeight) {
+        this.stretchHeight = stretchHeight;
+    }    
 }
 

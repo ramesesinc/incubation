@@ -32,6 +32,9 @@ public class XImageCanvas extends ImageViewPanel implements UIControl, MouseEven
     private int index; 
     
     private boolean dynamic;
+    
+    private int stretchWidth;
+    private int stretchHeight; 
 
     public XImageCanvas() {
     }
@@ -107,6 +110,16 @@ public class XImageCanvas extends ImageViewPanel implements UIControl, MouseEven
     public int compareTo(Object o) {
         return UIControlUtil.compare(this, o);
     }  
+    
+    public int getStretchWidth() { return stretchWidth; } 
+    public void setStretchWidth(int stretchWidth) {
+        this.stretchWidth = stretchWidth; 
+    }
+
+    public int getStretchHeight() { return stretchHeight; } 
+    public void setStretchHeight(int stretchHeight) {
+        this.stretchHeight = stretchHeight;
+    }    
     
     // </editor-fold>
     

@@ -58,6 +58,8 @@ public class XImageViewer extends JPanel implements UIControl, MouseEventSupport
     private double scale = 1.0;
     private AffineTransform at;
     
+    private int stretchWidth;
+    private int stretchHeight;     
     
     public XImageViewer() {
         if( !Beans.isDesignTime() ) {
@@ -129,6 +131,16 @@ public class XImageViewer extends JPanel implements UIControl, MouseEventSupport
     public Map getInfo() { 
         return null; 
     }      
+    
+    public int getStretchWidth() { return stretchWidth; } 
+    public void setStretchWidth(int stretchWidth) {
+        this.stretchWidth = stretchWidth; 
+    }
+
+    public int getStretchHeight() { return stretchHeight; } 
+    public void setStretchHeight(int stretchHeight) {
+        this.stretchHeight = stretchHeight;
+    }    
     
     //<editor-fold defaultstate="collapsed" desc="  helper method(s)  ">
     private Image getImage() {

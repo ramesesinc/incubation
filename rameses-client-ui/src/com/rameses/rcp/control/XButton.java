@@ -59,6 +59,9 @@ public class XButton extends JButton implements UICommand, ActionListener,
     private String accelerator;
     private KeyStroke acceleratorKS;
     private MouseEventSupport mouseSupport; 
+    
+    private int stretchWidth;
+    private int stretchHeight;
         
     public XButton() {
         setOpaque(false);
@@ -312,6 +315,16 @@ public class XButton extends JButton implements UICommand, ActionListener,
         map.put("target", getTarget());
         map.put("visibleWhen", getVisibleWhen()); 
         return map;
+    }     
+    
+    public int getStretchWidth() { return stretchWidth; } 
+    public void setStretchWidth(int stretchWidth) {
+        this.stretchWidth = stretchWidth; 
+    }
+    
+    public int getStretchHeight() { return stretchHeight; } 
+    public void setStretchHeight(int stretchHeight) {
+        this.stretchHeight = stretchHeight;
     }     
     
     // </editor-fold>

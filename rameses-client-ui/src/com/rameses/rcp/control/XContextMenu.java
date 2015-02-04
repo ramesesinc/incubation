@@ -46,6 +46,8 @@ public class XContextMenu extends JPanel implements UIControl, EventListener
     private JPopupMenu popupMenu;
     private Component target;
     
+    private int stretchWidth;
+    private int stretchHeight;    
     
     public XContextMenu() {
         if ( Beans.isDesignTime() ) {
@@ -175,6 +177,16 @@ public class XContextMenu extends JPanel implements UIControl, EventListener
     
     public void setPropertyInfo(PropertySupport.PropertyInfo info) {
     }
+    
+    public int getStretchWidth() { return stretchWidth; } 
+    public void setStretchWidth(int stretchWidth) {
+            this.stretchWidth = stretchWidth; 
+    }
+
+    public int getStretchHeight() { return stretchHeight; } 
+    public void setStretchHeight(int stretchHeight) {
+            this.stretchHeight = stretchHeight;
+    }     
     
     // </editor-fold>
     

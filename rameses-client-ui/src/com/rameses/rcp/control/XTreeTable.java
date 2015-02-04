@@ -51,7 +51,8 @@ public class XTreeTable extends JPanel implements UIOutput, TreeTableListener, F
     private boolean showRowHeader;
     
     private boolean loaded;
-    
+    private int stretchWidth;
+    private int stretchHeight;     
     
     public XTreeTable() {
         init();
@@ -199,7 +200,17 @@ public class XTreeTable extends JPanel implements UIOutput, TreeTableListener, F
     
     public int compareTo(Object o) {
         return UIControlUtil.compare(this, o);
+    } 
+    
+    public int getStretchWidth() { return stretchWidth; } 
+    public void setStretchWidth(int stretchWidth) {
+        this.stretchWidth = stretchWidth; 
     }
+
+    public int getStretchHeight() { return stretchHeight; } 
+    public void setStretchHeight(int stretchHeight) {
+        this.stretchHeight = stretchHeight;
+    }    
     
     //</editor-fold>
     

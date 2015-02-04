@@ -50,6 +50,9 @@ public class XFormulaEditor extends JTextPane implements UIInput, MouseEventSupp
     private List<String> keywords;
     private FormulaDocument document;
     private FormulaEditorModel model;
+    
+    private int stretchWidth;
+    private int stretchHeight;     
         
     public XFormulaEditor() 
     {
@@ -239,6 +242,16 @@ public class XFormulaEditor extends JTextPane implements UIInput, MouseEventSupp
         map.put("keywordItems", getKeywordItems());
         map.put("nullWhenEmpty", isNullWhenEmpty()); 
         return map;
+    }    
+    
+    public int getStretchWidth() { return stretchWidth; } 
+    public void setStretchWidth(int stretchWidth) {
+        this.stretchWidth = stretchWidth; 
+    }
+
+    public int getStretchHeight() { return stretchHeight; } 
+    public void setStretchHeight(int stretchHeight) {
+        this.stretchHeight = stretchHeight;
     }    
     
     // </editor-fold>

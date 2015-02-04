@@ -99,6 +99,9 @@ public class FormPanel extends JPanel implements UIComposite, ControlContainer, 
     
     private FormPanelModel model;
     private FormPanelModel.Listener  defaultListener;
+    
+    private int stretchWidth;
+    private int stretchHeight;     
         
     public FormPanel() 
     {
@@ -266,6 +269,17 @@ public class FormPanel extends JPanel implements UIComposite, ControlContainer, 
         }
         return null;
     }
+    
+    public int getStretchWidth() { return stretchWidth; } 
+    public void setStretchWidth(int stretchWidth) {
+        this.stretchWidth = stretchWidth; 
+    }
+    
+    public int getStretchHeight() { return stretchHeight; } 
+    public void setStretchHeight(int stretchHeight) {
+        this.stretchHeight = stretchHeight;
+    }
+    
     //</editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc="  refresh/load  ">

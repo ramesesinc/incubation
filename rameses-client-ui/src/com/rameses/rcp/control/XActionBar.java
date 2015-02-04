@@ -89,6 +89,10 @@ public class XActionBar extends JPanel implements UIComposite, MouseEventSupport
     private boolean buttonAsHyperlink;
     private boolean showCaptions = true;
     
+    private int stretchWidth;
+    private int stretchHeight;
+
+    
     public XActionBar() {
         borderProxy.setBorder(new XToolbarBorder());
         super.setBorder(borderProxy);
@@ -357,7 +361,7 @@ public class XActionBar extends JPanel implements UIComposite, MouseEventSupport
     
     // </editor-fold>
     
-    // <editor-fold defaultstate="collapsed" desc="  Getters/Setters  ">
+    // <editor-fold defaultstate="collapsed" desc=" Getters/Setters ">
     
     public boolean isHideOnEmpty() { return hideOnEmpty; } 
     public void setHideOnEmpty(boolean hideOnEmpty) {
@@ -529,6 +533,16 @@ public class XActionBar extends JPanel implements UIComposite, MouseEventSupport
     }
     
     public void setPropertyInfo(PropertySupport.PropertyInfo info) {
+    }
+        
+    public int getStretchWidth() { return stretchWidth; } 
+    public void setStretchWidth(int stretchWidth) {
+        this.stretchWidth = stretchWidth; 
+    }
+    
+    public int getStretchHeight() { return stretchHeight; } 
+    public void setStretchHeight(int stretchHeight) {
+        this.stretchHeight = stretchHeight;
     }
     
     // </editor-fold>

@@ -51,6 +51,8 @@ public class XTileView extends TilePanel implements UIControl, MouseEventSupport
     
     private String target;
     private String formName;
+    private int stretchWidth;
+    private int stretchHeight;     
             
     public XTileView() {
         super();
@@ -88,6 +90,16 @@ public class XTileView extends TilePanel implements UIControl, MouseEventSupport
         map.put("showCaptions", isShowCaptions()); 
         return map;
     }     
+    
+    public int getStretchWidth() { return stretchWidth; } 
+    public void setStretchWidth(int stretchWidth) {
+        this.stretchWidth = stretchWidth; 
+    }
+
+    public int getStretchHeight() { return stretchHeight; } 
+    public void setStretchHeight(int stretchHeight) {
+        this.stretchHeight = stretchHeight;
+    }    
 
     
     // <editor-fold defaultstate="collapsed" desc="  helper methods  ">

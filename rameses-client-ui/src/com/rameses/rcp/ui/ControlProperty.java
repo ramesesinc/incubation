@@ -33,7 +33,7 @@ public class ControlProperty
     private boolean showCaption = true;
     private Insets cellPadding = new Insets(0,0,0,0);
     private Font captionFont;
-    
+        
     public void addPropertyChangeListener(PropertyChangeListener listener) {
         if (listener == null) return;
         
@@ -112,5 +112,5 @@ public class ControlProperty
         Insets oldvalue = this.cellPadding;
         this.cellPadding = cellPadding;
         support.firePropertyChange("cellPadding", oldvalue, this.cellPadding);
-    }     
+    } 
 }

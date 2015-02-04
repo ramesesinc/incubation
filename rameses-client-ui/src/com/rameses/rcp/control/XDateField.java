@@ -52,6 +52,9 @@ public class XDateField extends AbstractDateField implements UIInput, ActiveCont
     private ControlProperty controlProperty;
     private ActionMessage actionMessage;
     
+    private int stretchWidth;
+    private int stretchHeight;    
+    
     public XDateField() {
         super();
         initComponent();
@@ -162,6 +165,16 @@ public class XDateField extends AbstractDateField implements UIInput, ActiveCont
     public void setValue(Object value) {
         super.setValue(value);
     }
+    
+    public int getStretchWidth() { return stretchWidth; } 
+    public void setStretchWidth(int stretchWidth) {
+        this.stretchWidth = stretchWidth; 
+    }
+
+    public int getStretchHeight() { return stretchHeight; } 
+    public void setStretchHeight(int stretchHeight) {
+        this.stretchHeight = stretchHeight;
+    }    
     
     // </editor-fold>
     

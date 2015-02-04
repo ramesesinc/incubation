@@ -36,6 +36,9 @@ public class XWebBrowser extends JEditorPane implements UIControl
     private int index;
     private boolean refreshed;
     
+    private int stretchWidth;
+    private int stretchHeight;     
+    
     private WebBrowserModel model;
         
     public XWebBrowser() {
@@ -159,6 +162,16 @@ public class XWebBrowser extends JEditorPane implements UIControl
     public int compareTo(Object o) {
         return UIControlUtil.compare(this, o);
     }
+    
+    public int getStretchWidth() { return stretchWidth; } 
+    public void setStretchWidth(int stretchWidth) {
+        this.stretchWidth = stretchWidth; 
+    }
+
+    public int getStretchHeight() { return stretchHeight; } 
+    public void setStretchHeight(int stretchHeight) {
+        this.stretchHeight = stretchHeight;
+    }    
 
     // <editor-fold defaultstate="collapsed" desc="  Getters/Setters  ">
     

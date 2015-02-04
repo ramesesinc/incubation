@@ -45,6 +45,9 @@ public class XRadio extends JRadioButton implements UIInput, ItemListener,
     private ButtonGroup buttonGroup;
     private ControlProperty property = new ControlProperty();
     
+    private int stretchWidth;
+    private int stretchHeight;     
+    
     public XRadio() 
     {
         addItemListener(this);
@@ -101,6 +104,16 @@ public class XRadio extends JRadioButton implements UIInput, ItemListener,
             UIInputUtil.updateBeanValue(this);
         }
     }
+    
+    public int getStretchWidth() { return stretchWidth; } 
+    public void setStretchWidth(int stretchWidth) {
+        this.stretchWidth = stretchWidth; 
+    }
+
+    public int getStretchHeight() { return stretchHeight; } 
+    public void setStretchHeight(int stretchHeight) {
+        this.stretchHeight = stretchHeight;
+    }    
     
     // <editor-fold defaultstate="collapsed" desc="  Getters/Setters  ">
     

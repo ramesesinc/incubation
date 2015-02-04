@@ -95,6 +95,9 @@ public class XSuggest extends IconedTextField implements MouseEventSupport.Compo
     private boolean enable_search;
     private String currentTextValue;
     
+    private int stretchWidth;
+    private int stretchHeight;     
+    
     public XSuggest() {
         super("com/rameses/rcp/icons/dropdown.png");
         initComponent(); 
@@ -346,6 +349,16 @@ public class XSuggest extends IconedTextField implements MouseEventSupport.Compo
     public int compareTo(Object o) {
         return UIControlUtil.compare(this, o);
     } 
+    
+    public int getStretchWidth() { return stretchWidth; } 
+    public void setStretchWidth(int stretchWidth) {
+        this.stretchWidth = stretchWidth; 
+    }
+
+    public int getStretchHeight() { return stretchHeight; } 
+    public void setStretchHeight(int stretchHeight) {
+        this.stretchHeight = stretchHeight;
+    }
     
     private Object createExpressionBean(Object itemBean) { 
         ExprBeanSupport beanSupport = new ExprBeanSupport(binding.getBean());

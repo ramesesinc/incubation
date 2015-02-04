@@ -11,6 +11,7 @@ import com.rameses.rcp.constant.UIConstants;
 import com.rameses.rcp.support.FontSupport;
 import com.rameses.rcp.ui.ActiveControl;
 import com.rameses.rcp.ui.ControlProperty;
+import com.rameses.rcp.ui.UIControl;
 import com.rameses.util.ValueUtil;
 import java.awt.Component;
 import java.awt.Container;
@@ -18,7 +19,6 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Insets;
 import java.awt.LayoutManager;
-import java.awt.Rectangle;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.beans.PropertyChangeEvent;
@@ -35,18 +35,21 @@ import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 
 
-public class ItemPanel extends JPanel {
+public class ItemPanel extends JPanel implements FormItemProperty {
     
     /**
      * wrapper is usually JScrollPane
      */
-    private Component editorWrapper;
-    private Component editor;
     private XLabel label;
+    private XFormPanel formPanel;    
     private ControlProperty property;
-    private XFormPanel formPanel;
-    private Insets padding;
+    private Component editorWrapper;
+    private Component editor; 
+    private Insets padding; 
+    private UIModel uimodel;
     
+    private String captionVAlignment = UIConstants.TOP; 
+    private String captionHAlignment = UIConstants.LEFT;
     
     public ItemPanel(XFormPanel parent, Component editor) {
         JScrollPane container = null;
@@ -61,13 +64,14 @@ public class ItemPanel extends JPanel {
         initComponents(parent, editor, container);
     }
     
-    // <editor-fold defaultstate="collapsed" desc="  initComponents  ">
+    // <editor-fold defaultstate="collapsed" desc=" initComponents ">
     
     private void initComponents(XFormPanel parent, Component editor, Component container) 
     {
         this.formPanel = parent;
         this.editor = editor;
         this.editorWrapper = container;
+        this.uimodel = new UIModel();
         
         if( container instanceof JScrollPane && !container.isPreferredSizeSet() ) {
             JScrollPane jsp = (JScrollPane) container;
@@ -84,7 +88,7 @@ public class ItemPanel extends JPanel {
                         
             container.setPreferredSize(d);
         }
-        
+
         ActiveControl con = (ActiveControl) editor;
         property = con.getControlProperty();
         
@@ -135,8 +139,38 @@ public class ItemPanel extends JPanel {
                 ItemPanel.this.setVisible(true);
             }
         });
+        
+        //super.setBorder(BorderFactory.createLineBorder(Color.RED)); 
     }
+    
     //</editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" helper methods ">
+    
+    public void updateLabelComponent() {
+        if (label == null) return;
+
+        label.setForeground( formPanel.getCaptionForeground() ); 
+        label.setPadding( formPanel.getCaptionPadding() );
+        label.setBorder( formPanel.getCaptionBorder() );         
+        label.setAddCaptionColon( formPanel.isAddCaptionColon() );         
+        label.setCaptionWidth( formPanel.getCaptionWidth() ); 
+    }
+    
+    public void updateLabelFont( Font font ) {
+        if (label == null || font == null ) return; 
+        
+        label.setFont( font ); 
+    }
+    public void updateLabelFont( FontSupport fs, String style ) {
+        if (label == null || fs == null || style == null) return; 
+        
+        fs.applyStyles(label, style); 
+    }
+    
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" Getters/Setters ">
     
     public boolean match(Component editor) {
         if (editor == null) return false;
@@ -180,9 +214,23 @@ public class ItemPanel extends JPanel {
         insets.right = i.right;
         
         return insets;
-    }
+    } 
+        
+    // </editor-fold>
     
-    // <editor-fold defaultstate="collapsed" desc=" ControlPropetyListener (Class) ">
+    // <editor-fold defaultstate="collapsed" desc=" FormItemProperty ">
+    
+    public int getStretchWidth() {
+        return uimodel.getStretchWidth(); 
+    }
+
+    public int getStretchHeight() {
+        return uimodel.getStretchHeight(); 
+    }    
+    
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" ControlPropetyListener ">
     
     private class ControlPropetyListener implements PropertyChangeListener 
     {
@@ -246,27 +294,164 @@ public class ItemPanel extends JPanel {
     
     // </editor-fold>
     
-    // <editor-fold defaultstate="collapsed" desc=" ItemPanelLayout (Class) ">
+    // <editor-fold defaultstate="collapsed" desc=" UIModel ">
+    
+    private class UIModel {
+        Component label;
+        Component editor;
+        UIControl uicontrol;
+        ControlProperty property;
+        
+        void setEditor(Component editor) {
+            this.editor = editor;
+            this.uicontrol = null; 
+            this.property = null;
+            
+            Component comp = editor; 
+            if (editor instanceof JScrollPane) { 
+                JScrollPane jsp = (JScrollPane)editor; 
+                comp = jsp.getViewport().getView(); 
+            }
+            if (comp instanceof UIControl) { 
+                uicontrol = (UIControl)comp; 
+            } 
+            if (comp instanceof ActiveControl) {
+                property = ((ActiveControl)comp).getControlProperty(); 
+            }
+        }
+        
+        void setLabel(Component label) {
+            this.label = label; 
+        }
+        
+        boolean isEditorVisible() {
+            return (editor != null && editor.isVisible());
+        } 
+        Dimension getEditorPreferredSize() {
+            return (editor == null? new Dimension(0,0): editor.getPreferredSize()); 
+        } 
+        int getStretchWidth() {
+            int sw = 0;
+            if (editor != null && editor.getPreferredSize().width == 0) {
+                sw = 100; 
+            } else {
+                sw = (uicontrol == null? 0: uicontrol.getStretchWidth()); 
+                if (sw > 100) { sw = 100; } 
+            }
+            return sw; 
+        }
+        int getStretchHeight() {
+            return (uicontrol == null? 0: uicontrol.getStretchHeight());
+        }     
+                
+        boolean isShowCaption() {
+            return (property == null? false: property.isShowCaption());
+        }       
+        boolean isLabelVisible() {
+            return (label != null && label.isVisible() && isShowCaption()); 
+        } 
+        int getPreferredCaptionWidth() {
+            int cw = (property == null? 0: property.getCaptionWidth()); 
+            if (cw <= 0) {
+                cw = (formPanel == null? 0: formPanel.getCaptionWidth());
+            }  
+            return cw; 
+        } 
+        
+        void hideLabel() {
+            if (label != null) { 
+                label.setBounds(0, 0, 0, 0); 
+            } 
+        }
+        
+        void updateLabelStyles() {
+            if (label == null || formPanel == null) return; 
+            
+            if (label instanceof JLabel) {
+                JLabel jlabel = (JLabel)label;
+                //vertical alignment
+                String valign = formPanel.getCaptionVAlignment();
+                if ( UIConstants.CENTER.equals(valign) ) { 
+                    jlabel.setVerticalAlignment(SwingConstants.CENTER); 
+                } else if ( UIConstants.BOTTOM.equals(valign) ) { 
+                    jlabel.setVerticalAlignment(SwingConstants.BOTTOM); 
+                } else { 
+                    jlabel.setVerticalAlignment(SwingConstants.TOP); 
+                } 
+                //horizontal alignment
+                String halign = formPanel.getCaptionHAlignment();
+                if ( UIConstants.CENTER.equals(halign) ) { 
+                    jlabel.setHorizontalAlignment(SwingConstants.CENTER);
+                } else if ( UIConstants.RIGHT.equals(halign) ) { 
+                    jlabel.setHorizontalAlignment(SwingConstants.RIGHT);
+                } else { 
+                    jlabel.setHorizontalAlignment(SwingConstants.LEFT);
+                } 
+            }
+            if ( label instanceof XLabel ) {
+                XLabel xlabel = (XLabel)label;
+                Insets captionPadding = formPanel.getCaptionPadding(); 
+                if ( captionPadding != null ) { 
+                    xlabel.setPadding(captionPadding); 
+                } 
+            } 
+        } 
+    } 
+    
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" ItemPanelLayout ">
     
     private class ItemPanelLayout implements LayoutManager {
         
-        private Component label;
-        private Component editor;
-        private ControlProperty property;
+        Component label;
+        Component editor;
+        ControlProperty property;
         
         ItemPanelLayout(ControlProperty property) {
             this.property = property;
         }
         
         public void addLayoutComponent(String name, Component comp) {
-            if ("label".equals(name)) label = comp;
-            else if ("editor".equals(name)) editor = comp;
+            if ("label".equals(name)) {
+                label = comp;
+                uimodel.setLabel(label);
+            } else if ("editor".equals(name)) {
+                editor = comp;
+                uimodel.setEditor(editor);
+            }
         }
         
         public void removeLayoutComponent(Component comp) {
-            if (comp == null) ;
-            else if (label == comp) label = comp;
-            else if (editor == comp) editor = comp;
+            if (comp == null); 
+            else if (label == comp) { 
+                label = null; 
+                uimodel.setLabel(null);
+            } else if (editor == comp) {
+                editor = null;
+                uimodel.setEditor(null); 
+            }
+        }
+        
+        public Dimension getLayoutSize(Container parent) {
+            synchronized (parent.getTreeLock()) {
+                Dimension dim = new Dimension(0,0);
+                String orient = formPanel.getCaptionOrientation();
+                if ( UIConstants.LEFT.equals(orient) ) {
+                    dim = getLayoutSizeHorizontal(parent); 
+                } else if ( UIConstants.TOP.equals(orient) ) {
+                    dim = getLayoutSizeVertical(parent); 
+                } else if ( UIConstants.BOTTOM.equals(orient) ) {
+                    dim = getLayoutSizeVertical(parent); 
+                } else {
+                    dim = getLayoutSizeHorizontal(parent); 
+                }
+                
+                Insets margin = parent.getInsets();
+                int w = (dim.width + margin.left + margin.right);
+                int h = (dim.height + margin.top + margin.bottom);
+                return new Dimension(w, h);
+            }
         }
         
         public Dimension preferredLayoutSize(Container parent) {
@@ -280,150 +465,120 @@ public class ItemPanel extends JPanel {
         
         public void layoutContainer(Container parent) {
             synchronized (parent.getTreeLock()) {
-                Insets margin = parent.getInsets();
-                int x = margin.left;
-                int y = margin.top;
-                int w = parent.getWidth() - (margin.left + margin.right);
-                int h = parent.getHeight() - (margin.top + margin.bottom);
-                int captionWidth = getPreferredCaptionWidth();
                 String orient = formPanel.getCaptionOrientation();
-                
-                if ( UIConstants.LEFT.equals(orient) || UIConstants.TOP.equals(orient) ) {
-                    Rectangle rec = layoutLabel(x, y, w, h, captionWidth);
-                    layoutEditor(rec.x, rec.y, rec.width, rec.height);
+                if ( UIConstants.LEFT.equals(orient) ) {
+                    layoutContainerHorizontal(parent); 
+                } else if ( UIConstants.TOP.equals(orient) ) {
+                    layoutContainerVertical(parent, false); 
+                } else if ( UIConstants.BOTTOM.equals(orient) ) {
+                    layoutContainerVertical(parent, true); 
                 } else {
-                    Rectangle rec = layoutEditor(x, y, w, h);
-                    layoutLabel(rec.x, rec.y, rec.width, rec.height, captionWidth);
+                    layoutContainerHorizontal(parent); 
                 }
             }
         }
-        
-        //<editor-fold defaultstate="collapsed" desc="  layout helper  ">
-        private Rectangle layoutLabel(int x, int y, int w, int h, int captionWidth) {
-            if (label != null && isShowCaption()) {
-                Dimension dim = label.getPreferredSize();
-                String captionOrientation = formPanel.getCaptionOrientation();
                 
-                int cw = captionWidth;
-                int ch = h;
+        private Dimension getLayoutSizeHorizontal(Container parent) {
+            int w=0, h=0;
+            if ( uimodel.isEditorVisible() ) {
+                if ( uimodel.isLabelVisible() ) {
+                    uimodel.updateLabelStyles(); 
+                    Dimension dim = label.getPreferredSize(); 
+                    w = uimodel.getPreferredCaptionWidth(); 
+                    h = dim.height; 
+                } 
                 
-                if ( (UIConstants.TOP.equals(captionOrientation) || UIConstants.BOTTOM.equals(captionOrientation)) && editor != null ) {
-                    cw = editor.getPreferredSize().width;
-                    ch = dim.height;
-                } else if (cw <= 0)
-                    cw = dim.width;
+                Dimension dim = editor.getPreferredSize(); 
+                h = Math.max(h, dim.height); 
+                w += dim.width;                 
+            } 
+            return new Dimension(w, h);
+        }
+        private Dimension getLayoutSizeVertical(Container parent) {
+            int w=0, h=0;
+            if ( uimodel.isEditorVisible() ) {
+                if ( uimodel.isLabelVisible() ) {
+                    uimodel.updateLabelStyles(); 
+                    Dimension dim = label.getPreferredSize(); 
+                    w = Math.max(uimodel.getPreferredCaptionWidth(), 0); 
+                    h = dim.height; 
+                } 
                 
-                label.setBounds(x, y, cw, ch);
-                
-                if ( UIConstants.TOP.equals(captionOrientation) ) {
-                    y += ch;
-                    h -= ch;
-                } else {
+                Dimension dim = editor.getPreferredSize(); 
+                w = Math.max(w, dim.width); 
+                h += dim.height; 
+            } 
+            return new Dimension(w, h);
+        }
+        private void layoutContainerHorizontal(Container parent) {
+            Insets margin = parent.getInsets();
+            int x = margin.left;
+            int y = margin.top;
+            int h = parent.getHeight() - (margin.top + margin.bottom);
+            
+            if ( uimodel.isEditorVisible() ) {
+                int cw = uimodel.getPreferredCaptionWidth();
+                if ( uimodel.isLabelVisible() ) {
+                    if (cw <= 0);
+                    
+                    label.setBounds(x, y, cw, h); 
                     x += cw;
-                    w -= cw;
                 }
-            }
-            return new Rectangle(x, y, w, h);
-        }
-        
-        private Rectangle layoutEditor(int x, int y, int w, int h) {
-            if (editor != null) {
-                Dimension dim = editor.getPreferredSize();
-                String captionOrientation = formPanel.getCaptionOrientation();
+
+                cw = Math.max(parent.getWidth()-x-margin.right, 0); 
+                int dw = editor.getPreferredSize().width; 
+                if (dw > 0 && cw < dw) { cw = dw; }
                 
-                int cw = dim.width;
-                if ( cw > w || cw <= 0 ) {
-                    cw = w;
+                editor.setBounds(x, y, cw, h); 
+            } 
+        }
+        private void layoutContainerVertical(Container parent, boolean reverse) {
+            Insets margin = parent.getInsets();
+            int x = margin.left;
+            int y = margin.top;
+            int w = parent.getWidth() - (margin.left + margin.right);
+            
+            if ( uimodel.isEditorVisible() ) {
+                Dimension labeldim = new Dimension(0, 0);
+                if ( uimodel.isLabelVisible() ) {
+                    int cw = uimodel.getPreferredCaptionWidth();
+                    if (cw <= 0) cw = w; 
+
+                    Dimension dim = label.getPreferredSize();
+                    labeldim = new Dimension(cw, dim.height); 
                 }
-                editor.setBounds(x, y, cw, dim.height);
-                if ( UIConstants.BOTTOM.equals(captionOrientation) ) {
+                
+                if ( reverse ) {
+                    Dimension dim = editor.getPreferredSize(); 
+                    int sw = uimodel.getStretchWidth(); 
+                    int dw = dim.width; 
+                    if (sw > 0) { dw = w; } 
+                    if (dw > 0 && dw < w) { w = dw; } 
+                    
+                    editor.setBounds(x, y, w, dim.height); 
                     y += dim.height;
-                    h -= dim.height;
-                } else {
-                    x += cw;
-                    w -= cw;
-                }
-            }
-            return new Rectangle(x, y, w, h);
-        }
-        //</editor-fold>
-        
-        public Dimension getLayoutSize(Container parent) {
-            synchronized (parent.getTreeLock()) {
-                int w=0, h=0;
-                int captionWidth = getPreferredCaptionWidth();
-                String orient = formPanel.getCaptionOrientation();
-                
-                if (label != null) {
-                    if ( isShowCaption() ) {
-                        applyCaptionStyles((JLabel) label);
-                        Dimension dim = label.getPreferredSize();
-                        
-                        if ( UIConstants.TOP.equals(orient) || UIConstants.BOTTOM.equals(orient) ) {
-                            h += dim.height;
-                            w = Math.max(w, dim.width);
-                        } else {
-                            int cw = captionWidth;
-                            if (cw <= 0) cw = dim.width;
-                            w += cw;
-                            h = Math.max(h, dim.height);
-                        }
-                        
-                        label.setVisible(true);
-                    } else {
-                        label.setVisible(false);
+                    
+                    if ( uimodel.isLabelVisible() ) {
+                        label.setBounds(x, y, labeldim.width, labeldim.height); 
                     }
-                }
-                
-                if (editor != null) {
-                    Dimension dim = editor.getPreferredSize();
-                    if ( UIConstants.TOP.equals(orient) || UIConstants.BOTTOM.equals(orient) ) {
-                        h += dim.height;
-                        w = Math.max(w, dim.width);
-                    } else {
-                        w += dim.width;
-                        h = Math.max(h, dim.height);
-                    }
-                }
-                
-                Insets margin = parent.getInsets();
-                w += (margin.left + margin.right);
-                h += (margin.top + margin.bottom);
-                return new Dimension(w, h);
+                    
+                } else { 
+                    if ( uimodel.isLabelVisible() ) { 
+                        label.setBounds(x, y, labeldim.width, labeldim.height); 
+                        y += labeldim.height; 
+                    } 
+                    
+                    Dimension dim = editor.getPreferredSize(); 
+                    int sw = uimodel.getStretchWidth(); 
+                    int dw = dim.width; 
+                    if (sw > 0) { dw = w; } 
+                    if (dw > 0 && dw < w) { w = dw; } 
+                    
+                    int ch = Math.max(parent.getHeight()-y-margin.bottom, 0);                     
+                    editor.setBounds(x, y, w, ch); 
+                } 
             }
-        }
-        
-        private void applyCaptionStyles(JLabel label) {
-            //vertical alignment
-            String valign = formPanel.getCaptionVAlignment();
-            if ( UIConstants.CENTER.equals(valign) )
-                label.setVerticalAlignment(SwingConstants.CENTER);
-            else if ( UIConstants.BOTTOM.equals(valign) )
-                label.setVerticalAlignment(SwingConstants.BOTTOM);
-            else
-                label.setVerticalAlignment(SwingConstants.TOP);
-            
-            //horizontal alignment
-            String halign = formPanel.getCaptionHAlignment();
-            if ( UIConstants.CENTER.equals(halign) )
-                label.setHorizontalAlignment(SwingConstants.CENTER);
-            else if ( UIConstants.RIGHT.equals(halign) )
-                label.setHorizontalAlignment(SwingConstants.RIGHT);
-            else
-                label.setHorizontalAlignment(SwingConstants.LEFT);
-            
-            Insets captionPadding = formPanel.getCaptionPadding();
-            if ( captionPadding != null )
-                ((XLabel) label).setPadding(captionPadding);
-        }
-        
-        private int getPreferredCaptionWidth() {
-            return property.getCaptionWidth() <= 0? formPanel.getCaptionWidth(): property.getCaptionWidth();
-        }
-        
-        private boolean isShowCaption() {
-            return property.isShowCaption();
-        }
+        }      
     }
     
     // </editor-fold>

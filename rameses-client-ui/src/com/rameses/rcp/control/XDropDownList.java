@@ -83,6 +83,9 @@ public class XDropDownList extends JButton implements UIControl, ActiveControl {
     private boolean hideOnEmptyResult;
     private LabelCounter labelCounter;
     private UIVisibility visibility;
+
+    private int stretchWidth;
+    private int stretchHeight;    
     
     public XDropDownList() {
         initComponent();
@@ -346,6 +349,16 @@ public class XDropDownList extends JButton implements UIControl, ActiveControl {
         beanSupport.setItem(getVarName(), itemBean);
         return beanSupport.createProxy();
     }
+    
+    public int getStretchWidth() { return stretchWidth; } 
+    public void setStretchWidth(int stretchWidth) {
+        this.stretchWidth = stretchWidth; 
+    }
+
+    public int getStretchHeight() { return stretchHeight; } 
+    public void setStretchHeight(int stretchHeight) {
+        this.stretchHeight = stretchHeight;
+    }   
 
     // </editor-fold>
     

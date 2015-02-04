@@ -35,7 +35,8 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Insets;
 import java.awt.LayoutManager;
-import java.awt.LayoutManager2;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -92,7 +93,7 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
     
     private PropertyChangeSupport propertySupport; 
     private List<UIControl> nonDynamicControls = new ArrayList();
-    
+        
     //-- internal flags
     //used to determine dynamically and non-dynamically added controls
     private boolean loaded;
@@ -116,6 +117,9 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
     private FormPanelModel.Listener  defaultListener;
     private JLabel lblFont = new JLabel();
         
+    private int stretchWidth;
+    private int stretchHeight;
+    
     public XFormPanel() { 
         initComponent(); 
     } 
@@ -701,6 +705,28 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
         throw new IllegalStateException("The form controls must be an instance of FormControl or Map"); 
     }
     
+    private String lookupAlignment( String alignment, String defaultvalue, boolean vertical ) {
+        if ( vertical ) {
+            String str = (alignment==null? defaultvalue: alignment).toLowerCase(); 
+            if (str.equals("top")) {
+                return UIConstants.TOP; 
+            } else if (str.equals("bottom")) {
+                return UIConstants.BOTTOM; 
+            } else {
+                return UIConstants.CENTER; 
+            }
+        } else {
+            String str = (alignment==null? defaultvalue: alignment).toLowerCase(); 
+            if (str.equals("right")) {
+                return UIConstants.RIGHT; 
+            } else if (str.equals("center")) {
+                return UIConstants.CENTER; 
+            } else {
+                return UIConstants.LEFT; 
+            }
+        }
+    }
+    
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" Getters/Setters ">
@@ -745,42 +771,47 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
     }
     
     public int getCaptionWidth() { return captionWidth; }
-    public void setCaptionWidth(int captionWidth) { this.captionWidth = captionWidth; }
+    public void setCaptionWidth(int captionWidth) { 
+        this.captionWidth = captionWidth; 
+        updateLabelComponent();
+    }
     
     public String getCaptionVAlignment() { return captionVAlignment; }
     public void setCaptionVAlignment(String captionVAlignment) {
-        if ( captionVAlignment != null )
-            this.captionVAlignment = captionVAlignment.toUpperCase();
-        else
-            this.captionVAlignment = UIConstants.TOP;
+        this.captionVAlignment = lookupAlignment(captionVAlignment, UIConstants.TOP, true); 
+        updateLabelComponent();
     }
     
     public String getCaptionHAlignment() { return captionHAlignment; }
-    public void setCaptionHAlignment(String captionHAlignment) {
-        if ( captionHAlignment != null )
-            this.captionHAlignment = captionHAlignment.toUpperCase();
-        else
-            this.captionHAlignment = UIConstants.LEFT;
-    }
+    public void setCaptionHAlignment(String captionHAlignment) { 
+        this.captionHAlignment = lookupAlignment(captionHAlignment, UIConstants.LEFT, false); 
+        updateLabelComponent();
+    } 
     
     public String getCaptionOrientation() { return captionOrientation; }
     public void setCaptionOrientation(String captionOrientation) {
-        if ( captionOrientation != null )
-            this.captionOrientation = captionOrientation.toUpperCase();
-        else
-            this.captionOrientation = UIConstants.LEFT;
+        if ( captionOrientation == null ) {
+            this.captionOrientation = UIConstants.LEFT; 
+        } else {
+            this.captionOrientation = captionOrientation.toUpperCase(); 
+        }   
+        updateLabelComponent();
     }
     
     public String getOrientation() { return orientation; }
     public void setOrientation(String orientation) {
-        if ( orientation != null )
-            this.orientation = orientation.toUpperCase();
-        else
+        if ( orientation == null ) {
             this.orientation = UIConstants.VERTICAL;
+        } else { 
+            this.orientation = orientation.toUpperCase(); 
+        } 
     }
     
     public Insets getCaptionPadding() { return captionPadding; }
-    public void setCaptionPadding(Insets captionPadding) { this.captionPadding = captionPadding; }
+    public void setCaptionPadding(Insets captionPadding) { 
+        this.captionPadding = captionPadding; 
+        updateLabelComponent();
+    }
     
     public Insets getCellpadding() { return cellpadding; }
     public void setCellpadding(Insets cellpadding) 
@@ -792,42 +823,69 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
     public boolean isAddCaptionColon() { return addCaptionColon; }
     public void setAddCaptionColon(boolean addCaptionColon) {
         this.addCaptionColon = addCaptionColon;
-        updateLabelsCaption();
+        updateLabelComponent();
     }
     
-    private void updateLabelsCaption() {
-        for(Component c: getComponents()) {
-            if ( c instanceof ItemPanel ) {
-                XLabel lbl = ((ItemPanel)c).getLabelComponent();
-                lbl.setAddCaptionColon(addCaptionColon);
-            }
-        }
-    }
+    private FontSupport fontSupport; 
+    private FontSupport getFontSupport() {
+        if (fontSupport == null) 
+            fontSupport = new FontSupport();
+        
+        return fontSupport; 
+    }     
     
     public Font getCaptionFont() { return captionFont; }
     public void setCaptionFont(Font captionFont) {
         this.captionFont = captionFont;
-        updateLabelsFont(captionFont);
+        if (captionFont != null) {
+            Map attrs = getFontSupport().createFontAttributes(getCaptionFontStyle()); 
+            if (attrs.isEmpty()) {
+                updateLabelsFont(captionFont); 
+            } else {
+                updateLabelsFont(captionFont.deriveFont(attrs));
+            }
+        } else {
+            updateLabelsFont(captionFont);
+        }
     } 
     
     public String getCaptionFontStyle() { return captionFontStyle; } 
     public void setCaptionFontStyle(String captionFontStyle) {
-        this.captionFontStyle = captionFontStyle;
-        updateLabelsFont(captionFontStyle);
-    }      
+        this.captionFontStyle = captionFontStyle; 
+        
+        Font font = getCaptionFont(); 
+        if (font == null) font = super.getFont(); 
+        
+        Map attrs = getFontSupport().createFontAttributes(getCaptionFontStyle()); 
+        if (!attrs.isEmpty()) font = font.deriveFont(attrs); 
+        
+        updateLabelsFont(font); 
+    } 
     
+    private void updateLabelComponent() {
+        for(Component c: getComponents()) {
+            if ( c instanceof ItemPanel ) {
+                ItemPanel ip = (ItemPanel)c; 
+                ip.updateLabelComponent(); 
+                ip.revalidate(); 
+            } 
+        } 
+    } 
+        
     private void updateLabelsFont(Object fontObj) {
         if (fontObj == null) return;
         
         FontSupport fontSupport = new FontSupport(); 
         for (Component c: getComponents()) {
-            if (c instanceof ItemPanel) {
-                JComponent lbl = ((ItemPanel)c).getLabelComponent();
+            if (c instanceof ItemPanel) { 
+                ItemPanel ip = (ItemPanel)c; 
                 if (fontObj instanceof Font) { 
-                    lbl.setFont((Font) fontObj);
+                    ip.updateLabelFont((Font) fontObj);
                 } else if (fontObj instanceof String) {
-                    fontSupport.applyStyles(lbl, (String) fontObj); 
-                }
+                    ip.updateLabelFont(fontSupport, (String) fontObj); 
+                } 
+                ip.updateLabelComponent(); 
+                ip.revalidate(); 
             }
         }
     }
@@ -835,41 +893,19 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
     public Color getCaptionForeground() { return captionForeground; }
     public void setCaptionForeground(Color captionForeground) {
         this.captionForeground = captionForeground;
-        updateLabelsForeground();
+        updateLabelComponent(); 
     }
     
-    private void updateLabelsForeground() {
-        for(Component c: getComponents()) {
-            if ( c instanceof ItemPanel ) {
-                XLabel lbl = ((ItemPanel)c).getLabelComponent();
-                lbl.setForeground(captionForeground);
-            }
-        }
-    }
-    
-    public Border getCaptionBorder() {
-        return captionBorder;
-    }
-    
+    public Border getCaptionBorder() { return captionBorder; }
     public void setCaptionBorder(Border captionBorder) {
         this.captionBorder = captionBorder;
-        updateLabelsBorder();
-    }
-    
-    private void updateLabelsBorder() {
-        for(Component c: getComponents()) {
-            if ( c instanceof ItemPanel ) {
-                XLabel lbl = ((ItemPanel)c).getLabelComponent();
-                lbl.setBorder(captionBorder);
-            }
-        }
+        updateLabelComponent();
     }
     
     public void setRequired(boolean required) {}
     public boolean isRequired() {
         return property.isRequired();
     }
-    
     
     public String getViewType() { return viewType; }
     public void setViewType(String viewType) {
@@ -912,11 +948,21 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
         this.visibleWhen = visibleWhen; 
     }
     
+    public int getStretchWidth() { return stretchWidth; } 
+    public void setStretchWidth(int stretchWidth) {
+        this.stretchWidth = stretchWidth; 
+    }
+    
+    public int getStretchHeight() { return stretchHeight; } 
+    public void setStretchHeight(int stretchHeight) {
+        this.stretchHeight = stretchHeight;
+    }
+    
     // </editor-fold>
     
-    // <editor-fold defaultstate="collapsed" desc=" Layout (Class) ">
+    // <editor-fold defaultstate="collapsed" desc=" Layout ">
     
-    private class Layout implements LayoutManager, LayoutManager2
+    private class Layout implements LayoutManager 
     {        
         private Logger logger = Logger.getLogger(getClass().getName()); 
         
@@ -933,45 +979,114 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
         
         public void layoutContainer(Container parent) {
             synchronized (parent.getTreeLock()) {
-                Insets margin = parent.getInsets();
-                int x = margin.left;
-                int y = margin.top;
-                int w = parent.getWidth() - (margin.left + margin.right);
-                int h = parent.getHeight() - (margin.top + margin.bottom);
-                
-                boolean hasVisibleComponents = false;
-                Component[] comps = parent.getComponents();
-                for (int i=0; i<comps.length; i++) {
-                    Component c = comps[i];                    
-                    if (!c.isVisible()) continue;
-                    if (!(c instanceof FormItemPanel || c instanceof ItemPanel)) continue;   
-                    
-                    Dimension dim = c.getPreferredSize(); 
-                    if (UIConstants.HORIZONTAL.equals(orientation)) {
-                        if (hasVisibleComponents) x += getCellspacing(); 
-                        
-                        x += cellpadding.left;
-                        c.setBounds(x, y, dim.width, dim.height);
-                        x += cellpadding.right + dim.width;
-                        
-                    } else {
-                        if (hasVisibleComponents) {
-                            y += getCellspacing();
-                            if (isShowCategory()) y += 10;
-                        } 
-                        
-                        y += cellpadding.top;
-                        c.setBounds(x, y, w, dim.height);
-                        y += dim.height + cellpadding.bottom;
-                    }
-                    hasVisibleComponents = true;
+                if (UIConstants.HORIZONTAL.equals(orientation)) {
+                    layoutContainerHorizontal( parent ); 
+                } else {
+                    layoutContainerVertical( parent ); 
                 }
             }
         }
         
+        private void layoutContainerHorizontal(Container parent) { 
+            Insets margin = parent.getInsets();
+            int x = margin.left;
+            int y = margin.top;
+            int w = parent.getWidth() - (margin.left + margin.right);
+            int h = parent.getHeight() - (margin.top + margin.bottom);
+
+            boolean hasVisibleComponents = false;            
+            Component[] comps = getVisibleComponents(parent);
+            for (int i=0; i<comps.length; i++) {
+                Component c = comps[i]; 
+                Dimension dim = c.getPreferredSize(); 
+                FormItemProperty fip = (FormItemProperty)c; 
+
+                if (hasVisibleComponents) {
+                    x += getCellspacing();
+                } 
+
+                int dw = dim.width; 
+                int sw = fip.getStretchWidth(); 
+                if (sw > 0) { 
+                    double d0 = (double) w; 
+                    double d1 = sw / 100.0; 
+                    double d2 = d0 * d1; 
+                    int rw = Math.max(parent.getWidth()-x-margin.right, 0);
+                    dw = new BigDecimal(d2).setScale(0, RoundingMode.HALF_UP).intValue(); 
+                    if (dw > rw) { dw = rw; } 
+                    if (dw < dim.width) { dw = dim.width; } 
+                } 
+
+                x += cellpadding.left;
+                c.setBounds(x, y, dw, dim.height);
+                x += cellpadding.right + dw;
+                hasVisibleComponents = true;
+            }            
+        }
+        
+        private void layoutContainerVertical(Container parent) { 
+            Insets margin = parent.getInsets();
+            int x = margin.left;
+            int y = margin.top;
+            int w = parent.getWidth() - (margin.left + margin.right);
+            int h = parent.getHeight() - (margin.top + margin.bottom);
+
+            int preferredMaxWidth = 0;
+            Component[] comps = getVisibleComponents(parent);
+            for (int i=0; i<comps.length; i++) {
+                Dimension dim = comps[i].getPreferredSize(); 
+                preferredMaxWidth = Math.max(preferredMaxWidth, dim.width); 
+            }
+            
+            boolean hasVisibleComponents = false;
+            for (int i=0; i<comps.length; i++) {
+                Component c = comps[i]; 
+                Dimension dim = c.getPreferredSize(); 
+                FormItemProperty fip = (FormItemProperty)c; 
+
+                if (hasVisibleComponents) {
+                    y += getCellspacing();
+                    if (isShowCategory()) { y += 10; } 
+                } 
+
+                int dw = dim.width; 
+                int sw = fip.getStretchWidth(); 
+                System.out.println("comps("+i+"): name="+ c.getClass().getName() + ", size="+ dim + ", stretchwidth="+sw + ", preferredMaxWidth="+ preferredMaxWidth); 
+                if (sw > 0) { 
+                    double d0 = (double) w; 
+                    if (w < preferredMaxWidth) { 
+                        d0 = (double) preferredMaxWidth; 
+                    } 
+                    double d1 = sw / 100.0; 
+                    double d2 = d0 * d1; 
+                    dw = new BigDecimal(d2).setScale(0, RoundingMode.HALF_UP).intValue(); 
+                    if (dw < dim.width) { dw = dim.width; } 
+                } 
+                
+                y += cellpadding.top;
+                c.setBounds(x, y, dw, dim.height);
+                y += dim.height + cellpadding.bottom;
+                hasVisibleComponents = true;
+            }
+        }
+        
+        private Component[] getVisibleComponents(Container parent) {
+            List<Component> results = new ArrayList();
+            Component[] comps = parent.getComponents();
+            for (int i=0; i<comps.length; i++) {
+                if (!comps[i].isVisible()) continue;
+                if (comps[i] instanceof FormItemProperty) {
+                    results.add( comps[i] ); 
+                } else {
+                    comps[i].setBounds(0, 0, 0, 0);
+                }
+            }
+            return results.toArray(new Component[]{}); 
+        }
+        
         private Dimension getLayoutSize(Container parent) {
             synchronized (parent.getTreeLock()) {
-                Dimension dim = null;
+                Dimension dim = new Dimension(0,0);
                 Component[] comps = parent.getComponents();
                 if (UIConstants.HORIZONTAL.equals(orientation)) {
                     dim = getHorizontalLayoutSize(comps);
@@ -980,9 +1095,9 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
                 }
                 
                 Insets margin = parent.getInsets();
-                dim.width += (margin.left + margin.right);
-                dim.height += (margin.top + margin.bottom);
-                return dim; 
+                int w = (dim.width + margin.left + margin.right);
+                int h = (dim.height + margin.top + margin.bottom);
+                return new Dimension(w, h); 
             }
         }
         
@@ -992,7 +1107,7 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
             for (int i=0; i<comps.length; i++) {
                 Component c = comps[i];
                 if (!c.isVisible()) continue;
-                if (!(c instanceof FormItemPanel || c instanceof ItemPanel)) continue;  
+                if (!(c instanceof FormItemProperty)) continue; 
 
                 if (hasVisibleComponents) w += getCellspacing(); 
                 
@@ -1008,9 +1123,9 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
             int w=0, h=0;
             boolean hasVisibleComponents = false;
             for (int i=0; i<comps.length; i++) {
-                Component c = comps[i];
-                if (!c.isVisible()) continue;                
-                if (!(c instanceof FormItemPanel || c instanceof ItemPanel)) continue;  
+                Component c = comps[i]; 
+                if (!c.isVisible()) continue; 
+                if (!(c instanceof FormItemProperty)) continue; 
 
                 if (hasVisibleComponents) {
                     h += getCellspacing();
@@ -1024,7 +1139,6 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
             }
             return new Dimension(w, h); 
         }        
-
         
         public void addLayoutComponent(Component comp, Object constraints) {}
 

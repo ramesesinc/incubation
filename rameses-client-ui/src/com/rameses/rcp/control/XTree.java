@@ -77,6 +77,9 @@ public class XTree extends JTree implements UIControl, MouseEventSupport.Compone
     private DefaultMutableTreeNode root;
     private DefaultTreeModel model;
     private TreeNodeModel nodeModel;
+    
+    private int stretchWidth;
+    private int stretchHeight;     
             
     public XTree() { 
         initComponents(); 
@@ -230,6 +233,16 @@ public class XTree extends JTree implements UIControl, MouseEventSupport.Compone
         return map;
     }       
 
+    public int getStretchWidth() { return stretchWidth; } 
+    public void setStretchWidth(int stretchWidth) {
+        this.stretchWidth = stretchWidth; 
+    }
+
+    public int getStretchHeight() { return stretchHeight; } 
+    public void setStretchHeight(int stretchHeight) {
+        this.stretchHeight = stretchHeight;
+    }    
+    
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" Owned and helper methods ">

@@ -39,6 +39,9 @@ public class XEditorPane extends JEditorPane implements UIInput, ActiveControl
     private boolean readonly;
     private String linkAction;
     private String baseUrl;
+
+    private int stretchWidth;
+    private int stretchHeight;    
     
     private ControlProperty property = new ControlProperty();
     
@@ -130,6 +133,16 @@ public class XEditorPane extends JEditorPane implements UIInput, ActiveControl
     public int compareTo(Object o) {
         return UIControlUtil.compare(this, o);
     }   
+    
+    public int getStretchWidth() { return stretchWidth; } 
+    public void setStretchWidth(int stretchWidth) {
+        this.stretchWidth = stretchWidth; 
+    }
+
+    public int getStretchHeight() { return stretchHeight; } 
+    public void setStretchHeight(int stretchHeight) {
+        this.stretchHeight = stretchHeight;
+    }    
     
     // <editor-fold defaultstate="collapsed" desc="  Getters/Setters  ">
     

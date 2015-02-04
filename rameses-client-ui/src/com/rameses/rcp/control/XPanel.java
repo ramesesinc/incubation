@@ -30,6 +30,9 @@ public class XPanel extends JPanel implements UIControl, ControlContainer
     
     private String visibleWhen;
     
+    private int stretchWidth;
+    private int stretchHeight;     
+    
     public XPanel() {
     }
 
@@ -87,6 +90,16 @@ public class XPanel extends JPanel implements UIControl, ControlContainer
     public int compareTo(Object o) {
         return UIControlUtil.compare(this, o);
     } 
+    
+    public int getStretchWidth() { return stretchWidth; } 
+    public void setStretchWidth(int stretchWidth) {
+        this.stretchWidth = stretchWidth; 
+    }
+
+    public int getStretchHeight() { return stretchHeight; } 
+    public void setStretchHeight(int stretchHeight) {
+        this.stretchHeight = stretchHeight;
+    }    
     
     // </editor-fold> 
     

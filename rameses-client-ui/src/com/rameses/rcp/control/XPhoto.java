@@ -70,6 +70,9 @@ public class XPhoto extends JLabel implements UIControl, MouseEventSupport.Compo
     private boolean showNoImageIcon;
     private boolean scaled = true;
     
+    private int stretchWidth;
+    private int stretchHeight;     
+    
     public XPhoto() { 
         initComponent();
     }
@@ -207,6 +210,16 @@ public class XPhoto extends JLabel implements UIControl, MouseEventSupport.Compo
     public int compareTo(Object o) {
         return UIControlUtil.compare(this, o);
     }  
+    
+    public int getStretchWidth() { return stretchWidth; } 
+    public void setStretchWidth(int stretchWidth) {
+        this.stretchWidth = stretchWidth; 
+    }
+
+    public int getStretchHeight() { return stretchHeight; } 
+    public void setStretchHeight(int stretchHeight) {
+        this.stretchHeight = stretchHeight;
+    }    
     
     // </editor-fold>    
     

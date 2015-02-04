@@ -23,7 +23,7 @@ import javax.swing.JPanel;
  *
  * @author wflores
  */
-public class FormItemPanel extends JPanel 
+public class FormItemPanel extends JPanel implements FormItemProperty 
 {
     private FormPanelPropertySupport formPropertySupport;     
     private CustomLayout layout;
@@ -104,6 +104,14 @@ public class FormItemPanel extends JPanel
         }
         return null; 
     }   
+
+    public int getStretchWidth() {
+        return 0; 
+    }
+
+    public int getStretchHeight() {
+        return 0;
+    }
     
     // <editor-fold defaultstate="collapsed" desc=" FormPanelPropertySupport (class) ">
     

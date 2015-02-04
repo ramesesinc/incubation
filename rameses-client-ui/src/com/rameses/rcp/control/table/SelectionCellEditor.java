@@ -32,6 +32,9 @@ public class SelectionCellEditor extends JCheckBox implements UIInput, Immediate
     private ItemHandler itemHandler; 
     private Binding binding;
     
+    private int stretchWidth;
+    private int stretchHeight;     
+    
     public SelectionCellEditor() 
     {
         setHorizontalAlignment(SwingConstants.CENTER); 
@@ -100,6 +103,16 @@ public class SelectionCellEditor extends JCheckBox implements UIInput, Immediate
     public Map getInfo() {
         return null; 
     }
+    
+    public int getStretchWidth() { return stretchWidth; } 
+    public void setStretchWidth(int stretchWidth) {
+        this.stretchWidth = stretchWidth; 
+    }
+
+    public int getStretchHeight() { return stretchHeight; } 
+    public void setStretchHeight(int stretchHeight) {
+        this.stretchHeight = stretchHeight;
+    }     
     
     DataTableBinding getTableBinding() { 
         return (DataTableBinding) getBinding();

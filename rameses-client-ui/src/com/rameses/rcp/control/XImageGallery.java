@@ -59,6 +59,9 @@ public class XImageGallery extends JPanel implements UIControl
     private Border cellBorder;
     private int scrollbarHPolicy;
     private int scrollbarVPolicy;
+    
+    private int stretchWidth;
+    private int stretchHeight;     
         
     public XImageGallery() {
         super();
@@ -252,6 +255,16 @@ public class XImageGallery extends JPanel implements UIControl
         return UIControlUtil.compare(this, o);
     } 
 
+    public int getStretchWidth() { return stretchWidth; } 
+    public void setStretchWidth(int stretchWidth) {
+        this.stretchWidth = stretchWidth; 
+    }
+
+    public int getStretchHeight() { return stretchHeight; } 
+    public void setStretchHeight(int stretchHeight) {
+        this.stretchHeight = stretchHeight;
+    }    
+    
     // </editor-fold> 
     
     // <editor-fold defaultstate="collapsed" desc=" helper methods ">

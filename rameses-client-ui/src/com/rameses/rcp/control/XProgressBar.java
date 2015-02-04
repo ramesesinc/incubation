@@ -33,6 +33,8 @@ public class XProgressBar extends JProgressBar implements UIControl,
     
     private ProgressModel model;
     
+    private int stretchWidth;
+    private int stretchHeight; 
     
     public XProgressBar() {
         new MouseEventSupport(this).install(); 
@@ -112,6 +114,16 @@ public class XProgressBar extends JProgressBar implements UIControl,
             throw new IllegalStateException("XProgressBar::fireAction", e);
         }
     }
+    
+    public int getStretchWidth() { return stretchWidth; } 
+    public void setStretchWidth(int stretchWidth) {
+        this.stretchWidth = stretchWidth; 
+    }
+
+    public int getStretchHeight() { return stretchHeight; } 
+    public void setStretchHeight(int stretchHeight) {
+        this.stretchHeight = stretchHeight;
+    }    
         
     // <editor-fold defaultstate="collapsed" desc="  Getters/Setters  ">
     

@@ -36,6 +36,8 @@ public class XStyleRule extends JPanel implements UIControl
     private StyleRule[] styleRules;
     private boolean loaded;
     
+    private int stretchWidth;
+    private int stretchHeight;     
     
     public XStyleRule() {
         if(Beans.isDesignTime()) {
@@ -153,5 +155,15 @@ public class XStyleRule extends JPanel implements UIControl
 
     public void setPropertyInfo(PropertySupport.PropertyInfo info) {
     }
+    
+    public int getStretchWidth() { return stretchWidth; } 
+    public void setStretchWidth(int stretchWidth) {
+        this.stretchWidth = stretchWidth; 
+    }
+
+    public int getStretchHeight() { return stretchHeight; } 
+    public void setStretchHeight(int stretchHeight) {
+        this.stretchHeight = stretchHeight;
+    }    
     
 }

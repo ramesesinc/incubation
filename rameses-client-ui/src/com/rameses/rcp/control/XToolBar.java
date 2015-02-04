@@ -38,6 +38,9 @@ public class XToolBar extends JPanel implements UIControl{
     private FlowLayout flowLayout = new FlowLayout();
     private String orientation = "LEFT";
     
+    private int stretchWidth;
+    private int stretchHeight;     
+    
     public XToolBar() {
         setBorder(new XToolBarBorder());
     }
@@ -116,6 +119,16 @@ public class XToolBar extends JPanel implements UIControl{
 
     public void setPropertyInfo(PropertySupport.PropertyInfo info) {
     }
+    
+    public int getStretchWidth() { return stretchWidth; } 
+    public void setStretchWidth(int stretchWidth) {
+        this.stretchWidth = stretchWidth; 
+    }
+
+    public int getStretchHeight() { return stretchHeight; } 
+    public void setStretchHeight(int stretchHeight) {
+        this.stretchHeight = stretchHeight;
+    }    
     
     private class XToolBarBorder extends AbstractBorder {
         

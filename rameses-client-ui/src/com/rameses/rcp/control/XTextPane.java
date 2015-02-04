@@ -41,6 +41,9 @@ public class XTextPane extends JTextPane
     private String fontStyle;
     private Font sourceFont;
     
+    private int stretchWidth;
+    private int stretchHeight;     
+    
     public XTextPane() {
         initComponent();
     }
@@ -91,6 +94,16 @@ public class XTextPane extends JTextPane
     public int compareTo(Object o) {
         return UIControlUtil.compare(this, o);
     }
+    
+    public int getStretchWidth() { return stretchWidth; } 
+    public void setStretchWidth(int stretchWidth) {
+        this.stretchWidth = stretchWidth; 
+    }
+
+    public int getStretchHeight() { return stretchHeight; } 
+    public void setStretchHeight(int stretchHeight) {
+        this.stretchHeight = stretchHeight;
+    }    
 
     // </editor-fold>
     

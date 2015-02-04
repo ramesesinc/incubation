@@ -48,4 +48,10 @@ public interface UIControl extends Comparable
     void putClientProperty(Object name, Object value);
     
     void setPropertyInfo(PropertySupport.PropertyInfo info); 
+    
+    int getStretchWidth();
+    void setStretchWidth(int stretchWidth);
+    
+    int getStretchHeight();
+    void setStretchHeight(int stretchHeight); 
 }

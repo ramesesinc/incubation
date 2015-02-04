@@ -66,6 +66,8 @@ public class XSubFormPanel extends JPanel implements UISubControl, ActiveControl
     protected List<Opener> currentOpeners = new ArrayList();
     protected ControlProperty property = new ControlProperty();
     
+    private int stretchWidth;
+    private int stretchHeight;     
     
     public XSubFormPanel() 
     {
@@ -352,6 +354,16 @@ public class XSubFormPanel extends JPanel implements UISubControl, ActiveControl
         if (handlerObj instanceof Opener) 
             getOpeners().add((Opener) handlerObj); 
     } 
+    
+    public int getStretchWidth() { return stretchWidth; } 
+    public void setStretchWidth(int stretchWidth) {
+        this.stretchWidth = stretchWidth; 
+    }
+
+    public int getStretchHeight() { return stretchHeight; } 
+    public void setStretchHeight(int stretchHeight) {
+        this.stretchHeight = stretchHeight;
+    }    
     
     // <editor-fold defaultstate="collapsed" desc="  Getters/Setters  ">
     

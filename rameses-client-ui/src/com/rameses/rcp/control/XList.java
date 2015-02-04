@@ -80,6 +80,9 @@ public class XList extends JList implements UIControl, MouseEventSupport.Compone
     private FontSupport fontSupport; 
     private Font sourceFont; 
     private String fontStyle; 
+    
+    private int stretchWidth;
+    private int stretchHeight;     
         
     public XList() 
     {
@@ -270,6 +273,16 @@ public class XList extends JList implements UIControl, MouseEventSupport.Compone
     
     public void setPropertyInfo(PropertySupport.PropertyInfo info) {
     }
+    
+    public int getStretchWidth() { return stretchWidth; } 
+    public void setStretchWidth(int stretchWidth) {
+        this.stretchWidth = stretchWidth; 
+    }
+
+    public int getStretchHeight() { return stretchHeight; } 
+    public void setStretchHeight(int stretchHeight) {
+        this.stretchHeight = stretchHeight;
+    }    
     
     // </editor-fold>
    

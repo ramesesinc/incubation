@@ -102,6 +102,9 @@ public class XTextArea extends JTextArea implements UIInput, Validatable,
     private VerticalAdjustmentListener verticalAdjHandler;
     private TextWriterHandler textWriterHandler; 
     
+    private int stretchWidth;
+    private int stretchHeight;     
+    
     public XTextArea() {
         super();
         initComponent();
@@ -313,6 +316,16 @@ public class XTextArea extends JTextArea implements UIInput, Validatable,
             property.setErrorMessage(actionMessage.toString());
         }
     }
+    
+    public int getStretchWidth() { return stretchWidth; } 
+    public void setStretchWidth(int stretchWidth) {
+        this.stretchWidth = stretchWidth; 
+    }
+
+    public int getStretchHeight() { return stretchHeight; } 
+    public void setStretchHeight(int stretchHeight) {
+        this.stretchHeight = stretchHeight;
+    }    
         
     // <editor-fold defaultstate="collapsed" desc="  Getters/Setters  "> 
 

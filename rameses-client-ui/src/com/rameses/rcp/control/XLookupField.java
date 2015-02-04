@@ -86,6 +86,9 @@ public class XLookupField extends IconedTextField implements UILookup, UISelecto
     private boolean loaded;
     private boolean nullWhenEmpty = true; 
     
+    private int stretchWidth;
+    private int stretchHeight;     
+    
     public XLookupField() 
     {
         super("com/rameses/rcp/icons/search.png");
@@ -329,6 +332,16 @@ public class XLookupField extends IconedTextField implements UILookup, UISelecto
         map.put("varName", getVarName()); 
         return map;
     }     
+    
+    public int getStretchWidth() { return stretchWidth; } 
+    public void setStretchWidth(int stretchWidth) {
+        this.stretchWidth = stretchWidth; 
+    }
+
+    public int getStretchHeight() { return stretchHeight; } 
+    public void setStretchHeight(int stretchHeight) {
+        this.stretchHeight = stretchHeight;
+    }    
     
     // </editor-fold>     
     

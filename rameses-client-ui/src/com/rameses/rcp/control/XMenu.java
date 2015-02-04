@@ -34,6 +34,8 @@ public class XMenu extends JPanel implements UIControl
     
     private JMenuBar menuBar;
     
+    private int stretchWidth;
+    private int stretchHeight;     
     
     public XMenu() {
         super.setLayout(new BorderLayout());
@@ -123,4 +125,14 @@ public class XMenu extends JPanel implements UIControl
 
     public void setPropertyInfo(PropertySupport.PropertyInfo info) {
     }
+    
+    public int getStretchWidth() { return stretchWidth; } 
+    public void setStretchWidth(int stretchWidth) {
+        this.stretchWidth = stretchWidth; 
+    }
+
+    public int getStretchHeight() { return stretchHeight; } 
+    public void setStretchHeight(int stretchHeight) {
+        this.stretchHeight = stretchHeight;
+    }    
 }

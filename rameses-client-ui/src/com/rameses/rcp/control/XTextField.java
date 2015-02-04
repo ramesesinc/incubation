@@ -67,6 +67,8 @@ public class XTextField extends DefaultTextField implements UIInput, Validatable
     private String securityChar;
     private String securedValue; //internal value
     
+    private int stretchWidth;
+    private int stretchHeight; 
     
     public XTextField() {
         super();
@@ -206,6 +208,16 @@ public class XTextField extends DefaultTextField implements UIInput, Validatable
         map.put("required", isRequired());
         map.put("focusAccelerator", getFocusAccelerator()); 
         return map;
+    }    
+    
+    public int getStretchWidth() { return stretchWidth; } 
+    public void setStretchWidth(int stretchWidth) {
+        this.stretchWidth = stretchWidth; 
+    }
+
+    public int getStretchHeight() { return stretchHeight; } 
+    public void setStretchHeight(int stretchHeight) {
+        this.stretchHeight = stretchHeight;
     }    
     
     // </editor-fold>
