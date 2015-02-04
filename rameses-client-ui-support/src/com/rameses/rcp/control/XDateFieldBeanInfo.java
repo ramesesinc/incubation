@@ -58,7 +58,9 @@ public class XDateFieldBeanInfo extends ComponentBeanInfo.Support
             new PropertyDescriptor("valueFormat", getBeanClass()),            
             
             new PropertyDescriptor("readonly", getBeanClass(), "isReadonly", "setReadonly"),
-            new PropertyDescriptor("required", getBeanClass(), "isRequired", "setRequired")
+            new PropertyDescriptor("required", getBeanClass(), "isRequired", "setRequired"),
+            new PropertyDescriptor("stretchWidth", getBeanClass()),
+            new PropertyDescriptor("stretchHeight", getBeanClass())
         }; 
     }
 }

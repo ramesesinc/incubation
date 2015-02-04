@@ -47,6 +47,9 @@ public class XLabelBeanInfo extends ComponentBeanInfo.Support
             new PropertyDescriptor("showCaption", getBeanClass(), "isShowCaption", "setShowCaption"),              
             new PropertyDescriptor("cellPadding", getBeanClass()),
             
+            new PropertyDescriptor("stretchWidth", getBeanClass()),
+            new PropertyDescriptor("stretchHeight", getBeanClass()),
+            
             new PropertyDescriptor("antiAliasOn", getBeanClass(), "isAntiAliasOn", "setAntiAliasOn"),
             new PropertyDescriptor("depends", getBeanClass()),
             new PropertyDescriptor("expression", getBeanClass()),

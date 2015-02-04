@@ -7,11 +7,10 @@ public class CaptionOrientationPropertyEditor extends PropertyEditorSupport {
     
     private String[] values;
     
-    
     public CaptionOrientationPropertyEditor() {
-        values = new String[]
-        {
-            UIConstants.LEFT, UIConstants.RIGHT, UIConstants.TOP, UIConstants.BOTTOM
+        values = new String[] { 
+            UIConstants.LEFT, UIConstants.RIGHT, 
+            UIConstants.TOP, UIConstants.BOTTOM
         };
     }
     
@@ -19,8 +18,15 @@ public class CaptionOrientationPropertyEditor extends PropertyEditorSupport {
     
     public String getJavaInitializationString() {
         StringBuffer sb = new StringBuffer();
-        sb.append(UIConstants.class.getName() + "." + getValue());
+        sb.append(UIConstants.class.getName());
+        sb.append("."); 
+        
+        Object val = getValue();
+        if ( val == null ) {
+            sb.append( UIConstants.LEFT ); 
+        } else { 
+            sb.append( val.toString() ); 
+        } 
         return sb.toString();
     }
-    
 }

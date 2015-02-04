@@ -56,6 +56,9 @@ public class XIntegerFieldBeanInfo extends ComponentBeanInfo.Support
             new PropertyDescriptor("maxValue", getBeanClass()),
             new PropertyDescriptor("pattern", getBeanClass()),
             
+            new PropertyDescriptor("stretchWidth", getBeanClass()),
+            new PropertyDescriptor("stretchHeight", getBeanClass()),
+            
             new PropertyDescriptor("usePrimitiveValue", getBeanClass(), "isUsePrimitiveValue", "setUsePrimitiveValue"),
             new PropertyDescriptor("readonly", getBeanClass(), "isReadonly", "setReadonly"),
             new PropertyDescriptor("required", getBeanClass(), "isRequired", "setRequired")

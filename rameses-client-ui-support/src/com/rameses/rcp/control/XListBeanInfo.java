@@ -39,6 +39,9 @@ public class XListBeanInfo extends ComponentBeanInfo.Support
             installEditor(new PropertyDescriptor("cellHorizontalTextPosition", getBeanClass()), SwingConstantsHAlignment.class), 
             installEditor(new PropertyDescriptor("cellVerticalTextPosition", getBeanClass()), SwingConstantsVAlignment.class),
             
+            new PropertyDescriptor("stretchWidth", getBeanClass()),
+            new PropertyDescriptor("stretchHeight", getBeanClass()),
+            
             new PropertyDescriptor("depends", getBeanClass()),
             new PropertyDescriptor("dynamic", getBeanClass(), "isDynamic", "setDynamic"),
             new PropertyDescriptor("expression", getBeanClass()),

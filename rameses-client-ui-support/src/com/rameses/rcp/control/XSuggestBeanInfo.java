@@ -56,6 +56,8 @@ public class XSuggestBeanInfo extends ComponentBeanInfo.Support
             new PropertyDescriptor("handlerObject", getBeanClass()),
             new PropertyDescriptor("index", getBeanClass()),
             new PropertyDescriptor("itemExpression", getBeanClass()),
+            new PropertyDescriptor("stretchWidth", getBeanClass()),
+            new PropertyDescriptor("stretchHeight", getBeanClass()),
             new PropertyDescriptor("varName", getBeanClass()),
             new PropertyDescriptor("visibleWhen", getBeanClass()),
             

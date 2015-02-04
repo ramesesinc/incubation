@@ -47,6 +47,9 @@ public class XSeparatorBeanInfo extends ComponentBeanInfo.Support
             installEditor(new PropertyDescriptor("orientationHPosition", getBeanClass()), UIConstantsHAlignmentPropertyEditor.class), 
             installEditor(new PropertyDescriptor("orientationVPosition", getBeanClass()), UIConstantsVAlignmentPropertyEditor.class), 
             
+            new PropertyDescriptor("stretchWidth", getBeanClass()),
+            new PropertyDescriptor("stretchHeight", getBeanClass()),
+            
             new PropertyDescriptor("padding", getBeanClass()) 
         }; 
     }

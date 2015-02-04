@@ -33,6 +33,8 @@ public class XHtmlViewBeanInfo extends ComponentBeanInfo.Support
             new PropertyDescriptor("cellPadding", getBeanClass()),
             
             new PropertyDescriptor("required", getBeanClass(), "isRequired", "setRequired"), 
+            new PropertyDescriptor("stretchWidth", getBeanClass()),
+            new PropertyDescriptor("stretchHeight", getBeanClass()),
             new PropertyDescriptor("visibleWhen", getBeanClass())
         };        
     }    

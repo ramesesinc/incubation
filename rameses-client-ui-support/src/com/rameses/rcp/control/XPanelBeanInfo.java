@@ -35,6 +35,8 @@ public class XPanelBeanInfo extends ComponentBeanInfo.Support
             
             new PropertyDescriptor("depends", getBeanClass()),
             new PropertyDescriptor("index", getBeanClass()),
+            new PropertyDescriptor("stretchWidth", getBeanClass()),
+            new PropertyDescriptor("stretchHeight", getBeanClass()),
             new PropertyDescriptor("visibleWhen", getBeanClass()) 
         }; 
     }

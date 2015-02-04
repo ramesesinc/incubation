@@ -59,6 +59,9 @@ public class XTextAreaBeanInfo extends ComponentBeanInfo.Support
             new PropertyDescriptor("varName", getBeanClass()),
             new PropertyDescriptor("wrapStyleWord", getBeanClass()),
             
+            new PropertyDescriptor("stretchWidth", getBeanClass()),
+            new PropertyDescriptor("stretchHeight", getBeanClass()),
+            
             installEditor(new PropertyDescriptor("textCase", getBeanClass()), TextCasePropertyEditor.class), 
             installEditor(new PropertyDescriptor("trimSpaceOption", getBeanClass()), TrimSpaceOptionPropertyEditor.class) 
         }; 

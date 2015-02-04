@@ -6,17 +6,25 @@ import java.beans.PropertyEditorSupport;
 public class UIConstantsVAlignmentPropertyEditor extends PropertyEditorSupport {
     
     private String[] values = new String[] { 
-        
-        UIConstants.TOP, UIConstants.CENTER, UIConstants.BOTTOM  
-        
+        UIConstants.TOP, 
+        UIConstants.CENTER, 
+        UIConstants.BOTTOM  
     };
        
     
     public String[] getTags() { return values; }
     
     public String getJavaInitializationString() { 
-        StringBuffer sb = new StringBuffer(); 
-        sb.append(UIConstants.class.getName() + "." + getValue()); 
+        StringBuilder sb = new StringBuilder(); 
+        sb.append(UIConstants.class.getName());
+        sb.append("."); 
+        
+        String str = (String) getValue();
+        if (str == null) {
+            sb.append( UIConstants.TOP ); 
+        } else {
+            sb.append( str ); 
+        }
         return sb.toString(); 
     }
     

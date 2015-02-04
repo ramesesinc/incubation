@@ -10,9 +10,10 @@
 package com.rameses.rcp.control;
 
 import com.rameses.beaninfo.ComponentBeanInfo;
+import com.rameses.beaninfo.editor.CaptionOrientationPropertyEditor;
 import com.rameses.beaninfo.editor.OrientationPropertyEditor;
-import com.rameses.beaninfo.editor.SwingConstantsHAlignment;
-import com.rameses.beaninfo.editor.SwingConstantsVAlignment;
+import com.rameses.beaninfo.editor.UIConstantsHAlignmentPropertyEditor;
+import com.rameses.beaninfo.editor.UIConstantsVAlignmentPropertyEditor;
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
 
@@ -43,16 +44,19 @@ public class XFormPanelBeanInfo extends ComponentBeanInfo.Support
             new PropertyDescriptor("captionFontStyle", getBeanClass()),
             new PropertyDescriptor("captionForeground", getBeanClass()),                        
             new PropertyDescriptor("captionMnemonic", getBeanClass()),
-            new PropertyDescriptor("captionOrientation", getBeanClass()),
             new PropertyDescriptor("captionPadding", getBeanClass()),
             
-            installEditor(new PropertyDescriptor("captionHAlignment", getBeanClass()), SwingConstantsHAlignment.class),
-            installEditor(new PropertyDescriptor("captionVAlignment", getBeanClass()), SwingConstantsVAlignment.class),
+            installEditor(new PropertyDescriptor("captionOrientation", getBeanClass()), CaptionOrientationPropertyEditor.class), 
+            installEditor(new PropertyDescriptor("captionHAlignment", getBeanClass()), UIConstantsHAlignmentPropertyEditor.class),
+            installEditor(new PropertyDescriptor("captionVAlignment", getBeanClass()), UIConstantsVAlignmentPropertyEditor.class),
             
             new PropertyDescriptor("captionWidth", getBeanClass()),
             new PropertyDescriptor("showCaption", getBeanClass(), "isShowCaption", "setShowCaption"),             
             new PropertyDescriptor("cellpadding", getBeanClass()),
             new PropertyDescriptor("cellspacing", getBeanClass()),
+            
+            new PropertyDescriptor("stretchWidth", getBeanClass()),
+            new PropertyDescriptor("stretchHeight", getBeanClass()),
             
             new PropertyDescriptor("depends", getBeanClass()),
             new PropertyDescriptor("dynamic", getBeanClass(), "isDynamic", "setDynamic"),

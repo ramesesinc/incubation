@@ -63,6 +63,9 @@ public class XLookupFieldBeanInfo extends ComponentBeanInfo.Support
             installEditor(new PropertyDescriptor("textCase", getBeanClass()), TextCasePropertyEditor.class),
             installEditor(new PropertyDescriptor("trimSpaceOption", getBeanClass()), TrimSpaceOptionPropertyEditor.class),
             
+            new PropertyDescriptor("stretchWidth", getBeanClass()),
+            new PropertyDescriptor("stretchHeight", getBeanClass()),
+            
             new PropertyDescriptor("nullWhenEmpty", getBeanClass(), "isNullWhenEmpty", "setNullWhenEmpty"),  
             new PropertyDescriptor("readonly", getBeanClass(), "isReadonly", "setReadonly"),  
             new PropertyDescriptor("required", getBeanClass(), "isRequired", "setRequired"), 

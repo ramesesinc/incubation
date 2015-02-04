@@ -55,6 +55,8 @@ public class XActionBarBeanInfo extends ComponentBeanInfo.Support
             new PropertyDescriptor("padding", getBeanClass()),
             new PropertyDescriptor("showCaptions", getBeanClass(), "isShowCaptions", "setShowCaptions"),
             new PropertyDescriptor("spacing", getBeanClass()),
+            new PropertyDescriptor("stretchWidth", getBeanClass()),
+            new PropertyDescriptor("stretchHeight", getBeanClass()),
             new PropertyDescriptor("target", getBeanClass()),
             new PropertyDescriptor("useToolBar", getBeanClass(), "isUseToolBar", "setUseToolBar") 
         };        

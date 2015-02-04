@@ -54,6 +54,9 @@ public class XMaskFieldBeanInfo extends ComponentBeanInfo.Support
             new PropertyDescriptor("includeLiteral", getBeanClass()),
             new PropertyDescriptor("mask", getBeanClass()),
             
+            new PropertyDescriptor("stretchWidth", getBeanClass()),
+            new PropertyDescriptor("stretchHeight", getBeanClass()),
+            
             new PropertyDescriptor("readonly", getBeanClass(), "isReadonly", "setReadonly"),
             new PropertyDescriptor("required", getBeanClass(), "isRequired", "setRequired")
         }; 

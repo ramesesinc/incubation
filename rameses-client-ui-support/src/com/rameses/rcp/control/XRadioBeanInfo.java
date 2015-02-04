@@ -45,6 +45,9 @@ public class XRadioBeanInfo extends ComponentBeanInfo.Support
 
             new PropertyDescriptor("cellPadding", getBeanClass()),
             
+            new PropertyDescriptor("stretchWidth", getBeanClass()),
+            new PropertyDescriptor("stretchHeight", getBeanClass()),
+            
             new PropertyDescriptor("depends", getBeanClass()),
             new PropertyDescriptor("index", getBeanClass()),
             new PropertyDescriptor("optionValue", getBeanClass()),

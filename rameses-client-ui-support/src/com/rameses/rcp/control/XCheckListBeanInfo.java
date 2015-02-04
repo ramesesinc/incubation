@@ -58,6 +58,8 @@ public class XCheckListBeanInfo extends ComponentBeanInfo.Support
             installEditor(new PropertyDescriptor("selectionMode", getBeanClass()), SelectionModePropertyEditor.class), 
             
             new PropertyDescriptor("padding", getBeanClass()),
+            new PropertyDescriptor("stretchWidth", getBeanClass()),
+            new PropertyDescriptor("stretchHeight", getBeanClass()),
             new PropertyDescriptor("varName", getBeanClass()),  
             new PropertyDescriptor("visibleWhen", getBeanClass()) 
         }; 

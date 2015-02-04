@@ -46,6 +46,8 @@ public class XSubFormPanelBeanInfo extends ComponentBeanInfo.Support
             new PropertyDescriptor("handler", getBeanClass()),
             new PropertyDescriptor("handlerObject", getBeanClass()),
             new PropertyDescriptor("index", getBeanClass()), 
+            new PropertyDescriptor("stretchWidth", getBeanClass()),
+            new PropertyDescriptor("stretchHeight", getBeanClass()),
             new PropertyDescriptor("visibleWhen", getBeanClass()) 
         }; 
     }

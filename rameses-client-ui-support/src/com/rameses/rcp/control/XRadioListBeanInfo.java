@@ -57,6 +57,9 @@ public class XRadioListBeanInfo extends ComponentBeanInfo.Support
             installEditor(new PropertyDescriptor("orientation", getBeanClass()), SwingConstantsOrientation.class), 
             installEditor(new PropertyDescriptor("selectionMode", getBeanClass()), SelectionModePropertyEditor.class), 
             
+            new PropertyDescriptor("stretchWidth", getBeanClass()),
+            new PropertyDescriptor("stretchHeight", getBeanClass()),
+            
             new PropertyDescriptor("padding", getBeanClass()),
             new PropertyDescriptor("varName", getBeanClass()),  
             new PropertyDescriptor("visibleWhen", getBeanClass()) 

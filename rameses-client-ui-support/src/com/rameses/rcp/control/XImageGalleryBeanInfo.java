@@ -46,6 +46,9 @@ public class XImageGalleryBeanInfo extends ComponentBeanInfo.Support
             new PropertyDescriptor("selectionBorderColor", getBeanClass()),             
             new PropertyDescriptor("visibleWhen", getBeanClass()), 
             
+            new PropertyDescriptor("stretchWidth", getBeanClass()),
+            new PropertyDescriptor("stretchHeight", getBeanClass()),
+            
             installEditor(new PropertyDescriptor("scrollbarHPolicy", getBeanClass()), ScrollbarHPolicyPropertyEditor.class), 
             installEditor(new PropertyDescriptor("scrollbarVPolicy", getBeanClass()), ScrollbarVPolicyPropertyEditor.class) 
         }; 

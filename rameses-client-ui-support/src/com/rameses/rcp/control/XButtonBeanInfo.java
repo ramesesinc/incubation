@@ -58,6 +58,8 @@ public class XButtonBeanInfo extends ComponentBeanInfo.Support
             new PropertyDescriptor("target", getBeanClass()),  
             new PropertyDescriptor("focusable", getBeanClass(), "isFocusable", "setFocusable"),
             new PropertyDescriptor("params", getBeanClass()), 
+            new PropertyDescriptor("stretchWidth", getBeanClass()),
+            new PropertyDescriptor("stretchHeight", getBeanClass()),
             new PropertyDescriptor("visibleWhen", getBeanClass())            
         };        
     }

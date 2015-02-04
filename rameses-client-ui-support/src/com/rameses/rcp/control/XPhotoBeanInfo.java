@@ -34,6 +34,9 @@ public class XPhotoBeanInfo extends ComponentBeanInfo.Support
             new PropertyDescriptor("border", getBeanClass()),
             new PropertyDescriptor("text", getBeanClass()), 
             
+            new PropertyDescriptor("stretchWidth", getBeanClass()),
+            new PropertyDescriptor("stretchHeight", getBeanClass()),
+            
             new PropertyDescriptor("depends", getBeanClass()),
             new PropertyDescriptor("index", getBeanClass()), 
             new PropertyDescriptor("noImageIcon", getBeanClass()), 

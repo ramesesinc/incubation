@@ -35,6 +35,8 @@ public class XHtmlEditorBeanInfo extends ComponentBeanInfo.Support
             new PropertyDescriptor("handler", getBeanClass()),
             new PropertyDescriptor("itemExpression", getBeanClass()),
             new PropertyDescriptor("required", getBeanClass(), "isRequired", "setRequired"), 
+            new PropertyDescriptor("stretchWidth", getBeanClass()),
+            new PropertyDescriptor("stretchHeight", getBeanClass()),
             new PropertyDescriptor("varName", getBeanClass()), 
             new PropertyDescriptor("visibleWhen", getBeanClass())            
         };        

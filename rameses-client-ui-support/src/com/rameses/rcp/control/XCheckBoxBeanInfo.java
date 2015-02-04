@@ -50,6 +50,8 @@ public class XCheckBoxBeanInfo extends ComponentBeanInfo.Support
             new PropertyDescriptor("depends", getBeanClass()),
             new PropertyDescriptor("index", getBeanClass()),
             new PropertyDescriptor("readonly", getBeanClass(), "isReadonly", "setReadonly"),
+            new PropertyDescriptor("stretchWidth", getBeanClass()),
+            new PropertyDescriptor("stretchHeight", getBeanClass()),
             new PropertyDescriptor("uncheckValue", getBeanClass())      
         }; 
     }
