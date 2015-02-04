@@ -1051,7 +1051,6 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
 
                 int dw = dim.width; 
                 int sw = fip.getStretchWidth(); 
-                System.out.println("comps("+i+"): name="+ c.getClass().getName() + ", size="+ dim + ", stretchwidth="+sw + ", preferredMaxWidth="+ preferredMaxWidth); 
                 if (sw > 0) { 
                     double d0 = (double) w; 
                     if (w < preferredMaxWidth) { 
