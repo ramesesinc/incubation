@@ -58,6 +58,9 @@ public class XCamera extends JButton implements MouseEventSupport.ComponentInfo,
     private String[] depends;
     private int index; 
     
+    private int stretchWidth;
+    private int stretchHeight;        
+    
     public XCamera() {
         mouseSupport = new MouseEventSupport(this);
         mouseSupport.install(); 
@@ -221,6 +224,16 @@ public class XCamera extends JButton implements MouseEventSupport.ComponentInfo,
     public int compareTo(Object o) {
         return UIControlUtil.compare(this, o);
     }
+    
+    public int getStretchWidth() { return stretchWidth; } 
+    public void setStretchWidth(int stretchWidth) {
+        this.stretchWidth = stretchWidth; 
+    }
+    
+    public int getStretchHeight() { return stretchHeight; } 
+    public void setStretchHeight(int stretchHeight) {
+        this.stretchHeight = stretchHeight;
+    }      
     
     // </editor-fold>
     

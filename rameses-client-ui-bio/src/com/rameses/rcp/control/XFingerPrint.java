@@ -59,6 +59,9 @@ public class XFingerPrint extends JButton implements MouseEventSupport.Component
     private String[] depends;
     private int index; 
     
+    private int stretchWidth;
+    private int stretchHeight;        
+    
     public XFingerPrint() {
         mouseSupport = new MouseEventSupport(this);
         mouseSupport.install(); 
@@ -221,6 +224,16 @@ public class XFingerPrint extends JButton implements MouseEventSupport.Component
     public int compareTo(Object o) {
         return UIControlUtil.compare(this, o);
     }
+    
+    public int getStretchWidth() { return stretchWidth; } 
+    public void setStretchWidth(int stretchWidth) {
+        this.stretchWidth = stretchWidth; 
+    }
+    
+    public int getStretchHeight() { return stretchHeight; } 
+    public void setStretchHeight(int stretchHeight) {
+        this.stretchHeight = stretchHeight;
+    }      
     
     // </editor-fold>
     
