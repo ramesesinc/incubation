@@ -57,7 +57,9 @@ public class XCameraBeanInfo extends ComponentBeanInfo.Support
             new PropertyDescriptor("target", getBeanClass()),  
             new PropertyDescriptor("focusable", getBeanClass(), "isFocusable", "setFocusable"), 
             
-            new PropertyDescriptor("handler", getBeanClass())
+            new PropertyDescriptor("handler", getBeanClass()),
+            new PropertyDescriptor("stretchWidth", getBeanClass()),
+            new PropertyDescriptor("stretchHeight", getBeanClass())
         };        
     }
 }
