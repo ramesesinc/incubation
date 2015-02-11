@@ -35,6 +35,7 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Insets;
 import java.awt.LayoutManager;
+import java.awt.Rectangle;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
@@ -45,6 +46,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
@@ -987,41 +989,96 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
             }
         }
         
+        private int relayoutBounds(Container parent, Component[] comps) {
+            Insets margin = parent.getInsets(); 
+            int x = margin.left;
+            for (int i=0; i<comps.length; i++) {
+                Component c = comps[i];
+                Rectangle rect = c.getBounds();
+                int spacing = (i > 0? getCellspacing(): 0);
+                
+                x += spacing + cellpadding.left; 
+                c.setBounds(x, rect.y, rect.width, rect.height); 
+                x += rect.width + cellpadding.right; 
+            } 
+            
+            int pw = parent.getWidth() - margin.right;
+            return Math.max(pw - x, 0); 
+        }
+        
         private void layoutContainerHorizontal(Container parent) { 
             Insets margin = parent.getInsets();
             int x = margin.left;
             int y = margin.top;
-            int w = parent.getWidth() - (margin.left + margin.right);
-            int h = parent.getHeight() - (margin.top + margin.bottom);
-
-            boolean hasVisibleComponents = false;            
+            
+            List<Component> list = new ArrayList();
             Component[] comps = getVisibleComponents(parent);
-            for (int i=0; i<comps.length; i++) {
+            for (int i=0; i<comps.length; i++) { 
                 Component c = comps[i]; 
                 Dimension dim = c.getPreferredSize(); 
+                int spacing = (i > 0? getCellspacing(): 0); 
+
                 FormItemProperty fip = (FormItemProperty)c; 
-
-                if (hasVisibleComponents) {
-                    x += getCellspacing();
-                } 
-
-                int dw = dim.width; 
                 int sw = fip.getStretchWidth(); 
-                if (sw > 0) { 
-                    double d0 = (double) w; 
-                    double d1 = sw / 100.0; 
-                    double d2 = d0 * d1; 
-                    int rw = Math.max(parent.getWidth()-x-margin.right, 0);
-                    dw = new BigDecimal(d2).setScale(0, RoundingMode.HALF_UP).intValue(); 
-                    if (dw > rw) { dw = rw; } 
-                    if (dw < dim.width) { dw = dim.width; } 
-                } 
+                if (sw > 0) list.add( c ); 
+                
+                x += spacing + cellpadding.left; 
+                c.setBounds(x, y, dim.width, dim.height); 
+                x += dim.width + cellpadding.right; 
+            } 
+            
+            if ( list.isEmpty() ) { return; } 
 
-                x += cellpadding.left;
-                c.setBounds(x, y, dw, dim.height);
-                x += cellpadding.right + dw;
-                hasVisibleComponents = true;
-            }            
+            int w = parent.getWidth() - (margin.left + margin.right);
+            int extrawidth = Math.max(w - x, 0);
+            if (extrawidth == 0) { return; }
+            
+            int[] widths = new int[list.size()]; 
+            for (int i=0; i<list.size(); i++) {
+                Component c = list.get(i); 
+                FormItemProperty fip = (FormItemProperty)c; 
+                int sw = fip.getStretchWidth(); 
+                double d0 = (double) extrawidth; 
+                double d1 = sw / 100.0; 
+                double d2 = d0 * d1; 
+                int xw = new BigDecimal(d2).setScale(0, RoundingMode.HALF_UP).intValue(); 
+                widths[i] = xw; 
+            }
+            while (sum(widths) > extrawidth) {
+                for (int i=0; i<widths.length; i++) { 
+                    if (sum(widths)-1 < extrawidth) { break; } 
+                    
+                    widths[i] -= 1; 
+                } 
+            } 
+            for (int i=0; i<widths.length; i++) {
+                Component c = list.get(i); 
+                Rectangle rect = c.getBounds();
+                Dimension dim = c.getPreferredSize(); 
+                c.setBounds(rect.x, rect.y, dim.width + widths[i], rect.height); 
+            }
+            relayoutBounds(parent, comps); 
+            if (comps.length > 0) {
+                Component c = comps[comps.length-1];
+                FormItemProperty fip = (FormItemProperty)c; 
+                if (fip.getStretchWidth() > 0) {
+                    Rectangle rect = c.getBounds();
+                    int px = parent.getWidth() - margin.right - cellpadding.right;                     
+                    int cx = rect.x + rect.width; 
+                    if (cx < px) {
+                        int w0 = Math.max(px-cx, 0);
+                        c.setBounds(rect.x, rect.y, rect.width+w0, rect.height);
+                    }
+                }
+            }
+        } 
+        
+        private int sum(int[] values) {
+            int result = 0;
+            for (int i=0; i<values.length; i++) {
+                result += values[i]; 
+            }
+            return result; 
         }
         
         private void layoutContainerVertical(Container parent) { 
@@ -1073,7 +1130,7 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
             List<Component> results = new ArrayList();
             Component[] comps = parent.getComponents();
             for (int i=0; i<comps.length; i++) {
-                if (!comps[i].isVisible()) continue;
+                if (!comps[i].isVisible()) { continue; } 
                 if (comps[i] instanceof FormItemProperty) {
                     results.add( comps[i] ); 
                 } else {
@@ -1105,10 +1162,12 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
             boolean hasVisibleComponents = false;
             for (int i=0; i<comps.length; i++) {
                 Component c = comps[i];
-                if (!c.isVisible()) continue;
-                if (!(c instanceof FormItemProperty)) continue; 
+                if (!c.isVisible()) { continue; } 
+                if (!(c instanceof FormItemProperty)) { continue; } 
 
-                if (hasVisibleComponents) w += getCellspacing(); 
+                if (hasVisibleComponents) {
+                    w += getCellspacing();
+                } 
                 
                 Dimension dim = c.getPreferredSize();
                 h = Math.max(h, dim.height + cellpadding.top + cellpadding.bottom);
@@ -1123,12 +1182,14 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
             boolean hasVisibleComponents = false;
             for (int i=0; i<comps.length; i++) {
                 Component c = comps[i]; 
-                if (!c.isVisible()) continue; 
-                if (!(c instanceof FormItemProperty)) continue; 
+                if (!c.isVisible()) { continue; } 
+                if (!(c instanceof FormItemProperty)) { continue; } 
 
                 if (hasVisibleComponents) {
                     h += getCellspacing();
-                    if (isShowCategory()) h += 10;
+                    if (isShowCategory()) { 
+                        h += 10;
+                    }
                 } 
 
                 Dimension dim = c.getPreferredSize();
@@ -1139,7 +1200,8 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
             return new Dimension(w, h); 
         }        
         
-        public void addLayoutComponent(Component comp, Object constraints) {}
+        public void addLayoutComponent(Component comp, Object constraints) {
+        }
 
         public Dimension maximumLayoutSize(Container parent) {
             return getLayoutSize(parent); 

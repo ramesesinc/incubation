@@ -523,6 +523,8 @@ public class ItemPanel extends JPanel implements FormItemProperty {
                     
                     label.setBounds(x, y, cw, h); 
                     x += cw;
+                } else if ( uimodel.label != null ) {
+                    label.setBounds(-1, -1, 0, 0); 
                 }
 
                 cw = Math.max(parent.getWidth()-x-margin.right, 0); 
