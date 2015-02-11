@@ -24,17 +24,24 @@ import com.rameses.rcp.util.UIControlUtil;
 import com.rameses.util.Warning;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Event;
 import java.awt.EventQueue;
 import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.beans.Beans;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.swing.AbstractAction;
 import javax.swing.Icon;
+import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
+import javax.swing.KeyStroke;
 
 public class XTabbedPane extends JTabbedPane implements UIControl, MouseEventSupport.ComponentInfo 
 {    
@@ -52,7 +59,7 @@ public class XTabbedPane extends JTabbedPane implements UIControl, MouseEventSup
     
     private TabbedPaneModel model;
     private boolean noSelectionAllowed;
-    
+   
     private int stretchWidth;
     private int stretchHeight;     
     
@@ -268,16 +275,33 @@ public class XTabbedPane extends JTabbedPane implements UIControl, MouseEventSup
                 if (sval != null && sval.length() > 0) {
                     mnemonic = propval.toString().charAt(0); 
                 } 
-                super.addTab(op.getCaption(), getOpenerIcon(op), itemPanel); 
-                int tabindex = super.getTabCount(); 
-                if (tabindex > 0) {
-                    super.setMnemonicAt(tabindex-1, mnemonic);
-                } 
+                itemPanel.setMnemonic(mnemonic); 
+                
+                String scaption = op.getCaption(); 
+                if (mnemonic != '\u0000') {
+                    String findstr = mnemonic+"";
+                    StringBuilder sb = new StringBuilder();
+                    if (scaption != null) { 
+                        sb.append(scaption); 
+                    }
+                    
+                    int idx = sb.toString().toLowerCase().indexOf(findstr.toLowerCase());
+                    if (idx >= 0) {
+                        char c = sb.charAt(idx); 
+                        sb.replace(idx, idx+1, "<u>"+c+"</u>");
+                    }
+                    scaption = "<html>"+ sb.toString() + "</html>"; 
+                }
+
+                super.addTab(scaption, getOpenerIcon(op), itemPanel); 
+                
             } catch(Throwable t) {
                 //do nothing 
             } finally {
                 noSelectionAllowed = false;
             } 
+            
+            getKeyboardActionManager().register( itemPanel ); 
         }
         
         if (getTabCount() > 0) setSelectedIndex(0);        
@@ -445,4 +469,56 @@ public class XTabbedPane extends JTabbedPane implements UIControl, MouseEventSup
     
     // </editor-fold>
     
+    // <editor-fold defaultstate="collapsed" desc=" TabbedItemKeyboardAction ">
+    
+    private KeyboardActionManager keyActionMgr;
+    private KeyboardActionManager getKeyboardActionManager() {
+        if (keyActionMgr == null) {
+            keyActionMgr = new KeyboardActionManager();
+        }
+        return keyActionMgr; 
+    }
+    
+    private class KeyboardActionManager  {
+        
+        XTabbedPane root = XTabbedPane.this;
+        
+        private void register(TabbedItemPanel itemPanel) {
+            if (itemPanel == null) { return; } 
+            
+            char mchar = itemPanel.getMnemonic();
+            if (mchar == '\u0000') { return; }
+            
+            TabbedItemSelector selector = new TabbedItemSelector(itemPanel, mchar);
+            root.getActionMap().put(selector.key, selector);            
+            root.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(selector.ks, selector.key);
+        } 
+    } 
+    
+    private class TabbedItemSelector extends AbstractAction {
+        
+        XTabbedPane root = XTabbedPane.this;
+        
+        TabbedItemPanel panel; 
+        KeyStroke ks;
+        Object key;
+        char mchar;
+        
+        TabbedItemSelector( TabbedItemPanel panel, char mchar ) {
+            this.panel = panel; 
+            this.ks = KeyStroke.getKeyStroke("alt " + Character.toUpperCase(mchar)); 
+            this.key = "TabbedItemSelector_open_" + mchar;
+        }
+        
+        public void actionPerformed(ActionEvent e) {
+            int idx = root.indexOfComponent( panel ); 
+            if (idx >= 0) {
+                root.setSelectedIndex( idx ); 
+            } else { 
+                root.getActionMap().remove(key); 
+            } 
+        } 
+    } 
+    
+    // </editor-fold>
 }

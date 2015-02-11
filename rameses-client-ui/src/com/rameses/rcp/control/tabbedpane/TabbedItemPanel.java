@@ -38,17 +38,24 @@ public class TabbedItemPanel extends JPanel
     private XSubFormPanel content;
     private boolean processing;
     private ImageIcon processIcon;
+    private char mnemonic;
     
     public TabbedItemPanel(Opener opener) {
         super();
         
         this.opener = opener; 
+        this.mnemonic = '\u0000';         
         super.setLayout(layout = new Layout()); 
     }
     
     public final LayoutManager getLayout() { return layout; } 
     public final void setLayout(LayoutManager mgr){
         //do nothing
+    }
+    
+    public char getMnemonic() { return mnemonic; } 
+    public void setMnemonic(char mnemonic) {
+        this.mnemonic = mnemonic; 
     }
     
     public Opener getOpener() { return opener; } 
@@ -135,7 +142,7 @@ public class TabbedItemPanel extends JPanel
         xsf.load();
         removeAll();
         content = xsf;
-        add(xsf);         
+        add(xsf); 
     }
     
     public void paint(Graphics g) {
