@@ -31,6 +31,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
@@ -74,12 +75,11 @@ public class XSubFormPanel extends JPanel implements UISubControl, ActiveControl
         super.setLayout(new BorderLayout());
         setOpaque(false);
         
-        if ( Beans.isDesignTime() ) 
-        {
+        if ( Beans.isDesignTime() ) {
             setPreferredSize( new Dimension(40,20) );
             setBackground( Color.decode("#a0a0a0") );
             setOpaque(true); 
-        }
+        } 
         
         addAncestorListener(new AncestorListener() {
             public void ancestorMoved(AncestorEvent event) {}

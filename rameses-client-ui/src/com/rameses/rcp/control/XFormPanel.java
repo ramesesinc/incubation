@@ -1095,13 +1095,12 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
                 preferredMaxWidth = Math.max(preferredMaxWidth, dim.width); 
             }
             
-            boolean hasVisibleComponents = false;
             for (int i=0; i<comps.length; i++) {
                 Component c = comps[i]; 
                 Dimension dim = c.getPreferredSize(); 
                 FormItemProperty fip = (FormItemProperty)c; 
 
-                if (hasVisibleComponents) {
+                if (i > 0) {
                     y += getCellspacing();
                     if (isShowCategory()) { y += 10; } 
                 } 
@@ -1122,7 +1121,6 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
                 y += cellpadding.top;
                 c.setBounds(x, y, dw, dim.height);
                 y += dim.height + cellpadding.bottom;
-                hasVisibleComponents = true;
             }
         }
         

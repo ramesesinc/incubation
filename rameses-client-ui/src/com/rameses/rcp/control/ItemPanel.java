@@ -12,6 +12,7 @@ import com.rameses.rcp.support.FontSupport;
 import com.rameses.rcp.ui.ActiveControl;
 import com.rameses.rcp.ui.ControlProperty;
 import com.rameses.rcp.ui.UIControl;
+import com.rameses.rcp.ui.UISubControl;
 import com.rameses.util.ValueUtil;
 import java.awt.Component;
 import java.awt.Container;
@@ -332,14 +333,20 @@ public class ItemPanel extends JPanel implements FormItemProperty {
         } 
         int getStretchWidth() {
             int sw = 0;
-            if (editor != null && editor.getPreferredSize().width == 0) {
+            if (editor == null) {
+                //do nothing 
+            } else if (editor.getPreferredSize().width == 0) {
                 sw = 100; 
             } else {
                 sw = (uicontrol == null? 0: uicontrol.getStretchWidth()); 
                 if (sw > 100) { sw = 100; } 
             }
+            
+            if (sw == 0 && (editor instanceof UISubControl)) { 
+                sw = 100; 
+            } 
             return sw; 
-        }
+        } 
         int getStretchHeight() {
             return (uicontrol == null? 0: uicontrol.getStretchHeight());
         }     
