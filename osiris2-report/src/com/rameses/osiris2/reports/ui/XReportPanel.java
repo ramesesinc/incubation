@@ -47,6 +47,9 @@ public class XReportPanel extends JPanel implements UIControl {
     private String[] depends;
     private int index;
     
+    private int stretchWidth;
+    private int stretchHeight;
+        
     private ReportModel model; 
     
     public XReportPanel() {
@@ -85,6 +88,16 @@ public class XReportPanel extends JPanel implements UIControl {
     public void refresh() {
         render(); 
     } 
+    
+    public int getStretchWidth() { return stretchWidth; }
+    public void setStretchWidth(int stretchWidth) {
+        this.stretchWidth = stretchWidth; 
+    }
+
+    public int getStretchHeight() { return stretchHeight; }
+    public void setStretchHeight(int stretchHeight) {
+        this.stretchHeight = stretchHeight; 
+    }    
     
     private void render() {
         if ( ValueUtil.isEmpty(getName()) ) 
@@ -144,7 +157,7 @@ public class XReportPanel extends JPanel implements UIControl {
         }
         return btnBack; 
     }
-    
+
     private class Customizer 
     {
         private JRViewer jviewer;
