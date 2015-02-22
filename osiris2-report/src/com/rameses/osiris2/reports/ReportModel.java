@@ -32,12 +32,18 @@ public abstract class ReportModel {
     
     @Invoker
     protected com.rameses.osiris2.Invoker invoker;
-    
+
+    private boolean dynamic = false;    
     private boolean allowSave = false;
     private boolean allowPrint = true;
     
     public abstract Object getReportData();
     public abstract String getReportName();
+    
+    public boolean isDynamic() { return dynamic; } 
+    public void setDynamic(boolean dynamic) {
+        this.dynamic = dynamic; 
+    }
     
     public boolean isAllowSave() { return allowSave; }
     public void setAllowSave(boolean allowSave) {
@@ -59,9 +65,11 @@ public abstract class ReportModel {
     
     private JasperPrint createReport() {
         try {
-            if (mainReport == null) {
+            if (ReportUtil.isTestMode()) { mainReport = null; }
+            
+            if (mainReport == null || isDynamic()) { 
                 mainReport = ReportUtil.getJasperReport(getReportName());
-            }
+            } 
             
             Map conf = new HashMap();
             SubReport[] subReports = getSubReports();
