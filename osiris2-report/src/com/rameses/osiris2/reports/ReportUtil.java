@@ -70,16 +70,20 @@ public final class ReportUtil {
         //if it has, use the report dir as follows:
         //[original report dir]/[report.custom value]/[report filename]
         //otherwise use the original requested report name
+        final String preferredName = name;
+        String customReportName = null; 
         
-        String cusDir = (String) OsirisContext.getSession().getEnv().get("report.custom");
-        if (cusDir == null) cusDir = (String) OsirisContext.getSession().getEnv().get("app.custom");
+        Map env = OsirisContext.getSession().getEnv();
+        String testdir = (String) env.get("report.testdir"); 
+        String cusDir = (String) env.get("report.custom");
+        if (cusDir == null) { cusDir = (String) env.get("app.custom"); } 
         
         if (cusDir != null) {
             String oDir = name.substring(0, name.lastIndexOf("/"));
             String oFname = name.substring(name.lastIndexOf("/"));
-            String cusReportName = oDir + "/" + cusDir + oFname;
-            URL u = ReportUtil.class.getClassLoader().getResource(cusReportName);
-            if (u != null) name = cusReportName;
+            customReportName = oDir + "/" + cusDir + oFname;
+            URL u = ReportUtil.class.getClassLoader().getResource(customReportName);
+            if (u != null) { name = customReportName; } 
         }
         
         String reportPath = System.getProperty("user.dir") + "/reports/";
@@ -90,14 +94,13 @@ public final class ReportUtil {
             FileOutputStream fos = null;
             try {
                 //fix the directories
-                String reportName = reportPath + name.replaceAll("jrxml", "jasper");
+                String srptname = reportPath + name.replaceAll("jrxml", "jasper");
                 
-                String dirPath = reportName.substring(0, reportName.lastIndexOf("/"));
+                String dirPath = srptname.substring(0, srptname.lastIndexOf("/"));
                 File fd = new File(dirPath);
-                if(!fd.exists()) fd.mkdirs();
+                if (!fd.exists()) { fd.mkdirs(); }
                 
-                
-                File f = new File(reportName);
+                File f = new File(srptname);
                 URL u = ReportUtil.class.getClassLoader().getResource(name);
                 is = u.openStream();
                 uc = u.openConnection();
@@ -122,22 +125,38 @@ public final class ReportUtil {
                 
             } catch(Exception e) {
                 e.printStackTrace();
-                throw new IllegalStateException(e);
+                throw new IllegalStateException(e.getMessage(), e);
             } finally {
                 try { is.close(); } catch(Exception ign){;}
                 try { fos.close(); } catch(Exception ign){;}
             }
+            
         } else if( name.endsWith(".jasper") ) {
             try {
+                if (testdir != null) {
+                    File ofile = new File(testdir + '/' + customReportName); 
+                    if (ofile.exists() && !ofile.isDirectory()) {
+                        return (JasperReport) JRLoader.loadObject(ofile); 
+                    }
+                    
+                    ofile = new File(testdir + '/' + preferredName); 
+                    if (ofile.exists() && !ofile.isDirectory()) { 
+                        return (JasperReport) JRLoader.loadObject(ofile); 
+                    } 
+                } 
+                
                 URL u = ReportUtil.class.getClassLoader().getResource(name);
-                return (JasperReport) JRLoader.loadObject(u);
+                return (JasperReport) JRLoader.loadObject(u); 
             } catch(Exception ex) {
-                throw new IllegalStateException(ex);
+                throw new IllegalStateException(ex.getMessage(), ex);
             }
         } else {
             throw new IllegalStateException("Report name " + name + " not recognozed");
         }
     }
     
-    
+    public static boolean isTestMode() {
+        Object testdir = OsirisContext.getSession().getEnv().get("report.testdir"); 
+        return (testdir != null); 
+    }
 }
