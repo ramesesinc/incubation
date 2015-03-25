@@ -3,6 +3,6 @@
   description: 'returns the number of rounded to nearest hundreth value.',
   code: 'com.rameses.functions.NumberFunc.round',
   title: '@ROUND( value )', 
-  signature: '@ROUND( | )',
+  signature: '@ROUND(.*)',
   group: 'number'  
 }
