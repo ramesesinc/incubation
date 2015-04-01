@@ -43,6 +43,10 @@ public final class NumberFunc {
     }
     
     public static BigDecimal round( Object amount ) {
+        return round(amount, 2 );
+    }
+    
+    public static BigDecimal round( Object amount, int scale ) {
         if( amount == null || amount.toString().length() == 0) 
             return new BigDecimal("0.0");
         
@@ -52,7 +56,7 @@ public final class NumberFunc {
         }
         
         BigDecimal bd = new BigDecimal(amount.toString());
-        return bd.setScale(2, RoundingMode.HALF_UP);
-    }
+        return bd.setScale(scale, RoundingMode.HALF_UP);
+    }    
     
 }
