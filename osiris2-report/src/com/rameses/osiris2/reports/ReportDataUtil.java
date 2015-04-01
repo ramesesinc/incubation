@@ -174,70 +174,41 @@ public final class ReportDataUtil
         return dt;
     }
     
-    public int getDaysDiff(Object dtfrom, Object dtto) {
-        java.util.Date dt1 = convertDate(dtfrom);
-        java.util.Date dt2 = convertDate(dtto);
+    public int getDaysDiff( Object dtfrom, Object dtto ) {
+        java.util.Date startDate = convertDate( dtfrom );
+        java.util.Date endDate = convertDate( dtto );
         
-        SimpleDateFormat YM = new SimpleDateFormat("yyyy-MM");
-        Calendar cal = Calendar.getInstance();
-        java.util.Date now = cal.getTime();
-        if (dt2 == null) dt2 = now;
+        Calendar startCal = Calendar.getInstance();
+        Calendar endCal = Calendar.getInstance();
         
-        cal.setTime(dt2);
-        int year2 = cal.get(1);
-        int month2 = cal.get(2);
-        int day2 = cal.get(5);
+        startCal.setTime(startDate);
+        endCal.setTime(endDate );
         
-        dt1 = java.sql.Date.valueOf(YM.format(dt1) + "-01");
-        dt2 = java.sql.Date.valueOf(YM.format(dt2) + "-01");
-        List results = new ArrayList();
-        cal.setTime(dt1);
-        while (true) {
-            int year1 = cal.get(1);
-            int month1 = cal.get(2);
-            if (year1 > year2)
-                break;
-            if (year1 < year2) {
-                results.add(new Integer(cal.getActualMaximum(5)));
-            } else {
-                if (month1 > month2)
-                    break;
-                if (month1 < month2)
-                    results.add(new Integer(cal.getActualMaximum(5)));
-                else {
-                    results.add(new Integer(day2));
-                }
-            }
-            cal.add(2, 1);
-        }
+        long startMillis = startCal.getTimeInMillis();
+        long endMillis = endCal.getTimeInMillis();
         
-        int numdays = 0;
-        while (!results.isEmpty()) {
-            numdays += ((Integer)results.remove(0)).intValue();
-        }
-        return numdays;
+        // Calculate no. of days using diff in milliseconds
+        long diff = endMillis - startMillis;
+        return (int)(diff / (24 * 60 * 60 * 1000) + 1); 
     }
     
     public int getYearsDiff(Object dtfrom, Object dtto) {
-        java.util.Date dt1 = convertDate(dtfrom);
-        java.util.Date dt2 = convertDate(dtto);
+        java.util.Date startDate = convertDate( dtfrom );
+        java.util.Date endDate = convertDate( dtto );
         
-        SimpleDateFormat YMD = new SimpleDateFormat("yyyy-MM-dd");
-        Calendar cal = Calendar.getInstance();
-        if (dt2 == null) dt2 = cal.getTime();
+        Calendar startCal = Calendar.getInstance();
+        Calendar endCal = Calendar.getInstance();
         
-        dt1 = java.sql.Date.valueOf(YMD.format(dt1));
-        dt2 = java.sql.Date.valueOf(YMD.format(dt2));
-        int numyears = 0;
-        cal.setTime(dt1);
-        while (true) {
-            cal.add(2, 12);
-            
-            java.util.Date dt = cal.getTime();
-            if (dt.after(dt2))
-                break;
-            ++numyears;
+        startCal.setTime(startDate);
+        endCal.setTime(endDate );
+        
+        int years = 0;         
+        if (startCal.get(Calendar.YEAR) != endCal.get(Calendar.YEAR)) {
+            while ( startCal.before(endCal) ) {
+                startCal.add(Calendar.YEAR, 1); 
+                years++; 
+            } 
         }
-        return numyears;
+        return years; 
     }
 }

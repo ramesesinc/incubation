@@ -91,6 +91,7 @@ public abstract class ReportModel {
             }
             
             conf.put("REPORT_UTIL", new ReportDataUtil());
+            conf.put("REPORTHELPER", new ReportDataSourceHelper());
             return JasperFillManager.fillReport(mainReport, conf, ds);
         } catch (RuntimeException re) {
             throw re;
