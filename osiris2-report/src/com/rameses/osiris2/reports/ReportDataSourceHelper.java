@@ -19,11 +19,20 @@ public class ReportDataSourceHelper implements JRDataSource
     private SimpleDateFormat dateTimeFormatter;
     private Map<String,DecimalFormat> numberFormats; 
     
+    private Object source; 
+    
     public ReportDataSourceHelper() {
+        this( null );
+    }
+    
+    public ReportDataSourceHelper( Object source ) {
+        this.source = source; 
+        
         dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
         dateTimeFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        numberFormats = new HashMap(); 
+        numberFormats = new HashMap();         
     }
+    
     
     // <editor-fold defaultstate="collapsed" desc=" JRDataSource implementaiton ">
     
@@ -36,6 +45,7 @@ public class ReportDataSourceHelper implements JRDataSource
     }    
     
     // </editor-fold>
+    
     
     private DecimalFormat getNumberFormat( String pattern ) {
         if ( pattern == null ) { pattern = "#,##0.00"; } 
@@ -57,11 +67,15 @@ public class ReportDataSourceHelper implements JRDataSource
     }
         
     public String toString( Object value ) {
-        if (value == null) {
+        if ( value == null ) { 
             return null; 
         } else {
             return value.toString(); 
         } 
+    }
+    
+    public Date toDate() {
+        return toDate( source ); 
     }
     
     public Date toDate( Object value ) {
@@ -74,6 +88,10 @@ public class ReportDataSourceHelper implements JRDataSource
         }
     }
     
+    public Timestamp toDateTime() {
+        return toDateTime( source ); 
+    }
+    
     public Timestamp toDateTime( Object value ) {
         if (value == null) {
             return null; 
@@ -84,7 +102,11 @@ public class ReportDataSourceHelper implements JRDataSource
         } else {
             return (Timestamp) convertDate( value, true ); 
         } 
-    }    
+    } 
+    
+    public BigDecimal toDecimal() {
+        return toDecimal( source ); 
+    }
     
     public BigDecimal toDecimal( Object value ) {
         if (value == null) { 
@@ -95,6 +117,10 @@ public class ReportDataSourceHelper implements JRDataSource
             return new BigDecimal( value.toString() );
         } 
     } 
+    
+    public Integer toInteger() {
+        return toInteger( source ); 
+    }
     
     public Integer toInteger( Object value ) {
         if (value == null) { 
@@ -107,6 +133,10 @@ public class ReportDataSourceHelper implements JRDataSource
             return new Integer( value.toString() );
         } 
     } 
+    
+    public Long toLong() {
+        return toLong( source ); 
+    }
     
     public Long toLong( Object value ) {
         if (value == null) { 
@@ -122,9 +152,7 @@ public class ReportDataSourceHelper implements JRDataSource
     
     private Date convertDate( Object value, boolean allowHourMinSec ) {
         try { 
-            if ( value == null ) {
-                return null; 
-            } 
+            if ( value == null ) { return null; } 
             
             String[] arr = value.toString().split(" "); 
             if ( allowHourMinSec ) {
@@ -184,6 +212,10 @@ public class ReportDataSourceHelper implements JRDataSource
         return years; 
     }
     
+    public int getQtr() { 
+        return getQtr( source ); 
+    }
+    
     public int getQtr( Object value ) { 
         Date dt = toDate( value ); 
         if ( dt == null ) {
@@ -206,10 +238,17 @@ public class ReportDataSourceHelper implements JRDataSource
         } 
     }
     
+    public String formatNumber( String pattern ) {
+        return formatNumber( source, pattern ); 
+    }
+    public String formatNumber( String pattern, String zerovalue ) {
+        return formatNumber( source, pattern, zerovalue ); 
+    }
+        
     public String formatNumber( Object value, String pattern ) {
         return formatNumber( value, pattern, null ); 
     }
-    
+        
     public String formatNumber( Object value, String pattern, String zerovalue ) {
         BigDecimal num = toDecimal( value); 
         if ( num == null) {

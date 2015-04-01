@@ -16,22 +16,27 @@ public class ReportDataSource implements JRDataSource
     private Object source;
     protected Object currentObject;
     private PropertyResolver propertyResolver;
+    private ReportDataSourceHelper helper;
 
     public ReportDataSource(Object source) {
         setSource(source);
         propertyResolver = PropertyResolver.getInstance();
     }
     
+    public ReportDataSourceHelper getHelper() {
+        return helper; 
+    }
+    
     public Object getSource() { return source; } 
     public void setSource(Object src) { 
         this.source = src; 
+        this.helper = new ReportDataSourceHelper( this.source );
+        
         if( src == null ) {
             iterator = (new ArrayList()).iterator();
-        }
-        else if( src instanceof Collection ) {
+        } else if( src instanceof Collection ) {
             iterator = ((Collection)src).iterator();
-        }
-        else {
+        } else {
             List l = new ArrayList();
             l.add( src );
             iterator = l.iterator();
@@ -70,5 +75,6 @@ public class ReportDataSource implements JRDataSource
             System.out.println("Error on field [" + fieldName  + "] caused by " + ex.getMessage());
             return null;
         }
-    }    
+    }  
+    
 }
