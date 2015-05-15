@@ -11,6 +11,8 @@ import com.rameses.rcp.common.ListItem;
 import com.rameses.common.PropertyResolver;
 import com.rameses.rcp.common.AbstractListDataProvider;
 import com.rameses.rcp.common.EditorListSupport;
+import com.rameses.rcp.common.MultiSelectionHandler;
+import com.rameses.rcp.common.MultiSelectionSupport;
 import com.rameses.rcp.common.TableModelHandler;
 import com.rameses.util.ValueUtil;
 import java.beans.PropertyChangeListener;
@@ -35,17 +37,15 @@ public class DataTableModel extends AbstractTableModel implements TableControlMo
     private String varName = "item";
     private String varStatus;
     private String id;
-
+    
     void setBinding(DataTableBinding binding) { this.binding = binding; }
     
-    public void removeHandler(PropertyChangeListener handler) 
-    {
+    public void removeHandler(PropertyChangeListener handler) {
         if (handler != null) propertySupport.removePropertyChangeListener(handler); 
     }
-    public void addHandler(PropertyChangeListener handler) 
-    {
-        if (handler != null) 
-        {
+    
+    public void addHandler(PropertyChangeListener handler) {
+        if (handler != null) {
             propertySupport.removePropertyChangeListener(handler);
             propertySupport.addPropertyChangeListener(handler);
         } 
@@ -73,10 +73,16 @@ public class DataTableModel extends AbstractTableModel implements TableControlMo
     public void setDataProvider(AbstractListDataProvider dataProvider) 
     {
         AbstractListDataProvider oldDataProvider = this.dataProvider;
-        if (oldDataProvider != null) oldDataProvider.removeHandler(this);
+        if (oldDataProvider != null) {
+            oldDataProvider.removeHandler(this);
+            oldDataProvider.getMultiSelectionSupport().remove( getMultiSelectionHandler() ); 
+        }
         
         this.dataProvider = dataProvider;
-        if (dataProvider != null) dataProvider.addHandler(this); 
+        if (dataProvider != null) {
+            dataProvider.addHandler(this);
+            dataProvider.getMultiSelectionSupport().add( getMultiSelectionHandler() ); 
+        } 
 
         reIndexColumns(); 
     } 
@@ -215,13 +221,20 @@ public class DataTableModel extends AbstractTableModel implements TableControlMo
         if (column.getTypeHandler() instanceof SelectionColumnHandler)
         {
             boolean selected = "true".equals(value+""); 
-            getDataProvider().getSelectionSupport().setItemChecked(item, selected); 
-                        
-            fireTableRowsUpdated(rowIndex, rowIndex); 
+            MultiSelectionSupport mss = getDataProvider().getMultiSelectionSupport(); 
+            if ( mss.getSelectionMode() == MultiSelectionSupport.CONTINUOUS ) { 
+                for (int idx=0; idx <= rowIndex; idx++) {
+                    Object rowdata = getItem( idx ); 
+                    getDataProvider().getSelectionSupport().setItemChecked(rowdata, selected); 
+                } 
+                fireTableRowsUpdated(0, rowIndex); 
+            } else {
+                getDataProvider().getSelectionSupport().setItemChecked(item, selected); 
+                fireTableRowsUpdated(rowIndex, rowIndex); 
+            } 
             firePropertyChange("checkedItemsChanged", !selected, selected); 
-        } 
-        else 
-        {
+            
+        } else {
             Object oldValue = null; 
             try { 
                 oldValue = resolver.getProperty(item, column.getName()); 
@@ -292,4 +305,49 @@ public class DataTableModel extends AbstractTableModel implements TableControlMo
         super.fireTableStructureChanged();
     }
 
+    
+    
+    private MultiSelectionHandlerImpl multiSelectionHandlerImpl; 
+    private MultiSelectionHandlerImpl getMultiSelectionHandler() {
+        if (multiSelectionHandlerImpl == null) {
+            multiSelectionHandlerImpl = new MultiSelectionHandlerImpl(); 
+        }
+        return multiSelectionHandlerImpl; 
+    }
+    
+    private class MultiSelectionHandlerImpl implements MultiSelectionHandler {
+
+        private DataTableModel root = DataTableModel.this; 
+        
+        public void selectAll() {
+            if ( root.dataProvider == null ) return; 
+            
+            int rowCount = root.getRowCount();
+            if (rowCount <= 0) return;
+            
+            for (int idx=0; idx < rowCount; idx++) {
+                Object rowdata = getItem( idx ); 
+                root.getDataProvider().getSelectionSupport().setItemChecked(rowdata, true); 
+            }
+            
+            root.fireTableRowsUpdated(0, rowCount-1); 
+            root.firePropertyChange("checkedItemsChanged", false, true);             
+        }
+
+        public void deselectAll() {
+            if ( root.dataProvider == null ) return; 
+            
+            int rowCount = root.getRowCount();
+            if (rowCount <= 0) return;
+            
+            for (int idx=0; idx < rowCount; idx++) {
+                Object rowdata = getItem( idx ); 
+                root.getDataProvider().getSelectionSupport().setItemChecked(rowdata, false); 
+            }
+            
+            root.fireTableRowsUpdated(0, rowCount-1); 
+            root.firePropertyChange("checkedItemsChanged", true, false);                         
+        }
+    }
+    
 }
