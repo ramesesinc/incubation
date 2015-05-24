@@ -31,6 +31,7 @@ public class TestProxy {
         if(!map.containsKey("app.host")) throw new RuntimeException("app.host is required");
         if(!map.containsKey("app.context")) throw new RuntimeException("app.context is required");
         ctx.setAppEnv( map );
+        ctx.setHeaders(map);
     }
 
     public Object create(String serviceName) {
