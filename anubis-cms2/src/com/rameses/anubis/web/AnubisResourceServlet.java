@@ -66,7 +66,13 @@ public class AnubisResourceServlet extends AbstractAnubisServlet
                 }, path);
             }
             
-            if (is != null) ResponseUtil.write( hreq, hres, mimeType, is );
+            if (is != null) {
+                String smimetype = project.getMimeTypeManager().getMimeType( path );
+                if (smimetype != null) mimeType = smimetype;
+                                
+                //System.out.println("path=" + path + ", mimetype="+ mimeType);
+                ResponseUtil.write( hreq, hres, mimeType, is );
+            }
         } 
         catch(Exception e) {
             System.out.println("error resource " + e.getMessage()); 
