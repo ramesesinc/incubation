@@ -6,3 +6,4 @@ com.rameses.osiris3.server.AsyncPushServlet
 com.rameses.osiris3.server.AsyncRegisterServlet
 com.rameses.osiris3.server.AsyncResponseServlet
 com.rameses.osiris3.server.AsyncUnregisterServlet
+com.rameses.osiris3.server.AsyncTracertServlet

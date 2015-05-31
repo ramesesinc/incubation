@@ -111,6 +111,7 @@ public class AsyncResponseServlet extends AbstractServlet
         private String id;
         private String context; 
         private String connection;
+        private Object token;
         
         PollTask(Continuation cont, Map params) {
             this.cont = cont; 
@@ -122,6 +123,8 @@ public class AsyncResponseServlet extends AbstractServlet
             
             connection = (String) params.get("connection");
             if (connection == null) connection = "async"; 
+            
+            token = params.get("token"); 
         }
         
         Continuation getContinuation() { 
@@ -146,9 +149,9 @@ public class AsyncResponseServlet extends AbstractServlet
             try {
                 AppContext ctx = OsirisServer.getInstance().getContext( AppContext.class, context );
                 XAsyncConnection ac = (XAsyncConnection) ctx.getResource(XConnection.class, connection );
-                MessageQueue queue = ac.getQueue( id );
                 if (ac == null) throw new Exception("async connection '"+ connection +"' not found");
                 
+                MessageQueue queue = ac.getQueue( id ); 
                 result = queue.poll(); 
                 if (result instanceof AsyncBatchResult) {
                     AsyncBatchResult batch = (AsyncBatchResult)result; 
