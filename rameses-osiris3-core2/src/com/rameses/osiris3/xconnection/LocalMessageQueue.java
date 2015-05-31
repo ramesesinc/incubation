@@ -37,7 +37,7 @@ public final class LocalMessageQueue implements MessageQueue
             timeout = Long.parseLong(options.get("timeout").toString());
         }
     }
-    
+        
     public void push(Object obj) throws Exception {
         if (debug) {
             System.out.println("[" + getClass().getSimpleName() + "_push] id="+id + ", obj=" + obj);

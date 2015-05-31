@@ -9,6 +9,8 @@
 
 package com.rameses.osiris3.xconnection;
 
+import java.util.List;
+
 /**
  *
  * @author Elmo
@@ -16,7 +18,16 @@ package com.rameses.osiris3.xconnection;
 public interface XAsyncConnection  {
     
     MessageQueue register(String id) throws Exception;
+    
     void unregister(String id) throws Exception;
+    
     MessageQueue getQueue( String id ) throws Exception;
     
+    
+    /**
+     * 
+     * modified-by: wflores 
+     */
+    void trace( StringBuilder buffer ); 
+
 }

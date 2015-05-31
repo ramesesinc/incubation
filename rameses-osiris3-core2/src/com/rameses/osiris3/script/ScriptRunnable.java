@@ -181,6 +181,8 @@ public class ScriptRunnable implements Runnable {
         this.asyncRequest = asyncRequest;
     }
     
-    
+    public ScriptRunnable copy() {
+        return new ScriptRunnable( this.context, this.serviceName, this.methodName, this.args, this.env );
+    }
     
 }

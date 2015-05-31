@@ -9,6 +9,7 @@
 
 package com.rameses.osiris3.script.task;
 
+import com.rameses.common.AsyncRequest;
 import com.rameses.osiris3.core.*;
 import com.rameses.osiris3.script.ScriptRunnable;
 import java.util.HashMap;
@@ -17,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
@@ -40,6 +42,7 @@ public class TaskService extends ContextService {
     private Map<String, TimeUnit> timeUnits = new HashMap();
     
     private Set<TaskInfo> failedTasks = new CopyOnWriteArraySet();
+    private ExecutorService asyncPool = Executors.newFixedThreadPool(100);
     
     public Class getProviderClass() {
         return TaskService.class;
@@ -89,17 +92,8 @@ public class TaskService extends ContextService {
         tr.setMethodName( tf.getMethodName() );
         tr.setArgs( new Object[]{tf} );
         tr.setEnv( tf.getEnv() );
-        tr.setListener( new ScriptRunnable.AbstractListener(){
-            public void onCommit(){
-                System.out.println("committing task data!");
-            }
-            public void onRollback(Exception e){
-                tf.setException( e );
-                tf.setCancelled(true);
-                getFailedTasks().add(tf);
-                System.out.println("ERROR EXECUTING TASK ->" + e.getMessage() );
-            }
-        });
+        tr.setListener( new ScriptHandler(tr, tf) );
+        
         long interval = tf.getInterval();
         //recompute the time
         if(  tf.getTimeUnit().equalsIgnoreCase(TIMEUNIT_MINUTES) ) {
@@ -144,4 +138,34 @@ public class TaskService extends ContextService {
         }
     }
     
-}
+    private class ScriptHandler extends ScriptRunnable.AbstractListener {
+        
+        private ScriptRunnable script;
+        private TaskInfo taskinfo; 
+        
+        ScriptHandler(ScriptRunnable script, TaskInfo taskinfo) {
+            this.taskinfo = taskinfo;
+            this.script = script;            
+        }
+        
+        public void onCommit() { 
+            //System.out.println("committing task data!"); 
+        } 
+        
+        public void onRollback(Exception e) { 
+            taskinfo.setException( e ); 
+            taskinfo.setCancelled(true); 
+            getFailedTasks().add(taskinfo); 
+            System.out.println("ERROR EXECUTING TASK ->" + e.getMessage() ); 
+        } 
+        
+        public void onComplete(Object result) { 
+            if (result instanceof AsyncRequest) { 
+                ScriptRunnable sr = script.copy(); 
+                sr.setListener( new ScriptHandler(sr, taskinfo) );                
+                sr.setBypassAsync(true);  
+                asyncPool.submit( sr ); 
+            } 
+        } 
+    } 
+} 
