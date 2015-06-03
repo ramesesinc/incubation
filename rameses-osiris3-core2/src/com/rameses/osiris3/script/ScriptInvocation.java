@@ -29,7 +29,6 @@ public class ScriptInvocation implements InvocationHandler {
         
         Object result = executor.execute(method.getName(), args, false); 
         if( result instanceof AsyncRequest ) {
-            System.out.println("submit to poll");
             ScriptRunnable sr = new ScriptRunnable( mainCtx ); 
             sr.setServiceName( serviceName );
             sr.setMethodName( method.getName() );
@@ -37,8 +36,8 @@ public class ScriptInvocation implements InvocationHandler {
             sr.setBypassAsync( true );
             mainCtx.submitAsync( sr ); 
             return null; 
+            
         } else {
-            System.out.println("submit to process");
             return result; 
         }
     } 
