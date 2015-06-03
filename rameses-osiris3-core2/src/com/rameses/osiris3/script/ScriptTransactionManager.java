@@ -70,4 +70,7 @@ public class ScriptTransactionManager implements TransactionManager {
         //do nothing
     }
     
+    public void submitAsync(Runnable runnable) { 
+        context.submitAsync( runnable ); 
+    } 
 }

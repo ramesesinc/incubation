@@ -11,6 +11,7 @@ package com.rameses.osiris3.script;
 
 
 import com.rameses.osiris3.core.AbstractContext;
+import com.rameses.osiris3.core.MainContext;
 import com.rameses.osiris3.core.TransactionContext;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -32,7 +33,8 @@ public class ScriptInfoScriptProviderService extends ScriptInfoContextResource {
             ClassLoader classLoader = ac.getClassLoader();
             ScriptTransactionManager smr = txn.getManager(ScriptTransactionManager.class);
             final ManagedScriptExecutor executor = smr.create( SERVICE_NAME );
-            ScriptProviderService svc = (ScriptProviderService)Proxy.newProxyInstance( classLoader, new Class[]{ScriptProviderService.class }, new ScriptInvocation(executor,true));
+            ScriptInvocation si = new ScriptInvocation((MainContext)ac, SERVICE_NAME, executor);
+            ScriptProviderService svc = (ScriptProviderService)Proxy.newProxyInstance( classLoader, new Class[]{ ScriptProviderService.class }, si);
             String s = svc.getScript(name);
             is = new ByteArrayInputStream(s.getBytes());
             return parseScript(name, is, null, ac );

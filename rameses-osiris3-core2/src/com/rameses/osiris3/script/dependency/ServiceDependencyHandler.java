@@ -65,7 +65,7 @@ public class ServiceDependencyHandler extends DependencyHandler {
                 ScriptInfo sinfo = executor.getScriptInfo();
                 InvocationHandler ih = null;
                 if( !async ) {
-                    ih = new ScriptInvocation(executor,managed);
+                    ih = new ScriptInvocation((MainContext)ac, serviceName, executor);
                 } else {
                     ih = new AsyncScriptInvocation((MainContext)ac, serviceName, txn.getEnv() );
                 }

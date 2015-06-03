@@ -1,6 +1,8 @@
 package com.rameses.osiris3.script;
 
 import com.rameses.annotations.Async;
+import com.rameses.common.AsyncRequest;
+import com.rameses.osiris3.core.MainContext;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.util.concurrent.ExecutorService;
@@ -10,50 +12,34 @@ public class ScriptInvocation implements InvocationHandler {
     
     private final static ExecutorService asyncPool = Executors.newCachedThreadPool();
     
+    private MainContext mainCtx;
+    private String serviceName; 
     private ManagedScriptExecutor executor;
-    private boolean managed;
     
-    public ScriptInvocation(ManagedScriptExecutor executor, boolean managed) {
-        this.executor = executor;
-        this.managed = managed;
+    public ScriptInvocation(MainContext mainCtx, String name, ManagedScriptExecutor executor ) {
+        this.mainCtx = mainCtx; 
+        this.serviceName = name;         
+        this.executor = executor;  
     }
+    
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         if (method.getName().equals("toString")) {
             return executor.toString();
         }
         
-        ScriptHandler sh = new ScriptHandler();
-        sh.method = method;
-        sh.args = args; 
-        
-        Async async = method.getAnnotation(Async.class);
-        if ( async == null ) { 
-            sh.run();
-            return sh.result; 
-            
-        } else { 
-            asyncPool.submit( sh );
+        Object result = executor.execute(method.getName(), args, false); 
+        if( result instanceof AsyncRequest ) {
+            System.out.println("submit to poll");
+            ScriptRunnable sr = new ScriptRunnable( mainCtx ); 
+            sr.setServiceName( serviceName );
+            sr.setMethodName( method.getName() );
+            sr.setArgs( args );
+            sr.setBypassAsync( true );
+            mainCtx.submitAsync( sr ); 
             return null; 
-        } 
-    } 
-    
-    
-    
-    private class ScriptHandler implements Runnable {
-        
-        Method method;
-        Object[] args;        
-        Object result;
-        
-        public void run() { 
-            try { 
-                result = null; 
-                result = executor.execute( method.getName(), args, managed ); 
-            } catch( RuntimeException re ) {
-                throw re; 
-            } catch( Exception e ) {
-                throw new RuntimeException(e.getMessage(), e); 
-            }
+        } else {
+            System.out.println("submit to process");
+            return result; 
         }
-    }
+    } 
 }
