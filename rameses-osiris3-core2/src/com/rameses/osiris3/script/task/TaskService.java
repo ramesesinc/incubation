@@ -160,12 +160,12 @@ public class TaskService extends ContextService {
         } 
         
         public void onComplete(Object result) { 
-            if (result instanceof AsyncRequest) { 
-                ScriptRunnable sr = script.copy(); 
-                sr.setListener( new ScriptHandler(sr, taskinfo) );                
-                sr.setBypassAsync(true);  
-                asyncPool.submit( sr ); 
-            } 
+//            if (result instanceof AsyncRequest) { 
+//                ScriptRunnable sr = script.copy(); 
+//                sr.setListener( new ScriptHandler(sr, taskinfo) );                
+//                sr.setBypassAsync(true);  
+//                asyncPool.submit( sr ); 
+//            } 
         } 
     } 
 } 

@@ -69,11 +69,11 @@ public class ServiceDependencyHandler extends DependencyHandler {
                 } else {
                     ih = new AsyncScriptInvocation((MainContext)ac, serviceName, txn.getEnv() );
                 }
+                
                 Class localIntf = s.localInterface();
                 if(localIntf!=NullIntf.class) {
                     return Proxy.newProxyInstance(sinfo.getClassLoader(), new Class[]{localIntf }, ih);
-                }    
-                else {
+                } else { 
                     return Proxy.newProxyInstance( sinfo.getInterfaceClass().getClassLoader(), new Class[]{sinfo.getInterfaceClass()}, ih);
                 }    
             } else {
