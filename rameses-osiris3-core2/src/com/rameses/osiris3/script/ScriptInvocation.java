@@ -34,6 +34,17 @@ public class ScriptInvocation implements InvocationHandler {
             sr.setMethodName( method.getName() );
             sr.setArgs( args );
             sr.setBypassAsync( true );
+            sr.setListener(new ScriptRunnable.Listener() { 
+                public void onBegin() {}
+                public void onClose() {}
+                public void onCancel() {}
+                public void onComplete(Object result) {}
+
+                public void onRollback(Exception e) {
+                    e.printStackTrace(); 
+                }
+            }); 
+            
             mainCtx.submitAsync( sr ); 
             return null; 
             
