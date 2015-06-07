@@ -92,6 +92,7 @@ public class SessionContext {
         if (type == null) type = "folder";
         if (!invokers.containsKey(type)) {
             List list = new ArrayList();
+            List removals = new ArrayList();
             
             Iterator iter = context.getInvokers().iterator();
             while (iter.hasNext()) {
@@ -102,17 +103,38 @@ public class SessionContext {
                     String permission = inv.getPermission();
                     String role = inv.getRole();
                     String domain = inv.getDomain();
-                    if(applySecurity && (role!=null || permission!=null)) {
-                        showIt = checkPermission(domain, role, permission );
-                    } 
-                    if(showIt) showIt = checkInvoker(inv);
-                    if (showIt) list.add(inv);
-                    
-                    //System.out.println("checkpermission: showit="+showIt + ", caption="+inv.getCaption() + ", domain="+domain + ", role="+role + ", permissino="+permission);
+                    if (applySecurity) {
+                        if(role != null || permission != null) {
+                            showIt = checkPermission(domain, role, permission);
+                        }
+                        
+                        if (showIt) {
+                            List<Invoker.Action> actions = inv.getActions(); 
+                            if ( !actions.isEmpty() ) {
+                                boolean foundIt = false; 
+                                for ( Invoker.Action ia : actions ) {
+                                    String aname = ia.getName();
+                                    String arole = ia.getRole(); 
+                                    String aperm = ia.getPermission();
+                                    if (checkPermission(domain, arole, aperm)) {
+                                        ia.update( inv ); 
+                                        
+                                        
+                                        foundIt = true; 
+                                        break; 
+                                    } 
+                                } 
+                                showIt = foundIt;
+                            }
+                        }
+                    }
+
+                    if (showIt) { showIt = checkInvoker(inv); } 
+                    if (showIt) { list.add(inv); } 
                 }
             }
-           
-            Collections.sort(list);
+                       
+            Collections.sort(list);            
             invokers.put(type, list);
             return list;
         } else {

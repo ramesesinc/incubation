@@ -10,7 +10,10 @@
 package com.rameses.osiris2;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -123,24 +126,112 @@ public class Invoker implements Serializable, Comparable {
     
     // <editor-fold defaultstate="collapsed" desc=" clone utility "> 
     
-    public Invoker clone() 
-    {
-        Invoker clone = new Invoker(); 
-        clone.workunitid = this.workunitid;
-        clone.workunitname = this.workunitname;
-        clone.name = this.name;
-        clone.caption = this.caption;
-        clone.ref = this.ref;
-        clone.type = this.type;
-        clone.index = this.index;
-        clone.action = this.action;
-        clone.module = this.module;
-        clone.role = this.role;
-        clone.domain = this.domain;
-        clone.permission = this.permission;
-        clone.properties.putAll(this.properties); 
-        return clone; 
+    public Invoker clone() {
+        return copy( null ); 
     }
     
+    public Invoker copy( Invoker target ) {
+        if (target == null) {
+            target = new Invoker(); 
+        }
+        
+        target.workunitid = this.workunitid;
+        target.workunitname = this.workunitname;
+        target.name = this.name;
+        target.caption = this.caption;
+        target.ref = this.ref;
+        target.type = this.type;
+        target.index = this.index;
+        target.action = this.action;
+        target.module = this.module;
+        target.role = this.role;
+        target.domain = this.domain;
+        target.permission = this.permission;
+        target.properties.putAll(this.properties); 
+        return target; 
+    } 
+    
     // </editor-fold>    
+    
+    // <editor-fold defaultstate="collapsed" desc=" Action facility "> 
+    
+    private List<Action> actions = new ArrayList();
+    
+    public List<Invoker.Action> getActions() { 
+        return actions; 
+    } 
+    
+    public void addAction( Invoker.Action a ) { 
+        if (a != null) { 
+            a.source = this; 
+            actions.add(a); 
+        } 
+    }
+    
+    public void removeActions() { 
+        actions.clear(); 
+    } 
+    
+    public static class Action implements Serializable {
+
+        private String name;
+        private String role;
+        private String permission;
+        private Map properties;
+                
+        private Invoker source;
+        private Invoker target; 
+        
+        public Action( String name ) { 
+            this.name = name; 
+            this.properties = new HashMap();
+        }
+
+        public String getName() { return name; } 
+        
+        public String getRole() { return role; } 
+        public void setRole(String role) { 
+            this.role = role; 
+        }
+        
+        public String getPermission() { return permission; } 
+        public void setPermission( String permission ) {
+            this.permission = permission; 
+        }
+        
+        public String getProperty( String name ) {
+            Object ov = properties.get( name ); 
+            return (ov == null? null: ov.toString()); 
+        }
+        
+        public Iterator<Map.Entry> getProperties() {
+            return properties.entrySet().iterator(); 
+        }
+        public void setProperties( Map extended ) {
+            if (extended != null) {
+                this.properties.putAll( extended ); 
+            }
+        }  
+        
+        public void update( Invoker inv ) {
+            String arole = getRole(); 
+            String aperm = getPermission(); 
+            String acaption = getProperty("caption"); 
+            String aname = getName(); 
+            
+            if (!isEmpty(arole)) { inv.setRole( arole ); }
+            if (!isEmpty(aperm)) { inv.setPermission( aperm ); }
+            if (!isEmpty(acaption)) { inv.setCaption(acaption); } 
+            if (!isEmpty(aname)) { inv.setAction( aname ); }  
+            
+            inv.getProperties().putAll( properties ); 
+        } 
+        
+        private boolean isEmpty( String value ) {
+            return ( value == null || value.trim().length() == 0 ); 
+        }
+    }
+    
+    // </editor-fold>
+   
 }

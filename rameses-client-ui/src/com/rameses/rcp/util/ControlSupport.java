@@ -13,6 +13,7 @@ import java.awt.Component;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.Map;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
@@ -294,5 +295,28 @@ public final class ControlSupport {
 //            return true;
 //        }
     }
+    
+    public static boolean hasMethod(Object bean, String name, Object[] args) 
+    {
+        if (bean == null || name == null) { return false; }
+        
+        Class beanClass = bean.getClass();
+        while (beanClass != null) 
+        {
+            Method[] methods = beanClass.getMethods(); 
+            for (int i=0; i<methods.length; i++) 
+            {
+                Method m = methods[i];
+                if (!m.getName().equals(name)) { continue; } 
+
+                int paramSize = (m.getParameterTypes() == null? 0: m.getParameterTypes().length); 
+                int argSize = (args == null? 0: args.length); 
+                if (paramSize == argSize && paramSize == 0) { return true; } 
+                if (paramSize == argSize && m.getParameterTypes()[0] == Object.class) { return true; } 
+            }
+            beanClass = beanClass.getSuperclass();
+        }
+        return false;
+    }    
     
 }
