@@ -47,6 +47,7 @@ public class XCheckList extends CheckListPanel implements UIControl,
     private boolean dynamic;
     private boolean required;
     private String fontStyle;
+    private String disableWhen;
     private String visibleWhen;
     private String handler;
     private String itemKey;
@@ -77,6 +78,11 @@ public class XCheckList extends CheckListPanel implements UIControl,
     public void setVisibleWhen(String visibleWhen) {
         this.visibleWhen = visibleWhen; 
     }
+    
+    public String getDisableWhen() { return disableWhen; } 
+    public void setDisableWhen( String disableWhen ) {
+        this.disableWhen = disableWhen;
+    }      
     
     public String getHandler() { return handler; } 
     public void setHandler(String handler) {
@@ -144,6 +150,28 @@ public class XCheckList extends CheckListPanel implements UIControl,
 
     private boolean refreshed;
     public void refresh() { 
+        String whenExpr = getVisibleWhen();
+        if (whenExpr != null && whenExpr.length() > 0) {
+            boolean result = false; 
+            try { 
+                result = UIControlUtil.evaluateExprBoolean(binding.getBean(), whenExpr);
+            } catch(Throwable t) {
+                t.printStackTrace();
+            }
+            setVisible( result ); 
+        }
+        
+        boolean disabled = false; 
+        whenExpr = getDisableWhen();
+        if (whenExpr != null && whenExpr.length() > 0) {
+            try { 
+                disabled = UIControlUtil.evaluateExprBoolean(binding.getBean(), whenExpr);
+            } catch(Throwable t) {
+                t.printStackTrace();
+            }
+        }
+        setEnabled( !disabled ); 
+        
         boolean reload = (!refreshed || isDynamic()); 
         try {
             if (reload) buildItems();
@@ -169,20 +197,7 @@ public class XCheckList extends CheckListPanel implements UIControl,
             }
             setSelectedValues(arrays); 
         }
-        
-        try { 
-            String visibleWhen = getVisibleWhen(); 
-            if (visibleWhen != null && visibleWhen.length() > 0) { 
-                boolean b = false; 
-                try { 
-                    b = UIControlUtil.evaluateExprBoolean(bean, visibleWhen);
-                } catch(Throwable t) { 
-                    t.printStackTrace();  
-                } 
-                setVisible(b); 
-            } 
-        } catch(Throwable t) {;} 
-        
+                
         if (!refreshed) refreshed = true; 
         
         enableComponents(isEnabled()); 

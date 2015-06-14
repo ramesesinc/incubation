@@ -62,6 +62,9 @@ public class XFingerPrint extends JButton implements MouseEventSupport.Component
     private int stretchWidth;
     private int stretchHeight;        
     
+    private String visibleWhen;
+    private String disableWhen;    
+    
     public XFingerPrint() {
         mouseSupport = new MouseEventSupport(this);
         mouseSupport.install(); 
@@ -99,6 +102,16 @@ public class XFingerPrint extends JButton implements MouseEventSupport.Component
         this.iconResource = iconResource;         
         setIcon(ImageIconSupport.getInstance().getIcon(iconResource)); 
     }
+    
+    public String getVisibleWhen() { return visibleWhen; } 
+    public void setVisibleWhen( String visibleWhen ) {
+        this.visibleWhen = visibleWhen;
+    }
+    
+    public String getDisableWhen() { return disableWhen; } 
+    public void setDisableWhen( String disableWhen ) {
+        this.disableWhen = disableWhen;
+    }   
     
     // </editor-fold>
     
@@ -210,6 +223,29 @@ public class XFingerPrint extends JButton implements MouseEventSupport.Component
     }
 
     public void refresh() {
+        Binding binding = getBinding();
+        String whenExpr = getVisibleWhen();
+        if (whenExpr != null && whenExpr.length() > 0) {
+            boolean result = false; 
+            try { 
+                result = UIControlUtil.evaluateExprBoolean(binding.getBean(), whenExpr);
+            } catch(Throwable t) {
+                t.printStackTrace();
+            }
+            setVisible( result ); 
+        }
+        
+        boolean disabled = false; 
+        whenExpr = getDisableWhen();
+        if (whenExpr != null && whenExpr.length() > 0) {
+            try { 
+                disabled = UIControlUtil.evaluateExprBoolean(binding.getBean(), whenExpr);
+            } catch(Throwable t) {
+                t.printStackTrace();
+            }
+        }
+        setEnabled( !disabled ); 
+        
         String expression = getExpression();
         Object bean = getBinding().getBean();
         if (expression != null && expression.length() > 0) { 

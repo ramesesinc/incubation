@@ -48,6 +48,9 @@ public class XCheckBox extends JCheckBox implements UIInput, ActiveControl, Mous
     private int stretchWidth;
     private int stretchHeight;
     
+    private String disableWhen;
+    private String visibleWhen;
+    
     public XCheckBox() 
     {
         new MouseEventSupport(this).install(); 
@@ -56,12 +59,32 @@ public class XCheckBox extends JCheckBox implements UIInput, ActiveControl, Mous
         if ( f != null ) setFont( f );
     }
     
-    public void refresh() 
-    {
-        try 
-        {
+    public void refresh() {
+        try {
             //disable the item handler to prevent cyclic updating of values
             itemHandler.enabled = false; 
+            
+            String whenExpr = getVisibleWhen();
+            if (whenExpr != null && whenExpr.length() > 0) {
+                boolean result = false; 
+                try { 
+                    result = UIControlUtil.evaluateExprBoolean(binding.getBean(), whenExpr);
+                } catch(Throwable t) {
+                    t.printStackTrace();
+                }
+                setVisible( result ); 
+            }
+
+            boolean disabled = false; 
+            whenExpr = getDisableWhen();
+            if (whenExpr != null && whenExpr.length() > 0) {
+                try { 
+                    disabled = UIControlUtil.evaluateExprBoolean(binding.getBean(), whenExpr);
+                } catch(Throwable t) {
+                    t.printStackTrace();
+                }
+            } 
+            setEnabled( !disabled ); 
             
             if (isEnabled()) setReadonly( isReadonly() );
             
@@ -356,6 +379,16 @@ public class XCheckBox extends JCheckBox implements UIInput, ActiveControl, Mous
         sb.append(text.substring(locIndex+1));
         super.setText(sb.toString());          
     }
+    
+    public String getVisibleWhen() { return visibleWhen; } 
+    public void setVisibleWhen( String visibleWhen ) {
+        this.visibleWhen = visibleWhen;
+    }
+    
+    public String getDisableWhen() { return disableWhen; } 
+    public void setDisableWhen( String disableWhen ) {
+        this.disableWhen = disableWhen;
+    }     
     
     // </editor-fold>
         

@@ -64,6 +64,7 @@ public class XDropDownList extends JButton implements UIControl, ActiveControl {
     private int index;
     private ControlProperty property;
     private String varName = "item";
+    private String disableWhen;
     private String visibleWhen;
     private String expression;
     private String itemExpression;
@@ -140,6 +141,11 @@ public class XDropDownList extends JButton implements UIControl, ActiveControl {
     public String getVisibleWhen() { return visibleWhen; }
     public void setVisibleWhen(String visibleWhen) {
         this.visibleWhen = visibleWhen;
+    }
+    
+    public String getDisableWhen() { return disableWhen; }
+    public void setDisableWhen(String disableWhen) {
+        this.disableWhen = disableWhen;
     }
     
     public String getVarName() { return varName; }
@@ -280,6 +286,28 @@ public class XDropDownList extends JButton implements UIControl, ActiveControl {
         Binding binding = getBinding();
         Object bean = (binding == null ? null : binding.getBean());
         Object value = UIControlUtil.getBeanValue(bean, getName());
+        
+        String whenExpr = getVisibleWhen();
+        if (whenExpr != null && whenExpr.length() > 0) {
+            boolean result = false; 
+            try { 
+                result = UIControlUtil.evaluateExprBoolean(binding.getBean(), whenExpr);
+            } catch(Throwable t) {
+                t.printStackTrace();
+            }
+            setVisible( result ); 
+        }
+        
+        boolean disabled = false; 
+        whenExpr = getDisableWhen();
+        if (whenExpr != null && whenExpr.length() > 0) {
+            try { 
+                disabled = UIControlUtil.evaluateExprBoolean(binding.getBean(), whenExpr);
+            } catch(Throwable t) {
+                t.printStackTrace();
+            }
+        }
+        setEnabled( !disabled ); 
         
         try {
             Object handlerObj = getHandlerObject();

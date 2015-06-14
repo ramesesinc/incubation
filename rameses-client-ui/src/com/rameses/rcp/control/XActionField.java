@@ -26,6 +26,7 @@ import com.rameses.rcp.util.UIControlUtil;
 import com.rameses.util.BreakException;
 import com.rameses.util.ExceptionManager;
 import com.rameses.util.IgnoreException;
+import com.rameses.util.ValueUtil;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -63,6 +64,9 @@ public class XActionField extends JPanel implements MouseEventSupport.ComponentI
     
     private int stretchWidth;
     private int stretchHeight;
+    
+    private String visibleWhen;
+    private String disableWhen;
     
     public XActionField() { 
         initComponent(); 
@@ -156,6 +160,15 @@ public class XActionField extends JPanel implements MouseEventSupport.ComponentI
         getButton().setIcon(icon); 
     }
 
+    public String getVisibleWhen() { return visibleWhen; } 
+    public void setVisibleWhen( String visibleWhen ) {
+        this.visibleWhen = visibleWhen;
+    }
+    
+    public String getDisableWhen() { return disableWhen; } 
+    public void setDisableWhen( String disableWhen ) {
+        this.disableWhen = disableWhen;
+    }    
     
     // </editor-fold>
     
@@ -263,6 +276,29 @@ public class XActionField extends JPanel implements MouseEventSupport.ComponentI
     }
     
     public void refresh() {
+        String whenExpr = getVisibleWhen();
+        if (whenExpr != null && whenExpr.length() > 0) {
+            boolean result = false; 
+            try { 
+                result = UIControlUtil.evaluateExprBoolean(binding.getBean(), whenExpr);
+            } catch(Throwable t) {
+                t.printStackTrace();
+            }
+            setVisible( result ); 
+        }
+        
+        boolean disabled = false; 
+        whenExpr = getDisableWhen();
+        if (whenExpr != null && whenExpr.length() > 0) {
+            try { 
+                disabled = UIControlUtil.evaluateExprBoolean(binding.getBean(), whenExpr);
+            } catch(Throwable t) {
+                t.printStackTrace();
+            }
+        }
+        getField().setEnabled( !disabled ); 
+        getButton().setEnabled( !disabled ); 
+        
         String expression = getExpression();
         Object bean = getBinding().getBean();
         if (expression != null && expression.length() > 0) { 

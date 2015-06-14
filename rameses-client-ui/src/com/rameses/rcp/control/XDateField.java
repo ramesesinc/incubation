@@ -135,6 +135,28 @@ public class XDateField extends AbstractDateField implements UIInput, ActiveCont
             updateBackground();
             reloadDocument();
             
+            String whenExpr = getVisibleWhen();
+            if (whenExpr != null && whenExpr.length() > 0) {
+                boolean result = false; 
+                try { 
+                    result = UIControlUtil.evaluateExprBoolean(binding.getBean(), whenExpr);
+                } catch(Throwable t) {
+                    t.printStackTrace();
+                }
+                setVisible( result ); 
+            }
+
+            boolean disabled = false; 
+            whenExpr = getDisableWhen();
+            if (whenExpr != null && whenExpr.length() > 0) {
+                try { 
+                    disabled = UIControlUtil.evaluateExprBoolean(binding.getBean(), whenExpr);
+                } catch(Throwable t) {
+                    t.printStackTrace();
+                }
+            }
+            setEnabled( !disabled ); 
+            
             Object value = UIControlUtil.getBeanValue(this);
             setValue(value);
         } catch(Exception e) {
