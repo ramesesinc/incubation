@@ -33,7 +33,7 @@ public class ScriptInfoScriptProviderService extends ScriptInfoContextResource {
             ClassLoader classLoader = ac.getClassLoader();
             ScriptTransactionManager smr = txn.getManager(ScriptTransactionManager.class);
             final ManagedScriptExecutor executor = smr.create( SERVICE_NAME );
-            ScriptInvocation si = new ScriptInvocation((MainContext)ac, SERVICE_NAME, executor);
+            ScriptInvocation si = new ScriptInvocation((MainContext)ac, SERVICE_NAME, txn.getEnv(), executor);
             ScriptProviderService svc = (ScriptProviderService)Proxy.newProxyInstance( classLoader, new Class[]{ ScriptProviderService.class }, si);
             String s = svc.getScript(name);
             is = new ByteArrayInputStream(s.getBytes());

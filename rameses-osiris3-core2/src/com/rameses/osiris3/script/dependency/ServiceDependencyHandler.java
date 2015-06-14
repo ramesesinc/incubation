@@ -43,7 +43,6 @@ public class ServiceDependencyHandler extends DependencyHandler {
     }
     
     public Object getResource(Annotation c, ExecutionInfo einfo) {
-        
         TransactionContext txn = TransactionContext.getCurrentContext();
         AbstractContext ac = txn.getContext();
         try {
@@ -65,7 +64,7 @@ public class ServiceDependencyHandler extends DependencyHandler {
                 ScriptInfo sinfo = executor.getScriptInfo();
                 InvocationHandler ih = null;
                 if( !async ) {
-                    ih = new ScriptInvocation((MainContext)ac, serviceName, executor);
+                    ih = new ScriptInvocation((MainContext)ac, serviceName, txn.getEnv(), executor);
                 } else {
                     ih = new AsyncScriptInvocation((MainContext)ac, serviceName, txn.getEnv() );
                 }
@@ -91,7 +90,11 @@ public class ServiceDependencyHandler extends DependencyHandler {
                 
                 ScriptConnection sc = (ScriptConnection)xconn;
                 Map env = new HashMap();
-                env.putAll(txn.getEnv());
+                
+                Map txnenv = txn.getEnv();                 
+                if ( txnenv != null ) { 
+                    env.putAll( txnenv );
+                }
                 
                 Iterator keys = sc.getConf().keySet().iterator();
                 while (keys.hasNext()) {
