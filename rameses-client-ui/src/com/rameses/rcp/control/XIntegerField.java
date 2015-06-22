@@ -242,16 +242,16 @@ public class XIntegerField extends AbstractNumberField implements UIInput,
                 setVisible( result ); 
             }
 
-            boolean disabled = false; 
             whenExpr = getDisableWhen();
             if (whenExpr != null && whenExpr.length() > 0) {
+                boolean disabled = false;                 
                 try { 
                     disabled = UIControlUtil.evaluateExprBoolean(binding.getBean(), whenExpr);
                 } catch(Throwable t) {
                     t.printStackTrace();
                 }
+                setEnabled( !disabled ); 
             }
-            setEnabled( !disabled ); 
             
             Object value = UIControlUtil.getBeanValue(this);
             

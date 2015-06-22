@@ -298,16 +298,16 @@ public class XDropDownList extends JButton implements UIControl, ActiveControl {
             setVisible( result ); 
         }
         
-        boolean disabled = false; 
         whenExpr = getDisableWhen();
         if (whenExpr != null && whenExpr.length() > 0) {
+            boolean disabled = false; 
             try { 
                 disabled = UIControlUtil.evaluateExprBoolean(binding.getBean(), whenExpr);
             } catch(Throwable t) {
                 t.printStackTrace();
             }
+            setEnabled( !disabled ); 
         }
-        setEnabled( !disabled ); 
         
         try {
             Object handlerObj = getHandlerObject();

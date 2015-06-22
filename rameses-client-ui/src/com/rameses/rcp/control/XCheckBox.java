@@ -75,16 +75,16 @@ public class XCheckBox extends JCheckBox implements UIInput, ActiveControl, Mous
                 setVisible( result ); 
             }
 
-            boolean disabled = false; 
             whenExpr = getDisableWhen();
             if (whenExpr != null && whenExpr.length() > 0) {
+                boolean disabled = false; 
                 try { 
                     disabled = UIControlUtil.evaluateExprBoolean(binding.getBean(), whenExpr);
                 } catch(Throwable t) {
                     t.printStackTrace();
                 }
+                setEnabled( !disabled ); 
             } 
-            setEnabled( !disabled ); 
             
             if (isEnabled()) setReadonly( isReadonly() );
             

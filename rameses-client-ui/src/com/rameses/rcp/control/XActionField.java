@@ -287,17 +287,17 @@ public class XActionField extends JPanel implements MouseEventSupport.ComponentI
             setVisible( result ); 
         }
         
-        boolean disabled = false; 
         whenExpr = getDisableWhen();
         if (whenExpr != null && whenExpr.length() > 0) {
+            boolean disabled = false; 
             try { 
                 disabled = UIControlUtil.evaluateExprBoolean(binding.getBean(), whenExpr);
             } catch(Throwable t) {
                 t.printStackTrace();
             }
+            getField().setEnabled( !disabled ); 
+            getButton().setEnabled( !disabled ); 
         }
-        getField().setEnabled( !disabled ); 
-        getButton().setEnabled( !disabled ); 
         
         String expression = getExpression();
         Object bean = getBinding().getBean();
