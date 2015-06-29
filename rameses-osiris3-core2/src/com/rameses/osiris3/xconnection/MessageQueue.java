@@ -9,7 +9,7 @@
 
 package com.rameses.osiris3.xconnection;
 
-import com.rameses.interfaces.MessageStack;
+
 
 /**
  *
