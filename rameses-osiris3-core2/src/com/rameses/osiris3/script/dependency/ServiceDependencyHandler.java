@@ -104,6 +104,11 @@ public class ServiceDependencyHandler extends DependencyHandler {
                     }
                 }
                 
+                try {
+                    Integer rt = new Integer(sc.getConf().get("readTimeout").toString());
+                    env.put("@read_timeout", rt.intValue()); 
+                } catch(Throwable t){;} 
+                
                 if(localIntf!=null)
                     return sc.create(serviceName, env, localIntf);
                 else
