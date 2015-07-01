@@ -63,13 +63,21 @@ public class ServiceInvokerServlet extends AbstractServlet {
         private Continuation continuation;
         private Future future;
         private HttpServletRequest req;
+        
+        //added read timeout variable 
+        int read_timeout_var = 0; 
+        
         public ContinuationListener(HttpServletRequest req) {
             this.req = req;
         }
         public void start() {
             continuation = ContinuationSupport.getContinuation(req);
             if( continuation.isInitial() ) {
-                continuation.setTimeout( getBlockingTimeout()  );
+                if (read_timeout_var > 0) {
+                    continuation.setTimeout(read_timeout_var); 
+                } else {
+                    continuation.setTimeout( getBlockingTimeout() );
+                }
                 continuation.suspend();
             }
         }
@@ -105,7 +113,6 @@ public class ServiceInvokerServlet extends AbstractServlet {
             Object[] params = readRequest(req);
             
             AppContext ct = OsirisServer.getInstance().getContext( AppContext.class, p.getContextName() );
-            
             tr = new ScriptRunnable( (MainContext)ct );
             tr.setServiceName(p.getServiceName() );
             tr.setMethodName(p.getMethodName());
@@ -113,10 +120,17 @@ public class ServiceInvokerServlet extends AbstractServlet {
             tr.setEnv( (Map)params[1] );
             tr.setListener( listener );
             tr.setBypassAsync(false);
+            
+            try {
+                Integer rt = new Integer(tr.getEnv().get("@read_timeout").toString()); 
+                listener.read_timeout_var = rt.intValue(); 
+            } catch(Throwable t){;} 
+            
             listener.start();
             
             req.setAttribute(  ScriptRunnable.class.getName(), tr );
             listener.future = taskPool.submit(tr);
+            
         } else {
             ContinuationListener listener = (ContinuationListener)tr.getListener();
             Object response= null;
