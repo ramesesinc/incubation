@@ -77,12 +77,10 @@ public class MailMessageConnection extends MessageConnection {
             InternetAddress[] toAddress = new InternetAddress[to.length];
             
             // To get the array of addresses
+            System.out.println("to-length=" + to.length);
             for( int i=0; i < to.length; i++ ) { // changed from a while loop
                 toAddress[i] = new InternetAddress(to[i].trim());
-                message.addRecipient(Message.RecipientType.TO, toAddress[i]);
-            }
-            
-            for( int i=0; i < toAddress.length; i++) { // changed from a while loop
+                System.out.println("  " + toAddress[i]);                
                 message.addRecipient(Message.RecipientType.TO, toAddress[i]);
             }
             
