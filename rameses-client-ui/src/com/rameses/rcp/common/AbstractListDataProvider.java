@@ -826,7 +826,11 @@ public abstract class AbstractListDataProvider
         } 
         
         public synchronized void setItemChecked(Object itemData, boolean checked) { 
-            checkedItems.put(itemData, checked); 
+            if ( checked ) {
+                checkedItems.put(itemData, checked); 
+            } else {
+                checkedItems.remove(itemData); 
+            }
         } 
         
         public List getSelectedValues() 

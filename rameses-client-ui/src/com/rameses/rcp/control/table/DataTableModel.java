@@ -12,6 +12,7 @@ import com.rameses.common.PropertyResolver;
 import com.rameses.rcp.common.AbstractListDataProvider;
 import com.rameses.rcp.common.EditorListSupport;
 import com.rameses.rcp.common.MultiSelectionHandler;
+import com.rameses.rcp.common.MultiSelectionMode;
 import com.rameses.rcp.common.MultiSelectionSupport;
 import com.rameses.rcp.common.TableModelHandler;
 import com.rameses.util.ValueUtil;
@@ -221,15 +222,30 @@ public class DataTableModel extends AbstractTableModel implements TableControlMo
         if (column.getTypeHandler() instanceof SelectionColumnHandler)
         {
             boolean selected = "true".equals(value+""); 
-            MultiSelectionSupport mss = getDataProvider().getMultiSelectionSupport(); 
-            if ( mss.getSelectionMode() == MultiSelectionSupport.CONTINUOUS ) { 
-                for (int idx=0; idx <= rowIndex; idx++) {
-                    Object rowdata = getItem( idx ); 
-                    getDataProvider().getSelectionSupport().setItemChecked(rowdata, selected); 
+            int multiSelectMode = getDataProvider().getMultiSelectMode(); 
+            AbstractListDataProvider.ListSelectionSupport lss = getDataProvider().getSelectionSupport();            
+            if ( multiSelectMode == MultiSelectionMode.CONTINUOUS ) { 
+                boolean row_selection_changed = false; 
+                for (int idx=rowIndex+1; idx < getRowCount(); idx++) {
+                    
+                    Object rowdata = getItem(idx);
+                    if (lss.containsItem(rowdata)) {
+                        lss.setItemChecked(rowdata, selected);
+                        row_selection_changed = true; 
+                    }
+                }                
+                if ( row_selection_changed ) { 
+                    fireTableRowsUpdated(rowIndex, getRowCount()-1); 
+                    
+                } else { 
+                    for (int idx=0; idx <= rowIndex; idx++) {
+                        Object rowdata = getItem( idx ); 
+                        lss.setItemChecked(rowdata, selected); 
+                    } 
+                    fireTableRowsUpdated(0, rowIndex);
                 } 
-                fireTableRowsUpdated(0, rowIndex); 
             } else {
-                getDataProvider().getSelectionSupport().setItemChecked(item, selected); 
+                lss.setItemChecked(item, selected); 
                 fireTableRowsUpdated(rowIndex, rowIndex); 
             } 
             firePropertyChange("checkedItemsChanged", !selected, selected); 
