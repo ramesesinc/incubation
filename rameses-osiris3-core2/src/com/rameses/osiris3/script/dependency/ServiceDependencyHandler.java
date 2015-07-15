@@ -43,7 +43,6 @@ public class ServiceDependencyHandler extends DependencyHandler {
     }
     
     public Object getResource(Annotation c, ExecutionInfo einfo) {
-        
         TransactionContext txn = TransactionContext.getCurrentContext();
         AbstractContext ac = txn.getContext();
         try {
@@ -65,15 +64,15 @@ public class ServiceDependencyHandler extends DependencyHandler {
                 ScriptInfo sinfo = executor.getScriptInfo();
                 InvocationHandler ih = null;
                 if( !async ) {
-                    ih = new ScriptInvocation(executor,managed);
+                    ih = new ScriptInvocation((MainContext)ac, serviceName, txn.getEnv(), executor);
                 } else {
                     ih = new AsyncScriptInvocation((MainContext)ac, serviceName, txn.getEnv() );
                 }
+                
                 Class localIntf = s.localInterface();
                 if(localIntf!=NullIntf.class) {
                     return Proxy.newProxyInstance(sinfo.getClassLoader(), new Class[]{localIntf }, ih);
-                }    
-                else {
+                } else { 
                     return Proxy.newProxyInstance( sinfo.getInterfaceClass().getClassLoader(), new Class[]{sinfo.getInterfaceClass()}, ih);
                 }    
             } else {
@@ -91,7 +90,11 @@ public class ServiceDependencyHandler extends DependencyHandler {
                 
                 ScriptConnection sc = (ScriptConnection)xconn;
                 Map env = new HashMap();
-                env.putAll(txn.getEnv());
+                
+                Map txnenv = txn.getEnv();                 
+                if ( txnenv != null ) { 
+                    env.putAll( txnenv );
+                }
                 
                 Iterator keys = sc.getConf().keySet().iterator();
                 while (keys.hasNext()) {
@@ -100,6 +103,11 @@ public class ServiceDependencyHandler extends DependencyHandler {
                         env.put(key.substring(4), sc.getConf().get(key));
                     }
                 }
+                
+                try {
+                    Integer rt = new Integer(sc.getConf().get("readTimeout").toString());
+                    env.put("@read_timeout", rt.intValue()); 
+                } catch(Throwable t){;} 
                 
                 if(localIntf!=null)
                     return sc.create(serviceName, env, localIntf);

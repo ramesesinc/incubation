@@ -2,6 +2,7 @@ package com.rameses.rcp.support;
 
 import com.rameses.rcp.constant.TextCase;
 import java.beans.Beans;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.text.AttributeSet;
@@ -14,6 +15,8 @@ public class TextDocument extends PlainDocument
     private TextCase textCase;
     private int maxlength;
     private boolean dirty;
+    
+    private TextDocument.Filter filter; 
     
     public TextDocument() {
         this.listeners = new ArrayList();
@@ -62,6 +65,13 @@ public class TextDocument extends PlainDocument
     private boolean _replacing_;
     
     public void insertString(int offs, String str, AttributeSet a) throws BadLocationException {
+        if ( str != null && str.length() > 0 ) {
+            TextDocument.Filter ff = getFilter(); 
+            if ( ff != null && !ff.accept(str) ) { 
+                //not accepted by the filter 
+                return;
+            }
+        }
         insertString(offs, str, a, true);
     }
     
@@ -147,8 +157,46 @@ public class TextDocument extends PlainDocument
         return sb.toString();
     }     
     
+    public TextDocument.Filter getFilter() { return filter; } 
+    public void setFilter( TextDocument.Filter filter ) {
+        this.filter = filter; 
+    }
+    
+    
     public static interface DocumentListener {
         void onupdate(); 
     }
+    
+    public static interface Filter {
+        boolean accept( String value );
+    }    
+    
+    public static class DefaultFilter implements Filter {
+        public boolean accept( String value ) {
+            return true; 
+        }
+    }
+    
+    public static class NumberFilter implements Filter {
+        public boolean accept( String value ) { 
+            try {
+                new Integer( value ); 
+                return true; 
+            } catch(Throwable t) {
+                return false; 
+            }
+        }
+    }
+    
+    public static class DecimalFilter implements Filter {
+        public boolean accept( String value ) { 
+            try {
+                new BigDecimal( value ); 
+                return true; 
+            } catch(Throwable t) {
+                return false; 
+            }
+        }
+    } 
 }
 

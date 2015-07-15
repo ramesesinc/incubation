@@ -126,11 +126,14 @@ public class PlatformImpl implements Platform
         d.setContentPane(comp);
         d.setId( id );
         d.setPlatformImpl(this);
-        d.setModal( !"false".equals(modal) );
+        d.setModal( "false".equals(modal)? false: true );
         
         if ("false".equals(properties.get("resizable")+"")) d.setResizable(false);
-        if ("true".equals(properties.get("alwaysOnTop")+"")) d.setAlwaysOnTop(true);
-        if ("true".equals(properties.get("undecorated")+"")) d.setUndecorated(true); 
+        if ("true".equals(properties.get("undecorated")+"")) d.setUndecorated(true);
+        if ("true".equals(properties.get("alwaysOnTop")+"")) { 
+            d.setAlwaysOnTop(true);
+            d.setModal( false ); 
+        }
 
         d.pack();
         Dimension dim = d.getSize();

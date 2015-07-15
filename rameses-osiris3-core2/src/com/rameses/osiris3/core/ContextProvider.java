@@ -44,9 +44,16 @@ public abstract class ContextProvider {
     
     public final AbstractContext getContext(String name) {
         if(!contexts.containsKey(name)) {
+            Map conf = getConf(name);
+            if ("false".equals( conf.get("enabled") )) {
+                //this app has been disabled, exit right away 
+                System.out.println("apps: "+ name +" has been disabled. please check the conf setting.");
+                return null; 
+            } 
+            
             AbstractContext ac = findContext(name);
             ac.setName( name );
-            ac.setConf( getConf(name) );
+            ac.setConf( conf );
             ac.setClassLoader(getClassLoader(name) );
             ac.setRootUrl(getRootUrl()+"/"+name);
             initContext(ac);

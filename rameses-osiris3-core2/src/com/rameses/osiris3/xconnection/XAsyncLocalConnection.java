@@ -9,6 +9,7 @@
 
 package com.rameses.osiris3.xconnection;
 
+import java.net.InetAddress;
 import java.util.Hashtable;
 import java.util.Map;
 
@@ -91,5 +92,34 @@ public class XAsyncLocalConnection extends XConnection implements XAsyncConnecti
     
     public Map getConf() {
         return conf;
+    }
+    
+    public void trace( StringBuilder buffer ) {
+        String host = (String) conf.get("host"); 
+        if (host == null) host = "localhost";
+        
+        String context = (String) conf.get("context");
+        if (context == null) context = "default"; 
+        
+        buffer.append("\nConnecting to host... "+ host +" (context="+ context +")"); 
+        buffer.append("\n   Status: Connected"); 
+        logPCInfo( buffer ); 
+    }
+    
+    private void logPCInfo( StringBuilder buffer ) {
+        try {
+            InetAddress localhost = InetAddress.getLocalHost();
+            buffer.append("\n   IP Addr: " + localhost.getHostAddress()); 
+
+            // Just in case this host has multiple IP addresses....
+            InetAddress[] allMyIps = InetAddress.getAllByName( localhost.getCanonicalHostName() );
+            if (allMyIps != null && allMyIps.length > 1) {
+                for (int i = 0; i < allMyIps.length; i++) {
+                    buffer.append("\n            " + allMyIps[i]); 
+                }
+            }
+        } catch (Throwable t) { 
+            //do nothing 
+        }
     }
 }

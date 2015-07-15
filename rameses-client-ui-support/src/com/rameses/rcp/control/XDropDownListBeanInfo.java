@@ -64,7 +64,9 @@ public class XDropDownListBeanInfo extends ComponentBeanInfo.Support
             new PropertyDescriptor("stretchHeight", getBeanClass()),
             new PropertyDescriptor("title", getBeanClass()),  
             new PropertyDescriptor("varName", getBeanClass()),  
-            new PropertyDescriptor("visibleWhen", getBeanClass()) 
+                
+            new PropertyDescriptor("disableWhen", getBeanClass()),
+            new PropertyDescriptor("visibleWhen", getBeanClass())                 
         }; 
     }
     

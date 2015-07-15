@@ -42,6 +42,7 @@ public class Project extends HashMap  {
     //project specific files. This exists in a project only
     private PermalinkManager permalinkManager = new PermalinkManager();
     
+    private MimeTypeManager mimetypeManager = new MimeTypeManager();
     
     private Map<String,Theme> themes = new LinkedHashMap();
     private Map<String,Module> modules = new LinkedHashMap();
@@ -60,11 +61,11 @@ public class Project extends HashMap  {
         super.put("name", id);
         super.put("url", url);
         
-        //load permalink mapping
-        permalinkManager.init( conf );
-        templateManager.init( conf );
-        blockManager.init( conf );
-        actionManager.init( conf );
+        mimetypeManager.init( conf ); 
+        permalinkManager.init( conf ); 
+        templateManager.init( conf ); 
+        blockManager.init( conf ); 
+        actionManager.init( conf ); 
         
         loadThemes();
         loadModules();
@@ -239,6 +240,9 @@ public class Project extends HashMap  {
         return actionManager;
     }
    
+    public MimeTypeManager getMimeTypeManager() {
+        return mimetypeManager; 
+    }
 
    
      // </editor-fold >

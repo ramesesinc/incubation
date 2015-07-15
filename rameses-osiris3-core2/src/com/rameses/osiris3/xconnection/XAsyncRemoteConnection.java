@@ -11,6 +11,10 @@ package com.rameses.osiris3.xconnection;
 
 import com.rameses.common.AsyncRequest;
 import com.rameses.http.HttpClient;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.Writer;
+import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,7 +32,7 @@ public class XAsyncRemoteConnection extends XConnection implements XAsyncConnect
     private String connection;
     private boolean debug;
     private boolean failOnConnectionError;
-    
+        
     public XAsyncRemoteConnection(String name, Map conf) {
         this.name = name;
         this.conf = conf;
@@ -97,7 +101,10 @@ public class XAsyncRemoteConnection extends XConnection implements XAsyncConnect
     
     public void submitAsync(AsyncRequest ar) {
     }     
-    
+
+    public void trace( StringBuilder buffer ) {
+        new RemoteMessageQueue(null, host, cluster, context).trace( buffer ); 
+    }
     
     // <editor-fold defaultstate="collapsed" desc=" RemoteMessageQueue ">
     
@@ -108,10 +115,12 @@ public class XAsyncRemoteConnection extends XConnection implements XAsyncConnect
         private HttpClient client;
         private String cluster;
         private String context;
+        private String host;
         private String id;
         
         public RemoteMessageQueue(String id, String host, String cluster, String context) {
-            this.id = id;             
+            this.id = id; 
+            this.host = host;             
             this.cluster = cluster;
             this.context = context;
             this.client = new HttpClient(host, true);
@@ -165,7 +174,7 @@ public class XAsyncRemoteConnection extends XConnection implements XAsyncConnect
             params.put("context", context);
             params.put("connection", root.connection); 
             post(path, params); 
-        }        
+        }    
         
         public void push(Object obj) throws Exception {
             if (debug) {
@@ -191,7 +200,69 @@ public class XAsyncRemoteConnection extends XConnection implements XAsyncConnect
             params.put("connection", root.connection); 
             return post(path, params); 
         } 
+        
+        public void trace( StringBuilder buffer ) { 
+            String path = cluster + "/async/tracert";
+            Map params = new HashMap();
+            params.put("context", context);
+            params.put("connection", root.connection); 
+            
+            try { 
+                buffer.append("\nConnecting to host... "+ host +" (context="+ context +")"); 
+                if ( root.connection != null) {
+                    buffer.append(", connection="+ root.connection); 
+                }
+                
+                Object o = client.post(path, new Object[]{ params });
+                buffer.append("\n   Status: Connected"); 
+                if ( o != null ) {
+                    buffer.append("\n" + o); 
+                }
+                
+            } catch(Throwable t) {
+                CustomWriter cw = new CustomWriter(); 
+                t.printStackTrace(new PrintWriter(cw)); 
+                
+                buffer.append("\n   Status: ERROR"); 
+                buffer.append("\n" + cw.getText() ); 
+            } 
+        } 
+        
+        private void logPCInfo( StringBuilder buffer ) {
+            try {
+                InetAddress localhost = InetAddress.getLocalHost();
+                buffer.append("\n   IP Addr: " + localhost.getHostAddress()); 
+
+                // Just in case this host has multiple IP addresses....
+                InetAddress[] allMyIps = InetAddress.getAllByName( localhost.getCanonicalHostName() );
+                if (allMyIps != null && allMyIps.length > 1) {
+                    for (int i = 0; i < allMyIps.length; i++) {
+                        buffer.append("\n            " + allMyIps[i]); 
+                    }
+                }
+            } catch (Throwable t) { 
+                //do nothing 
+            }
+        }
     } 
+    
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" CustomWriter (Class) ">
+    
+    private class CustomWriter extends Writer
+    {
+        StringBuilder buffer = new StringBuilder();
+        
+        public void write(char[] cbuf, int off, int len) throws IOException {
+            buffer.append(cbuf, off, len);
+        }
+
+        public String getText() { return buffer.toString(); }
+        
+        public void flush() throws IOException {;}
+        public void close() throws IOException {;}
+    }
     
     // </editor-fold>
 }

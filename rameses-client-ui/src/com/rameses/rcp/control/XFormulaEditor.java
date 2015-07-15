@@ -53,6 +53,10 @@ public class XFormulaEditor extends JTextPane implements UIInput, MouseEventSupp
     
     private int stretchWidth;
     private int stretchHeight;     
+    
+    private String visibleWhen;
+    private String disableWhen;
+
         
     public XFormulaEditor() 
     {
@@ -60,7 +64,7 @@ public class XFormulaEditor extends JTextPane implements UIInput, MouseEventSupp
         new MouseEventSupport(this).install(); 
     }
     
-    // <editor-fold defaultstate="collapsed" desc="  Getters/Setters  ">
+    // <editor-fold defaultstate="collapsed" desc=" Getters/Setters ">
     
     public final void setDocument(Document doc) {
     }
@@ -122,6 +126,16 @@ public class XFormulaEditor extends JTextPane implements UIInput, MouseEventSupp
         getFormulaDocument().setTextCaseAsString(sTextCase); 
     }
     
+    public String getVisibleWhen() { return visibleWhen; } 
+    public void setVisibleWhen( String visibleWhen ) {
+        this.visibleWhen = visibleWhen;
+    }
+    
+    public String getDisableWhen() { return disableWhen; } 
+    public void setDisableWhen( String disableWhen ) {
+        this.disableWhen = disableWhen;
+    }      
+    
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" UIInput implementation ">
@@ -172,18 +186,37 @@ public class XFormulaEditor extends JTextPane implements UIInput, MouseEventSupp
         setInputVerifier( UIInputUtil.VERIFIER );
     }  
     
-    public void refresh() 
-    {
+    public void refresh() { 
+        Binding binding = getBinding(); 
+        String whenExpr = getVisibleWhen();
+        if (whenExpr != null && whenExpr.length() > 0) {
+            boolean result = false; 
+            try { 
+                result = UIControlUtil.evaluateExprBoolean(binding.getBean(), whenExpr);
+            } catch(Throwable t) {
+                t.printStackTrace();
+            }
+            setVisible( result ); 
+        }
+        
+        whenExpr = getDisableWhen();
+        if (whenExpr != null && whenExpr.length() > 0) {
+            boolean disabled = false; 
+            try { 
+                disabled = UIControlUtil.evaluateExprBoolean(binding.getBean(), whenExpr);
+            } catch(Throwable t) {
+                t.printStackTrace();
+            }
+            setEnabled( !disabled ); 
+        }
+        
         if ( dynamic ) loadVariables();
 
         int oldCaretPos = getCaretPosition();        
-        try 
-        {
+        try {
             Object value = UIControlUtil.getBeanValue(this);
             getFormulaDocument().setValue(value, getInputAttributes().copyAttributes()); 
-        } 
-        catch(Exception e) 
-        {
+        } catch(Exception e) {
             if (ClientContext.getCurrentContext().isDebugMode()) 
                 e.printStackTrace();
         }

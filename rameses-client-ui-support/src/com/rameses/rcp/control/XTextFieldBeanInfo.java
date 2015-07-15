@@ -52,6 +52,7 @@ public class XTextFieldBeanInfo extends ComponentBeanInfo.Support
             new PropertyDescriptor("cellPadding", getBeanClass()),
             
             new PropertyDescriptor("depends", getBeanClass()),
+            new PropertyDescriptor("filter", getBeanClass()),
             new PropertyDescriptor("focusAccelerator", getBeanClass()),
             new PropertyDescriptor("focusKeyStroke", getBeanClass()),
             new PropertyDescriptor("hint", getBeanClass()),
@@ -68,6 +69,9 @@ public class XTextFieldBeanInfo extends ComponentBeanInfo.Support
             
             new PropertyDescriptor("stretchWidth", getBeanClass()),
             new PropertyDescriptor("stretchHeight", getBeanClass()),
+            
+            new PropertyDescriptor("disableWhen", getBeanClass()),
+            new PropertyDescriptor("visibleWhen", getBeanClass()),            
             
             installEditor(new PropertyDescriptor("textCase", getBeanClass()), TextCasePropertyEditor.class), 
             installEditor(new PropertyDescriptor("trimSpaceOption", getBeanClass()), TrimSpaceOptionPropertyEditor.class) 

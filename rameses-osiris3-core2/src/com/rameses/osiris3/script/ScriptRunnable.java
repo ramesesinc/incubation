@@ -180,7 +180,4 @@ public class ScriptRunnable implements Runnable {
     public void setAsyncRequest(AsyncRequest asyncRequest) {
         this.asyncRequest = asyncRequest;
     }
-    
-    
-    
 }

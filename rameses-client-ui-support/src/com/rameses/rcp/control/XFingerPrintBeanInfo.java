@@ -59,7 +59,10 @@ public class XFingerPrintBeanInfo extends ComponentBeanInfo.Support
             
             new PropertyDescriptor("handler", getBeanClass()),
             new PropertyDescriptor("stretchWidth", getBeanClass()),
-            new PropertyDescriptor("stretchHeight", getBeanClass())            
+            new PropertyDescriptor("stretchHeight", getBeanClass()), 
+            
+            new PropertyDescriptor("disableWhen", getBeanClass()),
+            new PropertyDescriptor("visibleWhen", getBeanClass())             
         };        
     }
 }

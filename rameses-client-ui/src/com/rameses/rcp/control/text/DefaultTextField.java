@@ -60,6 +60,9 @@ public class DefaultTextField extends JTextField
     
     private Map<String,List<ActionListener>> actionMap;   
     
+    private String disableWhen;
+    private String visibleWhen;
+    
     public DefaultTextField() {
         super();
         initComponent();
@@ -291,6 +294,17 @@ public class DefaultTextField extends JTextField
             g.setColor(oldColor); 
         }
     } 
+    
+    public String getVisibleWhen() { return visibleWhen; } 
+    public void setVisibleWhen( String visibleWhen ) {
+        this.visibleWhen = visibleWhen;
+    }
+    
+    public String getDisableWhen() { return disableWhen; } 
+    public void setDisableWhen( String disableWhen ) {
+        this.disableWhen = disableWhen;
+    }    
+
     
     // <editor-fold defaultstate="collapsed" desc=" Font support implementation ">
     

@@ -137,7 +137,7 @@ public class AnubisPollServlet extends HttpServlet
         } else {
             //timed out, no messages available
             if(worker.continuation.isExpired()) {
-                writeResponse("{status: 'timeout'}", resp);
+                writeResponse("{status: \"timeout\"}", resp);
             } else {
                 String result = worker.result;
                 writeResponse(result, resp);
@@ -162,21 +162,27 @@ public class AnubisPollServlet extends HttpServlet
             boolean has_entries = false; 
             StringBuilder buffer = new StringBuilder();
             buffer.append("["); 
-            LinkedBlockingQueue<Map> queue = token.readQueue(); 
-            while (!queue.isEmpty()) { 
-                Map map = queue.poll(); 
+            
+            List<Map> list = token.readAll(); 
+            while ( !list.isEmpty() ) { 
+                Map map = list.remove(0); 
                 if (map != null) {
-                    map.put("status", "OK"); 
-                    if (has_entries) {
-                        buffer.append(", "); 
-                    }
-                    buffer.append(JsonUtil.toString(map));
+                    appendResult(buffer, map, has_entries); 
                     has_entries = true; 
                 }
             }
+
             buffer.append("]"); 
             result = buffer.toString(); 
             continuation.resume();
+        }
+        
+        private void appendResult( StringBuilder buffer, Map map, boolean has_entries ) {
+            map.put("status", "OK"); 
+            if (has_entries) {
+                buffer.append(", "); 
+            }
+            buffer.append(JsonUtil.toString(map));
         }
         
         public void destroy() {
@@ -262,6 +268,26 @@ public class AnubisPollServlet extends HttpServlet
                 last_time_accessed = System.currentTimeMillis();
             }
         }
+        
+        public List<Map> readAll() {
+            List<Map> list = new ArrayList();
+            try { 
+                Map map = read(); 
+                if (map != null) { 
+                    list.add( map ); 
+                    
+                    while ( !queue.isEmpty() ) {
+                        map = queue.poll(); 
+                        if (map != null) { 
+                            list.add( map ); 
+                        }
+                    }
+                } 
+            } finally {
+                last_time_accessed = System.currentTimeMillis(); 
+            }
+            return list; 
+        } 
         
         LinkedBlockingQueue<Map> readQueue() {
             try { 

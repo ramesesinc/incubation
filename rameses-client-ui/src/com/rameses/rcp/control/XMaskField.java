@@ -86,7 +86,7 @@ public class XMaskField extends AbstractMaskField implements UIInput, ActiveCont
     protected InputVerifier getChildInputVerifier() {
         return UIInputUtil.VERIFIER; 
     }    
-    
+        
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc=" UIInput implementation ">
@@ -128,15 +128,35 @@ public class XMaskField extends AbstractMaskField implements UIInput, ActiveCont
     }
 
     public void refresh() {
-        try 
-        {
+        try {
             updateBackground(); 
+            
+            String whenExpr = getVisibleWhen();
+            Binding binding = getBinding();
+            if (whenExpr != null && whenExpr.length() > 0) {
+                boolean result = false; 
+                try { 
+                    result = UIControlUtil.evaluateExprBoolean(binding.getBean(), whenExpr);
+                } catch(Throwable t) {
+                    t.printStackTrace();
+                }
+                setVisible( result ); 
+            }
+
+            whenExpr = getDisableWhen();
+            if (whenExpr != null && whenExpr.length() > 0) {
+                boolean disabled = false;                 
+                try { 
+                    disabled = UIControlUtil.evaluateExprBoolean(binding.getBean(), whenExpr);
+                } catch(Throwable t) {
+                    t.printStackTrace();
+                }
+                setEnabled( !disabled ); 
+            }
             
             Object value = UIControlUtil.getBeanValue(this);            
             setValue(value); 
-        } 
-        catch(Exception e) 
-        {
+        } catch(Exception e) {
             setValue(null);
             
             if (ClientContext.getCurrentContext().isDebugMode()) e.printStackTrace(); 

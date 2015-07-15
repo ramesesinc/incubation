@@ -23,6 +23,8 @@ import com.rameses.util.URLDirectory;
 import com.rameses.util.URLDirectory.URLFilter;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import org.xml.sax.Attributes;
@@ -48,16 +50,13 @@ public class ModuleParser implements URLFilter {
     {
         this.module = module;
         this.appContext = module.getAppContext();
-        try 
-        {
+        try {
             URL url = new URL(module.getContextPath() + "/workunits");
             URLDirectory u = new URLDirectory(url);
             u.list( this, loader );
-        } 
-        catch(RuntimeException re) {
+        } catch(RuntimeException re) {
             throw re;
-        }
-        catch(Exception ex) {
+        } catch(Exception ex) {
             throw new IllegalStateException(ex.getMessage(), ex);
         }
     }
@@ -95,10 +94,13 @@ public class ModuleParser implements URLFilter {
     
     
     private class WorkUnitParser extends DefaultHandler {
+        
         private WorkUnit workunit;
         private StringBuffer sb = new StringBuffer();
         private PageFlow pageFlow = null;
         private AbstractNode abstractNode = null;
+        
+        private Invoker currentInvoker;
         
         public WorkUnitParser() {
             
@@ -155,20 +157,31 @@ public class ModuleParser implements URLFilter {
                         }
                     }
                 } else if( qName.equals("invoker") ) {
-                    Invoker in = new Invoker();
-                    in.setModule( module );
-                    in.setWorkunitid( module.getName() + ":" + workunit.getName() );
-                    in.setWorkunitname( workunit.getName() );
-                    ParserUtil.loadAttributes( in, in.getProperties(), attributes );
-                    if( in.getDomain()==null) in.setDomain(module.getDomain());
+                    Invoker inv = new Invoker();
+                    inv.setModule( module );
+                    inv.setWorkunitid( module.getName() + ":" + workunit.getName() );
+                    inv.setWorkunitname( workunit.getName() );
+                    ParserUtil.loadAttributes( inv, inv.getProperties(), attributes );
+                    if( inv.getDomain()==null) inv.setDomain(module.getDomain());
                     
-                    module.getInvokers().add( in );
+                    module.getInvokers().add( inv );
+                    currentInvoker = inv; 
+                    
+                } else if(qName.equals("action") && currentInvoker != null) { 
+                    Map extended = new HashMap();                    
+                    Invoker.Action ia = new Invoker.Action(attributes.getValue( "name" )); 
+                    ParserUtil.loadAttributes(ia, extended, attributes); 
+                    ia.setProperties( extended ); 
+                    currentInvoker.addAction( ia ); 
+                    
                 } else if(qName.equals("code")) {
                     String className = attributes.getValue("class");
                     if ( className != null ) workunit.setClassName(className);
                     sb.delete(0, sb.length());
+                    
                 } else if(qName.equals("pageflow")) {
                     pageFlow = new PageFlow();
+                    
                 } else if( qName.equals("page")) {
                     Page p = new Page();
                     ParserUtil.loadAttributes(p, p.getProperties(), attributes);
@@ -181,22 +194,27 @@ public class ModuleParser implements URLFilter {
                     abstractNode = new StartNode();
                     ParserUtil.loadAttributes(abstractNode, abstractNode.getProperties(), attributes);
                     pageFlow.addNode(abstractNode);
+                    
                 } else if(qName.equals("end")) {
                     abstractNode = new EndNode();
                     ParserUtil.loadAttributes(abstractNode, abstractNode.getProperties(), attributes);
                     pageFlow.addNode(abstractNode);
+                    
                 } else if( qName.equals("page") ) {
                     abstractNode = new PageNode();
                     ParserUtil.loadAttributes(abstractNode, abstractNode.getProperties(), attributes);
                     pageFlow.addNode(abstractNode);
+                    
                 } else if(qName.equals("process")) {
                     abstractNode = new ProcessNode();
                     ParserUtil.loadAttributes(abstractNode, abstractNode.getProperties(), attributes);
                     pageFlow.addNode(abstractNode);
+                    
                 } else if(qName.equals("subprocess")) {
                     abstractNode = new SubProcessNode();
                     ParserUtil.loadAttributes(abstractNode, abstractNode.getProperties(), attributes);
                     pageFlow.addNode(abstractNode);
+                    
                 } else if( qName.equals("transition")) {
                     Transition transition = new Transition();
                     ParserUtil.loadAttributes(transition, transition.getProperties(), attributes);
@@ -209,10 +227,12 @@ public class ModuleParser implements URLFilter {
             sb.append( c, i, i0 );
         }
         
-        public void endElement(String uri, String localName, String qName) throws SAXException {
-            if( qName.equals("code")) {
+        public void endElement(String uri, String localName, String qName) throws SAXException { 
+            if ( qName.equals("invoker") ) {
+                currentInvoker = null; 
+            } else if ( qName.equals("code")) {
                 workunit.setCodeSource( sb.toString() );
-            } else if(qName.equals("pageflow")) {
+            } else if ( qName.equals("pageflow") ) {
                 workunit.setPageFlow(pageFlow);
                 pageFlow = null;
             }

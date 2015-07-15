@@ -18,6 +18,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.swing.ListSelectionModel;
 
 /**
  *
@@ -29,10 +30,12 @@ public abstract class AbstractListDataProvider
     public final static int FETCH_MODE_REFRESH      = 1;
     public final static int FETCH_MODE_RELOAD       = 2;
     public final static int FETCH_MODE_RELOAD_ALL   = 3;
-        
+    
+    protected MultiSelectionSupport multiSelectionSupport;
     protected PropertyChangeSupport propertySupport; 
     protected TableModelSupport tableModelSupport; 
     protected MessageSupport messageSupport;
+    
     private ListItemHandler listItemHandler;
     
     private Set checkedItems = new HashSet(); 
@@ -54,8 +57,7 @@ public abstract class AbstractListDataProvider
     private ListSelectionSupport selectionSupport;
     private ActionProvider actionProvider;
     
-    public AbstractListDataProvider() 
-    {
+    public AbstractListDataProvider() {
         propertySupport = new PropertyChangeSupport();
         tableModelSupport = new TableModelSupport(); 
         listItemHandler = new ListItemHandler();        
@@ -64,11 +66,10 @@ public abstract class AbstractListDataProvider
     
     public abstract List fetchList(Map params);
     
-    public final ListSelectionSupport getSelectionSupport() 
-    {
-        if (selectionSupport == null) 
+    public final ListSelectionSupport getSelectionSupport() {
+        if (selectionSupport == null) { 
             selectionSupport = new ListSelectionSupport(); 
-        
+        } 
         return selectionSupport; 
     }    
     
@@ -89,6 +90,20 @@ public abstract class AbstractListDataProvider
     public Object callContextMenu(Object item, Object menuItem) {
         return null; 
     } 
+    
+    public MultiSelectionSupport getMultiSelectionSupport() {
+        if (multiSelectionSupport == null) {
+            multiSelectionSupport = new MultiSelectionSupport(); 
+        } 
+        return multiSelectionSupport; 
+    }
+
+    public int getMultiSelectMode() { 
+        return getMultiSelectionSupport().getSelectionMode(); 
+    } 
+    public void setMultiSelectMode( int multiSelectMode ) {
+        getMultiSelectionSupport().setSelectionMode( multiSelectMode ); 
+    }
     
     public boolean isMultiSelect() { return multiSelect; } 
     public void setMultiSelect(boolean multiSelect) {
@@ -465,6 +480,42 @@ public abstract class AbstractListDataProvider
     } 
     
     
+    protected void beforeSelectionItemChange( Object fact ) {} 
+    protected void beforeSelectionItemChange(Object item, boolean selected, int rowIndex) {
+        Map fact = new HashMap();
+        fact.put("selected", selected); 
+        fact.put("index", rowIndex); 
+        fact.put("data", item); 
+        beforeSelectionItemChange( fact ); 
+    }
+    
+    protected void afterSelectionItemChange( Object fact ) {} 
+    protected void afterSelectionItemChange( Object item, boolean selected, int rowIndex ) {
+        Map fact = new HashMap();
+        fact.put("selected", selected); 
+        fact.put("index", rowIndex); 
+        fact.put("data", item); 
+        afterSelectionItemChange( fact ); 
+    } 
+    
+    public final void fireBeforeSelectionItemChange(Object item, boolean selected, int rowIndex) {
+        beforeSelectionItemChange(item, selected, rowIndex); 
+    }
+    
+    public final void fireAfterSelectionItemChange(Object item, boolean selected, int rowIndex) {
+        afterSelectionItemChange(item, selected, rowIndex); 
+    } 
+    
+    // multi selection events 
+    public void selectAll() {
+        getMultiSelectionSupport().selectAll(); 
+    }
+    public void deselectAll() {
+        getMultiSelectionSupport().deselectAll(); 
+    }
+    
+    
+    
     // <editor-fold defaultstate="collapsed" desc=" ListItem helper methods "> 
     
     public ListItemStatus createListItemStatus(ListItem oListItem) 
@@ -775,17 +826,22 @@ public abstract class AbstractListDataProvider
         } 
         
         public synchronized void setItemChecked(Object itemData, boolean checked) { 
-            checkedItems.put(itemData, checked); 
+            if ( checked ) {
+                checkedItems.put(itemData, checked); 
+            } else {
+                checkedItems.remove(itemData); 
+            }
         } 
         
         public List getSelectedValues() 
         {
             List list = new ArrayList(); 
-            for (Map.Entry<Object,Boolean> entry : checkedItems.entrySet()) 
-            {
-                if (entry.getValue().booleanValue()) 
-                    list.add(entry.getKey()); 
-            }
+            for (Map.Entry<Object,Boolean> entry : checkedItems.entrySet()) {
+                if (entry.getValue().booleanValue()) { 
+                    Object okey = entry.getKey(); 
+                    if ( okey != null) list.add( okey ); 
+                } 
+            } 
             return list; 
         }
         

@@ -56,7 +56,10 @@ public class XActionFieldBeanInfo extends ComponentBeanInfo.Support
             new PropertyDescriptor("index", getBeanClass()),
             new PropertyDescriptor("readonly", getBeanClass(), "isReadonly", "setReadonly"),
             new PropertyDescriptor("stretchWidth", getBeanClass()),
-            new PropertyDescriptor("stretchHeight", getBeanClass())
+            new PropertyDescriptor("stretchHeight", getBeanClass()),
+            
+            new PropertyDescriptor("disableWhen", getBeanClass()),
+            new PropertyDescriptor("visibleWhen", getBeanClass())
         }; 
     }
 }

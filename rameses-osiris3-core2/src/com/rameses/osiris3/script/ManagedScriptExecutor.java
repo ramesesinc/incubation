@@ -90,7 +90,7 @@ public class ManagedScriptExecutor {
                 throw new NoSuchMethodException("'"+method+"' method does not exist");
             }
             
-            if(!bypassAsync) {
+            if(!bypassAsync) {                
                 Async async = m.getAnnotation(Async.class);
                 if( async !=null ) {
                     AsyncRequest ar = new AsyncRequest(scriptInfo.getName(), method, args, txn.getEnv());

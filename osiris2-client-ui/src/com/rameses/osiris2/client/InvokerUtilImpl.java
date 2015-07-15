@@ -25,6 +25,7 @@ import com.rameses.rcp.common.Opener;
 import com.rameses.util.ExceptionManager;
 import com.rameses.util.ValueUtil;
 import java.awt.EventQueue;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -79,7 +80,14 @@ class InvokerUtilImpl
             u.setName( wuId );
             u.setTitle( invoker.getCaption() );
             
-            Object outcome = u.init(params, action);            
+            Object outcome = null; 
+            Object[] args = new Object[]{ invoker }; 
+            if (Tools.hasMethod(callee, action, args)) {
+                outcome = u.init(params, action, args); 
+            } else {
+                outcome = u.init(params, action); 
+            }
+            
             String windowId = u.getId();
             
             //check if window id already exists
@@ -407,8 +415,7 @@ class InvokerUtilImpl
     }
  
     
-    private static class AsyncOpenerRunnable implements Runnable 
-    {
+    private static class AsyncOpenerRunnable implements Runnable {
         private String invType;
         private Map params;
         
@@ -428,5 +435,31 @@ class InvokerUtilImpl
             list.clear();            
             InvokerUtilImpl.invoke(invoker, params); 
         }
+    }
+    
+    
+    static class Tools {
+        
+        public static boolean hasMethod(Object bean, String name, Object[] args) {
+            if (bean == null || name == null) { return false; }
+
+            Class beanClass = bean.getClass();
+            while (beanClass != null) 
+            {
+                Method[] methods = beanClass.getMethods(); 
+                for (int i=0; i<methods.length; i++) 
+                {
+                    Method m = methods[i];
+                    if (!m.getName().equals(name)) { continue; } 
+
+                    int paramSize = (m.getParameterTypes() == null? 0: m.getParameterTypes().length); 
+                    int argSize = (args == null? 0: args.length); 
+                    if (paramSize == argSize && paramSize == 0) { return true; } 
+                    if (paramSize == argSize && m.getParameterTypes()[0] == Object.class) { return true; } 
+                }
+                beanClass = beanClass.getSuperclass();
+            }
+            return false;
+        }   
     }
 }

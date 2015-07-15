@@ -227,11 +227,31 @@ public class XIntegerField extends AbstractNumberField implements UIInput,
     public Binding getBinding() { return binding; }    
     public void setBinding(Binding binding) { this.binding = binding; }
 
-    public void refresh() 
-    {
-        try 
-        {
+    public void refresh() {
+        try {
             updateBackground();
+            
+            String whenExpr = getVisibleWhen();
+            if (whenExpr != null && whenExpr.length() > 0) {
+                boolean result = false; 
+                try { 
+                    result = UIControlUtil.evaluateExprBoolean(binding.getBean(), whenExpr);
+                } catch(Throwable t) {
+                    t.printStackTrace();
+                }
+                setVisible( result ); 
+            }
+
+            whenExpr = getDisableWhen();
+            if (whenExpr != null && whenExpr.length() > 0) {
+                boolean disabled = false;                 
+                try { 
+                    disabled = UIControlUtil.evaluateExprBoolean(binding.getBean(), whenExpr);
+                } catch(Throwable t) {
+                    t.printStackTrace();
+                }
+                setEnabled( !disabled ); 
+            }
             
             Object value = UIControlUtil.getBeanValue(this);
             

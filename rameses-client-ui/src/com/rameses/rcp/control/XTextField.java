@@ -122,6 +122,28 @@ public class XTextField extends DefaultTextField implements UIInput, Validatable
         try {
             updateBackground(); 
             
+            String whenExpr = getVisibleWhen();
+            if (whenExpr != null && whenExpr.length() > 0) {
+                boolean result = false; 
+                try { 
+                    result = UIControlUtil.evaluateExprBoolean(binding.getBean(), whenExpr);
+                } catch(Throwable t) {
+                    t.printStackTrace();
+                }
+                setVisible( result ); 
+            }
+
+            whenExpr = getDisableWhen();
+            if (whenExpr != null && whenExpr.length() > 0) {
+                boolean disabled = false; 
+                try { 
+                    disabled = UIControlUtil.evaluateExprBoolean(binding.getBean(), whenExpr);
+                } catch(Throwable t) {
+                    t.printStackTrace();
+                }
+                setEnabled( !disabled ); 
+            }
+            
             Object value = UIControlUtil.getBeanValue(this);
             if ( isSecured() ) {
                 //keep the actual value
@@ -422,6 +444,15 @@ public class XTextField extends DefaultTextField implements UIInput, Validatable
         TextCase textcase = chandler.getColumn().getTextCase();
         if (textcase != null) document.setTextCase(textcase); 
     }    
+    
+    public TextDocument.Filter getFilter() {
+        return (document == null? null: document.getFilter()); 
+    }
+    public void setFilter( TextDocument.Filter filter ) {
+        if (document != null) { 
+            document.setFilter( filter ); 
+        }
+    }
     
     // </editor-fold>
     

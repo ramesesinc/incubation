@@ -520,6 +520,28 @@ public class XComboBox extends JComboBox implements UIInput, Validatable, Active
     
     public void refresh() {
         try {
+            String whenExpr = getVisibleWhen();
+            if (whenExpr != null && whenExpr.length() > 0) {
+                boolean result = false; 
+                try { 
+                    result = UIControlUtil.evaluateExprBoolean(binding.getBean(), whenExpr);
+                } catch(Throwable t) {
+                    t.printStackTrace();
+                }
+                setVisible( result ); 
+            }
+
+            whenExpr = getDisableWhen();
+            if (whenExpr != null && whenExpr.length() > 0) {
+                boolean disabled = false; 
+                try { 
+                    disabled = UIControlUtil.evaluateExprBoolean(binding.getBean(), whenExpr);
+                } catch(Throwable t) {
+                    t.printStackTrace();
+                }
+                setEnabled( !disabled ); 
+            }
+            
             if (isEnabled()) setReadonly(isReadonly());
             
             if ( dynamic ) {

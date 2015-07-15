@@ -9,15 +9,15 @@
 
 package com.rameses.osiris3.xconnection;
 
+
+
 /**
  *
  * @author Elmo
  */
 public interface MessageQueue {
     
-  
     void push(Object obj) throws Exception;
     
-    Object poll() throws Exception;
-    
+    Object poll() throws Exception;        
 }
