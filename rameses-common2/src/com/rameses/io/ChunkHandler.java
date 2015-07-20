@@ -15,6 +15,9 @@ package com.rameses.io;
  */
 public interface ChunkHandler {
     
+    void start();
+    void end();
+    
     void handle(int indexno, byte[] bytes); 
     
 }
