@@ -159,4 +159,9 @@ public final class ReportUtil {
         Object testdir = OsirisContext.getSession().getEnv().get("report.testdir"); 
         return (testdir != null); 
     }
+    
+    public static boolean isDeveloperMode() {
+        Object devmode = OsirisContext.getSession().getEnv().get("app.devmode");
+        return ("true".equals( devmode+"" ));
+    }
 }

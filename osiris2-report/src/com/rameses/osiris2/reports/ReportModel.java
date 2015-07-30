@@ -9,6 +9,7 @@
 
 package com.rameses.osiris2.reports;
 
+import com.rameses.osiris2.client.Inv;
 import com.rameses.osiris2.client.InvokerFilter;
 import com.rameses.osiris2.client.InvokerUtil;
 import com.rameses.rcp.annotations.Invoker;
@@ -34,8 +35,9 @@ public abstract class ReportModel {
     protected com.rameses.osiris2.Invoker invoker;
 
     private boolean dynamic = false;    
-    private boolean allowSave = false;
+    private boolean allowSave = true;
     private boolean allowPrint = true;
+    private boolean allowBack = false;
     
     public abstract Object getReportData();
     public abstract String getReportName();
@@ -54,6 +56,15 @@ public abstract class ReportModel {
     public void setAllowPrint(boolean allowPrint) {
         this.allowPrint = allowPrint;
     }
+        
+    public boolean isAllowBack() { return allowBack; } 
+    public void setAllowBack(boolean allowBack) {
+        this.allowBack = allowBack; 
+    }
+    
+    public boolean isAllowEdit() { 
+        return ReportUtil.isDeveloperMode(); 
+    } 
     
     public SubReport[] getSubReports() { return null; }
     
@@ -153,5 +164,14 @@ public abstract class ReportModel {
     
     //this method is invoked by the back button
     public Object back() { return "_close"; }
+    public Object edit() { 
+        try { 
+            Map params = new HashMap(); 
+            params.put("report", this); 
+            return Inv.lookupOpener("sysreport:edit", params); 
+        } catch(Throwable t) { 
+            return null; 
+        } 
+    } 
     
 }
