@@ -72,9 +72,13 @@ public final class ReportUtil {
         //otherwise use the original requested report name
         final String preferredName = name;
         String customReportName = null; 
+
+        File customFolder = null; 
+        if ( isDeveloperMode() ) { 
+            customFolder = getCustomFolder(); 
+        }
         
-        Map env = OsirisContext.getSession().getEnv();
-        String testdir = (String) env.get("report.testdir"); 
+        Map env = OsirisContext.getSession().getEnv();        
         String cusDir = (String) env.get("report.custom");
         if (cusDir == null) { cusDir = (String) env.get("app.custom"); } 
         
@@ -133,17 +137,18 @@ public final class ReportUtil {
             
         } else if( name.endsWith(".jasper") ) {
             try {
-                if (testdir != null) {
-                    File ofile = new File(testdir + '/' + customReportName); 
-                    if (ofile.exists() && !ofile.isDirectory()) {
+                if ( customFolder != null && customReportName != null ) {
+                    File ofile = new File(customFolder, customReportName); 
+                    if ( ofile.exists() && !ofile.isDirectory() ) {
                         return (JasperReport) JRLoader.loadObject(ofile); 
                     }
-                    
-                    ofile = new File(testdir + '/' + preferredName); 
-                    if (ofile.exists() && !ofile.isDirectory()) { 
+                }
+                if ( customFolder != null && preferredName != null ) {
+                    File ofile = new File(customFolder, preferredName); 
+                    if ( ofile.exists() && !ofile.isDirectory() ) { 
                         return (JasperReport) JRLoader.loadObject(ofile); 
                     } 
-                } 
+                }
                 
                 URL u = ReportUtil.class.getClassLoader().getResource(name);
                 return (JasperReport) JRLoader.loadObject(u); 
@@ -154,14 +159,29 @@ public final class ReportUtil {
             throw new IllegalStateException("Report name " + name + " not recognozed");
         }
     }
-    
-    public static boolean isTestMode() {
-        Object testdir = OsirisContext.getSession().getEnv().get("report.testdir"); 
-        return (testdir != null); 
+        
+    public static boolean isDeveloperMode() {
+        Map env = OsirisContext.getSession().getEnv(); 
+        Object devmode = env.get("app.devmode");
+        if ("true".equals( devmode+"" )) {
+            return true; 
+        }
+        
+        String testdir = (String) env.get("report.testdir"); 
+        return ( testdir != null && testdir.trim().length() > 0 ); 
     }
     
-    public static boolean isDeveloperMode() {
-        Object devmode = OsirisContext.getSession().getEnv().get("app.devmode");
-        return ("true".equals( devmode+"" ));
+    public static File getCustomFolder() {
+        Map env = OsirisContext.getSession().getEnv(); 
+        String testdir = (String) env.get("report.testdir"); 
+        if ( testdir != null && testdir.trim().length() > 0 ) { 
+            return new File( testdir.trim() ); 
+        }
+        
+        File userdir = new File( System.getProperty("user.dir") );
+        File outputdir = new File( userdir, "customreport" ); 
+        if ( !outputdir.exists() ) outputdir.mkdir();  
+        
+        return outputdir; 
     }
 }

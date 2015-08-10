@@ -76,7 +76,7 @@ public abstract class ReportModel {
     
     private JasperPrint createReport() {
         try {
-            if (ReportUtil.isTestMode()) { mainReport = null; }
+            if (ReportUtil.isDeveloperMode()) { mainReport = null; }
             
             if (mainReport == null || isDynamic()) { 
                 mainReport = ReportUtil.getJasperReport(getReportName());
