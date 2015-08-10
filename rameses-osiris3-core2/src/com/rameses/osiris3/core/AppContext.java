@@ -103,13 +103,10 @@ public class AppContext extends MainContext {
             } else {
                 filename = filename.substring(filename.lastIndexOf("/")+1);
             }
-            map.put("directory",directory);
-            map.put("filename",filename);
+            map.put("directory", directory);
+            map.put("filename", filename);
             scanFilter.handle( map );
             return false;
         }
-        
     }
-    
-    
 }
