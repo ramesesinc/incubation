@@ -19,6 +19,7 @@ import com.rameses.rcp.support.MouseEventSupport;
 import com.rameses.rcp.ui.UIControl;
 import com.rameses.rcp.util.ControlSupport;
 import com.rameses.rcp.util.UIControlUtil;
+import com.rameses.util.BreakException;
 import com.rameses.util.ValueUtil;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -109,6 +110,12 @@ public class XList extends JList implements UIControl, MouseEventSupport.Compone
                     fireOpenItem();
                 }
             }, KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), JComponent.WHEN_FOCUSED);
+            
+            registerKeyboardAction(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    fireRemoveItem();
+                }
+            }, KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0), JComponent.WHEN_FOCUSED);            
         } 
         new MouseEventSupport(this).install(); 
     }
@@ -296,16 +303,14 @@ public class XList extends JList implements UIControl, MouseEventSupport.Compone
         getSelectionSupport().remove(listener); 
     }
     
-    private ListSelectionSupport getSelectionSupport() 
-    {
+    private ListSelectionSupport getSelectionSupport() {
         if (selectionSupport == null) 
             selectionSupport = new ListSelectionSupport(); 
         
         return selectionSupport; 
     }
     
-    private void fireOpenItem() 
-    {
+    private void fireOpenItem() {
         EventQueue.invokeLater(new Runnable() {
             public void run() {
                 openItem(); 
@@ -313,10 +318,23 @@ public class XList extends JList implements UIControl, MouseEventSupport.Compone
         }); 
     }
     
-    protected void openItem() 
-    {
-        try 
-        {
+    private void fireRemoveItem() {
+        EventQueue.invokeLater(new Runnable() {
+            public void run() { 
+                try { 
+                    removeItem(); 
+                    refresh( true ); 
+                } catch(BreakException be) {
+                    //do nothing 
+                } catch(Exception e) {
+                    MsgBox.err(e); 
+                }
+            }
+        });
+    }
+    
+    protected void openItem() {
+        try {
             if ( ValueUtil.isEmpty(openAction) ) return;
             
             MethodResolver mr = MethodResolver.getInstance();
@@ -324,20 +342,25 @@ public class XList extends JList implements UIControl, MouseEventSupport.Compone
             if ( outcome == null ) return;
 
             binding.fireNavigation(outcome);
-        }
-        catch(Exception e) {
+        } catch(BreakException be) {
+            //do nothing 
+        } catch(Exception e) {
             MsgBox.err(e); 
         }
     }
+    
+    protected void removeItem() {
+        if ( listPaneModel == null ) return;
+        
+        Object value = getSelectedValue(); 
+        listPaneModel.removeItem( value ); 
+    }
 
-    protected void processMouseEvent(MouseEvent e) 
-    {
-        if (e.getID() == MouseEvent.MOUSE_PRESSED && e.getClickCount() == 2) 
-        {
+    protected void processMouseEvent(MouseEvent e) {
+        if (e.getID() == MouseEvent.MOUSE_PRESSED && e.getClickCount() == 2) {
             e.consume(); 
             fireOpenItem();
-        }
-        else { 
+        } else { 
             super.processMouseEvent(e); 
         } 
     }    

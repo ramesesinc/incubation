@@ -152,20 +152,16 @@ public class UIControlUtil
         }
     }
     
-    public static void validate(Validatable vc, ActionMessage actionMessage) 
-    {
+    public static void validate(Validatable vc, ActionMessage actionMessage) {
         Component comp = null;
-        if ( vc instanceof Component ) 
-        {
+        if ( vc instanceof Component ) {
             comp = (Component) vc;
-            if ( !comp.isFocusable() || !comp.isEnabled() || !comp.isShowing() || comp.getParent() == null ) 
-            {
+            if ( !comp.isFocusable() || !comp.isEnabled() || !comp.isShowing() || comp.getParent() == null ) {
                 //do not validate non-focusable, disabled, or hidden fields.
                 return;
             }
         }
-        if ( vc instanceof UIInput ) 
-        {
+        if ( vc instanceof UIInput ) {
             //do not validate readonly fields
             if ( ((UIInput)vc).isReadonly() ) return;
         }
