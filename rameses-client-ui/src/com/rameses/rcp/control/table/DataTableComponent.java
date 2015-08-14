@@ -1104,35 +1104,35 @@ public class DataTableComponent extends JTable implements TableControl
         currentEditor = null;
     }
     
-    private boolean validateRow(int rowIndex) 
-    {
+    private boolean validateRow(int rowIndex) {
         //exit right away if no editor model specified 
-        if (editorSupport == null) return true;
+        if (editorSupport == null) { return true; } 
         
         ActionMessage ac = new ActionMessage();
         itemBinding.validate(ac);
-        if ( ac.hasMessages() )
+        
+        if ( ac.hasMessages() ) { 
             dataProvider.getMessageSupport().addErrorMessage(rowIndex, ac.toString());
-        else 
-            dataProvider.getMessageSupport().removeErrorMessage(rowIndex);
-        
-        if ( ac.hasMessages() ) return false;
-        
-        try 
-        {
-            editorSupport.fireValidateItem( dataProvider.getListItem(rowIndex) );
+        } else {
             dataProvider.getMessageSupport().removeErrorMessage(rowIndex);
         } 
-        catch (Exception e ) 
-        {
-            if (ClientContext.getCurrentContext().isDebugMode()) 
+        
+        if ( ac.hasMessages() ) { return false; } 
+        
+        try {
+            editorSupport.fireValidateItem( dataProvider.getListItem(rowIndex) );
+            dataProvider.getMessageSupport().removeErrorMessage(rowIndex);
+            return true;
+
+        } catch (Exception e ) {
+            if (ClientContext.getCurrentContext().isDebugMode()) { 
                 e.printStackTrace(); 
+            } 
             
             String msg = getMessage(e)+"";
             dataProvider.getMessageSupport().addErrorMessage(rowIndex, msg);
             return false;
-        }        
-        return true;
+        }    
     }
     
     private String getMessage(Throwable t) {
