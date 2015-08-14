@@ -9,6 +9,7 @@
 
 package com.rameses.osiris2.reports;
 
+import com.rameses.common.PropertyResolver;
 import com.rameses.osiris2.client.Inv;
 import com.rameses.osiris2.client.InvokerFilter;
 import com.rameses.osiris2.client.InvokerUtil;
@@ -21,6 +22,7 @@ import java.util.Map;
 import net.sf.jasperreports.engine.JRDataSource;
 import net.sf.jasperreports.engine.JREmptyDataSource;
 import net.sf.jasperreports.engine.JRException;
+import net.sf.jasperreports.engine.JRParameter;
 import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.JasperReport;
@@ -38,6 +40,8 @@ public abstract class ReportModel {
     private boolean allowSave = true;
     private boolean allowPrint = true;
     private boolean allowBack = false;
+    
+    protected final PropertyResolver propertyResolver = PropertyResolver.getInstance();
     
     public abstract Object getReportData();
     public abstract String getReportName();
@@ -81,7 +85,7 @@ public abstract class ReportModel {
             if (mainReport == null || isDynamic()) { 
                 mainReport = ReportUtil.getJasperReport(getReportName());
             } 
-            
+
             Map conf = new HashMap();
             SubReport[] subReports = getSubReports();
             
@@ -93,6 +97,21 @@ public abstract class ReportModel {
             Map params = getParameters();
             if (params != null) conf.putAll(params);
             
+            JRParameter[] jrparams = mainReport.getParameters(); 
+            if ( jrparams != null ) {
+                for ( JRParameter jrp : jrparams ) {
+                    String pname = jrp.getName(); 
+                    try { 
+                        if ( pname.indexOf('.') <= 0 ) { continue; } 
+
+                        Object pvalue = propertyResolver.getProperty(conf, pname); 
+                        conf.put( pname, pvalue ); 
+                    } catch(Throwable t) {
+                        System.out.println("Error on parameter [" + pname  + "] caused by " + t.getMessage());
+                    }
+                }
+            }
+            
             JRDataSource ds = null;
             Object data = getReportData();
             if (data != null) {
@@ -103,6 +122,8 @@ public abstract class ReportModel {
             
             conf.put("REPORT_UTIL", new ReportDataUtil());
             conf.put("REPORTHELPER", new ReportDataSourceHelper());
+            
+            
             return JasperFillManager.fillReport(mainReport, conf, ds);
         } catch (RuntimeException re) {
             throw re;
