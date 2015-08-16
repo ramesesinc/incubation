@@ -1,5 +1,6 @@
 package com.rameses.osiris2.reports;
 
+import com.rameses.osiris2.client.Inv;
 import com.rameses.osiris2.client.OsirisContext;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -8,6 +9,7 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.HashMap;
 import java.util.Map;
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JRExporterParameter;
@@ -161,14 +163,12 @@ public final class ReportUtil {
     }
         
     public static boolean isDeveloperMode() {
-        Map env = OsirisContext.getSession().getEnv(); 
-        Object devmode = env.get("app.devmode");
-        if ("true".equals( devmode+"" )) {
-            return true; 
-        }
-        
-        String testdir = (String) env.get("report.testdir"); 
-        return ( testdir != null && testdir.trim().length() > 0 ); 
+        try { 
+            Object opener = Inv.lookupOpener("sysreport:edit", new HashMap()); 
+            return ( opener==null? false: true ); 
+        } catch(Throwable t) {
+            return false; 
+        } 
     }
     
     public static File getCustomFolder() {
