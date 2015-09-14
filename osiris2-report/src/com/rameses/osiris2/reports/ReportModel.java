@@ -15,6 +15,7 @@ import com.rameses.osiris2.client.InvokerFilter;
 import com.rameses.osiris2.client.InvokerUtil;
 import com.rameses.rcp.annotations.Invoker;
 import com.rameses.rcp.common.Action;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -195,4 +196,31 @@ public abstract class ReportModel {
         } 
     } 
     
+    // <editor-fold defaultstate="collapsed" desc=" Provider "> 
+    
+    public static interface Provider { 
+        Object getBinding(); 
+        File browseFolder();
+    }
+    
+    
+    private Provider provider; 
+    public void setProvider( Provider provider ) {
+        this.provider = provider; 
+    }
+    
+    public Object getBinding() {
+        return (provider == null? null: provider.getBinding()); 
+    }
+    public File browseFolder() {
+        if ( provider != null ) {
+            File fdir = provider.browseFolder(); 
+            if ( fdir != null ) {
+                ReportUtil.setCustomFolder( fdir );
+            } 
+        } 
+        return ReportUtil.getCustomFolder(); 
+    } 
+    
+    // </editor-fold>
 }

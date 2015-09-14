@@ -1,11 +1,13 @@
 package com.rameses.osiris2.reports;
 
+import com.rameses.io.IOStream;
 import com.rameses.osiris2.client.Inv;
 import com.rameses.osiris2.client.OsirisContext;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
@@ -171,12 +173,20 @@ public final class ReportUtil {
         } 
     }
     
-    public static File getCustomFolder() {
-        Map env = OsirisContext.getSession().getEnv(); 
-        String testdir = (String) env.get("report.testdir"); 
-        if ( testdir != null && testdir.trim().length() > 0 ) { 
-            return new File( testdir.trim() ); 
-        }
+    public static File getCustomFolder() { 
+        try { 
+            File file = new File( System.getProperty("java.io.tmpdir") + "/.rameses_report_custom" ); 
+            if ( file.exists() && file.isFile() ) {
+                byte[] bytes = IOStream.toByteArray( file ); 
+                file = new File( new String(bytes) );
+                if ( !file.exists() ) {
+                    file.mkdirs();
+                } 
+                return file; 
+            }
+        } catch( Throwable t ) {
+            t.printStackTrace(); 
+        } 
         
         File userdir = new File( System.getProperty("user.dir") );
         File outputdir = new File( userdir, "customreport" ); 
@@ -184,4 +194,21 @@ public final class ReportUtil {
         
         return outputdir; 
     }
+    
+    public static void setCustomFolder( File folder ) {
+        FileWriter fw = null; 
+        try { 
+            File file = new File( System.getProperty("java.io.tmpdir") + "/.rameses_report_custom" );
+            fw = new FileWriter( file );
+            fw.write( folder.getAbsolutePath() ); 
+            fw.flush(); 
+        } catch(RuntimeException re) {
+            throw re; 
+        } catch(Exception e) {
+            throw new RuntimeException(e.getMessage(), e); 
+        } finally {
+            try { fw.close(); }catch(Throwable t) {;} 
+        }
+    }
+    
 }

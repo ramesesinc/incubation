@@ -10,6 +10,7 @@
 package com.rameses.osiris2.reports.ui;
 
 import com.rameses.osiris2.reports.ReportModel;
+import com.rameses.osiris2.reports.ReportUtil;
 import com.rameses.rcp.common.MsgBox;
 import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.framework.Binding;
@@ -26,12 +27,14 @@ import java.awt.LayoutManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.Beans;
+import java.io.File;
 import java.net.URL;
 import java.util.Map;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.JFileChooser;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import net.sf.jasperreports.engine.JasperPrint;
@@ -107,14 +110,16 @@ public class XReportPanel extends JPanel implements UIControl {
         model = (value instanceof ReportModel? (ReportModel)value: null);
         
         JasperPrint jasperPrint = null; 
-        if (model != null) 
-            jasperPrint = model.getReport();
-        else if (value instanceof JasperPrint)  
+        if (model != null) { 
+            model.setProvider( getProviderImpl() );
+            jasperPrint = model.getReport(); 
+        } else if (value instanceof JasperPrint) { 
             jasperPrint = (JasperPrint) value; 
+        } 
         
-        if (jasperPrint == null) 
+        if (jasperPrint == null) { 
             throw new IllegalStateException("No report found at " + getName());
-        
+        } 
         JRViewer jrv = new JRViewer(jasperPrint); 
         new Customizer(jrv, value).customize(); 
         
@@ -145,6 +150,44 @@ public class XReportPanel extends JPanel implements UIControl {
         }
     }
     
+    // <editor-fold defaultstate="collapsed" desc=" ProviderImpl ">
+    
+    private class ProviderImpl implements ReportModel.Provider { 
+        XReportPanel root = XReportPanel.this; 
+        
+        JFileChooser jfc = null; 
+        
+        public Object getBinding() { 
+            return root.getBinding();  
+        } 
+
+        public File browseFolder() { 
+            if ( jfc == null) { 
+                File fdir = ReportUtil.getCustomFolder();
+                jfc = new JFileChooser( fdir ); 
+                jfc.setDialogTitle("Select Report Folder"); 
+                jfc.setFileSelectionMode( JFileChooser.DIRECTORIES_ONLY ); 
+            } 
+            int result = jfc.showOpenDialog( root );  
+            if ( result == JFileChooser.APPROVE_OPTION ) { 
+                return jfc.getSelectedFile(); 
+            } else { 
+                return null; 
+            } 
+        }
+    }
+    
+    ProviderImpl provider;
+    ProviderImpl getProviderImpl() {
+        if (provider == null) {
+            provider = new ProviderImpl();
+        }
+        return provider; 
+    }
+    
+    
+    // </editor-fold>
+    
     // <editor-fold defaultstate="collapsed" desc=" Customizer "> 
     
     private JButton btnBack; 
@@ -158,7 +201,7 @@ public class XReportPanel extends JPanel implements UIControl {
             btnBack.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) { 
                     doBack(); 
-                }
+                }          
             });
             
             try { 
