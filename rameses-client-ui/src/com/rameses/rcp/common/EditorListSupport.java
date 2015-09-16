@@ -65,8 +65,8 @@ public final class EditorListSupport
         dataProvider.removeListItem(li.getIndex()+1);
     }
     
-    public Object loadTemporaryItem(ListItem li) {
-        Object item = handler.createItem();
+    public Object loadTemporaryItem(ListItem li, String columnName) {
+        Object item = handler.createItem( columnName );
         if (item == null) item = new HashMap();
         
         li.loadItem(item, ListItem.STATE_DRAFT); 
@@ -264,8 +264,8 @@ public final class EditorListSupport
     
     public static interface TableEditorHandler 
     {
-        Object createItem();
         boolean isAllowAdd();
+        Object createItem(String columnName); 
         
         void validate(ListItem li);
         void onAddItem(Object item);

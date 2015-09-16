@@ -822,7 +822,7 @@ public class DataTableComponent extends JTable implements TableControl
             }
             
             if (oListItem.getItem() == null || oListItem.getState() == ListItem.STATE_EMPTY) {
-                editorSupport.loadTemporaryItem(oListItem);
+                editorSupport.loadTemporaryItem(oListItem, col.getName());
                 oListItem.setRoot(binding.getBean()); 
                 tableModel.fireTableRowsUpdated(rowIndex, rowIndex); 
             }       
