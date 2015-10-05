@@ -24,6 +24,7 @@ public @interface Service {
     //managed - determines if we should fire the interceptors
     boolean managed() default true;
     boolean async() default false;
+    boolean dynamic() default false;
     
     //defined connection in connections folder. This will use this connection
     //to call an external service.

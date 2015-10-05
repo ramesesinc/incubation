@@ -196,7 +196,11 @@ public abstract class PageListModel extends AbstractListDataProvider
     
     public Object createItem() { 
         return new HashMap(); 
-    }     
+    } 
+    
+    public Object createItem(String columnName) { 
+        return createItem(); 
+    } 
     
     protected void validateItem(Object item) {}    
     protected void validate(ListItem li) {
@@ -276,14 +280,14 @@ public abstract class PageListModel extends AbstractListDataProvider
     {
         PageListModel root = PageListModel.this;
 
-        public Object createItem() {
-            return root.createItem(); 
-        }
-        
         public boolean isAllowAdd() {
             return root.isAllowAdd(); 
         }
-
+        
+        public Object createItem(String columnName) {
+            return root.createItem( columnName ); 
+        }
+        
         public void validate(ListItem li) { 
             root.validate(li);
         }

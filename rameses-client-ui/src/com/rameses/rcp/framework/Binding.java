@@ -379,6 +379,10 @@ public class Binding
             }
             focusComponentName = null;
         }
+        if ( owner != null ) {
+            owner.revalidate();
+            owner.repaint(); 
+        }
     }
     
     /**

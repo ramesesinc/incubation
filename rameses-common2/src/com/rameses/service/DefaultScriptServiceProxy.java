@@ -25,6 +25,11 @@ public class DefaultScriptServiceProxy extends AbstractServiceProxy  implements 
     public DefaultScriptServiceProxy(String scriptName, Map conf, Map env) {
         super(scriptName, conf);
         this.env = env;
+        
+        try {
+            Integer rt = new Integer(env.get("@read_timeout").toString()); 
+            client.setReadTimeout(rt.intValue()); 
+        } catch(Throwable t){;} 
     }
     
     public Object invoke(String action, Object[] params) throws Exception {

@@ -10,6 +10,7 @@
 package com.rameses.osiris2.reports.ui;
 
 import com.rameses.osiris2.reports.ReportModel;
+import com.rameses.osiris2.reports.ReportUtil;
 import com.rameses.rcp.common.MsgBox;
 import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.framework.Binding;
@@ -26,12 +27,14 @@ import java.awt.LayoutManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.Beans;
+import java.io.File;
 import java.net.URL;
 import java.util.Map;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.JFileChooser;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import net.sf.jasperreports.engine.JasperPrint;
@@ -107,16 +110,18 @@ public class XReportPanel extends JPanel implements UIControl {
         model = (value instanceof ReportModel? (ReportModel)value: null);
         
         JasperPrint jasperPrint = null; 
-        if (model != null) 
-            jasperPrint = model.getReport();
-        else if (value instanceof JasperPrint)  
+        if (model != null) { 
+            model.setProvider( getProviderImpl() );
+            jasperPrint = model.getReport(); 
+        } else if (value instanceof JasperPrint) { 
             jasperPrint = (JasperPrint) value; 
+        } 
         
-        if (jasperPrint == null) 
+        if (jasperPrint == null) { 
             throw new IllegalStateException("No report found at " + getName());
-        
+        } 
         JRViewer jrv = new JRViewer(jasperPrint); 
-        //new Customizer(jrv, value).customize(); 
+        new Customizer(jrv, value).customize(); 
         
         removeAll(); 
         add(jrv); 
@@ -134,6 +139,55 @@ public class XReportPanel extends JPanel implements UIControl {
         }
     }    
     
+    private void doEdit() {
+        try {
+            Object outcome = (model == null? null: model.edit()); 
+            if (outcome == null) return; 
+            
+            getBinding().fireNavigation(outcome); 
+        } catch(Throwable t) {
+            MsgBox.alert(t); 
+        }
+    }
+    
+    // <editor-fold defaultstate="collapsed" desc=" ProviderImpl ">
+    
+    private class ProviderImpl implements ReportModel.Provider { 
+        XReportPanel root = XReportPanel.this; 
+        
+        JFileChooser jfc = null; 
+        
+        public Object getBinding() { 
+            return root.getBinding();  
+        } 
+
+        public File browseFolder() { 
+            if ( jfc == null) { 
+                File fdir = ReportUtil.getCustomFolder();
+                jfc = new JFileChooser( fdir ); 
+                jfc.setDialogTitle("Select Report Folder"); 
+                jfc.setFileSelectionMode( JFileChooser.DIRECTORIES_ONLY ); 
+            } 
+            int result = jfc.showOpenDialog( root );  
+            if ( result == JFileChooser.APPROVE_OPTION ) { 
+                return jfc.getSelectedFile(); 
+            } else { 
+                return null; 
+            } 
+        }
+    }
+    
+    ProviderImpl provider;
+    ProviderImpl getProviderImpl() {
+        if (provider == null) {
+            provider = new ProviderImpl();
+        }
+        return provider; 
+    }
+    
+    
+    // </editor-fold>
+    
     // <editor-fold defaultstate="collapsed" desc=" Customizer "> 
     
     private JButton btnBack; 
@@ -147,7 +201,7 @@ public class XReportPanel extends JPanel implements UIControl {
             btnBack.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) { 
                     doBack(); 
-                }
+                }          
             });
             
             try { 
@@ -157,12 +211,35 @@ public class XReportPanel extends JPanel implements UIControl {
         }
         return btnBack; 
     }
+    
+    private JButton btnEdit;
+    private JButton getEditButton() {
+        if (btnEdit == null) {
+            btnEdit = new JButton(); 
+            btnEdit.setMargin(new Insets(2,2,2,2)); 
+            btnEdit.setMnemonic('b');
+            btnEdit.setToolTipText("Edit Report");
+            btnEdit.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) { 
+                    doEdit(); 
+                }
+            });
+            
+            try { 
+                URL url = XReportPanel.class.getResource("images/edit.png");
+                btnEdit.setIcon(new ImageIcon(url)); 
+            } catch(Throwable t){;} 
+        }
+        return btnEdit; 
+    }
 
     private class Customizer 
     {
         private JRViewer jviewer;
         private boolean allowSave = false; 
         private boolean allowPrint = true;
+        private boolean allowEdit = false; 
+        private boolean allowBack = false; 
 
         Customizer(JRViewer jviewer, Object value) { 
             this.jviewer = jviewer; 
@@ -170,6 +247,8 @@ public class XReportPanel extends JPanel implements UIControl {
                 ReportModel rm = (ReportModel)value;
                 this.allowSave = rm.isAllowSave();
                 this.allowPrint = rm.isAllowPrint(); 
+                this.allowEdit = rm.isAllowEdit(); 
+                this.allowBack = rm.isAllowBack(); 
             }
         } 
         
@@ -186,14 +265,21 @@ public class XReportPanel extends JPanel implements UIControl {
                         return;
                     } 
                     
-                    Component sysc0 = getBackButton();
+                    Component sysbtnback = getBackButton();
+                    sysbtnback.setVisible(allowBack);
+                    sysbtnback.setName("sysbtnback"); 
+                    
+                    Component sysbtnedit = getEditButton(); 
+                    sysbtnedit.setVisible(allowEdit); 
+                    sysbtnedit.setName("sysbtnedit"); 
                     
                     CustomLayout clayout = new CustomLayout(); 
                     clayout.allowSave = allowSave;
                     clayout.allowPrint = allowPrint; 
-                    clayout.setSystemComponents( new Component[]{sysc0} );
+                    clayout.setSystemComponents( new Component[]{sysbtnback, sysbtnedit} );
                     clayout.setComponents( con.getComponents() );
-                    con.add(sysc0); 
+                    con.add( sysbtnback ); 
+                    con.add( sysbtnedit ); 
                     con.setLayout(clayout); 
                     if (con instanceof JComponent) {
                         ((JComponent)con).setBorder(BorderFactory.createEmptyBorder(2,2,2,0)); 

@@ -9,10 +9,13 @@
 
 package com.rameses.osiris2.reports;
 
+import com.rameses.common.PropertyResolver;
+import com.rameses.osiris2.client.Inv;
 import com.rameses.osiris2.client.InvokerFilter;
 import com.rameses.osiris2.client.InvokerUtil;
 import com.rameses.rcp.annotations.Invoker;
 import com.rameses.rcp.common.Action;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -20,6 +23,7 @@ import java.util.Map;
 import net.sf.jasperreports.engine.JRDataSource;
 import net.sf.jasperreports.engine.JREmptyDataSource;
 import net.sf.jasperreports.engine.JRException;
+import net.sf.jasperreports.engine.JRParameter;
 import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.JasperReport;
@@ -34,8 +38,11 @@ public abstract class ReportModel {
     protected com.rameses.osiris2.Invoker invoker;
 
     private boolean dynamic = false;    
-    private boolean allowSave = false;
+    private boolean allowSave = true;
     private boolean allowPrint = true;
+    private boolean allowBack = false;
+    
+    protected final PropertyResolver propertyResolver = PropertyResolver.getInstance();
     
     public abstract Object getReportData();
     public abstract String getReportName();
@@ -54,6 +61,15 @@ public abstract class ReportModel {
     public void setAllowPrint(boolean allowPrint) {
         this.allowPrint = allowPrint;
     }
+        
+    public boolean isAllowBack() { return allowBack; } 
+    public void setAllowBack(boolean allowBack) {
+        this.allowBack = allowBack; 
+    }
+    
+    public boolean isAllowEdit() { 
+        return ReportUtil.isDeveloperMode(); 
+    } 
     
     public SubReport[] getSubReports() { return null; }
     
@@ -65,12 +81,12 @@ public abstract class ReportModel {
     
     private JasperPrint createReport() {
         try {
-            if (ReportUtil.isTestMode()) { mainReport = null; }
+            if (ReportUtil.isDeveloperMode()) { mainReport = null; }
             
             if (mainReport == null || isDynamic()) { 
                 mainReport = ReportUtil.getJasperReport(getReportName());
             } 
-            
+
             Map conf = new HashMap();
             SubReport[] subReports = getSubReports();
             
@@ -82,6 +98,21 @@ public abstract class ReportModel {
             Map params = getParameters();
             if (params != null) conf.putAll(params);
             
+            JRParameter[] jrparams = mainReport.getParameters(); 
+            if ( jrparams != null ) {
+                for ( JRParameter jrp : jrparams ) {
+                    String pname = jrp.getName(); 
+                    try { 
+                        if ( pname.indexOf('.') <= 0 ) { continue; } 
+
+                        Object pvalue = propertyResolver.getProperty(conf, pname); 
+                        conf.put( pname, pvalue ); 
+                    } catch(Throwable t) {
+                        System.out.println("Error on parameter [" + pname  + "] caused by " + t.getMessage());
+                    }
+                }
+            }
+            
             JRDataSource ds = null;
             Object data = getReportData();
             if (data != null) {
@@ -92,6 +123,8 @@ public abstract class ReportModel {
             
             conf.put("REPORT_UTIL", new ReportDataUtil());
             conf.put("REPORTHELPER", new ReportDataSourceHelper());
+            
+            
             return JasperFillManager.fillReport(mainReport, conf, ds);
         } catch (RuntimeException re) {
             throw re;
@@ -153,5 +186,41 @@ public abstract class ReportModel {
     
     //this method is invoked by the back button
     public Object back() { return "_close"; }
+    public Object edit() { 
+        try { 
+            Map params = new HashMap(); 
+            params.put("report", this); 
+            return Inv.lookupOpener("sysreport:edit", params); 
+        } catch(Throwable t) { 
+            return null; 
+        } 
+    } 
     
+    // <editor-fold defaultstate="collapsed" desc=" Provider "> 
+    
+    public static interface Provider { 
+        Object getBinding(); 
+        File browseFolder();
+    }
+    
+    
+    private Provider provider; 
+    public void setProvider( Provider provider ) {
+        this.provider = provider; 
+    }
+    
+    public Object getBinding() {
+        return (provider == null? null: provider.getBinding()); 
+    }
+    public File browseFolder() {
+        if ( provider != null ) {
+            File fdir = provider.browseFolder(); 
+            if ( fdir != null ) {
+                ReportUtil.setCustomFolder( fdir );
+            } 
+        } 
+        return ReportUtil.getCustomFolder(); 
+    } 
+    
+    // </editor-fold>
 }

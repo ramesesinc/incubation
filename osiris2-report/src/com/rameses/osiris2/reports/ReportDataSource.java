@@ -47,8 +47,7 @@ public class ReportDataSource implements JRDataSource
         if( iterator.hasNext() ) {
             currentObject = iterator.next();
             return true;
-        }
-        else {
+        } else {
             return false;
         }
     }
@@ -65,16 +64,13 @@ public class ReportDataSource implements JRDataSource
             
             if( jRField.getValueClass().isAssignableFrom( Collection.class) ) {
                 return new ReportDataSource( field );
-            }
-            else {
+            } else { 
                 return field;
             }
-        }
-        catch(Exception ex)
-        {
+        } catch(Exception ex) {
             System.out.println("Error on field [" + fieldName  + "] caused by " + ex.getMessage());
-            return null;
-        }
+            return null; 
+        } 
     }  
     
 }

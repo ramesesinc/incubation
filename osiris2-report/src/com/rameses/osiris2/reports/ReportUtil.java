@@ -1,13 +1,17 @@
 package com.rameses.osiris2.reports;
 
+import com.rameses.io.IOStream;
+import com.rameses.osiris2.client.Inv;
 import com.rameses.osiris2.client.OsirisContext;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.HashMap;
 import java.util.Map;
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JRExporterParameter;
@@ -72,9 +76,13 @@ public final class ReportUtil {
         //otherwise use the original requested report name
         final String preferredName = name;
         String customReportName = null; 
+
+        File customFolder = null; 
+        if ( isDeveloperMode() ) { 
+            customFolder = getCustomFolder(); 
+        }
         
-        Map env = OsirisContext.getSession().getEnv();
-        String testdir = (String) env.get("report.testdir"); 
+        Map env = OsirisContext.getSession().getEnv();        
         String cusDir = (String) env.get("report.custom");
         if (cusDir == null) { cusDir = (String) env.get("app.custom"); } 
         
@@ -133,17 +141,18 @@ public final class ReportUtil {
             
         } else if( name.endsWith(".jasper") ) {
             try {
-                if (testdir != null) {
-                    File ofile = new File(testdir + '/' + customReportName); 
-                    if (ofile.exists() && !ofile.isDirectory()) {
+                if ( customFolder != null && customReportName != null ) {
+                    File ofile = new File(customFolder, customReportName); 
+                    if ( ofile.exists() && !ofile.isDirectory() ) {
                         return (JasperReport) JRLoader.loadObject(ofile); 
                     }
-                    
-                    ofile = new File(testdir + '/' + preferredName); 
-                    if (ofile.exists() && !ofile.isDirectory()) { 
+                }
+                if ( customFolder != null && preferredName != null ) {
+                    File ofile = new File(customFolder, preferredName); 
+                    if ( ofile.exists() && !ofile.isDirectory() ) { 
                         return (JasperReport) JRLoader.loadObject(ofile); 
                     } 
-                } 
+                }
                 
                 URL u = ReportUtil.class.getClassLoader().getResource(name);
                 return (JasperReport) JRLoader.loadObject(u); 
@@ -154,9 +163,52 @@ public final class ReportUtil {
             throw new IllegalStateException("Report name " + name + " not recognozed");
         }
     }
-    
-    public static boolean isTestMode() {
-        Object testdir = OsirisContext.getSession().getEnv().get("report.testdir"); 
-        return (testdir != null); 
+        
+    public static boolean isDeveloperMode() {
+        try { 
+            Object opener = Inv.lookupOpener("sysreport:edit", new HashMap()); 
+            return ( opener==null? false: true ); 
+        } catch(Throwable t) {
+            return false; 
+        } 
     }
+    
+    public static File getCustomFolder() { 
+        try { 
+            File file = new File( System.getProperty("java.io.tmpdir") + "/.rameses_report_custom" ); 
+            if ( file.exists() && file.isFile() ) {
+                byte[] bytes = IOStream.toByteArray( file ); 
+                file = new File( new String(bytes) );
+                if ( !file.exists() ) {
+                    file.mkdirs();
+                } 
+                return file; 
+            }
+        } catch( Throwable t ) {
+            t.printStackTrace(); 
+        } 
+        
+        File userdir = new File( System.getProperty("user.dir") );
+        File outputdir = new File( userdir, "customreport" ); 
+        if ( !outputdir.exists() ) outputdir.mkdir();  
+        
+        return outputdir; 
+    }
+    
+    public static void setCustomFolder( File folder ) {
+        FileWriter fw = null; 
+        try { 
+            File file = new File( System.getProperty("java.io.tmpdir") + "/.rameses_report_custom" );
+            fw = new FileWriter( file );
+            fw.write( folder.getAbsolutePath() ); 
+            fw.flush(); 
+        } catch(RuntimeException re) {
+            throw re; 
+        } catch(Exception e) {
+            throw new RuntimeException(e.getMessage(), e); 
+        } finally {
+            try { fw.close(); }catch(Throwable t) {;} 
+        }
+    }
+    
 }

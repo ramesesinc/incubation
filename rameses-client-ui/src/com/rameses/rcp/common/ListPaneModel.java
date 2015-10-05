@@ -48,6 +48,10 @@ public class ListPaneModel
         afterLoadItems(); 
     }    
     
+    public void removeItem( Object value ) {
+    }
+    
+    
     // <editor-fold defaultstate="collapsed" desc=" proxying methods ">
     
     public Object getBinding() {

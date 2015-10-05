@@ -7,10 +7,8 @@ import java.util.List;
  *
  * @author wflores
  */
-public class MultiSelectionSupport implements MultiSelectionHandler 
+public class MultiSelectionSupport implements MultiSelectionHandler, MultiSelectionMode 
 {
-    public final static int INTERVAL     = 1;
-    public final static int CONTINUOUS   = 2;
     
     private List<MultiSelectionHandler> handlers; 
     private int selectionMode; 

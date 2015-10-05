@@ -66,14 +66,25 @@ public class DateParser {
         _advanceYearLimit = (_advanceYearLimit < 0? 0: _advanceYearLimit+1);
         
         java.sql.Date currentDate = new java.sql.Date(System.currentTimeMillis()); 
-        if (text.trim().matches("now|today")) {
+        if (text.trim().toLowerCase().matches("now|today")) {
             return currentDate; 
         } 
         else { 
             String sval = text.trim().replaceAll("\\s{2,}"," ").replaceAll(" ","-").replaceAll("/","-");
-            if (sval.matches("[\\d]{4,4}-[\\d]{1,2}-[\\d]{1,2}")) {
+            if (sval.matches("[\\d]{8,8}")) {
+                //yyyyMMdd
+                String syear = sval.substring(0, 4); 
+                String smonth = sval.substring(4, 6); 
+                String sday = sval.substring(6, 8); 
+                return java.sql.Date.valueOf(syear +"-"+ smonth +"-"+ sday); 
+                
+            } else if (sval.matches("[\\d]{4,4}-[\\d]{1,2}-[\\d]{1,2}")) {
                 //year-month-day
-                return java.sql.Date.valueOf(sval); 
+                String[] arr = sval.split("-");
+                String syear = arr[0];
+                String smonth = fillLeadingZeros(arr[1], 2); 
+                String sday = fillLeadingZeros(arr[2], 2); 
+                return java.sql.Date.valueOf(syear +"-"+ smonth +"-"+ sday); 
                 
             } else if (sval.matches("[\\d]{4,4}-[\\d]{1,2}")) {
                 //year-month
@@ -86,7 +97,10 @@ public class DateParser {
             } else if (sval.matches("[\\d]{1,2}-[\\d]{1,2}-[\\d]{4,4}")) {
                 //month-day-year
                 String[] arr = sval.split("-");
-                return java.sql.Date.valueOf(arr[2]+"-"+arr[0]+"-"+arr[1]); 
+                String syear = arr[2];
+                String smonth = fillLeadingZeros(arr[0], 2); 
+                String sday = fillLeadingZeros(arr[1], 2); 
+                return java.sql.Date.valueOf(syear +"-"+ smonth +"-"+ sday); 
                 
             } else if (sval.matches("[\\d]{1,2}-[\\d]{1,2}-[\\d]{1,2}")) {                
                 //month-day-year
