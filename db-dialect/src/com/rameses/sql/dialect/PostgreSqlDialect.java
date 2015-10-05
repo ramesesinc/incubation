@@ -6,30 +6,30 @@
  * To change this template, choose Tools | Template Manager
  * and open the template in the editor.
  */
-
 package com.rameses.sql.dialect;
 
 
-import com.rameses.osiris3.sql.CrudSqlBuilder;
-import com.rameses.osiris3.sql.SqlDialect;
-import com.rameses.sql.dialect.mysql.MySqlCrudSqlBuilder;
+import com.rameses.osiris3.sql.AbstractSqlDialect;
 
 /**
  *
  * @author Elmo
  */
-public class PostgreSqlDialect implements SqlDialect {
+public class PostgreSqlDialect extends AbstractSqlDialect {
     
     public String getName() {
         return "pgsql";
+    }
+    
+    public String[] getDelimiters() {
+        return new String[]{"[","]"};
     }
     
     public String getPagingStatement(String sql, int start, int limit, String[] pagingKeys) {
         return sql + " LIMIT " + limit + " OFFSET " + start;
     }
 
-    public CrudSqlBuilder createCrudSqlBuilder() {
-        return new MySqlCrudSqlBuilder();
-    }
+
+    
     
 }

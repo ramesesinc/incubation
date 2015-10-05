@@ -11,10 +11,11 @@ package com.rameses.sql.dialect;
 
 
 
-import com.rameses.osiris3.sql.CrudSqlBuilder;
-import com.rameses.osiris3.sql.SqlDialect;
+import com.rameses.osiris3.sql.AbstractSqlDialect;
+import com.rameses.osiris3.sql.SqlDialectModel;
 
-import com.rameses.sql.dialect.mssql.MsSqlCrudSqlBuilder;
+
+
 import java.util.Stack;
 import java.util.StringTokenizer;
 import java.util.regex.Pattern;
@@ -24,12 +25,16 @@ import java.util.regex.Pattern;
  * @author Elmo
  * implementing paging routine for mssql server
  */
-public class MsSqlDialect implements SqlDialect  {
+public class MsSqlDialect extends AbstractSqlDialect  {
     
     private static final Pattern FN_PATTERN = Pattern.compile("[a-zA-Z]\\w+\\(.*?\\)");
     
     public String getName() {
         return "mssql";
+    }
+    
+    public String[] getDelimiters() {
+        return new String[]{"[","]"};
     }
     
     public String getPagingStatement(String sql, int start, int limit, String[] pagingKeys) {
@@ -42,8 +47,8 @@ public class MsSqlDialect implements SqlDialect  {
         }
     }
 
-    private String doParse(String sql, int start, int limit, String[] pagingKeys) 
-    {
+    private String doParse(String sql, int start, int limit, String[] pagingKeys) {
+        
         String ids = "objid";
         if( pagingKeys !=null && pagingKeys.length>0) {
             boolean firstTime = true;
@@ -57,6 +62,7 @@ public class MsSqlDialect implements SqlDialect  {
             }
             ids = keys.toString();
         }
+         
 
         int STATE_SELECT = 0;
         int STATE_COLUMNS = 1;
@@ -141,6 +147,26 @@ public class MsSqlDialect implements SqlDialect  {
             }
         }
 
+        /*
+        String orderBy = "ORDER BY (SELECT NULL)";
+        if(orderBuilder.length()>0) {
+            orderBy = orderBuilder.toString();
+        }
+        //System.out.println("start "+(start+1)+" to "+(start+limit));
+        StringBuilder sresult = new StringBuilder();
+        sresult.append("SELECT * FROM (");
+        sresult.append(selectBuilder);
+        sresult.append(" ROW_NUMBER() OVER (" + orderBy + ") AS _rownum_,"  );
+        sresult.append(columnBuilder);
+        sresult.append(" " + fromBuilder);
+        sresult.append(" " + whereBuilder);
+        sresult.append(" " + groupBuilder);
+        sresult.append(" " + havingBuilder);
+        sresult.append(") AS ConstrainedResult ");
+        sresult.append(" WHERE _rownum_ BETWEEN ");
+        sresult.append( (start+1) + " AND " + (start+limit));
+        */
+        
         StringBuilder sresult = new StringBuilder();
         sresult.append(selectBuilder);
         sresult.append( " top " + limit + " ");
@@ -172,8 +198,31 @@ public class MsSqlDialect implements SqlDialect  {
         return sresult.toString();
     }
 
-    public CrudSqlBuilder createCrudSqlBuilder() {
-        return new MsSqlCrudSqlBuilder();
+   
+    public String buildBasicSelectStatement( SqlDialectModel model ) throws Exception {
+        if( model.getStart() < 0 || model.getLimit() <=0 ) {
+            return super.buildBasicSelectStatement(model);
+        }
+        else {
+            String orderBy = super.getOrderByStatement(model);
+            if( orderBy == null || orderBy.trim().length() == 0 ) {
+                orderBy = " ORDER BY (SELECT NULL) "; 
+            }
+            StringBuilder sb = new StringBuilder();
+            sb.append( "SELECT * FROM (");
+            sb.append("SELECT ROW_NUMBER() OVER ("+ orderBy + ") AS _rownum_," );
+            sb.append( super.getSelectColumnStatement(model) );
+            sb.append( " FROM " + getSelectTableStatement(model) );
+            String whereExpr = getWhereStatement( model ) ;
+            if( whereExpr.trim().length() > 0 ) {
+                sb.append( " WHERE ");
+                sb.append( whereExpr );
+            }
+            sb.append(") AS ConstrainedResult ");
+            sb.append(" WHERE _rownum_ BETWEEN ($P{_start}+1) AND ($P{_start}+$P{_limit}) ORDER BY _rownum_" );
+            return sb.toString();
+        }
     }
+    
     
 }

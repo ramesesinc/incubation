@@ -12,6 +12,7 @@ package com.rameses.osiris3.schema;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +35,8 @@ public class Schema implements Serializable {
     private Map<String,SchemaField> schemaFields = new Hashtable();
     
     private Map<String, Relation> relations = new Hashtable();
+    
+    private Map properties = new HashMap();
     
     /** Creates a new instance of Schema */
     Schema(String n, SchemaManager sm) {
@@ -94,28 +97,6 @@ public class Schema implements Serializable {
                 if(sf.getName().equals(fieldName)) {
                     retVal = sf;
                     break;
-                }
-            }
-            else if(sf instanceof LinkField) {
-                LinkField lf = (LinkField)sf;
-                if(fieldName.equals(lf.getName()) || fieldName.equals(lf.getRef())) {
-                    return lf;
-                }
-                else if( (!lf.isPrefixed()) ||
-                        (lf.isPrefixed() && fieldName.startsWith(lf.getName()))) {
-                    String ref = lf.getRef();
-                    if(ref==null)
-                        throw new RuntimeException("Linkfield ref must not be null for element " +element.getName() + "/" + fieldName);
-                    
-                    SchemaElement se = getElement(ref);
-                    if(se==null)
-                        throw new RuntimeException("Linked ref element " +ref + " not found");
-                    
-                    //remove the prefix from the field name.
-                    if(lf.isPrefixed() )
-                        fieldName = fieldName.substring( lf.getName().length()+1 );
-                    retVal = _findField( se, fieldName );
-                    if(retVal!=null) break;
                 }
             }
         }    
@@ -187,6 +168,10 @@ public class Schema implements Serializable {
             }
         }
         return list;
+    }
+
+    public Map getProperties() {
+        return properties;
     }
     
     

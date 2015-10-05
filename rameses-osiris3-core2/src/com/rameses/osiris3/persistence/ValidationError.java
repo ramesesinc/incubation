@@ -7,7 +7,7 @@
  * and open the template in the editor.
  */
 
-package com.rameses.osiris3.schema;
+package com.rameses.osiris3.persistence;
 
 /**
  *

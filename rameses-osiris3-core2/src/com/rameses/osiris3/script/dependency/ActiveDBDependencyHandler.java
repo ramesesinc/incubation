@@ -34,7 +34,10 @@ public class ActiveDBDependencyHandler extends DependencyHandler {
         TransactionContext txn = TransactionContext.getCurrentContext();
         if(!adb.dynamic()) {
             DataService dataSvc = txn.getContext().getService(DataService.class);
-            EntityManager em = dataSvc.getEntityManager( adb.em() );
+            String adapter = adb.adapter();
+            if( adapter.trim().length() == 0 ) adapter = adb.em();
+            if( adapter.trim().length() == 0 ) adapter = "main";
+            EntityManager em = dataSvc.getEntityManager( adapter );
             ActiveDBTransactionManager dbm = txn.getManager( ActiveDBTransactionManager.class );
             return dbm.create( adb.value(), em );
         }

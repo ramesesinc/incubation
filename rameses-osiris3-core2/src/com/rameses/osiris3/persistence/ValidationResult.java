@@ -7,7 +7,7 @@
  * and open the template in the editor.
  */
 
-package com.rameses.osiris3.schema;
+package com.rameses.osiris3.persistence;
 
 import com.rameses.util.ValueUtil;
 import java.util.ArrayList;
@@ -79,6 +79,11 @@ public class ValidationResult {
 
     public void setContextName(String contextName) {
         this.contextName = contextName;
+    }
+    
+    public void merge(ValidationResult vr) {
+        this.errs.addAll(vr.getErrors());
+        this.subValidations.addAll(vr.getSubValidations());
     }
     
 }

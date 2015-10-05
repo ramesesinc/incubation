@@ -104,10 +104,28 @@ public class SchemaElement implements Serializable {
     }
     
     public String getExtends() {
-        return (String) this.properties.get("extends");
+        String ext = (String) this.properties.get("extends");
+        if( ext == null ) return null;
+        if( ext.indexOf(":")<=0) return ext + ":" + ext;
+        return ext;
     }
     
     public String getTablename() {
         return (String) this.properties.get("tablename");
     }
+    
+    public Map toMap() {
+        Map mh = new HashMap();
+        mh.putAll( properties );
+        mh.put("name", this.getName());
+        if( this.getTablename()!=null) {
+            mh.put("tablename", this.getTablename());
+        }
+        List fields = new ArrayList();
+        for( SchemaField sf: this.getFields()) {
+            fields.add( sf.toMap() );
+        }
+        return mh;
+    }
+    
 }

@@ -9,6 +9,8 @@
 
 package com.rameses.osiris3.schema;
 
+import com.rameses.osiris3.persistence.ValidationResult;
+
 /**
  *
  * @author elmo

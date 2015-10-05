@@ -38,6 +38,7 @@ public class ObjectSerializer {
     
     public void write(Object data, Writer writer) {
         try {
+            if( data instanceof String ) return;    //do not process strings
             stringifyMap(data, writer);
             writer.flush();            
         } catch(RuntimeException re) {

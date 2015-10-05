@@ -9,21 +9,16 @@
 
 package com.rameses.osiris3.schema;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  *
  * @author elmo
  */
-public class LinkField extends SchemaField implements IRelationalField {
+public class LinkField extends SchemaField {
     
     private String name;
     private boolean required;
     private String ref;
-    private String exclude;
-    private boolean prefixed = true;
-    private List<RelationKey> relationKeys = new ArrayList();
+    private String target;
     
     /** Creates a new instance of LinkedField */
     public LinkField() {
@@ -33,16 +28,8 @@ public class LinkField extends SchemaField implements IRelationalField {
         return name;
     }
     
-    public boolean isRequired() {
-        return required;
-    }
-    
     public void setName(String name) {
         this.name = name;
-    }
-    
-    public void setRequired(boolean required) {
-        this.required = required;
     }
     
     public String getRef() {
@@ -53,42 +40,23 @@ public class LinkField extends SchemaField implements IRelationalField {
         this.ref = ref;
     }
     
-    public String getExclude() {
-        return exclude;
+    public String getFieldname() {
+        return (String)super.getProperty("fieldname");
     }
     
-    public void setExclude(String exclude) {
-        this.exclude = exclude;
+    public void setFieldname(String name) {
+        super.getProperties().put("fieldname", name);  
     }
-    
-    public boolean isPrefixed() {
-        if(name==null || name.trim().length()==0)
-            return false;
-        else
-            return true;
+
+    public boolean isRequired() {
+        return true;
     }
-    
-    public boolean isExcludeField( SchemaField sf ) {
-        boolean exclude = false;
-        String excludeNames = getExclude();
-        if(excludeNames!=null && sf.getName().matches(excludeNames)) exclude = true;
-        return exclude;
-    }
-    
-    public List<RelationKey> getRelationKeys() {
-        return relationKeys;
-    }
-    
-    
-    public void addKey(RelationKey rk) {
-        relationKeys.add( rk );
-    }
-    
-    public String getRelation() {
-        return (String)super.getProperty("relation");
-    }
-    
+
     public String getTarget() {
-        return (String)super.getProperty("target");
+        return target;
+    }
+
+    public void setTarget(String target) {
+        this.target = target;
     }
 }

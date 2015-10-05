@@ -45,10 +45,6 @@ public class SqlConf {
         s.setConf(this);
         providers.put( s.getType(), s );
         
-        //crud
-        s = new com.rameses.osiris3.sql.CrudSqlUnitProvider();
-        s.setConf(this);
-        providers.put( s.getType(), s );
     }
     
     //provision for other configurations that will be used by other providers.

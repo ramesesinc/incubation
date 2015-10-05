@@ -42,7 +42,10 @@ public class SchemaXmlParser extends DefaultHandler{
     }
 
     public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
-        if(qName.equals("element")) {
+        if(qName.equals("schema")) {
+            ParserUtil.loadAttributes(schema,schema.getProperties(), attributes);
+        }
+        else if(qName.equals("element")) {
             currentElement = new SchemaElement(schema);
             ParserUtil.loadAttributes(currentElement,currentElement.getProperties(), attributes);
             schema.addElement(currentElement);
@@ -51,12 +54,6 @@ public class SchemaXmlParser extends DefaultHandler{
             SimpleField field = new SimpleField();
             ParserUtil.loadAttributes(field,field.getProperties(), attributes);
             currentElement.addSchemaField(field);
-        }
-        else if(qName.equals("link-field") || qName.equals("link")) {
-            LinkField field = new LinkField();
-            ParserUtil.loadAttributes(field,field.getProperties(), attributes);
-            currentElement.addSchemaField(field);
-            currentRelationalField = field;
         }
         else if(qName.equals("complex")) {
             ComplexField field = new ComplexField();

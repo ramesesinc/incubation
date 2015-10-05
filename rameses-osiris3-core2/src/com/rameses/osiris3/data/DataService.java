@@ -15,8 +15,8 @@ import com.rameses.osiris3.core.SharedContext;
 import com.rameses.osiris3.core.TransactionContext;
 import com.rameses.osiris3.persistence.EntityManager;
 import com.rameses.osiris3.schema.SchemaConf;
+import com.rameses.osiris3.schema.SchemaManager;
 import com.rameses.osiris3.schema.SchemaResourceProvider;
-import com.rameses.osiris3.schema.ValidationResult;
 import com.rameses.osiris3.sql.SqlConf;
 import com.rameses.osiris3.sql.SqlContext;
 import com.rameses.osiris3.sql.SqlDialect;
@@ -122,12 +122,6 @@ public class DataService extends ContextService {
         return new EntityManager(schemaManager,sqc);
     }
     
-    public void validate(String schemaName,  Object data) {
-        ValidationResult vr = schemaManager.validate(schemaName, data );
-        if(vr.hasErrors()) {
-            throw new RuntimeException(vr.toString());
-        }
-    }
     
     
     private class CustomSqlResourceProvider implements SqlUnitResourceProvider {
@@ -176,6 +170,10 @@ public class DataService extends ContextService {
             this.sqlManager.getCache().clear();
         else
             this.sqlManager.getCache().remove(name);
+    }
+    
+    public SchemaManager getSchemaManager() {
+        return this.schemaManager;
     }
     
 }

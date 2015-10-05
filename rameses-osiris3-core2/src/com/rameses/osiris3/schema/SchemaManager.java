@@ -9,6 +9,7 @@
 
 package com.rameses.osiris3.schema;
 
+import com.rameses.osiris3.persistence.ValidationResult;
 import java.util.Collections;
 import java.util.Hashtable;
 import java.util.List;
@@ -85,17 +86,12 @@ public abstract class SchemaManager {
         }
     }
     
-    
-    //helper utilities for SchemaManager.
-    public SchemaScanner newScanner() {
-        return new SchemaScanner();
-    }
-    
+    /*
     public Map createMap(String name) {
         SchemaElement element = getElement(name);
         return createMap( element.getSchema(), element );
     }
-    
+
     public Map createMap(SchemaElement element) {
         return createMap( element.getSchema(), element );
     }
@@ -118,23 +114,26 @@ public abstract class SchemaManager {
             sname = schemaName.substring(0, schemaName.indexOf(":"));
             elementName = schemaName.substring(schemaName.indexOf(":")+1);
         }    
-        
         Schema schema = getSchema(sname);
-        SchemaValidationHandler handler = new SchemaValidationHandler();
-        SchemaScanner scanner = newScanner();
         if(elementName==null)
-            scanner.scan(schema, data, handler);
+            return validate( schema.getRootElement(), data, null, null );
         else 
-            scanner.scan(schema, schema.getElement(elementName),data,handler);
-        return handler.getResult();
+            return validate(schema.getElement(elementName),data, null, null);
     }
     
-     public ValidationResult validate(SchemaElement element, Object data) {
-        SchemaValidationHandler handler = new SchemaValidationHandler();
+    public ValidationResult validate(SchemaElement element, Object data) {
+        return validate( element, data, null, null );
+    }
+
+    public ValidationResult validate(SchemaElement element, Object data, String includeFields, String excludeFields) {
+        SchemaValidationHandler handler = new SchemaValidationHandler(includeFields, excludeFields);
         SchemaScanner scanner = newScanner();
+        String elementName = element.getName();
+        Schema schema = element.getSchema();
         scanner.scan(element.getSchema(),element,data,handler);
         return handler.getResult();
     }
+    */
      
     public SchemaSerializer getSerializer() {
         if( getConf().getSerializer()==null)

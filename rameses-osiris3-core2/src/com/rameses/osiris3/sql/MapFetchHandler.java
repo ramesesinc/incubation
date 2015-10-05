@@ -11,7 +11,9 @@ package com.rameses.osiris3.sql;
 
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -31,7 +33,8 @@ public class MapFetchHandler implements FetchHandler {
         this.fieldToMap = fieldToMap;
     }
     
-    public void start() {
+    public List start() {
+        return new ArrayList();
     }
 
     public void end() {
