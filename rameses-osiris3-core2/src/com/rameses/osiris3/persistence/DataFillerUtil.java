@@ -46,13 +46,12 @@ public class DataFillerUtil {
     
     private static void setPrimaryKey( SimpleField sf, Map data  ) throws Exception {
         Object val = DataUtil.getData(data, sf.getName());
-        
         //do not proceed id there is already a primary key
         if( val !=null ) return;    
         String keyGen = (String) sf.getProperty("keygen");
         
         //if there is a key generator specified in keygen use that instead.
-        if( keyGen == null || keyGen.trim().length()==0 ) {
+        if( keyGen == null || keyGen.trim().length()==0 || keyGen.equalsIgnoreCase("default") ) {
             //use the basic keygen
             String prefix = (String) sf.getProperty("prefix");
             val = uidGenerator.getNewKey(prefix, 0);

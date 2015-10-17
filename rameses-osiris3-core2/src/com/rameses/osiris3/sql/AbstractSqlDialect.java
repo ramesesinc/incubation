@@ -96,7 +96,7 @@ public abstract class AbstractSqlDialect implements SqlDialect {
         String expr = c.getExpr();
         for( Object mv: c.getFields().entrySet() ) {
             Map.Entry me = (Map.Entry)mv;
-            String key = "@@["+me.getKey().toString()+"]";
+            String key = "@@["+me.getKey().toString().replace(".", "_") +"]";
             StringBuilder sb = new StringBuilder();
             Field f = (Field)me.getValue();
             

@@ -15,6 +15,8 @@ import com.rameses.osiris3.schema.SchemaSerializer;
 import com.rameses.osiris3.sql.FieldToMap;
 import com.rameses.osiris3.sql.MapToField;
 import com.rameses.osiris3.sql.SqlContext;
+import com.rameses.osiris3.sql.SqlExecutor;
+import com.rameses.osiris3.sql.SqlQuery;
 
 import java.util.HashMap;
 import java.util.List;
@@ -35,7 +37,8 @@ public class EntityManager {
     //example : person.firstname will be person_firstname in db
     private boolean resolveNested = true;
     private EntityManagerModel model = new EntityManagerModel();
-
+    private EntityManagerInvoker invoker;
+    
     public EntityManager(SchemaManager scm, SqlContext sqlContext, String schemaName) {
         this.sqlContext = sqlContext;
         this.schemaManager = scm;
@@ -83,6 +86,21 @@ public class EntityManager {
         }
     }
 
+    //get first record
+    public Map first() {
+        try {
+            EntityManagerUtil ps = new EntityManagerUtil(sqlContext, debug);
+            SchemaElement elem = schemaManager.getElement(schemaName);
+            model.setElement(elem);
+            model.setAction("select");
+            Map map = ps.read(model);
+            model.clear();
+            return map;
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
+    }
+    
     //this merges the data with existing data.
     public Object merge(String schemaName, Object data) {
         try {
@@ -337,6 +355,7 @@ public class EntityManager {
 
     public EntityManager setName(String name) {
         this.schemaName = name;
+        model.clear();
         model.setElement(schemaManager.getElement(name));
         return this;
     }
@@ -367,6 +386,16 @@ public class EntityManager {
         return this;
     }
     
+    public EntityManager setStart(long start) {
+        model.setStart(start);
+        return this;
+    }
+    
+    public EntityManager setLimit(long limit) {
+        model.setLimit(limit);
+        return this;
+    }
+    
     public Map getSchema() {
         return getSchema(this.schemaName);
     }
@@ -377,7 +406,6 @@ public class EntityManager {
         model.setSelectFields("*");
         return model.getSchema();
     }
-    
     
     //we will have a separate implementation of the following because 
     //many applications are already using this. we will deprecate later
@@ -405,8 +433,57 @@ public class EntityManager {
         }
     }
 
+    public void setInvoker(EntityManagerInvoker inv) {
+        this.invoker = inv;
+    }
+
     
-    
+    //used by the data context. if starts with find, it returns single record. 
+    //If it starts with get, it returns list
+    public Object invokeSqlMethod( String methodName, Object args ) throws Exception {
+        String finalMethodName = this.schemaName+":"+methodName;
+        Map m = null;
+        if( args == null ) {
+            m = null;
+        }
+        else if(args instanceof Object[]) {
+            Object[] ao = (Object[])args;
+            if(! (ao[0] instanceof Map) ) 
+                throw new Exception("Unrecognied parameter for invokeSqlMethod. Must be map or Object[]");
+            m = (Map) ao[0] ;
+        }
+        else if (args instanceof Map)  {
+             m = (Map)args;
+        }
+        else {
+            throw new Exception("Unrecognied parameter for invokeSqlMethod. Must be map or Object[]");
+        }
+        if( methodName.startsWith("find") || methodName.startsWith("get") ) {
+            SqlQuery sq = sqlContext.createNamedQuery( finalMethodName );    
+            if(m!=null) {
+                sq.setVars(m).setParameters(m);
+                if(m.containsKey("_start")) {
+                    int s = Integer.parseInt(m.get("_start")+"");
+                    sq.setFirstResult( s );
+                }
+                if(m.containsKey("_limit")) {
+                    int l = Integer.parseInt(m.get("_limit")+"");
+                    sq.setMaxResults( l );
+                }
+            }
+            if(methodName.startsWith("find"))
+                return sq.getSingleResult();
+            else 
+                return sq.getResultList();
+        }
+        else {
+            SqlExecutor sqe = sqlContext.createNamedExecutor( finalMethodName );    
+            if(m!=null) {
+                sqe.setVars(m).setParameters(m);
+            }
+            return sqe.execute();
+        }
+    }
     
     
 }

@@ -114,6 +114,10 @@ public class SchemaElement implements Serializable {
         return (String) this.properties.get("tablename");
     }
     
+    public String getAdapter() {
+        return (String) this.properties.get("adapter");
+    }
+    
     public Map toMap() {
         Map mh = new HashMap();
         mh.putAll( properties );

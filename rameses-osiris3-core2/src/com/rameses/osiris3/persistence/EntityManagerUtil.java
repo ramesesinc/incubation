@@ -308,8 +308,6 @@ public class EntityManagerUtil {
     }
      
     
-    
-    
     /**
      * 
      * @param eModel
@@ -361,7 +359,5 @@ public class EntityManagerUtil {
         List list = (List) execQuery(squ.getSqlUnit(), eModel, squ.getColumns(), false);
         return list;
     }
-    
-    
     
 }

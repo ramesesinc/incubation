@@ -270,6 +270,7 @@ public class SqlDialectModelBuilder {
                     criteria.addField(fName.replace("_", "."), field);
                 }
             };
+            //use build fields here because we do not need 
             collectFields( fc2, eModel.getElement(), sqlModel.getBaseTable(), sqlModel, null, fcr.buildFields(), null );
         }
     }

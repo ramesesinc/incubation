@@ -174,5 +174,7 @@ public class Schema implements Serializable {
         return properties;
     }
     
-    
+    public String getAdapter() {
+        return (String)properties.get("adapter");
+    }
 }

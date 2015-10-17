@@ -119,6 +119,23 @@ public class EntityManagerModel {
         filters.add(fc);
     }
     
+    private String correctFieldName(String s, StreamTokenizer st ) throws Exception {
+        int i = st.nextToken();
+        if( i == '_' || i == '.' ) {
+            s += (char)i;
+            int j = st.nextToken(); 
+            if(j != st.TT_WORD ) {
+                st.pushBack();
+                return s;
+            }
+            return correctFieldName( s+st.sval, st);
+        }
+        else {
+            st.pushBack();
+            return s;
+        }
+    }
+    
     public void addFilter( String cond, Map params ) {
         try {
             FilterCriteria fc = new FilterCriteria();
@@ -130,14 +147,15 @@ public class EntityManagerModel {
             while ((i = st.nextToken()) != st.TT_EOF) {
                 if (i == st.TT_WORD) {
                     String v = st.sval;
+                    //eat all fields with underscores
                     if (v.toUpperCase().matches("CASE|WHEN|THEN|END|IS|LIKE|AND|OR")) {
                         sb.append(" " + v + " ");
+                        continue;
                     } 
-                    else {
-                        //this is a field. we will add markers so that it can be easily replaceable
-                        sb.append(" @@["+v +"] ");
-                        fc.addField(v);
-                    };
+                    v = correctFieldName( v, st );
+                    //this is a field. we will add markers so that it can be easily replaceable
+                    sb.append(" @@["+v +"] ");
+                    fc.addField(v);
                 }
                 else if (i == st.TT_NUMBER) {
                     sb.append( st.nval );
@@ -155,7 +173,7 @@ public class EntityManagerModel {
                 }
                 else if( i == ':') {
                     st.nextToken();
-                    sb.append( "$P{" + st.sval + "}" );
+                    sb.append( "$P{" + correctFieldName(st.sval,st) + "}" );
                 }
                 else if( i == '\'') {
                     sb.append( "'" + st.sval + "'" );

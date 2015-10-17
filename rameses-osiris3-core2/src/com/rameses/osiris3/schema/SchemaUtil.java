@@ -190,8 +190,14 @@ public final class SchemaUtil {
         }
         else if( stype.equalsIgnoreCase("timestamp")) {
             if(!(val instanceof Timestamp)) {
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-                val = sdf.parse(val.toString());
+                try {
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                    Date dt = sdf.parse(val.toString());
+                    val = java.sql.Timestamp.valueOf(sdf.format(dt));
+                }
+                catch(Exception e) {
+                    System.out.println(e.getMessage());
+                }
             }
         }
         return val;
