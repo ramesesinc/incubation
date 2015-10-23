@@ -53,7 +53,7 @@ public class EntityManagerUtil {
             
             SchemaField sf = elem.getField(sname);
             //check first the data type. we have to correct it in its proper format. 
-            if( sf !=null && ( sf instanceof ComplexField ) ) {
+            if( sf !=null && ( sf instanceof ComplexField ) && (val!=null) ) {
                 ComplexField cf = (ComplexField)sf;
                 if( cf.getSerializer()!=null ) {
                     ObjectSerializer sr = ObjectSerializer.getInstance();

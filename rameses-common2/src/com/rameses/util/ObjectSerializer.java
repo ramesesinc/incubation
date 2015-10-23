@@ -31,6 +31,7 @@ public class ObjectSerializer {
     public ObjectSerializer() {}
     
     public String toString(Object data) {
+        if(data==null) return null;
         Writer writer = new StringWriter();
         stringifyMap(data, writer);
         return writer.toString();
