@@ -12,8 +12,6 @@ package com.rameses.osiris2.reports;
 import com.rameses.common.PropertyResolver;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
@@ -211,4 +209,56 @@ public final class ReportDataUtil
         }
         return years; 
     }
+    
+    public String padLeft( Object value, String padstr, Number numlen ) { 
+        if ( numlen != null && numlen.intValue() > 0 ) { 
+            return padLeft( value, padstr, numlen.intValue() ); 
+        } else {
+            return null; 
+        } 
+    } 
+    
+    public String padLeft( Object value, String padstr, int length ) {
+        if ( value == null ) { return null; } 
+        if ( padstr == null || padstr.length() == 0 ) { return null; } 
+        
+        String str = value.toString(); 
+        if ( str.length() >= length ) { 
+            return str; 
+        } 
+        
+        StringBuilder sb = new StringBuilder();
+        int diff = length-str.length();
+        for ( int i=0; i<diff; i++ ) {
+            sb.append( padstr ); 
+        }
+        sb.append( str );
+        return sb.toString(); 
+    }
+    
+    public String padRight( Object value, String padstr, Number numlen ) {
+        if ( numlen != null && numlen.intValue() > 0 ) { 
+            return padRight( value, padstr, numlen.intValue() ); 
+        } else {
+            return null; 
+        } 
+    }
+    
+    public String padRight( Object value, String padstr, int length ) {
+        if ( value == null ) { return null; } 
+        
+        String str = value.toString(); 
+        if ( str.length() >= length ) { 
+            return str; 
+        } 
+        
+        StringBuilder sb = new StringBuilder();
+        sb.append( str );
+        
+        int diff = length-str.length();
+        for ( int i=0; i<diff; i++ ) {
+            sb.append( padstr ); 
+        }
+        return sb.toString(); 
+    }    
 }
