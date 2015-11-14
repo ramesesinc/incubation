@@ -147,6 +147,7 @@ class OSPlatform implements Platform
         }
         if ("true".equals(props.get("alwaysOnTop")+"")) {
             dx.setAlwaysOnTop(true);
+            dx.setModal(false); 
         }
         if ("true".equals(props.get("undecorated")+"")) {
             dx.setUndecorated(true);
