@@ -334,9 +334,16 @@ public class EntityManagerModel {
                 sb.append( ":exc=" + excludeFields+";" );
             }
             if( this.filters.size()>0) {
-                sb.append("filters:");
+                sb.append(":filters:");
                 for(FilterCriteria fc:this.filters) {
                     sb.append(fc.getExpr()+";");
+                }
+            }
+            if ( !this.finders.isEmpty() ) {
+                sb.append(":finders:");
+                for ( Object o : this.finders.entrySet() ) {
+                    Map.Entry me = (Map.Entry) o;
+                    sb.append(me.getKey() + ","); 
                 }
             }
             if( this.getStart()>=0 && this.getLimit()>0 ) {
