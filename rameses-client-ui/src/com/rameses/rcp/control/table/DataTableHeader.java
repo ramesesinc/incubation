@@ -41,7 +41,7 @@ public class DataTableHeader extends JTableHeader
         this.table = table; 
     }
     
-    public void paint(Graphics g) 
+    public void xpaint(Graphics g) 
     {
         Rectangle clip = g.getClipBounds();
         super.paint(g);

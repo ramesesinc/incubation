@@ -14,6 +14,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Insets;
+import javax.swing.JLabel;
 import javax.swing.border.AbstractBorder;
 import javax.swing.plaf.metal.MetalLookAndFeel;
 
@@ -66,14 +67,22 @@ public class TableBorders
         private boolean hideLeft = false;
         private boolean hideBottom = false;
         private boolean hideRight = false;
+        private JLabel jlabel = new JLabel();
         
-        public HeaderBorder() {}
+        public HeaderBorder() {
+            init(); 
+        }
         
-        public HeaderBorder(boolean hideTop, boolean hideLeft,  boolean hideBottom, boolean hideRight) {
+        public HeaderBorder(boolean hideTop, boolean hideLeft,  boolean hideBottom, boolean hideRight) { 
+            init(); 
             this.hideTop = hideTop;
             this.hideLeft = hideLeft;
             this.hideBottom = hideBottom;
-            this.hideRight = hideRight;
+            this.hideRight = hideRight;            
+        }
+        
+        private void init() {
+            jlabel.setOpaque(true); 
         }
         
         public void setHideTop(boolean hideTop) { this.hideTop = hideTop; }
@@ -91,6 +100,7 @@ public class TableBorders
         
         public void paintBorder(Component c, Graphics g, int x, int y, int w, int h) {
             Color oldColor = g.getColor();
+            c.setBackground( jlabel.getBackground() ); 
             g.setColor(MetalLookAndFeel.getControlDarkShadow());
             if (!hideTop) g.drawLine(0, 0, w, 0); 
             
@@ -102,7 +112,7 @@ public class TableBorders
             
             g.setColor(getShadowColor(c));
             if (!hideRight) g.drawLine(w-1, 2, w-1, h-5);
-
+            
             g.setColor(oldColor); 
         }
         
