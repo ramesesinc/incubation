@@ -78,13 +78,12 @@ public class AnubisPollServlet extends HttpServlet
             if (collection == null) return;
 
             String channelName = req.getPathInfo().substring(1);
-            Channel channel = getChannel(channelName);
-            
+            Channel channel = getChannel(channelName); 
             Iterator itr = collection.iterator(); 
             while (itr.hasNext()) {
                 Map data = (Map) itr.next();
                 if (data == null) continue;
-                
+                                
                 Object oid = data.get("tokenid"); 
                 String tokenid = (oid == null? null: oid.toString()); 
                 if (tokenid == null || tokenid.length() == 0) {
@@ -116,28 +115,30 @@ public class AnubisPollServlet extends HttpServlet
     }
     
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        PollWorker worker = (PollWorker)req.getAttribute(PollWorker.class.getName());
-        if (worker == null) { 
+        String reqkey = PollWorker.class.getName(); 
+        PollWorker worker = (PollWorker) req.getAttribute( reqkey );
+        if ( worker == null ) { 
             String path = req.getPathInfo().substring(1);
             String[] arr = path.split("/");
             String channelName = arr[0];
             String tokenid = arr[1];
             Channel channel = getChannel(channelName);
             Continuation cont = ContinuationSupport.getContinuation(req);
+            if ( cont.isInitial() ) {
+                cont.setTimeout( 30000 );
+                cont.suspend();
+            }
+            
             MessageToken mt = channel.createToken(tokenid);
             worker = new PollWorker(mt, cont);
-            req.setAttribute(PollWorker.class.getName(), worker);
+            req.setAttribute(reqkey, worker);
+            worker.future = thread.submit( worker );
             
-            //set timeout at 30 seconds
-            cont.setTimeout( 30000 );
-            cont.suspend();
-            
-            Future future = thread.submit( worker );
-            worker.future = future;
         } else {
             //timed out, no messages available
-            if(worker.continuation.isExpired()) {
-                writeResponse("{status: \"timeout\"}", resp);
+            if ( worker.isExpired() ) { 
+                worker.cancel(); 
+                writeResponse("{\"status\": \"timeout\"}", resp);
             } else {
                 String result = worker.result;
                 writeResponse(result, resp);
@@ -158,7 +159,29 @@ public class AnubisPollServlet extends HttpServlet
             token = mt;
         }
         
+        Object getResult() { 
+            return result; 
+        }
+        
+        boolean isExpired() { 
+            return (continuation == null? true: continuation.isExpired()); 
+        }
+        
+        void cancel() { 
+            if ( future != null ) {
+                future.cancel( true ); 
+            } 
+        } 
+        
         public void run() {
+            try { 
+                runImpl(); 
+            } finally { 
+                continuation.resume(); 
+            }
+        } 
+        
+        private void runImpl() {
             boolean has_entries = false; 
             StringBuilder buffer = new StringBuilder();
             buffer.append("["); 
@@ -174,7 +197,6 @@ public class AnubisPollServlet extends HttpServlet
 
             buffer.append("]"); 
             result = buffer.toString(); 
-            continuation.resume();
         }
         
         private void appendResult( StringBuilder buffer, Map map, boolean has_entries ) {
@@ -212,7 +234,7 @@ public class AnubisPollServlet extends HttpServlet
         public synchronized MessageToken createToken(String id) {
             MessageToken mt = getToken(id);
             if (mt == null) {
-                mt = new MessageToken(id);
+                mt = new MessageToken(name, id);
                 handlers.add(mt); 
             } 
             return mt;
@@ -243,18 +265,23 @@ public class AnubisPollServlet extends HttpServlet
         }
     }
     
-    public class MessageToken {
-        private String tokenId;
+    public class MessageToken { 
+        private String cname;
+        private String tokenId; 
         private LinkedBlockingQueue<Map> queue = new LinkedBlockingQueue();
         private long last_time_accessed;
                 
-        public MessageToken(String tokenid) {
+        public MessageToken(String cname, String tokenid) {
+            this.cname = cname; 
             this.tokenId = tokenid;
         }
         
         public void handle(Map map) {
-            if (map != null) {
+            try { 
+                if ( map == null ) { return; } 
+                
                 queue.add( map );
+            } finally {
                 last_time_accessed = System.currentTimeMillis(); 
             }
         }
@@ -288,17 +315,7 @@ public class AnubisPollServlet extends HttpServlet
             }
             return list; 
         } 
-        
-        LinkedBlockingQueue<Map> readQueue() {
-            try { 
-                LinkedBlockingQueue<Map> result = queue; 
-                queue = new LinkedBlockingQueue();
-                return result; 
-            } finally {
-                last_time_accessed = System.currentTimeMillis();
-            }
-        }
-        
+                
         boolean isExpired() {
             long diff = (System.currentTimeMillis() - last_time_accessed);
             return (diff >= EXPIRY_TIME); 
@@ -309,14 +326,19 @@ public class AnubisPollServlet extends HttpServlet
         return getChannel(name, true);
     }
     
-    public synchronized Channel getChannel(String name, boolean autoCreate) {
-        if( !channels.containsKey(name) ) {
-            if(!autoCreate)
-                throw new RuntimeException("Channel " + name + " does not exist!");
-            Channel channel = new Channel(name);
+    public synchronized Channel getChannel(String name, boolean autoCreate) { 
+        Channel channel = channels.get( name ); 
+        if ( channel != null ) {
+            return channel; 
+        } 
+        
+        if ( autoCreate ) {
+            channel = new Channel(name);
             channels.put(name, channel);
+            return channel; 
         }
-        return channels.get( name );
+        
+        throw new RuntimeException("Channel " + name + " does not exist!"); 
     }
     
     
