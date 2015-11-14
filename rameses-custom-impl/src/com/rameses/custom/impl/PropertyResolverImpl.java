@@ -72,7 +72,10 @@ public class PropertyResolverImpl extends PropertyResolver  {
             return PropertyUtils.getProperty(bean, name);
             
         } catch (InvocationTargetException ite) { 
-            if (debug) ite.printStackTrace();
+            if ( ite.getTargetException() != null ) { 
+                System.out.println( ite.getTargetException().getMessage() ); 
+            }
+            if (debug) { ite.printStackTrace(); } 
             
             return null; 
             
