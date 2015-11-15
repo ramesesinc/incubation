@@ -24,6 +24,8 @@ public interface ContentPane
     boolean isCanClose();    
     void close();
     
+    void activate();
+    
     
     
     public static interface View 

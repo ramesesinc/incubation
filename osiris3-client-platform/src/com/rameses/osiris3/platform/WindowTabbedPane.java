@@ -798,5 +798,5 @@ public class WindowTabbedPane extends JTabbedPane
         }
     } 
     
-    // </editor-fold>
+    // </editor-fold>   
 }

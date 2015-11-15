@@ -16,13 +16,12 @@ import com.rameses.platform.interfaces.SubWindowListener;
 import java.awt.Component;
 import java.awt.EventQueue;
 import java.awt.Rectangle;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
 import java.util.Hashtable;
 import java.util.Map;
 import javax.swing.Icon;
 import javax.swing.JComponent;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 /**
  *
@@ -37,7 +36,8 @@ class OSMainTabbedPane extends WindowTabbedPane implements WindowContainer, SubW
     public OSMainTabbedPane() {
         tabIndex = new Hashtable();
         closeIconBounds = new Rectangle(0,0,10,10);
-        setFocusable(false);        
+        setFocusable(false);     
+        addChangeListener(new ItemSelector()); 
     }
     
     public boolean containsView(String id) {
@@ -183,36 +183,15 @@ class OSMainTabbedPane extends WindowTabbedPane implements WindowContainer, SubW
     
     // </editor-fold>
     
-    // <editor-fold defaultstate="collapsed" desc=" TabSupport (class) ">
+    // <editor-fold defaultstate="collapsed" desc=" ItemSelector (class) ">
     
-    private class TabSupport implements MouseListener, MouseMotionListener 
-    {
-        public void mousePressed(MouseEvent e) {}
-        public void mouseReleased(MouseEvent e) {}
-        public void mouseEntered(MouseEvent e) {}
-        public void mouseDragged(MouseEvent e) {}        
-        
-        public void mouseClicked(MouseEvent e) {
-            if( closeIconBounds.contains(e.getPoint()) ) {
-                Component comp = getSelectedComponent();
-                if (comp instanceof ContentPane) {
-                    ((ContentPane)comp).close();
-                    closeIconHover = false;
-                }
+    private class ItemSelector implements ChangeListener  {
+        public void stateChanged(ChangeEvent e) {
+            Component comp = getSelectedComponent(); 
+            if ( comp instanceof ContentPane ) {
+                ((ContentPane) comp).activate();
             }
-        }
-        
-        public void mouseExited(MouseEvent e) {
-            closeIconHover = false;
-        }
-        
-        public void mouseMoved(MouseEvent e) {
-            if( closeIconBounds.contains(e.getPoint()) ) {
-                closeIconHover = true;
-            } else {
-                closeIconHover = false;
-            }
-        }
+        }         
     }
 
     // </editor-fold>
