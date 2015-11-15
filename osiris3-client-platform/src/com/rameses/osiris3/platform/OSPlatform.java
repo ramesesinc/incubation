@@ -96,7 +96,7 @@ class OSPlatform implements Platform
     }
 
     public void showPopup(JComponent actionSource, JComponent comp, Map props) {
-        String id = (String) props.get("id");
+        final String id = (String) props.get("id");
         if (id == null || id.trim().length() == 0)
             throw new IllegalStateException("id is required for a page.");
         
@@ -145,13 +145,13 @@ class OSPlatform implements Platform
         if ("false".equals(props.get("resizable")+"")) {
             dx.setResizable(false);
         }
-        if ("true".equals(props.get("alwaysOnTop")+"")) {
-            dx.setAlwaysOnTop(true);
-            dx.setModal(false); 
-        }
         if ("true".equals(props.get("undecorated")+"")) {
             dx.setUndecorated(true);
         } 
+        if ("true".equals(props.get("alwaysOnTop")+"")) {
+            dx.setAlwaysOnTop(true);
+            dx.setModal( false );  
+        }
         
         dx.pack();
         Dimension dim = dx.getSize();
@@ -163,17 +163,24 @@ class OSPlatform implements Platform
         dx.setLocationRelativeTo(parent);
         dx.setSource(actionSource);
         
-        
         KeyStroke ks = KeyStroke.getKeyStroke("ctrl shift I");  
         ActionListener al = new ShowInfoAction(comp); 
         JRootPane rootPane = dx.getRootPane(); 
         rootPane.registerKeyboardAction(al, ks, JComponent.WHEN_IN_FOCUSED_WINDOW); 
         
-        EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                dx.setVisible(true);
-            }
-        });
+        Runnable runnable = new Runnable() {
+            public void run() { 
+                if (!osManager.containsView(id)) { 
+                    dx.setVisible(true); 
+                }
+            } 
+        }; 
+        
+        if ("true".equals(props.get("immediate")+"")) {
+            runnable.run(); 
+        } else { 
+            EventQueue.invokeLater(runnable); 
+        }
     }
 
     public void showFloatingWindow(JComponent owner, JComponent comp, Map props) {

@@ -71,7 +71,10 @@ class SubWindowImpl extends JPanel implements SubWindow, ContentPane
         super.addImpl(comp, constraints, -1); 
     }
     
-    public void activate() {
+    public void activate() { 
+        if ( viewContext != null ) {
+            viewContext.activate(); 
+        }
     }
         
     // <editor-fold defaultstate="collapsed" desc=" SubWindow implementation ">

@@ -26,6 +26,8 @@ import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JTabbedPane;
 import javax.swing.UIManager;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 /**
  *
@@ -38,13 +40,18 @@ public class ExtTabbedPane extends JTabbedPane implements SubWindowContainer
     private boolean closeIconHover;
         
     public ExtTabbedPane() {
+        initComponent(); 
+    }
+    
+    private void initComponent() {
         tabIndex = new Hashtable();
         closeIconBounds = new Rectangle(0,0,10,10);
         setFocusable(false);
         
         TabSupport support = new TabSupport();
+        addChangeListener(support);
         addMouseListener(support);
-        addMouseMotionListener(support);        
+        addMouseMotionListener(support); 
     }
     
     protected void paintComponent(Graphics g) {
@@ -172,7 +179,7 @@ public class ExtTabbedPane extends JTabbedPane implements SubWindowContainer
     
     // <editor-fold defaultstate="collapsed" desc=" TabSupport (class) ">
     
-    private class TabSupport implements MouseListener, MouseMotionListener 
+    private class TabSupport implements MouseListener, MouseMotionListener, ChangeListener 
     {
         public void mousePressed(MouseEvent e) {}
         public void mouseReleased(MouseEvent e) {}
@@ -200,7 +207,14 @@ public class ExtTabbedPane extends JTabbedPane implements SubWindowContainer
                 closeIconHover = false;
             }
         }
+        
+        public void stateChanged(ChangeEvent e) {
+            Component comp = getSelectedComponent(); 
+            if ( comp instanceof PlatformTabWindow ) {
+                ((PlatformTabWindow) comp).activate();
+            }
+        } 
     }
 
-    // </editor-fold>
+    // </editor-fold> 
 }

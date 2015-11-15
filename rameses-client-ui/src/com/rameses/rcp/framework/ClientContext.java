@@ -48,6 +48,8 @@ public abstract class ClientContext
     private NotificationProvider notificationProvider;     
     private List<WeakReference<ExecutorService>> executors = new Vector();
     
+    private EventManager eventManager; 
+    
     
     //<editor-fold defaultstate="collapsed" desc="  abstract properties  ">
     public abstract ValueResolver getValueResolver();
@@ -119,16 +121,22 @@ public abstract class ClientContext
         if (old != null) {
             try { old.notificationProvider.close(); }catch(Throwable t){;}             
             try { old.taskManager.stop(); }catch(Throwable t){;} 
-            try { old.services.stop(); }catch(Throwable t){;}             
+            try { old.services.stop(); }catch(Throwable t){;} 
+            try { old.eventManager.destroyEvents(); }catch(Throwable t){;} 
         } 
         
         currentContext = context;        
+        currentContext.eventManager = new EventManager();
         currentContext.taskManager = new TaskManager();
-        currentContext.services = new Services();        
+        currentContext.services = new Services();   
     }
     
     public final TaskManager getTaskManager() { return taskManager; }
     public final Services getServices() { return services; }
+
+    public final EventManager getEventManager() {
+        return eventManager; 
+    }
     
     public final NotificationProvider getNotificationProvider() { 
         if (notificationProvider == null) {

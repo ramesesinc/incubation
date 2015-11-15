@@ -71,8 +71,12 @@ public class PlatformTabWindow extends JPanel implements SubWindow, ContentPane
     
     public void activate() {
         Component p = getParent();
-        if (p instanceof ExtTabbedPane) 
-            ((ExtTabbedPane) p).setSelectedComponent(this);
+        if (p instanceof ExtTabbedPane) { 
+            ((ExtTabbedPane) p).setSelectedComponent(this);   
+        } 
+        if ( viewContext != null ) {
+            viewContext.activate(); 
+        } 
     }
     
     public ContentPane.View getView() { 

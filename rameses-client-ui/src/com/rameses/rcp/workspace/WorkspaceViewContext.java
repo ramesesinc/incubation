@@ -111,5 +111,8 @@ public class WorkspaceViewContext extends JPanel implements ViewContext {
         
         return null;
     }
-    
+
+    public void activate() { 
+        if( viewCtx != null ) viewCtx.activate(); 
+    }    
 }
