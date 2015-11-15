@@ -146,6 +146,14 @@ public class UIControllerPanel extends JPanel implements NavigatablePanel, ViewC
         return parent;
     }  
     
+    public void activate() {
+        try {
+            getCurrentController().getCurrentView().getBinding().activate(); 
+        } catch( Throwable t ) {
+            t.printStackTrace();
+        }
+    } 
+    
     // <editor-fold defaultstate="collapsed" desc=" ContentPane.View implementation ">
     
     public Map getInfo() {

@@ -14,6 +14,10 @@ import com.rameses.rcp.framework.ControlEvent;
  */
 public interface EventListener {
     
-    void onEvent(ControlEvent evt);
+    void onEvent( Object o ); 
+    void onMessage( Object o );
+    void onDestroy();
+    
+    void onUnregister();
     
 }

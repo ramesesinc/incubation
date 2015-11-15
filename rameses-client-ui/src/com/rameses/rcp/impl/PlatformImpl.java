@@ -163,7 +163,7 @@ public class PlatformImpl implements Platform
             EventQueue.invokeLater(runnable); 
         }
     }
-     
+    
     private void showGlassPane(JComponent actionSource, JComponent comp, Map props, String id) 
     {
         Container con = mainWindow.getGlassPane();

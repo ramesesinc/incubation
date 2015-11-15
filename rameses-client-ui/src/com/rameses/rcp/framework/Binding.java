@@ -104,7 +104,10 @@ public class Binding
     private boolean annotationScanIsDone;
     private Field bindingField;
     private Field changeLogField;
+    
     private String closeMethod;
+    private String activateMethod; 
+            
     private List<Validator> validators = new ArrayList();
     
     /**
@@ -607,13 +610,22 @@ public class Binding
             listeners.add(listener);
     }
     
-    public void removeListener(BindingListener listener) 
-    {
+    public void removeListener(BindingListener listener) {
         if (listener != null) listeners.remove(listener);
     }
     
-    public boolean close() 
-    {
+    public void activate() {        
+        try {
+            if (activateMethod == null) { return; } 
+            
+            MethodResolver mr = MethodResolver.getInstance();
+            mr.invoke(bean, activateMethod, new Class[]{}, new Object[]{});
+        } catch(Throwable e) { 
+            e.printStackTrace(); 
+        } 
+    } 
+    
+    public boolean close() {
         if (closeMethod == null) return true;
         
         try {
@@ -780,7 +792,13 @@ public class Binding
     public void setBean(Object bean) {
         this.bean = bean;
         initAnnotatedFields( bean, bean.getClass() );
-        initAnnotatedMethods( bean, bean.getClass() );
+        //initAnnotatedMethods( bean, bean.getClass() );        
+        Method m = findAnnotatedMethod(bean.getClass(), com.rameses.rcp.annotations.Close.class); 
+        if ( m != null ) { closeMethod = m.getName(); } 
+        
+        m = findAnnotatedMethod(bean.getClass(), com.rameses.rcp.annotations.Activate.class); 
+        if ( m != null ) { activateMethod = m.getName(); } 
+        
         _load();
     }
     
@@ -1008,11 +1026,25 @@ public class Binding
             if ( m.isAnnotationPresent(Close.class) ) {
                 closeMethod = m.getName();
                 return;
-            }
+            } 
         }
         Class superClazz = clazz.getSuperclass();
         if ( superClazz != null ) {
             initAnnotatedMethods( o, superClazz );
+        }
+    }
+    
+    private Method findAnnotatedMethod( Class beanClass, Class annoClass ) {
+        for ( Method m : beanClass.getDeclaredMethods() ) {
+            if ( m.isAnnotationPresent( annoClass ) ) {
+                return m; 
+            } 
+        }
+        Class superClazz = beanClass.getSuperclass();
+        if ( superClazz == null ) {
+            return null; 
+        } else {
+            return findAnnotatedMethod( superClazz, annoClass );
         }
     }
     
@@ -1135,12 +1167,12 @@ public class Binding
             if ( e.getButton() == MouseEvent.BUTTON1 ) {
                 ControlEvent evt = createControlEvent(e);
                 evt.setEventName(ControlEvent.LEFT_CLICK);
-                eventManager.notify( evt.getSource(), evt);
+                //eventManager.notify( evt.getSource(), evt);
                 
             } else if ( e.getButton() == MouseEvent.BUTTON3 ) {
                 ControlEvent evt = createControlEvent(e);
                 evt.setEventName(ControlEvent.RIGHT_CLICK);
-                eventManager.notify( evt.getSource(), evt);
+                //eventManager.notify( evt.getSource(), evt);
             }
         }
         
