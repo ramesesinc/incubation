@@ -15,9 +15,11 @@ import com.rameses.osiris2.client.InvokerFilter;
 import com.rameses.osiris2.client.InvokerUtil;
 import com.rameses.rcp.annotations.Invoker;
 import com.rameses.rcp.common.Action;
+import com.rameses.rcp.framework.ClientContext;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import net.sf.jasperreports.engine.JRDataSource;
@@ -96,7 +98,25 @@ public abstract class ReportModel {
                 }
             }
             Map params = getParameters();
-            if (params != null) conf.putAll(params);
+            if (params != null) {
+                Iterator keys = params.keySet().iterator(); 
+                while (keys.hasNext()) { 
+                    Object okey = keys.next(); 
+                    Object oval = params.get( okey ); 
+                    if ( oval instanceof String && oval.toString().matches(".*\\\\.(jpg|png)") ) {
+                        params.put( okey, ReportUtil.getImage(oval.toString()) ); 
+                    }
+                } 
+                
+                conf.putAll(params);
+            }
+            
+            Map appenv = ClientContext.getCurrentContext().getAppEnv(); 
+            Iterator keys = appenv.keySet().iterator(); 
+            while ( keys.hasNext() ) { 
+                Object key = keys.next(); 
+                conf.put("ENV."+ key.toString().toUpperCase(), appenv.get(key)); 
+            } 
             
             JRParameter[] jrparams = mainReport.getParameters(); 
             if ( jrparams != null ) {
@@ -122,9 +142,7 @@ public abstract class ReportModel {
             }
             
             conf.put("REPORT_UTIL", new ReportDataUtil());
-            conf.put("REPORTHELPER", new ReportDataSourceHelper());
-            
-            
+            conf.put("REPORTHELPER", new ReportDataSourceHelper());            
             return JasperFillManager.fillReport(mainReport, conf, ds);
         } catch (RuntimeException re) {
             throw re;
@@ -142,6 +160,20 @@ public abstract class ReportModel {
     public JasperPrint getReport() {
         return reportOutput;
     }
+    
+    public void print() { 
+        print( true ); 
+    } 
+    
+    public void print( boolean withPrintDialog ) { 
+        try { 
+            ReportUtil.print( createReport(), withPrintDialog ); 
+        } catch(RuntimeException re) {
+            throw re; 
+        } catch(Exception e) { 
+            throw new RuntimeException(e.getMessage(), e); 
+        } 
+    }     
     
     public List getReportActions() {
         List list = new ArrayList();
