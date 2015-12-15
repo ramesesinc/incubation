@@ -18,6 +18,7 @@ import com.rameses.rcp.framework.UIControllerContext;
 import com.rameses.rcp.framework.UIControllerPanel;
 import com.rameses.rcp.support.ImageIconSupport;
 import com.rameses.rcp.support.ResourceUtil;
+import com.rameses.util.BreakException;
 import com.rameses.util.ValueUtil;
 import java.awt.Component;
 import java.awt.Container;
@@ -194,13 +195,15 @@ public final class ToolbarUtil
         public void actionPerformed(ActionEvent e) {
             try {
                 InvokerUtil.invoke(invoker, null);
-            } catch(RuntimeException re) {
-                throw re;
-            } catch(Exception ex) {
-                throw new IllegalStateException(ex.getMessage(), ex);
+            } catch(BreakException be) { 
+                //do nothing 
+            } catch(RuntimeException re) { 
+                throw re; 
+            } catch(Exception ex) { 
+                throw new IllegalStateException(ex.getMessage(), ex); 
             } 
         } 
-    }
+    } 
     
     // </editor-fold>
     
