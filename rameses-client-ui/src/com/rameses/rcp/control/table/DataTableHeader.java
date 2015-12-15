@@ -37,7 +37,7 @@ public class DataTableHeader extends JTableHeader
     public DataTableHeader(JTable table) 
     {
         super(table.getColumnModel());
-        super.setBorder(new TableBorders.HeaderBorder());
+        super.setBorder(new TableBorders.HeaderBorder(true, true, false, false));
         this.table = table; 
     }
     
@@ -151,18 +151,8 @@ public class DataTableHeader extends JTableHeader
 
         public JComponent createComponent() 
         {
-            JLabel lbl = new JLabel("")
-            {
-                Painter painter = new Painter();
-
-                public void paint(Graphics g) 
-                {
-                    Rectangle rect = g.getClipBounds(); 
-                    painter.paint(this, g, rect.x, rect.y, rect.width, rect.height); 
-                    super.paintBorder(g); 
-                }
-            };
-            lbl.setBorder(this); 
+            JLabel lbl = new JLabel("");
+            lbl.setBorder( new TableBorders.HeaderBorder(true, true, false, true) ); 
             return lbl;
         } 
 

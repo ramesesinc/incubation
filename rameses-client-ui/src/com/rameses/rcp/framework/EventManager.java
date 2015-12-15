@@ -63,9 +63,7 @@ public final class EventManager {
     public void postEvent( String name, Object eventObject ) {
         String sname = name.toLowerCase(); 
         List<EventListener> list = listeners.get( sname ); 
-        if ( list == null ) {
-            throw new RuntimeException("'"+ name + "' event name does not exist"); 
-        }
+        if ( list == null ) { return; }
         
         for ( EventListener el : list ) {
             try {

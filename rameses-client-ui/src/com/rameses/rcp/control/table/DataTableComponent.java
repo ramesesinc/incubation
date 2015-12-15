@@ -374,11 +374,11 @@ public class DataTableComponent extends JTable implements TableControl
             tableCol.setCellRenderer(cellRenderer);
             applyColumnProperties(tableCol, col);
             
-            if (!ValueUtil.isEmpty(col.getEditableWhen())) 
+            if (!ValueUtil.isEmpty(col.getEditableWhen())) { 
                 col.setEditable(true);
-            
-            if (!col.isEditable()) continue;
-            if (editors.containsKey(i)) continue;
+            } 
+            if (!col.isEditable()) { continue; } 
+            if (editors.containsKey(i)) { continue; } 
             
             JComponent editor = TableUtil.createCellEditor(col);
             if (editor == null) continue; 

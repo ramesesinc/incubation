@@ -33,7 +33,6 @@ import com.rameses.rcp.util.UIControlUtil;
 import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Insets;
@@ -89,21 +88,21 @@ public class CellRenderers {
     }
     
     public static String getPreferredAlignment(Column oColumn) {
-        if (oColumn == null) return null;
+        if (oColumn == null) { return null; } 
         
         String alignment = oColumn.getAlignment();
-        if (alignment != null) return alignment;
+        if (alignment != null) { return alignment; } 
             
         Column.TypeHandler handler = oColumn.getTypeHandler();
-        if (handler instanceof CheckBoxColumnHandler)
-            oColumn.setAlignment("center");        
-        else if (handler instanceof DecimalColumnHandler)
-            oColumn.setAlignment("right");
-        else if (handler instanceof IntegerColumnHandler)
+        if (handler instanceof CheckBoxColumnHandler) { 
+            oColumn.setAlignment("center"); 
+        } else if (handler instanceof DecimalColumnHandler) { 
+            oColumn.setAlignment("right"); 
+        } else if (handler instanceof IntegerColumnHandler) { 
             oColumn.setAlignment("center");
-        else 
+        } else { 
             oColumn.setAlignment("left");
-        
+        } 
         return oColumn.getAlignment();
     }
     
@@ -175,30 +174,41 @@ public class CellRenderers {
         private ComponentSupport componentSupport; 
         private TableBorders.HeaderBorder border;
         
-        public HeaderRenderer() {
-            setBorder(border = new TableBorders.HeaderBorder()); 
+        public HeaderRenderer() { 
+            border = new TableBorders.HeaderBorder(true, true, false, false);
+            setBorder( border ); 
             setBackground(java.awt.SystemColor.control); 
         }
         
         private ComponentSupport getComponentSupport() {
-            if (componentSupport == null) 
+            if (componentSupport == null) { 
                 componentSupport = new ComponentSupport();
-            
+            } 
             return componentSupport; 
         }
         
         public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int rowIndex, int colIndex) {
-            setFont(table.getFont());
+            setFont(table.getFont()); 
             setText(value+""); 
+            
             TableModel tm = table.getModel(); 
             if (tm instanceof DataTableModel) {
                 DataTableModel dtm = (DataTableModel) tm; 
                 Column oColumn = dtm.getColumn(colIndex); 
                 if (oColumn == null) return this;
-                
+                                                
                 String alignment = oColumn.getAlignment();
                 getComponentSupport().alignText(this, alignment); 
-            }
+            } 
+            
+            boolean autoresizeoff = (table.getAutoResizeMode() == JTable.AUTO_RESIZE_OFF);
+            if ( autoresizeoff ) {
+                border.setHideRight( false ); 
+            } else if ( (colIndex+1) == tm.getColumnCount() ) {
+                border.setHideRight( true ); 
+            } else { 
+                border.setHideRight( false ); 
+            } 
             return this;
         }      
                 
@@ -212,19 +222,19 @@ public class CellRenderers {
         
         public void paint(Graphics g) 
         {
-            int h = getHeight(), w = getWidth(); 
-            Color oldColor = g.getColor();
-            Color shadow = getShadowColor(); 
-            Color bg = ColorUtil.brighter(shadow, 30);
-            Graphics2D g2 = (Graphics2D) g.create();
-            GradientPaint gp = new GradientPaint(0, 0, bg, 0, h/2, ColorUtil.brighter(shadow,25));
-            g2.setPaint(gp);
-            g2.fillRect(0, 0, w, h);
-            g2.setPaint(null);
-            g2.setColor(ColorUtil.brighter(shadow,22));
-            g2.fillRoundRect(0, h/2, w, h, 5, 0);
-            g2.dispose();
-            g.setColor(oldColor); 
+//            int h = getHeight(), w = getWidth(); 
+//            Color oldColor = g.getColor();
+//            Color shadow = getShadowColor(); 
+//            Color bg = ColorUtil.brighter(shadow, 30);
+//            Graphics2D g2 = (Graphics2D) g.create();
+//            GradientPaint gp = new GradientPaint(0, 0, bg, 0, h/2, ColorUtil.brighter(shadow,25));
+//            g2.setPaint(gp);
+//            g2.fillRect(0, 0, w, h);
+//            g2.setPaint(null);
+//            g2.setColor(ColorUtil.brighter(shadow,22));
+//            g2.fillRoundRect(0, h/2, w, h, 5, 0);
+//            g2.dispose();
+//            g.setColor(oldColor); 
             super.paint(g); 
         } 
         
@@ -323,13 +333,16 @@ public class CellRenderers {
             }
             
             //border support
+            TableBorders.CellBorder cellborder = new TableBorders.CellBorder(table, rowIndex, columnIndex); 
             Border inner = getComponentSupport().createEmptyBorder(CELL_MARGIN);
             Border border = BorderFactory.createEmptyBorder(1,1,1,1);
             if (hasFocus) {
-                if (isSelected)
-                    border = UIManager.getBorder("Table.focusSelectedCellHighlightBorder");
-                if (border == null)
-                    border = UIManager.getBorder("Table.focusCellHighlightBorder");
+                if (isSelected) { 
+                    border = UIManager.getBorder("Table.focusSelectedCellHighlightBorder"); 
+                } 
+                if (border == null) {
+                    border = UIManager.getBorder("Table.focusCellHighlightBorder"); 
+                } 
             }
             comp.setBorder(BorderFactory.createCompoundBorder(border, inner));
             
@@ -881,4 +894,5 @@ public class CellRenderers {
     }
     
     // </editor-fold>
+    
 }
