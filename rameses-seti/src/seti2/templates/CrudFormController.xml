@@ -1,0 +1,18 @@
+<workunit>
+    <invokers>
+        <invoker type="formActions" caption="New" action="create"  visibleWhen="#{createAllowed &amp;&amp; mode=='read'}"/>
+        <invoker type="formActions" caption="Edit" action="edit" visibleWhen="#{editAllowed &amp;&amp; mode=='read'}"/>        
+        <invoker type="formActions" caption="Save" action="save" visibleWhen="#{mode=='edit' || mode=='create'}" />        
+        <invoker type="formActions" caption="Cancel" action="unedit" visibleWhen="#{mode=='edit'}"/>  
+        <invoker type="formActions" caption="Undo" action="undo" visibleWhen="#{mode=='edit'}"/>  
+    </invokers>
+    
+    <code class="seti2.models.CrudFormController"/>    
+    
+    <pages>
+        <page name="create" template="seti2.views.CrudFormPanel"/>
+        <page name="read" template="seti2.views.CrudFormPanel"/>
+        <page name="edit" template="seti2.views.CrudFormPanel"/>
+    </pages>
+    
+</workunit> 

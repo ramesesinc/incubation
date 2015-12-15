@@ -1,0 +1,42 @@
+<workunit>
+    <invokers>
+        <invoker type="crud:selectcolumns" caption="Select Column" action="init" target="popup"/>
+    </invokers>
+    
+    <code>
+        <![CDATA[
+        import com.rameses.rcp.common.*;
+        import com.rameses.rcp.annotations.*;
+        import com.rameses.osiris2.client.*;
+        import com.rameses.osiris2.common.*;
+        
+        class SelectColumnController {
+        
+            def schema;
+            def columnList;  
+            def onselect;            
+                    
+            void init() {
+                columnList = schema.columns;
+            }                
+                    
+            def doCancel() {
+                return "_close";
+            }
+            
+            def doOk() {
+                if( onselect)  {
+                    onselect( columnList.findAll{it.selected == true } );
+                }
+                return "_close";
+            }
+                    
+        }
+        ]]>
+    </code>
+    
+    <pages>
+        <page template="seti2.views.SelectColumnPanel"/>
+    </pages>    
+    
+</workunit>  

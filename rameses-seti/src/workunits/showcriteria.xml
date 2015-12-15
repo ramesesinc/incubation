@@ -1,0 +1,63 @@
+<workunit>
+    <invokers>
+        <invoker type="crud:showcriteria" caption="Filter" action="init" target="popup"/>
+    </invokers>
+    
+    <code>
+        <![CDATA[
+        import com.rameses.rcp.common.*;
+        import com.rameses.rcp.annotations.*;
+        import com.rameses.osiris2.client.*;
+        import com.rameses.osiris2.common.*;
+        
+        class ShowFilterController {
+        
+            def schema;
+            def handler;
+            
+            def controlList = [];
+            def formControls = [
+                getControlList: {
+                    return controlList;
+                }
+            ] as FormPanelModel;
+
+            def selectedField;
+            def fieldList; 
+            def criteriaList = []; 
+                                                                                    
+            void init() {
+                fieldList = schema.columns;
+                controlList.clear();
+                if(criteriaList) {
+                    controlList.addAll( criteriaList );
+                }    
+            }                
+               
+            def doCancel() {
+                return "_close";
+            }                
+                
+            def doOk() {
+                if(handler) handler(controlList);
+                return "_close";
+            }                      
+            
+            void addField() {
+                if(!selectedField) return;
+                def k = selectedField;
+                if(k.type == null ) k.type = "string";
+                String h = "criteria:"+k.type.trim();
+                def m = [name: k.name , type:'subform', caption: k.caption, handler:h ];
+                m.entry = [:];
+                m.properties = [entry: m.entry];
+                controlList << m;                    
+            }
+            
+        }
+        ]]>
+    </code>
+    <pages>
+        <page template="seti2.views.ShowCriteriaPanel"/>
+    </pages>    
+</workunit> 

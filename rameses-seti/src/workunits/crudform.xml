@@ -1,0 +1,6 @@
+<workunit extends="seti2/templates/CrudFormController.xml">
+    <invokers>
+        <invoker type="crudform:create" action="create" target="popup"/>
+        <invoker type="crudform:open" action="open" target="popup"/>
+    </invokers>
+</workunit> 

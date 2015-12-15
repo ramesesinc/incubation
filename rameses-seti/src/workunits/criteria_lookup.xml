@@ -1,0 +1,34 @@
+<workunit>
+    <invokers>
+        <invoker type="criteria:lookup" />
+    </invokers>
+    
+    <code>
+        <![CDATA[
+        import com.rameses.rcp.common.*;
+        import com.rameses.rcp.annotations.*;
+        import com.rameses.osiris2.client.*;
+        import com.rameses.osiris2.common.*;
+        
+        class LookupCriteriaController {
+        
+            def entry = [:];
+            
+            def getLookupHandler() {
+                return Inv.lookupOpener("");
+            }
+            
+            def items = [
+                [caption: "is any of the ff.", key: "IN"],
+                [caption: "not in any of the ff.", key:"NOT IN"],
+            ];
+                 
+        }
+        ]]>
+    </code>
+    
+    <pages>
+        <page template="seti2.components.LookupCriteria"/>
+    </pages>    
+    
+</workunit>  

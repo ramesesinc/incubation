@@ -1,0 +1,44 @@
+<workunit>
+    <invokers>
+        <invoker type="criteria:decimal" />
+    </invokers>
+    
+    <code>
+        <![CDATA[
+        import com.rameses.rcp.common.*;
+        import com.rameses.rcp.annotations.*;
+        import com.rameses.osiris2.client.*;
+        import com.rameses.osiris2.common.*;
+        
+        class DecimalCriteriaController {
+        
+            def entry = [:];
+            
+            @Binding
+            def binding;
+            
+            @PropertyChangeListener
+            def listener = [
+                "entry.operator": { o->
+                    println entry;
+                }
+            ];
+            
+            def items = [
+                [caption: "greater than", key:">"],
+                [caption: "less than", key:"<"],
+                [caption: "greater than or equal to", key:">=" ],
+                [caption: "less than or equal to", key:"<="],
+                [caption: "equal to", key:"="],
+                [caption: "between", key:"between"],
+            ];
+                    
+        }
+        ]]>
+    </code>
+    
+    <pages>
+        <page template="seti2.components.DecimalCriteria"/>
+    </pages>    
+    
+</workunit>  
