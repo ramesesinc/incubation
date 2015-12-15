@@ -18,7 +18,20 @@ var R = {
 			if( window.console && R.DEBUG ) console.log( e.message );
 			return null;
 		}
-	}
+	}, 
+
+	findAttrs: function(elm, prefix) {
+		var arrs = []; 
+		var attrname = this.PREFIX + ':' + prefix + '_'; 
+		var jctrl = (elm.jquery ? elm : $(elm)); 
+		$.each( jctrl.context.attributes, function(i, attrib){ 
+			var name = attrib.name;
+			if ( name.startsWith( attrname ) ) { 
+				arrs.push( { key: name.split('_')[1], value: attrib.value } );
+			} 
+		}); 
+		return arrs; 
+	} 
 };
 
 var BindingUtils = new function() {
@@ -37,7 +50,12 @@ var BindingUtils = new function() {
         var controller;
 		try { 
 			controller = $get(contextName);
-		} catch(e) {
+			var callback = controller.code['oninit_controller']; 
+			if ((typeof callback)=='function') {
+				controller.code['oninit_controller']=null;
+				callback(controller); 
+			} 
+		} catch(e) { 
 			if (window.console) console.log(e.stack || e.message);
 		} 
 		
@@ -47,29 +65,25 @@ var BindingUtils = new function() {
 			var expr = R.attr($e, 'visibleWhen');
 			try {
 				var res = expr.evaluate( $ctx(contextName) );
-				isVisible = (res == 'false' || res == 'undefined' || res == null || res == false)? false: true;
-			}
-			catch(e) {
+				isVisible = (res=='false' || res=='undefined' || res==null || res==false)? false: true;
+			} catch(e) {
 				if ( window.console && R.DEBUG ) console.log('error evaluating visibleWhen: ' + e.message);
 		
 				isVisible = false;
 			}
 		}
 		/* run other options when element is visible */
-		if ( isVisible==true ) 
-		{
+		if ( isVisible==true ) {
 			if ( $e.is(':hidden') ) $e.show(); 
 			
 			/* check if there is a setting 'readonlyWhen' */
-			if ( R.attr($e,'readonlyWhen') ) 
-			{ 
+			if (R.attr($e,'readonlyWhen')) { 
 				var readonly = true; 
 				var expr = R.attr($e, 'readonlyWhen');
 				try {
 					var res = expr.evaluate( $ctx(contextName) );
 					readonly = (res && res != 'false' && res != 'null' && res != 'undefined' && res != '');
-				} 
-				catch(e) {
+				} catch(e) {
 					if ( window.console && R.DEBUG ) console.log('error evaluating readonlyWhen: ' + e.message);
 					
 					readonly = false;
@@ -81,17 +95,33 @@ var BindingUtils = new function() {
 					$e.removeAttr('readonly'); 
 				} 
 			} 
-			
+			/* check if there is a setting 'enableWhen' */
+			if (R.attr($e,'enabledWhen')) { 
+				var enabled = true; 
+				var expr = R.attr($e, 'enabledWhen');
+				try {
+					var res = expr.evaluate( $ctx(contextName) );
+					enabled = (res && res != 'false' && res != 'null' && res != 'undefined' && res != '');
+				} catch(e) {
+					if (window.console && R.DEBUG) console.log('error evaluating enabledWhen: ' + e.message);
+					
+					enabled = false;
+				}				
+					
+				if (enabled == true) { 
+					$e.removeAttr('readonly');
+				} else { 
+					$e.attr('readonly', 'readonly'); 
+				} 
+			} 			
 			/* check if there is a setting 'disableWhen' */
-			if ( R.attr($e,'disableWhen') ) 
-			{ 
+			if ( R.attr($e,'disableWhen') ) { 
 				var disabled = true; 
 				var expr = R.attr($e, 'disableWhen');
 				try {
 					var res = expr.evaluate( $ctx(contextName) );
 					disabled = (res && res != 'false' && res != 'null' && res != 'undefined' && res != '');
-				} 
-				catch(e) {
+				} catch(e) {
 					if ( window.console && R.DEBUG ) console.log('error evaluating disableWhen: ' + e.message);
 					
 					disabled = false;
@@ -103,12 +133,28 @@ var BindingUtils = new function() {
 					$e.removeAttr('disabled'); 
 				} 
 			} 
-		}
-		else {
+			/* check if there is a setting 'requestFocus' */
+			if ( R.attr($e,'requestFocus') ) { 
+				var requestFocus = true; 
+				var expr = R.attr($e, 'requestFocus');
+				try {
+					var res = expr.evaluate( $ctx(contextName) );
+					requestFocus = (res && res != 'false' && res != 'null' && res != 'undefined' && res != '');
+				} catch(e) {
+					if (window.console && R.DEBUG ) console.log('error evaluating requestFocus: ' + e.message);
+
+					requestFocus = false;
+				}				
+				if (requestFocus == true) { 
+					$e.attr('requestFocus', 'true'); 
+				} else { 
+					$e.removeAttr('requestFocus'); 
+				} 
+			} 
+		} else {
 			$e.hide();
 		}
 		
-
         if ( controller != null ) {
 			if( controller.name == null ) controller.name = contextName;
 			
@@ -123,8 +169,7 @@ var BindingUtils = new function() {
 							}
 						});
 					}
-				}
-				else {
+				} else {
 					elem.onclick = function() { 
 						$get(controller.name).invoke( this, action );  
 					}
@@ -134,21 +179,25 @@ var BindingUtils = new function() {
             var nodeName = elem.tagName.toLowerCase()
             if(nodeName == "input") {
 				nodeName = nodeName + "_" + elem.type ;
-			}
-			else if( R.attr(elem, 'type') ) {
+			} else if( R.attr(elem, 'type') ) {
 				nodeName = nodeName + "_" + R.attr(elem, 'type');
-			}
-			if( _self.handlers[nodeName] ) _self.handlers[nodeName]( elem, controller, idx, force );
+			} 
+			if ( _self.handlers[nodeName] ) {
+				_self.handlers[nodeName]( elem, controller, idx, force ); 
+			} 
         }
     };
 
 	var containerLoader = function(idx, div ) {
+		$(div).removeClass('rui-controller').addClass('rui-controller');
 		var contextName = R.attr(div, 'controller');
-		if(div.id==null || div.id=='') div.id = contextName;
+		if( div.id==null || div.id=='') div.id = contextName;
 		var controller = $get(contextName);
 		if( controller != null ) {
 			if( controller.name == null ) controller.name = contextName;
-			if( R.attr(div, "loadAction")!=null ) controller.loadAction = R.attr(div, "loadAction");
+			if( R.attr(div, 'loadAction') != null ) {
+				controller.loadAction = R.attr(div, 'loadAction'); 
+			} 
 			controller.load();
 		}
 	};
@@ -164,38 +213,6 @@ var BindingUtils = new function() {
 		/* first, process all layout containers */
 		LayoutManager.processLayouts($root); 
 		
-		$root.find('.pre-example').each(function(idx,item){ 
-			var $item = $(item);
-			$item.hide();
-			$item.addClass('pre-example-run');
-			$item.removeClass('pre-example'); 
-			$item.data('showexample', 'false'); 
-			
-			var html = $item.html();
-			var text = html.replace(/</gi, "&lt;").replace(/>/gi, "&gt;");
-			
-			var $elW = $item.wrap('<div class="pre-example-wrapper"></div>').parent();
-			var $elP = $('<pre class="pre-example-code"></pre>').prependTo($elW);
-			$elP.html(text); 
-			
-			var $elA = $('<a class="pre-example-action" href="#">Run Example</a>').appendTo($elW);			
-			$elA.click(function(evt){
-				var $elem = $(this);
-				var $elT = $elem.parent().children('.pre-example-run');
-				$elT.toggle();
-
-				if ($elT.data('showexample') == 'false') {
-					$elT.data('showexample', 'true');
-					$elem.html('Hide Example'); 					
-				} 
-				else {
-					$elT.data('showexample', 'false');
-					$elem.html('Run Example'); 					
-				} 
-				return false;
-			});
-		}); 
-		
         $root.filter(function() {
 			if ( R.attr(this, 'context') ) { 
 				controlLoader( idx++, this, force ); 
@@ -205,6 +222,18 @@ var BindingUtils = new function() {
 			} 
 		});
 		
+		var focusElem = null;
+        var elems = $root.find('input[type=text][requestFocus=true]'); 
+        elems.each(function(i,o){
+        	var $e = $(o);
+        	if ($e.attr('readonly') || $e.attr('disabled')) {
+        		//do nothing, this element is marked as readonly
+        	} else if (focusElem == null) {
+        		focusElem = $e; 
+        	}
+        });
+        if (focusElem) focusElem.focus();
+
 		for (var i=0; i<dockables.length; i++) {
 			if (isUIDialog == true) 
 				RUI.initDockableElement(dockables[i]); 
@@ -232,19 +261,24 @@ var BindingUtils = new function() {
     *     all will broadcast to to reset dependent controls values, (those with depends attribute)
     * customFunc = refers to the custom function for additional decorations
     */
-    this.initInput = function( elem, controller, customFunc ) 
-	{
+    this.initInput = function( elem, controller, customFunc ) {
         var fldName = R.attr(elem, 'name');
-        if( fldName==null || fldName=='' ) return;
+        if (fldName == null || fldName == '') return;
+        
         var c = controller.get(fldName);
-        var o = $(elem);
+        var o = (elem['selector']? elem: $(elem));
+
+	    o.removeClass('depends'); 
+	    var depends = R.attr(o, 'depends'); 
+	    if (depends) o.addClass('depends'); 
+
         if (customFunc != null) { 
             customFunc(elem, controller);
         }
         elem.value = (c ? c : "" );
+
         var dtype = R.attr(o, "datatype");
-        if ( dtype=="decimal" ) 
-		{
+        if ( dtype=="decimal" ) {
 			o.addClass('number-field decimal-field');
 			o.css('text-align', 'right');	
 			try { o.val(NumberUtils.getFixedValue(elem.value)); }catch(e){;}
@@ -253,46 +287,48 @@ var BindingUtils = new function() {
 				controller.set(fldName, NumberUtils.toDecimal(this.value), this ); 
 				try { o.val(NumberUtils.getFixedValue(this.value)); }catch(e){;}
 			}
-			elem.onkeypress = function(evt) { return checkNumericInput(evt, this, true); };
-        }
-        else if ( dtype=="integer") 
-		{
+			elem.onkeypress = function(evt) { 
+				return checkNumericInput(evt, this, true); 
+			} 
+        } else if ( dtype=="integer") {
 			o.addClass('number-field integer-field');
 			o.css('text-align', 'right');
-            elem.onchange = function () { controller.set(fldName, NumberUtils.toInteger(this.value), this ); }
-			elem.onkeypress = function(evt){ return checkNumericInput(evt, this); };
-        }
-        else if ( dtype=="date" )
-		{
+            elem.onchange = function () { 
+            	controller.set(fldName, NumberUtils.toInteger(this.value), this ); 
+            }
+			elem.onkeypress = function(evt){ 
+				return checkNumericInput(evt, this); 
+			} 
+        } else if ( dtype=="date" ) {
 			o.addClass('date-field');
 			o.datepicker({dateFormat:"yy-mm-dd"});
-            elem.onchange = function () { controller.set(fldName, this.value, this ); }
-        }
-        else 
-		{
+            elem.onchange = function() { 
+            	controller.set(fldName, this.value, this ); 
+            }
+        } else {
 			var tc = R.attr(elem,'textcase');
 			if (tc == null || tc == 'undefined') tc = 'upper';
 			
-			if ( 'upper'==tc ) 
-				o.css('text-transform', 'uppercase');
-			else if ( 'lower'==tc ) 
-				o.css('text-transform', 'lowercase');
-			else if ( 'none'==tc ) 
-				o.css('text-transform', 'none');
-			
+			if ( 'upper'==tc ) { 
+				o.css('text-transform', 'uppercase'); 
+			} else if ( 'lower'==tc ) { 
+				o.css('text-transform', 'lowercase'); 
+			} else if ( 'none'==tc ) { 
+				o.css('text-transform', 'none'); 
+			} 
             elem.onchange = function () {
 				var v = this.value;
 				var tc = R.attr(this,'textcase');
 				if (!tc) tc = 'upper';
 				
-				if ( 'upper'==tc )
-					v = v.toUpperCase();
-				else if ( 'lower'==tc )
-					v = v.toLowerCase();
-
+				if ( 'upper'==tc ) { 
+					v = v.toUpperCase(); 
+				} else if ( 'lower'==tc ) { 
+					v = v.toLowerCase(); 
+				} 				
 				controller.set(fldName, v, this); 
-			};
-        }
+			} 
+        } 
 
 		//add hints
 		if( R.attr(elem, "hint")!=null ) {
@@ -305,44 +341,58 @@ var BindingUtils = new function() {
         //)
     };
 
-	function checkNumericInput(evt, elem, allowPeriod)
-	{
+	function checkNumericInput(evt, elem, allowPeriod){
 		var charCode = (evt.which) ? evt.which : event.keyCode;
 		var allowed = (charCode==45 || (charCode >= 48 && charCode <= 57));
 		
-		if( allowPeriod ) 
-			allowed = allowed  || charCode==46;
+		if( allowPeriod ) allowed = allowed  || charCode==46;
 		
-		if (allowed) 
-		{
+		if (allowed) {
 			//a period character 
-			if (charCode == 46) 
-			{
+			if (charCode == 46) {
 				if (!elem) return true;
 			
 				var s = (elem.value ? elem.value : ''); 
 				if (s.length == 0) return false;
 				if (s.indexOf('.') >= 0) return false; 
 			} 
-		
 			return true; 
-		} 
-		else 	
+		} else { 
 			return false; 
+		} 
 	}
 
-	this.notifyDependents = function(dependName, selector) {
+	this.notifyDependents = function(dependName, selector, contextName) {
 		if (!dependName) return;
-		
+
+		var $e = (selector? selector: $('*'));
+		if (!$e['selector']) $e=$(selector);
+
+		var fragment = $e.closest('.rui-fragment');
+		if (!fragment[0]) fragment = $e.closest('.rui-controller');
+		if (!fragment[0]) fragment = $e;
+
+		var idx=0;
+		fragment.find('.depends').each(function(i, o) {
+			var $o = $(o);
+			var context = R.attr($o,'context')+'';
+			var depends = R.attr($o,'depends')+'';
+			var matchContext = (context==contextName);
+			var matchDepends = (depends.match('.*'+dependName+'.*')); 
+			if (matchContext && matchDepends && matchDepends[0]) {
+				controlLoader(idx++, this); 
+			}
+		});	
+
+		/*
 		var idx = 0;
 		$('*', selector).filter(function(){
 			var attr = R.attr(this, 'depends');		
 			if ( attr && attr.match('.*' + dependName + '.*') ) {
 				controlLoader( idx++, this ); 
 			} 
-		});
+		});*/
 	};
-
 
 	this.load = function(selector) {
 		for( var i=0; i < this.loaders.length; i++ ) {
@@ -657,9 +707,7 @@ function RequiredValidator( fieldName, caption, elem )
 		}
     }
 }
-
 function Controller( code, pages ) {
-
     this.name;
     this.pages = pages;
     this.code = code;
@@ -674,28 +722,28 @@ function Controller( code, pages ) {
 		if( elem && $(elem).is(':hidden') ) return;
 		
         BeanUtils.setProperty( this.code, fieldName, value );
-		this.notifyDependents( fieldName );
+		this.notifyDependents( fieldName, elem, this.name ); 
+
+		var propertyChange = this.code['propertyChange'];
+		if (typeof propertyChange == 'function') { 
+			propertyChange(fieldName, value);  
+		} 
     }
-
-	this.notifyDependents = function(dependName) {
-		BindingUtils.notifyDependents( dependName );
+	this.notifyDependents = function(dependName, elem, contextName) {
+		BindingUtils.notifyDependents( dependName, elem, contextName );
 	}
-
     this.get = function(fieldName ) {
         return BeanUtils.getProperty( this.code, fieldName );
     }
-
     this.refresh = function( fieldNames ) {
         //try to use jquery here.
 		var selector;
 		if( this.container && this.container.element ) selector = this.container.element;
         if(this.name!=null) BindingUtils.bind( this.name, selector )
     }
-
     this.reload = function() {
         this.navigate( "_reload" );
     }
-
     this.invoke = function( control, action, args, immed, refresh  ) {
 		try {
 			var immediate =  false;
@@ -723,22 +771,33 @@ function Controller( code, pages ) {
 			}
 			else {
                 var target = this.name;
-                if(this.code == null) throw new Error( "Code not set");
+                var codebean = this.code;                 
+                if ( codebean == null ) throw new Error( "Code not set");
 				
+
 				/*added support for parameters that are set when firing a button or action.*/
-				if( R.attr($(control), "params") ) {
+				if( R.attr($(control), "params") ) { 
 					try {
 						var _parms  = $.parseJSON(R.attr($(control), 'params'));
-						BeanUtils.setProperties( this.code, _parms );
-					}
-					catch(e) {
+						BeanUtils.setProperties( codebean, _parms );
+					} catch(e) { 
 						if(window.console && R.DEBUG) console.log("error in control params " + e.message );
 					}
 				}
+
+				/* loop attribute params */
+				var attrparams = R.findAttrs($(control), "param");
+				$.each( attrparams, function( key, value ) { 
+					try {
+						BeanUtils.setProperty( codebean, value.key, value.value );
+					} catch(e) { 
+						if(window.console && R.DEBUG) console.log("error in control param " + e.message );
+					}
+				}); 
 				
                 var outcome = action;
                 if( !outcome.startsWith("_")) {
-                    outcome = BeanUtils.invokeMethod( this.code, action, args );
+                    outcome = BeanUtils.invokeMethod( codebean, action, args );
                 }
 				if( refresh == true || refresh == 'true' )
 					this.navigate( outcome, control );
@@ -749,31 +808,39 @@ function Controller( code, pages ) {
 			alert( e.message, "ERROR!" );
 		}
     }
-
     this.navigate = function(outcome, control) {
         if(outcome==null) {
 			if(this.container && this.container.refresh) {
 				this.container.refresh();
-			}
-			else {
+			} else {
 				this.refresh();
 			}
-        }
-        else if(outcome.classname == 'opener' ) {
+        } else if(outcome.classname == 'opener' ) {
 			outcome.caller = this;
 			outcome.source = control;
 			outcome.load();
-        }
-        else if( outcome == "_close" ) {
+        } else if( outcome == "_close" ) {
 			if( this.container && this.container.close ) {
                 this.container.close();
             }
-        }
-		else if( outcome == "_reload" ) {
+        } else if( outcome == "_exit" ) {
+        	var parent = this.code; 
+        	while (parent != null) {
+        		var controller = parent['_controller'];
+        		var container = (controller? controller['container']: null); 
+        		if (container) {
+        			var closecallback = container['close']; 
+        			if (typeof closecallback == 'function') closecallback(); 
+        			
+        			break; 
+        		} 
+        		var code = controller['code']; 
+        		parent = (code? code['_caller']: null);
+        	} 
+        } else if( outcome == "_reload" ) {
 			if(this.container && this.container.reload) {
 				this.container.reload();	
-			}
-			else {
+			} else {
 				//intended only for <div r:controller="name"></div>
 				var _outcome = this.currentPage;	
 				var _target = this.name;
@@ -786,13 +853,11 @@ function Controller( code, pages ) {
 						if( _controller.code.onpageload != null ) _controller.code.onpageload(_outcome);
 						_controller.refresh(); 
 					});
-				}
-				else { //otherwise just reload the current page
+				} else { //otherwise just reload the current page
 					window.location.reload();
 				}
 			}
-		}
-        else {
+		} else {
 			//intended only for <div r:controller="name"></div>
 			if( outcome == null ) outcome = "default";
             if(outcome.startsWith("_")) outcome = outcome.substring(1);
@@ -813,14 +878,14 @@ function Controller( code, pages ) {
 				$.extend(params,p);
 			}
 			
-			$('#'+target).load(this.pages[outcome], params, function() { 
+			var $target = $('#'+target);
+			$target.load(this.pages[outcome], params, function() { 
                 if ( _controller.code.onpageload != null ) _controller.code.onpageload(outcome);
 				
                 _controller.refresh(); 
             });
         }
     }
-	
 	function buildParamFromStr( str ) {
 		var vars = {}, hash;
 		var hashes = str.split('&');
@@ -831,7 +896,6 @@ function Controller( code, pages ) {
 		}
 		return vars;
 	}
-
     this.validate = function( selector ) {
         var errs = [];
 		var errElems = [];
@@ -860,7 +924,6 @@ function Controller( code, pages ) {
             throw new Error( errs.join("\n") );
         }
     }
-
     this.load = function() {
         if( this.loadAction!=null ) {
             var result = this.invoke( null, this.loadAction );
@@ -872,7 +935,6 @@ function Controller( code, pages ) {
             this.navigate( this.currentPage || "default" );
         }
     }
-	
 	this.focus = function(name) {
 		var func = function() { $('[name="'+name+'"]').focus(); }
 		setTimeout( func, 1 ); 
@@ -884,18 +946,26 @@ var ContextManager = new function() {
     this.data = {}
     
     this.create = function( name, code, pages ) {
-        if(name==null)
-            throw new Error("Please indicate a name");
-        var c = new Controller( code, pages );
-        if(code.onload!=null) {
+        if (name==null) throw new Error("Please indicate a name");
+
+        var codesource = code;
+        if (code['classname']=='proxyclass') { 
+        	var callback = code['source']; 
+        	if ((typeof callback)=='function') callback = callback(); 
+        	if (callback) codesource = callback; 
+        } 
+
+        var c = new Controller( codesource, pages );
+        if(codesource.onload!=null) {
             BindingUtils.loaders.push( function() {
-				var result = code.onload(); 
+				var result = codesource.onload(); 
 				if( typeof result == 'string' )
 					c.currentPage = result;
 			});
         }
-		code._controller = c;
-		code.close = function(){ code._controller.navigate("_close"); };
+		codesource._controller = c;
+		codesource.close = function() { codesource._controller.navigate("_close"); }
+		codesource.exit = function() { codesource._controller.navigate("_exit"); }
 		c.name = name;
         this.data[name] = c;
         return c;
@@ -912,9 +982,8 @@ var ContextManager = new function() {
 // configure input controls
 //******************************************************************************************************************
 BindingUtils.handlers.input_text = function(elem, controller, idx ) {
-	BindingUtils.initInput(elem, controller, function(elem,controller) 
-	{
-		var input = $(elem);
+	BindingUtils.initInput(elem, controller, function(elem,controller) {
+		var input = (elem['selector']? elem: $(elem));
 		var suggExpr = R.attr(input, 'suggestExpression');
 		var suggTpl = R.attr(input, 'suggestTemplate');
 		var suggPreview = R.attr(input, 'suggestPreview');
@@ -922,6 +991,10 @@ BindingUtils.handlers.input_text = function(elem, controller, idx ) {
 		var suggName = R.attr(input, 'suggestName');
 		if( R.attr(input, 'selectedItem') ) suggName = R.attr(input, 'selectedItem');
 		
+	    input.removeClass('depends'); 
+	    var depends = R.attr(input, 'depends'); 
+	    if (depends) input.addClass('depends'); 
+
 		if( R.attr(input, 'suggest') && input.autocomplete ) {
 			var src = controller.get(R.attr(input, 'suggest'));
 			if( typeof src ==  'function' ) {
@@ -932,8 +1005,22 @@ BindingUtils.handlers.input_text = function(elem, controller, idx ) {
 				}
 			}
 			input.autocomplete({ source: src, focus: suggestFocus, select: suggestSelect, change: suggestChange });
-			input.data('autocomplete')._renderItem = suggestItemRenderer;
-		}
+			var autocomplete = input.data('autocomplete'); 
+			if (!autocomplete) autocomplete = input.data('ui-autocomplete'); 
+			if (autocomplete) autocomplete._renderItem = suggestItemRenderer;
+
+		} else if(R.attr(input, 'control') == 'actionfield') {
+			input.removeClass('actionfield').addClass('actionfield'); 
+			input.wrap('<span class="actionfield-wrapper"/>'); 
+			var wrapper = input.parent();
+			wrapper.append('<span class="button-icon button-icon-actionfield"/>'); 
+
+		} else if(R.attr(input, 'control') == 'lookup') {
+			input.removeClass('actionfield lookupfield').addClass('actionfield lookupfield'); 
+			input.wrap('<span class="actionfield-wrapper"/>'); 
+			var wrapper = input.parent();
+			wrapper.append('<span class="button-icon button-icon-actionfield"/>'); 
+		} 
 		
 		//helper functions
 		function suggestItemRenderer(ul, item) {
@@ -949,7 +1036,7 @@ BindingUtils.handlers.input_text = function(elem, controller, idx ) {
 				html = '<a>'+item+'</a>';
 			}
 			
-			return $( "<li></li>" )
+			return $( "<li class='suggest-item'></li>" )
 				.data( "item.autocomplete", item )
 				.append( html )
 				.appendTo( ul );
@@ -991,29 +1078,38 @@ BindingUtils.handlers.input_text = function(elem, controller, idx ) {
 			input.trigger('change');
 		}
 	});
+
+	var input = (elem['selector']? elem: $(elem));
+	if (input.hasClass('lookupfield')) {
+
+	}
 };
 
 BindingUtils.handlers.input_password = function(elem, controller, idx ) { BindingUtils.initInput(elem, controller ); };
 BindingUtils.handlers.textarea = function(elem, controller, idx ) { BindingUtils.initInput(elem, controller); };
 BindingUtils.handlers.select = function(elem, controller, idx ) {
+	var $e = (elem['selected']? elem: $(elem)); 		
 	var i = 0;
-	var name = R.attr(elem, 'name');
-	var items = R.attr(elem, 'items');
-	var selectedItem = R.attr(elem, 'selectedItem');
+	var name = R.attr($e, 'name');
 	var selected = controller.get( name );
+	var selectedItem = R.attr($e, 'selectedItem');
+	var items = R.attr($e, 'items');
+	if( items ) $e.empty();
+
+    $e.removeClass('depends'); 
+    var depends = R.attr($e, 'depends'); 
+    if (depends) $e.addClass('depends'); 
 	
-	if( items ) $(elem).empty();
-	
-	if(R.attr($(elem), "allowNull")=="true") {
-		var txt = R.attr($(elem), "emptyText");
+	if( R.attr($e, "allowNull")=="true") {
+		var txt = R.attr($e, "emptyText");
 		if(txt==null) txt = "-";
 		elem.options[0] = new Option(txt,"");
 		i = 1;
 	}
 	
 	if( items!=null && items!='') {
-		var itemKey = R.attr($(elem), "itemKey");
-		var itemLabel = R.attr($(elem), "itemLabel");
+		var itemKey = R.attr($e, "itemKey");
+		var itemLabel = R.attr($e, "itemLabel");
 		var arr = controller.get(items);
 		$(arr).each( function(idx,value) {
 			var _key = value;
@@ -1035,8 +1131,8 @@ BindingUtils.handlers.select = function(elem, controller, idx ) {
 		});
 	}
 
-	if( !$(elem).data('_binded') ) {
-		$(elem).change(function(){
+	if( !$e.data('_binded') ) {
+		$e.change(function(){
 			var op = this.options[this.selectedIndex];
 			var objval = $(op).data('value');
 			if( name )
@@ -1049,24 +1145,29 @@ BindingUtils.handlers.select = function(elem, controller, idx ) {
 		.data('_binded', true);
 		
 		//fire change after bind to set default value
-		$(elem).change();
+		$e.change();
 	}
 }
 
 BindingUtils.handlers.input_radio = function(elem, controller, idx ) {
-	var name = R.attr(elem, 'name');
+	var $e = (elem['selector']? elem: $(elem)); 
+	var name = R.attr($e, 'name');
 	var c = controller.get(name);
+
+    $e.removeClass('depends'); 
+    var depends = R.attr($e, 'depends'); 
+    if (depends) $e.addClass('depends'); 
 
 	//set the name of all input type="radio" having the same r:name value
 	//so that it will be group by name
-	$(elem).attr('name', name);
+	$e.attr('name', name);
 	
 	var value = elem.value;
 	var checked = (c==value) ? true :  false;
 	if( checked )
-		$(elem).attr('checked', 'checked');
+		$e.attr('checked', 'checked');
 	else
-		$(elem).removeAttr('checked');
+		$e.removeAttr('checked');
 
 	elem.onchange = function () {
 		if( this.checked ) {
@@ -1076,32 +1177,35 @@ BindingUtils.handlers.input_radio = function(elem, controller, idx ) {
 }
 
 BindingUtils.handlers.input_checkbox = function(elem, controller, idx ) {
-	if( $(elem).data('__ui_binded') ) return;
-	$(elem).data('__ui_binded', true); //just bind once
+	var $e = (elem['selector']? elem: $(elem)); 
+	if( $e.data('__ui_binded') ) return;
+	$e.data('__ui_binded', true); //just bind once
 	
-	var name = R.attr(elem, 'name');
+    $e.removeClass('depends'); 
+    var depends = R.attr($e, 'depends'); 
+    if (depends) $e.addClass('depends'); 
+
+	var name = R.attr($e, 'name');
 	var c = controller.get(name);
-	if( R.attr($(elem), "mode") == "set" ) {
+	if( R.attr($e, "mode") == "set" ) {
 		try {
-			var checkedValue = R.attr($(elem), "checkedValue");
+			var checkedValue = R.attr($e, "checkedValue");
 			if( checkedValue ) {
 				if( c.find( function(o) { return (o==checkedValue ) } ) !=null) {
 					elem.checked = true;
-				}
-				else {
+				} else {
 					elem.checked = false;
 				}
 			}
 			else {
-				var uncheckedValue = R.attr($(elem), "uncheckedValue");
+				var uncheckedValue = R.attr($e, "uncheckedValue");
 				if( c.find( function(o) { return (o==uncheckedValue ) } ) !=null) {
 					elem.checked = false;
-				}
-				else {
+				} else {
 					elem.checked = true;
 				}
 			}
-			$(elem).bind('change', function () {
+			$e.bind('change', function () {
 				var _list = $get(controller.name).get(name);
 				var v = R.attr($(this),  "checkedValue" );
 				if(v) {
@@ -1128,15 +1232,14 @@ BindingUtils.handlers.input_checkbox = function(elem, controller, idx ) {
 	}
 	else {
 		var isChecked = false;
-		var checkedValue = R.attr($(elem), "checkedValue");
+		var checkedValue = R.attr($e, "checkedValue");
 		if( checkedValue !=null && checkedValue == c ) {
 			isChecked = true;
-		}
-		else if( c == true || c == "true" ) {
+		} else if( c == true || c == "true" ) {
 			isChecked = true;
 		}
 		elem.checked = isChecked;
-		$(elem).bind('change', function () {
+		$e.bind('change', function () {
 			var v = (R.attr($(this),  "checkedValue" )==null) ? true : R.attr($(this),  "checkedValue" );
 			var uv = (R.attr($(this),  "uncheckedValue" )==null) ? false : R.attr($(this),  "uncheckedValue" );
 			$get(controller.name).set(name, (this.checked) ? v : uv );
@@ -1148,6 +1251,11 @@ BindingUtils.handlers.input_button = function( elem, controller, idx ) {
     var action = R.attr(elem, "name");
     if(action==null || action == '') return;
 	
+	var $e = (elem['selector']? elem: $(elem));
+    $e.removeClass('depends'); 
+    var depends = R.attr($e, 'depends'); 
+    if (depends) $e.addClass('depends'); 
+
     elem.onclick = function() { 
 		$get(controller.name).invoke( this, action ); 
 		return false;
@@ -1155,9 +1263,14 @@ BindingUtils.handlers.input_button = function( elem, controller, idx ) {
 };
 
 BindingUtils.handlers.a = function( elem, controller, idx ) {
-	var $e = $(elem);
+	var $e = (elem['selector']? elem: $(elem));
     var action = R.attr($e, "name");
-    
+	
+    $e.removeClass('depends'); 
+    var depends = R.attr($e, 'depends'); 
+    if (depends) $e.addClass('depends'); 
+
+
     //add an href property if not specified,
     //css hover does not apply when no href is specified
     if( !$e.attr('href') ) $e.attr('href', '#');
@@ -1177,66 +1290,43 @@ BindingUtils.handlers.a = function( elem, controller, idx ) {
 
 BindingUtils.handlers.button = function( elem, controller, idx ) {
 	var $e = $(elem);
-    var action = R.attr($e, "name");
-	if ( action ) {
-		if ( !$e.hasClass('rui-button') ) 
-		{ 
+	var styles = '';
+    try {
+    	var iconsize = parseInt($e.attr('iconsize')); 
+    	if (iconsize) styles = 'padding-left:'+iconsize+'px;';
+    } catch(e) {;}
+
+    $e.removeClass('depends'); 
+    var depends = R.attr($e, 'depends'); 
+    if (depends) $e.addClass('depends'); 
+
+    var action = R.attr($e, 'name');
+    var iconurl  = $e.attr('iconurl'); 
+    var iconname = $e.attr('icon');    
+    var iconhtml = null;
+    if ($e.attr('noicon')=='true') {
+    	iconhtml = ' ';
+    } else if (iconurl) {
+    	iconhtml = '<span class="button-icon button-icon" style="background:url('+iconurl+') no-repeat;'+styles+'"/>'; 
+    } else if (iconname) {
+    	iconhtml = '<span class="button-icon button-icon-'+iconname+'" style="'+styles+'"/>';
+    } else if (action) {
+    	iconhtml = '<span class="button-icon button-icon-'+action+'" style="'+styles+'"/>'; 
+    } 
+
+	if (iconhtml) {
+		if ( !$e.hasClass('rui-button') ) { 
 			$e.removeClass('rui-button-icononly'); 		
 			$e.addClass('rui-button'); 
 		} 
 		
-		if (!$e.children('.rui-button-content-wrapper')[0]) 
-		{	/*
-			var output_html = '';
-			var icon = $e.attr('icon');
-			if (icon) output_html = '<span class="rui-button-icon '+icon+'"/>'; 
-			
-			var icononly = false; 
-			var text_html = $e.html(); 
-			if (text_html.trim().length > 0) 
-			{
-				if (icon) output_html = output_html+'<span class="rui-button-icon-separator"/>';
-				
-				output_html = output_html+'<span class="rui-button-content">'+text_html+'</span>';
-			} 
-			else { 
-				icononly = true; 
-			} 
-			
-			$e.html('<span class="rui-button-content-wrapper">'+output_html+'</span>'); 
-			
-			if (icononly == true) { 
-				var btnicon_e = $e.find('.rui-button-icon')[0]; 
-				if (btnicon_e) $(btnicon_e).addClass('rui-button-icononly'); 
-			}
-			*/
-			
-			var output_html = '';
-			var icon = $e.attr('icon');
-			if (icon) output_html = '<span class="rui-button-icon '+icon+'"/>'; 
-			
-			var text_html = $e.html(); 
-			if (text_html.trim().length > 0) 
-			{
-				output_html = output_html+'<span class="rui-button-icon-separator iconleftseparator"/>';
-				output_html = output_html+'<span class="rui-button-content">'+text_html+'</span>';
-				output_html = output_html+'<span class="rui-button-icon-separator iconrightseparator"/>';
-			} 
-			
-			var icon2 = $e.attr('icon2');
-			if (icon2) output_html = '<span class="rui-button-icon '+icon2+'"/>'; 
-			
-			$e.html('<span class="rui-button-content-wrapper">'+output_html+'</span>'); 
-			if (!icon) 
-			{
-				var sep_e = $e.find('.iconleftseparator')[0];
-				if (sep_e) $(sep_e).remove(); 
-			} 	
-			if (!icon2) 
-			{
-				var sep_e = $e.find('.iconrightseparator')[0];
-				if (sep_e) $(sep_e).remove(); 
-			} 	
+		if (!$e.children('.button-identifier')[0]) {
+			var newhtml = '<span class="button-identifier" style="padding:0;margin:0;border:0;"/>';
+			newhtml = newhtml + iconhtml;
+			newhtml = newhtml + '<span class="button-icon-gap"/>';
+
+			var oldhtml = $e.html();
+			$e.html(newhtml + oldhtml);
 		} 
 	} 
 	
@@ -1254,9 +1344,13 @@ BindingUtils.handlers.button = function( elem, controller, idx ) {
 };
 
 BindingUtils.handlers.input_image = function( elem, controller, idx ) {
-	var $e = $(elem);
+	var $e = (elem['selector']? elem: $(elem));
     var action = R.attr($e, "name");
     
+    $e.removeClass('depends'); 
+    var depends = R.attr($e, 'depends'); 
+    if (depends) $e.addClass('depends'); 
+
     elem.onclick = function() { 
 		if( action ) {
 			try {
@@ -1273,6 +1367,12 @@ BindingUtils.handlers.input_image = function( elem, controller, idx ) {
 BindingUtils.handlers.input_submit = function( elem, controller, idx ) {
     var action = R.attr(elem, "name");
     if(action==null || action == '') return;
+
+    var $e = (elem['selector']? elem: $(elem));
+    $e.removeClass('depends'); 
+    var depends = R.attr($e, 'depends'); 
+    if (depends) $e.addClass('depends'); 
+
     elem.onclick = function() { 
 		$get(controller.name).invoke( this, action );  
 		return false;
@@ -1293,8 +1393,13 @@ BindingUtils.handlers.input_submit = function( elem, controller, idx ) {
 	
 	function renderer(elem, controller, idx)
 	{
-		var lbl = $(elem);
-		
+		var $e = (elem['selector']? elem: $(elem));
+		var lbl = $e;
+			    
+	    $e.removeClass('depends'); 
+	    var depends = R.attr($e, 'depends'); 
+	    if (depends) $e.addClass('depends'); 
+
 		if( R.attr(lbl, 'name') ) {
 			var v = controller.get(R.attr(lbl, 'name'));
 			lbl.html( v? v : '' );
@@ -1317,26 +1422,51 @@ BindingUtils.handlers.input_submit = function( elem, controller, idx ) {
 
 
 BindingUtils.handlers.div = function( elem, controller, idx ){ 
-	var div = $(elem);	
+	var div = $(elem);		
+	div.removeClass('depends');
+	var depends = R.attr(div, 'depends'); 
+    if (depends) div.addClass('depends'); 	
+
 	var ctx = $ctx(controller.name);
-	var panelName = R.attr(div, "name");
-	if(panelName!=null) {
-		
+	var panelName = R.attr(div, 'name');
+	if( panelName != null ) {
 		var o = controller.get( R.attr(div, 'name') );
+		if (typeof o == 'function') o=o();
+		if (!o) return;
+
+		$(div).removeClass('rui-controller').addClass('rui-controller');
 		var parms = WindowUtil.getAllParameters();
 		if( typeof o == "string" ) {
 			div.load( o, parms );
-		}
-		else if( o.classname == "opener" ) {
-			if(o.params) {
+		} else if( o['classname'] == "opener" ) {
+			if( o.params ) {
 				for( var n in o.params ) {
 					parms[n] = o.params[n];
 				}
-			}
-			div.load( o.page, parms );			
+			} 
+			div.load( o.page, parms, function(result, statustext, xml){ 
+				initContainer(o, controller.code); 
+			}); 
 		}
-	}	
-};
+	}
+
+	function initContainer(opener, caller) {
+		if (!opener) return;
+		if (!opener.context) return;
+		if (!opener.params) return;
+
+		var controller = $get(opener.context);
+		var codebean = (controller? controller.code: null); 
+		if (codebean) {
+			codebean['_caller']=caller; 
+			var params = opener.params;
+			for( var key in params ) {
+				try{ codebean[key] = params[key]; }catch(e){;}
+			} 
+			BindingUtils.load(div); 
+		} 
+	} 
+}; 
 
 
 /**----------------------------------*
@@ -1596,7 +1726,7 @@ BindingUtils.handlers.input_file = function( elem, controller, idx ) {
  * @author jaycverg
  *-----------------------------------*/
 BindingUtils.handlers.table = function( elem, controller, idx, force ) {
-	var tbl = $(elem);
+	var tbl = (elem['selector']? elem: $(elem));
 	
 	//if already has a model, just refresh the model
 	if( tbl.data('_has_model') ) {
@@ -1605,17 +1735,21 @@ BindingUtils.handlers.table = function( elem, controller, idx, force ) {
 		return;
 	}
 
+    tbl.removeClass('depends'); 
+    var depends = R.attr(tbl, 'depends'); 
+    if (depends) tbl.addClass('depends'); 
+
 	new DataTable( tbl, $ctx(controller.name), controller );
 };
 
 /*------ DataTable class ---------*/
 function DataTable( table, bean, controller ) {
-	var model = new DefaultTableModel( table );
-
+	var context 	= R.attr(table, 'context');
 	var multiselect = R.attr(table, 'multiselect') == 'true';
-	var varStat =     R.attr(table, 'varStatus');
-	var varName =     R.attr(table, 'varName');
-	var name =        R.attr(table, 'name');
+	var varStat 	= R.attr(table, 'varStatus');
+	var varName 	= R.attr(table, 'varName');
+	var name 		= R.attr(table, 'name');
+	var model = new DefaultTableModel({ table:table, multiselect:multiselect });
 
 	if( R.attr(table, 'items') ) {
 		model.setList( controller.get(R.attr(table, 'items')) );
@@ -1633,12 +1767,75 @@ function DataTable( table, bean, controller ) {
 		model.select( selected );
 	}
 
+	var setComponentCallback = bean['setComponent'];
+	if ((typeof setComponentCallback)=='function') {
+		setComponentCallback(table); 
+	} 
+
+	if (R.attr(table, 'buildColumns') == 'true') {
+		var thead = table.children('thead');
+		if (thead[0]) {
+			thead.html(''); 
+		} else {
+			thead = $('<thead></thead>');
+			table.prepend(thead);
+		}
+
+		var columns = [];
+		var columnCallback = bean['getColumns'];
+		if (columnCallback) {
+			if ((typeof columnCallback)=='function') {
+				columns = columnCallback(); 
+			} else { 
+				columns = columnCallback;
+			} 
+			if (!columns) columns = [];
+		}
+
+		if (columns.length > 0) { 
+			var itemActions = bean['itemActions'];
+			if ((typeof itemActions)=='function') itemActions=itemActions();
+			if ((typeof itemActions)=='object') {
+				//do nothing, assumes value is an array 
+			} else { 
+				itemActions = []; 
+			} 
+
+			var trow = $('<tr></tr>');
+			if (itemActions.length > 0) {
+				trow.html('<td style="width:30px;">&nbsp;</td>'); 
+			} 
+			createColumns(trow, columns);
+			trow.appendTo(thead); 
+
+			var tbody = table.children('tbody');
+			if (tbody[0]) {
+				tbody.html(''); 
+			} else {
+				tbody = $('<tbody></tbody>');
+				table.append(tbody);
+			}
+
+			trow = $('<tr></tr>');
+			if (itemActions.length > 0) {
+				var tda = $('<td style="white-space:nowrap;"/>'); 
+				for (var i=0; i<itemActions.length; i++) {
+					var ia = itemActions[i];
+					tda.append('<a r:context="'+context+'" r:name="'+ia['action']+'">'+ia['caption']+'</a>');
+				}
+				tda.appendTo(trow); 
+			}
+			createRowTemplate(trow, columns);
+			trow.appendTo(tbody); 
+		} 
+	}
+
+
 	var status = {prevItem: null, nextItem: null};
 	var tbody = $(table.find('tbody')[0]);
 
 	var tpl = table.data('template');
 	if( !tpl ) {
-		//tpl = tbody.find('tr').remove().clone(true);
 		tpl = tbody.children('tr').remove().clone(true);
 		table.data('template', tpl);
 	}
@@ -1651,6 +1848,58 @@ function DataTable( table, bean, controller ) {
 	
 	//load the model
 	model.load();
+
+	function createColumns(trow, columns) {
+		for (var i=0; i<columns.length; i++) { 
+			var col = columns[i];
+			var colalign = (col['align']? col['align']: '');
+			var colstyle = '';
+			if (col['width']) { 
+				var str = col['width']+'';
+				str = (str.endsWith('%')? str: str+'px');
+				colstyle += 'width:'+str+';'; 
+			} 
+			if (col['maxWidth']) {
+				var str = col['maxWidth']+'';
+				str = (str.endsWith('%')? str: str+'px');
+				colstyle += 'max-width:'+str+';'; 					
+			} 
+			if (col['minWidth']) {
+				var str = col['minWidth']+'';
+				str = (str.endsWith('%')? str: str+'px');
+				colstyle += 'min-width:'+str+';';
+			}
+			if (col['style']) colstyle += col['style'];
+			var txt = '<td align="'+colalign+'" style="'+colstyle+'">'+col['caption']+'</td>';
+			trow.append($(txt));
+		} 
+	} 
+	function createRowTemplate(trow, columns) {
+		for (var i=0; i<columns.length; i++) { 
+			var col = columns[i];
+			var colalign = (col['align']? col['align']: '');
+			var colstyle = '';
+			if (col['width']) { 
+				var str = col['width']+'';
+				str = (str.endsWith('%')? str: str+'px');
+				colstyle += 'width:'+str+';'; 
+			} 
+			if (col['maxWidth']) {
+				var str = col['maxWidth']+'';
+				str = (str.endsWith('%')? str: str+'px');
+				colstyle += 'max-width:'+str+';'; 					
+			} 
+			if (col['minWidth']) {
+				var str = col['minWidth']+'';
+				str = (str.endsWith('%')? str: str+'px');
+				colstyle += 'min-width:'+str+';';
+			}
+			if (col['style']) colstyle += col['style'];
+			var txt = '<td align="'+colalign+'" style="'+colstyle+'">#{item.'+col['name']+'}</td>';
+			trow.append($(txt));
+		} 
+	} 
+	
 
 	var tabIdx;
 
@@ -1697,15 +1946,19 @@ function DataTable( table, bean, controller ) {
 			if( emptyDiv.length > 0 ) emptyDiv.hide();
 		}
 	}
-	
+
 	function renderItemsAdded( list, type, animate, bindItems ) {
 		animate = (animate!=null)? animate : true;
 		
 		if( model.getSelectedItem() ) {
-			controller.set(name, model.getSelectedItem());
+			controller.set(name, model.getSelectedItem(), table);
 		}
-		var selected = name? controller.get(name) : null;
-		
+
+		var selected = name? controller.get(name): null;
+		var selectedIndex = list.indexOf(selected); 
+		if (selectedIndex < 0) selected = list[0];
+		if (selected) selectedIndex=0;
+
 		var selectedTds = [];
 		var fetchStyle = type? type : R.attr(table, 'fetchStyle');
 
@@ -1732,8 +1985,7 @@ function DataTable( table, bean, controller ) {
 			for( var i=rows.length-1; i>=0; --i ) {
 				tbody.prepend(rows[i]);
 			}
-		}
-		else {
+		} else {
 			rows.each(function(elm){ tbody.append(elm); });
 		}
 
@@ -1756,7 +2008,7 @@ function DataTable( table, bean, controller ) {
 		}
 		
 		if( bindItems ) BindingUtils.bind( rows );
-		
+		if( name ) controller.set(name, selected, table); 
 		return selectedTds;
 	}
 
@@ -1764,10 +2016,11 @@ function DataTable( table, bean, controller ) {
 		var className = (i%2==0)? 'even': 'odd'; 
 	
 		return tpl.clone()
-		 .addClass(className)
+		 .addClass('row')
+		 .addClass(className)		 
 		 .data('index', i)
-		 .each(function(i,e)
-		  {
+		 .each(function(i,e) 
+		 {
 			var tr = $(e);
 			var origTr = $(tpl[i]);
 
@@ -1800,6 +2053,11 @@ function DataTable( table, bean, controller ) {
 					evalAttr(origTd[idx],e,item);
 				});
 			}
+
+			if (td[0] && td.length > 0) {
+				$(td[0]).removeClass('first-col').addClass('first-col'); 
+				$(td[td.length-1]).removeClass('last-col').addClass('last-col'); 
+			} 
 		 }); //-- end of each function
 	}//-- end of createRow function
 
@@ -1856,8 +2114,9 @@ function DataTable( table, bean, controller ) {
 		
 		//if name is specified, update the value
 		if( !forced && name ) {
-			controller.set( name, multiselect? model.getSelectedItems() : model.getSelectedItem() );	
-			
+			var selectedValue = (multiselect? model.getSelectedItems(): model.getSelectedItem());
+			controller.set( name, selectedValue, table );	
+
 			//keep the selected td index to the table element
 			table.data('selected_position', td.data('position'));
 		}
@@ -1911,8 +2170,8 @@ function DataTable( table, bean, controller ) {
 
 
 /*-------- default internal table model ------------------*/
-function DefaultTableModel() {
-
+function DefaultTableModel( options ) {
+	var _options = options;
 	var _this = this;
 	var _list;
 	var _dataModel;
@@ -1930,16 +2189,19 @@ function DefaultTableModel() {
 	this.onRefresh;
 	this.onAddItems;
 
-	
 	this.select = function(idx) {
-		if( typeof idx == 'object' ) {
+		if (_options.multiselect == false) {
+			_selectedItems.clear(); 
+		}
+
+		if (typeof idx == 'object') {
 			_selectedItems.push( idx );
-		}
-		else if( typeof idx == 'number' ) 
-		{
-			if( idx >=0 && idx < _list.length )
-				_selectedItems.push( _list[idx] );
-		}
+
+		} else if (typeof idx == 'number') {
+			if (idx >=0 && idx < _list.length) { 
+				_selectedItems.push( _list[idx] ); 
+			} 
+		} 
 	};
 
 	this.unselect = function(idx) {
@@ -1976,10 +2238,14 @@ function DefaultTableModel() {
 	this.getDataModel = function() { return _dataModel; };
 
 	this.setList = function( list ) {
+		if (typeof list == 'function') list=list();
+		if (_options.multiselect == false) _selectedItems.clear(); 
+
+		_list = list || [];
+
 		var selected = this.getSelectedItem();
 		var oldidx = selected && _list ? _list.indexOf( selected ) : -1;
 		
-		_list = list || [];
 		_selectedItems = [];
 		
 		if( _listParam ) {
@@ -2019,6 +2285,13 @@ function DefaultTableModel() {
 	this.setUseCached = function( useCached ) {
 		_isUseCached = useCached;
 	};
+
+	this.getColumns = function() {
+		if (_dataModel && _dataModel['getColumns']) {
+			return _dataModel.getColumns();
+		}
+		return null; 
+	}
 	
 	this.refresh = doRefresh;
 
@@ -2035,7 +2308,11 @@ function DefaultTableModel() {
 				{
 					try 
 					{
-						var fetchParam = _listParam || {};
+						var fetchParam = _listParam || {}; 
+						$.each(_dataModel.query || {}, function(k,v){
+							fetchParam[k] = v; 
+						}); 
+
 						var result = _dataModel.fetchList( fetchParam );
 						_this.setList( result );
 					}
@@ -2194,20 +2471,22 @@ function DefaultTableModel() {
 		_listParam = null;
 
 		//inject handlers to the map table model from the codebean
-		_dataModel.setList = _this.setList;
-		_dataModel.getList = _this.getList;
-		_dataModel.isEmpty = _this.isEmpty;
-		_dataModel.load = _this.load;
+		_dataModel.setList 	= _this.setList;
+		_dataModel.getList 	= _this.getList;
+		_dataModel.isEmpty 	= _this.isEmpty;
+		_dataModel.load 	= _this.load;
+		_dataModel.search 	= _this.load;
 		_dataModel.fetchNext = fetchNext;
-		_dataModel.refresh = doRefresh;
+		_dataModel.refresh 	= doRefresh;
 		_dataModel.moveFirst = moveFirst;
 		_dataModel.moveNext = moveNext;
-		_dataModel.movePrev = movePrev;
+		_dataModel.movePrev   = movePrev;
 		_dataModel.appendItem = appendItem;
-		_dataModel.appendAll = appendAll;
+		_dataModel.appendAll  = appendAll;
 		_dataModel.prependItem = prependItem;
 		_dataModel.prependAll = prependAll;
 		_dataModel.hasMore = function() { return !_isLast; };
+		_dataModel.reload = function() { doRefresh(true); }
 
 		_dataModel.getSelectedItem = function() {
 			var len = _selectedItems.length;
@@ -2225,8 +2504,10 @@ function DefaultTableModel() {
 			_listParam = {};
 			_listParam._limit = rows+1;
 			_listParam._start = 0;
-		}
-	}
+		} 
+
+		if (!_dataModel.query) _dataModel.query = {}; 		
+	} 
 
 }
 // end of DefaultTableModel class
@@ -2243,9 +2524,14 @@ function DefaultTableModel() {
 	
 	//shared renderer
 	function renderer( elem, controller, idx ) {
-		var $e = $(elem);
+		var $e = (elem['selector']? elem: $(elem));
+		$e.removeClass('xlist').addClass('xlist'); 
 		if( !R.attr($e, 'items') ) return;
 		
+	    $e.removeClass('depends'); 
+	    var depends = R.attr($e, 'depends'); 
+	    if (depends) $e.addClass('depends'); 
+
 		var tpl = $e.data('___template');
 		if( !tpl && !$e.data('___binded') ) {
 			tpl = $e.html();
@@ -2254,7 +2540,8 @@ function DefaultTableModel() {
 		}
 
 		var selected;
-		if( R.attr($e, 'name') ) selected = controller.get( R.attr($e, 'name') );
+		var name = R.attr($e, 'name');
+		if( name ) selected = controller.get(name);
 		
 		var varName = R.attr($e, 'varName');
 		var varStat = R.attr($e, 'varStatus');
@@ -2262,15 +2549,17 @@ function DefaultTableModel() {
 		
 		$e.empty();
 		$(controller.get(R.attr($e, 'items'))).each(function(i,o){
+			if (!selected) selected=o;
+
 			var li;
 			if( tpl ) {
 				var html = unescape(tpl);
 				li = $( (html+'').evaluate( createEvalCtx(o) ) );
-			}
-			else {
+			} else {
 				li = $( '<li>' + o + '</li>' );
 			}
-			
+			li.removeClass('odd even');
+			li.addClass(i%2==0? 'even': 'odd'); 
 			if( o == selected ) li.addClass('selected');
 			
 			li.data('value', o);
@@ -2279,17 +2568,16 @@ function DefaultTableModel() {
 			status.index++;
 		});
 		
-		if( R.attr($e, 'name') ) {
+		if( name ) {
+			controller.set(name, selected, $e); 
 			$e.find('li').mousedown(function(){
-				controller.set(R.attr($e, 'name'), $(this).data('value'));
+				controller.set(name, $(this).data('value'), $e);
 				$e.find('li').removeClass('selected');
 				$(this).addClass('selected');
 			});
 		}
 		
-		if( tpl ) {
-			BindingUtils.bind( null, $e );
-		}
+		if( tpl ) BindingUtils.bind( null, $e );
 		
 		//helper function
 		function createEvalCtx( item ) {
@@ -2353,31 +2641,14 @@ var WindowUtil = new function() {
 
 	this.reload = function(args, hash) {
 		var qry = "";
-		
-		var _params = null;
-		
-		if( hash!=null ) {
-			qry += "#" + hash;
-		}
-		else {
-			qry = window.location.hash;
-			var arr = qry.split("?");
-			qry = arr[0];
-			if(arr.length>1) _params = this.parseParameters( arr[1] );
-		}
 		if(args!=null ) {
-			if(_params!=null) {
-				for(var k in args ) {
-					_params[k] = args[k];	
-				}
-			}
-			else {
-				_params = args;
-			}
-			qry += "?" + this.stringifyParams( _params );
+			qry = "?" + this.stringifyParams( args );
+		}
+		if( hash!=null ) {
+			qry = qry + "#" + hash;
 		}
 		if(qry.startsWith("#")) 
-			window.location.hash = qry;
+			window.location = qry;
 		else	
 			window.location.search = qry;
 	}
@@ -2487,7 +2758,6 @@ $(function(){
 	//var ajxStat = new AjaxStatus('Processing ...');
 	//$(document).ajaxStart( ajxStat.show ).ajaxStop( ajxStat.hide );
 });
-
 var Registry = new function() {
 
     this.invokers = [];
@@ -2495,19 +2765,16 @@ var Registry = new function() {
 
 	this.add = function( o ) {
 		this.invokers.push( o );
-		if(o.id) index[o.id] = o;	
-	}
-	
+		if (o.id) index[o.id] = o; 
+		return o;
+	}	
 	this.lookup = function( typename ) {
 		return this.invokers.findAll(  function(o) {  return o.type == typename }  );
 	}	
-	
 	this.find = function(id) {
 		return index[id];
 	}
-	
 };
-
 var Hash = new function() {
 
 	var self = this;
@@ -2515,26 +2782,49 @@ var Hash = new function() {
 	
 	this.handlers = {}
 	
-	this.init = function(defaultHash) {
+	this.init = function(defaultHash, containerId) {
 		$(window).bind( "hashchange", function() {
 			self.loadContent();
 		});
-		if( window.location.hash ) {
+		if ( window.location.hash ) {
 			self.loadContent();
-		}
-                else if(defaultHash) {
-                    window.location.hash = defaultHash;
-                }    
-	}
-	
+		} else if(defaultHash) {
+            window.location.hash = defaultHash;
+        } 
+
+        if (containerId != null) {
+        	var menucontainer = $('#'+containerId);
+        	var menuactions = menucontainer.find('tr td.menuitem > a');
+        	var menuitems = menuactions.parent(); 
+        	menuitems.removeClass('menuitem-selected').removeClass('menuitem-unselected');
+        	menuitems.addClass('menuitem-unselected');        	
+    		menuactions.click(function(event){
+    			var $e = $(this);
+    			if ($e.attr('href') == '#') return; 
+
+    			event.preventDefault();
+    			window.location.href = $e[0].href;
+    			if ($e[0].href == window.location.href) {
+	    			var $p = $e.closest('.hashmenu');
+	    			$p.find('tr td.menuitem-selected').removeClass('menuitem-selected').addClass('menuitem-unselected'); 
+	    			$e.parent().removeClass('menuitem-unselected').addClass('menuitem-selected'); 
+    			} 
+    		});
+
+    		if (window.location.hash) {
+    			var hashid = window.location.hash;
+    			var parent = menucontainer.find('td.menuitem a[href='+hashid+']').parent(); 
+    			if (parent[0]) parent.removeClass('menuitem-unselected').addClass('menuitem-selected');
+    		}
+        }
+	} 	
 	this.navigate = function( id, params ) {
 		var hash = id;
 		if(params!=null) {
 			hash = hash + "?" + WindowUtil.stringifyParams( params );
 		}
 		window.location.hash = hash;
-	}
-	
+	} 	
 	this.reload = function( params ) {
 		var hash = window.location.hash.substring(1);
 		var hashparam;
@@ -2555,8 +2845,6 @@ var Hash = new function() {
 		else
 			window.location.hash = hash;
 	}
-	
-	
 	this.loadContent = function() {
 		var hash = window.location.hash.substring(1);
 		var params = null;
@@ -2567,8 +2855,12 @@ var Hash = new function() {
 		}
 		if(hash=="") return;
 		var inv = Registry.find(hash);
-		if(inv==null)
-			throw new Error("hash " + hash + " is not registered" );
+		if (inv == null) {
+			//throw new Error("hash " + hash + " is not registered" );
+			if (window.console) window.console.log("hash " + hash + " is not registered");
+			return;
+		}
+			
 		if( !inv.page) return;	
 
 		//store all params in query parameters to be sent to the server
@@ -2637,19 +2929,20 @@ var Hash = new function() {
 //basic Opener
 
 function Opener(id, params) {
-	this.classname = "opener";
 	this.id = id;
-	this.params = params;
+	this.params = params;	
+	this.classname = "opener";
+	this.context; 
 	if( id.indexOf(".")>0) {
 		this.page = id;
-	}
-	else {
+	} else {
 		var inv = Registry.find(id);
 		this.page = inv.page;
-	}
-}
+		this.context = inv.context; 
+	} 
+} 
 
-
+var __local_settings = {zindex:1000}
 /**
  * This is the opener used to open a popup dialog
  * You can set global options using:
@@ -2714,7 +3007,7 @@ function PopupOpener( id, params, options )
 		
 		function createDialog() { 
 			/* attach a close-action button on the upper-right corner, overlapping the jquery's default close-action button */
-			var strCloseAction = '<a class="rui-dialog-close-action" href="#" onclick="return RUI.closeDialog(this);" style="text-decoration:none;"><span class="rui-icon rui-icon-close"/></a>'; 
+			var strCloseAction = '<a class="rui-dialog-close-action" href="#" onclick="return RUI.closeDialog(this);" style="text-decoration:none;"><span class="rui-icon rui-dialog-close-icon"/></a>'; 
 			div.append($(strCloseAction)); 
 
 			try {
@@ -2751,11 +3044,23 @@ function PopupOpener( id, params, options )
 				return (result==false)? false: true; 
 			} 
 			
+			options.buttons = {
+				"Button1": function(){
+					$(this).dialog('close'); 
+				},
+				"Button2": function(){
+					$(this).dialog('close'); 
+				}
+			} 
+
+			options.buttons = null;
             div.dialog(options);
 			BindingUtils.load(div); 
 
 			var uidialog = RUI.decorateDialog(div);				
 			if (uidialog) {
+				__local_settings.zindex += 1;				
+				uidialog.css('z-index', __local_settings.zindex);
 				var user_defined_titlebar = uidialog.find('.rui-dockable-popupopener-titlebar')[0];
 				if (user_defined_titlebar) {
 					var uidialog_titlebar = uidialog.find('.ui-dialog-titlebar')[0]; 
@@ -2771,6 +3076,13 @@ function PopupOpener( id, params, options )
 						if (R.attr(o,'dockTo')) RUI.dockElement(o, div); 
 					} 
 				});
+
+				uidialog.css('padding-bottom', '1px'); 
+				uidialog.find('.ui-dialog-buttonpane').hide();
+				if (options.headless == true) {
+					uidialog.find('.ui-dialog-titlebar').hide(); 
+					uidialog.find('.rui-dialog-close-action').hide(); 
+				} 
 			} 
 		} 
 		
@@ -2853,13 +3165,20 @@ function PopupOpener( id, params, options )
 							try{ $ctx(n)[key] = p[key]; }catch(e){;}
 						}
 					}
-					$ctx(n)._caller = caller.code;
+
+					try { 
+						$ctx(n)._caller = caller.code; 
+					} catch(e) {;} 
+
 					BindingUtils.load( div );
-					$get(n).container = {
-						element: dwindow.getElement(),
-						close:   function() { dwindow.close(); if(caller) caller.refresh() },
-						refresh: function() { $get(n).refresh(); }
-					}
+
+					try { 
+						$get(n).container = {
+							element: dwindow.getElement(),
+							close:   function() { dwindow.close(); if(caller) caller.refresh() },
+							refresh: function() { $get(n).refresh(); }
+						}
+					} catch(e) {;} 
 				}
 			});
 		};
@@ -2869,7 +3188,7 @@ function PopupOpener( id, params, options )
 	function DropdownWindow( elem, options ) {
 
 		var source = $(elem);
-		var div = $('<div class="dropdown-window" style="position: absolute; z-index: 1000; top: 0; left: 0;"></div>');
+		var div = $('<div class="dropdown-window" style="position:absolute; z-index:1000;"></div>');
 		var dynamic = false;
 		
 		if( options.styleClass ) div.addClass( options.styleClass );
@@ -2908,24 +3227,30 @@ function PopupOpener( id, params, options )
 				}
 			}
 			else {
-				div.animate({height: div.data('height')},200);
+				div.slideToggle('fast', function(){}); 				
 				bindWindowEvt();
 				return true;
 			}
 			
 			//-- show helper
 			function initDailog(){
-				div.insertAfter(posConfig.of)
-				 .position( posConfig )
-				 .show();
-				 
-				var h = div[0].offsetHeight;
-				div.data('height',h).css('height',0).animate({height: h},200);
+				__local_settings.zindex += 1;
+				div.css('z-index', __local_settings.zindex);
+				
+				var windows = source.parent().children('.dropdown-window');
+				if (windows[0]) {
+					windows.remove(); 
+				} else {
+					div.insertAfter(posConfig.of);
+					var lx = source.position().left - Math.max(div.width()-source.width(), 0);
+					if (lx > 0) div.css('left', lx+'px'); 
 
-				bindWindowEvt();
-				callback(div);
-				if( options.handleClassOnOpen ) source.addClass(options.handleClassOnOpen);
-				if( options.onShow ) options.onShow( div );
+					div.slideToggle('fast', function(){}); 
+					bindWindowEvt();
+					callback(div);
+					if( options.handleClassOnOpen ) source.addClass(options.handleClassOnOpen);
+					if( options.onShow ) options.onShow( div );
+				}
 			}
 		};
 		
@@ -2934,15 +3259,12 @@ function PopupOpener( id, params, options )
 		this.getSource = function() { return source[0]; }
 		
 		function hide() {
-			div.animate({height: 0}, 200, function() {
-				if( !dynamic ) {
-					var ch = $(this).children().hide().remove();
-					ch.insertAfter(this);
-				}
-				$(this).remove();
+			var windows = source.parent().children('.dropdown-window'); 
+			if (windows[0]) {
+				windows.remove();
 				if( options.handleClassOnOpen ) source.removeClass(options.handleClassOnOpen);
-				if( options.onClose ) options.onClose( this );
-			});
+				if( options.onClose ) options.onClose( this );			
+			}
 			$(document).unbind('mouseup', onWindowClicked);
 		}
 
@@ -2952,9 +3274,7 @@ function PopupOpener( id, params, options )
 
 		function onWindowClicked(evt) {
 			var target = $(evt.target).closest('div.dropdown-window');
-			if( target.length == 0 ) {
-				hide();
-			}
+			if ( target.length == 0 ) hide();
 		}
 
 	}//-- end of DropdownWindow class
@@ -2966,6 +3286,7 @@ function PopupOpener( id, params, options )
 })();
 
 //load binding immediately
+
 $(document).ready (
     function() {
         BindingUtils.load();
@@ -2979,23 +3300,44 @@ function $get( name ) { return ContextManager.get(name); };
 function $put( name, code, pages ) {return ContextManager.create( name, code, pages );};
 function $ctx(name) {return ContextManager.get(name).code;};
 function $load(func) {  BindingUtils.loaders.push(func); };
-function $register( config ) { Registry.add(config); };
+function $register( config ) { return Registry.add(config); };
+
+function $lookup( selector ) { return $(selector); }
 
 //scroller manager
-var Scroller = new function(){
-
+var Scroller = new function(){ 
 	var globalListners = []; //array
 	var localListeners = {}; //map of id(hashid) and listener array pair
-	
+	var handlers = [];
+
+	this.addHandler = function(handler) {
+		if (handler && handlers.indexOf(handler) < 0) {
+			handlers.push(handler); 
+		}
+	}
+	this.removeHandler = function(handler) {
+		if (handler) handlers.remove(handler); 
+	}
+
 	this.init = function() {
 		$(function(){
 			$(window).scroll(function() {
-				if  ($(window).scrollTop() == $(document).height() - $(window).height()){
+				setTimeout(fireScrollChanged, 200);
+				
+				var scrollTop = $(window).scrollTop();				
+				if (scrollTop == $(document).height() - $(window).height()){
 				   Scroller.onScrollToBottom();
 				}
 			});
 		});
 	}
+
+	var fireScrollChanged = function() {
+		for (var i=0; i<handlers.length; i++) {
+			handlers[i](); 
+		} 
+	}
+
 
 	/**
 	 * @param listener
@@ -3186,6 +3528,77 @@ var MsgBox = {
 	} 	
 };
 
+function AlertDialog() {
+	var _self = this; 
+	var _props = {}; 
+	var _options = {};
+
+	this.options = function(name, value) {
+		if (name == null) {
+			return _options; 
+		} else if (value == null) {
+			return _options[name]; 
+		} else {
+			_options[name]=value; 
+			return _self; 
+		}
+	}
+
+	this.element = function(elemid) {
+		if (elemid == null) {
+			return _props.element_id; 
+		} else {
+			_props.element_id = elemid; 
+			return _self; 
+		}
+	}
+
+	this.show = function() {		
+		var div = $('<div></div>').hide().appendTo('body');		
+		var opts = {};
+		$.extend(opts, _options); 
+		opts.resizable = (opts.resizable==true);
+		opts.modal = (opts.modal==true? true: false);
+		opts.close = function() { 
+			div.remove(); 
+		}; 
+
+		if (!opts.title) opts.title='Information';
+		if (!opts.width) opts.width = 'auto';
+		if (!opts.height) opts.height = 'auto'; 
+
+		div.dialog(opts); 
+		BindingUtils.load(div); 
+
+		var parent = div.closest('.ui-dialog')[0]; 			
+		if (parent) {	
+			var uidialog = $(parent); 
+			uidialog.find('.ui-dialog-titlebar-close').hide();
+			uidialog.addClass('rui-theme-font rui-theme-background rui-popupopener rui-alert-dialog'); 
+			
+			var strCloseAction = '<a class="rui-dialog-close-action" href="#" style="text-decoration:none;"><span class="rui-icon rui-dialog-close-icon"/></a>'; 
+			var alink = $(strCloseAction);
+			alink.on('click', function(){
+				div.dialog('close'); 
+				return false; 
+			});
+			uidialog.append(alink); 
+
+			var uide = uidialog.find('.ui-dialog-titlebar')[0]; 
+			if (uide) { 
+				$(uide).addClass('rui-theme-header-background rui-alert-dialog-titlebar'); 
+				if (opts.id) $(uide).attr('id', opts.id + '-titlebar'); 
+			} 
+			
+			uide = uidialog.find('.ui-dialog-content')[0]; 
+			if (uide) { 
+				$(uide).addClass('rui-popupopener-body rui-alert-dialog-body'); 
+				if (opts.id) $(uide).attr('id', opts.id + '-body'); 
+			} 
+		} 
+	}
+}
+
 /**
  * @author	jaycverg <jaycverg@gmail.com>
  * depends	jquery.1.4.+
@@ -3303,9 +3716,10 @@ function $invoke( url, params, callback, type ) {
 		complete: callback
 	});
 }
-
-
 var RUI = { 
+	"find": function(name) {
+		return $(name); 
+	}, 
 	"closeDialog": function(elem) { 
 		var container = $(elem).closest('.ui-dialog-content'); 
 		if (container) container.dialog("close"); 
@@ -3341,7 +3755,6 @@ var RUI = {
 		if (!dockTo) return null; 
 		
 		$e.hide();
-		//$e.addClass('rui-dockable'); 
 		$e.addClass('rui-dockable-container'); 
 		$e.addClass('rui-dockable-'+dockTo); 
 		return $e;
@@ -3377,10 +3790,9 @@ var RUI = {
 			if (!container) return;
 			if (found == true) return; 
 			
-			var $container = $(container); 
-			$container.html(""); 
-			$container.append($e);  
-			$container.show();
+			var docking_container = $(container); 
+			docking_container.html(""); 
+			docking_container.append($e);  
 			$e.show(); 
 			$e.removeAttr('r:dockto'); 
 			$e.removeClass('rui-dockable-container'); 
@@ -3467,3 +3879,472 @@ var RUI = {
 		} 
 	} 	
 };
+
+var Inv = new function() {
+	this.showOpener = function(elem) {
+		var $e = $(elem);
+    	var target = R.attr($e, "target");
+    	var hashid = R.attr($e, "hashid");
+    	if (target && hashid) {
+	    	var opener = null; 
+	    	if (target == 'popup') { 
+	    		opener = new PopupOpener(hashid); 
+	    	} else if (target == 'dropdown') {
+				opener = new DropdownOpener(hashid); 
+	    	} else {
+	    		return; 
+	    	}
+
+	    	var controller = $get("default-controller-impl"); 
+	    	controller.navigate(opener, $e); 
+    	}
+	}
+}
+
+$put("default-controller-impl", new function(){}); 
+
+function CrudController(model) { 
+	var self = this;	
+	var onloadcallback = (model? model['onload']: null); 
+	var defaultActions = [
+		{action:'close', 		caption:'Close', 	icon:'close', 	visibleWhen:"#{mode=='read'}", immediate:true},
+		{action:'create', 		caption:'New', 		icon:'create', 	visibleWhen:"#{mode=='read'}", immediate:true},
+		{action:'edit', 		caption:'Edit', 	icon:'edit', 	visibleWhen:"#{mode=='read'}", immediate:true},
+		{action:'removeEntity', caption:'Delete', 	icon:'delete', 	visibleWhen:"#{mode=='read' && entity.state=='DRAFT'}", immediate:true}, 
+		{action:'approve', 		caption:'Approve', 	icon:'approve', visibleWhen:"#{mode=='read' && entity.state=='DRAFT'}", immediate:true}, 
+
+		{action:'cancelCreate', caption:'Cancel', 	icon:'close', 	visibleWhen:"#{mode=='create'}", immediate:true}, 
+		{action:'saveCreate', 	caption:'Save', 	icon:'save', 	visibleWhen:"#{mode=='create'}"}, 
+		{action:'cancelUpdate', caption:'Cancel', 	icon:'close', 	visibleWhen:"#{mode=='edit'}", immediate:true}, 
+		{action:'saveUpdate', 	caption:'Save', 	icon:'save', 	visibleWhen:"#{mode=='edit'}"} 
+	];
+
+	this.classname = 'proxyclass';
+	this.source = function() {
+		if (!model) return null;
+
+		model['entity'] = {};
+		model['mode'] 	= 'create';
+		model['onload'] = self.onloadImpl;
+		model['create'] = self.create;
+		model['edit'] 	= self.edit;
+		model['removeEntity'] = self.removeEntity;
+		model['approve'] 	  = self.approve;
+		model['cancelCreate'] = self.cancelCreate;
+		model['saveCreate']   = self.saveCreate;
+		model['cancelUpdate'] = self.cancelUpdate;
+		model['saveUpdate']   = self.saveUpdate; 
+		model['oninit_controller']=self.oninit_controller;
+		model['listModelHandler'] = {};		
+		return model;
+	} 
+
+	this.oninit_controller = function(controller) {
+		if (!controller || !model) return;
+
+		var context = controller.name;
+		var $elem = controller.container.element;
+		if (!$elem[0]) return;
+
+		var target = $elem.find('#formActions')[0];
+		if (!target) return;
+
+		var $target = $(target);
+		var formActions = model['formActions'];
+		if ((typeof formActions)=='function') formActions=formActions();
+		if (!formActions) formActions = defaultActions; 
+
+		var extActions = model['extActions'];
+		if ((typeof extActions)=='function') extActions=extActions();
+		if (!extActions) extActions = []; 
+
+		$target.html('');
+		self.buildFormActions(context, formActions, $target); 
+		self.buildFormActions(context, extActions, $target); 
+		BindingUtils.bind(null, $target); 
+	} 
+
+	this.buildFormActions = function(context, actions, target) {
+		for (var i=0; i<actions.length; i++) {
+			var item = actions[i];
+			var attrs = '';
+			$.each(item, function(k,v){
+				if (k=='context') {/*do nothing*/ } 
+				else if (k=='icon') {/*do nothing*/ } 
+				else if (k=='caption') {/*do nothing*/ } 
+				else if (k=='depends') {/*do nothing*/ } 
+				else if (k=='action') attrs += 'r:name="'+v+'" '; 
+				else attrs += 'r:'+k+'="'+v+'" '; 
+			}); 
+			attrs += 'r:depends="selectedItem" '; 
+			if (item['icon']) { 
+				attrs += 'icon="'+item['icon']+'" '; 
+			} else { 
+				attrs += 'noicon="true" '; 
+			} 
+			var str = '<button r:context="'+context+'" '+attrs+'>'+item['caption']+'</button>'; 
+			$(str).appendTo(target); 
+		}  
+	}
+
+	var svc;
+	var tmpentity;
+	this.getService = function() {
+		if (svc) return svc;
+		svc = model['service'];
+		if ((typeof svc)=='function') {
+			svc=svc(); 
+		} 
+		return svc;
+	}
+	this.create = function() {
+		var bean = null;
+		var createEntitycallback = model['createEntity']; 
+		if (typeof createEntitycallback == 'function') bean=createEntitycallback(); 
+		if (!bean) bean = {}; 
+
+		var beforecallback = model['beforeCreate']; 
+		if (typeof beforecallback == 'function') beforecallback(bean); 
+
+		if (!bean['state']) bean.state='DRAFT';  
+		if (!bean['objid']) bean.objid='MF'+"".generateKey();  
+
+		model['mode']='create';
+		model['entity']=bean;
+
+		var aftercallback = model['afterCreate']; 
+		if (typeof aftercallback == 'function') aftercallback(bean); 
+	} 
+	this.removeEntity = function() {
+		try { 
+			if (!confirm("You are about to delete this document. Continue?")) return;
+
+			var data = model['entity'];
+			var beforecallback = model['beforeRemove'];
+			if ((typeof beforecallback)=='function') beforecallback(data);
+
+			var svc = self.getService(); 
+			if (svc) svc.removeEntity(data); 
+
+			var aftercallback = model['afterRemove'];
+			if ((typeof aftercallback)=='function') aftercallback(data);
+
+			var lmh = model['listModelHandler'];
+			if (typeof lmh == 'object') {
+				var lmhcallback = lmh['reload']; 
+				if (typeof lmhcallback == 'function') lmhcallback(); 
+			} 
+
+			return '_close'; 
+		} catch(e) {
+			var errmsg = e['message'];
+			if (!errmsg) errmsg = e;
+			alert("ERROR: " + errmsg); 
+		}	
+	}
+	this.approve = function() { 
+		try { 
+			if (!confirm("You are about to approve this document. Continue?")) return;
+
+			var data = model['entity'];
+			var beforecallback = model['beforeApprove'];
+			if ((typeof beforecallback)=='function') beforecallback(data);
+
+			var svc = self.getService(); 
+			if (svc) svc.approve(data); 
+
+			data['state'] = 'APPROVED'; 
+			var aftercallback = model['afterApprove'];
+			if ((typeof aftercallback)=='function') aftercallback(data);
+
+			var lmh = model['listModelHandler'];
+			if (typeof lmh == 'object') {
+				var lmhcallback = lmh['refresh']; 
+				if (typeof lmhcallback == 'function') lmhcallback(); 
+			}  
+		} catch(e) {
+			var errmsg = e['message'];
+			if (!errmsg) errmsg = e;
+			alert("ERROR: " + errmsg); 
+		}		
+	}
+	this.cancelCreate = function() {
+		return '_close'; 
+	}
+	this.saveCreate = function() { 
+		try {  
+			var oldbean = model['entity']; 
+			var beforecallback = model['beforeSave'];
+			if ((typeof beforecallback)=='function') beforecallback(oldbean, 'create');
+
+			var svc = self.getService();		
+			if (svc) {
+				var newbean = svc.create(oldbean);
+				if (newbean) { 
+					$.each(oldbean, function(k,v){ oldbean[k]=null; });
+					$.each(newbean, function(k,v){ oldbean[k]=newbean[k]; });
+				} 
+			} 
+			model['mode']='read';
+			var aftercallback = model['afterSave'];
+			if ((typeof aftercallback)=='function') { 
+				aftercallback(model['entity'], 'create'); 
+			} 
+
+			var lmh = model['listModelHandler'];
+			if (typeof lmh == 'object') {
+				var lmhcallback = lmh['reload']; 
+				if (typeof lmhcallback == 'function') lmhcallback(); 
+			}  
+		} catch(e) {
+			var errmsg = e['message'];
+			if (!errmsg) errmsg = e;
+			alert("ERROR: " + errmsg); 
+		}
+	}
+	this.edit = function() {
+		model['mode']='edit';
+		tmpentity = {};
+		$.each(model['entity'], function(k,v){ tmpentity[k]=v; }); 
+	}	
+	this.cancelUpdate = function() {
+		model['mode']='read';
+		if (!tmpentity) return;
+		var bean = model['entity'];
+		$.each(tmpentity, function(k,v){ bean[k]=v; }); 
+		tmpentity = {}; 
+	} 
+	this.saveUpdate = function() { 
+		try {  
+			var oldbean = model['entity']; 
+			var beforecallback = model['beforeSave'];
+			if ((typeof beforecallback)=='function') {
+				beforecallback(oldbean, 'update');
+			} 
+			var svc = self.getService();
+			if (svc) {
+				var newbean = svc.update(oldbean);
+				if (newbean) { 
+					$.each(oldbean, function(k,v){ oldbean[k]=null; });
+					$.each(newbean, function(k,v){ oldbean[k]=newbean[k]; });
+				} 
+			} 
+			model['mode']='read';	
+			var aftercallback = model['afterSave'];
+			if ((typeof aftercallback)=='function') { 
+				aftercallback(model['entity'], 'update'); 
+			} 
+
+			var lmh = model['listModelHandler'];
+			if (typeof lmh == 'object') {
+				var lmhcallback = lmh['refresh']; 
+				if (typeof lmhcallback == 'function') lmhcallback(); 
+			} 			
+		} catch(e) {
+			var errmsg = e['message'];
+			if (!errmsg) errmsg = e;
+			alert("ERROR: " + errmsg); 
+		}		
+	} 
+	this.onloadImpl = function() {
+		if (model) { 
+			if (model['mode']=='create') { 
+				var bean = model['entity'];
+				if (typeof bean != 'object') bean={}; 
+				if (!bean['state']) bean.state='DRAFT';  
+				if (!bean['objid']) bean.objid='MF'+"".generateKey();  
+
+				var callback = model['beforeCreate']; 
+				if ((typeof callback)=='function') callback(bean); 
+
+				model['entity']=bean; 
+				callback = model['afterCreate']; 
+				if ((typeof callback)=='function') callback(bean); 
+			} 
+			else if (model['mode']=='read') { 
+				var bean = model['entity'];
+				if (typeof bean != 'object') bean={}; 
+
+				var callback = model['beforeOpen']; 
+				if ((typeof callback)=='function') callback(bean); 
+
+				var svc = model['service'];
+				if (typeof svc == 'function') svc=svc();
+				if (svc) {
+					var newbean = svc.open(bean); 
+					if (newbean) { 
+						$.each(bean, function(k,v){ bean[k]=null; });
+						$.each(newbean, function(k,v){ bean[k]=newbean[k]; });
+					} 
+				} 
+				if (!bean['state']) bean['state']='DRAFT';
+
+				model['entity']=bean; 
+				callback = model['afterOpen']; 
+				if ((typeof callback)=='function') callback(bean); 
+			} 
+		} 
+		//invoke the original onload handler
+		if ((typeof onloadcallback)=='function') onloadcallback();
+	}
+}
+function ListController(o) {
+	var model = createModel(this, o);
+	var self = this;
+	var defaultActions = [
+		{action:'reload', caption:'Refresh', icon:'refresh'}, 
+		{action:'create', caption:'New', icon:'create'}, 
+		{action:'open', caption:'Open', icon:'open', depends:'selectedItem', visibleWhen:'#{selectedItem != null}'} 		
+	];
+
+	this.classname = 'proxyclass';
+	this.source = function() {
+		if (!o) return null;
+
+		o['selectedItem'] = null;
+		o['listModel'] = self.listModel;
+		o['getColumns'] = self.getColumns;
+		o['open'] = self.open;
+		o['setComponent'] = function(table){
+			buildFormActions(o, table);
+		}
+		o['reload'] = function(){
+			self.listModel.refresh(true); 
+		}
+		o['refresh'] = function(){ 
+			self.listModel.refresh(); 
+		} 
+		o['createOpenerParams']=function(){
+			var listModelHandler = {
+				refresh: function() { self.listModel.refresh(); },
+				reload: function() { self.listModel.refresh(true); }
+			}
+			return { listModelHandler: listModelHandler };  
+		} 
+		return o; 
+	} 
+
+	this.listModel = {
+		rows: model.getRows(), 
+		fetchList: function(params) { 
+			return model.fetchList(params); 
+		} 
+	}
+	this.getColumns = function() {
+		return model.getColumns(); 
+	}
+	this.open = function() {
+		return model.onOpenItem(this.selectedItem); 
+	}
+
+	function createModel(root, o) {
+		var objtype = (typeof o);
+		if (objtype == 'object') {
+			return new ListModelProxy(root, o); 
+	 	} else { 
+	 		return new ListModelImpl(root); 
+		}
+	}
+	function ListModelImpl(root) {
+		this.get = function(key) { return null; }
+		this.getRows = function() { return 15; }
+		this.getColumns = function() { return null; }
+		this.fetchList = function(params) { return []; }
+		this.onOpenItem = function(o) { return null; }
+	} 
+	function ListModelProxy(root, source) {
+		var serviceObj;
+		this.get = function(key) { try { return source[key]; }catch(e){ return null; } }
+		this.getService = function() {
+			if (serviceObj) return serviceObj;
+
+			var callback = this.get('service');
+			if (callback) { 
+				if ((typeof callback)=='function') callback = callback(); 
+
+				serviceObj = callback;
+			} 
+			return serviceObj;
+		}
+		this.getColumns = function() { 
+			var svc = this.getService();
+			if (!svc) return []; 
+			if (!svc.getColumns) return [];
+
+			var cols = svc.getColumns(); 
+			return (cols? cols: []); 
+		}
+		this.getRows = function() { 
+			var rows = 15;
+			var callback = this.get('rows');			
+			if ((typeof callback)=='function') {
+				rows = callback(); 
+			} else {
+				rows = callback;
+			} 
+			return (rows? rows: 15); 
+		}
+		this.fetchList = function(params) { 
+			var method = this.get('fetchList');
+			if (method) { 
+				return method(params); 
+			} else {
+				var svc = this.getService();
+				if (svc) return svc.getList(params); 
+
+				return []; 
+			}
+		} 
+		this.onOpenItem = function(o) { 
+			var callback = this.get('onOpenItem');
+			if (callback) return callback(o); 
+
+			return null; 
+		} 
+	} 
+	function buildFormActions(source, table) {
+		if (!source || !table) return;
+
+		var target = table.closest('.rui-fragment').find('#formActions')[0];
+		if (!target) return;
+
+		var $target = $(target);
+		$target.html('');
+
+		var context = R.attr(table, 'context');
+		var formActions = source['formActions'];
+		if ((typeof formActions)=='function') formActions=formActions();
+		if (!formActions) formActions=defaultActions; 
+
+		var extActions = source['extActions'];
+		if ((typeof extActions)=='function') extActions=extActions();
+		if (!extActions) extActions=[]; 
+
+		buildFormActions0(context, formActions, $target);
+		buildFormActions0(context, extActions, $target);
+		BindingUtils.bind(null, $target); 
+	}
+	function buildFormActions0(context, actions, target) {		
+		for (var i=0; i<actions.length; i++) {
+			var item = actions[i];
+			var attrs = '';			
+			$.each(item, function(k,v){
+				if (k=='context') {/*do nothing*/ } 
+				else if (k=='icon') {/*do nothing*/ } 
+				else if (k=='caption') {/*do nothing*/ } 
+				else if (k=='depends') {/*do nothing*/ } 
+				else if (k=='action') attrs += 'r:name="'+v+'" '; 
+				else attrs += 'r:'+k+'="'+v+'" '; 
+			}); 
+			attrs += 'r:depends="selectedItem" '; 
+			if (item['icon']) { 
+				attrs += 'icon="'+item['icon']+'" '; 
+			} else { 
+				attrs += 'noicon="true" '; 
+			} 
+			var str = '<button r:context="'+context+'" '+attrs+'>'+item['caption']+'</button>'; 
+			$(str).appendTo(target); 
+		}  
+	} 
+}
+
