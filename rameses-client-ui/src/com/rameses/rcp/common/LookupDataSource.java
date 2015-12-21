@@ -13,13 +13,12 @@ package com.rameses.rcp.common;
  *
  * @author wflores
  */
-public interface LookupDataSource 
+public interface LookupDataSource extends SimpleLookupDataSource 
 {
     Object getOnselect();
     Object getOnempty();
     
     LookupSelector getSelector(); 
-    void setSelector(LookupSelector selector);
         
     String getReturnItemKey();
     void setReturnItemKey(String returnItemKey);
@@ -28,9 +27,5 @@ public interface LookupDataSource
     void setReturnItemValue(String returnItemValue);
     
     String getReturnFields();
-    void setReturnFields(String returnFields);
-    
-    Object getValue();
-    
-    boolean show(String searchtext); 
+    void setReturnFields(String returnFields);    
 } 

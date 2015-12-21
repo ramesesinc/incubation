@@ -11,6 +11,7 @@ import com.rameses.rcp.common.LookupSelector;
 import com.rameses.rcp.common.MsgBox;
 import com.rameses.rcp.common.Opener;
 import com.rameses.rcp.common.PropertySupport;
+import com.rameses.rcp.common.SimpleLookupDataSource;
 import com.rameses.rcp.constant.TextCase;
 import com.rameses.rcp.constant.TrimSpaceOption;
 import com.rameses.rcp.control.table.ExprBeanSupport;
@@ -632,11 +633,16 @@ public class XLookupField extends IconedTextField implements UILookup, UISelecto
                     throw new IllegalStateException("'"+opener.getName()+"' opener must have a controller");
 
                 codeBean = controller.getCodeBean();
-                if (codeBean instanceof LookupDataSource) { 
+                if (codeBean instanceof SimpleLookupDataSource) { 
                     controller.setId(opener.getId()); 
                     controller.setName(opener.getName()); 
-                    controller.setTitle(opener.getCaption()); 
-                    model = (LookupDataSource) codeBean; 
+                    controller.setTitle(opener.getCaption());
+                    
+                    if ( codeBean instanceof LookupDataSource ) {
+                        model = (LookupDataSource) codeBean; 
+                    } else { 
+                        model = new LookupDataSourceProxy((SimpleLookupDataSource) codeBean); 
+                    }
                     
                     Object callback = model.getOnselect();
                     if (callback != null) onselectCallback = callback;
@@ -956,4 +962,42 @@ public class XLookupField extends IconedTextField implements UILookup, UISelecto
     }
     
     // </editor-fold>    
+    
+    // <editor-fold defaultstate="collapsed" desc=" LookupDataSourceProxy ">
+    
+    private class LookupDataSourceProxy implements LookupDataSource {
+
+        SimpleLookupDataSource source; 
+        LookupSelector selector;
+        
+        LookupDataSourceProxy( SimpleLookupDataSource source ) {
+            this.source = source; 
+        }
+        
+        public Object getOnselect() { return null; }
+        public Object getOnempty() { return null; }
+
+        public LookupSelector getSelector() {
+            return selector; 
+        }
+        public void setSelector(LookupSelector selector) {
+            this.selector = selector; 
+            source.setSelector( selector ); 
+        }
+        
+        public boolean show(String searchtext) {
+            return source.show( searchtext ); 
+        }
+        
+        public String getReturnItemKey() { return null; }
+        public void setReturnItemKey(String returnItemKey) {}
+
+        public String getReturnItemValue() { return null; }
+        public void setReturnItemValue(String returnItemValue) {}
+
+        public String getReturnFields() { return null; }
+        public void setReturnFields(String returnFields) {}        
+    }
+    
+    // </editor-fold>
 }
