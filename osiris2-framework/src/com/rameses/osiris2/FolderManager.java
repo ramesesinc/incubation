@@ -56,9 +56,13 @@ public class FolderManager implements Serializable {
             return folder;
         } else {
             Folder f = (Folder) folders.get(fullId);
-            if( ValueUtil.isEmpty(f.getCaption()) ) {
+            if( ValueUtil.isEmpty(folder.getCaption()) ) {
+                //do nothing, no changes to be done 
+            } else if ( folder.getId().equals(folder.getCaption()) ) {
+                //do nothing, no changes to be done 
+            } else if( ValueUtil.isEmpty(f.getCaption()) ) {
                 f.setCaption(folder.getCaption());
-            }
+            } 
             return f;
         }
     }

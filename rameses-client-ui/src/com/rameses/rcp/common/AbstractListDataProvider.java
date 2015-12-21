@@ -675,7 +675,7 @@ public abstract class AbstractListDataProvider
             checkedItems.remove(item);
     }*/   
     
-    protected void refreshSelectedItem() { 
+    public void refreshSelectedItem() { 
         fireFocusSelectedItem(); 
     } 
     
