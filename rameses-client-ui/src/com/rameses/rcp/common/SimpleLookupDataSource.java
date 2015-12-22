@@ -10,8 +10,8 @@ package com.rameses.rcp.common;
  */
 public interface SimpleLookupDataSource {
     
+    void setSearchText( String searchtext ); 
+
     void setSelector(LookupSelector selector); 
-    
-    boolean show(String searchtext); 
     
 }

@@ -632,28 +632,25 @@ public class XLookupField extends IconedTextField implements UILookup, UISelecto
                 if (controller == null) 
                     throw new IllegalStateException("'"+opener.getName()+"' opener must have a controller");
 
+                model = null;                 
                 codeBean = controller.getCodeBean();
-                if (codeBean instanceof SimpleLookupDataSource) { 
-                    controller.setId(opener.getId()); 
-                    controller.setName(opener.getName()); 
-                    controller.setTitle(opener.getCaption());
-                    
-                    if ( codeBean instanceof LookupDataSource ) {
-                        model = (LookupDataSource) codeBean; 
-                    } else { 
-                        model = new LookupDataSourceProxy((SimpleLookupDataSource) codeBean); 
-                    }
-                    
-                    Object callback = model.getOnselect();
-                    if (callback != null) onselectCallback = callback;
-                    
-                    callback = model.getOnempty();
-                    if (callback != null) onemptyCallback = callback;
-
+                if ( codeBean instanceof LookupDataSource ) {
+                    model = (LookupDataSource) codeBean; 
+                } else if ( codeBean instanceof SimpleLookupDataSource ) {
+                    model = new LookupDataSourceProxy((SimpleLookupDataSource) codeBean); 
                 } else {
-                    model = null;                     
                     throw new IllegalStateException("'"+opener.getName()+"' opener controller must be an instance of LookupDataSource");
                 }
+                
+                controller.setId(opener.getId()); 
+                controller.setName(opener.getName()); 
+                controller.setTitle(opener.getCaption());
+
+                Object callback = model.getOnselect();
+                if (callback != null) onselectCallback = callback;
+
+                callback = model.getOnempty();
+                if (callback != null) onemptyCallback = callback;
             } else {
                 model = null; 
             }
@@ -986,8 +983,9 @@ public class XLookupField extends IconedTextField implements UILookup, UISelecto
         }
         
         public boolean show(String searchtext) {
-            return source.show( searchtext ); 
-        }
+            source.setSearchText( searchtext );  
+            return true; 
+        } 
         
         public String getReturnItemKey() { return null; }
         public void setReturnItemKey(String returnItemKey) {}
