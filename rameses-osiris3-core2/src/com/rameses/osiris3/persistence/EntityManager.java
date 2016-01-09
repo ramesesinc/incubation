@@ -485,5 +485,12 @@ public class EntityManager {
         }
     }
     
+    public SqlQuery createQuery(String sql) {
+        return this.getSqlContext().createQuery(sql);
+    }
     
+    public SqlExecutor createExecutor(String sql) {
+        return this.getSqlContext().createExecutor(sql);
+    }
+
 }

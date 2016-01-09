@@ -108,6 +108,7 @@ public abstract class AbstractSqlDialect implements SqlDialect {
             sb.append( delims[0] + f.getName() + delims[1] );
             expr = expr.replace(key, sb.toString());
             
+            //this is a quick patch. Just return to its normal phase
             if(expr.contains("@@")) {
                 expr = expr.replace(key.replace("_", "."), sb.toString());
             }

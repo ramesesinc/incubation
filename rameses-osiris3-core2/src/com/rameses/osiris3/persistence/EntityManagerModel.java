@@ -333,17 +333,16 @@ public class EntityManagerModel {
             if( this.excludeFields!=null ) {
                 sb.append( ":exc=" + excludeFields+";" );
             }
-            if( this.filters.size()>0) {
-                sb.append(":filters:");
-                for(FilterCriteria fc:this.filters) {
-                    sb.append(fc.getExpr()+";");
+            if( this.finders.size()>0) {
+                sb.append("finders:");
+                for(Object mm: this.finders.keySet()) {
+                    sb.append( mm.toString() + ";" );
                 }
             }
-            if ( !this.finders.isEmpty() ) {
-                sb.append(":finders:");
-                for ( Object o : this.finders.entrySet() ) {
-                    Map.Entry me = (Map.Entry) o;
-                    sb.append(me.getKey() + ","); 
+            if( this.filters.size()>0) {
+                sb.append("filters:");
+                for(FilterCriteria fc:this.filters) {
+                    sb.append(fc.getExpr()+";");
                 }
             }
             if( this.getStart()>=0 && this.getLimit()>0 ) {
