@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package seti2.views;
+package com.rameses.seti2.views;
 
 import com.rameses.osiris2.themes.FormPage;
 import com.rameses.rcp.ui.annotations.StyleSheet;
@@ -14,12 +14,12 @@ import com.rameses.rcp.ui.annotations.Template;
  */
 @Template(FormPage.class)
 @StyleSheet
-public class CrudFormPanel extends javax.swing.JPanel {
+public class DynamicCrudFormPanel extends javax.swing.JPanel {
 
     /**
      * Creates new form CrudFormPanel
      */
-    public CrudFormPanel() {
+    public DynamicCrudFormPanel() {
         initComponents();
     }
 

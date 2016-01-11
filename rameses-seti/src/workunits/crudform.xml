@@ -1,4 +1,4 @@
-<workunit extends="seti2/templates/CrudFormController.xml">
+<workunit extends="com/rameses/seti2/templates/DynamicCrudForm.xml">
     <invokers>
         <invoker type="crudform:create" action="create" target="popup"/>
         <invoker type="crudform:open" action="open" target="popup"/>

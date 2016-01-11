@@ -2,18 +2,18 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package seti2.components;
+package com.rameses.seti2.components;
 
 /**
  *
  * @author dell
  */
-public class DecimalCriteria extends javax.swing.JPanel {
+public class StringCriteria extends javax.swing.JPanel {
 
     /**
      * Creates new form StringCriteria
      */
-    public DecimalCriteria() {
+    public StringCriteria() {
         initComponents();
     }
 
@@ -27,19 +27,13 @@ public class DecimalCriteria extends javax.swing.JPanel {
     private void initComponents() {
 
         xComboBox1 = new com.rameses.rcp.control.XComboBox();
-        xDecimalField1 = new com.rameses.rcp.control.XDecimalField();
-        xDecimalField2 = new com.rameses.rcp.control.XDecimalField();
+        xTextField1 = new com.rameses.rcp.control.XTextField();
 
         xComboBox1.setExpression("#{item.caption}");
-        xComboBox1.setImmediate(true);
         xComboBox1.setItems("items");
         xComboBox1.setName("entry.operator"); // NOI18N
 
-        xDecimalField1.setName("entry.value"); // NOI18N
-
-        xDecimalField2.setDepends(new String[] {"entry.operator"});
-        xDecimalField2.setName("entry.value2"); // NOI18N
-        xDecimalField2.setVisibleWhen("#{entry.operator?.key != 'between' }");
+        xTextField1.setName("entry.value"); // NOI18N
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -48,22 +42,18 @@ public class DecimalCriteria extends javax.swing.JPanel {
             .addGroup(layout.createSequentialGroup()
                 .addComponent(xComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 140, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(xDecimalField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(xDecimalField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(48, Short.MAX_VALUE))
+                .addComponent(xTextField1, javax.swing.GroupLayout.DEFAULT_SIZE, 244, Short.MAX_VALUE)
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                 .addComponent(xComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addComponent(xDecimalField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addComponent(xDecimalField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(xTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private com.rameses.rcp.control.XComboBox xComboBox1;
-    private com.rameses.rcp.control.XDecimalField xDecimalField1;
-    private com.rameses.rcp.control.XDecimalField xDecimalField2;
+    private com.rameses.rcp.control.XTextField xTextField1;
     // End of variables declaration//GEN-END:variables
 }

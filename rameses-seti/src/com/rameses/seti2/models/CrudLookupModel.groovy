@@ -1,4 +1,4 @@
-package seti2.models;
+package com.rameses.seti2.models;
  
 import com.rameses.rcp.common.*;
 import com.rameses.rcp.annotations.*;
@@ -7,9 +7,15 @@ import com.rameses.osiris2.common.*;
 import com.rameses.rcp.framework.ClientContext;
 import com.rameses.common.*;
         
-public class CrudLookupController extends CrudListController {
+public class CrudLookupModel extends CrudListModel implements SimpleLookupDataSource {
 
     def onselect;
+    String searchText;
+    LookupSelector selector;
+    
+    void setSelector(LookupSelector s) {
+        this.selector = s;
+    }
     
     def doOk() {
         if(!onselect) throw new Exception("Please specify an onselect");

@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package seti2.views;
+package com.rameses.seti2.views;
 
 import com.rameses.osiris2.themes.OKCancelPage;
 import com.rameses.rcp.common.PageListModel;

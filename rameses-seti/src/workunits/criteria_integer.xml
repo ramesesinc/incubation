@@ -35,7 +35,7 @@
     </code>
     
     <pages>
-        <page template="seti2.components.IntegerCriteria"/>
+        <page template="com.rameses.seti2.components.IntegerCriteria"/>
     </pages>    
     
 </workunit>  

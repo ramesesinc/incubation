@@ -1,6 +1,6 @@
 <folders>
     <folder id="explorer">
-        <folder id="master" caption="Master">
+        <folder id="master">
             <folder id="waterworks" caption="Waterworks" index="5"/>
         </folder>
     </folder>

@@ -28,7 +28,7 @@
     </code>
     
     <pages>
-        <page template="seti2.components.LookupCriteria"/>
+        <page template="com.rameses.seti2.components.LookupCriteria"/>
     </pages>    
     
 </workunit>  
