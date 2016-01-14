@@ -27,6 +27,7 @@ public class EntityManagerModel {
     private List<FilterCriteria> filters = new ArrayList();
     private long start;
     private long limit;
+    private List<OrderField> orderFields = new ArrayList();
     
     public SchemaElement getElement() {
         return element;
@@ -76,7 +77,11 @@ public class EntityManagerModel {
     public String getExcludeFields() {
         return excludeFields;
     }
-
+    
+    public List<OrderField> getOrderFields() {
+        return orderFields;
+    }
+    
     public void setExcludeFields(String excludeFields) {
         this.excludeFields = excludeFields;
     }
@@ -345,6 +350,12 @@ public class EntityManagerModel {
                     sb.append(fc.getExpr()+";");
                 }
             }
+            if( this.orderFields.size()>0) {
+                sb.append("order:");
+                for(OrderField ff:this.orderFields) {
+                    sb.append(ff.toString()+";");
+                }
+            }
             if( this.getStart()>=0 && this.getLimit()>0 ) {
                 sb.append("paging:true;");
             }
@@ -368,5 +379,20 @@ public class EntityManagerModel {
         this.limit = limit;
     }
     
+    public void addOrderField( String name, String direction ) {
+        OrderField o = new OrderField();
+        o.setName(name);
+        if(direction!=null) o.setDirection(direction);
+        this.orderFields.add(o);
+    }
+    
+    public SelectFields buildOrderFields() {
+        SelectFields sf  = new SelectFields();
+        //loop thru the finders
+        for( OrderField k: orderFields ) {
+            sf.addFields( k.getName() );
+        }
+        return sf;
+    }
     
 }

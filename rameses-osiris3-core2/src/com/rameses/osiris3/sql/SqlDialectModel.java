@@ -24,6 +24,7 @@ public class SqlDialectModel {
     private List<SqlDialectModel.Field> fields = new ArrayList();
     private Set<SqlDialectModel.Relationship> relationships = new LinkedHashSet();
     private List<Criteria> criteria = new ArrayList();
+    private List<SqlDialectModel.OrderKey> orderKeys = new ArrayList();
 
     private long start;
     private long limit;
@@ -275,12 +276,36 @@ public class SqlDialectModel {
         }
     }
     
+    public static class OrderKey {
+        private Field field;
+        private String direction = "ASC";
+
+        public Field getField() {
+            return field;
+        }
+        public void setField(Field field) {
+            this.field = field;
+        }
+
+        public String getDirection() {
+            return direction;
+        }
+
+        public void setDirection(String direction) {
+            this.direction = direction;
+        }
+    }
+    
     public List<SqlDialectModel.Field> getFields() {
         return fields;
     }
     
-     public Set<SqlDialectModel.Relationship> getRelationships() {
+    public Set<SqlDialectModel.Relationship> getRelationships() {
         return relationships;
+    }
+    
+    public List<OrderKey> getOrderKeys() {
+        return orderKeys;
     }
     
     public void addField(Field f) {
@@ -297,6 +322,10 @@ public class SqlDialectModel {
     
     public List<Criteria> getCriteria() {
         return criteria;
+    }
+    
+    public void addOrderKey( OrderKey key ) {
+        this.orderKeys.add(key);
     }
     
 }

@@ -380,8 +380,29 @@ public class EntityManager {
         return this;
     }
     
+    public EntityManager sort(String fieldname) {
+        model.addOrderField(fieldname, null);
+        return this;
+    }
+    
+    public EntityManager sort(String fieldname, String direction) {
+        if(direction ==null) 
+            direction = "ASC";
+        else if (!direction.toUpperCase().matches("ASC|DESC")) {
+            throw new RuntimeException("EntityManager.sort error. direction must be ASC or DESC");
+        }
+        model.addOrderField(fieldname, direction.toUpperCase());
+        return this;
+    }
+
     public EntityManager limit(long start, long limit) {
         model.setStart(start);
+        model.setLimit(limit);
+        return this;
+    }
+    
+    public EntityManager limit(long limit) {
+        model.setStart(0);
         model.setLimit(limit);
         return this;
     }
