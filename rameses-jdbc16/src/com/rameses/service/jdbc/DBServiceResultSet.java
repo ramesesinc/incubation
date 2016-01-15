@@ -213,11 +213,16 @@ public class DBServiceResultSet implements ResultSet {
     }
     
     @Deprecated
-    public BigDecimal getBigDecimal(String columnName, int scale) throws SQLException {
-        BigDecimal bd = new BigDecimal(currentRecord.get( columnName )+"");
-        bd.setScale(scale);
+    public BigDecimal getBigDecimal(String columnName, int scale) throws SQLException { 
+        Object val = currentRecord.get( columnName ); 
+        if ( val == null ) { return null; }
+
+        BigDecimal bd = new BigDecimal( val.toString() );
+        if ( scale != 0 ) { 
+            bd.setScale( scale ); 
+        }
         this.lastValueRead = bd;
-        return bd;
+        return bd; 
     }
     
     public byte[] getBytes(String columnName) throws SQLException {
