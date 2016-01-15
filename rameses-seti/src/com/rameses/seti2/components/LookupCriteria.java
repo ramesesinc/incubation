@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package seti2.components;
+package com.rameses.seti2.components;
 
 /**
  *

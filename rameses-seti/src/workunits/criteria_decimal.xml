@@ -38,7 +38,7 @@
     </code>
     
     <pages>
-        <page template="seti2.components.DecimalCriteria"/>
+        <page template="com.rameses.seti2.components.DecimalCriteria"/>
     </pages>    
     
 </workunit>  

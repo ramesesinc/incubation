@@ -4,7 +4,8 @@
  * Created on April 24, 2013, 12:44 PM
  */
 
-package seti2.views;
+package com.rameses.seti2.views;
+
 
 import com.rameses.osiris2.themes.OKCancelPage;
 import com.rameses.rcp.ui.annotations.Template;

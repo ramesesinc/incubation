@@ -6,6 +6,7 @@ package com.rameses.osiris3.sql;
 
 import com.rameses.osiris3.sql.SqlDialectModel.Criteria;
 import com.rameses.osiris3.sql.SqlDialectModel.Field;
+import com.rameses.osiris3.sql.SqlDialectModel.OrderKey;
 import com.rameses.osiris3.sql.SqlDialectModel.Relationship;
 import com.rameses.osiris3.sql.SqlDialectModel.RelationshipKey;
 import java.util.Map;
@@ -108,6 +109,7 @@ public abstract class AbstractSqlDialect implements SqlDialect {
             sb.append( delims[0] + f.getName() + delims[1] );
             expr = expr.replace(key, sb.toString());
             
+            //this is a quick patch. Just return to its normal phase
             if(expr.contains("@@")) {
                 expr = expr.replace(key.replace("_", "."), sb.toString());
             }
@@ -127,18 +129,20 @@ public abstract class AbstractSqlDialect implements SqlDialect {
     }
     
     public String getOrderByStatement(SqlDialectModel model) {
-        return null;
-        /*
+        if(model.getOrderKeys().size()==0) return "";
+        String[] delims = getDelimiters();
         StringBuilder sb = new StringBuilder();
         boolean _first = true;
-        for(Field f: model.getFields()) {
-            if(!f.isPrimary()) continue;
+        for(OrderKey k: model.getOrderKeys() ) {
+            Field f = k.getField();
             if(!_first) sb.append(",");
             else _first = false;
-            sb.append(f.getFieldname());
+            sb.append( delims[0] + f.getTable().getAlias() + delims[1] );
+            sb.append( "."  );
+            sb.append( delims[0] + f.getName() + delims[1] );
+            sb.append( " " + k.getDirection() );
         }
         return " ORDER BY " + sb.toString();
-        */ 
     }
     
     public String getSelectColumnStatement( SqlDialectModel model ) {
@@ -209,6 +213,7 @@ public abstract class AbstractSqlDialect implements SqlDialect {
             sb.append( " WHERE ");
             sb.append( whereExpr );
         }
+        sb.append( " " + getOrderByStatement(model) );
         return sb.toString();
     }
     

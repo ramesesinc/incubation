@@ -125,7 +125,9 @@ public class EntityManagerUtil {
     
     private SqlUnitModel getSqlUnitCache( EntityManagerModel eModel) throws Exception {
         String id = eModel.getId();
-        //System.out.println("id is " + id);
+        if(debug) {
+            System.out.println("sql id key is " + id);
+        }
         SqlUnitModel sqm = sqlUnits.get(id);
         if( sqm == null ) {
             String action = eModel.getAction();
@@ -158,7 +160,10 @@ public class EntityManagerUtil {
                 sqm = new SqlUnitModel(squ, model, columns);
             }
             sqlUnits.put(id, sqm);
-        }    
+        }   
+        if(debug) {
+            System.out.println(sqm.getSqlUnit().getStatement());
+        }
         return sqm;
     }
     

@@ -36,7 +36,7 @@
     </code>
     
     <pages>
-        <page template="seti2.views.SelectColumnPanel"/>
+        <page template="com.rameses.seti2.views.SelectColumnPanel"/>
     </pages>    
     
 </workunit>  

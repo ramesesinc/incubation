@@ -46,6 +46,7 @@ public class TestQuery extends TestCase {
         Map m = new HashMap();
         m.put("fund_objid", "SEF");
         em.where(" fund_objid = :fund_objid ", m );
+        em.sort("title", "desc").sort("objid");
         //em.where( "title LIKE 'A%'");
         em.setLimit(10);
         List list = em.list();

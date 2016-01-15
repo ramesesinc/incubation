@@ -13,10 +13,13 @@ import com.rameses.osiris3.schema.SimpleField;
 import com.rameses.osiris3.sql.SqlDialectModel;
 import com.rameses.osiris3.sql.SqlDialectModel.Criteria;
 import com.rameses.osiris3.sql.SqlDialectModel.Field;
+import com.rameses.osiris3.sql.SqlDialectModel.OrderKey;
 import com.rameses.osiris3.sql.SqlDialectModel.Relationship;
 import com.rameses.osiris3.sql.SqlDialectModel.RelationshipKey;
 import com.rameses.osiris3.sql.SqlDialectModel.Table;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -303,6 +306,24 @@ public class SqlDialectModelBuilder {
         };
         collectFields(fc, eModel.getElement(), sqlModel.getBaseTable(), sqlModel, null, eModel.buildSelectFields(), null);
         collectCriteria( eModel, sqlModel );
+        
+        //build the order fields
+        if( eModel.getOrderFields().size() > 0 ) {
+            //fetch the table fields for the order key. OrderField is a workaround
+            final Map<String, Field> fm = new HashMap();
+            FieldCollector ofc = new FieldCollector() {
+                public void add(Field field, SchemaField sf) {
+                    fm.put( field.getFieldname(), field );
+                }
+            };
+            collectFields(ofc, eModel.getElement(), sqlModel.getBaseTable(), sqlModel, null, eModel.buildOrderFields(), null);
+            for( OrderField oo: eModel.getOrderFields()) {
+                OrderKey ok = new OrderKey();
+                ok.setField( fm.get(oo.getName())  );
+                ok.setDirection(oo.getDirection());
+                sqlModel.addOrderKey(ok);
+            }
+        }
         return sqlModel;
     }
 

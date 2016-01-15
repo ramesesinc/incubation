@@ -1,4 +1,4 @@
-package seti2.models;
+package com.rameses.seti2.models;
  
 import com.rameses.rcp.common.*;
 import com.rameses.rcp.annotations.*;
@@ -6,7 +6,7 @@ import com.rameses.osiris2.client.*;
 import com.rameses.osiris2.common.*;
 import com.rameses.rcp.framework.ClientContext;
         
-public class CrudListController {
+public class CrudListModel {
         
     @Binding
     def binding;
@@ -47,7 +47,7 @@ public class CrudListController {
     def secProvider = ClientContext.getCurrentContext().getSecurityProvider();
     
     List getExtActions() {
-        return Inv.lookupActions( schemaName+":list:extActions" );
+        return Inv.lookupActions( schemaName+":list:extActions", [entity: selectedEntity] );
     }
     
     boolean isCreateAllowed() { 
@@ -91,7 +91,7 @@ public class CrudListController {
         }
         if(!schemaName) 
             throw new Exception("Please specify a schema name in the workunit");
-            
+        
         if(!adapter) {
             adapter = workunit.info.workunit_properties.adapter; 
         }
@@ -119,13 +119,22 @@ public class CrudListController {
         
     def listHandler = [
         getColumnList: {
+            if( schema == null )
+                throw new Exception("schema is null. Please call invoke method")
             def cols = [];
-            cols << [caption:'', type:'checkbox', name:'checked', maxWidth:20, minWidth:20];
-            cols.addAll( schema.columns.findAll{it.selected==true} );
+            for( c in schema.columns.findAll{it.selected==true} ) {
+                def cc = [:];
+                cc.putAll( c );
+                if(cc.name.contains("_")) cc.name = cc.name.replace("_", ".");
+                cols << cc;
+            }
             cols << [caption:''];
             return cols;
         },
         fetchList: { o->
+            if( schema == null )
+                throw new Exception("schema is null. Please call invoke method")
+                
             def m = [:];
             m.putAll(o);
             m.name = schema.name;

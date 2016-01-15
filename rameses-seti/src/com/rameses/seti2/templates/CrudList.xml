@@ -18,10 +18,10 @@
 
     </invokers>
      
-    <code class="seti2.models.CrudLookupController"/>    
+    <code class="com.rameses.seti2.models.CrudListModel"/>    
     
     <pages>
-        <page template="seti2.views.CrudLookupPage"/>
+        <page template="com.rameses.osiris2.themes.ListPage"/>
         <page name="queryForm" template="com.rameses.osiris2.themes.DefaultQueryFormPanel"/>
     </pages>
     

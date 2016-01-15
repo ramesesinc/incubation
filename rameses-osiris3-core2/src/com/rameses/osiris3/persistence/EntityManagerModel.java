@@ -27,6 +27,7 @@ public class EntityManagerModel {
     private List<FilterCriteria> filters = new ArrayList();
     private long start;
     private long limit;
+    private List<OrderField> orderFields = new ArrayList();
     
     public SchemaElement getElement() {
         return element;
@@ -76,7 +77,11 @@ public class EntityManagerModel {
     public String getExcludeFields() {
         return excludeFields;
     }
-
+    
+    public List<OrderField> getOrderFields() {
+        return orderFields;
+    }
+    
     public void setExcludeFields(String excludeFields) {
         this.excludeFields = excludeFields;
     }
@@ -333,17 +338,22 @@ public class EntityManagerModel {
             if( this.excludeFields!=null ) {
                 sb.append( ":exc=" + excludeFields+";" );
             }
+            if( this.finders.size()>0) {
+                sb.append("finders:");
+                for(Object mm: this.finders.keySet()) {
+                    sb.append( mm.toString() + ";" );
+                }
+            }
             if( this.filters.size()>0) {
-                sb.append(":filters:");
+                sb.append("filters:");
                 for(FilterCriteria fc:this.filters) {
                     sb.append(fc.getExpr()+";");
                 }
             }
-            if ( !this.finders.isEmpty() ) {
-                sb.append(":finders:");
-                for ( Object o : this.finders.entrySet() ) {
-                    Map.Entry me = (Map.Entry) o;
-                    sb.append(me.getKey() + ","); 
+            if( this.orderFields.size()>0) {
+                sb.append("order:");
+                for(OrderField ff:this.orderFields) {
+                    sb.append(ff.toString()+";");
                 }
             }
             if( this.getStart()>=0 && this.getLimit()>0 ) {
@@ -369,5 +379,20 @@ public class EntityManagerModel {
         this.limit = limit;
     }
     
+    public void addOrderField( String name, String direction ) {
+        OrderField o = new OrderField();
+        o.setName(name);
+        if(direction!=null) o.setDirection(direction);
+        this.orderFields.add(o);
+    }
+    
+    public SelectFields buildOrderFields() {
+        SelectFields sf  = new SelectFields();
+        //loop thru the finders
+        for( OrderField k: orderFields ) {
+            sf.addFields( k.getName() );
+        }
+        return sf;
+    }
     
 }

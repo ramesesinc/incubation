@@ -17,10 +17,6 @@
             def reportData;
             String reportName;
             
-            def preview() {
-                MsgBox.alert( "report data =>" + reportData );
-                return super.preview();
-            }                                        
         }
         
         ]]>

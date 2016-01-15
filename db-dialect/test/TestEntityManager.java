@@ -80,7 +80,7 @@ public class TestEntityManager extends TestCase {
     }
     
     // TODO add test methods here. The name must begin with 'test'. For example:
-    public void testInsert() throws Exception {
+    public void ztestInsert() throws Exception {
         try {
             Map data = createData();
             data.put("objid", "N0002");
@@ -174,5 +174,13 @@ public class TestEntityManager extends TestCase {
         }
     }
     
+    public void testFindSampler() throws Exception {
+        Map map = new HashMap();
+        map.put("lob_objid", "A1");
+        Map sub = new HashMap();
+        sub.put("objid", "A1");
+        map.put("lob", sub);
+        System.out.println(em.setName("sampler").find(map).first());
+    }
     
 }

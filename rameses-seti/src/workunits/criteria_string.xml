@@ -24,7 +24,7 @@
     </code>
     
     <pages>
-        <page template="seti2.components.StringCriteria"/>
+        <page template="com.rameses.seti2.components.StringCriteria"/>
     </pages>    
     
 </workunit>  

@@ -6,13 +6,4 @@
         <invoker type="formActions" caption="Cancel" action="unedit" visibleWhen="#{mode=='edit'}"/>  
         <invoker type="formActions" caption="Undo" action="undo" visibleWhen="#{mode=='edit'}"/>  
     </invokers>
-    
-    <code class="seti2.models.CrudFormController"/>    
-    
-    <pages>
-        <page name="create" template="seti2.views.CrudFormPanel"/>
-        <page name="read" template="seti2.views.CrudFormPanel"/>
-        <page name="edit" template="seti2.views.CrudFormPanel"/>
-    </pages>
-    
 </workunit> 
