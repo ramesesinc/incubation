@@ -1,0 +1,10 @@
+<workunit>
+    <invokers>
+        <invoker type="workflow_prompt:default" caption="Enter Info" action="init"/>
+        <invoker type="formActions" caption="Close" action="doClose"/>
+    </invokers>
+    <code class="com.rameses.seti2.models.SetiWorkflowPromptModel"/>
+    <pages>
+        <page template="com.rameses.seti2.views.SetiWorkflowPromptPage"/>
+    </pages>
+</workunit> 
