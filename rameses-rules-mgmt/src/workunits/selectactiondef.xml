@@ -1,0 +1,97 @@
+<workunit>
+    
+    <invokers>
+        <invoker type="rule:selectactiondef" caption="Select Action Definition" action="init" target="popup"/>
+                
+        <invoker type="rulemgmt:tools" caption="Manage Actions" action="manage" target="popup" visibleWhen="#{debug==true}" index="2"/>
+
+    </invokers>
+    
+    <code>
+         <![CDATA[
+        import com.rameses.rcp.common.*;
+        import com.rameses.rcp.annotations.*;
+        import com.rameses.osiris2.client.*;
+        import com.rameses.osiris2.common.*
+        
+        class SelectActionDefController  {
+        
+            @Service("RuleMgmtService")
+            def service;
+        
+            @Service("RuleDeveloperService")
+            def devService;
+            
+            @Caller
+            def caller;
+            
+            @Binding
+            def binding;
+            
+            def rule;
+            def selectedActionDef;
+            def actionDefList;
+            def savehandler;
+            def mgmt = false;
+            def ruleset;
+            
+            void init() {
+                mgmt = false;
+                actionDefList = service.getActionDefs([ruleset:rule.ruleset]);
+            }
+
+            void manage() {
+                mgmt = true;
+                rule = [ruleset: caller.query.ruleset ];
+                actionDefList = service.getActionDefs([ruleset:rule.ruleset]);
+            }
+            
+            
+            def doNext() {
+                def m = [actionDef:selectedActionDef, rule:rule, savehandler: savehandler];
+                def h = "default";
+                if(selectedActionDef.handler)  h = selectedActionDef.handler;
+                return InvokerUtil.lookupOpener("ruleaction:"+h+":create", m );
+            }
+            
+            def doClose() {
+                return "_close";
+            }
+            
+            
+             /******************************************************************
+            * debugging
+            *******************************************************************/
+            boolean getDebug() {
+                def d =  OsirisContext.clientContext.appEnv['app.debug'];
+                if(!d) return false;
+                return d;
+            }
+            
+            def addActionDef() {
+                return InvokerUtil.lookupOpener( "ruleactiondef:create", [ruleset:rule.ruleset, domain:rule.domain] );
+            }
+            
+            def editActionDef() {
+                if(!selectedActionDef) return;
+                return InvokerUtil.lookupOpener( "ruleactiondef:edit", [entity:selectedActionDef] );
+            }
+            
+            void removeActionDef() {
+                if(!MsgBox.confirm("You are about to remove this actiondef permanently. Proceed?")) return;
+                if(!selectedActionDef) return;
+                devService.removeActionDef(selectedActionDef);
+                binding.refresh();
+            }
+            
+            void reloadList() {
+                actionDefList = service.getActionDefs([ruleset:rule.ruleset]);
+                binding.refresh();
+            }
+        }
+        ]]>
+    </code>
+    <pages>
+        <page  template="com.rameses.rulemgmt.SelectActionPage"/>
+    </pages>
+</workunit>

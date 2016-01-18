@@ -1,0 +1,63 @@
+<workunit>
+    
+    <invokers>
+        <invoker type="sysrule:copy" caption="Copy Rule" action="init" target="popup"/> 
+        
+        <invoker type="formActions" caption="Cancel" action="cancel"/>
+        <invoker type="formActions" caption="Save" action="save"/>
+    </invokers>
+    
+    <code>
+    <![CDATA[
+import com.rameses.rcp.common.*;
+import com.rameses.rcp.annotations.*;
+import com.rameses.osiris2.client.*;
+import com.rameses.osiris2.common.*
+import com.rameses.rulemgmt.*;
+import com.rameses.util.*;
+import java.rmi.server.*;
+
+class CopyRuleController {
+
+    @Binding
+    def binding;
+
+    @Service("RuleToolService")
+    def service;
+
+    def rulegroups;
+    def ruleinfo;
+    
+    def entity;
+    def rulegroup;
+    
+    void init() { 
+        entity = [objid: 'RUL' + new java.rmi.server.UID()];
+        entity.ruleid  = ruleinfo.objid; 
+        entity.ruleset = ruleinfo.ruleset;
+        entity.rulegroup = ruleinfo.rulegroup;
+        entity.salience = ruleinfo.salience;
+        entity.title = ruleinfo.title; 
+        entity.name = ruleinfo.name + '_COPY';
+        
+        rulegroup = rulegroups.find{ it.name==entity.rulegroup }
+    }
+
+    def cancel() {
+        return '_close';
+    } 
+    
+    def save() {
+        if (MsgBox.confirm('You are about to create a copy of this rule. Continue?')) {
+            service.copyRule( entity ); 
+            return '_close';
+        } 
+    } 
+}
+    ]]>
+    </code>
+    
+    <pages>
+        <page template="com.rameses.rulemgmt.CopyRulePage"/>
+    </pages>
+</workunit>

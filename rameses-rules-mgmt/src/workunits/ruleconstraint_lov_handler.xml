@@ -1,0 +1,10 @@
+<workunit>
+    
+    <invokers>
+        <invoker type="ruleconstraint:handler:lov" />
+    </invokers>
+    <code class="com.rameses.rulemgmt.constraint.RuleConstraintLOVHandler"/>
+    <pages>
+        <page template="com.rameses.rulemgmt.constraint.LookupHandler"/>
+    </pages>
+</workunit>

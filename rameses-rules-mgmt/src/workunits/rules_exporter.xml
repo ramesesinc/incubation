@@ -1,0 +1,87 @@
+<workunit>
+    
+    <invokers>
+        <invoker type="rulemgmt:tools" caption="Export Rules" action="init" target="popup" index="100"/>
+    </invokers>
+    <code>
+         <![CDATA[
+        
+        import com.rameses.rcp.common.*;
+        import com.rameses.rcp.annotations.*;
+        import com.rameses.osiris2.client.*;
+        import com.rameses.osiris2.common.*
+        import com.rameses.rulemgmt.*;
+        import com.rameses.util.*;
+        import java.rmi.server.*;
+        import com.rameses.rulemgmt.developer.*;
+        import com.rameses.io.*;
+        
+        class RuleExportController {
+        
+         
+            @Service("RuleMgmtService")
+            def service;
+
+            def selectedFrom;
+            def selectedItem;
+            def ruleset;
+            def file;
+            def list = [];
+            def fromList = [];
+            
+            void init() {
+                fromList = service.getList([ruleset:ruleset]);
+            }
+            
+            def fromListModel = [
+                fetchList: { o->
+                    return fromList;
+                }
+            ] as BasicListModel;
+            
+            def toListModel = [
+                fetchList: { o->
+                    return list;
+                }
+            ] as BasicListModel;
+            
+            void addRule() {
+                if(!selectedFrom) return;
+                list << selectedFrom;
+                fromList.remove( selectedFrom );
+            }
+            
+            void removeRule() {
+                if(!selectedItem) return;
+                list.remove( selectedItem );
+                fromList << selectedItem;
+            }
+            
+            def doOk() {
+                if(!list) throw new Exception("Please add at least one rule");
+                if( !file) throw new Exception("Please select a file to export to");
+                
+                
+                //load each rule;
+                def saver = [];
+                def r = null;
+                list.each {
+                    r = service.open( [objid: it.objid] );
+                    r.state = 'DRAFT';
+                    saver << r;
+                }
+                FileUtil.writeObject( file, saver );
+                MsgBox.alert('Successfully exported');
+                return "_close";
+            }
+            
+            def doCancel() {
+                return "_close";
+            }
+        }
+        ]]>
+    </code>
+    <pages>
+        <page template="com.rameses.rulemgmt.export.SelectRuleToExport"/>
+    </pages>
+</workunit>

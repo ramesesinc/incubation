@@ -1,0 +1,36 @@
+<workunit>
+    
+    <invokers>
+        <invoker type="rulecondition:selectfield" caption="Select Field" target="popup"/>
+    </invokers>
+    <code>
+         <![CDATA[
+        
+        import com.rameses.rcp.common.*;
+        import com.rameses.rcp.annotations.*;
+        import com.rameses.osiris2.client.*;
+        import com.rameses.osiris2.common.*
+        
+        class SelectFieldController  {
+            
+            def onselect;
+            def selectedItem;
+            def fieldList;
+            
+            def doOk() {
+                if(!selectedItem) 
+                    throw new Exception("Please select an item");
+                onselect(selectedItem);
+                return "_close";
+            }
+            
+            def doCancel() {
+                return "_close";
+            }
+        }
+        ]]>
+    </code>
+    <pages>
+        <page name="initial" template="com.rameses.rulemgmt.SelectFactField"/>
+    </pages>
+</workunit>

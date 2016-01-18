@@ -1,0 +1,10 @@
+<workunit>
+    
+    <invokers>
+        <invoker type="ruleconstraint:handler:decimal" action="init"/>
+    </invokers>
+    <code class="com.rameses.rulemgmt.constraint.RuleConstraintNumberHandler"/>
+    <pages>
+        <page template="com.rameses.rulemgmt.constraint.DecimalHandler"/>
+    </pages>
+</workunit>

@@ -1,0 +1,253 @@
+<workunit>
+    
+    <invokers>
+        <invoker type="rulemgmt:create" caption="New Rule" action="create" target="popup"/>
+        <invoker type="rulemgmt:open" caption="Rule" action="open" target="popup"/>
+        
+        <invoker type="extActions" caption="View Rule" action="viewRule" visibleWhen="#{mode=='read'}" />
+        <invoker type="extActions" caption="Copy" action="copyRule" visibleWhen="#{mode=='read'}" />
+    </invokers>
+    
+    <code>
+    <![CDATA[
+        import com.rameses.rcp.common.*;
+        import com.rameses.rcp.annotations.*;
+        import com.rameses.osiris2.client.*;
+        import com.rameses.osiris2.common.*
+        import com.rameses.rulemgmt.*;
+        import com.rameses.util.*;
+        import java.rmi.server.*;
+        
+        class RuleController extends PageFlowController {
+        
+            @Binding
+            def binding;
+        
+            @Service("RuleMgmtService")
+            def service;
+            
+            @Script("Template")
+            def template;
+            
+            @Caller
+            def caller;
+                        
+            def entity;
+            def rulegroups;
+            def mode;
+            def savehandler;
+            
+            def create() {
+                mode = "create";
+                entity = [salience:50000, conditions:[],actions:[]];
+                entity.objid = "RUL"+new UID();
+                entity.ruleset = caller.query.ruleset;
+                entity.rulegroup = caller.query.rulegroup;
+                rulegroups = caller.rulegroups;
+                return super.start("new")
+            }
+            
+            def open() {
+                mode = "read"; 
+                entity = service.open( entity ); 
+                rulegroups = caller.rulegroups; 
+                if( entity.state == 'DEPLOYED' ) { 
+                    return super.start("open-deployed"); 
+                } else { 
+                    return super.start("open"); 
+                } 
+            }
+            
+            /**********************************
+            * override methods
+            **********************************/
+            def openRecord( params ) { 
+                entity = service.open( params ); 
+                return signal('route');
+            } 
+            boolean isNavActionVisible() {
+                return (mode == 'read'); 
+            } 
+            
+            
+            
+            /**********************************
+            * condition
+            **********************************/
+            def addCondition() {
+                return InvokerUtil.lookupOpener("rule:selectfact", [
+                    rule:entity,
+                    savehandler: { o->
+                        binding.refresh();
+                    }
+                ] );
+            }
+
+            def editCondition(o) {
+                def c = entity.conditions.find{ it.objid == o.objid };
+                def fact = service.findFact( [objid: c.fact.objid]);
+                def d = fact.handler;
+                if(!d) {
+                    d = "default";
+                    if(fact.dynamic == 1) d = "dynamic";
+                }
+                return InvokerUtil.lookupOpener("rulecondition:"+ d +":open", [
+                    rule:entity,
+                    fact: fact, 
+                    entity:c,
+                    savehandler: { x->
+                        binding.refresh("ruleHtml");
+                    }
+                ] );
+            }
+            
+            void removeCondition(o) {
+                if( MsgBox.confirm("You are about to remove this condition. Continue?")) {
+                    try {
+                        service.removeCondition( [objid: o.objid] );
+                        def c = entity.conditions.find{ it.objid == o.objid };
+                        entity.conditions.remove( c );
+                        binding.refresh("ruleHtml");
+                    }
+                    catch(e) {
+                        MsgBox.err(e);
+                    }
+                }
+            }
+            
+            /**********************************
+            * actions
+            **********************************/
+            def addAction() {
+                return InvokerUtil.lookupOpener("rule:selectactiondef", [
+                    rule:entity,
+                    savehandler: { o->
+                        binding.refresh("ruleHtml");
+                    }
+                ]);
+            }
+            
+            def editAction(o) {
+               def a = entity.actions.find{ it.objid == o.objid }; 
+               def h = "default";
+               return InvokerUtil.lookupOpener("ruleaction:" + h + ":open", [
+                    rule:entity,
+                    entity:a,
+                    savehandler: { x->
+                        binding.refresh("ruleHtml");
+                    }
+                ] );               
+            }
+            
+            void removeAction(o) {
+               if( MsgBox.confirm("You are about to remove this action. Continue?")) {
+                    try {
+                        service.removeAction( [objid: o.objid] );
+                        def a = entity.actions.find{ it.objid == o.objid };
+                        entity.actions.remove( a );
+                        binding.refresh("ruleHtml");
+                    }
+                    catch(e) {
+                        MsgBox.err(e);
+                    }
+                }
+            }
+            
+            def getRuleHtml() {
+                return template.render( "html/rule_html", [rule: entity, editable:true] );
+            }
+            
+            void createNew() {
+                 entity = service.create(entity);
+                 mode = "read";
+                 caller.reload();
+            }
+            
+            void deploy() {
+                service.deploy( [objid: entity.objid] );
+                entity.state = 'DEPLOYED';
+            }
+
+            void undeploy() {
+                service.undeploy( [objid: entity.objid] );
+                entity.state = 'APPROVED';
+            }
+            
+            void edit() {
+                mode = "edit";
+            }
+            
+            void cancelEdit() {
+                mode = "read";
+            }
+            
+            void saveUpdate() {
+                service.update(entity);
+                mode = "read";
+                caller.reload();
+            }
+            
+            def viewRule() {
+                def ruleText = service.viewRuleText( [objid: entity.objid] );
+                return InvokerUtil.lookupOpener( "rule:ruletext", [ruleText:ruleText] );
+            }
+            
+            def removeRule() {
+                service.removeEntity(entity);
+                caller.reload();
+            }
+            
+            void reloadInfo() {
+                entity = service.open( entity );
+                binding.refresh();
+            }
+            
+            def copyRule() { 
+                def params = [rulegroups: rulegroups, ruleinfo: entity]; 
+                return Inv.lookupOpener('sysrule:copy', params);
+            } 
+        }
+    ]]>
+    </code>
+    <pageflow>
+        <start>
+            <transition name="new" to="initial"/>
+            <transition name="open" to="editinfo"/>
+            <transition name="open-deployed" to="deployed"/>
+        </start>
+        <page name="initial" title="New Rule">
+            <transition to="editinfo" caption="Next" immediate="false" 
+                confirm="You are about to create this rule. Continue?" action="createNew"/>
+        </page>
+        <page name="editinfo" title="Rule Info">
+            <transition to="end" name="cancel" caption="Cancel" />
+            <transition to="editing" caption="Edit" action="edit"/>
+            <transition to="deployed" caption="Deploy" action="deploy"/>
+            <transition to="end" name="delete" caption="Delete" action="removeRule" confirm="You are about to remove this rule. Continue?"/>
+            <transition to="route" visibleWhen="#{1==0}"/>
+        </page>    
+        <process name="route">
+            <transition to="deployed" cond="#{entity.state=='DEPLOYED'}" />    
+            <transition to="editinfo" cond="#{entity.state!='DEPLOYED'}" />    
+        </process>            
+        <page name="editing" title="Rule Info (Edit)">
+            <transition to="editinfo" caption="Cancel" action="cancelEdit"/>
+            <transition to="saveInfo" caption="Save" action="saveUpdate"/>
+        </page>    
+        <process name="saveInfo">
+            <transition to="editinfo" />    
+        </process>    
+        <page name="deployed" title="Deployed Rule">
+            <transition to="end" caption="Cancel" />
+            <transition to="editinfo" caption="Undeploy" action="undeploy"/>
+            <transition to="route" visibleWhen="#{1==0}"/>
+        </page>    
+        <end/>
+    </pageflow>
+    <pages>
+        <page name="initial" template="com.rameses.rulemgmt.NewRulePage"/>
+        <page name="editinfo" template="com.rameses.rulemgmt.RulePage"/>
+        <page name="editing" template="com.rameses.rulemgmt.RulePage"/>
+        <page name="deployed" template="com.rameses.rulemgmt.RulePage"/>
+    </pages>
+</workunit>

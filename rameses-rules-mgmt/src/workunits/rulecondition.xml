@@ -1,0 +1,11 @@
+<workunit>
+    
+    <invokers>
+        <invoker type="rulecondition:default:create"  action="create"/>
+        <invoker type="rulecondition:default:open" action="open" caption="Rule Condition" target="popup"/>
+    </invokers>
+    <code class="com.rameses.rulemgmt.RuleConditionController"/>
+    <pages>
+        <page template="com.rameses.rulemgmt.DefaultRuleConditionPage"/>
+    </pages>
+</workunit>

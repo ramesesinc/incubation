@@ -1,0 +1,6 @@
+"entity.lookup.*|entity.dynamicfieldname"[ entity.dynamic != 1 ] {
+    visible: false; 
+}
+"entity.lookup.*|entity.dynamicfieldname"[ entity.dynamic == 1 ] {
+    visible: true; 
+}

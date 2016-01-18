@@ -1,0 +1,30 @@
+"constraint.intvalue"[ constraint.usevar != 1 && constraint.operator!=null ] {
+    visible: true; 
+}
+
+"constraint.intvalue"[ constraint.usevar == 1 || constraint.operator==null ] {
+    visible: false; 
+}
+
+"constraint.var"[ constraint.usevar == 1 && constraint.operator != null] {
+    visible: true; 
+}
+
+"constraint.var"[ constraint.usevar != 1 || constraint.operator==null ] {
+    visible: false; 
+}
+
+"constraint.usevar"[ constraint.operator==null ] {
+    visible: false; 
+}
+
+"constraint.usevar"[ constraint.operator!=null ] {
+    visible: true; 
+}
+"removeConstraint"[ constraint.field.required == 1 ] {
+    visible: false;
+}
+
+"removeConstraint"[ constraint.field.required != 1 ] {
+    visible: true;
+}

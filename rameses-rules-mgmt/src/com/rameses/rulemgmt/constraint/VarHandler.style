@@ -1,0 +1,15 @@
+"constraint.var"[ constraint.operator!=null && !constraint.operator.symbol.contains("null") ] {
+    visible: true; 
+}
+
+"constraint.var"[constraint.operator!=null && constraint.operator.symbol.contains("null") ] {
+    visible: false; 
+}
+
+"removeConstraint"[ constraint.field.required == 1 ] {
+    visible: false;
+}
+
+"removeConstraint"[ constraint.field.required != 1 ] {
+    visible: true;
+}

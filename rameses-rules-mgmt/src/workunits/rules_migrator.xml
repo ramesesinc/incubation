@@ -1,0 +1,53 @@
+<workunit extends="wtemplates/RuleMgmtController.xml" serviceName="RuleMgmtService">
+    <invokers>
+       <invoker type="rulemgmt:tools" action="exportFile" caption="Export Def" target="process" index="90"/>
+        <invoker type="rulemgmt:tools" action="importFile" caption="Import Def" target="process"  index="91"/>
+    </invokers>
+    <code>
+        <![CDATA[
+            import com.rameses.rcp.common.*
+            import com.rameses.rcp.annotations.*
+            import com.rameses.osiris2.client.*
+            import com.rameses.osiris2.common.*
+            import com.rameses.rulemgmt.constraint.*;
+            import com.rameses.rulemgmt.*;
+            import java.rmi.server.*;
+            import javax.swing.*;
+            import com.rameses.io.*;
+            
+            class RulesMigratorController  {
+                
+                @Service("RuleMigrationService")
+                def service;
+            
+                def ruleset;
+            
+                
+                def exportFile() {
+                    def domain = MsgBox.prompt( "Enter domain" );
+                    if(!domain) return null;
+                    
+                    def chooser = new JFileChooser();
+                    int i = chooser.showSaveDialog(null);
+                    if(i==0) {
+                        def m = service.downloadDef( [domain:domain] );
+                        FileUtil.writeObject( chooser.selectedFile, m );
+                        MsgBox.alert("downloaded!");
+                    }
+                }
+                
+                def importFile() {
+                    def chooser = new JFileChooser();
+                    int i = chooser.showOpenDialog(null);
+                    if(i==0) {
+                        def m = FileUtil.readObject( chooser.selectedFile );
+                        service.uploadDef( m );
+                        MsgBox.alert("completed!");
+                    }
+                }
+    
+
+            }
+        ]]>    
+    </code>
+</workunit>

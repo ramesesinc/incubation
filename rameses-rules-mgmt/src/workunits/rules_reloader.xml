@@ -1,0 +1,34 @@
+<workunit extends="wtemplates/RuleMgmtController.xml" serviceName="RuleMgmtService">
+    <invokers>
+       <invoker type="rulemgmt:tools" action="reload" caption="Reload" target="process" index="10"/>
+    </invokers>
+    <code>
+        <![CDATA[
+            import com.rameses.rcp.common.*
+            import com.rameses.rcp.annotations.*
+            import com.rameses.osiris2.client.*
+            import com.rameses.osiris2.common.*
+            import com.rameses.rulemgmt.constraint.*;
+            import com.rameses.rulemgmt.*;
+            import java.rmi.server.*;
+            import javax.swing.*;
+            import com.rameses.io.*;
+            
+            class RulesReloaderController  {
+                
+                @Service("RuleMgmtService")
+                def service;
+                
+                def ruleset;
+            
+                def reload() {
+                    if(MsgBox.confirm("You are about to reload " + ruleset+  ". This will take a while depending on the size of the rulebase. Continue?")) {
+                        service.reload(ruleset);
+                        MsgBox.alert("Reload successful");
+                    }
+                }
+                
+            }
+        ]]>    
+    </code>
+</workunit>

@@ -1,0 +1,15 @@
+"addCondition|addAction|reloadInfo"[ entity.state != 'DEPLOYED' || mode =='read' ] {
+    visible: true; 
+}
+
+"addCondition|addAction|reloadInfo"[ entity.state == 'DEPLOYED' || mode != 'read' ] {
+    visible: false; 
+}
+
+"entity.*" [mode!='read'] {
+    enabled: true;
+}
+
+"entity.*" [mode=='read'] {
+    enabled: false;
+}
