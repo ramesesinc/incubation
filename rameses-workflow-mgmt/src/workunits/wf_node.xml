@@ -1,0 +1,46 @@
+<workunit>
+    <invokers>
+        <invoker type="wf_node:create" caption="Add Node" target="popup" action="create"/>
+        <invoker type="wf_node:open" caption="Node" target="popup" />
+    </invokers>
+    <code>
+        <![CDATA[    
+        import com.rameses.rcp.annotations.*
+        import com.rameses.rcp.common.*
+        import com.rameses.osiris2.client.*
+        import com.rameses.osiris2.common.*
+        import com.rameses.common.*;
+        import java.rmi.server.*
+        import com.rameses.util.*;
+        import com.rameses.gov.etracs.bpls.business.*;
+        
+        class  WorkflowNodeController {
+        
+            @Service("WorkflowNodeService")
+            def service;
+        
+            def entity;
+            def handler;
+                
+            def nodeTypes = ["state","fork","join"];
+            
+            void create() {
+                entity = [processname:entity.name];
+            }
+            
+            def doOk() {
+                if(handler) handler(entity);
+                return "_close";
+            }
+            
+            def doCancel() {
+                return "_close";
+            }
+        }
+        ]]> 
+        
+    </code>
+    <pages>
+        <page template="com.rameses.wfmgmt.developer.NodeFormPage"/>
+    </pages>
+</workunit>

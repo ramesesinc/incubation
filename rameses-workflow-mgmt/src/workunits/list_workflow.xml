@@ -1,0 +1,6 @@
+<workunit extends="wtemplates/ListController.xml" serviceName="WorkflowMgmtService" 
+    formName="workflow:list" entityName="workflow">
+    <invokers>
+        <invoker folderid="/explorer/setting" caption="Workflow Management" target="window" />
+    </invokers>
+</workunit>
