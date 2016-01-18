@@ -370,6 +370,21 @@ public class ExplorerViewListController extends ListController
         
         Node node = getNode();
         if (node == null) return null;
+        
+        if (parentController != null) { 
+            Object res = parentController.openItem( item ); 
+            if ( res == null ) {
+                /* do nothing */
+            } else if ( res instanceof Opener ) {
+                Opener op = (Opener)res; 
+                if (!(op.getTarget()+"").toLowerCase().matches("window|popup")) {
+                    op.setTarget("popup"); 
+                } 
+                return op; 
+            } else {
+                return res; 
+            }
+        } 
                 
         /*
          *  if the selected item has a filetype, then use this as our primary handler 

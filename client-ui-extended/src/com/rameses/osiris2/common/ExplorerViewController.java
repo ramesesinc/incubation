@@ -134,8 +134,8 @@ public class ExplorerViewController
     
     // <editor-fold defaultstate="collapsed" desc=" TreeNodeModel helper and utilities ">
       
-    private class TreeNodeModelImpl extends TreeNodeModel 
-    {
+    private class TreeNodeModelImpl extends TreeNodeModel {
+        
         ExplorerViewController root = ExplorerViewController.this;
         
         public boolean isRootVisible() { 
@@ -395,6 +395,10 @@ public class ExplorerViewController
     
     public void beforeFetchList(Map params) {
     }
+    
+    public Object openItem( Map item ) {  
+        return null; 
+    } 
     
     // </editor-fold>
 
