@@ -1,0 +1,15 @@
+"recurexpr|entity.recurinterval" [recurtype?.type=='once'] {
+    visible: false;
+}
+
+"recurexpr|entity.recurinterval" [recurtype?.type!='once'] {
+    visible: true;
+}
+
+"frequencytype|recurtype" [mode.matches('create|edit')] {
+    enabled: true;
+}
+
+"frequencytype|recurtype" [!mode.matches('create|edit')] {
+    enabled:false;
+}

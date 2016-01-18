@@ -1,0 +1,42 @@
+<workunit>
+    <invokers>
+        <invoker type="simplelist:lookup" target="popup"/>
+    </invokers>
+    <code>
+    <![CDATA[    
+        import com.rameses.rcp.annotations.*
+        import com.rameses.rcp.common.*
+        import com.rameses.osiris2.common.*
+        
+        class SimpleListLookupController { 
+            
+            @FormTitle
+            def title = "Lookup List"
+            
+            def selectedItem;
+            def list;
+            def onselect;
+            
+            def doOk() {
+                if( !selectedItem) {
+                    throw new Exception("Please select an item");
+                }    
+                if( !onselect ) {
+                    throw new Exception("onselect handler is required");
+                }    
+                onselect( selectedItem ); 
+                return "_close";
+            }
+            
+            def doCancel() { 
+                return "_close"; 
+            } 
+        }
+    ]]>
+    </code>
+    
+    <pages>
+        <page template="com.rameses.osiris2.common.ui.SimpleListLookupPage"/>
+    </pages>
+    
+</workunit>
