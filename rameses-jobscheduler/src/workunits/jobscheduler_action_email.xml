@@ -1,0 +1,83 @@
+<workunit>
+    
+    <invokers>
+        <invoker type="jobscheduler:actions" name="email" caption="Email" />
+        <invoker type="jobscheduler:action:email" caption="Email" action="init"/>
+    </invokers>
+    
+    <code>
+        <![CDATA[
+        import com.rameses.rcp.common.*;
+        import com.rameses.rcp.annotations.*;
+        import com.rameses.util.*;
+        import com.rameses.common.*;
+        import com.rameses.osiris2.client.*;
+        import com.rameses.osiris2.common.*;
+        
+        class EmailAction  {
+
+            @Caller
+            def caller;
+
+            @Service("DBService")
+            def dbSvc;
+            
+            @Service("EmailService")
+            def emailSvc;
+
+            def entity;
+            def datasourceList;
+            boolean editing = true;
+            
+            void init() {
+                entity = caller.entity.action;
+                entity.objid = caller.entity.objid;
+                datasourceList = dbSvc.getAdapters();
+            }
+            
+            def fetchSingleResult() {
+                if(!entity.adapter)
+                    throw new Exception("Please indicate an adapter");
+                if(!entity.sql)
+                    throw new Exception("Please indicate an sql");
+                return dbSvc.getSingleResult(entity.sql, [adapter:entity.adapter] )?.result;
+            }
+
+            void testSQL() {
+                fetchSingleResult();
+                MsgBox.alert('test OK!');
+            }
+            
+            String getTemplate(def m) {
+                return ExpressionResolver.instance.evalString(entity.messagetemplate, m);
+            }
+            
+            void viewTemplate() {
+                if( !entity.messagetemplate ) 
+                    throw new Exception( "Template not defined" );
+                def m = fetchSingleResult();
+                StringBuilder sb = new StringBuilder();
+                sb.append( "email: " + (( !m.email )?'none':m.email) + "\n" );
+                sb.append( "message: " + getTemplate(m) );
+                MsgBox.alert( sb.toString() );
+            }
+            
+            void sendEmail() {
+                if( !entity.messagetemplate ) {
+                    throw new Exception("Please specify template first");
+                }    
+                def m = fetchSingleResult();
+                def o = MsgBox.prompt( "Please enter the email address");
+                if(!o) return;
+                MsgBox.alert( "sending " + getTemplate(m) );
+                emailSvc.send([ recipients: [o], subject:caller.entity.name, message: getTemplate(m) ]);
+            }
+            
+        }
+        ]]>
+    </code>
+    <pages>
+        <page template="com.rameses.jobscheduler.JobSchedulerEmailActionForm"/>
+    </pages>
+    
+</workunit>

@@ -1,0 +1,72 @@
+<workunit>
+    <invokers>
+        <invoker type="rulecondition:dynamic:create" action="create"/>
+        <invoker type="rulecondition:dynamic:open" action="open"/>
+    </invokers>
+    
+    <code>
+        <![CDATA[    
+        import com.rameses.rcp.annotations.*
+        import com.rameses.rcp.common.*
+        import com.rameses.osiris2.client.*
+        import com.rameses.osiris2.common.*
+        import java.rmi.server.*;
+        import com.rameses.rulemgmt.*;
+        
+        class DynamicConditionController extends RuleConditionController {
+        
+            void create() {
+                initCreate();
+            }
+            
+            void open() {
+                mode = "open";
+                entity.constraints.each {c->
+                    c.field.required = 1;
+                    addConstraintControl(c);
+                }            
+            }
+            
+            void buildItems(String varName) {
+                def reqs = fact.fields.findAll{ it.required == 1 };
+                reqs.each { fld->
+                    def constraint = [objid:"RCONST"+new UID(), pos:entity.constraints.size() ];
+                    constraint.field = fld;
+                    entity.constraints << constraint;
+                }
+                def dtypes = fact.fields.findAll{it.datatype == entity.dynamic.datatype};
+                dtypes.each { fld->
+                    fld.required = 1;
+                    def constraint = [objid:"RCONST"+new UID(), pos:entity.constraints.size() ];
+                    constraint.field = fld;
+                    constraint.varname = varName;
+                    entity.constraints << constraint;
+                }
+                entity.constraints.each {c->
+                    addConstraintControl(c);
+                }
+            }
+            
+            def getLookupTypes() {
+                return InvokerUtil.lookupOpener( fact.lookuphandler, [
+                    onselect: {o->
+                        entity.dynamic = [:];
+                        entity.dynamic.key = o[fact.lookupkey];
+                        entity.dynamic.value = o[fact.lookupvalue];
+                        entity.dynamic.datatype = o[fact.lookupdatatype];
+                        if(entity.dynamic.datatype == "string_array") {
+                            entity.dynamic.datatype = "string";
+                        }
+                        buildItems(o[fact.lookupkey]);
+                        binding.refresh();
+                    }
+                ] );
+            }
+            
+        }]]>
+    </code>
+    <pages>
+        <page template="com.rameses.rulemgmt.DynamicRuleConditionPage"/>
+    </pages>
+    
+</workunit>

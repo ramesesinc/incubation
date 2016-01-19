@@ -1,0 +1,15 @@
+"selection|showLookup"[ usevar == false ] {
+    visible: true; 
+}
+
+"selection|showLookup"[ usevar == true ] {
+    visible: false; 
+}
+
+"action.var"[ usevar == true ] {
+    visible: true; 
+}
+
+"action.var"[ usevar == false ] {
+    visible: false; 
+}

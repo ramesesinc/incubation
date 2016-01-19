@@ -69,14 +69,13 @@ public class FileChunker {
         List<byte[]> results = new ArrayList(); 
                         
         public void start() {
-            super.start(); 
             results.clear(); 
         }
 
         public void end() {
         }
 
-        public void process(int indexno, byte[] bytes) {
+        public void handle(int indexno, byte[] bytes) {
             results.add( bytes ); 
         }
     }

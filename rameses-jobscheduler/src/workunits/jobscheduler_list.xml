@@ -1,0 +1,35 @@
+<workunit extends="wtemplates/ListController.xml">
+    <invokers>
+        <invoker folderid="/home/admin" caption="Job Scheduler" index="200" />
+    </invokers>
+    <code>
+        <![CDATA[
+        import com.rameses.rcp.common.*;
+        import com.rameses.rcp.annotations.*;
+        import com.rameses.util.*;
+        import com.rameses.osiris2.client.*;
+        import com.rameses.osiris2.common.*;
+        
+        class JobSchedulerListController extends DefaultListController {
+        
+            @Service("JobSchedulerListService")
+            def service;
+        
+            String entityName = "jobscheduler";
+        
+            public List getColumnList() {
+                return [
+                    [name:"name", caption:"Job Name", width:120, maxWidth:250],
+                    [name:"description", caption:"Description"],
+                    [name:"state", caption:"Status", width:120, maxWidth:250 ],
+                    [name:"scheduletype", caption:"Schedule Type", width:120, maxWidth:250 ]
+                ];
+            }
+            
+            public List fetchList(Map params) {
+                return service.getList( params );
+            }
+        }
+        ]]>
+    </code>
+</workunit>

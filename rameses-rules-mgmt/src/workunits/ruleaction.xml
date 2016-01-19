@@ -1,0 +1,14 @@
+<workunit>
+    
+    <invokers>
+        <invoker type="ruleaction:default:create" caption="Default Rule Action" action="create"/>
+        <invoker type="ruleaction:default:open" action="open" caption="Rule Action" target="popup"/>
+    </invokers>
+    
+    <code class="com.rameses.rulemgmt.RuleActionController" />
+
+    <pages>
+        <page  template="com.rameses.rulemgmt.DefaultRuleActionPage"/>
+    </pages>
+    
+</workunit>

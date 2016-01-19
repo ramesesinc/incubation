@@ -1,0 +1,34 @@
+<workunit>
+    
+    <invokers>
+        <invoker type="ruleaction:handler:lov" action="init" />
+    </invokers>
+    <code>
+        <![CDATA[
+        import com.rameses.rcp.common.*;
+        import com.rameses.rcp.annotations.*;
+        import com.rameses.osiris2.client.*;
+        import com.rameses.osiris2.common.*
+        import com.rameses.rulemgmt.action.*;
+
+        class RuleActionLOVHandler extends RuleActionHandler {
+            
+            def lovList;
+            
+            void init() {
+                lovList = LOV[actionParamDef.lovname]*.key;
+            }
+        
+            String getSelection() {
+                return actionParam.lov;
+            }
+            
+        }
+        
+        
+        ]]>
+    </code>    
+    <pages>
+        <page template="com.rameses.rulemgmt.action.LOVHandler"/>
+    </pages>
+</workunit>

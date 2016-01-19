@@ -1,0 +1,124 @@
+<workunit>
+    <invokers>
+        <invoker type="ruleaction:handler:expression" action="init" />
+    </invokers>
+    <code>
+        <![CDATA[
+        import com.rameses.rcp.common.*;
+        import com.rameses.rcp.annotations.*;
+        import com.rameses.osiris2.client.*;
+        import com.rameses.osiris2.common.*
+        import com.rameses.rulemgmt.action.*;
+        import com.rameses.util.*;
+        import java.rmi.server.*;
+
+        class RuleActionExpressionHandler extends RuleActionHandler {
+        
+            @Script("Template")
+            def template;
+        
+            @Service("RuleMgmtService")
+            def service;
+        
+            //used as temporary data    
+            def _expr;
+            def _var;
+            def _listvalue;
+            
+            def editExpression() {
+                _expr = actionParam.expr;
+                if(actionParam.exprtype =="range" && actionParam.listvalue) {
+                    if( !MsgBox.confirm("You are about to replace the existing range values. Continue?") ) {
+                        return;
+                    }
+                    _expr = null;
+                } 
+                def model = [
+                    getValue: {
+                        return _expr;
+                    },
+                    setValue: { o->
+                        _expr = o;
+                    },
+                    getVariables: { type->
+                        def vars = service.findAllVarsByType( [ruleid: action.parentid, datatype: type ] );
+                        return vars.collect{
+                            [caption: it.name, title:it.name,  signature: it.name, description : "("+it.datatype +")" ]
+                        };
+                    }
+                ] as ExpressionModel;
+                def handle = { o-> 
+                    actionParam.listvalue = null;
+                    actionParam.expr = _expr;
+                    actionParam.exprtype = "expression";
+                    binding.refresh("actionParam.expr") 
+                };
+                return InvokerUtil.lookupOpener("expression:editor", [model:model, updateHandler: handle] );
+            }
+            
+            def editTable() {
+                if(actionParam.exprtype =="expression" && actionParam.expr) {
+                    if(!MsgBox.confirm("You are about to replace the existing expression value. Continue?") ) {
+                        return;
+                    }
+                } 
+                
+                //set temp values
+                _var = actionParam.var;
+                _listvalue = actionParam.listvalue;
+                
+                def vars = service.findAllVarsByType( [ruleid: action.parentid, datatype: 'number' ] );
+                def model = [
+                    getVar: {
+                        if( _var?.objid ) {
+                            return vars.find{ it.objid == _var.objid }
+                        }
+                        return null;
+                    },
+                    setVar: { o->
+                        _var = o;
+                    },
+                    getValue : {
+                        return _listvalue;
+                    },
+                    setValue: { o->
+                        _listvalue = o;
+                    },
+                    getVars: {
+                        return vars;
+                    },
+                    getExpressionEditor: { val->
+                        def model2 = [
+                            getValue: {
+                                return val.value;
+                            },
+                            setValue: { o->
+                                val.value = o;
+                            },
+                            getVariables: { type->
+                                return vars.collect{
+                                    [caption: it.name, title:it.name,  signature: it.name, description : "("+it.datatype +")" ]
+                                };
+                            }
+                        ] as ExpressionModel;
+                        return InvokerUtil.lookupOpener("expression:editor", [model:model2] );
+                    }
+                ] as ValueRangeModel;
+                def  handler = {o->
+                    actionParam.var = _var;
+                    actionParam.listvalue = _listvalue;
+                    actionParam.exprtype = "range";
+                    actionParam.expr = template.render( "html/range_value", [entity: o] );
+                    binding.refresh("actionParam.expr");
+                }
+                return InvokerUtil.lookupOpener("valuerange:editor", [model:model, updateHandler: handler] );
+            }
+        }
+        
+        
+        ]]>
+    </code>    
+    <pages>
+        <page template="com.rameses.rulemgmt.action.ExpressionHandler"/>
+    </pages>
+</workunit>

@@ -1,0 +1,9 @@
+"entity.dynamic.*"[ mode == 'create' ] {
+    editable: true; 
+    enabled: true;
+}
+
+"entity.dynamic.*"[ mode != 'create' ] {
+    editable: false; 
+    enabled : false;
+}

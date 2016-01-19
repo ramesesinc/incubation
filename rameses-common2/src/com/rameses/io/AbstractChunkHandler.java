@@ -4,32 +4,30 @@
  */
 package com.rameses.io;
 
+import com.rameses.io.FileObject.MetaInfo;
+
 /**
  *
  * @author wflores
  */
 public abstract class AbstractChunkHandler implements ChunkHandler {
     
-    private long size; 
-    private int count; 
+    private MetaInfo meta; 
+    private boolean cancelled; 
     
-    public long getSize() { return size; } 
-    public int getCount() { return count; } 
+    public boolean isCancelled() { return cancelled; }
+    public void cancel() { cancelled = true; } 
+
+    public boolean isAutoComputeTotals() { return true; } 
     
+    public MetaInfo getMeta() { return meta; } 
+    void setMeta( MetaInfo meta ) { 
+        this.meta = meta; 
+    }    
+
     public void start() {
-        size = 0; 
-        count = 0; 
-    } 
+    }
 
     public void end() {
-        //do nothing 
     }
-    
-    public abstract void process( int indexno, byte[] bytes ); 
-    
-    public final void handle(int indexno, byte[] bytes) {
-        size += bytes.length; 
-        count = indexno; 
-        process( indexno, bytes ); 
-    }
-}
+} 

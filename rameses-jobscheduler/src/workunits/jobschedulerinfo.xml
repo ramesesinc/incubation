@@ -1,0 +1,145 @@
+<workunit>
+    <invokers>
+        <invoker type="jobscheduler:create" caption="Add Job Scheduler" action="init"/>
+        <invoker type="jobscheduler:open" caption="Job Scheduler" action="open"/>
+        <invoker type="extActions" caption="Activate" action="activate" visibleWhen="#{canActivate==true}"/>
+        <invoker type="extActions" caption="Suspend" action="suspend" visibleWhen="#{canSuspend==true}"/>
+    </invokers>
+    <code>
+        <![CDATA[
+        import com.rameses.rcp.common.*;
+        import com.rameses.rcp.annotations.*;
+        import com.rameses.util.*;
+        import java.rmi.server.*;
+        import com.rameses.osiris2.client.*;
+        import com.rameses.osiris2.common.*;
+        
+        class JobSchedulerController extends CRUDController {
+        
+            @Service("JobSchedulerInfoService")
+            def service;
+
+            def scheduleTypeList = ["once", "recurring"];
+
+            def frequencytype;
+            def recurtype;
+
+            def actionOpener;            
+            boolean noenddate = false;
+            
+            boolean allowEdit = true;
+            boolean allowApprove = false;
+            
+            def actionList = [
+                new Action(caption:'Add Action', name:'addAction', visibleWhen: "#{entity.jobtype == null}"),
+                new Action(caption:'Change Action', name:'changeAction',  visibleWhen: "#{entity.jobtype!=null && mode=='create'}")
+            ];
+
+            def frequencyTypeList = [
+                [type:'daily', expr:'day(s)' ],
+                [type:'weekly', expr:'week(s)' ],
+                [type:'monthly', expr:'month(s)' ]
+            ];
+
+            def recurTypeList = [
+                [type:'once' ],
+                [type:'hour', expr:'hour(s)' ],
+                [type:'minute', expr:'minute(s)' ]
+            ];
+
+            @PropertyChangeListener
+            def p = [
+                'frequencytype': { o-> entity.frequency = o.type },
+                'recurtype': { o-> entity.recurtype = o.type },
+            ];
+
+            Map createEntity() {
+                def tt = new java.text.SimpleDateFormat( 'yyyy-MM-dd' );
+                def m = [startdate: tt.format(new Date()), starttime:'00:00', scheduletype:'once'];
+                m.objid = "JOB"+ new UID();
+                return m;
+            }
+
+            void afterOpen( o ) {
+                if( entity.frequency ) {
+                    frequencytype = frequencyTypeList.find{ it.type == entity.frequency };
+                }
+                if( entity.recurtype ) {
+                    recurtype = recurTypeList.find{ it.type == entity.recurtype };
+                }                
+                actionOpener = Inv.lookupOpener("jobscheduler:action:"+o.jobtype, [editing:false]);
+            }
+
+            void afterEdit( o ) {
+                actionOpener.handle.editing = true;
+            }
+
+            void undo() {
+                super.undo();
+                actionOpener.handle.editing = false;
+            }
+
+            def cancel() {
+                super.cancel();
+                actionOpener.handle.editing = false;
+                return null;
+            }
+
+            boolean isCanEdit() {
+                 return entity.state == 'DRAFT' || entity.state == 'SUSPENDED';
+            }     
+            
+            boolean isCanActivate() {
+                if( mode == 'edit' || mode == 'create' ) return false; 
+                if( !entity.state.matches('DRAFT|SUSPENDED')) return false;
+                return true;            
+            }
+            
+            boolean isCanSuspend() {
+                if( mode == 'edit' || mode == 'create' ) return false; 
+                if( entity.state!='ACTIVE') return false;
+                return true;            
+            }
+
+            void beforeSave( o ) {
+                if( !o.action == null ) {
+                    throw new Exception("Please indicate an action");
+                }
+            }
+            
+            def addAction() {
+                def list = Inv.lookupOpeners( "jobscheduler:actions" ).collect{ it.properties.name };
+                def s = { o->
+                    entity.jobtype = o;
+                    actionOpener = Inv.lookupOpener("jobscheduler:action:"+o);
+                    entity.action = [:];
+                    binding.refresh();
+                }
+                Modal.show( "simplelist:lookup" , [onselect:s, list:list] );
+                return null;
+            }
+            
+            void changeAction() {
+                entity.jobtype = null;
+                actionOpener = null;
+                entity.action = null;
+            }
+            
+            void activate() {
+                service.activate( entity );
+                entity.state = 'ACTIVE';
+            }
+            
+            void suspend() {
+                service.suspend( entity );
+                entity.state = 'SUSPENDED';
+            }
+            
+        }
+        ]]>
+    </code>
+    <pages>
+        <page template="com.rameses.jobscheduler.JobSchedulerForm"/>
+    </pages>
+    
+</workunit>

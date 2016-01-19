@@ -1,0 +1,67 @@
+<workunit>
+    <invokers>
+        <invoker type="loader" caption="group-notification-loader" action="init" target="process" index="100"/>
+    </invokers>
+    
+    <code>
+    <![CDATA[ 
+    import com.rameses.rcp.common.*;
+    import com.rameses.rcp.annotations.*;
+    import com.rameses.osiris2.client.*;
+    import com.rameses.osiris2.common.*;
+    import com.rameses.rcp.framework.ClientContext;
+    import com.rameses.client.notification.*;
+    
+    class GroupNotificationLoaderController implements Runnable
+    {   
+        @Notifier
+        def notifier;
+        
+        def groups = [];
+        
+        def init() {
+            NotificationLoader.add(this); 
+            return '_close';        
+        } 
+        
+        void run() { 
+            def env = ClientContext.currentContext.appEnv;
+            if (!env['ws.host']) {
+                println 'ws.host env not set';
+                return;
+            } 
+
+            println 'group-notification-loader started...';            
+            Inv.lookup('notification-group').each{
+                def groupname = it.properties.group;
+                if (groupname) groups.add(groupname.toUpperCase()); 
+            } 
+            
+            WebsocketClient.open([ 
+                protocol        : 'group', 
+                host            : env['ws.host'], 
+                maxConnection   : env['ws.maxConnection'],
+                reconnectDelay  : env['ws.reconnectDelay'],
+                maxIdleTime     : env['ws.maxIdleTime'], 
+                
+                onstart     : { 
+                    try { 
+                        def svc = new GroupNotificationService();
+                        svc.getNotified([groups: groups]); 
+                    } catch(Throwable t) { 
+                        t.printStackTrace(); 
+                    } 
+                }, 
+                
+                onmessage   : {o-> 
+                    if (!o?.groupid) return;
+                    if (groups.contains(o.groupid.toUpperCase())) { 
+                        notifier.sendMessage(o); 
+                    } 
+                } 
+            ]); 
+        }         
+    } 
+    ]]> 
+    </code>
+</workunit>

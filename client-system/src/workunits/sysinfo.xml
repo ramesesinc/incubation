@@ -1,0 +1,54 @@
+<workunit>
+    
+    <invokers>
+         <invoker type="preferences" caption="System Info" index="1"/>
+    </invokers>
+    
+    <code>
+    <![CDATA[
+    
+        import com.rameses.rcp.common.*;
+        import com.rameses.rcp.annotations.*;
+        import com.rameses.util.*;
+        
+        public class SystemInfoController
+        {
+            @Script("User")
+            def user;
+            
+            def handler = [
+                getRows: {
+                    return 20;
+                },
+                getColumns : {
+                    return [
+                        new Column( name:"key", caption:"Key", width:100, maxWidth:150),
+                        new Column( name:"value", caption:"Value", alignment:"left")
+                    ]
+                },
+            
+                fetchList : {o->
+                    def list = user.env.collect{ [key: it.key, value: it.value] }; 
+                    list.add([key:'OS Name', value:System.getProperty('os.name')]); 
+                    list.add([key:'OS Arch', value:System.getProperty('os.arch')]); 
+                    list.add([key:'Java Version', value:System.getProperty('java.version')]); 
+                    list.add([key:'Java Home', value:System.getProperty('java.home')]); 
+                    
+                    String usertimezone = System.getProperty('user.timezone');
+                    if ( !usertimezone ) usertimezone = TimeZone.getDefault().getID(); 
+                    
+                    list.add([key:'Timezone', value:usertimezone]); 
+                    list.add([key:'Language', value:System.getProperty('user.language')]);                     
+                    return list;
+                }
+            ] as SubListModel;
+            
+            public void save() {}
+        }
+        ]]>
+    </code>
+    
+    <pages>
+        <page template="system.tools.ui.SystemInfoPage" />
+    </pages>
+</workunit>

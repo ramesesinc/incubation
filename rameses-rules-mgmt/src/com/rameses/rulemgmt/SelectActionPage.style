@@ -1,0 +1,10 @@
+"addActionDef|editActionDef|removeActionDef|refresh"[ debug == true ] {
+    visible: true; 
+}
+
+"addActionDef|editActionDef|removeActionDef|refresh"[ debug != true ] {
+    visible: false; 
+}
+"doNext"[ mgmt == true ] {
+    enabled: false; 
+}

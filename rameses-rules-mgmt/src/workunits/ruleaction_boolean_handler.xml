@@ -1,0 +1,28 @@
+<workunit>
+    <invokers>
+        <invoker type="ruleaction:handler:boolean" action="init" />
+    </invokers>
+    <code>
+        <![CDATA[
+        import com.rameses.rcp.common.*;
+        import com.rameses.rcp.annotations.*;
+        import com.rameses.osiris2.client.*;
+        import com.rameses.osiris2.common.*
+        import com.rameses.rulemgmt.action.*;
+        import com.rameses.util.*;
+        import java.rmi.server.*;
+
+        class RuleActionExpressionHandler extends RuleActionHandler {
+            void init() {
+                if( actionParam.booleanvalue == null ) {
+                    actionParam.booleanvalue = false;
+                }
+                super.init();
+            }
+        }
+        ]]>
+    </code>    
+    <pages>
+        <page template="com.rameses.rulemgmt.action.BooleanHandler"/>
+    </pages>
+</workunit>

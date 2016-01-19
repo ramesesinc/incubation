@@ -1,0 +1,42 @@
+<workunit>
+    
+    <invokers>
+        <invoker type="ruleaction:handler:lookup" action="init" />
+    </invokers>
+    <code>
+        <![CDATA[
+        import com.rameses.rcp.common.*;
+        import com.rameses.rcp.annotations.*;
+        import com.rameses.osiris2.client.*;
+        import com.rameses.osiris2.common.*
+        import com.rameses.rulemgmt.action.*;
+
+        class RuleActionLookupHandler extends RuleActionHandler {
+        
+            @Service("RuleMgmtService")
+            def service;
+            
+            def getLookupHandler() {
+                if( !actionParamDef.lookupkey || !actionParamDef.lookupvalue || !actionParamDef.lookuphandler )
+                    throw new Exception( "Please specify a lookup key and lookup value in the definition" )
+                return InvokerUtil.lookupOpener( actionParamDef.lookuphandler, [
+                    onselect: { o->
+                        actionParam.obj = [ key: o[actionParamDef.lookupkey], value: o[actionParamDef.lookupvalue] ] ;
+                        binding.refresh("selection");
+                    }
+                ]);
+            }
+
+            String getSelection() {
+                return actionParam.obj?.value;
+            }
+            
+        }
+        
+        
+        ]]>
+    </code>    
+    <pages>
+        <page template="com.rameses.rulemgmt.action.LookupHandler"/>
+    </pages>
+</workunit>
