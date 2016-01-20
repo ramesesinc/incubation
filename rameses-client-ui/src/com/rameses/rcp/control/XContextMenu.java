@@ -70,7 +70,7 @@ public class XContextMenu extends JPanel implements UIControl, EventListener
         }
         
         nodeModel = (TreeNodeModel) UIControlUtil.getBeanValue(this, handler);
-        binding.getEventManager().addListener(menuFor, this);
+        //binding.getEventManager().addListener(menuFor, this);
         target = (Component) binding.find(menuFor);
         
         popupMenu = new JPopupMenu();
@@ -189,5 +189,16 @@ public class XContextMenu extends JPanel implements UIControl, EventListener
     }     
     
     // </editor-fold>
-    
+
+    public void onEvent(Object o) {
+    }
+
+    public void onMessage(Object o) {
+    }
+
+    public void onDestroy() {
+    }
+
+    public void onUnregister() {
+    }    
 }

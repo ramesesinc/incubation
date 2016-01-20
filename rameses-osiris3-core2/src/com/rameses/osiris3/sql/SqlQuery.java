@@ -9,7 +9,7 @@
 
 package com.rameses.osiris3.sql;
 
-import com.rameses.util.DataList;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -111,8 +111,9 @@ public class SqlQuery extends AbstractSqlTxn {
             
             //do paging here.
             rs = ps.executeQuery();
-            List resultList = new LinkedList();
-            fetchHandler.start();
+            
+            List resultList = fetchHandler.start();
+            if( resultList == null ) resultList = new ArrayList();
             rowsFetched = 0;
             while(rs.next()) {
                 rowsFetched = rowsFetched+1;
@@ -152,14 +153,6 @@ public class SqlQuery extends AbstractSqlTxn {
             clear();
         }
     }
-    
-    //new addition. This is to get lists that are data aware.
-    public DataList getDataList() throws Exception {
-        List cols = new LinkedList();
-        List results = getResultList(cols);
-        return new DataList(results, cols);
-    }
-    
     
     public SqlQuery setParameter( int idx, Object v ) {
         _setParameter(idx, v);

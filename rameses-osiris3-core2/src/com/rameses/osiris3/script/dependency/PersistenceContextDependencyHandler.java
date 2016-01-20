@@ -14,6 +14,7 @@ import com.rameses.osiris3.data.DataService;
 import com.rameses.osiris3.script.DependencyHandler;
 import com.rameses.osiris3.script.ExecutionInfo;
 import com.rameses.osiris3.core.TransactionContext;
+import com.rameses.osiris3.schema.SchemaManager;
 
 import java.lang.annotation.Annotation;
 
@@ -30,8 +31,7 @@ public class PersistenceContextDependencyHandler extends DependencyHandler {
     public Object getResource(Annotation c, ExecutionInfo einfo) {
         PersistenceContext p = (PersistenceContext)c;
         TransactionContext txn = TransactionContext.getCurrentContext();
-        
-        if(!p.dynamic()) {
+        if( p.value().trim().length() > 0 ) {
             DataService dataSvc = txn.getContext().getService(DataService.class);
             return dataSvc.getEntityManager( p.value() );
         } else {
@@ -41,6 +41,7 @@ public class PersistenceContextDependencyHandler extends DependencyHandler {
     
     public static class DynamicPersistenceContext {
         private TransactionContext txn;
+        
         public DynamicPersistenceContext( TransactionContext ctx ) {
             this.txn = ctx;
         }
@@ -48,6 +49,12 @@ public class PersistenceContextDependencyHandler extends DependencyHandler {
             DataService dataSvc = txn.getContext().getService(DataService.class);
             return dataSvc.getEntityManager( adapterName );
         }
+
+        public SchemaManager getSchemaManager() {
+            DataService dataSvc = txn.getContext().getService(DataService.class);
+            return dataSvc.getSchemaManager();
+        }
+        
     }
     
 }

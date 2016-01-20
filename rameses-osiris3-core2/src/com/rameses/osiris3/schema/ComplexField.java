@@ -11,6 +11,7 @@ package com.rameses.osiris3.schema;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -68,7 +69,9 @@ public class ComplexField extends SchemaField implements IRelationalField {
     }
     
     public String getRef() {
-        return ref;
+        if( this.ref == null ) return null;
+        if( this.ref.indexOf(":")<=0) return this.ref + ":" + this.ref;
+        return this.ref;
     }
     
     public void setRef(String ref) {
@@ -100,6 +103,32 @@ public class ComplexField extends SchemaField implements IRelationalField {
     }
     
     public String getJoinType() {
-        return (String)super.getProperty("jointype");
+        String joinType= (String)super.getProperty("jointype");
+        if( joinType == null ) {
+            return null;
+        }
+        return joinType.toLowerCase();
     }
+    
+    public String getFieldname() {
+        return (String)super.getProperty("fieldname");
+    }
+    
+    public String getInversekey() {
+        return (String)super.getProperty("inversekey");
+    }
+
+    @Override
+    public Map toMap() {
+        Map m = super.toMap();
+        m.put("serializer", serializer);
+        m.put("type", type);
+        m.put("ref", ref);
+        m.put("min", min);
+        m.put("max", max);
+        return m;
+    }
+    
+    
+    
 }

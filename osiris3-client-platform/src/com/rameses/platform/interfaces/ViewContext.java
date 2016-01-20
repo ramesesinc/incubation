@@ -20,5 +20,6 @@ public interface ViewContext {
     void display();
     void setSubWindow(SubWindow subWindow);
     SubWindow getSubWindow();
-    
+
+    void activate();
 }

@@ -1,0 +1,47 @@
+<workunit>
+    <invokers>
+        <invoker type="workflow_open_subtask:view" caption="Sub Tasks" target="popup"/>
+        <invoker type="formActions" caption="Close" action="doClose"/>
+    </invokers>
+    <code>
+    <![CDATA[
+        import com.rameses.rcp.common.*;
+        import com.rameses.rcp.annotations.*;
+        import com.rameses.osiris2.client.*;
+        import com.rameses.osiris2.common.*;
+        import com.rameses.rcp.framework.ClientContext;
+
+        public class WorkflowOpenSubtaskListModel {
+
+            @Service("WorkflowService")
+            def wfService;
+
+            String title = "Open Subtasks";
+            
+            def param;
+            def selectedEntity;
+            
+            def listHandler = [
+                getColumnList: {
+                    return [
+                        [name:'startdate', caption:'Start Date'],
+                        [name:'assignee.name', caption:'Assignee'],
+                        [name:'message', caption:'Message'],
+                        [name:'lapsetime', caption:'Lapse Time'],
+                    ];
+                },
+                fetchList: {
+                    return wfService.getOpenSubtaskList(param);
+                }
+            ] as BasicListModel;
+
+            def doClose() {
+                return "_close";
+            }
+        }
+    ]]>  
+    </code>    
+    <pages>
+        <page template="com.rameses.osiris2.themes.ListPage"/>
+    </pages>
+</workunit> 

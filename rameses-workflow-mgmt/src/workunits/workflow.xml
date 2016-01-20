@@ -1,0 +1,97 @@
+<workunit>
+    <invokers>
+        <invoker type="workflow:open" caption="Workflow Management" />
+    </invokers>
+    <code>
+    <![CDATA[ 
+        import com.rameses.rcp.annotations.*
+        import com.rameses.rcp.common.*
+        import com.rameses.osiris2.client.*
+        import com.rameses.osiris2.common.*
+        import com.rameses.common.*;
+        import java.rmi.server.*
+        import com.rameses.util.*;
+        import com.rameses.gov.etracs.bpls.business.*;
+        
+        class  WorkflowController 
+        {
+            @Service("WorkflowNodeService")
+            def service;
+
+            @Service('WorkflowMgmtService')
+            def wfmgmtSvc;
+        
+            def fileChooser = new javax.swing.JFileChooser(); 
+
+            def entity;
+            def selectedNode;
+            def nodeList;
+                
+            def treeModel = [
+                isRootVisible: { return false},
+                fetchNodes: {o->
+                    if(!o.parent) {
+                        if( !nodeList) nodeList = service.getNodes( [processname:entity.name] );
+                        return nodeList.collect{ 
+                            [caption:it.title, name:it.name, folder:true,  item:it, nodetype:it.nodetype] 
+                        };
+                    }
+                    else if(o.properties.nodetype!=null) {
+                        def m = [processname: o.item?.item.processname, name:o.item?.item.name];
+                        return service.getNodeTransitions(m).collect{
+                            [caption:it.to + (it.action?' ['+it.action+']':'') , name:it.to, leaf:false, folder:false, item:it] 
+                        };
+                    }
+                },
+            ] as TreeNodeModel;
+            
+            def addNode() {
+                return Inv.lookupOpener( "wf_node:create", [entity: entity, handler: {o->
+                    treeModel.reloadTree();    
+                }] );
+            }
+            
+            private def getTransitionNodes(def n) {
+                return nodeList*.name - ["start", n.parentid ];
+            }
+            
+            def addTransition() {
+                def n = selectedNode.item.item;
+                if( !n.nodetype ) throw new Exception("Transition is only applicable to node types");
+                if( n.nodetype == 'end' ) throw new Exception("Transition not applicable to end node");
+                return Inv.lookupOpener( "wf_transition:create", [entity: n, , nodes: getTransitionNodes(n), handler: {o->
+                    treeModel.reloadTree();    
+                }] );
+            }
+
+            def showNode() {
+                def n = selectedNode.item.item;
+                if( n.nodetype ) {
+                    if( n.nodetype == 'start' ) return;
+                    return Inv.lookupOpener( "wf_node:open", [entity: n] );
+                }
+                else {
+                    return Inv.lookupOpener( "wf_transition:open", [entity: n, nodes: getTransitionNodes(n)] );
+                }
+            }
+            
+            void exportData() { 
+                fileChooser.setFileSelectionMode(fileChooser.FILES_ONLY); 
+                fileChooser.setSelectedFile(new java.io.File('wf_' + entity.name)); 
+                int opt = fileChooser.showSaveDialog(null); 
+                if (opt == fileChooser.APPROVE_OPTION) { 
+                    def file = fileChooser.getSelectedFile(); 
+                    def data = wfmgmtSvc.open([name: entity.name]); 
+                    if (!data) throw new Exception('No record(s) found'); 
+
+                    com.rameses.io.FileUtil.writeObject(file, [data]); 
+                    MsgBox.alert('Successfully exported to file'); 
+                } 
+            } 
+        } 
+    ]]> 
+    </code>
+    <pages>
+        <page template="com.rameses.wfmgmt.developer.WorkflowPage"/>
+    </pages>
+</workunit>

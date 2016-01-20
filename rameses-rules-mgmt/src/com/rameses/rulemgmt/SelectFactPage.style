@@ -1,0 +1,15 @@
+"addFact|editFact|removeFact|refresh"[ debug == true ] {
+    visible: true; 
+}
+
+"addFact|editFact|removeFact|refresh"[ debug != true ] {
+    visible: false; 
+}
+
+"doNext"[ mgmt == false ] {
+    enabled: true; 
+}
+
+"doNext"[ mgmt == true ] {
+    enabled: false; 
+}

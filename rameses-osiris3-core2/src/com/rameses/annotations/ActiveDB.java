@@ -19,6 +19,9 @@ import java.lang.annotation.Target;
 public @interface ActiveDB {
 
     String value() default "";
-    String em() default "main";
+    String em() default "";
+    
+    //this is the new way not em. but we dont remove first em.
+    String adapter() default "";
     boolean dynamic() default false;
 }

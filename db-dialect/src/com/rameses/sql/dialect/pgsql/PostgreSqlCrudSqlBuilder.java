@@ -1,17 +1,11 @@
 package com.rameses.sql.dialect.pgsql;
 
-import com.rameses.osiris3.sql.CrudModel;
-import com.rameses.osiris3.sql.CrudModel.CrudField;
-import com.rameses.osiris3.sql.CrudSqlBuilder;
-import com.rameses.osiris3.sql.SqlUnit;
-import java.util.ArrayList;
-import java.util.List;
 
 
 
-
-public class PostgreSqlCrudSqlBuilder extends CrudSqlBuilder {
+public class PostgreSqlCrudSqlBuilder {
     
+    /*
     public SqlUnit getCreateSqlUnit(CrudModel cp) {
         List paramNames = new ArrayList();
         StringBuffer sb = new StringBuffer();
@@ -142,12 +136,7 @@ public class PostgreSqlCrudSqlBuilder extends CrudSqlBuilder {
         return new SqlUnit(stmt, paramNames);
     }
     
-    /***
-     * standard list statement is as follows
-     * <br>
-     * SELECT ${fields} FROM ( select field1 as name1, field2 as name2 from table ) tbl ${condition}
-     */
-    // <editor-fold defaultstate="collapsed" desc="SQL LIST">
+   
     public SqlUnit getListSqlUnit(CrudModel cp, String xalias) {
         String alias = cp.getAlias();
         if(alias==null || alias.trim().length()==0) alias = xalias;
@@ -181,5 +170,5 @@ public class PostgreSqlCrudSqlBuilder extends CrudSqlBuilder {
     private String escapeField( String name ) {
         return "\"" + name + "\"";
     }
-    
+    */ 
 }

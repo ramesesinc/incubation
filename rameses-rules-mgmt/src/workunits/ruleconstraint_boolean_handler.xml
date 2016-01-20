@@ -1,0 +1,10 @@
+<workunit>
+    
+    <invokers>
+        <invoker type="ruleconstraint:handler:boolean" />
+    </invokers>
+    <code class="com.rameses.rulemgmt.constraint.RuleConstraintBooleanHandler"/>
+    <pages>
+        <page template="com.rameses.rulemgmt.constraint.BooleanHandler"/>
+    </pages>
+</workunit>

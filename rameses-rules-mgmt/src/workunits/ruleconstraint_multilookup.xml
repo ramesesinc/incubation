@@ -1,0 +1,57 @@
+<workunit>
+    <invokers>
+        <invoker type="ruleconstraint:multilookup" caption="Lookup Items" target="popup"/>
+    </invokers>
+    <code>
+        <![CDATA[
+        
+        import com.rameses.rcp.common.*;
+        import com.rameses.rcp.annotations.*;
+        import com.rameses.osiris2.client.*;
+        import com.rameses.osiris2.common.*
+        import com.rameses.osiris2.reports.*;
+        
+        class RuleConstraintMultiLookup {
+        
+            @Binding
+            def binding;
+        
+            def lookupHandler;
+            def lookupKey;
+            def lookupValue;
+            def items;
+            def handler;
+            
+            def getAddItem() {
+                return InvokerUtil.lookupOpener( lookupHandler, [
+                    onselect: { o->
+                        items << [ key: o[lookupKey], value: o[lookupValue] ] ;
+                        listModel.reload();
+                    }
+                ]);
+            }
+            
+            def listModel = [
+                fetchList: { o->
+                    return items;
+                },
+                onRemoveItem: { o->
+                    items.remove(o);
+                }
+            ] as EditorListModel;
+            
+            def doOk() {
+                handler( items );
+                return "_close";
+            }
+            
+            def doCancel() {
+                return "_close";
+            }
+        }    
+        ]]>
+    </code>    
+    <pages>
+        <page template="com.rameses.rulemgmt.constraint.MultiSelectPage"/>
+    </pages>
+</workunit>

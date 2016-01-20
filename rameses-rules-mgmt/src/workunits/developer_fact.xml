@@ -1,0 +1,188 @@
+<workunit>
+    
+    <invokers>
+        <invoker type="rulefact:create" caption="Create Fact" action="create" target="popup"/>
+        <invoker type="rulefact:edit" caption="Edit Fact" action="edit" target="popup"/>
+        <invoker type="formActions" caption="Close" action="_close" immediate="true"/>
+        <invoker type="formActions" caption="Save" action="saveFact"/>
+    </invokers>
+    
+    <code>
+         <![CDATA[
+        
+        import com.rameses.rcp.common.*;
+        import com.rameses.rcp.annotations.*;
+        import com.rameses.osiris2.client.*;
+        import com.rameses.osiris2.common.*
+        import com.rameses.rulemgmt.*;
+        import com.rameses.util.*;
+        import java.rmi.server.*;
+        import com.rameses.rulemgmt.developer.*;
+        
+        class RuleFactController {
+        
+            @Binding
+            def binding;
+        
+            @Service("RuleDeveloperService")
+            def service;
+        
+            def entity;
+            def ruleset;
+            
+            def field;
+            def mode;
+            def fieldmode;
+            def selectedField;
+            def varStatus;
+            String title = "Fact";
+            
+            def handlerTypes = [
+                "lov", "lookup", "var", "decimal", "integer", "string", "boolean","date"
+            ]
+            
+            @PropertyChangeListener
+            def listener = [
+                "field.handler": { o->
+                    switch(o) {
+                        case "decimal" : 
+                            field.vardatatype = "decimal";
+                            field.datatype = "decimal";
+                            break;
+                        case "integer" : 
+                            field.vardatatype = "integer";
+                            field.datatype = "integer";
+                            break;
+                        case "string" : 
+                            field.vardatatype = "string";
+                            field.datatype = "string";
+                            break;
+                        case "boolean" : 
+                            field.vardatatype = "boolean";
+                            field.datatype = "boolean";
+                            break;   
+                        case "date" : 
+                            field.vardatatype = "date";
+                            field.datatype = "date";
+                            break;                               
+                        default:
+                            field.vardatatype = "string";
+                            field.datatype = "string";
+                    }
+                }
+            ]
+            
+            def getOpener() {
+                if(!field.handler) return null;
+                return new Opener( outcome: field.handler );
+            }
+            
+            void create() {
+                mode = "create";
+                entity = [objid: "RULFACT" + new UID()];
+                entity.fields  = [];
+                entity.rulesets = [];
+                entity.rulesets << [ruleset: ruleset];
+            }
+            
+            void edit() {
+                mode = "edit";
+                entity = service.findFact( entity );
+            }
+            
+            
+            def saveFact() {
+                service.saveFact( entity );
+                MsgBox.alert("Record saved");
+                return "_close";
+            }
+            
+            def fieldModel = [
+                fetchList: { o->
+                    return  entity.fields;
+                }
+            ] as BasicListModel;
+            
+            def addField() {
+                fieldmode = "add";
+                field = [objid: "FACTFLD"+new UID()];
+                field.sortorder = 0;
+                def opener = new Opener(id:"rulefact:addfield", outcome:"fieldinfo");
+                opener.target = "popup";
+                return opener;
+            }
+            
+            def editField() {
+                fieldmode = "edit";
+                field = selectedField;
+                def opener = new Opener(id:"rulefact:editfield", outcome:"fieldinfo");
+                opener.target = "popup";
+                return opener;
+            }
+            
+            void removeField() {
+                if(MsgBox.confirm("You are about to remove this entry. Continue?")) {
+                    entity.fields.remove( selectedField );
+                    if(!entity._deleted_fields) entity._deleted_fields = [];
+                    entity._deleted_fields << selectedField;
+                }
+            }
+            
+            def saveField() {
+                if(fieldmode == "add") {
+                    entity.fields << field;
+                }
+                fieldModel.reload();
+                return "_close";
+            }   
+            
+            def shiftUp() {
+                int pos = varStatus.index;
+                entity.fields = RuleDevUtil.shiftPos( entity.fields, pos );
+                if(pos>0) pos = pos-1;
+                fieldModel.setSelectedItem(pos);
+                fieldModel.reload();
+            }
+
+            def shiftDown() {
+                int pos = varStatus.index + 1;
+                entity.fields = RuleDevUtil.shiftPos( entity.fields, pos );
+                if(pos >= entity.fields.size()) pos = entity.fields.size()-1;
+                fieldModel.setSelectedItem(pos);
+                fieldModel.reload();
+            }
+            
+            def selectedRuleset;
+            void addRuleset() {
+                def o = MsgBox.prompt("Add ruleset");
+                if(!o) return;
+                entity.rulesets << [ruleset: o];
+               
+            }
+            
+            void removeRuleset() {
+                if(entity.rulesets.size()==1)
+                    throw new Exception("Cannot remove ruleset. There must be at least one");
+                if(!selectedRuleset) return null;
+                if(!entity._deleted_rulesets)entity._deleted_rulesets = [];
+                entity._deleted_rulesets << selectedRuleset;
+                entity.rulesets.remove( selectedRuleset );
+            }
+            
+        }
+        ]]>
+    </code>
+    <pages>
+        <page template="com.rameses.rulemgmt.developer.FactInfo"/>
+        <page name="fieldinfo" template="com.rameses.rulemgmt.developer.FactField"/>
+        
+        <page name="lookup" template="com.rameses.rulemgmt.developer.FactFieldLookup"/>
+        <page name="decimal" template="com.rameses.rulemgmt.developer.FactFieldDefault"/>
+        <page name="integer" template="com.rameses.rulemgmt.developer.FactFieldDefault"/>
+        <page name="var" template="com.rameses.rulemgmt.developer.FactFieldVar"/>
+        <page name="lov" template="com.rameses.rulemgmt.developer.FactFieldLOV"/>
+        <page name="string" template="com.rameses.rulemgmt.developer.FactFieldDefault"/>
+        <page name="boolean" template="com.rameses.rulemgmt.developer.FactFieldDefault"/>
+        <page name="date" template="com.rameses.rulemgmt.developer.FactFieldDefault"/>
+    </pages>
+</workunit>

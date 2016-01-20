@@ -39,30 +39,26 @@ public class DBServiceConnection implements Connection {
     private DBServiceDatabaseMetaData dbmeta;
     private Map conf;
     
-    public DBServiceConnection(Map conf,String serviceName) {
-        this.conf = conf;
-        this.scriptService = new DBServiceImpl(conf,serviceName);
-    }
-
     public DBServiceConnection(Map conf) {
         this.conf = conf;
-        this.scriptService = new DBServiceImpl(conf);
+        this.scriptService = new DBServiceImpl(conf,null,null);
     }
 
     public DBServiceConnection(String host,String cluster,String appContext) {
         this(host,cluster,appContext,null);
     }
-    public DBServiceConnection(String host,String cluster,String appContext,String serviceName) {
+    
+    public DBServiceConnection(String host,String cluster,String appContext,String adapterName) {
+        this(host,cluster,appContext,adapterName,null);
+    }
+
+    public DBServiceConnection(String host,String cluster,String appContext,String adapterName, String serviceName) {
         this.conf = new HashMap();
         this.conf.put("app.cluster", cluster);
         this.conf.put("app.host", host);
         this.conf.put("app.context", appContext);
-        if(serviceName!=null)
-            this.scriptService = new DBServiceImpl(this.conf,serviceName);
-        else
-            this.scriptService = new DBServiceImpl(this.conf);
+        this.scriptService = new DBServiceImpl(this.conf,adapterName,serviceName);
     }
-    
     
     public Statement createStatement() throws SQLException {
         return new DBServiceStatement(null,scriptService,this);

@@ -36,7 +36,7 @@ public class TableHeaderRenderer extends JLabel implements TableCellRenderer
         return componentSupport;
     }    
     
-    public void paint(Graphics g) 
+    public void xpaint(Graphics g) 
     {
         Graphics2D g2 = (Graphics2D) g.create();
         Color bg = Color.LIGHT_GRAY;

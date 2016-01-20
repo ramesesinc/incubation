@@ -1,0 +1,25 @@
+<workunit>
+    
+    <invokers>
+        <invoker type="ruleaction:handler:message"  />
+    </invokers>
+    <code>
+        <![CDATA[
+        import com.rameses.rcp.common.*;
+        import com.rameses.rcp.annotations.*;
+        import com.rameses.osiris2.client.*;
+        import com.rameses.osiris2.common.*
+        import com.rameses.rulemgmt.action.*;
+
+        class RuleActionMessageHandler extends RuleActionHandler {
+            
+            
+        }
+        
+        
+        ]]>
+    </code>    
+    <pages>
+        <page template="com.rameses.rulemgmt.action.MessageHandler"/>
+    </pages>
+</workunit>

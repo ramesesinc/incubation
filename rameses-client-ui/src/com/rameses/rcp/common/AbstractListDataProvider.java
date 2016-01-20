@@ -255,6 +255,8 @@ public abstract class AbstractListDataProvider
         return actionProvider; 
     }
     
+    public boolean isAllowOpen() { return true; } 
+    
     protected Object onOpenItem(Object item, String columnName) { return null; }
     protected Map getOpenerParams(Object item) { return null; } 
     protected Object lookupOpener(String actionType, Object item) { 
@@ -279,6 +281,8 @@ public abstract class AbstractListDataProvider
     
     public final Object openSelectedItem() 
     { 
+        if ( !isAllowOpen() ) { return null; }
+        
         Object item = (selectedItem == null? null: selectedItem.getItem());
         if (item == null) return null;
         
@@ -671,7 +675,7 @@ public abstract class AbstractListDataProvider
             checkedItems.remove(item);
     }*/   
     
-    protected void refreshSelectedItem() { 
+    public void refreshSelectedItem() { 
         fireFocusSelectedItem(); 
     } 
     

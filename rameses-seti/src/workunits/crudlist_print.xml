@@ -1,0 +1,25 @@
+<workunit template="wtemplates/ReportController.xml">
+    <invokers>
+        <invoker type="crudlist:print" action="preview" />
+        <invoker type="formActions" caption="Close" action="_close" />
+    </invokers>
+    
+    <code>
+        <![CDATA[
+        import com.rameses.rcp.common.*;
+        import com.rameses.rcp.annotations.*;
+        import com.rameses.osiris2.client.*;
+        import com.rameses.osiris2.common.*;
+        import com.rameses.osiris2.reports.*;
+        
+        class CrudListReportController extends ReportController {
+        
+            def reportData;
+            String reportName;
+            
+        }
+        
+        ]]>
+    </code>
+    
+</workunit>  

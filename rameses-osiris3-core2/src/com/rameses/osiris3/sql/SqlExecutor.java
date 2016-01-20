@@ -10,6 +10,7 @@
 package com.rameses.osiris3.sql;
 
 import java.sql.Connection;
+import java.sql.ParameterMetaData;
 import java.sql.PreparedStatement;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -83,6 +84,15 @@ public class SqlExecutor extends AbstractSqlTxn {
             } else {
                 System.out.println("DEBUG:");
                 System.out.println("SQL: " + _sql);
+                if( ps !=null ) {
+                    ParameterMetaData md = ps.getParameterMetaData();
+                    System.out.println("param count is " + md.getParameterCount());
+                    for( int i = 1; i<= md.getParameterCount(); i++) {
+                        Object key = parameterNames.get(i-1);
+                        Object value = parameterValues.get(key);
+                        System.out.println(""+(i-1)+" "+key+"="+value + " " + ((value==null)?"NULL": value.getClass().getName()));
+                    }
+                }
                 throw new RuntimeException(ex.getMessage());
             }
         } finally {

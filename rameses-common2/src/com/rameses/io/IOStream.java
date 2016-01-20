@@ -9,7 +9,6 @@
 
 package com.rameses.io;
 
-import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -20,8 +19,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  *
@@ -161,80 +158,6 @@ public class IOStream
         } finally {
             try { ois.close(); }catch(Throwable t){;} 
             try { bais.close(); }catch(Throwable t){;} 
-        }        
-    }
-        
-    public static List<byte[]> chunk(File file, int size) {
-        try {
-          return chunk(new FileInputStream(file), size);   
-        } catch(RuntimeException re) {
-            throw re; 
-        } catch(Exception e) {
-            throw new RuntimeException(e.getMessage(), e); 
-        } 
-    }
-    
-    public static List<byte[]> chunk(InputStream inp, int size) {
-        BufferedInputStream bis = null;
-        try {
-            List<byte[]> list = new ArrayList(); 
-            bis = new BufferedInputStream(inp); 
-            int counter=1, read=-1; 
-            byte[] chunks = new byte[size]; 
-            while ((read=bis.read(chunks)) != -1) {
-                if (read < chunks.length) {
-                    byte[] dest = new byte[read];
-                    System.arraycopy(chunks, 0, dest, 0, read); 
-                    list.add(dest); 
-                } else { 
-                    list.add(chunks); 
-                } 
-                chunks = new byte[size]; 
-                counter += 1;
-            }
-            return list;
-        } catch(RuntimeException re) {
-            throw re; 
-        } catch(Exception e) {
-            throw new RuntimeException(e.getMessage(), e); 
-        } finally {
-            try { bis.close(); } catch(Throwable ign){;}
-        }        
-    } 
-    
-    public static void chunk(File file, int size, ChunkHandler handler) {
-        try {
-            chunk(new FileInputStream(file), size, handler); 
-        } catch(RuntimeException re) { 
-            throw re; 
-        } catch(Exception e) { 
-            throw new RuntimeException(e.getMessage(), e); 
-        } 
-    }
-    
-    public static void chunk(InputStream inp, int size, ChunkHandler handler) {
-        BufferedInputStream bis = null;
-        try {
-            bis = new BufferedInputStream(inp); 
-            int counter=1, read=-1; 
-            byte[] chunks = new byte[size]; 
-            while ((read=bis.read(chunks)) != -1) {
-                if (read < chunks.length) {
-                    byte[] dest = new byte[read];
-                    System.arraycopy(chunks, 0, dest, 0, read); 
-                    handler.handle(counter, dest); 
-                } else {
-                    handler.handle(counter, chunks); 
-                }
-                chunks = new byte[size]; 
-                counter += 1;
-            }
-        } catch(RuntimeException re) {
-            throw re; 
-        } catch(Exception e) {
-            throw new RuntimeException(e.getMessage(), e); 
-        } finally {
-            try { bis.close(); } catch(Throwable ign){;}
         }        
     }    
 } 

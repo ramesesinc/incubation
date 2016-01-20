@@ -1,0 +1,73 @@
+<workunit>
+    <invokers>
+        <invoker type="workflow:list:formActions" caption="Import" target="popup" index="100"/>
+    </invokers>
+
+    <code>
+     <![CDATA[
+        import com.rameses.rcp.common.*;
+        import com.rameses.rcp.annotations.*;
+        import com.rameses.osiris2.client.*;
+        import com.rameses.osiris2.common.*
+        import com.rameses.rulemgmt.*;
+        import com.rameses.util.*;
+        import java.rmi.server.*;
+        import com.rameses.io.*;
+        
+        class ImportDataController 
+        {
+            @Service('WorkflowMgmtService') 
+            def service; 
+        
+            def file;
+            def list = [];
+            def selectedItem;
+            def processing;
+            
+            def listhandler = [
+                fetchList: { o->
+                    return list;
+                }
+            ] as BasicListModel;
+            
+            @PropertyChangeListener
+            def listener = [
+                "file": {o->
+                    list.clear();
+                    def mlist = FileUtil.readObject( file );
+                    mlist.each {
+                        list << [name:it.name, status:'', item:it]; 
+                    }
+                    listhandler.reload();
+                }
+            ]
+            
+            void startImport() {
+                if (!list) throw new Exception("Please select a file to import");
+
+                list.each { importData( it ) }
+                listhandler.reload();
+                MsgBox.alert('Successfully imported');
+            }
+            
+            void importData( def r ) {
+                try {
+                    service.importData( r.item );
+                    r.state = 'OK';
+                } catch(Throwable e ) {
+                    r.state = 'ERR: ' + e.message;
+                }
+                listhandler.refresh();
+            }
+            
+            def doClose() {
+                return "_close";
+            }
+        }
+    ]]>
+    </code>
+
+    <pages>
+        <page template="com.rameses.wfmgmt.importer.ImportPage"/> 
+    </pages>
+</workunit>

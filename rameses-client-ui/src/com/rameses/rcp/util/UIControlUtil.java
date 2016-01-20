@@ -40,15 +40,17 @@ public class UIControlUtil
     }
     
     public static Object getBeanValue(UIControl control, String property) {
-        Binding binding = control.getBinding();         
-        Object userObj = control.getClientProperty(UIControl.KEY_USER_OBJECT);
-        try {
-            if (userObj != null) {
+        Binding binding = control.getBinding(); 
+        Object beanValue = getBeanValue(control.getBinding(), property);
+        if ( beanValue != null ) return beanValue;
+        
+        Object userObj = control.getClientProperty(UIControl.KEY_USER_OBJECT); 
+        if (userObj != null) {
+            try {
                 return PropertyResolver.getInstance().getProperty(userObj, "value"); 
-            }
-        } catch(Throwable t){;} 
-
-        return getBeanValue(control.getBinding(), property); 
+            } catch(Throwable t){ ; } 
+        } 
+        return null; 
     } 
     
     public static Object getBeanValue(Binding binding, String property) { 
@@ -152,20 +154,16 @@ public class UIControlUtil
         }
     }
     
-    public static void validate(Validatable vc, ActionMessage actionMessage) 
-    {
+    public static void validate(Validatable vc, ActionMessage actionMessage) {
         Component comp = null;
-        if ( vc instanceof Component ) 
-        {
+        if ( vc instanceof Component ) {
             comp = (Component) vc;
-            if ( !comp.isFocusable() || !comp.isEnabled() || !comp.isShowing() || comp.getParent() == null ) 
-            {
+            if ( !comp.isFocusable() || !comp.isEnabled() || !comp.isShowing() || comp.getParent() == null ) {
                 //do not validate non-focusable, disabled, or hidden fields.
                 return;
             }
         }
-        if ( vc instanceof UIInput ) 
-        {
+        if ( vc instanceof UIInput ) {
             //do not validate readonly fields
             if ( ((UIInput)vc).isReadonly() ) return;
         }

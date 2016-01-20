@@ -1,0 +1,92 @@
+<workunit>
+    
+    <invokers>
+        <invoker type="sysreport:edit" action="init" caption="Extract Report" 
+                 domain="DEVELOPER" role="REPORT" target="popup"/>
+    </invokers>
+    
+    <code>
+<![CDATA[         
+    import com.rameses.rcp.common.*;
+    import com.rameses.rcp.annotations.*;
+    import com.rameses.osiris2.client.*;
+    import com.rameses.osiris2.common.*;
+        
+    class SysReportEditController 
+    {
+        @Binding 
+        def binding;
+
+        def report; 
+        def resources; 
+        def outputdir;
+        
+        void init() { 
+            resources = []; 
+            resources << [path: toJrxml( report.reportName )]; 
+            
+            report.subReports?.each{ 
+                resources << [path: toJrxml( it.reportname )]; 
+            } 
+            
+            outputdir = com.rameses.osiris2.reports.ReportUtil.customFolder;
+        } 
+        
+        String toJrxml( String name ) {
+            if (name.endsWith(".jasper")) {
+                return name.substring(0, name.lastIndexOf('.')) + '.jrxml'; 
+            } else {
+                return name; 
+            } 
+        } 
+        
+        def selectedItem;
+        def listHandler = [
+            fetchList: { o-> 
+                return resources; 
+            } 
+        ] as ListPaneModel;
+        
+        def doCancel() {
+            return '_close'; 
+        } 
+
+        def doBrowse() {
+            report.browseFolder(); 
+            outputdir = com.rameses.osiris2.reports.ReportUtil.customFolder;
+            binding?.refresh(); 
+        }
+        
+        def doExtract() {
+            if ( !resources ) throw new Exception('No available resources to extract');
+        
+            def classLoader = com.rameses.rcp.framework.ClientContext.currentContext.classLoader; 
+            resources.each {
+                mkdir( it.path );
+                def inp = classLoader.getResourceAsStream( it.path );
+                def out = new java.io.FileOutputStream( new java.io.File(outputdir, it.path) ); 
+                com.rameses.io.IOStream.write(inp, out);  
+            } 
+            MsgBox.alert('Files has been successfully extracted');
+            return '_close';
+        } 
+        
+        void mkdir( String name ) {
+            def parentdir = outputdir;
+            name.split('/').each{ 
+                if ( it.endsWith('.jrxml') ) return; 
+                
+                def fdir = new java.io.File( parentdir, it );
+                if ( !fdir.exists() ) fdir.mkdir(); 
+                
+                parentdir = fdir; 
+            } 
+        } 
+    } 
+]]>     
+    </code>
+    
+    <pages>
+        <page template="com.rameses.osiris2.common.ui.SysReportEditPage"/> 
+    </pages>
+</workunit>

@@ -11,11 +11,17 @@ package com.rameses.osiris3.sql;
 
 /**
  *
- * @author Elmo
+ * @author Elmo.
+ * added new methods ->
  */
-public interface SqlDialect 
-{
+public interface SqlDialect {
     String getName();
     String getPagingStatement( String sql, int start, int limit, String [] pagingKeys  );
-    CrudSqlBuilder createCrudSqlBuilder();
+    
+    SqlUnit getCreateSqlUnit( SqlDialectModel model ) throws Exception;
+    SqlUnit getUpdateSqlUnit( SqlDialectModel model ) throws Exception;
+    SqlUnit getReadSqlUnit( SqlDialectModel model ) throws Exception;
+    SqlUnit getDeleteSqlUnit( SqlDialectModel model ) throws Exception;
+    SqlUnit getSelectSqlUnit( SqlDialectModel model ) throws Exception;
+    
 }

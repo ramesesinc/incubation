@@ -31,6 +31,7 @@ public class ObjectSerializer {
     public ObjectSerializer() {}
     
     public String toString(Object data) {
+        if(data==null) return null;
         Writer writer = new StringWriter();
         stringifyMap(data, writer);
         return writer.toString();
@@ -38,6 +39,7 @@ public class ObjectSerializer {
     
     public void write(Object data, Writer writer) {
         try {
+            if( data instanceof String ) return;    //do not process strings
             stringifyMap(data, writer);
             writer.flush();            
         } catch(RuntimeException re) {

@@ -9,6 +9,7 @@
 
 package com.rameses.osiris3.activedb;
 
+import com.rameses.osiris3.core.Debugger;
 import com.rameses.osiris3.persistence.EntityManager;
 import com.rameses.osiris3.schema.SchemaSerializer;
 import com.rameses.osiris3.sql.SqlExecutor;
@@ -44,6 +45,10 @@ public class ActiveDBInvoker {
                     subSchema = ":"+args[1];
                 }
             }
+            if(subSchema.trim().length()==0) {
+                subSchema = ":"+n;
+            }
+            
             if(methodName.equals("create")) {
                 return em.create(n+subSchema, m);
             }

@@ -192,7 +192,7 @@ public class XComboBox extends JComboBox implements UIInput, Validatable, Active
         else 
         {
             ComboItem c = new ComboItem( value );
-            return ci.equals(c);
+            return (ci == null? false : ci.equals(c));
         }
     }
     

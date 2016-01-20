@@ -29,25 +29,61 @@ public class AsyncTask implements Runnable
         try {
             retrycount = 0;
             
-            Object result = proxy.invoke( methodName, args );
+            Object result = invoke();
             if (result instanceof AsyncToken) {
                 AsyncToken token = (AsyncToken)result; 
                 if (token.isClosed()) {
-                    handlerProxy.onMessage(AsyncHandler.EOF); 
+                    fireOnMessage( AsyncHandler.EOF ); 
                     return;
                 }
                 
                 AsyncPoller poller = new AsyncPoller(proxy.getConf(), token); 
-                handle(poller, poller.poll()); 
+                handle( poller, poller.poll() ); 
                 return;
             }             
             notify( result );
             
-        }  catch (Exception e) {
-            e.printStackTrace();
-            handlerProxy.onError( e );
-        }
+        } catch ( Exception e ) { 
+            e.printStackTrace(); 
+            handlerProxy.onError( e ); 
+        } 
     } 
+    
+    private Object invoke() { 
+        Exception err = null; 
+        int retrycount = 0;
+        while ( retrycount < 3 ) { 
+            try { 
+                retrycount += 1;
+                return proxy.invoke( methodName, args ); 
+            } catch( Exception e ) {
+                System.err.println(e.getClass().getName() +": "+ e.getMessage()); 
+                err = e; 
+            } catch( Throwable t ) {
+                System.err.println(t.getClass().getName() +": "+ t.getMessage()); 
+                err = new Exception(t.getMessage(), t); 
+            }
+        }         
+        if ( err != null ) { 
+            handlerProxy.onError( err ); 
+        } 
+        return null; 
+    }
+    
+    private boolean fireOnMessage( Object data ) {
+        if (handlerProxy.isCancelRequested()) {
+            try {
+                handlerProxy.onCancel(); 
+            } catch(Throwable t) { 
+                t.printStackTrace(); 
+            } finally {
+                return false; 
+            }
+        } else {
+            handlerProxy.onMessage( data ); 
+            return true; 
+        }
+    }
     
     private void handle(AsyncPoller poller, Object result) throws Exception {
         if (handlerProxy.isCancelRequested()) {
@@ -64,7 +100,7 @@ public class AsyncTask implements Runnable
             AsyncToken at = (AsyncToken)result;
             if (at.isClosed()) {
                 poller.close(); 
-                handlerProxy.onMessage(AsyncHandler.EOF); 
+                fireOnMessage(AsyncHandler.EOF); 
                 return;
             } 
         } 
@@ -107,14 +143,13 @@ public class AsyncTask implements Runnable
                     return false; 
                     
                 } else {
-                    handlerProxy.onMessage(item); 
+                    fireOnMessage( item ); 
                 } 
             } 
             return !is_closed; 
             
         } else {
-            handlerProxy.onMessage(o); 
-            return true; 
+            return fireOnMessage( o ); 
         } 
     }
         

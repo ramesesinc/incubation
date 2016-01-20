@@ -31,17 +31,30 @@ public abstract class SchemaField implements Serializable{
 
     public abstract String getName();
     public abstract boolean isRequired();
-
+    public abstract String getFieldname();
+    
+    public  Map toMap() {
+        Map map = new HashMap();
+        map.putAll( properties );
+        map.put("name", getName());
+        map.put("fieldname", getFieldname());
+        map.put("required",isRequired());
+        return map;
+    }
+    
     public SchemaElement getElement() {
         return element;
     }
 
     //can be set only by the parent.
-    void setElement(SchemaElement element) {
+    public void setElement(SchemaElement element) {
         this.element = element;
     }
     
     public Object getProperty(String name) {
         return this.properties.get(name);
     }
+    
+    
+    
 }

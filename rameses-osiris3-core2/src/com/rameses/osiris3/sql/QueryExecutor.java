@@ -11,6 +11,8 @@ package com.rameses.osiris3.sql;
 
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * this is a special class for chaining queries and execution.
@@ -81,9 +83,10 @@ public class QueryExecutor {
     private abstract class AbstractFetchHandler implements FetchHandler {
         private int batchCounter;
         
-        public void start() {
+        public List start() {
             batchCounter = 0;
             executor.clear();
+            return new ArrayList();
         }
         public void end() {
             try {

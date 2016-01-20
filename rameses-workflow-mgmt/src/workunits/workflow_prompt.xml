@@ -1,0 +1,10 @@
+<workunit>
+    <invokers>
+        <invoker type="workflow_prompt:default" caption="Enter Info" action="init"/>
+        <invoker type="formActions" caption="Close" action="doClose"/>
+    </invokers>
+    <code class="com.rameses.wf.models.WorkflowPromptModel"/>
+    <pages>
+        <page template="com.rameses.wf.views.WorkflowPromptPage"/>
+    </pages>
+</workunit> 

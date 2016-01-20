@@ -25,8 +25,12 @@ public class EditorListModel extends AbstractListDataProvider implements EditorL
     
     public List fetchList(Map params) { return DEFAULT_LIST; }    
     
+    public boolean isAllowAdd() { return true; }     
     public Object createItem() { return new HashMap(); }     
-    public boolean isAllowAdd() { return true; } 
+    
+    public Object createItem(String columnName) {
+        return createItem(); 
+    } 
     
     protected void validateItem(Object item) {}    
     protected void validate(ListItem li) {
@@ -102,14 +106,14 @@ public class EditorListModel extends AbstractListDataProvider implements EditorL
     {
         EditorListModel root = EditorListModel.this;
 
-        public Object createItem() {
-            return root.createItem(); 
-        }
-        
         public boolean isAllowAdd() {
             return root.isAllowAdd(); 
         }
-
+        
+        public Object createItem(String columnName) {
+            return root.createItem( columnName ); 
+        }
+        
         public void validate(ListItem li) {
             root.validate(li);
         }

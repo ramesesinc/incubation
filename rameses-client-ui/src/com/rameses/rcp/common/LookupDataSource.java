@@ -19,7 +19,7 @@ public interface LookupDataSource
     Object getOnempty();
     
     LookupSelector getSelector(); 
-    void setSelector(LookupSelector selector);
+    void setSelector(LookupSelector selector); 
         
     String getReturnItemKey();
     void setReturnItemKey(String returnItemKey);
@@ -28,9 +28,8 @@ public interface LookupDataSource
     void setReturnItemValue(String returnItemValue);
     
     String getReturnFields();
-    void setReturnFields(String returnFields);
-    
-    Object getValue();
-    
+    void setReturnFields(String returnFields);    
+
     boolean show(String searchtext); 
+
 } 

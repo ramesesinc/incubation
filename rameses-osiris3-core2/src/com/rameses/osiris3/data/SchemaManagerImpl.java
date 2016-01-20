@@ -41,6 +41,11 @@ public class SchemaManagerImpl extends SchemaManager {
     
     public class SchemaMgmtSerializer implements SchemaSerializer, Serializable {
         
+        public Object read(Object p) {
+            if(!(p instanceof String)) return p;
+            return read((String)p);
+        }
+        
         public Object read(String s) {
             return new ObjectDeserializer().read(s);
         }

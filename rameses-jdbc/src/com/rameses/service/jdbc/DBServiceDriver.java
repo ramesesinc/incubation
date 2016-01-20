@@ -33,7 +33,10 @@ public class DBServiceDriver implements Driver {
     public Connection connect(String url, Properties info) throws SQLException {
         String s = url.substring( JDBC_PREFIX.length() );
         String arr[] = s.split("/");
-        return new DBServiceConnection(arr[0],arr[1],arr[2]);
+        if(arr.length != 4 )
+            return new DBServiceConnection(arr[0],arr[1],arr[2]);
+        else 
+            return new DBServiceConnection(arr[0],arr[1],arr[2],arr[3]);
     }
     
     public boolean acceptsURL(String url) throws SQLException {

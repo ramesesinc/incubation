@@ -12,3 +12,4 @@ com.rameses.osiris3.script.dependency.XConnectionDependencyHandler
 com.rameses.osiris3.script.dependency.ResourceDependencyHandler
 com.rameses.osiris3.script.dependency.ExecutionContextDependencyHandler
 com.rameses.osiris3.script.dependency.ActiveDBDependencyHandler
+com.rameses.osiris3.script.dependency.DataContextDependencyHandler

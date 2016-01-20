@@ -1,0 +1,6 @@
+"startImport" [file == null || processing == true] {
+    enabled: false; 
+} 
+"startImport" [!(file == null || processing == true)] {
+    enabled: true; 
+} 

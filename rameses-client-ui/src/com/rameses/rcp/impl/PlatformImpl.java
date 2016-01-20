@@ -130,11 +130,12 @@ public class PlatformImpl implements Platform
         
         if ("false".equals(properties.get("resizable")+"")) d.setResizable(false);
         if ("true".equals(properties.get("undecorated")+"")) d.setUndecorated(true);
+        if ("true".equals(properties.get("headless")+"")) d.setUndecorated(true);
         if ("true".equals(properties.get("alwaysOnTop")+"")) { 
             d.setAlwaysOnTop(true);
             d.setModal( false ); 
         }
-
+        
         d.pack();
         Dimension dim = d.getSize();
         int width = toInt(properties.get("width"));
@@ -163,7 +164,7 @@ public class PlatformImpl implements Platform
             EventQueue.invokeLater(runnable); 
         }
     }
-     
+    
     private void showGlassPane(JComponent actionSource, JComponent comp, Map props, String id) 
     {
         Container con = mainWindow.getGlassPane();

@@ -10,6 +10,7 @@
 package com.rameses.osiris3.sql;
 
 import java.sql.ResultSet;
+import java.util.List;
 
 /**
  * This provides the implementor the chance to 
@@ -17,7 +18,7 @@ import java.sql.ResultSet;
  */
 public interface FetchHandler {
     
-    void start();
+    List start();
     Object getObject(ResultSet rs) throws Exception;
     void end();
 }

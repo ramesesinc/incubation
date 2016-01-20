@@ -85,9 +85,14 @@ public class SimpleField extends SchemaField implements SimpleFieldTypes {
     }
     
     public String getFieldname() {
-        return (String)super.getProperties().get("fieldname");
+        String fieldName = (String)super.getProperties().get("fieldname");
+        if(fieldName==null) return name;
+        return fieldName;
     }
     
+    public void setFieldname(String name) {
+        super.getProperties().put("fieldname", name);  
+    }
     
     
 }

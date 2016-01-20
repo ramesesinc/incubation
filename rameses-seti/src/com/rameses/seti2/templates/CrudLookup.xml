@@ -1,0 +1,28 @@
+<workunit>
+    <invokers>
+        <invoker type="formActions" action="showDropdownMenu" icon="images/menu.png"/>
+        <invoker type="formActions" action="create" tooltip="New (Ctrl N)"  visibleWhen="#{createAllowed}" shortcut="ctrl N"/>
+        <invoker type="formActions" action="open"  tooltip="Open (Ctrl O)" visibleWhen="#{createAllowed}" shortcut="ctrl O"/>
+        <invoker type="formActions" action="removeEntity" tooltip="Delete" icon="images/toolbars/trash.png" visibleWhen="#{deleteAllowed}"/>        
+
+        <invoker type="formActions" action="print" tooltip="Print (Ctrl P)"  shortcut="ctrl P"/>
+        <invoker type="formActions" action="showFilter" tooltip="Filter" icon="images/toolbars/filter.png"/>  
+        <invoker type="formActions" action="refresh" tooltip="Refresh"/>  
+
+        <invoker type="formActions" caption="Cols" tooltip="Select Columns" action="selectColumns"/>  
+        
+        <invoker type="navActions" tooltip="Move First" icon="images/navbar/first.png" action="listHandler.moveFirstPage" />
+        <invoker type="navActions" tooltip="Move Previous" icon="images/navbar/previous.png" action="listHandler.moveBackPage"  />        
+        <invoker type="navActions" tooltip="Move Next" icon="images/navbar/next.png" action="listHandler.moveNextPage"  />  
+        <invoker type="navActions" tooltip="Move Last" icon="images/navbar/last.png" action="listHandler.moveLastPage"  />                
+
+    </invokers>
+     
+    <code class="com.rameses.seti2.models.CrudLookupModel"/>    
+    
+    <pages>
+        <page template="com.rameses.seti2.views.CrudLookupPage"/>
+        <page name="queryForm" template="com.rameses.osiris2.themes.DefaultQueryFormPanel"/>
+    </pages>
+    
+</workunit> 
