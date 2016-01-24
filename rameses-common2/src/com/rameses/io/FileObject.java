@@ -28,7 +28,7 @@ public class FileObject
 {
     public final static int CHUNK_SIZE     = (64 * 1024);
     public final static int MIN_CHUNK_SIZE = 32000;  
-    
+        
     private File file; 
     private Map info;  
     private int chunkSize;
