@@ -12,6 +12,7 @@ package com.rameses.osiris2.reports;
 import com.rameses.common.PropertyResolver;
 import com.rameses.osiris2.client.Inv;
 import com.rameses.osiris2.client.InvokerFilter;
+import com.rameses.osiris2.client.InvokerProxy;
 import com.rameses.osiris2.client.InvokerUtil;
 import com.rameses.rcp.annotations.Invoker;
 import com.rameses.rcp.common.Action;
@@ -105,8 +106,13 @@ public abstract class ReportModel {
         }
     }
     
-    protected void loadReportParams( Map conf ) {
-        Map params = getParameters();
+    protected void loadReportParams( Map conf ) { 
+        Map params = getServiceProxy().getStandardParameter(); 
+        if ( params != null ) { 
+            conf.putAll( params ); 
+        } 
+        
+        params = getParameters(); 
         if ( params != null ) { 
             conf.putAll( params ); 
         } 
@@ -240,7 +246,7 @@ public abstract class ReportModel {
             return null; 
         } 
     } 
-    
+        
     // <editor-fold defaultstate="collapsed" desc=" Provider "> 
     
     public static interface Provider { 
@@ -323,4 +329,20 @@ public abstract class ReportModel {
     }
     
     // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" Proxy services "> 
+    
+    private ReportParamServiceProxy svcproxy;
+    private ReportParamServiceProxy getServiceProxy() {
+        if ( svcproxy == null ) {
+            svcproxy = (ReportParamServiceProxy) InvokerProxy.getInstance().create("ReportParameterService", ReportParamServiceProxy.class); 
+        } 
+        return svcproxy; 
+    }
+    
+    public static interface ReportParamServiceProxy {
+        Map getStandardParameter();
+    }
+    
+    // </editor-fold>    
 }
