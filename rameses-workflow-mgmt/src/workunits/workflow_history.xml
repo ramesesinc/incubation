@@ -1,6 +1,6 @@
 <workunit>
     <invokers>
-        <invoker type="workflow_open_subtask:view" caption="Sub Tasks" target="popup"/>
+        <invoker type="workflow_history:view" caption="Workflow History" target="popup"/>
         <invoker type="formActions" caption="Close" action="doClose"/>
     </invokers>
     <code>
@@ -11,27 +11,30 @@
         import com.rameses.osiris2.common.*;
         import com.rameses.rcp.framework.ClientContext;
 
-        public class WorkflowOpenSubtaskListModel {
+        public class WorkflowHistoryListModel {
 
-            @Service("SetiWorkflowService")
+            @Service("WorkflowService")
             def wfService;
 
-            String title = "Open Subtasks";
+            String title = "Workflow History";
             
+            String refid;
             def param;
             def selectedEntity;
             
             def listHandler = [
                 getColumnList: {
                     return [
+                        [name:'state', caption:'State'],
                         [name:'startdate', caption:'Start Date'],
-                        [name:'assignee.name', caption:'Assignee'],
+                        [name:'enddate', caption:'End Date'],
+                        [name:'actor.name', caption:'Actor'],
+                        [name:'timediff', caption:''],
                         [name:'message', caption:'Message'],
-                        [name:'lapsetime', caption:'Lapse Time'],
                     ];
                 },
                 fetchList: {
-                    return wfService.getOpenSubtaskList(param);
+                    return wfService.getHistoryList(param);
                 }
             ] as BasicListModel;
 

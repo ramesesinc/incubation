@@ -1,4 +1,4 @@
-package com.rameses.seti2.models;
+package com.rameses.wf.models;
 
 import com.rameses.rcp.common.*;
 import com.rameses.rcp.annotations.*;
@@ -9,9 +9,9 @@ import com.rameses.common.*;
 import com.rameses.rcp.common.Action;
 
 
-public class SetiWorkflowPromptModel {
+public class WorkflowPromptModel {
 
-    @Service("SetiWorkflowService")
+    @Service("WorkflowService")
     def wfService;
     
     def assigneeList = [];

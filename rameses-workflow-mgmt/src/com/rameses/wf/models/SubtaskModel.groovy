@@ -1,4 +1,4 @@
-package com.rameses.seti2.models;
+package com.rameses.wf.models;
 
 import com.rameses.rcp.common.*;
 import com.rameses.rcp.annotations.*;
@@ -8,9 +8,9 @@ import com.rameses.rcp.framework.ClientContext;
 import com.rameses.common.*;
 import com.rameses.rcp.common.Action;
 
-public abstract class SetiSubtaskModel {
+public abstract class SubtaskModel {
     
-    @Service("SetiWorkflowService")
+    @Service("WorkflowService")
     def wfService;
 
     def subtask;

@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.rameses.seti2.views;
+package com.rameses.wf.views;
 
 import com.rameses.osiris2.themes.OKCancelPage;
 import com.rameses.rcp.ui.annotations.Template;
@@ -12,12 +12,12 @@ import com.rameses.rcp.ui.annotations.Template;
  * @author dell
  */
 @Template(OKCancelPage.class)
-public class SetiWorkflowPromptPage extends javax.swing.JPanel {
+public class WorkflowPromptPage extends javax.swing.JPanel {
 
     /**
      * Creates new form SetiWorkflowPromptPage
      */
-    public SetiWorkflowPromptPage() {
+    public WorkflowPromptPage() {
         initComponents();
     }
 
