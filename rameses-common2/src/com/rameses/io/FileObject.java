@@ -13,7 +13,10 @@ import com.rameses.util.Base64Cipher;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.RandomAccessFile;
 import java.net.URLConnection;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 import java.rmi.server.UID;
 import java.util.Map;
 
@@ -23,7 +26,7 @@ import java.util.Map;
  */
 public class FileObject 
 {
-    public final static int CHUNK_SIZE = 65000;
+    public final static int CHUNK_SIZE     = (64 * 1024);
     public final static int MIN_CHUNK_SIZE = 32000;  
     
     private File file; 
@@ -90,36 +93,47 @@ public class FileObject
             throw new IllegalStateException("The minimum chunk size is 32kb");
         } 
 
-        BufferedInputStream bis = null; 
-        Base64Cipher cipher = new Base64Cipher();        
+        ByteBuffer buf = ByteBuffer.allocate( size ); 
+        RandomAccessFile raf = null; 
+        FileChannel channel = null; 
         try {
-            bis = new BufferedInputStream(new FileInputStream(file)); 
-
-            int read = -1, indexno = 0;             
-            byte[] chunks = new byte[size]; 
-            while ((read=bis.read(chunks)) != -1) {
-                if (read < chunks.length) {
-                    byte[] dest = new byte[read];
-                    System.arraycopy(chunks, 0, dest, 0, read); 
-                    chunks = dest; 
+            raf = new RandomAccessFile(file, "r"); 
+            channel = raf.getChannel(); 
+            
+            if ( bypassHandler ) {
+                meta.fileSize = channel.size(); 
+                long num = (meta.fileSize / size);
+                if ((meta.fileSize % size) > 0) { 
+                    num += 1;
                 } 
+                meta.chunkCount = (int) num; 
+                return; 
+            }
+            
+            byte[] bytes = null; 
+            int read = 0, indexno = 0; 
+            while ((read=channel.read(buf)) > 0) { 
+                buf.flip();
+                bytes = new byte[read]; 
+                System.arraycopy(buf.array(), 0, bytes, 0, read);
+                buf.clear(); 
                 
-                indexno += 1; 
-                if ( bypassHandler || !meta.autoComputeTotals ) {
-                    meta.fileSize += chunks.length; 
+                indexno += 1;
+                if ( !meta.autoComputeTotals ) { 
                     meta.chunkCount = indexno; 
-                } else { 
-                    handler.handle( indexno, chunks ); 
-                    if ( handler.isCancelled() ) { break; }
+                    meta.fileSize += read; 
                 } 
-                chunks = new byte[size];  
+                handler.handle( indexno, bytes ); 
+                if ( handler.isCancelled() ) { break; }
             } 
         } catch(RuntimeException re) {
             throw re; 
         } catch(Exception e) {
             throw new RuntimeException(e.getMessage(), e); 
         } finally {
-            try { bis.close(); } catch(Throwable ign){;}
+            try { buf.clear(); } catch(Throwable t){;} 
+            try { channel.close(); } catch(Throwable t){;} 
+            try { raf.close(); }catch(Throwable t){;}  
         } 
     }     
     
@@ -131,14 +145,14 @@ public class FileObject
         private String id; 
         private String fileName; 
         private String fileType;
-        private int fileSize; 
+        private long fileSize; 
         private int chunkCount; 
                 
         public String getId() { return id; } 
         public File getFile() { return file; } 
         public String getFileName() { return fileName; } 
         public String getFileType() { return fileType; } 
-        public int getFileSize() { return fileSize; } 
+        public long getFileSize() { return fileSize; } 
         public int getChunkCount() { return chunkCount; }   
     }
     
