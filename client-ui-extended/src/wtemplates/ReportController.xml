@@ -7,10 +7,14 @@
         
         <invoker type="formActions" action="_close" caption="Close" mnemonic="c"  icon="images/toolbars/cancel.png" immediate="true" visibleWhen="#{mode=='view'}"/>
         <invoker type="formActions" action="back" caption="Back" mnemonic="c"  immediate="true" visibleWhen="#{mode=='view'}"/>
+
+        <!-- processing actions --> 
+        <invoker type="formActions" action="cancel" caption="Cancel" icon="images/toolbars/cancel.png" immediate="true" visibleWhen="#{mode=='processing'}"/>         
     </invokers>
 
     <pages>
         <page template="com.rameses.osiris2.common.ui.ReportInitialPage" />
         <page name="report" template="com.rameses.osiris2.common.ui.ReportPreviewPage" />
+        <page name="preview" template="com.rameses.osiris2.common.ui.ReportPreviewPage" />
     </pages>
 </workunit>

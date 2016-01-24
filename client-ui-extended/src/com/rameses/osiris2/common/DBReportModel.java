@@ -217,10 +217,6 @@ public abstract class DBReportModel  {
             mainReport = loadMainReport(); 
 
             Map conf = new HashMap(); 
-            Map stdparams = root.getServiceProxy().getStandardParameter(); 
-            if ( stdparams != null ) { 
-                conf.putAll( stdparams ); 
-            } 
             loadSubReport( conf );                 
             loadReportParams( conf ); 
 
