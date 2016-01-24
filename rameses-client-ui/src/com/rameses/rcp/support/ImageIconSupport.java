@@ -9,6 +9,7 @@
 
 package com.rameses.rcp.support;
 
+import com.rameses.rcp.framework.ClientContext;
 import com.rameses.rcp.util.ControlSupport;
 import java.awt.Image;
 import java.net.URL;
@@ -58,8 +59,13 @@ public class ImageIconSupport
         {                        
             try 
             {
-                if (path.toLowerCase().startsWith("http://")) 
-                    return new ImageIcon(new URL(path)); 
+                if (path.toLowerCase().indexOf("://") > 0) {  
+                    URL url = ClientContext.getCurrentContext().getResource(path); 
+                    if ( url == null ) { 
+                        url = new URL(path); 
+                    } 
+                    return new ImageIcon( url ); 
+                } 
                 
                 byte[] bytes = ControlSupport.getByteFromResource(path);
                 if (bytes == null) {
@@ -68,15 +74,13 @@ public class ImageIconSupport
                     
                     ImageIcon icon = new ImageIcon(url);
                     cache.put(path, icon.getImage());
-                    return icon;
-                    
-                } else {
+                    return icon; 
+                } else { 
                     ImageIcon icon = new ImageIcon(bytes); 
                     cache.put(path, icon.getImage());
                     return icon;
-                }
-            } 
-            catch(Throwable ex) {
+                } 
+            } catch(Throwable ex) {
                 return null; 
             } 
         }
