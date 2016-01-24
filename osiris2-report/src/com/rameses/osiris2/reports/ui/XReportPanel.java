@@ -31,6 +31,7 @@ import java.io.File;
 import java.net.URL;
 import java.util.Map;
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -120,13 +121,24 @@ public class XReportPanel extends JPanel implements UIControl {
         if (jasperPrint == null) { 
             throw new IllegalStateException("No report found at " + getName());
         } 
-        JRViewer jrv = new JRViewer(jasperPrint); 
+        
+        loadViewer( jasperPrint, value ); 
+    }  
+    
+    private void loadViewer( JasperPrint jp, Object value ) {
+        JRViewer jrv = new JRViewer( jp ); 
         new Customizer(jrv, value).customize(); 
         
         removeAll(); 
         add(jrv); 
         SwingUtilities.updateComponentTreeUI(this); 
-    }  
+    }
+    
+    private void doReload() {
+        if ( model != null ) {
+            model.reload(); 
+        } 
+    } 
         
     private void doBack() {
         try {
@@ -175,6 +187,12 @@ public class XReportPanel extends JPanel implements UIControl {
                 return null; 
             } 
         }
+        
+        public void reload() { 
+            if ( root.model == null ) { return; } 
+        
+            loadViewer( root.model.getReport(), root.model ); 
+        } 
     }
     
     ProviderImpl provider;
@@ -191,7 +209,6 @@ public class XReportPanel extends JPanel implements UIControl {
     // <editor-fold defaultstate="collapsed" desc=" Customizer "> 
     
     private JButton btnBack; 
-    
     private JButton getBackButton() {
         if (btnBack == null) {
             btnBack = new JButton(); 
@@ -217,7 +234,7 @@ public class XReportPanel extends JPanel implements UIControl {
         if (btnEdit == null) {
             btnEdit = new JButton(); 
             btnEdit.setMargin(new Insets(2,2,2,2)); 
-            btnEdit.setMnemonic('b');
+            btnEdit.setMnemonic('e');
             btnEdit.setToolTipText("Edit Report");
             btnEdit.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) { 
@@ -233,6 +250,27 @@ public class XReportPanel extends JPanel implements UIControl {
         return btnEdit; 
     }
 
+    private JButton btnSync;
+    private JButton getSyncButton() {
+        if (btnSync == null) {
+            btnSync = new JButton(); 
+            btnSync.setMargin(new Insets(2,2,2,2)); 
+            btnSync.setMnemonic('r');
+            btnSync.setToolTipText("Reload Report");
+            btnSync.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) { 
+                    doReload(); 
+                }
+            });
+            
+            try { 
+                URL url = XReportPanel.class.getResource("images/sync.png");
+                btnSync.setIcon(new ImageIcon(url)); 
+            } catch(Throwable t){;} 
+        }
+        return btnSync; 
+    }
+    
     private class Customizer 
     {
         private JRViewer jviewer;
@@ -272,14 +310,24 @@ public class XReportPanel extends JPanel implements UIControl {
                     Component sysbtnedit = getEditButton(); 
                     sysbtnedit.setVisible(allowEdit); 
                     sysbtnedit.setName("sysbtnedit"); 
+
+                    Component sysbtnsync = getSyncButton(); 
+                    sysbtnsync.setVisible(allowEdit); 
+                    sysbtnsync.setName("sysbtnsync"); 
+                    
+                    Component spacer = Box.createHorizontalStrut(10); 
+                    spacer.setVisible( allowEdit );
+                    spacer.setName( "sysspacer" ); 
                     
                     CustomLayout clayout = new CustomLayout(); 
                     clayout.allowSave = allowSave;
                     clayout.allowPrint = allowPrint; 
-                    clayout.setSystemComponents( new Component[]{sysbtnback, sysbtnedit} );
+                    clayout.setSystemComponents( new Component[]{sysbtnback, sysbtnedit, sysbtnsync, spacer} );
                     clayout.setComponents( con.getComponents() );
                     con.add( sysbtnback ); 
                     con.add( sysbtnedit ); 
+                    con.add( sysbtnsync ); 
+                    con.add( spacer ); 
                     con.setLayout(clayout); 
                     if (con instanceof JComponent) {
                         ((JComponent)con).setBorder(BorderFactory.createEmptyBorder(2,2,2,0)); 
@@ -346,7 +394,7 @@ public class XReportPanel extends JPanel implements UIControl {
                 if (systemComponents != null) {
                     for (int i=0; i<systemComponents.length; i++) {
                         Component c = systemComponents[i];
-                        if (c == null || !c.isVisible()) continue;
+                        if (c == null || !c.isVisible()) { continue; } 
                         
                         Dimension dim = c.getPreferredSize(); 
                         w += dim.width;
@@ -383,7 +431,7 @@ public class XReportPanel extends JPanel implements UIControl {
                 if (systemComponents != null) {
                     for (int i=0; i<systemComponents.length; i++) {
                         Component c = systemComponents[i];
-                        if (c == null || !c.isVisible()) continue;
+                        if (c == null || !c.isVisible()) { continue; } 
                         
                         Dimension dim = c.getPreferredSize(); 
                         c.setBounds(x, y, dim.width, h); 
