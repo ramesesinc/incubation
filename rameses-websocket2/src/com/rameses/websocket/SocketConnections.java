@@ -11,6 +11,7 @@ package com.rameses.websocket;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -56,4 +57,24 @@ public class SocketConnections
     public boolean isChannelExist(String name) {
         return channels.containsKey(name);
     }
+    
+    public boolean exist( String channel, String group ) { 
+        try { 
+            Channel ch = channels.get( channel ); 
+            if ( ch == null ) { return false; } 
+
+            return (ch.getGroup(group) != null); 
+        } catch(Throwable t) {
+            return false; 
+        }
+    }
+    public Map<String,String[]> getChannelGroups() {
+        Map<String,String[]> map = new HashMap(); 
+        Iterator<String> keys = channels.keySet().iterator(); 
+        while ( keys.hasNext() ) { 
+            String key = keys.next(); 
+            map.put(key, channels.get(key).getGroupNames()); 
+        } 
+        return map; 
+    } 
 }

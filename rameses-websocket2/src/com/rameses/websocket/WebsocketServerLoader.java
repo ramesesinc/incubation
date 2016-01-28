@@ -107,6 +107,7 @@ public class WebsocketServerLoader implements ServerLoader
         servletContext.addServlet( new ServletHolder( new SendMessageServlet(conn)), "/send" );
         servletContext.addServlet( new ServletHolder( new AddChannelServlet(conn)),  "/addchannel" );
         servletContext.addServlet( new ServletHolder( new RemoveChannelServlet(conn)), "/removechannel" );
+        servletContext.addServlet( new ServletHolder( new ManageSocketConnectionsServlet(conn)), "/manage" );
         
         wshandler = new BasicWebsocketHandler(conn, conf); 
         HandlerList list = new HandlerList(); 

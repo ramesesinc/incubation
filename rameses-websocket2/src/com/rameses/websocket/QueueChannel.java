@@ -36,6 +36,10 @@ public class QueueChannel extends Channel {
     public ChannelGroup getGroup(String name) {
         return defaultgroup;
     }        
+    
+    public String[] getGroupNames() {
+        return new String[]{ defaultgroup.getName() };
+    } 
         
     public void removeSocket(WebSocket.Connection conn) {
         defaultgroup.removeSocket(conn); 

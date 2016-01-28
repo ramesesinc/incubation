@@ -49,6 +49,10 @@ public class TopicChannel extends Channel
         return groups.get(name.toLowerCase());
     }    
     
+    public String[] getGroupNames() {
+        return groups.keySet().toArray(new String[]{}); 
+    } 
+    
     public void send(MessageObject mo) {
         Iterator<ChannelGroup> items = groups.values().iterator(); 
         while (items.hasNext()) {
