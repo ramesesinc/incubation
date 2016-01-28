@@ -13,6 +13,7 @@ import com.rameses.osiris3.core.AbstractContext;
 import com.rameses.osiris3.xconnection.MessageConnection;
 import com.rameses.util.Base64Cipher;
 import com.rameses.util.MessageObject;
+import java.net.ConnectException;
 import java.net.URI;
 import java.rmi.server.UID;
 import java.util.HashMap;
@@ -20,6 +21,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import org.eclipse.jetty.websocket.WebSocket;
 import org.eclipse.jetty.websocket.WebSocketClient;
 import org.eclipse.jetty.websocket.WebSocketClientFactory;
@@ -35,7 +37,7 @@ public class WebsocketConnection extends MessageConnection implements WebSocket.
     private final static int DEFAULT_MAX_CONNECTION     = 35000; 
     private final static int MAX_BINARY_MESSAGE_SIZE    = 16384;    
     private final static int MAX_IDLE_TIME              = 60000; 
-    private final static int RECONNECT_DELAY            = 2000; 
+    private final static int RECONNECT_DELAY            = 10000; 
 
     private String connectionid;
     private String name;
@@ -50,6 +52,7 @@ public class WebsocketConnection extends MessageConnection implements WebSocket.
     private String host; 
     private long maxConnection;
 
+    private boolean debug;
     private boolean enabled;
     private String acctname;
     private String apikey;
@@ -77,7 +80,8 @@ public class WebsocketConnection extends MessageConnection implements WebSocket.
 
         acctname = (String) conf.get("acctname"); 
         apikey = (String) conf.get("apikey"); 
-        
+        debug = "true".equals( conf.get("debug")+"" );
+
         if ("false".equals(conf.get("ws.enabled")+"")) { 
             enabled = false; 
         } else {
@@ -113,13 +117,22 @@ public class WebsocketConnection extends MessageConnection implements WebSocket.
     } 
     
     private void open() throws Exception {
+        String shost = host.replaceFirst("ws://", ""); 
         try {
             wsclient.open( new URI(host), this, maxConnection, TimeUnit.MILLISECONDS );
-        } catch( InterruptedException e) {
-            System.out.println("[WebsocketConnection, "+ protocol +"] " + "error " + e.getClass() + " message:" + e.getMessage());
-        } catch(Exception ce) {
-            String shost = host.replaceFirst("ws://", ""); 
-            System.out.println("[WebsocketConnection, "+ protocol +", "+ shost +"] " + ce.getClass() + " " + ce.getMessage() );
+        } catch( InterruptedException ie) {
+            System.out.println("[WebsocketConnection, "+ protocol +", "+ shost +"] "+ ie.getClass().getSimpleName() + ": " + ie.getMessage());
+        } catch( Exception e ) { 
+            boolean allowStackTrace = debug; 
+            if ( e instanceof TimeoutException ) {
+                allowStackTrace = false; 
+            } else {
+                System.out.println("[WebsocketConnection, "+ protocol +", "+ shost +"] "+ e.getClass().getName() + ": " + e.getMessage() );
+            }
+            
+            if ( allowStackTrace ) {
+                e.printStackTrace();
+            } 
             
             TASKS.submit(new Runnable() {
                 public void run() {
@@ -241,11 +254,11 @@ public class WebsocketConnection extends MessageConnection implements WebSocket.
             startidx = idx1+1; 
         } 
         
-        if (has_expression) {
+        if (has_expression) { 
             builder.append(str.substring(startidx));  
             return builder.toString(); 
-        } else {
+        } else { 
             return value; 
-        }
+        } 
     } 
 } 

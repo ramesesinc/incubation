@@ -6,7 +6,6 @@
  * To change this template, choose Tools | Template Manager
  * and open the template in the editor.
  */
-
 package com.rameses.osiris3.server.httpclient;
 
 import com.rameses.http.HttpClient;
@@ -25,107 +24,130 @@ import java.util.concurrent.TimeUnit;
  *
  * @author wflores
  */
-public class HttpClientConnection extends XConnection 
-{
+public class HttpClientConnection extends XConnection {
+
     private String name;
-    private AbstractContext context; 
+    private AbstractContext context;
     private Map conf;
-    private LinkedBlockingQueue queue = new LinkedBlockingQueue(); 
+    private LinkedBlockingQueue queue = new LinkedBlockingQueue();
     private ExecutorService executor = Executors.newSingleThreadExecutor();
-    
-    public HttpClientConnection(String name, AbstractContext context, Map conf) 
-    {
+
+    public HttpClientConnection(String name, AbstractContext context, Map conf) {
         this.name = name;
         this.context = context;
-        this.conf = (conf == null? new HashMap(): conf);
+        this.conf = (conf == null ? new HashMap() : conf);
     }
 
-    public Map getConf() { return conf; }
-    
-    public void start() 
-    {
-        
-        executor.submit(new Runnable() 
-        {
-            public void run() 
-            {
+    public Map getConf() {
+        return conf;
+    }
+
+    public void start() {
+
+        executor.submit(new Runnable() {
+            public void run() {
                 try {
                     execute();
-                } catch(Exception ex) { 
+                } catch (Exception ex) {
                     System.out.println("HttpClientConnection.execute [ERROR] " + ex.getMessage());
                 }
             }
         });
     }
 
-    public void stop() { 
-        executor.shutdown(); 
-    } 
+    public void stop() {
+        executor.shutdown();
+    }
 
     public void send(Object message) {
-        if (message == null) return; 
-        
-        queue.add(message); 
-    }
+        if (message == null) {
+            return;
+        }
+
+        queue.add(message);
+    } 
     
-    private void execute() throws Exception 
-    {
-        while (true)
-        {
-            Object result = queue.poll(1, TimeUnit.SECONDS); 
-            if (result == null) continue;
+    private Object poll( long timeout ) {
+        try {
+            if ( timeout > 0 ) {
+                return queue.poll( timeout, TimeUnit.SECONDS );
+            } else {
+                return queue.poll(); 
+            }
+        } catch(Throwable t) {
+            return null; 
+        }
+    }
+
+    private void execute() throws Exception {
+        while (true) {
+            Object result = poll(1);
+            if (result == null) {
+                continue;
+            }
 
             List list = new ArrayList();
             list.add(result);
 
-            int tries = 1;
             int batchSize = 10;
-            try {  
-                batchSize = Integer.parseInt(conf.get("batchSize").toString()); 
-            } catch(Exception ign){;} 
+            try {
+                batchSize = Integer.parseInt(conf.get("batchSize").toString());
+                batchSize = Math.max( batchSize, 0 ); 
+            } catch (Throwable t) {;}
 
-            while ((result = queue.poll()) != null) 
-            {
+            int tries = 1;            
+            while ((result = poll(0)) != null) {
                 list.add(result);
-                tries++;                    
-                
-                if (tries >= batchSize) break;
+                tries++;
+                if (tries >= batchSize) {
+                    break;
+                }
             }
 
             String host = (String) conf.get("http.host");
             String action = (String) conf.get("http.action");
+            HttpClient httpc = createHttpClient(host); 
             try {
-                createHttpClient(host).post(action, list);
-            } catch(Exception ex) { 
-                System.out.println("HttpClientConnection.execute: error in posting data to " + host + " caused by " + ex.getMessage());
-            } 
-        } 
+                httpc.post(action, list);
+            } catch (Throwable t) {
+                System.out.println("[HttpClientConnection.execute]: error in posting data to " + host + " caused by " + t.getMessage()); 
+                if ( httpc.isDebug() ) { 
+                    t.printStackTrace(); 
+                } 
+            }
+        }
     }
-    
-    private HttpClient createHttpClient(String host) 
-    {
+
+    private HttpClient createHttpClient(String host) {
         HttpClient httpc = new HttpClient(host, true);
         try {
-            int value = Integer.parseInt(conf.get("http.connectionTimeout").toString()); 
+            int value = Integer.parseInt(conf.get("http.connectionTimeout").toString());
             httpc.setConnectionTimeout(value);
-        } catch(Exception ign){;} 
-        
+        } catch (Throwable t) {;
+        }
+
         try {
-            int value = Integer.parseInt(conf.get("http.readTimeout").toString()); 
+            int value = Integer.parseInt(conf.get("http.readTimeout").toString());
             httpc.setReadTimeout(value);
-        } catch(Exception ign){;}         
-        
+        } catch (Throwable t) {;
+        }
+
         try {
             httpc.setProtocol(conf.get("http.protocol").toString());
-        } catch(Exception ign){;} 
-        
+        } catch (Throwable t) {;
+        }
+
         try {
-            boolean b = "true".equals(conf.get("http.encrypted")+"");  
-            httpc.setEncrypted(true);
-        } catch(Exception ign){
-            httpc.setEncrypted(false); 
-        }   
-        
+            httpc.setDebug("true".equalsIgnoreCase(conf.get("http.debug").toString()));
+        } catch (Throwable t) {;
+        }
+
+        try {
+            boolean bool = "true".equals(conf.get("http.encrypted").toString());
+            httpc.setEncrypted(bool);
+        } catch (Throwable t) {;
+        }
+
         return httpc;
     }
 }
