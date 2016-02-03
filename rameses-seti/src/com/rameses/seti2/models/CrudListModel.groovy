@@ -35,7 +35,8 @@ public class CrudListModel {
     def schemaName;
     def adapter;
     def schema;
-    def qry;
+    def entitySchemaName;   //used in case the view schema is not the same as entity schema
+    def query = [:];
     def criteriaList = [];
     def queryForm;
     
@@ -89,6 +90,9 @@ public class CrudListModel {
         if(!schemaName) {
             schemaName = workunit.info.workunit_properties.schemaName;
         }
+        if(!entitySchemaName) {
+            entitySchemaName = workunit.info.workunit_properties.entitySchemaName;
+        }
         if(!schemaName) 
             throw new Exception("Please specify a schema name in the workunit");
         
@@ -137,7 +141,8 @@ public class CrudListModel {
                 
             def m = [:];
             m.putAll(o);
-            m.name = schema.name;
+            m.putAll(query);
+            m.schemaname = schema.name;
             m.adapter = schema.adapter;
             
             //build the columns to retrieve
@@ -145,6 +150,9 @@ public class CrudListModel {
             m.select = arr.join(",");
             
             return queryService.getList( m );
+        },
+        onOpenItem: { o, colName ->
+            return open();
         }
     ] as PageListModel;
     
@@ -184,7 +192,8 @@ public class CrudListModel {
     
     def create() {
         def d = null;
-        def p = [schema:schema, schemaName:schemaName, adapter:adapter];
+        def ename = (!entitySchemaName)? schemaName : entitySchemaName;
+        def p = [schema:schema, schemaName:ename, adapter:adapter];
         p.title = "New " + workunit.title; 
         try {
             d = Inv.lookupOpener( schemaName + ":create", p );
@@ -200,7 +209,8 @@ public class CrudListModel {
         if( !selectedEntity ) 
             throw new Exception("Please select an item");
         def d = null;
-        def p = [schema:schema, schemaName:schemaName, adapter:adapter, entity: selectedEntity];
+        def ename = (!entitySchemaName)? schemaName : entitySchemaName;
+        def p = [schema:schema, schemaName:ename, adapter:adapter, entity: selectedEntity];
         p.title = "Open " + workunit.title;
         try {
             d = Inv.lookupOpener( schemaName + ":open", p );
@@ -219,7 +229,8 @@ public class CrudListModel {
         schema.columns.findAll{it.primary}.each {
             m.put( it.name, selectedEntity.get(it.name));
         }
-        m._schemaname = schemaName;
+        def ename = (!entitySchemaName)? schemaName : entitySchemaName;
+        m._schemaname = ename;
         persistenceService.removeEntity( m );
         listHandler.reload();
     }
