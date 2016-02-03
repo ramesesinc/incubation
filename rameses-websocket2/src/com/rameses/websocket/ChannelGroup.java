@@ -33,4 +33,6 @@ public abstract class ChannelGroup
     public abstract void removeSocket(WebSocket.Connection conn);
     public abstract void send(MessageObject msgobj);
     public abstract void close(int status, String msg );
+    
+    public abstract boolean isEmpty(); 
 }

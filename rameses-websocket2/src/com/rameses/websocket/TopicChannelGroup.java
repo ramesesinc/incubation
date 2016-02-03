@@ -30,21 +30,23 @@ class TopicChannelGroup extends ChannelGroup
         super(name); 
     }
 
-    public void addSocket(WebSocket.Connection conn) {
+    public void addSocket(WebSocket.Connection conn) { 
         String connid = new UID().toString(); 
         addSocket(conn, connid); 
-    }
+    } 
     
-    public void addSocket(WebSocket.Connection conn, String connid) {
+    public void addSocket(WebSocket.Connection conn, String connid) { 
         connections.add(new Channel.Connection(conn, connid)); 
-    }
+    } 
 
-    public void removeSocket(WebSocket.Connection conn) {
-        if (conn == null) return;
+    public void removeSocket(WebSocket.Connection conn) { 
+        if (conn == null) return; 
         
         List removelist = new ArrayList();
         for (Channel.Connection info: connections) {
-            if (info.accept(conn)) removelist.add(info); 
+            if (info.accept(conn)) {
+                removelist.add(info);
+            } 
         } 
         
         connections.removeAll(removelist); 
@@ -69,5 +71,9 @@ class TopicChannelGroup extends ChannelGroup
         } 
         connections.removeAll( removelist ); 
         removelist.clear(); 
+    } 
+    
+    public boolean isEmpty() { 
+        return connections.isEmpty(); 
     } 
 }

@@ -9,6 +9,7 @@
 
 package com.rameses.websocket;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -46,6 +47,10 @@ public class SocketConnections
         }
         return channels.get( name );
     }
+    
+    public Collection<Channel> getChannels() {
+        return channels.values(); 
+    } 
     
     public void shutdown() {
         for(Channel s: channels.values() ) {

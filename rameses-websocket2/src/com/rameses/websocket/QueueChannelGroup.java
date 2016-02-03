@@ -73,4 +73,8 @@ class QueueChannelGroup extends ChannelGroup
         queue.removeAll( removelist ); 
         removelist.clear(); 
     } 
+    
+    public boolean isEmpty() { 
+        return queue.isEmpty(); 
+    }     
 }

@@ -55,6 +55,9 @@ public class PostMessageServlet extends AbstractServlet
                 list = Arrays.asList((Object[]) o);
             } else {
                 list = new ArrayList();
+                if ( o != null ) {
+                    list.add( o );
+                } 
             } 
             
             Continuation cont = ContinuationSupport.getContinuation(req);
@@ -194,8 +197,13 @@ public class PostMessageServlet extends AbstractServlet
         public void run() {
             try {
                 Iterator itr = list.iterator(); 
-                while (itr.hasNext()) {
-                    Map map = (Map) itr.next();
+                while (itr.hasNext()) { 
+                    Object obj = itr.next(); 
+                    if (!( obj instanceof Map )) { 
+                        continue; 
+                    } 
+                    
+                    Map map = (Map) obj; 
                     String action = map.remove("action")+"";
                     if ("addchannel".equals(action)) { 
                         processAddChannelAction(map); 

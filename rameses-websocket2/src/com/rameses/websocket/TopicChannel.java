@@ -10,8 +10,10 @@
 package com.rameses.websocket;
 
 import com.rameses.util.MessageObject;
+import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import org.eclipse.jetty.websocket.WebSocket;
 
@@ -32,20 +34,23 @@ public class TopicChannel extends Channel
     }    
     
     public synchronized ChannelGroup addGroup(String name) {
-        if (name == null) name = "default";
+        if ( name == null ) {
+            name = "default";
+        }
         
         String keyname = name.toLowerCase();
         ChannelGroup grp = groups.get(keyname); 
-        if (grp != null) return grp;
-        
-        grp = new TopicChannelGroup(keyname);
-        groups.put(keyname, grp);
+        if ( grp == null ) {
+            grp = new TopicChannelGroup(keyname); 
+            groups.put(keyname, grp); 
+        } 
         return grp; 
-    }
+    } 
     
     public ChannelGroup getGroup(String name) {
-        if (name == null) name = "default";
-        
+        if (name == null) {
+            name = "default";
+        }
         return groups.get(name.toLowerCase());
     }    
     
@@ -70,11 +75,26 @@ public class TopicChannel extends Channel
         }
     }
 
-    public void removeSocket(WebSocket.Connection conn) {
+    public void removeSocket(WebSocket.Connection conn) { 
+        ArrayList<ChannelGroup> removals = new ArrayList();
         Iterator<ChannelGroup> items = groups.values().iterator(); 
         while (items.hasNext()) {
             ChannelGroup cg = items.next(); 
-            if (cg != null) cg.removeSocket(conn); 
-        }        
+            if (cg == null) { continue; }
+            
+            cg.removeSocket(conn); 
+            if ( cg.isEmpty() ) {
+                removals.add( cg ); 
+            } 
+        } 
+        
+        while ( !removals.isEmpty() ) {
+            ChannelGroup cg = removals.remove(0); 
+            if ( cg.isEmpty() ) { 
+                try { 
+                    groups.remove( cg.getName() ); 
+                } catch(Throwable t) {;} 
+            } 
+        }
     }
 }
