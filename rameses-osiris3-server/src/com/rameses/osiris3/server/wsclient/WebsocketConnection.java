@@ -32,7 +32,7 @@ import org.eclipse.jetty.websocket.WebSocketClientFactory;
  */
 public class WebsocketConnection extends MessageConnection implements WebSocket.OnTextMessage, WebSocket.OnBinaryMessage 
 {
-    private final static ExecutorService TASKS = Executors.newFixedThreadPool(100);
+    private final static ExecutorService TASKS = Executors.newCachedThreadPool(); 
     
     private final static int DEFAULT_MAX_CONNECTION     = 35000; 
     private final static int MAX_BINARY_MESSAGE_SIZE    = 16384;    
@@ -176,16 +176,28 @@ public class WebsocketConnection extends MessageConnection implements WebSocket.
     
     public void onClose(int i, String msg) {
         if(connection != null) {
-            this.connection.close();
-            this.connection = null;
+            try { 
+                this.connection.close(); 
+            } catch(Throwable t) {
+                //do nothing 
+            } finally { 
+                this.connection = null;
+            } 
+            
             if (i == 1006) {
-                try { factory.stop();  } catch(Exception ign){;}
-                try { start(); } catch(Exception e) {e.printStackTrace();}
-            }
-            else if (i == 1002) {
+                try { 
+                    factory.stop();  
+                } catch(Throwable e){;}
+                
+                try { 
+                    start(); 
+                } catch(Throwable e){ 
+                    e.printStackTrace(); 
+                }
+            } else if (i == 1002) {
                 System.out.println("[WebsocketConnection, "+ protocol +"] " + msg);
             }
-            //reconnect if max idle time reached
+            //reconnect if max idle time reached 
             else if (i == 1000) { 
                 try { 
                     open(); 

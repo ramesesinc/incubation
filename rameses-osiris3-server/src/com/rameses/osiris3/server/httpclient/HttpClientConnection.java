@@ -13,7 +13,6 @@ import com.rameses.osiris3.core.AbstractContext;
 import com.rameses.osiris3.xconnection.XConnection;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -26,11 +25,13 @@ import java.util.concurrent.TimeUnit;
  */
 public class HttpClientConnection extends XConnection {
 
+    private final static int QUEUE_SIZE_LIMIT = 20; 
+    
     private String name;
     private AbstractContext context;
     private Map conf;
     private LinkedBlockingQueue queue = new LinkedBlockingQueue();
-    private ExecutorService executor = Executors.newSingleThreadExecutor();
+    private ExecutorService executor = Executors.newCachedThreadPool();
 
     public HttpClientConnection(String name, AbstractContext context, Map conf) {
         this.name = name;
@@ -64,7 +65,11 @@ public class HttpClientConnection extends XConnection {
             return;
         }
 
-        queue.add(message);
+        if ( queue.size() >= QUEUE_SIZE_LIMIT ) {
+            post( message ); 
+        } else { 
+            queue.add(message); 
+        }
     } 
     
     private Object poll( long timeout ) {
@@ -86,7 +91,7 @@ public class HttpClientConnection extends XConnection {
                 continue;
             }
 
-            List list = new ArrayList();
+            ArrayList list = new ArrayList();
             list.add(result);
 
             int batchSize = 10;
@@ -103,19 +108,22 @@ public class HttpClientConnection extends XConnection {
                     break;
                 }
             }
-
-            String host = (String) conf.get("http.host");
-            String action = (String) conf.get("http.action");
-            HttpClient httpc = createHttpClient(host); 
-            try {
-                httpc.post(action, list);
-            } catch (Throwable t) {
-                System.out.println("[HttpClientConnection.execute]: error in posting data to " + host + " caused by " + t.getMessage()); 
-                if ( httpc.isDebug() ) { 
-                    t.printStackTrace(); 
-                } 
-            }
+            post( list ); 
         }
+    }
+    
+    private void post( Object data ) {
+        String host = (String) conf.get("http.host"); 
+        String action = (String) conf.get("http.action"); 
+        HttpClient httpc = createHttpClient(host); 
+        try {
+            httpc.post(action, data);
+        } catch (Throwable t) {
+            System.out.println("[HttpClientConnection.execute]: error in posting data to " + host + " caused by " + t.getMessage()); 
+            if ( httpc.isDebug() ) { 
+                t.printStackTrace(); 
+            } 
+        }        
     }
 
     private HttpClient createHttpClient(String host) {
