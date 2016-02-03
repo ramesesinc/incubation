@@ -38,11 +38,9 @@ public class XAsyncRemoteConnection extends XConnection implements XAsyncConnect
         this.conf = conf;
         this.failOnConnectionError = true;
         
-        if (conf != null) {
-            debug = "true".equals(conf.get("debug")+"");
-            if ("false".equals(conf.get("failOnConnectionError")+"")) {
-                failOnConnectionError = false;
-            } 
+        debug = "true".equals( getProperty("debug", conf)+"" );
+        if ("false".equals(getProperty("failOnConnectionError", conf)+"")) {
+            failOnConnectionError = false;
         } 
     } 
     
@@ -51,17 +49,25 @@ public class XAsyncRemoteConnection extends XConnection implements XAsyncConnect
             System.out.println("[" + getClass().getSimpleName() + "_start] " + name);
         } 
         
-        host = (String)conf.get("host");
-        if (host == null) host = (String) conf.get("app.host");
+        host = getProperty("host");
+        if (host == null) {
+            host = getProperty("app.host");
+        }
         
-        cluster = (String) conf.get("cluster"); 
-        if (cluster == null) cluster = (String)conf.get("app.cluster"); 
-        if (cluster == null) cluster = "osiris3"; 
+        cluster = getProperty("cluster"); 
+        if (cluster == null) {
+            cluster = getProperty("app.cluster");
+        } 
+        if (cluster == null || cluster.trim().length()==0 ) {
+            cluster = "osiris3";
+        } 
         
-        context = (String) conf.get("context"); 
-        if (context == null) context = (String)conf.get("app.context"); 
+        context = getProperty("context");
+        if (context == null) {
+            context = getProperty("app.context");
+        } 
         
-        connection = (String) conf.get("connection"); 
+        connection = getProperty("connection"); 
     }
     
     public void stop() {
@@ -104,7 +110,19 @@ public class XAsyncRemoteConnection extends XConnection implements XAsyncConnect
 
     public void trace( StringBuilder buffer ) {
         new RemoteMessageQueue(null, host, cluster, context).trace( buffer ); 
+    } 
+    
+    // <editor-fold defaultstate="collapsed" desc=" helper methods "> 
+    
+    private String getProperty( Object key ) {
+        return getProperty( key, getConf() ); 
     }
+    private String getProperty( Object key, Map conf ) {
+        Object value = (conf == null ? null : conf.get(key)); 
+        return (String) value; 
+    }
+    
+    // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" RemoteMessageQueue ">
     
@@ -112,7 +130,6 @@ public class XAsyncRemoteConnection extends XConnection implements XAsyncConnect
     {
         XAsyncRemoteConnection root = XAsyncRemoteConnection.this;
         
-        private HttpClient client;
         private String cluster;
         private String context;
         private String host;
@@ -123,11 +140,11 @@ public class XAsyncRemoteConnection extends XConnection implements XAsyncConnect
             this.host = host;             
             this.cluster = cluster;
             this.context = context;
-            this.client = new HttpClient(host, true);
         }
         
         private Object post(String path, Object params) throws Exception {
             try {
+                HttpClient client = new HttpClient(host, true);
                 return client.post(path, new Object[]{ params }); 
             } catch(Exception e) {
                 if (isConnectionError(e) && root.failOnConnectionError) {
@@ -213,6 +230,7 @@ public class XAsyncRemoteConnection extends XConnection implements XAsyncConnect
                     buffer.append(", connection="+ root.connection); 
                 }
                 
+                HttpClient client = new HttpClient(host, true);
                 Object o = client.post(path, new Object[]{ params });
                 buffer.append("\n   Status: Connected"); 
                 if ( o != null ) {
