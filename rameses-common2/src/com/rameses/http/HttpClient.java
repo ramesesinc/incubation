@@ -155,7 +155,28 @@ public class HttpClient implements Serializable {
         return invoke(list, args, "POST");
     }
     
-    private Object invoke(Queue<String> queue, Object parms, String methodType) throws Exception {
+    private Object invoke(Queue<String> queue, Object parms, String methodType) throws Exception { 
+        try { 
+            return invokeImpl( queue, parms, methodType ); 
+        } catch( Exception ex ) {
+            if ( 
+                (ex instanceof UnknownHostException) || 
+                (ex instanceof SocketException) || 
+                (ex instanceof ConnectException) || 
+                (ex instanceof SocketTimeoutException) 
+            ) { 
+                try {
+                    return invokeImpl( queue, parms, methodType );
+                } catch(AllConnectionFailed ae) {
+                    throw ex; 
+                } 
+            } else { 
+                throw ex; 
+            } 
+        } 
+    }
+    
+    private Object invokeImpl(Queue<String> queue, Object parms, String methodType) throws Exception {
         HttpURLConnection conn = null;
         InputStream is = null;
         ObjectInputStream in = null;
@@ -262,22 +283,6 @@ public class HttpClient implements Serializable {
             } else {
                 return outputHandler.getResult(is);
             }
-            
-        } catch (Exception ex) {
-            if ( 
-                (ex instanceof UnknownHostException) || 
-                (ex instanceof SocketException) || 
-                (ex instanceof ConnectException) || 
-                (ex instanceof SocketTimeoutException) 
-            ) { 
-                try {
-                    return invoke(queue, parms, methodType );
-                } catch(AllConnectionFailed ae) {
-                    throw ex;
-                } 
-            } else {
-                throw ex;
-            } 
         } finally {
             try { in.close(); } catch(Throwable ign){;}
             try { is.close(); } catch(Throwable ign){;}
