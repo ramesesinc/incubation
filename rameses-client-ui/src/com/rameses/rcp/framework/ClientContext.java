@@ -16,6 +16,7 @@ import com.rameses.rcp.impl.NavigationHandlerImpl;
 
 import com.rameses.common.ValueResolver;
 import com.rameses.util.Service;
+import com.rameses.util.URLStreamHandlerFactory;
 import java.lang.ref.WeakReference;
 import java.net.URL;
 import java.util.HashMap;
@@ -167,17 +168,19 @@ public abstract class ClientContext
         this.debugMode = debugMode;
     }
     
-    public URL getResource(String name) {
+    public URL getResource(String name) { 
         try { 
-            ClassLoader classLoader = getClassLoader();
-            URL url = classLoader.getResource(name);
-            if (url != null) return url; 
-            
-            classLoader = getClass().getClassLoader(); 
-            url = classLoader.getResource(name); 
-            if (url != null) return url;
-            
-            return classLoader.getSystemClassLoader().getResource(name);
+            return URLStreamHandlerFactory.getInstance(getClassLoader()).getResource( name ); 
+//            
+//            ClassLoader classLoader = getClassLoader();
+//            URL url = classLoader.getResource(name);
+//            if (url != null) return url; 
+//            
+//            classLoader = getClass().getClassLoader(); 
+//            url = classLoader.getResource(name); 
+//            if (url != null) return url;
+//            
+//            return classLoader.getSystemClassLoader().getResource(name);
         } catch(Throwable t) {
             return null; 
         }        

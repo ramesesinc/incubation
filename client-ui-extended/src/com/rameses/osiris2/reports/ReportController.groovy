@@ -5,73 +5,62 @@ import com.rameses.osiris2.client.*;
 import com.rameses.osiris2.reports.*;
 
 public abstract class ReportController { 
-    
+        
     @Binding 
     def binding; 
-
-    @Service('ReportParameterService') 
-    def reportParamSvc; 
     
     def mode = 'init';
     def entity = [:];
-
-    def _params = [:];
-    def _reportdata;
     
     public abstract def getReportData();
     public abstract String getReportName();
         
-    SubReport[] getSubReports() { return null; }
+    SubReport[] getSubReports() { 
+        return null; 
+    }
     
-    def getFormControl() { return null; } 
-
-    Map getParameters() { return [:]; }
+    Map getParameters() { 
+        return [:]; 
+    }
     
-    def initReport() { return 'default'; }
-    
+    def getFormControl() { 
+        return null; 
+    } 
+        
     def init() { 
         mode = 'init'; 
         return initReport(); 
+    }
+    
+    def initReport() { 
+        return 'default'; 
     } 
     
+    void afterLoadReportParams( Map conf ) {
+        new com.rameses.osiris2.common.ReportParameterLoader().load([ params: conf ]); 
+    } 
+    
+    def getRoot() { return this; }
+    
+    def report = [ 
+        getReportName : { return root.getReportName() }, 
+        getSubReports : { return root.getSubReports() }, 
+        getReportData : { return root.getReportData() }, 
+        getParameters : { return root.getParameters() },
+        afterLoadReportParams: { a-> root.afterLoadReportParams(a) } 
+    ] as ReportModel; 
+    
     def preview() { 
-        buildReport(); 
+        def outcome = report.viewReport(); 
         mode = 'view'; 
-        return 'report'; 
+        return outcome; 
     } 
     
     void print() { 
-        buildReport(); 
+        report.viewReport(); 
         ReportUtil.print( report.report, true ); 
     } 
-    
-    void buildReport() { 
-        _params = [:]; 
-        _reportdata = getReportData(); 
-
-        def appenv = com.rameses.rcp.framework.ClientContext.getCurrentContext().getAppEnv(); 
-        appenv?.each{ k,v-> 
-            def skey = k.toString().toUpperCase(); 
-            _params.put( skey, v ); 
-        } 
-
-        def globalparams = reportParamSvc.getStandardParameter(); 
-        if ( globalparams ) _params.putAll( globalparams );  
-
-        def localparams = getParameters(); 
-        if ( localparams ) _params.putAll( localparams ); 
-
-        new com.rameses.osiris2.common.ReportParameterLoader().load([ params: _params ]); 
-        report.viewReport(); 
-    } 
-        
-    def report = [
-        getReportName : { return getReportName() }, 
-        getSubReports : { return getSubReports() }, 
-        getReportData : { return _reportdata }, 
-        getParameters : { return  _params } 
-    ] as ReportModel 
-    
+            
     def back() { 
         mode = 'init'; 
         return 'default'; 

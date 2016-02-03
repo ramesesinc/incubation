@@ -12,6 +12,7 @@ package com.rameses.osiris2.reports;
 import com.rameses.common.PropertyResolver;
 import com.rameses.osiris2.client.Inv;
 import com.rameses.osiris2.client.InvokerFilter;
+import com.rameses.osiris2.client.InvokerProxy;
 import com.rameses.osiris2.client.InvokerUtil;
 import com.rameses.rcp.annotations.Invoker;
 import com.rameses.rcp.common.Action;
@@ -77,85 +78,103 @@ public abstract class ReportModel {
     
     public Map getParameters() { return null; }
     
+    protected void afterLoadReportParams( Map conf ) {
+        //do nothing 
+    }
+
     private JasperPrint reportOutput;
-    
+    private JReportInfo reportInfo;
     private JasperReport mainReport;
     
-    private JasperPrint createReport() {
-        try {
-            if (ReportUtil.isDeveloperMode()) { mainReport = null; }
-            
-            if (mainReport == null || isDynamic()) { 
-                mainReport = ReportUtil.getJasperReport(getReportName());
-            } 
-
-            Map conf = new HashMap();
-            SubReport[] subReports = getSubReports();
-            
-            if (subReports != null) {
-                for (SubReport sr: subReports) {
-                    conf.put( sr.getName(), sr.getReport() );
-                }
+    protected JasperReport loadMainReport() {
+        if (ReportUtil.isDeveloperMode()) { 
+            mainReport = null; 
+            updateWorkspaceDir(); 
+        } 
+        if (mainReport == null || isDynamic()) { 
+            mainReport = ReportUtil.getJasperReport( getReportName() );
+        } 
+        return mainReport; 
+    }
+    
+    protected void loadSubReport( Map conf ) {
+        SubReport[] subReports = getSubReports();
+        if (subReports != null) {
+            for (SubReport sr: subReports) {
+                conf.put( sr.getName(), sr.getReport() );
             }
-            Map params = getParameters();
-            if (params != null) {
-                Iterator keys = params.keySet().iterator(); 
-                while (keys.hasNext()) { 
-                    Object okey = keys.next(); 
-                    Object oval = params.get( okey ); 
-                    if ( oval instanceof String && oval.toString().matches(".*\\\\.(jpg|png)") ) {
-                        params.put( okey, ReportUtil.getImage(oval.toString()) ); 
-                    }
-                } 
-                
-                conf.putAll(params);
-            }
-            
-            Map appenv = ClientContext.getCurrentContext().getAppEnv(); 
-            Iterator keys = appenv.keySet().iterator(); 
-            while ( keys.hasNext() ) { 
-                Object key = keys.next(); 
-                conf.put("ENV."+ key.toString().toUpperCase(), appenv.get(key)); 
-            } 
-            
-            JRParameter[] jrparams = mainReport.getParameters(); 
-            if ( jrparams != null ) {
-                for ( JRParameter jrp : jrparams ) {
-                    String pname = jrp.getName(); 
-                    try { 
-                        if ( pname.indexOf('.') <= 0 ) { continue; } 
-
-                        Object pvalue = propertyResolver.getProperty(conf, pname); 
-                        conf.put( pname, pvalue ); 
-                    } catch(Throwable t) {
-                        System.out.println("Error on parameter [" + pname  + "] caused by " + t.getMessage());
-                    }
-                }
-            }
-            
-            JRDataSource ds = null;
-            Object data = getReportData();
-            if (data != null) {
-                ds = new ReportDataSource(data);
-            } else {
-                ds = new JREmptyDataSource();
-            }
-            
-            conf.put("REPORT_UTIL", new ReportDataUtil());
-            conf.put("REPORTHELPER", new ReportDataSourceHelper());            
-            return JasperFillManager.fillReport(mainReport, conf, ds);
-        } catch (RuntimeException re) {
-            throw re;
-        } catch (JRException ex) {
-            ex.printStackTrace();
-            throw new IllegalStateException(ex.getMessage(), ex);
         }
+    }
+    
+    protected void loadReportParams( Map conf ) { 
+        Map params = getServiceProxy().getStandardParameter(); 
+        if ( params != null ) { 
+            conf.putAll( params ); 
+        } 
+        
+        params = getParameters(); 
+        if ( params != null ) { 
+            conf.putAll( params ); 
+        } 
+        
+        Map appenv = ClientContext.getCurrentContext().getAppEnv(); 
+        Iterator keys = appenv.keySet().iterator(); 
+        while ( keys.hasNext() ) { 
+            Object key = keys.next(); 
+            conf.put("ENV."+ key.toString().toUpperCase(), appenv.get(key)); 
+        } 
+        
+        JRParameter[] jrparams = mainReport.getParameters(); 
+        if ( jrparams != null ) {
+            for ( JRParameter jrp : jrparams ) {
+                String pname = jrp.getName(); 
+                try { 
+                    if ( jrp.isSystemDefined() ) { continue; }
+                    if ( pname.indexOf('.') <= 0 ) { continue; } 
+
+                    Object pvalue = propertyResolver.getProperty(conf, pname); 
+                    conf.put( pname, pvalue ); 
+                } catch(Throwable t) {
+                    System.out.println("Error on parameter [" + pname  + "] caused by " + t.getMessage());
+                }
+            }
+        }       
+        
+        conf.put("REPORT_UTIL", new ReportDataUtil());
+        conf.put("REPORTHELPER", new ReportDataSourceHelper()); 
+    } 
+    
+    private JasperPrint createReport() {
+        loadMainReport(); 
+        
+        Map conf = new HashMap();
+        loadSubReport( conf );
+        loadReportParams( conf );
+        afterLoadReportParams( conf ); 
+        
+        Object data = getReportData(); 
+        JReportInfo jrpt = new JReportInfo( data, conf ); 
+        JasperPrint jprint = jrpt.fillReport( mainReport ); 
+        reportInfo = jrpt; 
+        return jprint; 
     }
     
     public String viewReport() {
         reportOutput = createReport();
         return "report";
     }
+    
+    public void reload() { 
+        if ( reportInfo == null ) {
+            reportOutput = createReport(); 
+        } else { 
+            loadMainReport(); 
+            reportOutput = reportInfo.fillReport( mainReport );  
+        } 
+        if ( provider != null) { 
+            provider.reload(); 
+        } 
+    } 
     
     public JasperPrint getReport() {
         return reportOutput;
@@ -227,32 +246,103 @@ public abstract class ReportModel {
             return null; 
         } 
     } 
-    
+        
     // <editor-fold defaultstate="collapsed" desc=" Provider "> 
     
     public static interface Provider { 
         Object getBinding(); 
-        File browseFolder();
+        File browseFolder(); 
+        void reload(); 
     }
     
     
-    private Provider provider; 
+    protected Provider provider; 
     public void setProvider( Provider provider ) {
         this.provider = provider; 
-    }
+    } 
     
-    public Object getBinding() {
+    public Object getBinding() { 
         return (provider == null? null: provider.getBinding()); 
-    }
-    public File browseFolder() {
-        if ( provider != null ) {
-            File fdir = provider.browseFolder(); 
-            if ( fdir != null ) {
-                ReportUtil.setCustomFolder( fdir );
-            } 
+    }  
+    
+    private File workspacedir;  
+    public File getWorkspaceDir() { 
+        return workspacedir; 
+    } 
+    public void setWorkspaceDir( File workspacedir ) {
+        if ( workspacedir == null ) { 
+            workspacedir = ReportUtil.getDefaultCustomFolder(); 
         } 
+        this.workspacedir = workspacedir; 
+        ReportUtil.setCustomFolder( workspacedir ); 
+    }
+    public void updateWorkspaceDir() {
+        if ( getWorkspaceDir() == null ) { 
+            // set null to load the defaults 
+            setWorkspaceDir( null ); 
+        } 
+        ReportUtil.setCustomFolder( getWorkspaceDir() ); 
+    }
+    public File browseFolder() { 
+        File newdir = null; 
+        if ( provider != null ) { 
+            newdir = provider.browseFolder(); 
+        } 
+        setWorkspaceDir( newdir ); 
         return ReportUtil.getCustomFolder(); 
     } 
     
     // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" JReportInfo "> 
+    
+    private class JReportInfo {
+        
+        private Object data;
+        private Map params;
+        
+        public JReportInfo( Object data, Map params ) {
+            this.data = data; 
+            this.params = params; 
+        }
+        
+        public Object getData() { return data; } 
+        public Map getParams() { return params; } 
+        
+        public JRDataSource createDataSource() {
+            if ( data == null ) { 
+                return new JREmptyDataSource(); 
+            } else {
+                return new ReportDataSource( data );
+            }            
+        }   
+        
+        public JasperPrint fillReport( JasperReport report ) {
+            JRDataSource ds = createDataSource(); 
+            try { 
+                return JasperFillManager.fillReport( report, getParams(), ds );
+            } catch (JRException ex) {
+                ex.printStackTrace(); 
+                throw new IllegalStateException(ex.getMessage(), ex); 
+            }
+        }
+    }
+    
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" Proxy services "> 
+    
+    private ReportParamServiceProxy svcproxy;
+    private ReportParamServiceProxy getServiceProxy() {
+        if ( svcproxy == null ) {
+            svcproxy = (ReportParamServiceProxy) InvokerProxy.getInstance().create("ReportParameterService", ReportParamServiceProxy.class); 
+        } 
+        return svcproxy; 
+    }
+    
+    public static interface ReportParamServiceProxy {
+        Map getStandardParameter();
+    }
+    
+    // </editor-fold>    
 }

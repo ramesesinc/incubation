@@ -13,26 +13,27 @@ import net.sf.jasperreports.engine.JRField;
 public class ReportDataSource implements JRDataSource 
 {
     protected Iterator iterator;
-    private Object source;
     protected Object currentObject;
+    
+    private Object source;
     private PropertyResolver propertyResolver;
     private ReportDataSourceHelper helper;
 
-    public ReportDataSource(Object source) {
-        setSource(source);
+    public ReportDataSource(Object source) {    
+        setSource( source ); 
         propertyResolver = PropertyResolver.getInstance();
     }
     
     public ReportDataSourceHelper getHelper() {
         return helper; 
     }
-    
+       
     public Object getSource() { return source; } 
     public void setSource(Object src) { 
         this.source = src; 
         this.helper = new ReportDataSourceHelper( this.source );
-        
-        if( src == null ) {
+
+        if ( src == null ) { 
             iterator = (new ArrayList()).iterator();
         } else if( src instanceof Collection ) {
             iterator = ((Collection)src).iterator();
@@ -52,8 +53,6 @@ public class ReportDataSource implements JRDataSource
         }
     }
     
-    
-    
     public Object getFieldValue(JRField jRField) throws JRException {
         Object field = null;
         String fieldName = null;
@@ -72,5 +71,4 @@ public class ReportDataSource implements JRDataSource
             return null; 
         } 
     }  
-    
 }

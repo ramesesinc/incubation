@@ -9,19 +9,16 @@
 
 package com.rameses.osiris2.common;
 
-import com.rameses.osiris2.AppContext;
 import com.rameses.osiris2.client.InvokerProxy;
 import com.rameses.osiris2.reports.ReportModel;
-import com.rameses.osiris2.reports.ReportUtil;
 import com.rameses.osiris2.reports.SubReport;
 import com.rameses.rcp.framework.ClientContext;
 import com.rameses.service.jdbc.DBServiceDriver;
-import java.io.InputStream;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import net.sf.jasperreports.engine.JRException;
@@ -29,7 +26,6 @@ import net.sf.jasperreports.engine.JRParameter;
 import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.JasperReport;
-import net.sf.jasperreports.engine.base.JRBaseExpression;
 
 /**
  *
@@ -88,6 +84,10 @@ public abstract class DBReportModel  {
         return outcome; 
     }
     
+    public void reload() { 
+        report.reload(); 
+    }    
+    
     public void print() { 
         print( true ); 
     } 
@@ -104,6 +104,27 @@ public abstract class DBReportModel  {
         return null; 
     }  
     
+    public Object getFormControl(){
+        return fpModel;
+    }
+    
+    protected void afterLoadReportParams( Map conf ) {
+        Map invparams = new HashMap(); 
+        invparams.put("params", conf); 
+        new ReportParameterLoader().load( invparams );         
+    } 
+    
+    
+    private ClientContext currentContext; 
+    private ClientContext getCurrentContext() {
+        if (currentContext == null) {
+            currentContext = ClientContext.getCurrentContext(); 
+        }
+        return currentContext; 
+    } 
+    
+    // <editor-fold defaultstate="collapsed" desc=" CustomReportClassLoader "> 
+    
     public class CustomReportClassLoader extends ClassLoader {
         private String parentName;
         public  CustomReportClassLoader(String n){
@@ -117,19 +138,9 @@ public abstract class DBReportModel  {
         }
     } 
     
-    public Object getFormControl(){
-        return fpModel;
-    }
+    // </editor-fold>
     
-    
-    private ClientContext currentContext; 
-    private ClientContext getCurrentContext() {
-        if (currentContext == null) {
-            currentContext = ClientContext.getCurrentContext(); 
-        }
-        return currentContext; 
-    }
-    
+    // <editor-fold defaultstate="collapsed" desc=" Proxy services "> 
     
     private ReportParamServiceProxy svcproxy;
     private ReportParamServiceProxy getServiceProxy() {
@@ -143,6 +154,9 @@ public abstract class DBReportModel  {
         Map getStandardParameter();
     }
     
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" FormPanelModelImpl "> 
     
     private class FormPanelModelImpl extends com.rameses.rcp.common.FormPanelModel {
         
@@ -153,21 +167,27 @@ public abstract class DBReportModel  {
         } 
     } 
     
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" ReportModelImpl "> 
+    
     private class ReportModelImpl extends ReportModel { 
-                
+
         DBReportModel root = DBReportModel.this; 
+        
+        JReportInfo reportInfo; 
         JasperReport mainReport;
         JasperPrint reportOutput;
         
         public Object getReportData() {
             return null; 
         }
-        public String getReportName() {
+        public String getReportName() { 
             return root.getReportName(); 
         }
-        public Map getParameters() {
+        public Map getParameters() { 
             return root.getQuery(); 
-        }
+        } 
         public SubReport[] getSubReports() {
             return root.getSubReports(); 
         }
@@ -175,170 +195,89 @@ public abstract class DBReportModel  {
             return reportOutput;
         } 
         
+        public void reload() { 
+            if ( reportInfo == null ) {
+                reportOutput = createReport(); 
+            } else { 
+                JasperReport jreport = loadMainReport(); 
+                reportOutput = reportInfo.fillReport( jreport );  
+            } 
+            if ( provider != null) { 
+                provider.reload(); 
+            } 
+        }            
+        
         JasperPrint createReport() {
-            Connection conn = null;
             try {
-                Class.forName(DBServiceDriver.class.getName());
-                
-                if (ReportUtil.isDeveloperMode()) { mainReport = null; }
-                
-                if (mainReport == null || root.isDynamic()) {
-                    mainReport = ReportUtil.getJasperReport( getReportName() );
-                }
-
-                Map conf = new HashMap(); 
-                SubReport[] subReports = getSubReports(); 
-                if (subReports != null) { 
-                    for (SubReport sr: subReports) { 
-                        conf.put( sr.getName(), sr.getReport() ); 
-                    } 
-                } 
-                
-                Map stdparams = root.getServiceProxy().getStandardParameter(); 
-                if ( stdparams != null ) {
-                    conf.putAll( stdparams ); 
-                } 
-                
-                Map params = getParameters();
-                if ( params != null ) { 
-                    conf.putAll( params );
-                } 
-
-                Map invparams = new HashMap(); 
-                invparams.put("params", conf); 
-                new ReportParameterLoader().load( invparams );                  
-                
-                if ( stdparams != null ) { 
-                    Iterator keys = stdparams.keySet().iterator(); 
-                    while ( keys.hasNext() ) {
-                        String skey = keys.next()+""; 
-                        Object oval = stdparams.get(skey); 
-                        conf.put(skey, oval); 
-
-                        if ( oval == null ) { continue; }
-
-                        String sval = oval.toString().toLowerCase();
-                        if (!(sval.endsWith(".jpg") || sval.endsWith(".png"))) { continue; } 
-                        if ( sval.startsWith("http://") ) { continue; }
-
-                        conf.put(skey, getInputStream( oval.toString() )); 
-                    }                 
-                }
-                
-                Map appenv = ClientContext.getCurrentContext().getAppEnv(); 
-                Iterator keys = appenv.keySet().iterator(); 
-                while ( keys.hasNext() ) { 
-                    Object key = keys.next(); 
-                    conf.put("ENV."+ key.toString().toUpperCase(), appenv.get(key)); 
-                } 
-                
-                JRParameter[] jrparams = mainReport.getParameters(); 
-                if ( jrparams != null ) {
-                    for ( JRParameter jrp : jrparams ) {
-                        if (jrp.isSystemDefined()) { continue; } 
-                        
-                        String pname = jrp.getName();                         
-                        try { 
-                            if ( pname.indexOf('.') > 0 ) { 
-                                Object pvalue = propertyResolver.getProperty(conf, pname); 
-                                conf.put( pname, pvalue ); 
-                            } 
-                        } catch(Throwable t) {
-                            System.out.println("Error on parameter [" + pname  + "] caused by " + t.getMessage());
-                        }
-                        
-                        evaluateParameter( jrp, conf ); 
-                    } 
-                } 
-                
-                Map env = AppContext.getInstance().getEnv(); 
-                String appUrl = env.get("app.host")+"";
-                String appContext = root.getContext(); 
-                String appCluster = root.getCluster(); 
-                if ( appContext==null ) appContext = env.get("app.context")+""; 
-                if ( appCluster==null ) appCluster = env.get("app.cluster")+""; 
-                
-                String surl = "jdbc:rameses://"+ appUrl +"/"+ appCluster + "/" + appContext;
-                conn = DriverManager.getConnection( surl );
-
-                String parentName  =  "";
-                String rptName = getReportName();
-                if ( rptName.indexOf("/") > 0 ) { 
-                    parentName = rptName.substring(0, rptName.lastIndexOf("/"));
-                } 
-                conf.put(JRParameter.REPORT_CLASS_LOADER, new CustomReportClassLoader(parentName));
-                reportOutput = JasperFillManager.fillReport(mainReport, conf, conn ); 
-                return reportOutput; 
-            } catch (RuntimeException re) {
-                throw re;
-            } catch (JRException ex) {
-                ex.printStackTrace();
-                throw new IllegalStateException(ex.getMessage(), ex);
-            } catch(Exception e) {
-                e.printStackTrace();
-                throw new IllegalStateException(e.getMessage(), e);
-            } finally {
-                try {conn.close();} catch(Exception ign){;}
-            }
-        }
-        
-        URL getURL( String imagename ) { 
-            try { 
-                return root.getCurrentContext().getClassLoader().getResource( getImagePath( imagename ) ); 
-            } catch( Throwable t ) { 
-                return null; 
-            } 
-        }
-        
-        InputStream getInputStream( String imagename ) {
-            return root.getCurrentContext().getClassLoader().getResourceAsStream( getImagePath( imagename ) );
-        }
-        
-        String getImagePath( String imagename ) { 
-            Map appEnv = root.getCurrentContext().getAppEnv(); 
-            String customfolder = (String) appEnv.get("report.custom"); 
-            if ( customfolder==null ) {
-                customfolder = (String) appEnv.get("app.custom");
+                Class.forName( DBServiceDriver.class.getName() );
+            } catch (ClassNotFoundException ex) {
+                throw new RuntimeException(ex.getMessage(), ex); 
             }
 
-            String path = "images/" + imagename; 
-            if( customfolder != null ) { 
-                String cpath = "images/" + customfolder + "/" + imagename; 
-                if ( root.getCurrentContext().getResource(cpath) != null ) { 
-                    path = cpath; 
-                } 
+            mainReport = loadMainReport(); 
+
+            Map conf = new HashMap(); 
+            loadSubReport( conf );                 
+            loadReportParams( conf ); 
+
+            String parentName = "";
+            String rptName = getReportName();
+            if ( rptName.indexOf("/") > 0 ) { 
+                parentName = rptName.substring(0, rptName.lastIndexOf("/"));
             } 
-            return path;  
-        }    
-        
-        void evaluateParameter( JRParameter jrp, Map conf ) { 
-            if ( jrp.isSystemDefined() ) { return; } 
-            
-            Object dve = jrp.getDefaultValueExpression(); 
-            if ( dve instanceof JRBaseExpression ) {
-                JRBaseExpression jrbe = (JRBaseExpression)dve; 
-                if ( jrbe.getValueClass() != null && !jrbe.getValueClass().getName().equals("java.lang.Object") ) { return; } 
+            conf.put(JRParameter.REPORT_CLASS_LOADER, new CustomReportClassLoader(parentName));
 
-                String text = jrbe.getText();
-                if ( text == null || text.trim().length() == 0 ) { return; } 
-                
-                StringBuilder sb = new StringBuilder( text );
-                if ( sb.charAt(0) == '"' ) { sb.deleteCharAt(0); }
-                if ( sb.length() > 0 && sb.charAt(sb.length()-1) == '"' ) {
-                    sb.deleteCharAt( sb.length()-1 );
-                } 
-                
-                try { 
-                    String sval = sb.toString().toLowerCase();
-                    if ( sval.startsWith("http://") ) { return; }
-                    if ( sval.endsWith(".jpg") || sval.endsWith(".png") ) {
-                        conf.put( jrp.getName(), getInputStream( text ) );  
-                    } 
-                } catch(Throwable t) {
-                    System.out.println("Error on parameter [" + jrp.getName()  + "] caused by " + t.getMessage());
-                } 
-            }                        
+            root.afterLoadReportParams( conf ); 
 
+            Map env = ClientContext.getCurrentContext().getAppEnv(); 
+            String appUrl = env.get("app.host")+""; 
+            String appContext = root.getContext(); 
+            String appCluster = root.getCluster(); 
+            if ( appContext==null ) appContext = env.get("app.context")+""; 
+            if ( appCluster==null ) appCluster = env.get("app.cluster")+""; 
+
+            String surl = "jdbc:rameses://"+ appUrl +"/"+ appCluster + "/" + appContext;
+
+            JReportInfo jrpt = new JReportInfo( conf, surl ); 
+            JasperPrint jprint = jrpt.fillReport( mainReport ); 
+            reportOutput = jprint; 
+            reportInfo = jrpt; 
+            return reportOutput; 
         }
     } 
+    
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" JReportInfo "> 
+    
+    private class JReportInfo {
+        
+        private Map params;
+        private String connString;
+        
+        public JReportInfo( Map params, String connString ) {
+            this.params = params; 
+            this.connString = connString; 
+        }
+        
+        public Map getParams() { return params; } 
+
+        public JasperPrint fillReport( JasperReport report ) { 
+            Connection conn = null;
+            try { 
+                conn = DriverManager.getConnection( connString );
+                return JasperFillManager.fillReport( report, getParams(), conn );
+            } catch (SQLException sqle) {
+                sqle.printStackTrace(); 
+                throw new RuntimeException(sqle.getMessage(), sqle); 
+            } catch (JRException ex) {
+                ex.printStackTrace(); 
+                throw new RuntimeException(ex.getMessage(), ex); 
+            } finally {
+                try { conn.close(); } catch(Throwable t){;}
+            }
+        }
+    }
+    
+    // </editor-fold>    
 }
