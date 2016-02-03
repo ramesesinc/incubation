@@ -82,6 +82,10 @@ public abstract class ReportModel {
         //do nothing 
     }
 
+    protected void afterReportData( Object data ) {
+        //do nothing 
+    }
+    
     private JasperPrint reportOutput;
     private JReportInfo reportInfo;
     private JasperReport mainReport;
@@ -146,13 +150,15 @@ public abstract class ReportModel {
     
     private JasperPrint createReport() {
         loadMainReport(); 
+
+        Object data = getReportData(); 
+        afterReportData( data );
         
         Map conf = new HashMap();
         loadSubReport( conf );
         loadReportParams( conf );
         afterLoadReportParams( conf ); 
         
-        Object data = getReportData(); 
         JReportInfo jrpt = new JReportInfo( data, conf ); 
         JasperPrint jprint = jrpt.fillReport( mainReport ); 
         reportInfo = jrpt; 
