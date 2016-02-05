@@ -196,12 +196,12 @@ public class CrudListModel {
         def p = [schema:schema, schemaName:ename, adapter:adapter];
         p.title = "New " + workunit.title; 
         try {
-            d = Inv.lookupOpener( schemaName + ":create", p );
+            d = Inv.lookupOpener( ename + ":create", p );
         }
         catch(e) {
             d = Inv.lookupOpener( "crudform:create", p );
         }
-        if(!d) throw new Exception("No handler found for . " + schemaName + ".create. Please check permission");
+        if(!d) throw new Exception("No handler found for . " + ename + ".create. Please check permission");
         return d;
     }
     
@@ -213,12 +213,12 @@ public class CrudListModel {
         def p = [schema:schema, schemaName:ename, adapter:adapter, entity: selectedEntity];
         p.title = "Open " + workunit.title;
         try {
-            d = Inv.lookupOpener( schemaName + ":open", p );
+            d = Inv.lookupOpener( ename + ":open", p );
         }
         catch(e) {
             d = Inv.lookupOpener( "crudform:open", p );
         }
-        if(!d) throw new Exception("No handler found for . " + schemaName + ".open. Please check permission");
+        if(!d) throw new Exception("No handler found for . " + ename + ".open. Please check permission");
         return d;
     }
     
