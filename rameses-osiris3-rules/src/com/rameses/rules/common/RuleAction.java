@@ -31,20 +31,18 @@ public class RuleAction implements Serializable {
         commands.put(name, handler);
     }
     
+    public void execute( String action, Object params ) {
+        execute(action, params, null);
+    }
+    
     public void execute( String action, Object params, Object ruleHandle ) {
+        if( !commands.containsKey(action)) {
+            System.out.println("Command "+action +" not registered");
+            return;
+        }
         RuleActionHandler handler = commands.get(action);
         if(handler!=null) {
             handler.execute( params, ruleHandle );
-        } 
-        else {
-            System.out.println("No command found for "+action +". No action executed");
-        }
-    }
-    
-    public void execute( String action, Object params ) {
-        RuleActionHandler handler = commands.get(action);
-        if(handler!=null) {
-            handler.execute( params, null );
         } 
         else {
             System.out.println("No command found for "+action +". No action executed");
@@ -71,5 +69,8 @@ public class RuleAction implements Serializable {
         this.facts = facts;
     }
 
+    public Map getCommands() {
+        return commands;
+    }
     
 }
