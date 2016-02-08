@@ -4,222 +4,303 @@
  */
 package com.rameses.osiris3.sql;
 
-import com.rameses.osiris3.sql.SqlDialectModel.Criteria;
-import com.rameses.osiris3.sql.SqlDialectModel.Field;
-import com.rameses.osiris3.sql.SqlDialectModel.OrderKey;
-import com.rameses.osiris3.sql.SqlDialectModel.Relationship;
-import com.rameses.osiris3.sql.SqlDialectModel.RelationshipKey;
-import java.util.Map;
+
+import com.rameses.osiris3.schema.AbstractSchemaView;
+import com.rameses.osiris3.schema.LinkedSchemaView;
+import com.rameses.osiris3.schema.SchemaViewField;
+import com.rameses.osiris3.schema.SchemaViewRelationField;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author elmo
  */
 public abstract class AbstractSqlDialect implements SqlDialect {
     
-    public abstract String[] getDelimiters();
-    
-    //Important called by PersistenceUtil methods
-    public SqlUnit getCreateSqlUnit( SqlDialectModel model ) throws Exception {
-        String[] delims = getDelimiters();
-        StringBuilder sb = new StringBuilder();
-        StringBuilder sbv = new StringBuilder();
-        sb.append("INSERT INTO");
-        sb.append( " " + delims[0]+ model.getBaseTable().getName() + delims[1]+ " " );
-        sb.append("(");
-        boolean _first = true;
-        for( Field f: model.getFields() ) {
-            if( !_first ) {
-                sb.append(",");
-                sbv.append(",");
-            }
-            else {
-                _first = false;
-            }
-            sb.append( delims[0]+ f.getFieldname() + delims[1] );
-            sbv.append( "$P{" + f.getName() + "}" );
-        }
-        sb.append( ")");
-        sb.append(" VALUES ");
-        sb.append("(").append( sbv.toString() ).append(")");
-        return new SqlUnit(sb.toString());
-    }   
-    
-    public SqlUnit getUpdateSqlUnit( SqlDialectModel model ) throws Exception {
-        String[] delims = getDelimiters();
-        StringBuilder sb = new StringBuilder();
-        sb.append("UPDATE ");
-        sb.append( " " + delims[0]+ model.getBaseTable().getName() + delims[1]+ " " );
-        sb.append( " SET ");
-        boolean _first = true;
-        for( Field f: model.getFields() ) {
-            if(!_first) sb.append( ",");
-            else _first = false;
-            sb.append( delims[0]+ f.getFieldname() + delims[1] );
-            sb.append( "=" );
-            sb.append( "$P{" + f.getName() + "}" );
-        }
-        //there must be a where statement. it is a MUST.
-        sb.append( " WHERE ");
-        String whereExpr = parseCriteria( model, true );
-        if( whereExpr.trim().length() == 0 ) 
-            throw new Exception("error getUpdateSqlUnit. where expr is expired");
-        sb.append( whereExpr );
-        return new SqlUnit( sb.toString() );
+    public SqlDialectFunction getFunction(String funcName) {
+        return new SimpleSqlDialectFunction(funcName);
     }
+
+    /**
+     * This method joins statements using an AND statement
+     */
+    protected String concatFilterStatement(List<String> filters) {
+        StringBuilder sb = new StringBuilder();
+        int i = 0;
+        for (String s : filters) {
+            if (s == null || s.trim().length() <= 0) {
+                continue;
+            }
+            if (i++ > 0) {
+                sb.append(" AND ");
+            }
+            sb.append(s);
+        }
+        return sb.toString();
+    }
+
+    protected String fixStatement(SqlDialectModel sqlModel, String expr, boolean includeFieldAlias ) {
+        try {
+            return SqlExprParserUtil.translate(sqlModel, expr, this, includeFieldAlias);
+        } catch (Exception e) {
+            System.out.println("Error in fix statement. " + e.getMessage());
+            return null;
+        }
+    }
+    
+    protected String fixWhereStatement(SqlDialectModel sqlModel, SqlDialectModel.WhereFilter whereFilter, boolean withAlias) {
+        try {
+            return SqlExprParserUtil.translate(sqlModel, whereFilter.getExpr(), this, withAlias);
+        } catch (Exception e) {
+            System.out.println("Error in where statement. " + e.getMessage());
+            return null;
+        }
+    }
+
+    protected void buildSingleWhereStatement(SqlDialectModel model, List<String> collectFilterList, boolean withAlias) {
+        if (model.getWhereFilter() == null) {
+            return;
+        }
+        String whereStmt = fixWhereStatement(model, model.getWhereFilter(), withAlias );
+        if (whereStmt != null && whereStmt.trim().length() > 0) {
+            collectFilterList.add(whereStmt);
+        }
+    }
+
+    protected void buildFinderStatement(SqlDialectModel model, List<String> collectFilterList, boolean withAlias) {
+        if (model.getFinderFields() == null) {
+            return;
+        }
+        for (SchemaViewField vf : model.getFinderFields()) {
+            StringBuilder sb = new StringBuilder();
+            if(withAlias) {
+                sb.append(getDelimiters()[0] + vf.getTablealias() + getDelimiters()[1] + ".");
+            }
+            sb.append(getDelimiters()[0] + vf.getFieldname() + getDelimiters()[1]);
+            sb.append("=");
+            sb.append("$P{" + vf.getExtendedName() + "}");
+            collectFilterList.add(sb.toString());
+        }
+    }
+
+    public String getCreateStatement(SqlDialectModel model) {
+        final StringBuilder sb = new StringBuilder();
+        final StringBuilder valueBuff = new StringBuilder();
+        sb.append("INSERT INTO ");
+        sb.append(getDelimiters()[0] + model.getTablename() + getDelimiters()[1]);
+        sb.append("(");
+        int i = 0;
+        for (SchemaViewField fld : model.getFields()) {
+            if (!fld.isInsertable()) {
+                continue;
+            }
+            if (i++ > 0) {
+                sb.append(",");
+                valueBuff.append(",");
+            }
+            sb.append(getDelimiters()[0] + fld.getFieldname() + getDelimiters()[1]);
+            valueBuff.append("$P{" + fld.getExtendedName() + "}");
+        }
+        sb.append(") VALUES (");
+        sb.append(valueBuff);
+        sb.append(")");
+        return sb.toString();
+    }
+
+    /**
+     * This is called after inserting the new data.
+     */
+    public String getUpdateOneToOneForUpdate(SqlDialectModel model) {
+        final StringBuilder sb = new StringBuilder();
+        final StringBuilder valueBuff = new StringBuilder();
+        sb.append("INSERT INTO ");
+        sb.append(getDelimiters()[0] + model.getTablename() + getDelimiters()[1]);
+        sb.append("(");
+        int i = 0;
+        for (SchemaViewField fld : model.getFields()) {
+            if (i++ > 0) {
+                sb.append(",");
+                valueBuff.append(",");
+            }
+            sb.append(getDelimiters()[0] + fld.getFieldname() + getDelimiters()[1]);
+            valueBuff.append("$P{" + fld.getName() + "}");
+        }
+        sb.append(") VALUES (");
+        sb.append(valueBuff);
+        sb.append(")");
+        return sb.toString();
+
+    }
+
+    protected String buildUpdateFieldsStatement(SqlDialectModel model, boolean withAlias) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(" SET ");
+        int i = 0;
+        for (SchemaViewField vf : model.getFields()) {
+            if (i++ > 0) {
+                sb.append(",");
+            }
+            if( withAlias ) {
+                sb.append(getDelimiters()[0] + vf.getTablealias() + getDelimiters()[1] + ".");
+            }
+            sb.append(getDelimiters()[0] + vf.getFieldname() + getDelimiters()[1]);
+            sb.append("=");
+            sb.append("$P{" + vf.getExtendedName() + "}");
+        }
+        return sb.toString();
+    }
+
+    //***
+    // This displays the tables in the following order:
+    // maintable, [<link> <linkalias>]* 
+    protected String buildListTablesForUpdate(SqlDialectModel model) {
+        StringBuilder sb = new StringBuilder();
+        int i = 0;
+        for (AbstractSchemaView vw : model.getJoinedViews()) {
+            if (i++ > 0) {
+                sb.append(",");
+            }
+            sb.append(getDelimiters()[0] + vw.getTablename() + getDelimiters()[1]);
+            if (!vw.getTablename().equals(vw.getName())) {
+                sb.append(" ");
+                sb.append(" " + getDelimiters()[0]+vw.getName()+getDelimiters()[1] + " ");
+            }
+        }
+        return sb.toString();
+    }
+
+    protected void buildJoinTablesForUpdate(SqlDialectModel model, List<String> collectFilterList) {
+        if (model.getJoinedViews().size() == 0) {
+            return;
+        }
+        for (AbstractSchemaView avw : model.getJoinedViews()) {
+            if (!(avw instanceof LinkedSchemaView)) {
+                continue;
+            }
+            LinkedSchemaView lsv = (LinkedSchemaView) avw;
+            for (SchemaViewRelationField rf : lsv.getRelationFields()) {
+                StringBuilder sb = new StringBuilder();
+                sb.append(getDelimiters()[0] + rf.getTablealias() + getDelimiters()[1] + ".");
+                sb.append(getDelimiters()[0] + rf.getFieldname() + getDelimiters()[1]);
+                sb.append("=");
+                sb.append(getDelimiters()[0] + rf.getTargetView().getName() + getDelimiters()[1] + ".");
+                sb.append(getDelimiters()[0] + rf.getTargetField().getFieldname() + getDelimiters()[1]);
+                collectFilterList.add(sb.toString());
+            }
+        }
+    }
+
+    protected String buildTablesForSelect(SqlDialectModel model) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(getDelimiters()[0] + model.getTablename() + getDelimiters()[1]);
+        if (!model.getTablename().equals(model.getTablealias())) {
+            sb.append(" " + getDelimiters()[0] +model.getTablealias() + getDelimiters()[1] + " ");
+        }
+        if (model.getJoinedViews() != null) {
+            int i = 0;
+            for (AbstractSchemaView avw : model.getJoinedViews()) {
+                if (!(avw instanceof LinkedSchemaView)) {
+                    continue;
+                }
+                LinkedSchemaView lsv = (LinkedSchemaView) avw;
+                if (lsv != null) {
+                    if (lsv.isRequired()) {
+                        sb.append(" INNER JOIN ");
+                    } else {
+                        sb.append(" LEFT JOIN ");
+                    }
+                }
+                sb.append(" " + getDelimiters()[0] + lsv.getTablename() + getDelimiters()[1] + " ");
+                if (!lsv.getTablename().equals(lsv.getName())) {
+                    sb.append(" " + lsv.getName() + " ");
+                }
+                sb.append(" ON ");
+                int j = 0;
+                for (SchemaViewRelationField rf : lsv.getRelationFields()) {
+                    if (j++ > 0) {
+                        sb.append(" AND ");
+                    }
+                    sb.append(getDelimiters()[0] + rf.getTablealias() + getDelimiters()[1] + ".");
+                    sb.append(getDelimiters()[0] + rf.getFieldname() + getDelimiters()[1]);
+                    sb.append("=");
+                    sb.append(getDelimiters()[0] + rf.getTargetView().getName() + getDelimiters()[1] + ".");
+                    sb.append(getDelimiters()[0] + rf.getTargetField().getFieldname() + getDelimiters()[1]);
+                }
+            }
+        }
+        return sb.toString();
+    }
+
+    protected String buildSelectFields(SqlDialectModel model) {
+        return fixStatement(model, model.getSelectExpression(), true);
+    }
+    
+    protected String buildWhereForSelect(SqlDialectModel model) {
+        StringBuilder sb = new StringBuilder();
+        List<String> filters = new ArrayList();
+        buildFinderStatement(model, filters,true);
+        buildSingleWhereStatement(model, filters,true);
+        if (filters.size() > 0) {
+            sb.append(" WHERE ");
+            sb.append(concatFilterStatement(filters));
+        }
+        return sb.toString();
+    }
+    
+    protected String buildOrderStatement(SqlDialectModel model) {
+        StringBuilder sb = new StringBuilder();
+        String orderStr = model.getOrderExpr();
+        if( orderStr!=null && orderStr.trim().length()>0 ) {
+            sb.append( " ORDER BY " );
+            sb.append( fixStatement(model, model.getOrderExpr(), true) );
+        }
+        return sb.toString();
+    }
+    
+    /*
+    protected String buildSelectFields(SqlDialectModel model) {
+        StringBuilder sb = new StringBuilder();
+        int i = 0;
+        for (SchemaViewField vf : model.getFields()) {
+            if (i++ > 0) {
+                sb.append(",");
+            }
+            sb.append(getDelimiters()[0] + vf.getTablealias() + getDelimiters()[1] + ".");
+            sb.append(getDelimiters()[0] + vf.getFieldname() + getDelimiters()[1]);
+            if (!vf.getFieldname().equals(vf.getExtendedName())) {
+                sb.append(" AS " + vf.getExtendedName());
+            }
+        }
+        //additional extended fields
+        if( model.getExtendedSelectFields()!=null ) {
+            for( SqlDialectModel.ExtendedSelectField sf: model.getExtendedSelectFields() ) {
+                if( i++>0) sb.append( "," );
+                sb.append( fixStatement( model, sf.getExpr() ) );
+                if( sf.getAlias()!=null && sf.getAlias().trim().length()>0 ) {
+                    sb.append(" AS " + sf.getAlias());
+                }
+            }
+        }
+        return sb.toString();
+    }
+    */
     
     /**
-     * One of the differences from getSelectSqlUnit is the  
-     * @param elem - the schema element
-     * @param options - options for retrieving the data
-     * @return 
-     * @throws Exception 
-     */
-    public SqlUnit getReadSqlUnit( SqlDialectModel model ) throws Exception {
-        return getSelectSqlUnit(model);
-    }
-    
-    public SqlUnit getDeleteSqlUnit( SqlDialectModel model ) throws Exception {
+     * params is applicable for subqueries
+     */ 
+    public String getSelectStatement(SqlDialectModel model) {
         StringBuilder sb = new StringBuilder();
-        String[] delims = getDelimiters();
-        sb.append("DELETE FROM ");
-        sb.append( " " +delims[0]+ model.getBaseTable().getName() + delims[1]+" ");
-        //there must be a where statement. it is a MUST.
-        sb.append( " WHERE ");
-        String whereExpr = parseCriteria( model, true );
-        if( whereExpr.trim().length() == 0 ) 
-            throw new Exception("error getDeleteSqlUnit. where expr is expired");
-        sb.append( whereExpr );
-        return new SqlUnit( sb.toString() );
-    }
-    
-    public String parseCriteria( Criteria c, boolean forUpdate ) {
-        String[] delims = getDelimiters();
-        String expr = c.getExpr();
-        for( Object mv: c.getFields().entrySet() ) {
-            Map.Entry me = (Map.Entry)mv;
-            String key = "@@["+me.getKey().toString().replace(".", "_") +"]";
-            StringBuilder sb = new StringBuilder();
-            Field f = (Field)me.getValue();
-            
-            //include alias only if not used for update
-            if(!forUpdate) {
-                sb.append( delims[0] + f.getTable().getAlias() + delims[1] );
-                sb.append( "."  );
-            }
-            sb.append( delims[0] + f.getName() + delims[1] );
-            expr = expr.replace(key, sb.toString());
-            
-            //this is a quick patch. Just return to its normal phase
-            if(expr.contains("@@")) {
-                expr = expr.replace(key.replace("_", "."), sb.toString());
-            }
-        }
-        return expr;
-    }
-    
-    public String parseCriteria( SqlDialectModel model, boolean forUpdate ) {
-        StringBuilder sb = new StringBuilder();
-        boolean first = true;
-        for( Criteria c: model.getCriteria() ) {
-            if(  first ) first = false;
-            else sb.append( " AND ");
-            sb.append( parseCriteria( c, forUpdate ) );
-        };    
+        sb.append(" SELECT ");
+
+        sb.append(buildSelectFields(model));
+        sb.append(" FROM ");
+        sb.append(buildTablesForSelect(model));
+        sb.append( buildWhereForSelect(model) );
+        sb.append( buildOrderStatement(model));
         return sb.toString();
     }
     
-    public String getOrderByStatement(SqlDialectModel model) {
-        if(model.getOrderKeys().size()==0) return "";
-        String[] delims = getDelimiters();
-        StringBuilder sb = new StringBuilder();
-        boolean _first = true;
-        for(OrderKey k: model.getOrderKeys() ) {
-            Field f = k.getField();
-            if(!_first) sb.append(",");
-            else _first = false;
-            sb.append( delims[0] + f.getTable().getAlias() + delims[1] );
-            sb.append( "."  );
-            sb.append( delims[0] + f.getName() + delims[1] );
-            sb.append( " " + k.getDirection() );
-        }
-        return " ORDER BY " + sb.toString();
+    public String getReadStatement(SqlDialectModel model) throws Exception {
+        return getSelectStatement(model);
     }
-    
-    public String getSelectColumnStatement( SqlDialectModel model ) {
-        String[] delims = getDelimiters();
-        StringBuilder sb = new StringBuilder();
-        boolean _first = true;
-        for( Field f: model.getFields() ) {
-            if(!_first) sb.append( ",");
-            else _first = false;
-            sb.append( delims[0] + f.getTable().getAlias() + delims[1] );
-            sb.append( "."  );
-            sb.append( delims[0] + f.getName() + delims[1] );
-            if( !f.isNameAndAliasEqual() || f.getEmbeddedPrefix()!=null ) {
-                sb.append( " AS ");
-                sb.append( delims[0] );
-                if( f.getEmbeddedPrefix()!=null ) {
-                    sb.append( f.getEmbeddedPrefix() + "_" );
-                }
-                sb.append( f.getAlias() );
-                sb.append( delims[1] );
-            }
-        }
-        return sb.toString();
-    }
-    public String getSelectTableStatement( SqlDialectModel model ) {
-        String[] delims = getDelimiters();
-        StringBuilder sb = new StringBuilder();
-        sb.append( delims[0] + model.getBaseTable().getName() + delims[1] );
-        if( !model.getBaseTable().getName().equals(model.getBaseTable().getAlias()) ) {
-            sb.append( " " + delims[0] + model.getBaseTable().getAlias() + delims[1] + " ");
-        }
-        for( Relationship r: model.getRelationships() ) {
-            sb.append( " " + r.getJoinType().toUpperCase() + " JOIN " );
-            sb.append(  delims[0] + r.getJoinTable().getName() +  delims[1] );
-            if( !r.getJoinTable().isNameAndAliasEqual() ) {
-                sb.append( " "+delims[0] +  r.getJoinTable().getAlias() + delims[1] + " ");
-            }
-            sb.append( " ON ");
-            for(RelationshipKey rk: r.getKeys()) {
-                sb.append( delims[0]+rk.getFromTable().getAlias()+delims[1]);
-                sb.append( "." );
-                sb.append( delims[0]+rk.getFromKey().getFieldname()+delims[1]);
-                sb.append( "=" );
-                sb.append( delims[0]+rk.getToTable().getAlias()+delims[1]);
-                sb.append( "." );
-                sb.append( delims[0]+rk.getToKey().getFieldname()+delims[1]);
-            }
-        }
-        return sb.toString();
-    }
-    
-    public String getWhereStatement( SqlDialectModel model ) {
-        StringBuilder sb = new StringBuilder();
-        String whereExpr = parseCriteria( model, false ) ;
-        if( whereExpr.trim().length() > 0 ) {
-            sb.append( whereExpr );
-        }
-        return sb.toString();
-    }
-    
-    public String buildBasicSelectStatement( SqlDialectModel model ) throws Exception {
-        String[] delims = getDelimiters();
-        StringBuilder sb = new StringBuilder();
-        sb.append( "SELECT " + getSelectColumnStatement(model));
-        sb.append( " FROM " + getSelectTableStatement(model) );
-        String whereExpr = getWhereStatement( model ) ;
-        if( whereExpr.trim().length() > 0 ) {
-            sb.append( " WHERE ");
-            sb.append( whereExpr );
-        }
-        sb.append( " " + getOrderByStatement(model) );
-        return sb.toString();
-    }
-    
-    public SqlUnit getSelectSqlUnit( SqlDialectModel model ) throws Exception {
-        String fsql = buildBasicSelectStatement(model);
-        return new SqlUnit( fsql );
-    }
-    
 }

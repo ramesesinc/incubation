@@ -1,25 +1,9 @@
 <schema>
-    <element tablename="entity">
-        <field name="objid" primary="true" prefix="ENT"/>
-        <field name="entityno" />
-        <field name="name" required="true"/>
-        <field name="mailingaddress" />
-        <!--
-        <complex name="addresses" required="true" jointype="one-to-many" ref="entity_address">
-            <key field="objid" target="parentid"/>
-        </complex>    
-        -->
-        
-        <complex name="address" required="true" jointype="one-to-one" ref="entity_address">
-            <key field="address_objid" target="objid"/>
-        </complex>    
-        
-        <complex name="type" required="true" jointype="many-to-one" ref="orgtype">
-            <key field="typeid" target="objid"/>
-        </complex>   
-        
-        <field name="address_text" /> 
-        <field name="address_barangay_objid" />
+    <element tablename="sys_user">
+        <field name="objid" primary="true" prefix="USR"/>
+        <field name="username" required="true"/>
+        <field name="firstname" required="true"/>
+        <field name="lastname" required="true"/>
     </element>
 </schema>
 

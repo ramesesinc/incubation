@@ -4,12 +4,14 @@
  */
 package com.rameses.osiris3.sql;
 
+import com.rameses.osiris3.schema.AbstractSchemaView;
+import com.rameses.osiris3.schema.LinkedSchemaView;
+import com.rameses.osiris3.schema.SchemaViewField;
+import com.rameses.util.ValueUtil;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 
 
@@ -20,312 +22,272 @@ import java.util.Set;
  */
 public class SqlDialectModel {
     
-    private Table baseTable;
-    private List<SqlDialectModel.Field> fields = new ArrayList();
-    private Set<SqlDialectModel.Relationship> relationships = new LinkedHashSet();
-    private List<Criteria> criteria = new ArrayList();
-    private List<SqlDialectModel.OrderKey> orderKeys = new ArrayList();
-
-    private long start;
-    private long limit;
+    private String tablename;
+    private String tablealias;
+    private String action;
     
-    public Table getBaseTable() {
-        return baseTable;
-    }
-
-    public void setBaseTable(Table bastTable) {
-        this.baseTable = bastTable;
-    }
-
-    public long getStart() {
-        return start;
-    }
-
-    public void setStart(long start) {
-        this.start = start;
-    }
-
-    public long getLimit() {
-        return limit;
-    }
-
-    public void setLimit(long limit) {
-        this.limit = limit;
-    }
+    private String selectExpression;
+    private List<SchemaViewField> fields = new ArrayList();
+    private List<SchemaViewField> finderFields;
     
-    public static class Table {
-        private String name;
-        private String alias;
+    //fieldMap is a helper field
+    private Map<String, SchemaViewField> fieldMap = new HashMap();
+    private Map<String, String> subqueries = new HashMap();
 
-        public Table(String name, String alias) {
-            if(name==null) {
-                this.name = alias;
-                this.alias = alias;
+    //internal fields for finding things
+    //for updating and saving
+    
+    private String orderExpr;
+
+    private int start;
+    private int limit;
+    
+    //consider removing
+    private AbstractSchemaView schemaView;
+    private List<AbstractSchemaView> joinedViews;
+    //private Set<AbstractSchemaView> linkedViews;
+    //private LinkedSchemaView linkedView;
+    
+    private WhereFilter whereFilter;
+    
+    //private List<WhereFilter> whereList;
+    
+    /*
+     * The id should be unique per call because it will cache the sql units.
+     */
+     public String getId() {
+        StringBuilder sb = new StringBuilder(tablealias+":"+tablename+":"+action+";");
+        int i = 0;
+        if(!action.equals("create")) {
+            if(!ValueUtil.isEmpty(this.selectExpression)) {
+                sb.append("select:"+this.selectExpression+";");
             }
-            else if( alias == null ) {
-                this.name = name;
-                this.alias = name;
+            if(fields.size()>0) {
+                i = 0;
+                sb.append("fields:");
+                for( SchemaViewField f: this.getFields() ) {
+                    if(i++>0) sb.append(",");
+                    sb.append( f.getExtendedName() );
+                }
+                sb.append(";");
             }
-            else {
-                this.name = name;
-                this.alias = alias;
+            if( finderFields!=null && finderFields.size() > 0 ) {
+                sb.append("finders:");
+                i = 0;
+                for( SchemaViewField vf : finderFields ) {
+                    if( i++>0 ) sb.append(",");
+                    sb.append( vf.getExtendedName() );
+                }
+                sb.append(";");
+            }
+            if( getJoinedViews()!=null && getJoinedViews().size()>0 ) {
+                sb.append("joinedviews:");
+                i = 0;
+                for( AbstractSchemaView vw : getJoinedViews() ) {
+                    if( i++>0 ) sb.append(",");
+                    sb.append( vw.getName()+":"+vw.getTablename() );
+                }
+                sb.append(";");
+            }
+            if( whereFilter !=null && !ValueUtil.isEmpty(whereFilter.getExpr()) ) {
+                sb.append("where:");
+                sb.append( whereFilter.getExpr() );
+                sb.append(";");
+            }
+            if(!ValueUtil.isEmpty(orderExpr)) {
+                sb.append("orderby:"+this.orderExpr+";");
+            }
+            if( start >0 || limit > 0 ) {
+                sb.append("start:"+start+";");
+                sb.append("limit:"+limit+";");
             }
         }
-        
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        public String getAlias() {
-            return alias;
-        }
-
-        public void setAlias(String alias) {
-            this.alias = alias;
-        }
-
-        public boolean equals(Object obj) {
-            return hashCode()  == obj.hashCode();
-        }
-
-        public int hashCode() {
-            String alias = (this.alias==null) ? this.name : this.alias;
-            return (this.name + ":" + alias).hashCode();
-        }
-        
-        //if the name and alias is the same then this value should be true
-        public boolean isNameAndAliasEqual() {
-            if( alias == null ) return false;
-            return name.equals(alias);
-        }
+        return sb.toString();
     }
     
-    public static class RelationshipKey {
-        private Table fromTable;
-        private Field fromKey;
-        
-        private Table toTable;
-        private Field toKey;
+    public String getTablename() {
+        return tablename;
+    }
 
-        public Table getFromTable() {
-            return fromTable;
-        }
+    public void setTablename(String tablename) {
+        this.tablename = tablename;
+    }
 
-        public void setFromTable(Table fromTable) {
-            this.fromTable = fromTable;
-        }
+    public String getTablealias() {
+        return tablealias;
+    }
 
-        public Field getFromKey() {
-            return fromKey;
-        }
-
-        public void setFromKey(Field fromKey) {
-            this.fromKey = fromKey;
-        }
-
-        public Table getToTable() {
-            return toTable;
-        }
-
-        public void setToTable(Table toTable) {
-            this.toTable = toTable;
-        }
-
-        public Field getToKey() {
-            return toKey;
-        }
-
-        public void setToKey(Field toKey) {
-            this.toKey = toKey;
-        }
-
+    public void setTablealias(String tablealias) {
+        this.tablealias = tablealias;
     }
     
-    public static class Field {
-        private String name;        //used to target the variable
-        private String fieldname;   //used to target the fieldname;
-        private String alias;
-        private Table table;
-        private boolean primary;
-        private String embeddedPrefix;
-        
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-            if(this.fieldname==null) this.fieldname = name;
-        }
-
-        public String getFieldname() {
-            return fieldname;
-        }
-
-        public void setFieldname(String fieldname) {
-            this.fieldname = fieldname;
-        }
-
-        public String getAlias() {
-            return alias;
-        }
-
-        public void setAlias(String alias) {
-            this.alias = alias;
-        }
-
-        public Table getTable() {
-            return table;
-        }
-
-        public void setTable(Table table) {
-            this.table = table;
-        }
-
-        public boolean isPrimary() {
-            return primary;
-        }
-
-        public void setPrimary(boolean primary) {
-            this.primary = primary;
-        }
-        
-        public boolean isNameAndAliasEqual() {
-            if( alias == null ) return false;
-            return fieldname.equals(alias);
-        }
-
-
-        public String getEmbeddedPrefix() {
-            return embeddedPrefix;
-        }
-
-        public void setEmbeddedPrefix(String embeddedPrefix) {
-            this.embeddedPrefix = embeddedPrefix;
-        }
-    }
-
-    public static class Criteria {
-        
-        private Map<String, Field> fields = new HashMap();
-        private String expr;
-
-        public void addField(String name, Field field) {
-            this.fields.put(name, field);
-        }
-        
-        public Map<String, Field> getFields() {
-            return fields;
-        }
-
-        public String getExpr() {
-            return expr;
-        }
-
-        public void setExpr(String expr) {
-            this.expr = expr;
-        }
-        
+    public void setFieldMap(Map<String, SchemaViewField> fieldMap) {
+        this.fieldMap = fieldMap;
     }
     
-    public static class Relationship  {
-        private String joinType;
-        private Table joinTable;
-        private List<RelationshipKey> keys = new ArrayList();
-
-        public List<RelationshipKey> getKeys() {
-            return keys;
-        }
-        
-        public void addKey(RelationshipKey rk) {
-            this.keys.add(rk);
-        }
-
-        public String getJoinType() {
-            return joinType;
-        }
-
-        public void setJoinType(String joinType) {
-            this.joinType = joinType;
-        }
-
-        public Table getJoinTable() {
-            return joinTable;
-        }
-
-        public void setJoinTable(Table joinTable) {
-            this.joinTable = joinTable;
-        }
-
-        public boolean equals(Object obj) {
-            return this.hashCode() == obj.hashCode();
-        }
-
-        public int hashCode() {
-            StringBuilder sb = new StringBuilder();
-            for( RelationshipKey rk : keys) {
-                sb.append( rk.getFromTable().getAlias()+"."+rk.getFromKey().getName());
-                sb.append( "=");
-                sb.append( rk.getToTable().getAlias()+"."+rk.getToKey().getName());
-            }
-            return sb.toString().hashCode();
-        }
+    public SchemaViewField findField(String name) {
+        return fieldMap.get(name);
     }
     
-    public static class OrderKey {
-        private Field field;
-        private String direction = "ASC";
+    public String getAction() {
+        return action;
+    }
 
-        public Field getField() {
-            return field;
-        }
-        public void setField(Field field) {
-            this.field = field;
-        }
+    public void setAction(String action) {
+        this.action = action;
+    }
 
-        public String getDirection() {
-            return direction;
-        }
+    /*
+    public LinkedSchemaView getLinkedView() {
+        return linkedView;
+    }
 
-        public void setDirection(String direction) {
-            this.direction = direction;
+    public void setLinkedView(LinkedSchemaView linkedView) {
+        this.linkedView = linkedView;
+    }
+    */ 
+    
+    /*
+    public Set<AbstractSchemaView> getLinkedViews() {
+        return linkedViews;
+    }
+
+    public void setLinkedViews(Set<AbstractSchemaView> linkedViews) {
+        this.linkedViews = linkedViews;
+    }
+    */ 
+
+    public List<SchemaViewField> getFinderFields() {
+        return finderFields;
+    }
+
+    public void setFinderFields(List<SchemaViewField> finderFields) {
+        this.finderFields = finderFields;
+        for( SchemaViewField vf: finderFields ) {
+            fieldMap.put(vf.getExtendedName(), vf);
         }
     }
+
+    /*
+    public List<WhereFilter> getWhereList() {
+        return whereList;
+    }
+
+    public void setWhereList(List<WhereFilter> whereList) {
+        this.whereList = whereList;
+    }
+    */ 
+
+    public Map<String, String> getSubqueries() {
+        return subqueries;
+    }
     
-    public List<SqlDialectModel.Field> getFields() {
+    public void setSubqueries(Map<String, String> subqueries) {
+        this.subqueries = subqueries;
+    }
+
+    public WhereFilter getWhereFilter() {
+        return whereFilter;
+    }
+
+    public void setWhereFilter(WhereFilter wf) {
+        //this should also add whatever fields are there in the where filter
+        this.whereFilter = wf;
+    }
+
+    public String getSelectExpression() {
+        return selectExpression;
+    }
+
+    public void setSelectExpression(String selectExpression) {
+        this.selectExpression = selectExpression;
+    }
+
+    public void addField(SchemaViewField vf) {
+        this.fields.add(vf);
+    }
+    
+    public List<SchemaViewField> getFields() {
         return fields;
     }
     
-    public Set<SqlDialectModel.Relationship> getRelationships() {
-        return relationships;
+    public Map<String, SchemaViewField> getFieldMap() {
+        return fieldMap;
+    }
+
+    public int getStart() {
+        return start;
+    }
+
+    public void setStart(int start) {
+        this.start = start;
+    }
+
+    public int getLimit() {
+        return limit;
+    }
+
+    public void setLimit(int limit) {
+        this.limit = limit;
+    }
+
+    public String getOrderExpr() {
+        return orderExpr;
+    }
+
+    public void setOrderExpr(String orderExpr) {
+        this.orderExpr = orderExpr;
+    }
+
+    public static class WhereFilter {
+        
+        private String expr;
+        
+        public WhereFilter(String expr) {
+            this.expr = expr;
+        }
+        public String getExpr() {
+            return expr;
+        }
+    }
+
+    public void setJoinedViews(  List<AbstractSchemaView> vws ) {
+        this.joinedViews = vws;
     }
     
-    public List<OrderKey> getOrderKeys() {
-        return orderKeys;
+    public List<AbstractSchemaView> getJoinedViews() {
+        return joinedViews;
     }
     
-    public void addField(Field f) {
-        fields.add(f);
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append( "table name : " + this.getTablename() + ";");
+        sb.append( "table alias : " + this.getTablealias() + ";");
+        sb.append( "fields: " + this.selectExpression );
+        sb.append( "joined views \n");
+        if( getJoinedViews()!=null) {
+            for( AbstractSchemaView vw: getJoinedViews() ) {
+                sb.append( vw.getTablename() + " " + vw.getName());
+                if( vw instanceof LinkedSchemaView ) {
+                    LinkedSchemaView lv = ((LinkedSchemaView)vw);
+                    sb.append( " " + lv.getJointype() );
+
+                }
+                sb.append(";\n");
+            }
+        }
+        return sb.toString();
     }
     
-    public void addRelationship(Relationship r) {
-        relationships.add(r);
-    }
     
-    public void addCriteria( Criteria criteria ) {
-        this.criteria.add(criteria);
-    }
-    
-    public List<Criteria> getCriteria() {
-        return criteria;
-    }
-    
-    public void addOrderKey( OrderKey key ) {
-        this.orderKeys.add(key);
+    public static class Subquery {
+        private String expr;
+        public String getExpr() {
+            return expr;
+        }
+        public void setExpr(String expr) {
+            this.expr = expr;
+        }
     }
     
 }

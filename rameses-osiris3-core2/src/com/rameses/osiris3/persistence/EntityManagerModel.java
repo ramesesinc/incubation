@@ -4,66 +4,86 @@
  */
 package com.rameses.osiris3.persistence;
 
-import com.rameses.osiris3.schema.ComplexField;
 import com.rameses.osiris3.schema.SchemaElement;
-import com.rameses.osiris3.schema.SchemaManager;
-import com.rameses.osiris3.schema.SimpleField;
-import java.io.StreamTokenizer;
-import java.io.StringReader;
-import java.util.ArrayList;
+import com.rameses.osiris3.schema.SchemaView;
+import java.lang.String;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
+/**
+ *
+ * @author dell
+ * This is a package level model. This should not be visible from the outside world
+ */
 public class EntityManagerModel {
     
+
+
+    private SchemaView schemaView;
+    private String name;
     private SchemaElement element;
-    private String action;
-    private Map data;
-    private String includeFields;
-    private String excludeFields;
-    private Map finders = new HashMap();
+    
     private String selectFields;
-    private List<FilterCriteria> filters = new ArrayList();
-    private long start;
-    private long limit;
-    private List<OrderField> orderFields = new ArrayList();
+    private String selectExpr;
+    
+    private Map finders = new HashMap();
+    private Map subqueries = new HashMap();
+    private Map vars = new HashMap();
+    private WhereElement whereElement;
+    private String orderExpr;
+    
+    private int start;
+    private int limit;
+    
+    public EntityManagerModel( SchemaElement elem ) {
+        element = elem;
+        this.name = elem.getName();
+        this.schemaView = elem.createView();
+    }
     
     public SchemaElement getElement() {
         return element;
     }
 
-    public void setElement(SchemaElement element) {
-        this.element = element;
-    }
-
-    public String getAction() {
-        return action;
-    }
-
-    public void setAction(String action) {
-        this.action = action;
-    }
-
-    public Map getData() {
-        return data;
-    }
-
-    public void setData(Map data) {
-        this.data = data;
-    }
-
-    public String getIncludeFields() {
-        return includeFields;
-    }
-
-    public void setIncludeFields(String includeFields) {
-        this.includeFields = includeFields;
+    public Map getFinders() {
+        return finders;
     }
     
-    
-    public void addFinders(Map f) {
-        finders.putAll(f);
+    public void addSubquery(String name, String expr ) {
+        subqueries.put(name, expr);
+    }
+
+    public SchemaView getSchemaView() {
+        return schemaView;
+    }
+
+    public Map getVars() {
+        return vars;
+    }
+
+    public WhereElement getWhereElement() {
+        return whereElement;
+    }
+
+    public void setWhereElement(String expr, Map params) {
+        if(params==null) params = new HashMap();
+        this.whereElement = new WhereElement(expr, params);
+    }
+
+    public int getStart() {
+        return start;
+    }
+
+    public void setStart(int start) {
+        this.start = start;
+    }
+
+    public int getLimit() {
+        return limit;
+    }
+
+    public void setLimit(int limit) {
+        this.limit = limit;
     }
 
     public String getSelectFields() {
@@ -74,325 +94,89 @@ public class EntityManagerModel {
         this.selectFields = selectFields;
     }
 
-    public String getExcludeFields() {
-        return excludeFields;
-    }
-    
-    public List<OrderField> getOrderFields() {
-        return orderFields;
-    }
-    
-    public void setExcludeFields(String excludeFields) {
-        this.excludeFields = excludeFields;
+    public String getSelectExpr() {
+        return selectExpr;
     }
 
-    //this is used when scanning the selected fields used for queries
-    public SelectFields buildSelectFields() {
-        SelectFields sf = new SelectFields();
-        sf.addFields(this.selectFields);
-        return sf;
+    public void setSelectExpr(String selectExpr) {
+        this.selectExpr = selectExpr;
+    }
+
+    public void setOrderExpr(String orderExpr) {
+        this.orderExpr = orderExpr;
+    }
+
+    public String getOrderExpr() {
+        return orderExpr;
     }
     
-    public SelectFields buildFinderFields() {
-        SelectFields sf  = new SelectFields();
-        //loop thru the finders
-        for( Object k: finders.keySet() ) {
-            sf.addFields( k.toString() );
+    public static class WhereElement {
+        private String expr;
+        private Map params;
+
+        public WhereElement(String expr, Map params) {
+            this.expr = expr;
+            this.params = params;
+            if(this.params==null) this.params = new HashMap();
         }
-        return sf;
+        public String getExpr() {
+            return expr;
+        }
+
+        public Map getParams() {
+            return params;
+        }
     }
     
-    public Map getFinderByPrimaryKey() {
+     public static class OrderElement {
+        private String field;
+        private String direction;
+
+        public OrderElement(String f, String d) {
+            this.field = f;
+            this.direction = d;
+        }
+        
+        public String getField() {
+            return field;
+        }
+
+        public void setField(String field) {
+            this.field = field;
+        }
+
+        public String getDirection() {
+            return direction;
+        }
+
+        public void setDirection(String direction) {
+            this.direction = direction;
+        }
+    }
+     
+    public Map getSubqueries() {
+        return subqueries;
+    } 
+     
+    public Map getWhereParams() {
         Map map = new HashMap();
-        for( SimpleField sf: this.element.getSimpleFields() ) {
-            if( sf.isPrimary() ) {
-                map.put( sf.getName(), data.get(sf.getName()) );
-            }
+        if( whereElement == null ) return map;
+        map.putAll( whereElement.getParams() );
+        /*
+        for( WhereElement we: this.whereList ) {
+            map.putAll( we.getParams() );
         }
+        */ 
         return map;
+    } 
+     
+    //call this if you want to check if the finders or the where expr is specfied
+    public boolean hasCriteria() {
+        if( getFinders()!=null && getFinders().size() >0  ) return true;
+        if( getWhereElement()!=null && getWhereElement().getExpr()!=null 
+                && getWhereElement().getExpr().trim().length()>0 ) return true;
+        return false;
     }
     
-    public Map getFinders() {
-        return finders;
-    }
-    
-    public List<FilterCriteria> getFilters() {
-        return this.filters;
-    }
-    
-    public void addFilter( FilterCriteria fc ) {
-        filters.add(fc);
-    }
-    
-    private String correctFieldName(String s, StreamTokenizer st ) throws Exception {
-        int i = st.nextToken();
-        if( i == '_' || i == '.' ) {
-            s += (char)i;
-            int j = st.nextToken(); 
-            if(j != st.TT_WORD ) {
-                st.pushBack();
-                return s;
-            }
-            return correctFieldName( s+st.sval, st);
-        }
-        else {
-            st.pushBack();
-            return s;
-        }
-    }
-    
-    public void addFilter( String cond, Map params ) {
-        try {
-            FilterCriteria fc = new FilterCriteria();
-            fc.setData(params);
-            StringBuilder sb = new StringBuilder();
-            
-            StreamTokenizer st = new StreamTokenizer(new StringReader(cond));
-            int i = 0;
-            while ((i = st.nextToken()) != st.TT_EOF) {
-                if (i == st.TT_WORD) {
-                    String v = st.sval;
-                    //eat all fields with underscores
-                    if (v.toUpperCase().matches("CASE|WHEN|THEN|END|IS|LIKE|AND|OR")) {
-                        sb.append(" " + v + " ");
-                        continue;
-                    } 
-                    v = correctFieldName( v, st );
-                    //this is a field. we will add markers so that it can be easily replaceable
-                    sb.append(" @@["+v +"] ");
-                    fc.addField(v);
-                }
-                else if (i == st.TT_NUMBER) {
-                    sb.append( st.nval );
-                } 
-                else if( i == '@') {
-                    //this is a function
-                    st.nextToken();
-                    String funcName = st.sval;
-                    st.nextToken(); //should be the open parens
-                    sb.append( "@" + funcName + "(");
-                }
-                else if( i == ',' ) {
-                    //used if there are functions
-                    sb.append(",");
-                }
-                else if( i == ':') {
-                    st.nextToken();
-                    sb.append( "$P{" + correctFieldName(st.sval,st) + "}" );
-                }
-                else if( i == '\'') {
-                    sb.append( "'" + st.sval + "'" );
-                }
-                else {
-                    sb.append( (char)i );
-                }
-            }
-            
-            fc.setExpr( sb.toString() );
-            addFilter(fc);
-            
-        } catch (Exception e) {
-            throw new RuntimeException("Error in EntityManager.where " + e.getMessage());
-        }
-    }
-    
-    /***
-    * Loop thru the fields in the map including the nested loops
-    */ 
-    private void fetchFields( Map d, String prefix, List<String> fNames ) {
-        for( Object k: d.entrySet() ) {
-            Map.Entry me = (Map.Entry)k;
-            if( me.getValue() instanceof Map ) {
-                String pref = me.getKey().toString();
-                if( prefix !=null ) pref = prefix + "_" + pref;
-                fetchFields( (Map)me.getValue(), pref, fNames );
-            }
-            else {
-                String fName = me.getKey().toString();
-                if( prefix !=null ) fName = prefix + "_" + fName;
-                fNames.add( fName );
-            };
-        }
-    }
-    
-    public boolean buildIncludeFieldsForUpdate() {
-        List<String> fieldNames = new ArrayList();
-        fetchFields( data, null, fieldNames );
-        StringBuilder sb = new StringBuilder();
-        boolean first = true;
-        for( String str: fieldNames ) {
-            if( first ) first = false;
-            else sb.append("|");
-            sb.append( str );
-        }
-        //include also the 
-        this.includeFields = null;
-        String iflds = sb.toString();
-        if(iflds.trim().length()>0) {
-            this.includeFields =   iflds; 
-        }
-        return this.includeFields != null;
-    }
-    
-    private void mergeData( Map d, Map target ) {
-        if(d == null) return;
-        for(Object k: d.entrySet() ) {
-            Map.Entry me = (Map.Entry)k;
-            String fldName = me.getKey().toString();
-            Object targetValue = target.get(fldName);
-            Object val = me.getValue();
-            if( val instanceof Map  ) {
-                if(targetValue == null ) {
-                    targetValue = new HashMap();
-                    target.put(fldName, targetValue);
-                    mergeData( (Map)val,  (Map)targetValue );
-                }
-                else if( targetValue instanceof Map ) {
-                    mergeData( (Map)val,  (Map)targetValue );
-                }
-                else {
-                    //if targetValue is not a map, we will override it.
-                    target.put(fldName, val);
-                }
-            }
-            else {
-                target.put(fldName, val);
-            }
-        }
-    }
-    
-    public Map getAllData() {
-        Map map = new HashMap();
-        mergeData( data, map );
-        mergeData( finders, map );
-        for( FilterCriteria fc: this.filters ) {
-            mergeData( fc.getData(),  map );
-        }
-        return map;
-    }
-    
-    //this clears all the finders, data and parameters. 
-    //called after every execution 
-    public void clear() {
-        action = null;
-        Map data = null;
-        includeFields = null;
-        excludeFields = null;
-        finders = new HashMap();
-        selectFields = null;
-        filters = new ArrayList();        
-    }
-    
-    private void fetchFields( SchemaElement elem, List<Map> cols, boolean extended ) {
-        SchemaManager sm = elem.getSchema().getSchemaManager();
-        if( elem.getExtends()!=null ) {
-            SchemaElement extElem = sm.getElement(elem.getExtends());
-            fetchFields( extElem, cols, true );
-        }
-        for( SimpleField sf: elem.getSimpleFields()) {
-            if(sf.isPrimary() && extended) continue;
-            cols.add(sf.toMap());
-        }
-        for( ComplexField cf: elem.getComplexFields()) {
-            if( cf.getSerializer()!=null) {
-                cols.add(cf.toMap());
-            }
-            else {
-                String joinType = cf.getJoinType();
-                if(joinType.equals("one-to-many")) continue;
-                String ref = cf.getRef();
-                Map cm = cf.toMap();
-                SchemaElement refElem = sm.getElement(elem.getExtends());
-                fetchSchema( refElem, cm );
-                cols.add(cm);
-            }
-        }
-    }
-    
-    private void fetchSchema( SchemaElement elem, Map xschema ) {
-        List<Map> cols = new ArrayList();
-        xschema.put("columns", cols);
-        fetchFields(elem, cols, false);
-    }
-    
-    
-    public Map getSchema() {
-        Map _schema = new HashMap();
-        fetchSchema( element, _schema );
-        return _schema;
-    }
-
-    
-    //This is used for storing the cached model.
-    public String getId() {
-        StringBuilder sb = new StringBuilder();
-        sb.append( element.getSchema().getName()+":");
-        sb.append( element.getName()+":"+action+";" );
-        if( !action.equals("create") ) {
-            if(selectFields!=null) {
-                sb.append( ":select=" + selectFields+";" );
-            }
-            if( this.includeFields!=null ) {
-                sb.append( ":inc=" + includeFields+";" );
-            }
-            if( this.excludeFields!=null ) {
-                sb.append( ":exc=" + excludeFields+";" );
-            }
-            if( this.finders.size()>0) {
-                sb.append("finders:");
-                for(Object mm: this.finders.keySet()) {
-                    sb.append( mm.toString() + ";" );
-                }
-            }
-            if( this.filters.size()>0) {
-                sb.append("filters:");
-                for(FilterCriteria fc:this.filters) {
-                    sb.append(fc.getExpr()+";");
-                }
-            }
-            if( this.orderFields.size()>0) {
-                sb.append("order:");
-                for(OrderField ff:this.orderFields) {
-                    sb.append(ff.toString()+";");
-                }
-            }
-            if( this.getStart()>=0 && this.getLimit()>0 ) {
-                sb.append("paging:true;");
-            }
-        }
-        return sb.toString();
-    }
-
-    public long getStart() {
-        return start;
-    }
-
-    public void setStart(long start) {
-        this.start = start;
-    }
-
-    public long getLimit() {
-        return limit;
-    }
-
-    public void setLimit(long limit) {
-        this.limit = limit;
-    }
-    
-    public void addOrderField( String name, String direction ) {
-        OrderField o = new OrderField();
-        o.setName(name);
-        if(direction!=null) o.setDirection(direction);
-        this.orderFields.add(o);
-    }
-    
-    public SelectFields buildOrderFields() {
-        SelectFields sf  = new SelectFields();
-        //loop thru the finders
-        for( OrderField k: orderFields ) {
-            sf.addFields( k.getName() );
-        }
-        return sf;
-    }
     
 }

@@ -17,7 +17,6 @@ import com.rameses.osiris3.sql.MapToField;
 import com.rameses.osiris3.sql.SqlContext;
 import com.rameses.osiris3.sql.SqlExecutor;
 import com.rameses.osiris3.sql.SqlQuery;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,20 +28,23 @@ public class EntityManager {
 
     private SqlContext sqlContext;
     private SchemaManager schemaManager;
-    private boolean debug;
+    private boolean debug = true;
     private boolean transactionOpen = false;
     //newly added. This is for the name of the schema
     private String schemaName;
     //if true, complex fields are separated by underscores.
     //example : person.firstname will be person_firstname in db
     private boolean resolveNested = true;
-    private EntityManagerModel model = new EntityManagerModel();
+    private EntityManagerModel model;
     private EntityManagerInvoker invoker;
+    
+    private EntityManagerProcessor processor;
     
     public EntityManager(SchemaManager scm, SqlContext sqlContext, String schemaName) {
         this.sqlContext = sqlContext;
         this.schemaManager = scm;
-        this.schemaName = schemaName;
+        this.processor = new EntityManagerProcessor(sqlContext, sqlContext.getDialect() );
+        if(schemaName!=null) setName(schemaName);
     }
 
     public EntityManager(SchemaManager scm, SqlContext sqlContext) {
@@ -60,42 +62,97 @@ public class EntityManager {
         return this.sqlContext;
     }
 
+    public EntityManager setName(String name) {
+        this.schemaName = name;
+        SchemaElement elem = schemaManager.getElement(name);
+        model = new EntityManagerModel(elem);
+        return this;
+    }
+
+    private EntityManagerModel getModel() {
+        if( model == null ) throw new RuntimeException("Please specify an element name");
+        return model;
+    }
+    
+    /**************************************************************************
+     *  CREATE
+     **************************************************************************/ 
     public Object create(Object data) {
-        if (this.schemaName == null) {
-            throw new RuntimeException(" for EntityManager.create error. Schema name must not be null");
+        try {
+            if (!(data instanceof Map)) {
+                throw new Exception("EntityManager.create error. Data passed must be a map");
+            }
+            Map mdata = (Map)data;
+            EntityDataUtil.fillInitialData(getModel().getElement(), mdata);
+            EntityValidator.validate(mdata, getModel().getElement());
+            processor.create(getModel(), mdata);
+            return mdata;
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage(), e);
         }
-        return create(this.schemaName, data, true);
     }
 
     public Object create(String schemaName, Object data) {
         return create(schemaName, data, true);
     }
 
-    //Listing ....
-    public List list() {
+     //we will have a separate implementation of the following because 
+    //many applications are already using this. we will deprecate later
+    public Object create(String schemaName, Object data, boolean validate) {
         try {
-            EntityManagerUtil ps = new EntityManagerUtil(sqlContext, debug);
-            SchemaElement elem = schemaManager.getElement(schemaName);
-            model.setElement(elem);
-            model.setAction("select");
-            List list = ps.getList(model);
-            model.clear();
-            return list;
+            if (!(data instanceof Map)) {
+                throw new Exception("EntityManager.create error. Data passed must be a map");
+            }
+            if( !schemaName.equals(this.schemaName) ) {
+                 setName( schemaName );
+            }
+            Map mdata = (Map)data;
+            EntityDataUtil.fillInitialData(getModel().getElement(), mdata);
+            if( validate ) {
+                EntityValidator.validate(mdata, getModel().getElement());
+            }
+            processor.create(getModel(), mdata);
+            return mdata;
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
         }
     }
-
+    
+    public List list(int start, int size)  {
+        try {
+            getModel().setStart(start);
+            getModel().setLimit(size);
+            return processor.fetchList(getModel());
+        }
+        catch(Exception e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
+    }
+    
+    //default list size is 50
+    public List list() throws Exception {
+        try {
+            return processor.fetchList(getModel());
+        }
+        catch(Exception e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
+    }
+    
+    public EntityManager vars( String name, String expr ) {
+        getModel().getVars().put(name, expr);
+        return this;
+    }
+    
     //get first record
     public Map first() {
         try {
-            EntityManagerUtil ps = new EntityManagerUtil(sqlContext, debug);
-            SchemaElement elem = schemaManager.getElement(schemaName);
-            model.setElement(elem);
-            model.setAction("select");
-            Map map = ps.read(model);
-            model.clear();
-            return map;
+            getModel().setLimit(1);
+            getModel().setStart(0);
+            if( !getModel().hasCriteria() ) {
+                throw new RuntimeException("Please specify a criteria, finder or where element for first method");
+            }
+            return processor.fetchFirst(getModel());
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
         }
@@ -103,18 +160,7 @@ public class EntityManager {
     
     //this merges the data with existing data.
     public Object merge(String schemaName, Object data) {
-        try {
-            if (!(data instanceof Map)) {
-                throw new Exception("EntityManager.create error. Data passed must be a map");
-            }
-            EntityManagerUtil ps = new EntityManagerUtil(sqlContext, debug);
-            SchemaElement elem = schemaManager.getElement(schemaName);
-            Object retVal = ps.merge((Map) data, elem);
-            model.clear();
-            return retVal;
-        } catch (Exception e) {
-            throw new RuntimeException(e.getMessage(), e.getCause());
-        }
+        throw new RuntimeException("merge not yet supported");
     }
 
     /**
@@ -131,32 +177,50 @@ public class EntityManager {
     //read will fetch each data everytime, there are no joins, each 
     //table will be fetched individually and merged. Read also is dependent
     //on the primary keys
-    public Object read(String schemaName, Object params, Map options) {
+    public Object read(String schemaName, Object data, Map options) {
         try {
-            if (!(params instanceof Map)) {
-                throw new Exception("EntityManager.read error. Data passed must be a map");
+            if (!(data instanceof Map)) {
+                throw new Exception("EntityManager.create error. Data passed must be a map");
             }
-            this.schemaName = schemaName;
-            EntityManagerUtil ps = new EntityManagerUtil(sqlContext, debug);
-            SchemaElement elem = schemaManager.getElement(this.schemaName);
-            model.setElement(elem);
-            model.setSelectFields("*");
-            model.setAction("read");
-            model.setData((Map) params);
-            Object retVal = ps.read(model);
-            model.clear();
-            return retVal;
-        } catch (Exception e) {
+            if( !schemaName.equals(this.schemaName) ) {
+                 setName( schemaName );
+            }
+            buildFindersFromPrimaryKeys( (Map)data);
+            return first();
+        } 
+        catch (Exception e) {
             System.out.println("error in read ->" + e.getMessage());
             throw new RuntimeException(e.getMessage(), e.getCause());
         }
     }
 
+    //this is applicable to updates, deletes and read, first, last where finders or where 
+    //is not specified
+    private void buildFindersFromPrimaryKeys(Map data) throws Exception {
+        if( getModel().hasCriteria() ) return;
+        Map finders = EntityDataUtil.buildFinderFromPrimaryKeys(this.getModel().getElement(), data);
+        if( finders == null ) throw new Exception("Please specify the primary keys");
+        getModel().getFinders().putAll(finders);
+    }
+    
     /**
-     * we need to ensure first to read the record before updating.
+     * This is applicable for updates passed as setExpr.
      */
+    public Object update() {
+        return update(new HashMap());
+    }
+    
     public Object update(Object data) {
-        return update(this.schemaName, data, null, null, true, true);
+        try {
+            if( !(data instanceof Map )) {
+                throw new Exception("EntityManager.update Data must be an instanceof Map ");
+            }
+            buildFindersFromPrimaryKeys((Map)data);
+            return processor.update(getModel(), (Map)data);
+        }
+        catch(Exception e) {
+            throw new RuntimeException(e.getMessage(), e.getCause());
+        }
     }
     
     public Object update(String schemaName, Object data) {
@@ -178,20 +242,22 @@ public class EntityManager {
     //added version handling of changes during updates
     public Object update(String schemaName, Object data, Map vars, UpdateChangeHandler vhandler, boolean validate, boolean read) {
         try {
-            SchemaElement elem = schemaManager.getElement(schemaName);
-            this.schemaName = schemaName;
-            model.setElement(elem);
-            model.setAction("update");
-            model.setData((Map) data);
-            EntityManagerUtil ps = new EntityManagerUtil(sqlContext, debug);
-            model.buildIncludeFieldsForUpdate();    //this is to build only what will be updated.
+            if (!(data instanceof Map)) {
+                throw new Exception("EntityManager.create error. Data passed must be a map");
+            }
+            if( !schemaName.equals(this.schemaName) ) {
+                 setName( schemaName );
+            }
+            Map mdata = (Map)data;   
+            /*
             if (validate) {
                 validate(elem, data, model.getIncludeFields(), null);
-            }            
-            Object retVal = (Map) ps.update(model);
-            model.clear();
-            return retVal;
-        } catch (Exception e) {
+            } 
+            */ 
+            buildFindersFromPrimaryKeys((Map)data);
+            return processor.update(getModel(), mdata);
+        } 
+        catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e.getCause());
         }
     }
@@ -202,29 +268,28 @@ public class EntityManager {
     }
 
     public void delete() {
-        if (this.schemaName == null) {
-            throw new RuntimeException("EntityManager.delete error. schemaName is required");
+        try {
+            if( !getModel().hasCriteria() ) {
+                throw new RuntimeException("Please specify a criteria, finder or where element for delete");
+            }
+            processor.delete(getModel());
         }
-        delete(this.schemaName, new HashMap());
+        catch(Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
     }
 
     public void delete(String schemaName) {
-        delete(schemaName, model);
+        delete(schemaName, null);
     }
 
     public void delete(String schemaName, Object data) {
         try {
-            if (model == null) {
-                throw new Exception("EntityManager.delete error. EntityManager model is null");
+            if( !schemaName.equals(this.schemaName) ) {
+                 setName( schemaName );
             }
-            EntityManagerUtil ps = new EntityManagerUtil(sqlContext, debug);
-            SchemaElement elem = schemaManager.getElement(schemaName);
-            this.schemaName = schemaName;
-            model.setElement(elem);
-            model.setAction("delete");
-            model.setData((Map) data);
-            ps.delete(model);
-            model.clear();
+            buildFindersFromPrimaryKeys((Map)data);
+            processor.delete(getModel());
         } catch (Exception ex) {
             throw new RuntimeException(ex.getMessage(), ex);
         }
@@ -235,24 +300,36 @@ public class EntityManager {
      * extended methods in the DefaultEntityManager
      */
     public boolean isDebug() {
-        return debug;
+        return processor.isDebug();
     }
 
     public void setDebug(boolean debug) {
-        this.debug = debug;
+        this.processor.setDebug(debug);
     }
 
     /*
-     public Object createModel(String schemaName) {
-     return schemaManager.createMap(schemaName);
-     }
-     */
+    public Object createModel(String schemaName) {
+        return schemaManager.createMap(schemaName);
+    }
+    */ 
+    
     public void validate(String schemaName, Object data) {
         SchemaElement elem = schemaManager.getElement(schemaName);
-        validate(elem, data, null, null);
+        validate( elem, data, null, null );
     }
 
     public void validate(SchemaElement elem, Object data, String includeFields, String excludeFields) {
+        try {
+            if( !(data instanceof Map )) {
+                throw new Exception("validate error. Data passed must be a map");
+            }
+            EntityValidator.validate((Map)data, elem);
+        }
+        catch(Exception e) {
+            throw new RuntimeException(e.getMessage(), e.getCause());
+        }
+        
+        /*
         try {
             ValidationResult vr = ValidationUtil.getInstance().validate(data, elem, includeFields, excludeFields);
             if (vr.hasErrors()) {
@@ -261,6 +338,7 @@ public class EntityManager {
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
         }
+        */ 
     }
 
     /**
@@ -348,72 +426,60 @@ public class EntityManager {
         this.resolveNested = resolveNested;
     }
 
-    //New methods added!
-    private EntityManagerModel getModel() {
-        return model;
-    }
-
-    public EntityManager setName(String name) {
-        this.schemaName = name;
-        model.clear();
-        model.setElement(schemaManager.getElement(name));
-        return this;
-    }
-
     public EntityManager find(Map params) {
-        model.addFinders(params);
-        return this;
-    }
-
-    public EntityManager select(String cols) {
-        model.setSelectFields(cols);
-        return this;
-    }
-
-    public EntityManager where(String cond) {
-        model.addFilter(cond, new HashMap());
+        getModel().getFinders().putAll(params);
         return this;
     }
     
-    public EntityManager where(String cond,  Map params) {
-        model.addFilter(cond, params);
+    public EntityManager select(String fldExpr) {
+        getModel().setSelectFields(fldExpr);
+        return this;
+    }
+    
+    public EntityManager selectExpr(String fldExpr) {
+        getModel().setSelectExpr(fldExpr);
+        return this;
+    }
+
+    public EntityManager where(String expr) {
+       getModel().setWhereElement(expr, null);
+        return this;
+    }
+    
+    public EntityManager where(String expr,  Map params) {
+        getModel().setWhereElement(expr, params);
         return this;
     }
     
     public EntityManager sort(String fieldname) {
-        model.addOrderField(fieldname, null);
+        getModel().setOrderExpr(fieldname);
         return this;
     }
     
-    public EntityManager sort(String fieldname, String direction) {
-        if(direction ==null) 
-            direction = "ASC";
-        else if (!direction.toUpperCase().matches("ASC|DESC")) {
-            throw new RuntimeException("EntityManager.sort error. direction must be ASC or DESC");
-        }
-        model.addOrderField(fieldname, direction.toUpperCase());
-        return this;
-    }
-
-    public EntityManager limit(long start, long limit) {
-        model.setStart(start);
-        model.setLimit(limit);
+    public EntityManager setExpr( String expr ) {
+        //getModel().setUpdateExpr(expr);
         return this;
     }
     
-    public EntityManager limit(long limit) {
-        model.setStart(0);
-        model.setLimit(limit);
+    public EntityManager limit(int start, int limit) {
+        getModel().setStart(start);
+        getModel().setLimit(limit);
         return this;
     }
     
-    public EntityManager setStart(long start) {
-        model.setStart(start);
+    public EntityManager limit(int limit) {
+        getModel().setStart(0);
+        getModel().setLimit(limit);
         return this;
     }
     
-    public EntityManager setLimit(long limit) {
-        model.setLimit(limit);
+    public EntityManager setStart(int start) {
+        getModel().setStart(start);
+        return this;
+    }
+    
+    public EntityManager setLimit(int limit) {
+        getModel().setLimit(limit);
         return this;
     }
     
@@ -423,36 +489,10 @@ public class EntityManager {
 
     public Map getSchema(String name) {
         SchemaElement elem = schemaManager.getElement(name);
-        model.setElement(elem);
-        model.setSelectFields("*");
-        return model.getSchema();
+        throw new RuntimeException("getSchema not yet supported");
     }
     
-    //we will have a separate implementation of the following because 
-    //many applications are already using this. we will deprecate later
-    
-    public Object create(String schemaName, Object data, boolean validate) {
-        try {
-            if (!(data instanceof Map)) {
-                throw new Exception("EntityManager.create error. Data passed must be a map");
-            }
-            SchemaElement elem = schemaManager.getElement(schemaName);
-            this.schemaName = schemaName;
-            model.setElement(elem);
-            model.setData((Map) data);
-            model.setAction("create");
-            DataFillerUtil.fill(elem, (Map) data);
-            if (validate) {
-                validate(elem, data, null, null);
-            }
-            EntityManagerUtil ps = new EntityManagerUtil(sqlContext, debug);
-            Object retVal = ps.create(model);
-            model.clear();
-            return retVal;
-        } catch (Exception e) {
-            throw new RuntimeException(e.getMessage(), e);
-        }
-    }
+   
 
     public void setInvoker(EntityManagerInvoker inv) {
         this.invoker = inv;
@@ -514,4 +554,8 @@ public class EntityManager {
         return this.getSqlContext().createExecutor(sql);
     }
 
+    public SqlExpression createExpr( String statement ) {
+        return new SqlExpression(statement);
+    }
+    
 }

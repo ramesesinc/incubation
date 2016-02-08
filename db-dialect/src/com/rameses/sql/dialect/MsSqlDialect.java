@@ -13,6 +13,8 @@ package com.rameses.sql.dialect;
 
 import com.rameses.osiris3.sql.AbstractSqlDialect;
 import com.rameses.osiris3.sql.SqlDialectModel;
+import java.util.ArrayList;
+import java.util.List;
 
 
 
@@ -194,34 +196,64 @@ public class MsSqlDialect extends AbstractSqlDialect  {
             System.out.println("mssql dialect debug: ");
             System.out.println( sresult );
         }
-        
         return sresult.toString();
     }
 
    
-    public String buildBasicSelectStatement( SqlDialectModel model ) throws Exception {
-        if( model.getStart() < 0 || model.getLimit() <=0 ) {
-            return super.buildBasicSelectStatement(model);
-        }
-        else {
-            String orderBy = super.getOrderByStatement(model);
+    public String getSelectStatement( SqlDialectModel model )  {
+        if(model.getStart() > 0 || model.getLimit()>0 ) {
+            String orderBy = super.buildOrderStatement(model);
             if( orderBy == null || orderBy.trim().length() == 0 ) {
                 orderBy = " ORDER BY (SELECT NULL) "; 
             }
             StringBuilder sb = new StringBuilder();
             sb.append( "SELECT * FROM (");
             sb.append("SELECT ROW_NUMBER() OVER ("+ orderBy + ") AS _rownum_," );
-            sb.append( super.getSelectColumnStatement(model) );
-            sb.append( " FROM " + getSelectTableStatement(model) );
-            String whereExpr = getWhereStatement( model ) ;
-            if( whereExpr.trim().length() > 0 ) {
-                sb.append( " WHERE ");
-                sb.append( whereExpr );
-            }
+            sb.append( super.buildSelectFields(model) );
+            sb.append( " FROM " );
+            sb.append(buildTablesForSelect(model));
+            sb.append(buildWhereForSelect(model));
             sb.append(") AS ConstrainedResult ");
             sb.append(" WHERE _rownum_ BETWEEN ($P{_start}+1) AND ($P{_start}+$P{_limit}) ORDER BY _rownum_" );
             return sb.toString();
         }
+        else {
+             return super.getSelectStatement(model);
+        }
+    }
+
+    public String getUpdateStatement(SqlDialectModel model) {
+        final StringBuilder sb = new StringBuilder();
+        final StringBuilder whereBuff = new StringBuilder();
+        sb.append( " UPDATE ");
+        sb.append( getDelimiters()[0]+model.getTablealias()+getDelimiters()[1] );
+        sb.append( " ");
+        sb.append( buildUpdateFieldsStatement(model, false) );
+        
+        sb.append( " FROM " );
+        sb.append( buildListTablesForUpdate(model));
+        
+        sb.append( " WHERE " );
+        List<String> list = new ArrayList();
+        buildJoinTablesForUpdate(model, list);
+        buildFinderStatement(model, list, true);
+        buildSingleWhereStatement(model, list, true);
+        sb.append( concatFilterStatement(list));        
+
+        return sb.toString();
+    }
+
+    public String getDeleteStatement(SqlDialectModel model) {
+        final StringBuilder sb = new StringBuilder();
+        sb.append( " DELETE FROM ");
+        sb.append( getDelimiters()[0]+ model.getTablename()+getDelimiters()[1] );
+        sb.append( " WHERE ");
+        List<String> list = new ArrayList();
+        buildFinderStatement(model, list, false);
+        buildSingleWhereStatement(model, list,false);
+        sb.append( concatFilterStatement(list));        
+        
+        return sb.toString();
     }
     
     

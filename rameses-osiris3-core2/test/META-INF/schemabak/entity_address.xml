@@ -4,7 +4,9 @@
         <field name="parentid"/>
         <field name="type" required="true"/>
         <field name="addresstype" required="true"/>
-        <field name="barangay_objid" />
+        <complex name="barangay" ref="barangay" jointype="many-to-one">
+            <key field="barangay_objid" target="objid"/>
+        </complex>    
         <field name="barangay_name" />
         <field name="city" />
         <field name="province" required="true"/>

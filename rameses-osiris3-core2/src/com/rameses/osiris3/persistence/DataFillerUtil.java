@@ -90,7 +90,7 @@ public class DataFillerUtil {
                     throw new Exception("DataFillerUtil.error. " + "one-to-one element reference for " + cf.getName()+" must not be null");
                 fill( itemElem, item, data, includeFields, excludeFields );
             }
-            else if(joinType.matches("one-to-many")) {
+            else if(joinType.matches(JoinTypes.ONE_TO_MANY)) {
                 //feed the parent's objid into the item
                 List<Map> items = DataUtil.getDataList( data, cf.getName() );
                 for( Map item : items ) {

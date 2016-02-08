@@ -1,0 +1,60 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package com.rameses.osiris3.schema;
+
+import java.io.Serializable;
+import java.util.List;
+
+/**
+ *
+ * @author dell
+ * The schema relation contains the element, the join type and the joined keys
+ * The prefix here refers to the linked prefix. This is to aid 
+ * the searching of relation keys.
+ */
+public class SchemaRelation implements Serializable {
+    
+    private SchemaElement linkedElement;
+    private SchemaElement parent;
+    private ComplexField complexField;
+    
+    public SchemaRelation(SchemaElement parent, ComplexField cf ) {
+        this.parent = parent;
+        this.complexField = cf;
+    }
+
+    void setLinkedElement(SchemaElement elem ) {
+        this.linkedElement = elem;
+    }
+    
+    public String getJointype() {
+        return complexField.getJoinType();
+    }
+
+    public SchemaElement getLinkedElement() {
+        return linkedElement;
+    }
+
+    public SchemaElement getParent() {
+        return parent;
+    }
+
+    public String getName() {
+        return complexField.getName();
+    }
+    
+    public List<RelationKey> getRelationKeys() {
+        return complexField.getRelationKeys();
+    }
+    
+    public boolean isRequired() {
+        return complexField.isRequired();
+    }
+    
+    public String getRef() {
+        return complexField.getRef();
+    }
+    
+}
