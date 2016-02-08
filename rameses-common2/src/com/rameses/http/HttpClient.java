@@ -50,12 +50,13 @@ import javax.net.ssl.X509TrustManager;
 public class HttpClient implements Serializable {
     
     public static HttpClientOutputHandler STRING_OUTPUT = new StringHttpClientOutputHandler();
-    
-    private int connectionTimeout = 5000;
+
+    private boolean debug;     
     private int readTimeout =  30000;    //default read timeout at 5 seconds
-    private HttpClientOutputHandler outputHandler;
+    private int connectionTimeout = 5000;
+
     private String protocol = "http";
-    //private String appContext;
+    private HttpClientOutputHandler outputHandler;
     
     //if true, parameters will be written in the outputstream as an object.
     private boolean postAsObject = false;
@@ -75,10 +76,14 @@ public class HttpClient implements Serializable {
         this.postAsObject = postAsObject;
     }
     
+    public boolean isDebug() { return debug; } 
+    public void setDebug( boolean debug ) {
+        this.debug = debug; 
+    }
+    
     public String getProtocol() {
         return protocol;
     }
-    
     public void setProtocol(String protocol) {
         this.protocol = protocol;
     }
@@ -86,7 +91,6 @@ public class HttpClient implements Serializable {
     public int getConnectionTimeout() {
         return connectionTimeout;
     }
-    
     public void setConnectionTimeout(int timeout) {
         this.connectionTimeout = timeout;
     }
@@ -94,7 +98,6 @@ public class HttpClient implements Serializable {
     public int getReadTimeout() {
         return readTimeout;
     }
-    
     public void setReadTimeout(int readTimeout) {
         this.readTimeout = readTimeout;
     }
@@ -102,15 +105,6 @@ public class HttpClient implements Serializable {
     public void setOutputHandler(HttpClientOutputHandler h) {
         this.outputHandler = h;
     }
-    /*
-    public String getAppContext() {
-        return appContext;
-    }
-    
-    public void setAppContext(String appContext) {
-        this.appContext = appContext;
-    }
-     */
     
     /**********************************************
      * //GET METHODS
@@ -161,7 +155,28 @@ public class HttpClient implements Serializable {
         return invoke(list, args, "POST");
     }
     
-    private Object invoke(Queue<String> queue, Object parms, String methodType) throws Exception {
+    private Object invoke(Queue<String> queue, Object parms, String methodType) throws Exception { 
+        try { 
+            return invokeImpl( queue, parms, methodType ); 
+        } catch( Exception ex ) {
+            if ( 
+                (ex instanceof UnknownHostException) || 
+                (ex instanceof SocketException) || 
+                (ex instanceof ConnectException) || 
+                (ex instanceof SocketTimeoutException) 
+            ) { 
+                try {
+                    return invokeImpl( queue, parms, methodType );
+                } catch(AllConnectionFailed ae) {
+                    throw ex; 
+                } 
+            } else { 
+                throw ex; 
+            } 
+        } 
+    }
+    
+    private Object invokeImpl(Queue<String> queue, Object parms, String methodType) throws Exception {
         HttpURLConnection conn = null;
         InputStream is = null;
         ObjectInputStream in = null;
@@ -169,8 +184,9 @@ public class HttpClient implements Serializable {
         String uhost = null;
         try {
             uhost = queue.poll();
-            if( uhost == null )
+            if( uhost == null ) { 
                 throw new AllConnectionFailed("Cannot connect to "+uhost);
+            } 
             
             URL url = new URL(uhost);
             conn = (HttpURLConnection) url.openConnection();
@@ -179,8 +195,9 @@ public class HttpClient implements Serializable {
                 bypassSSLSecurityCheck(httpsc); 
             }
             
+            if( readTimeout > 0 ) conn.setReadTimeout(readTimeout);            
             if( connectionTimeout > 0 ) conn.setConnectTimeout(connectionTimeout);
-            if( readTimeout > 0 ) conn.setReadTimeout(readTimeout);
+            
             conn.setDoOutput(true);
             conn.setUseCaches(false);
             conn.setRequestMethod(methodType);
@@ -188,6 +205,10 @@ public class HttpClient implements Serializable {
             boolean _asObject = postAsObject;
             if(!_asObject && parms==null) _asObject = true;
             if(!_asObject && !(parms instanceof String)) _asObject = true;            
+            
+            if ( isDebug() ) { 
+                System.out.format("[HttpClient.invoke] Host=%s, Type=%s, ConnTimeout=%d, ReadTimeout=%d, PostAsObject=%s%n", uhost, methodType, connectionTimeout, readTimeout, _asObject);
+            }
             
             if(_asObject && !methodType.equalsIgnoreCase("GET")) {
                 conn.setRequestProperty( "CONTENT-TYPE",HttpConstants.APP_CONTENT_TYPE);
@@ -211,17 +232,17 @@ public class HttpClient implements Serializable {
                 is = conn.getInputStream();
             } catch(Exception e) {
                 InputStream es = conn.getErrorStream();
-                if( es != null ) {
+                if ( es != null ) {
                     String errMsg = conn.getHeaderField("Error-Message");
                     Exception orig = null;
-                    if( errMsg != null ) {
+                    if ( errMsg != null ) {
                         orig = new Exception(errMsg);
                     }
                     throw new ResponseError(conn.getResponseCode(), conn.getResponseMessage(), orig);
-                }    
-                else
-                    throw e;
-            }
+                } else { 
+                    throw e; 
+                } 
+            } 
             
             if( outputHandler ==null ) {
                 Object retval = null;
@@ -255,43 +276,24 @@ public class HttpClient implements Serializable {
                     //do nothing
                 } else if( (retval instanceof String) && retval.equals("#NULL")  ) {
                     retval = null;
-                } else if( retval instanceof Exception )
+                } else if( retval instanceof Exception ) { 
                     throw (Exception)retval;
-                
+                } 
                 return retval;
             } else {
                 return outputHandler.getResult(is);
             }
-            
-        } catch (Exception ex) {
-            if( (ex instanceof UnknownHostException)
-            || (ex instanceof SocketException)
-            || (ex instanceof ConnectException)
-            || (ex instanceof SocketTimeoutException)){
-            //|| (ex instanceof IOException )) {
-                //find the next host
-                try {
-                    return invoke(queue, parms, methodType );
-                } catch(AllConnectionFailed ae) {
-                    throw ex;
-                } catch(Exception se) {
-                    throw se;
-                }
-            } else {
-                throw ex;
-            }
         } finally {
-            if (in != null) try { in.close(); } catch(Exception ign){;}
-            if (is != null) try { is.close(); } catch(Exception ign){;}
-            if (out != null) try { out.close(); } catch(Exception ign){;}
-            if (conn != null) try { conn.disconnect(); } catch (Exception ign){;}
+            try { in.close(); } catch(Throwable ign){;}
+            try { is.close(); } catch(Throwable ign){;}
+            try { out.close(); } catch(Throwable ign){;}
+            try { conn.disconnect(); } catch (Throwable ign){;}
         }
     }
 
     public boolean isEncrypted() {
         return encrypted;
     }
-
     public void setEncrypted(boolean encrypted) {
         this.encrypted = encrypted;
     }

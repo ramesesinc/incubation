@@ -39,7 +39,7 @@ public class SendMessageServlet extends AbstractServlet
     public SendMessageServlet(SocketConnections sockets) {
         this.sockets = sockets;
     }
-  
+
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException 
     {
         String taskid = getClass().getName();
@@ -58,6 +58,9 @@ public class SendMessageServlet extends AbstractServlet
                 list = Arrays.asList((Object[]) o);
             } else {
                 list = new ArrayList();
+                if ( o != null ) {
+                    list.add( o );
+                } 
             } 
             
             Continuation cont = ContinuationSupport.getContinuation(req);
@@ -163,7 +166,12 @@ public class SendMessageServlet extends AbstractServlet
             try {
                 Iterator itr = list.iterator(); 
                 while (itr.hasNext()) {
-                    Map conf = (Map) itr.next();
+                    Object obj = itr.next(); 
+                    if (!( obj instanceof Map )) { 
+                        continue; 
+                    } 
+                    
+                    Map conf = (Map) obj;                     
                     send(conf); 
                 } 
                 list.clear(); 

@@ -29,7 +29,7 @@
                 resources << [path: toJrxml( it.reportname )]; 
             } 
             
-            outputdir = com.rameses.osiris2.reports.ReportUtil.customFolder;
+            outputdir = report.getWorkspaceDir(); 
         } 
         
         String toJrxml( String name ) {
@@ -52,8 +52,7 @@
         } 
 
         def doBrowse() {
-            report.browseFolder(); 
-            outputdir = com.rameses.osiris2.reports.ReportUtil.customFolder;
+            outputdir = report.browseFolder(); 
             binding?.refresh(); 
         }
         

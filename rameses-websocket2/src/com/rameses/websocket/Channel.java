@@ -58,6 +58,7 @@ public abstract class Channel
     
     public abstract ChannelGroup addGroup(String name); 
     public abstract ChannelGroup getGroup(String name); 
+    public abstract String[] getGroupNames(); 
     
     public static class Connection 
     {

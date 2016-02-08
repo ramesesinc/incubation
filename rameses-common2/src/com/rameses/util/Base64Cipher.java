@@ -71,7 +71,7 @@ public final class Base64Cipher
         } catch(Exception e) {
             throw new RuntimeException(e.getMessage(), e); 
         } finally {
-            try { oos.close(); }catch(Throwable t) {;} 
+            try { baos.close(); }catch(Throwable t) {;} 
             try { oos.close(); }catch(Throwable t) {;} 
         }        
     }

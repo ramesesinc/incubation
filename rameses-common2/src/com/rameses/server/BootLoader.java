@@ -104,7 +104,7 @@ public final class BootLoader
     private void onshutdown() {
         try {
             thread.shutdownNow(); 
-        } catch(Exception ign){;}  
+        } catch(Throwable ign){;}  
     }
     
     private boolean removePids() {
@@ -192,8 +192,10 @@ public final class BootLoader
                 cancelled = true;              
                 root.onshutdown(); 
                 try { 
-                    System.exit(0); 
-                } catch(Throwable t) {;} 
+                    System.exit(1); 
+                } catch(Throwable t) {
+                    t.printStackTrace();
+                } 
                 
                 break; 
             } 

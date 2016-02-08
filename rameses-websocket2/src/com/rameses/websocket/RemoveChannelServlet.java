@@ -54,6 +54,9 @@ public class RemoveChannelServlet extends AbstractServlet {
                 list = Arrays.asList((Object[]) o);
             } else {
                 list = new ArrayList();
+                if ( o != null ) {
+                    list.add( o );
+                } 
             } 
             
             Continuation cont = ContinuationSupport.getContinuation(req);
@@ -141,8 +144,13 @@ public class RemoveChannelServlet extends AbstractServlet {
         public void run() {
             try {
                 Iterator itr = list.iterator(); 
-                while (itr.hasNext()) {
-                    Map conf = (Map) itr.next();
+                while (itr.hasNext()) { 
+                    Object obj = itr.next(); 
+                    if (!( obj instanceof Map )) { 
+                        continue; 
+                    } 
+                    
+                    Map conf = (Map) obj;                       
                     removeChannel((String) conf.get("channel"));  
                 } 
                 list.clear(); 

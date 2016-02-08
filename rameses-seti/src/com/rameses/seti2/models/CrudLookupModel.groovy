@@ -18,9 +18,10 @@ public class CrudLookupModel extends CrudListModel implements SimpleLookupDataSo
     }
     
     def doOk() {
-        if(!onselect) throw new Exception("Please specify an onselect");
+        //if(!onselect) throw new Exception("Please specify an onselect");
         if(!selectedEntity) throw new Exception("Please select an entity");
-        onselect( selectedEntity );
+        if(onselect) onselect( selectedEntity );
+        else if(selector) selector.select( selectedEntity );
         return "_close";
     }
     

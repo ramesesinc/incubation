@@ -17,15 +17,9 @@ public class HomeControllerImpl
     
     
     void init() { 
+        icon = 'classpath://images/logo.png'; 
         def appEnv = clientContext.appEnv; 
         def customfolder = appEnv['app.custom']; 
-        if (customfolder) { 
-            icon = 'images/' + customfolder + '/logo.png'; 
-        } 
-        else {
-            icon = 'images/logo.png'; 
-        }
-
         def homeicon = 'images/' + customfolder + '/home-icon.png';  
         def custom_homeicon = clientContext.getResource(homeicon); 
         if (!custom_homeicon) homeicon = 'home/icons/folder.png'; 

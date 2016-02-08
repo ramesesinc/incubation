@@ -27,39 +27,57 @@ public abstract class AbstractServiceProxy{
     public AbstractServiceProxy(String serviceName, Map conf){
         String appContext = (String)conf.get("app.context");
         String host = (String)conf.get("app.host");
-        if(host==null) host = "localhost:8080";
+        if ( host == null ) {
+            host = "localhost:8080"; 
+        }
+        
         client = new HttpClient(host, true);
         
         //the application context here would be the context path of servlet 
         this.serviceName = serviceName;
         this.conf = conf;
+        
         //settings
-        String _readTimeout = (String)conf.get("readTimeout");
-        if(_readTimeout!=null) {
-            int rt = 0;
-            try {
-                rt = Integer.parseInt(_readTimeout+"");
-            }catch(Exception e){;}
-            client.setReadTimeout( rt );
+        Number num = getNumber( conf, "readTimeout" ); 
+        if ( num != null ) { 
+            client.setReadTimeout( num.intValue() ); 
         }
         
-        String _connectionTimeout = (String)conf.get("connectionTimeout");
-        if(_connectionTimeout!=null) {
-            int ct = 0;
-            try {
-                ct = Integer.parseInt(_connectionTimeout);
-            }catch(Exception e){;}
-            client.setConnectionTimeout(ct);
-        }        
+        num = getNumber( conf, "connectionTimeout" ); 
+        if ( num != null ) { 
+            client.setConnectionTimeout( num.intValue() ); 
+        }
         
-        String _protocol = (String)conf.get("protocol");
-        if(_protocol != null && _protocol.length() > 0) {
-            client.setProtocol(_protocol);
-        } 
+        try {
+            client.setProtocol(conf.get("protocol").toString());
+        } catch(Throwable t){;} 
+
+        try {
+            client.setDebug( "true".equalsIgnoreCase(conf.get("debug").toString()) ); 
+        } catch(Throwable t){;} 
+        
+        try {
+            boolean bool = "true".equals(conf.get("encrypted").toString());  
+            client.setEncrypted( bool ); 
+        } catch(Throwable t){;} 
     }
     
     public Map getConf() {
         return conf;
     }
     
+    private Number getNumber( Map map, Object key ) {
+        Object value = (map == null? null : map.get(key)); 
+        if ( value == null ) { return null; }
+        
+        if ( value instanceof Number ) {
+            return (Number)value; 
+        } else {
+            try {
+                return new Integer( value.toString() ); 
+            } catch(Throwable t) {
+                return null; 
+            } 
+        } 
+    }
 }
