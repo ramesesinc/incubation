@@ -20,6 +20,8 @@ public class SimpleField extends SchemaField implements SimpleFieldTypes {
     private String type;
     
     
+    private Class dataTypeClass;
+    
     /**
      * if this is provided, this will override the bean mapping.
      */
@@ -94,5 +96,42 @@ public class SimpleField extends SchemaField implements SimpleFieldTypes {
         super.getProperties().put("fieldname", name);  
     }
     
+    public Class getDataTypeClass() {
+        if( dataTypeClass==null) {
+            dataTypeClass = SchemaUtil.getFieldClass(this, null);
+        }
+        return dataTypeClass;
+    }
+    
+    //this verifies the data. Put the other values here.
+    public void verify( Object val  )  throws Exception {
+        if( isPrimary() ) return;   //for primary keys do nothing.
+        if( val == null  ) {
+            if( isRequired() ) {
+                throw new Exception(  " is required.");
+            }
+        }
+        else if( getDataTypeClass() == Object.class) {
+            //do nothing...
+        }
+        else if( !SchemaUtil.checkType(this, val.getClass()) ) {
+            throw new Exception( " data type is incorrect.");
+        }
+        
+        //verify all other things
+        if( getDataTypeClass() == String.class) {
+            String mask = (String)getProperty("mask");
+            if(mask!=null){
+                if(  !val.toString().matches(mask)) {
+                    throw new Exception(  " value does not match mask pattern");
+                }       
+            }
+        }
+    }
+    
+    public Object getDefaultValue() {
+        return null;
+        //returns the default value specified.
+    }
     
 }

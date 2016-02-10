@@ -63,7 +63,8 @@ public class Schema implements Serializable {
         
         if( elementName.equals(name))
             return  rootElement;
-        SchemaElement e = elements.get(elementName);
+        
+        SchemaElement e = elements.get(elementName); 
         if(e==null)
             throw new RuntimeException("Schema element " + n + " not found in "+name);
         return e;
@@ -103,7 +104,7 @@ public class Schema implements Serializable {
         return retVal;
     }
     
-    
+    /*
     public SchemaField findField( String path ) {
         if(schemaFields.containsKey(path)) {
             return schemaFields.get(path);
@@ -117,6 +118,7 @@ public class Schema implements Serializable {
         schemaFields.put(path, sf);
         return sf;
     }
+    */ 
 
     public SchemaManager getSchemaManager() {
         return schemaManager;

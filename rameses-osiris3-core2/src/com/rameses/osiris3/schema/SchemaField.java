@@ -32,6 +32,7 @@ public abstract class SchemaField implements Serializable{
     public abstract String getName();
     public abstract boolean isRequired();
     public abstract String getFieldname();
+    public abstract void verify( Object val  )  throws Exception;
     
     public  Map toMap() {
         Map map = new HashMap();
@@ -55,6 +56,10 @@ public abstract class SchemaField implements Serializable{
         return this.properties.get(name);
     }
     
-    
+    public String getCaption() {
+        String caption = (String)getProperty("caption");
+        if( caption == null ) return getName();
+        return caption;
+    }
     
 }

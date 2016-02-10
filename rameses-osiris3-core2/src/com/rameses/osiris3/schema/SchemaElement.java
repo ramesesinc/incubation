@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import com.rameses.osiris3.persistence.JoinTypes;
 
 public class SchemaElement implements Serializable {
     
@@ -26,7 +27,17 @@ public class SchemaElement implements Serializable {
     
     private List<SimpleField> simpleFields;
     private List<ComplexField> complexFields;
-    private List<LinkField> linkFields;
+    private List<SimpleField> primaryKeys;
+    
+    private List<ComplexField> serializedFields;
+    
+    private SchemaRelation extendedRelationship;
+    private List<SchemaRelation> oneToManyRelationships;
+    private List<SchemaRelation> oneToOneRelationships;
+    private List<SchemaRelation> manyToOneRelationships;
+    
+    //only one inverse join. reserved for parent
+    private SchemaRelation inverseRelationship;
     
     /** Creates a new instance of Schema */
     public SchemaElement(Schema schema) {
@@ -79,6 +90,17 @@ public class SchemaElement implements Serializable {
         return simpleFields;
     }
     
+    public List<SimpleField> getPrimaryKeys() {
+        if(primaryKeys==null) {
+            primaryKeys = new ArrayList();
+            for(SimpleField sf: this.getSimpleFields()) {
+                if(!sf.isPrimary()) continue;
+                primaryKeys.add(sf);
+            }
+        }
+        return primaryKeys;
+    }
+    
     public List<ComplexField> getComplexFields() {
         if(complexFields==null) {
             complexFields = new ArrayList();
@@ -89,14 +111,16 @@ public class SchemaElement implements Serializable {
         return complexFields;
     }
     
-    public List<LinkField> getLinkFields() {
-        if(linkFields==null) {
-            linkFields = new ArrayList();
-            for( SchemaField sf : getFields() ) {
-                if(sf instanceof LinkField) linkFields.add((LinkField) sf);
+    public List<ComplexField> getSerializedFields() {
+        if(serializedFields==null) {
+            serializedFields = new ArrayList();
+            for( ComplexField cf : getComplexFields() ) {
+                if(cf.getSerializer()==null) continue;
+                if(cf.getSerializer().trim().length()==0) continue;
+                serializedFields.add(cf);
             }
         }
-        return linkFields;
+        return serializedFields;
     }
     
     public Object getProperty(String name) {
@@ -118,18 +142,181 @@ public class SchemaElement implements Serializable {
         return (String) this.properties.get("adapter");
     }
     
-    public Map toMap() {
-        Map mh = new HashMap();
-        mh.putAll( properties );
-        mh.put("name", this.getName());
-        if( this.getTablename()!=null) {
-            mh.put("tablename", this.getTablename());
-        }
-        List fields = new ArrayList();
-        for( SchemaField sf: this.getFields()) {
-            fields.add( sf.toMap() );
-        }
-        return mh;
+    public SchemaElement getExtendedElement() {
+        if(this.getExtends()==null) return null;
+        return schema.getSchemaManager().getElement(this.getExtends());
     }
+    
+    /**
+     * The schema view represents the complete instance of the schema including 
+     * the links and the join tables. 
+     * @return 
+     */
+    public SchemaView createView() {
+        SchemaView svw = new SchemaView(this);
+        fetchAllFields( svw, svw, null );
+        return svw;
+    }
+    
+    /**
+     * 
+     * @param rootVw - the main view
+     * @param lsvw - the immediate view that relates to the field. 
+     */
+    private void fetchAllFields(SchemaView rootVw, AbstractSchemaView currentVw, String prefix) {
+        for( SimpleField sf: this.getSimpleFields() ) {
+            rootVw.addField(new SchemaViewField(sf, rootVw, currentVw));
+        }
+        for( ComplexField cf: this.getSerializedFields() ) {
+            SchemaViewField vf = new SchemaViewField(cf, rootVw, currentVw);
+            vf.setSerialized(true);
+            rootVw.addField(vf);
+        }
+        
+        SchemaElement extElement = this.getExtendedElement();
+        if( extElement!=null ) {
+            String n = extElement.getName();
+            LinkedSchemaView targetVw = new LinkedSchemaView( n, extElement, rootVw, currentVw, JoinTypes.EXTENDED, true, prefix );
+            //loop on primary keys. This assumes that it has the same order as the extended element.
+            int isrc = this.getPrimaryKeys().size();
+            int itgt = extElement.getPrimaryKeys().size();
+            if( isrc!=itgt ) {
+                throw new RuntimeException( "Error on fetchAllFields. extends is ignored because the primary keys do not match. " + extElement.getName() );
+            }
+            for( int i=0; i<isrc; i++) {
+                SimpleField _sf = this.getPrimaryKeys().get(i);
+                SimpleField _tf = extElement.getPrimaryKeys().get(i);
+                SchemaViewRelationField rf = new SchemaViewRelationField(_sf, rootVw, currentVw, _tf, targetVw);    
+                targetVw.addRelationField(rf);
+            }
+            currentVw.setExtendsView(targetVw);
+            extElement.fetchAllFields(rootVw, targetVw, prefix );
+        }
+        
+        List<SchemaRelation> relList = new ArrayList();
+        relList.addAll( this.getOneToOneRelationships() );
+        relList.addAll( this.getManyToOneRelationships() );
+        //extract all fields related.
+        for( SchemaRelation sr: relList  ) {
+            if( sr.getJointype().equals(JoinTypes.INVERSE)) continue;
+            SchemaElement targetElem = sr.getLinkedElement();
+            LinkedSchemaView targetVw = new LinkedSchemaView(sr.getName(), targetElem, rootVw, currentVw, sr.getJointype(), sr.isRequired(), prefix  );
+            
+            for( RelationKey rk: sr.getRelationKeys() ) {
+                SimpleField tf = (SimpleField)sr.getLinkedElement().getField(rk.getTarget());
+                if( tf == null ) 
+                    throw new RuntimeException("SchemaElement.fetchAllFields error. Target field not found");
+                if(! (tf instanceof SimpleField) ) 
+                    throw new RuntimeException("SchemaElement.fetchAllFields error. Target field must be a simple field");
+                
+                //build the simple field
+                SimpleField sf = new SimpleField();
+                sf.setElement(currentVw.getElement());
+                sf.setName(rk.getField());
+                sf.setFieldname(rk.getField());
+                sf.setType( tf.getType() );
+                SchemaViewRelationField rf = new SchemaViewRelationField(sf, rootVw, currentVw,tf, targetVw);
+                rootVw.addField( rf );
+                if( sr.getJointype().equals(JoinTypes.ONE_TO_ONE) ) {
+                    currentVw.addOneToOneView( targetVw );
+                }
+                else {
+                    currentVw.addManyToOneView( targetVw );
+                }
+                targetVw.addRelationField(rf);
+            };
+            targetElem.fetchAllFields(rootVw, targetVw, targetVw.getName());
+        }
+        
+        // Process the inverse relationship
+        SchemaRelation ir = getInverseRelationship();
+        if( ir != null ) {
+            LinkedSchemaView targetVw = new LinkedSchemaView(ir.getName(), ir.getLinkedElement(), rootVw, currentVw, ir.getJointype(), ir.isRequired(), prefix  );
+            for( RelationKey rk: ir.getRelationKeys() ) {
+                SimpleField tf = (SimpleField)ir.getLinkedElement().getField(rk.getTarget());
+                if( tf == null ) 
+                    throw new RuntimeException("SchemaElement.fetchAllFields error. Target field not found in inverse");
+                if(! (tf instanceof SimpleField) ) 
+                    throw new RuntimeException("SchemaElement.fetchAllFields error. Target field must be a simple field");
+                
+                //build the simple field
+                SimpleField sf = new SimpleField();
+                sf.setElement(currentVw.getElement());
+                sf.setName(rk.getField());
+                sf.setFieldname(rk.getField());
+                sf.setType( tf.getType() );
+                SchemaViewRelationField rf = new SchemaViewRelationField(sf, rootVw, currentVw,tf, targetVw);
+                rootVw.addField( rf );
+            }//do not fetch anymore.
+        }
+        
+
+    }    
+    
+    private void buildRelations(String joinType, List schemaRelations) {
+        for(ComplexField cf: this.getComplexFields()) {
+            if(cf.getJoinType()==null ) continue;
+            if(!cf.getJoinType().toLowerCase().equals(joinType) ) continue;
+            String ref = cf.getRef();
+            if(ref==null || ref.trim().length()==0) {
+                System.out.println("SchemaElement.buildRelations warning. ref not specified");
+                continue;
+            }
+            SchemaElement elem = this.schema.getSchemaManager().getElement(ref);
+            SchemaRelation sr = new SchemaRelation(this, cf);
+            sr.setLinkedElement(elem);
+            schemaRelations.add(sr);
+        }
+    }
+    
+    public List<SchemaRelation> getOneToManyRelationships() {
+        if( oneToManyRelationships == null ) {
+            oneToManyRelationships = new ArrayList();
+            buildRelations( JoinTypes.ONE_TO_MANY, oneToManyRelationships );
+        }
+        return oneToManyRelationships;
+    }
+    
+    public List<SchemaRelation> getOneToOneRelationships() {
+        if( oneToOneRelationships == null ) {
+            oneToOneRelationships = new ArrayList();
+            buildRelations( JoinTypes.ONE_TO_ONE, oneToOneRelationships );
+        }
+        return oneToOneRelationships;
+    }
+    
+    public List<SchemaRelation> getManyToOneRelationships() {
+        if( manyToOneRelationships == null ) {
+            manyToOneRelationships = new ArrayList();
+            buildRelations( JoinTypes.MANY_TO_ONE, manyToOneRelationships );
+        }
+        return manyToOneRelationships;
+    }
+    
+    public boolean hasExtends() {
+        return (this.getExtends()!=null && this.getExtends().trim().length()>0);
+    }
+
+    public SchemaRelation getInverseRelationship() {
+        if( inverseRelationship == null ) {
+            for(ComplexField cf: getComplexFields()) {
+                if( cf.getJoinType() == null ) continue;
+                if( !cf.getJoinType().equals(JoinTypes.INVERSE)) continue;
+                
+                String ref = cf.getRef();
+                if(ref==null || ref.trim().length()==0) {
+                    System.out.println("SchemaElement.getInverseRelationship warning. ref not specified");
+                    continue;
+                }
+                SchemaElement elem = this.schema.getSchemaManager().getElement(ref);
+                SchemaRelation sr = new SchemaRelation(this, cf);                
+                inverseRelationship = new SchemaRelation(this, cf);
+                inverseRelationship.setLinkedElement(elem);
+                break;
+            }
+        }
+        return inverseRelationship;
+    }
+    
     
 }

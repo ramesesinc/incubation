@@ -17,13 +17,7 @@ import java.util.Map;
  */
 public class ValidationUtil {
     
-    private static ValidationUtil instance = new ValidationUtil();
-    
-    public static ValidationUtil getInstance() {
-        return instance;
-    }
-    
-    public ValidationResult validate( Object data, SchemaElement elem, String includeFields, String excludeFields) throws Exception { 
+    public static ValidationResult validate( Object data, SchemaElement elem, String includeFields, String excludeFields) throws Exception { 
         if( data instanceof List ) {
             return validate( (List)data, elem, includeFields, excludeFields );
         }
@@ -35,7 +29,7 @@ public class ValidationUtil {
         }
     }
     
-    public ValidationResult validate( List data, SchemaElement elem, String includeFields, String excludeFields) throws Exception { 
+    public static ValidationResult validate( List data, SchemaElement elem, String includeFields, String excludeFields) throws Exception { 
         ValidationResult vr = new ValidationResult();
         List list = (List)data;
         int i = 0;
@@ -50,7 +44,11 @@ public class ValidationUtil {
         return vr;
     }
     
-    public ValidationResult validate( Map data, SchemaElement element, String includeFields, String excludeFields ) throws Exception {
+    public static ValidationResult validate( Map data, SchemaElement element ) throws Exception {
+        return validate( data, element, null, null );
+    }
+    
+    public static ValidationResult validate( Map data, SchemaElement element, String includeFields, String excludeFields ) throws Exception {
         ValidationResult vr = new ValidationResult();
         vr.setContextName(element.getName());
         //validate the basic simple and complex fields.
@@ -59,7 +57,7 @@ public class ValidationUtil {
             if( excludeFields !=null && fld.getName().matches(excludeFields)) continue;
             
             String refName = fld.getName();
-            Object value = DataUtil.getData(data, refName);
+            Object value = DataUtil.getNestedValue(data, refName);
             boolean passRequired = SchemaUtil.checkRequired(fld,value);
             if( !passRequired ) {
                 vr.addError("", refName + " is required ");

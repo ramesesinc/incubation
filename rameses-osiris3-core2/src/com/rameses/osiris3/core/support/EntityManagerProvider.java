@@ -18,6 +18,7 @@ import java.util.Map;
 /**
  *
  * @author Elmo
+ * This is for getting entity managers via code and not thru injection
  */
 public class EntityManagerProvider {
     
