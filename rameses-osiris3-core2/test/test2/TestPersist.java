@@ -181,7 +181,7 @@ public class TestPersist extends TestCase {
     }
     
      // TODO add test methods here. The name must begin with 'test'. For example:
-    public void ztestCreate() throws Exception {
+    public void testCreate() throws Exception {
         exec( new ExecHandler() {
             public void execute() throws Exception {
                 em.create(buildCreateData());
@@ -256,20 +256,6 @@ public class TestPersist extends TestCase {
         });   
     }
 
-    public void ztestSelect() throws Exception {
-        exec( new ExecHandler() {
-            public void execute() throws Exception {
-                //em.select("address.barangay.name,address_barangay_city:{'cebu city'}, name:{ CONCAT(lastname, ', ', firstname) }, today: {NOW()}");
-                em.select( "stat:{ CASE WHEN state=:state THEN '1' ELSE '0' END }" );
-                
-                em.sort("lastname ASC, firstname ASC");
-                //List list = em.where(" 1=1 ").limit(100).list();
-                List list = em.find(getFinder()).list();
-                printList(list);
-            }
-        });   
-    }
-
     public void ztestDelete() throws Exception {
         exec( new ExecHandler() {
             public void execute() throws Exception {
@@ -291,7 +277,7 @@ public class TestPersist extends TestCase {
         });
     }
     
-    public void testDelete1() throws Exception {
+    public void ztestDelete1() throws Exception {
         exec( new ExecHandler() {
             public void execute() throws Exception {
                 em.setName("barangay");
@@ -300,6 +286,33 @@ public class TestPersist extends TestCase {
                 em.find( m ).delete();
             }
         });
+    }
+    
+    public void ztestSelect() throws Exception {
+        exec( new ExecHandler() {
+            public void execute() throws Exception {
+                //em.select("address.barangay.name,address_barangay_city:{'cebu city'}, name:{ CONCAT(lastname, ', ', firstname) }, today: {NOW()}");
+                em.select( "stat:{ CASE WHEN state=:state THEN '1' ELSE '0' END }, yr: { YEAR(now())}" );
+                
+                em.sort("lastname ASC, firstname ASC, a:{YEAR(NOW())} DESC");
+                //List list = em.where(" 1=1 ").limit(100).list();
+                List list = em.find(getFinder()).list();
+                printList(list);
+            }
+        });   
+    }
+    
+     public void ztestSelectSession() throws Exception {
+        exec( new ExecHandler() {
+            public void execute() throws Exception {
+                em.shift("session");
+                //em.select("address.barangay.name,address_barangay_city:{'cebu city'}, name:{ CONCAT(lastname, ', ', firstname) }, today: {NOW()}");
+                Map m = new HashMap();
+                m.put("sessionid", "12222");
+                Map z = (Map)em.read(m);
+                System.out.print( z );
+            }
+        });   
     }
     
 }

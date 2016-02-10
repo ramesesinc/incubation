@@ -142,20 +142,6 @@ public class SchemaElement implements Serializable {
         return (String) this.properties.get("adapter");
     }
     
-    public Map toMap() {
-        Map mh = new HashMap();
-        mh.putAll( properties );
-        mh.put("name", this.getName());
-        if( this.getTablename()!=null) {
-            mh.put("tablename", this.getTablename());
-        }
-        List fields = new ArrayList();
-        for( SchemaField sf: this.getFields()) {
-            fields.add( sf.toMap() );
-        }
-        return mh;
-    }
-    
     public SchemaElement getExtendedElement() {
         if(this.getExtends()==null) return null;
         return schema.getSchemaManager().getElement(this.getExtends());
@@ -229,7 +215,6 @@ public class SchemaElement implements Serializable {
                 sf.setName(rk.getField());
                 sf.setFieldname(rk.getField());
                 sf.setType( tf.getType() );
-                
                 SchemaViewRelationField rf = new SchemaViewRelationField(sf, rootVw, currentVw,tf, targetVw);
                 rootVw.addField( rf );
                 if( sr.getJointype().equals(JoinTypes.ONE_TO_ONE) ) {
@@ -332,7 +317,6 @@ public class SchemaElement implements Serializable {
         }
         return inverseRelationship;
     }
-    
     
     
 }

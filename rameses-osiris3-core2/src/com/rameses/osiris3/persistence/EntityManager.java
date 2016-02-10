@@ -61,6 +61,10 @@ public class EntityManager {
         return this.sqlContext;
     }
 
+    public EntityManager shift(String name) {
+        return setName(name);
+    }
+    
     public EntityManager setName(String name) {
         this.schemaName = name;
         SchemaElement elem = schemaManager.getElement(name);
@@ -305,9 +309,18 @@ public class EntityManager {
         this.processor.setDebug(debug);
     }
 
+    public Map getSchema() {
+        return getModel().getElement().createView().getSchema();
+    }
+    
+    public Map getSchema(String name) {
+        SchemaElement elem = schemaManager.getElement(name);
+        throw new RuntimeException("getSchema not yet supported");
+    }
+    
     /*
     public Object createModel(String schemaName) {
-        return schemaManager.createMap(schemaName);
+        return getModel().getElement().toMap();
     }
     */ 
     
@@ -459,14 +472,6 @@ public class EntityManager {
         return this;
     }
     
-    public Map getSchema() {
-        return getSchema(this.schemaName);
-    }
-
-    public Map getSchema(String name) {
-        SchemaElement elem = schemaManager.getElement(name);
-        throw new RuntimeException("getSchema not yet supported");
-    }
     
     public EntityManager groupBy( String expr ) {
         getModel().setGroupByExpr(expr);

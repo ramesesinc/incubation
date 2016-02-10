@@ -8,6 +8,7 @@ import com.rameses.osiris3.schema.SchemaViewFieldFilter.ExtendedNameViewFieldFil
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author dell
@@ -81,7 +82,33 @@ public class SchemaView extends AbstractSchemaView {
         return fieldSet.get(name);
     }
     
-    
+    public Map getSchema() {
+        Map map = new HashMap();
+        map.put("name", this.getName());
+        List<Map> flds = new ArrayList();
+        for( SchemaViewField vf: this.findAllFields() ) {
+            if(!vf.isInsertable() && !vf.isUpdatable()) continue;
+            if(vf instanceof SchemaViewRelationField ) {
+                SchemaViewRelationField svrf = (SchemaViewRelationField)vf;
+                //if(svrf.getJoinType()!=null && !svrf.getJoinType().equals(JoinTypes.MANY_TO_ONE ))  continue;
+                Map fld = new HashMap();
+                fld.put( "name", svrf.getTargetView().getName() );
+                fld.put( "ref", svrf.getTargetView().getElement().getName() );
+                fld.put( "jointype", svrf.getTargetJoinType() );
+                flds.add( fld );
+            }
+            else {
+                Map fld = new HashMap();
+                fld.putAll( vf.getSchemaField().toMap() );
+                fld.put("name", vf.getExtendedName());
+                flds.add( fld );
+            }
+        }
+        map.put("fields", flds);
+        return map;
+        
+    }    
+
 
    
 }

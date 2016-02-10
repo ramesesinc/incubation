@@ -4,6 +4,7 @@
  */
 package com.rameses.osiris3.persistence;
 
+import com.rameses.util.ValueUtil;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.StreamTokenizer;
@@ -99,6 +100,14 @@ public class SelectFieldsTokenizer {
     
     public static List<Token> tokenize( String expr )  {
         List<Token> tokenList = new ArrayList();
+        if( ValueUtil.isEmpty(expr) || expr.equals("*") || expr.equals(".*") ) {
+            Token t = new Token();
+            t.append(".*");
+            t.init();
+            tokenList.add( t );
+            return tokenList;
+        }
+        
         InputStream is = null;
         Token token = new Token();
         Stack stack = new Stack();

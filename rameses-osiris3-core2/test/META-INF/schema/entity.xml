@@ -3,8 +3,7 @@
         <field name="objid" primary="true" prefix="AID"/>
         <field name="name" required="true"/>
         <field name="entityno" required="true"/>
-        <field name="state" required="true"/>
-        <field name="address_text" required="true"/>
+        <field name="state" required="true" editable="false"/>
         <complex name="address" jointype="one-to-one" ref="entity_address" required="true">
             <key field="address_objid" target="objid"/>
         </complex>
