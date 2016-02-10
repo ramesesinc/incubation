@@ -42,6 +42,15 @@ public class SchemaView extends AbstractSchemaView {
         return fields;
     }
  
+    
+    private List<SchemaViewField> _allFields;
+    public List<SchemaViewField> findAllFields() {
+        if(_allFields == null ) {
+            _allFields = findAllFields(".*");
+        }
+        return _allFields;
+    }
+    
     public List<SchemaViewField> findAllFields( String fieldNames ) {
         ExtendedNameViewFieldFilter mf = new ExtendedNameViewFieldFilter(fieldNames);
         return findAllFields(mf);

@@ -7,8 +7,9 @@ package com.rameses.osiris3.sql;
 
 import com.rameses.osiris3.schema.AbstractSchemaView;
 import com.rameses.osiris3.schema.LinkedSchemaView;
-import com.rameses.osiris3.schema.SchemaViewField;
 import com.rameses.osiris3.schema.SchemaViewRelationField;
+import com.rameses.osiris3.sql.SqlDialectModel.Field;
+import com.rameses.util.ValueUtil;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,7 +19,7 @@ import java.util.List;
 public abstract class AbstractSqlDialect implements SqlDialect {
     
     public SqlDialectFunction getFunction(String funcName) {
-        return new SimpleSqlDialectFunction(funcName);
+        return SqlFunctionProvider.getFunction(funcName, this.getName());
     }
 
     /**
@@ -71,7 +72,7 @@ public abstract class AbstractSqlDialect implements SqlDialect {
         if (model.getFinderFields() == null) {
             return;
         }
-        for (SchemaViewField vf : model.getFinderFields()) {
+        for (Field vf : model.getFinderFields()) {
             StringBuilder sb = new StringBuilder();
             if(withAlias) {
                 sb.append(getDelimiters()[0] + vf.getTablealias() + getDelimiters()[1] + ".");
@@ -90,7 +91,7 @@ public abstract class AbstractSqlDialect implements SqlDialect {
         sb.append(getDelimiters()[0] + model.getTablename() + getDelimiters()[1]);
         sb.append("(");
         int i = 0;
-        for (SchemaViewField fld : model.getFields()) {
+        for (Field fld : model.getFields()) {
             if (!fld.isInsertable()) {
                 continue;
             }
@@ -117,7 +118,7 @@ public abstract class AbstractSqlDialect implements SqlDialect {
         sb.append(getDelimiters()[0] + model.getTablename() + getDelimiters()[1]);
         sb.append("(");
         int i = 0;
-        for (SchemaViewField fld : model.getFields()) {
+        for (Field fld : model.getFields()) {
             if (i++ > 0) {
                 sb.append(",");
                 valueBuff.append(",");
@@ -136,7 +137,7 @@ public abstract class AbstractSqlDialect implements SqlDialect {
         StringBuilder sb = new StringBuilder();
         sb.append(" SET ");
         int i = 0;
-        for (SchemaViewField vf : model.getFields()) {
+        for (Field vf : model.getFields()) {
             if (i++ > 0) {
                 sb.append(",");
             }
@@ -145,7 +146,13 @@ public abstract class AbstractSqlDialect implements SqlDialect {
             }
             sb.append(getDelimiters()[0] + vf.getFieldname() + getDelimiters()[1]);
             sb.append("=");
-            sb.append("$P{" + vf.getExtendedName() + "}");
+            
+            if( !ValueUtil.isEmpty(vf.getExpr()) ) {
+                sb.append( fixStatement(model, vf.getExpr(), withAlias) );
+            }
+            else {
+                sb.append("$P{" + vf.getExtendedName() + "}");
+            }
         }
         return sb.toString();
     }
@@ -212,7 +219,7 @@ public abstract class AbstractSqlDialect implements SqlDialect {
                 }
                 sb.append(" " + getDelimiters()[0] + lsv.getTablename() + getDelimiters()[1] + " ");
                 if (!lsv.getTablename().equals(lsv.getName())) {
-                    sb.append(" " + lsv.getName() + " ");
+                    sb.append(" " + getDelimiters()[0] + lsv.getName() + getDelimiters()[1] + " ");
                 }
                 sb.append(" ON ");
                 int j = 0;
@@ -232,7 +239,64 @@ public abstract class AbstractSqlDialect implements SqlDialect {
     }
 
     protected String buildSelectFields(SqlDialectModel model) {
-        return fixStatement(model, model.getSelectExpression(), true);
+        StringBuilder sb = new StringBuilder();
+        int i = 0;
+        for( Field f: model.getFields() ) {
+            if(i++>0) sb.append(",");
+            if( ValueUtil.isEmpty(f.getExpr()) ) {
+                sb.append( getDelimiters()[0]+f.getTablealias()+getDelimiters()[1]+"." );
+                sb.append( getDelimiters()[0]+f.getFieldname()+getDelimiters()[1] );
+                if(! f.getExtendedName().equals(f.getFieldname()) ) {
+                    sb.append( " AS " + getDelimiters()[0]+f.getExtendedName()+getDelimiters()[1] );
+                }
+            }
+            else {
+                sb.append( fixStatement(model, f.getExpr(), true) );
+                if( !ValueUtil.isEmpty(f.getExtendedName()) ) {
+                    sb.append( " AS " + getDelimiters()[0]+f.getExtendedName()+getDelimiters()[1] );
+                }
+            }
+        }
+        return sb.toString();
+    }
+    
+    protected String buildGroupByStatement(SqlDialectModel model) {
+        StringBuilder sb = new StringBuilder();
+        if( model.getGroupFields()!=null &&  model.getGroupFields().size()>0 ) {
+            sb.append( " GROUP BY ");
+            int i = 0;
+            for( Field f: model.getGroupFields() ) {
+                if(i++>0) sb.append(",");
+                if( ValueUtil.isEmpty(f.getExpr()) ) {
+                    sb.append( getDelimiters()[0]+f.getTablealias()+getDelimiters()[1]+"." );
+                    sb.append( getDelimiters()[0]+f.getFieldname()+getDelimiters()[1] );
+                }
+                else {
+                    sb.append( fixStatement(model, f.getExpr(), true) );
+                }
+            }
+        }
+        return sb.toString();
+    }
+    
+    protected String buildOrderStatement(SqlDialectModel model) {
+        StringBuilder sb = new StringBuilder();
+        if( model.getOrderFields()!=null &&  model.getOrderFields().size()>0 ) {
+            sb.append( " ORDER BY ");
+            int i = 0;
+            for( Field f: model.getOrderFields() ) {
+                if(i++>0) sb.append(",");
+                if( ValueUtil.isEmpty(f.getExpr()) ) {
+                    sb.append( getDelimiters()[0]+f.getTablealias()+getDelimiters()[1]+"." );
+                    sb.append( getDelimiters()[0]+f.getFieldname()+getDelimiters()[1] );
+                }
+                else {
+                    sb.append( fixStatement(model, f.getExpr(), true) );
+                }
+                sb.append( " " + f.getSortDirection() );
+            }
+        }
+        return sb.toString();
     }
     
     protected String buildWhereForSelect(SqlDialectModel model) {
@@ -247,43 +311,7 @@ public abstract class AbstractSqlDialect implements SqlDialect {
         return sb.toString();
     }
     
-    protected String buildOrderStatement(SqlDialectModel model) {
-        StringBuilder sb = new StringBuilder();
-        String orderStr = model.getOrderExpr();
-        if( orderStr!=null && orderStr.trim().length()>0 ) {
-            sb.append( " ORDER BY " );
-            sb.append( fixStatement(model, model.getOrderExpr(), true) );
-        }
-        return sb.toString();
-    }
     
-    /*
-    protected String buildSelectFields(SqlDialectModel model) {
-        StringBuilder sb = new StringBuilder();
-        int i = 0;
-        for (SchemaViewField vf : model.getFields()) {
-            if (i++ > 0) {
-                sb.append(",");
-            }
-            sb.append(getDelimiters()[0] + vf.getTablealias() + getDelimiters()[1] + ".");
-            sb.append(getDelimiters()[0] + vf.getFieldname() + getDelimiters()[1]);
-            if (!vf.getFieldname().equals(vf.getExtendedName())) {
-                sb.append(" AS " + vf.getExtendedName());
-            }
-        }
-        //additional extended fields
-        if( model.getExtendedSelectFields()!=null ) {
-            for( SqlDialectModel.ExtendedSelectField sf: model.getExtendedSelectFields() ) {
-                if( i++>0) sb.append( "," );
-                sb.append( fixStatement( model, sf.getExpr() ) );
-                if( sf.getAlias()!=null && sf.getAlias().trim().length()>0 ) {
-                    sb.append(" AS " + sf.getAlias());
-                }
-            }
-        }
-        return sb.toString();
-    }
-    */
     
     /**
      * params is applicable for subqueries
@@ -296,6 +324,7 @@ public abstract class AbstractSqlDialect implements SqlDialect {
         sb.append(" FROM ");
         sb.append(buildTablesForSelect(model));
         sb.append( buildWhereForSelect(model) );
+        sb.append( buildGroupByStatement(model) );
         sb.append( buildOrderStatement(model));
         return sb.toString();
     }

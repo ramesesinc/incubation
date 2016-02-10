@@ -13,7 +13,6 @@ import com.rameses.osiris3.sql.SqlManager;
 import com.rameses.sql.dialect.MsSqlDialect;
 import com.rameses.sql.dialect.MySqlDialect;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -74,7 +73,7 @@ public class TestPersist extends TestCase {
         Map map = new HashMap();
         map.put("idno", idno);
         map.put("idtype", type);
-        map.put("dateissued", new Date());
+        map.put("dateissued", java.sql.Date.valueOf("2014-01-01"));
         return map;
     }
 
@@ -151,8 +150,6 @@ public class TestPersist extends TestCase {
         return data;
     }
 
-    
-
     private Map getFinder() {
         Map map = new HashMap();
         map.put("entityno", "123456");
@@ -177,7 +174,13 @@ public class TestPersist extends TestCase {
         }
     }
     
-    // TODO add test methods here. The name must begin with 'test'. For example:
+    private void printList(List list) {
+        for(Object obj: list) {
+            System.out.println(obj + " class:"+obj.getClass());
+        }
+    }
+    
+     // TODO add test methods here. The name must begin with 'test'. For example:
     public void ztestCreate() throws Exception {
         exec( new ExecHandler() {
             public void execute() throws Exception {
@@ -185,11 +188,14 @@ public class TestPersist extends TestCase {
             }
         });
     }
-    
+   
     public void ztestUpdateExpr() throws Exception {
         exec( new ExecHandler() {
             public void execute() throws Exception {
                 Map map = new HashMap();
+                map.put("dtcreated", "{NOW()}");
+                map.put("name", "{CONCAT(firstname,',++cross ',lastname)}");
+                em.find(getFinder()).update(map);
             }
         });
     }
@@ -200,15 +206,15 @@ public class TestPersist extends TestCase {
                 Map d = new HashMap();
                 d.put("objid", "ENT000001");
                 Map addr = new HashMap();
-                addr.put("street", "ZZZ12345 1072 dawis");
-                addr.put("text", "ZZZ12345 1072 dawis tabunok talisay city");
+                addr.put("street", "ZZY 1072 dawis");
+                addr.put("text", "ZZY 1072 dawis tabunok talisay city");
                 d.put("address", addr);
                 em.update( d );
             }
         });
     }
     
-    public void ZtestUpdate() throws Exception {
+    public void ztestUpdate() throws Exception {
         exec( new ExecHandler() {
             public void execute() throws Exception {
                 Map created = new HashMap();
@@ -243,7 +249,7 @@ public class TestPersist extends TestCase {
                 Map d = (Map)em.read(map);
                 for( Object m: d.entrySet() ) {
                     Map.Entry me = (Map.Entry)m;
-                    System.out.println(me.getKey()+"="+me.getValue().getClass());
+                    System.out.println(me.getKey()+"="+ (me.getValue()==null?"": me.getValue().getClass()));
                 }
                 System.out.println(d);
             }
@@ -253,18 +259,18 @@ public class TestPersist extends TestCase {
     public void ztestSelect() throws Exception {
         exec( new ExecHandler() {
             public void execute() throws Exception {
-                em.select("createdby.(first|last)name, modifiedby.(first|last)name");
-                //em.selectExpr("NOW() AS [today]");
-                //em.sort("lastname ASC, firstname ASC");
-                List list = em.where("NOT(objid IS NULL)").limit(100).list();
-                for(Object obj: list) {
-                    System.out.println(obj);
-                }
+                //em.select("address.barangay.name,address_barangay_city:{'cebu city'}, name:{ CONCAT(lastname, ', ', firstname) }, today: {NOW()}");
+                em.select( "stat:{ CASE WHEN state=:state THEN '1' ELSE '0' END }" );
+                
+                em.sort("lastname ASC, firstname ASC");
+                //List list = em.where(" 1=1 ").limit(100).list();
+                List list = em.find(getFinder()).list();
+                printList(list);
             }
         });   
     }
 
-    public void testDelete() throws Exception {
+    public void ztestDelete() throws Exception {
         exec( new ExecHandler() {
             public void execute() throws Exception {
                 //em.setName("barangay").find(getFinder()).delete();
@@ -275,14 +281,23 @@ public class TestPersist extends TestCase {
         }); 
     }
     
-    public void ytestUpdateExpr() throws Exception {
+    public void ztestGroupBy() throws Exception {
         exec( new ExecHandler() {
             public void execute() throws Exception {
-                Map finder = new HashMap();
-                finder.put("entityno", "123456");
+                em.select("maxname:{MAX(lastname)}, entityno");
+                List list = em.find(getFinder()).sort("firstname DESC,lastname, entityno").groupBy("entityno, address.barangay.objid, yr:{ YEAR(dtcreated) }").list();
+                printList(list);
+            }
+        });
+    }
+    
+    public void testDelete1() throws Exception {
+        exec( new ExecHandler() {
+            public void execute() throws Exception {
+                em.setName("barangay");
                 Map m = new HashMap();
-                m.put("name", "YYY FIRSTNAME");
-                em.find(finder).update(m);
+                m.put("objid", "TEMP");
+                em.find( m ).delete();
             }
         });
     }

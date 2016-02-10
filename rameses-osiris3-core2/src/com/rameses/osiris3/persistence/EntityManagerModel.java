@@ -17,20 +17,19 @@ import java.util.Map;
  */
 public class EntityManagerModel {
     
-
-
     private SchemaView schemaView;
     private String name;
     private SchemaElement element;
     
     private String selectFields;
-    private String selectExpr;
     
     private Map finders = new HashMap();
     private Map subqueries = new HashMap();
     private Map vars = new HashMap();
+    
     private WhereElement whereElement;
     private String orderExpr;
+    private String groupByExpr;
     
     private int start;
     private int limit;
@@ -94,13 +93,6 @@ public class EntityManagerModel {
         this.selectFields = selectFields;
     }
 
-    public String getSelectExpr() {
-        return selectExpr;
-    }
-
-    public void setSelectExpr(String selectExpr) {
-        this.selectExpr = selectExpr;
-    }
 
     public void setOrderExpr(String orderExpr) {
         this.orderExpr = orderExpr;
@@ -109,7 +101,15 @@ public class EntityManagerModel {
     public String getOrderExpr() {
         return orderExpr;
     }
-    
+
+    public String getGroupByExpr() {
+        return groupByExpr;
+    }
+
+    public void setGroupByExpr(String groupByExpr) {
+        this.groupByExpr = groupByExpr;
+    }
+
     public static class WhereElement {
         private String expr;
         private Map params;

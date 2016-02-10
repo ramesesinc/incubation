@@ -17,7 +17,6 @@ import com.rameses.osiris3.sql.MapToField;
 import com.rameses.osiris3.sql.SqlContext;
 import com.rameses.osiris3.sql.SqlExecutor;
 import com.rameses.osiris3.sql.SqlQuery;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -83,8 +82,10 @@ public class EntityManager {
                 throw new Exception("EntityManager.create error. Data passed must be a map");
             }
             Map mdata = (Map)data;
-            EntityDataUtil.fillInitialData(getModel().getElement(), mdata);
-            EntityValidator.validate(mdata, getModel().getElement());
+            DataFillUtil.fillInitialData(getModel().getElement(), mdata);
+            ValidationResult vr = ValidationUtil.validate(mdata, getModel().getElement());
+            if(vr.hasErrors()) throw new Exception(vr.toString());
+            //EntityValidator.validate(mdata, getModel().getElement());
             processor.create(getModel(), mdata);
             return mdata;
         } catch (Exception e) {
@@ -107,10 +108,11 @@ public class EntityManager {
                  setName( schemaName );
             }
             Map mdata = (Map)data;
-            EntityDataUtil.fillInitialData(getModel().getElement(), mdata);
-            if( validate ) {
-                EntityValidator.validate(mdata, getModel().getElement());
-            }
+            DataFillUtil.fillInitialData(getModel().getElement(), mdata);
+            ValidationResult vr = ValidationUtil.validate(mdata, getModel().getElement());
+            if(vr.hasErrors()) throw new Exception(vr.toString());
+                //EntityValidator.validate(mdata, getModel().getElement());
+            //}
             processor.create(getModel(), mdata);
             return mdata;
         } catch (Exception e) {
@@ -198,7 +200,7 @@ public class EntityManager {
     //is not specified
     private void buildFindersFromPrimaryKeys(Map data) throws Exception {
         if( getModel().hasCriteria() ) return;
-        Map finders = EntityDataUtil.buildFinderFromPrimaryKeys(this.getModel().getElement(), data);
+        Map finders = DataUtil.buildFinderFromPrimaryKeys(this.getModel().getElement(), data);
         if( finders == null ) throw new Exception("Please specify the primary keys");
         getModel().getFinders().putAll(finders);
     }
@@ -206,10 +208,6 @@ public class EntityManager {
     /**
      * This is applicable for updates passed as setExpr.
      */
-    public Object update() {
-        return update(new HashMap());
-    }
-    
     public Object update(Object data) {
         try {
             if( !(data instanceof Map )) {
@@ -320,25 +318,13 @@ public class EntityManager {
 
     public void validate(SchemaElement elem, Object data, String includeFields, String excludeFields) {
         try {
-            if( !(data instanceof Map )) {
-                throw new Exception("validate error. Data passed must be a map");
-            }
-            EntityValidator.validate((Map)data, elem);
-        }
-        catch(Exception e) {
-            throw new RuntimeException(e.getMessage(), e.getCause());
-        }
-        
-        /*
-        try {
-            ValidationResult vr = ValidationUtil.getInstance().validate(data, elem, includeFields, excludeFields);
+            ValidationResult vr = ValidationUtil.validate(data, elem, includeFields, excludeFields);
             if (vr.hasErrors()) {
                 throw new Exception(vr.toString());
             }
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
         }
-        */ 
     }
 
     /**
@@ -436,11 +422,6 @@ public class EntityManager {
         return this;
     }
     
-    public EntityManager selectExpr(String fldExpr) {
-        getModel().setSelectExpr(fldExpr);
-        return this;
-    }
-
     public EntityManager where(String expr) {
        getModel().setWhereElement(expr, null);
         return this;
@@ -453,11 +434,6 @@ public class EntityManager {
     
     public EntityManager sort(String fieldname) {
         getModel().setOrderExpr(fieldname);
-        return this;
-    }
-    
-    public EntityManager setExpr( String expr ) {
-        //getModel().setUpdateExpr(expr);
         return this;
     }
     
@@ -492,13 +468,15 @@ public class EntityManager {
         throw new RuntimeException("getSchema not yet supported");
     }
     
-   
+    public EntityManager groupBy( String expr ) {
+        getModel().setGroupByExpr(expr);
+        return this;
+    }
 
     public void setInvoker(EntityManagerInvoker inv) {
         this.invoker = inv;
     }
 
-    
     //used by the data context. if starts with find, it returns single record. 
     //If it starts with get, it returns list
     public Object invokeSqlMethod( String methodName, Object args ) throws Exception {

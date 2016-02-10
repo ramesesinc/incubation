@@ -16,7 +16,6 @@ import com.rameses.osiris3.sql.SqlDialectModel;
 import com.rameses.osiris3.sql.SqlExecutor;
 import com.rameses.osiris3.sql.SqlQuery;
 import com.rameses.osiris3.sql.SqlUnit;
-import com.rameses.util.ValueUtil;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -40,7 +39,7 @@ public final class EntityManagerProcessor {
     public void executeUpdate( SqlDialectModel sqm, Map baseData, Map vars  ) throws Exception {
         SqlUnit squ = SqlUnitCache.getSqlUnit( sqm, sqlDialect );
         SqlExecutor exec = sqlContext.createExecutor(squ);
-        exec.setVars(vars);
+        if(vars!=null) exec.setVars(vars);
         for( Object s : squ.getParamNames()) {
             exec.setParameter(s.toString(), baseData.get(s));
         }
@@ -49,10 +48,12 @@ public final class EntityManagerProcessor {
             for( Object s : squ.getParamNames()) {
                 System.out.println("param->"+ s + "=" + baseData.get(s));
             }
-            System.out.println("vars");
-            for(Object o: vars.entrySet()) {
-                Map.Entry me = (Map.Entry)o;
-                System.out.println(me.getKey()+"="+me.getValue());
+            if(vars!=null && vars.size()>0) {
+                System.out.println("vars");
+                for(Object o: vars.entrySet()) {
+                    Map.Entry me = (Map.Entry)o;
+                    System.out.println(me.getKey()+"="+me.getValue());
+                }
             }
         }
         exec.execute();
@@ -65,7 +66,7 @@ public final class EntityManagerProcessor {
             params.put("_start", sqm.getStart());
             params.put("_limit", sqm.getLimit());
         }
-        qry.setVars(vars);
+        if(vars!=null) qry.setVars(vars);
         for( Object s : squ.getParamNames()) {
             qry.setParameter(s.toString(), params.get(s));
         }
@@ -74,10 +75,12 @@ public final class EntityManagerProcessor {
             for( Object s : squ.getParamNames()) {
                 System.out.println("param->"+ s + "=" + params.get(s));
             }
-            System.out.println("vars");
-            for(Object o: vars.entrySet()) {
-                Map.Entry me = (Map.Entry)o;
-                System.out.println(me.getKey()+"="+me.getValue());
+            if(vars!=null && vars.size()>0) {
+                System.out.println("vars");
+                for(Object o: vars.entrySet()) {
+                    Map.Entry me = (Map.Entry)o;
+                    System.out.println(me.getKey()+"="+me.getValue());
+                }
             }
         }
         return qry;
@@ -113,7 +116,7 @@ public final class EntityManagerProcessor {
     public void create(SchemaView svw, Map rawData, Map<String, SqlDialectModel> sqlModelMap, Map vars )  throws Exception {
         //this is very critical. make sure you get this correct. This is the
         //cause of unmapped fields.flatten data so it can be easily managed
-        Map baseData = EntityDataUtil.prepareDataForInsert( svw, rawData );
+        Map baseData = DataTransposer.prepareDataForInsert( svw, rawData );
         createBase( svw, baseData, sqlModelMap, vars );
         createOneToOneLinks(svw, baseData, sqlModelMap, vars);
         createOneToManyLinks(svw, rawData, sqlModelMap, vars);
@@ -155,7 +158,7 @@ public final class EntityManagerProcessor {
             createOneToManyLinks( vw.getExtendsView(), rawData, modelMap, vars );
         }
         for( SchemaRelation sr: vw.getElement().getOneToManyRelationships() ) {
-            Object d = EntityDataUtil.getNestedValue(sr.getName(), rawData );
+            Object d = DataUtil.getNestedValue(rawData, sr.getName() );
             if( d != null  ) {
                 SchemaView svw = sr.getLinkedElement().createView();
                 if( !modelMap.containsKey( sr.getLinkedElement().getName() )) {
@@ -188,7 +191,7 @@ public final class EntityManagerProcessor {
         //flatten first the data to make it easier to manipulate. Then check fields 
         //we will need to include.
         
-        Map data = EntityDataUtil.prepareDataForUpdate( svw, odata );        
+        Map data = DataTransposer.prepareDataForUpdate( svw, odata );        
                 
         Map<AbstractSchemaView, SqlDialectModel> modelMap =  SqlDialectModelBuilder.buildUpdateSqlModels(model,data );
         Map params = new HashMap();
@@ -211,7 +214,7 @@ public final class EntityManagerProcessor {
     public List fetchList(EntityManagerModel model) throws Exception {
         SqlDialectModel sqlModel =  SqlDialectModelBuilder.buildSelectSqlModel(model);
         Map parms = new HashMap();
-        parms.putAll( EntityDataUtil.flatten(model.getFinders(), "_"));
+        parms.putAll( DataTransposer.flatten(model.getFinders(), "_"));
         parms.putAll( model.getWhereParams() );
         
         Map vars = model.getVars();
@@ -223,7 +226,7 @@ public final class EntityManagerProcessor {
     public Map fetchFirst(EntityManagerModel model) throws Exception {
         SqlDialectModel sqlModel =  SqlDialectModelBuilder.buildSelectSqlModel(model);
         Map parms = new HashMap();
-        parms.putAll( EntityDataUtil.flatten(model.getFinders(), "_"));
+        parms.putAll( DataTransposer.flatten(model.getFinders(), "_"));
         parms.putAll( model.getWhereParams() );
         Map vars = model.getVars();
         SqlQuery sqlQry = createQuery(sqlModel,parms, vars);
@@ -240,92 +243,83 @@ public final class EntityManagerProcessor {
      *     on top of each element found
      **************************************************************************/ 
     public void delete(EntityManagerModel entityModel) throws Exception {
-        
-        SchemaElement elem = entityModel.getElement();
+        SchemaElement baseElement = entityModel.getElement();
         Map parms = new HashMap();
-        parms.putAll( EntityDataUtil.flatten(entityModel.getFinders(), "_"));
+        parms.putAll( DataTransposer.flatten(entityModel.getFinders(), "_"));
         parms.putAll( entityModel.getWhereParams() );
         
         Map vars = entityModel.getVars();
-        boolean hasLinks = false;
-        if( elem.getExtendedElement() !=null ||
-            elem.getOneToManyRelationships().size() >0 ||
-            elem.getOneToOneRelationships().size() > 0 ) {
-            hasLinks = true;
-        }    
+        //get first the objid's affected
+        StringBuilder sb = new StringBuilder();
+        SqlDialectModel model = SqlDialectModelBuilder.buildSelectPrimaryKeys(entityModel);
+        List list = createQuery(model,parms, vars).getResultList();
         
-        if(hasLinks) {
-            SqlDialectModel sqlModel = SqlDialectModelBuilder.buildSelectPrimaryKeys(entityModel);
-            //createQuery( sqlModel, parms );
-            SqlUnit squ = this.getSqlUnit(sqlModel);
-            for( SchemaRelation sr: elem.getOneToManyRelationships()) {
-                deleteCascade( sr.getLinkedElement(), sqlModel, sr );
-            }
-        }
-        else {
-            SqlDialectModel sqlModel = SqlDialectModelBuilder.buildSimpleDeleteSqlModel(entityModel);
-            executeUpdate( sqlModel, parms, vars );
+        //we will be deleting one record at a time
+        EntityManagerModel eModel = new EntityManagerModel(baseElement);
+        for( Object o: list) {
+            eModel.getFinders().putAll((Map)o);
+            deleteModel( eModel, null, null );
         }
     }
     
-    private void deleteCascade( SchemaElement elem, SqlDialectModel parentModel, SchemaRelation sr ) {
+    private void deleteModel(EntityManagerModel entityModel, SchemaRelation rels, String sql) throws Exception {
+        SchemaElement elem = entityModel.getElement();
+        for( SchemaRelation sr: elem.getOneToManyRelationships() ) {
+            //deleteElement(sr.getLinkedElement(), sr, sql );
+        }
+        for( SchemaRelation sr: elem.getOneToOneRelationships()) {
+            EntityManagerModel eModel = new EntityManagerModel(sr.getLinkedElement());
+            eModel.getFinders().putAll(entityModel.getFinders());
+            nullifyOneToOneRelationship( eModel, sr, sql );
+            //deleteElement( sr.getLinkedElement(), sr, sql );
+        }
+
+        SqlDialectModel sqlM = SqlDialectModelBuilder.buildDeleteSqlModel(entityModel);
+        Map parms = new HashMap();
+        parms.putAll( DataTransposer.flatten(entityModel.getFinders(), "_"));
+        //parms.putAll( entityModel.getWhereParams() );
+        executeUpdate(sqlM, parms, new HashMap());
         
-        boolean hasLinks = false;
-        if( elem.getExtendedElement() !=null ||
-            elem.getOneToManyRelationships().size() >0 ||
-            elem.getOneToOneRelationships().size() > 0 ) {
-            hasLinks = true;
-        }    
-        
-        if(hasLinks) {
-            //form the ff. statement
-            //SELECT objid FROM entityid WHERE parentid = ::parent
-//            EntityModel2 emodel = new EntityModel2(elem);
-//            for( SimpleField sf: elem.getPrimaryKeys() ) {
-//                if(i++>0) 
-//                emodel.setSelectfieldExpr( sf.getName() );
-//            }
-            
-            
-            //SqlDialectModel sqlModel = SqlDialectModelBuilder.buildSelectPrimaryKeys(emodel);
-            
-            //createQuery( sqlModel, parms );
-            /*
-            SqlUnit squ = this.getSqlUnit(sqlModel);
-            for( SchemaRelation sr: elem.getOneToManyRelationships()) {
-                EntityModel2 eModel = new EntityModel2(sr.getLinkedElement());
-                for(RelationKey rk: sr.getRelationKeys()) {
-                    System.out.println("target->"+ rk.getTarget() );
-                    System.out.println("field->"+ rk.getField());
-                }
-                //SqlDialectModel sqlModel2 = SqlDialectModelBuilder.buildSimpleDeleteSqlModel(eModel);
+        if( elem.getExtendedElement()!=null ) {
+            EntityManagerModel eModel = new EntityManagerModel(elem.getExtendedElement());
+            eModel.getFinders().putAll( entityModel.getFinders() );
+            deleteModel( eModel, rels, sql );
+        }
+    }
+    
+    /*
+    private void deleteElement(SchemaElement elem, SchemaRelation rels, String sql) throws Exception {
+        StringBuilder sb = new StringBuilder();
+        sb.append("************************************************\n");
+        sb.append( "DELETE " + elem.getTablename() + " WHERE ");
+        if( rels == null ) {
+            //delete by primary key
+            for( SimpleField sf: elem.getPrimaryKeys() ) {
+                sb.append( sf.getFieldname() + " IN (" + sql + ")"  );
             }
-            */ 
         }
         else {
-            //SqlDialectModel sqlModel = SqlDialectModelBuilder.buildSimpleDeleteSqlModel(entityModel);
-            //executeUpdate( sqlModel, parms, vars );
+            for( RelationKey rk: rels.getRelationKeys() ) {
+                sb.append( rk.getTarget() + " IN (SELECT " + rk.getField() + " FROM " + rels.getParent().getTablename());
+                sb.append( " WHERE xid IN (" + sql +")");
+            }
         }
         
+        System.out.println(sb.toString());
+        if( elem.getExtendedElement()!=null) {
+            deleteElement( elem.getExtendedElement(), null, sql );
+        }
+    }
+    */
+    
+    private void nullifyOneToOneRelationship(EntityManagerModel entityModel, SchemaRelation sr, String sql ) throws Exception {
+        Map updateFields = new HashMap();
         for(RelationKey rk: sr.getRelationKeys()) {
-            System.out.println("target->"+ rk.getTarget() );
-            System.out.println("field->"+ rk.getField());
+            updateFields.put(rk.getField(), "{NULL}");
         }
+        update( entityModel, updateFields );
     }
     
-    
-    public void deleteNullifyOneToOne( AbstractSchemaView vw, Map parms,  Map<String, SqlDialectModel> sqlModelMap  ) throws Exception {
-        System.out.println("update keys set id to nullify");
-    }
-
-    public void deleteBase( AbstractSchemaView vw, Map parms,  Map<String, SqlDialectModel> sqlModelMap, Map vars  ) throws Exception {
-        SqlDialectModel sqlModel = sqlModelMap.get(vw.getName());
-        executeUpdate( sqlModel, parms, vars );
-        if( vw.getExtendsView() !=null ) {
-            deleteBase( vw.getExtendsView(), parms, sqlModelMap, vars );
-        }
-    }
-
     public boolean isDebug() {
         return debug;
     }

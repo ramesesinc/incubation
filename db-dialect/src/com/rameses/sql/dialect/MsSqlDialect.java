@@ -12,7 +12,10 @@ package com.rameses.sql.dialect;
 
 
 import com.rameses.osiris3.sql.AbstractSqlDialect;
+import com.rameses.osiris3.sql.SqlDialectFunction;
 import com.rameses.osiris3.sql.SqlDialectModel;
+import com.rameses.sql.dialect.functions.mssql.CONCAT;
+import com.rameses.sql.dialect.functions.mssql.NOW;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -213,6 +216,7 @@ public class MsSqlDialect extends AbstractSqlDialect  {
             sb.append( " FROM " );
             sb.append(buildTablesForSelect(model));
             sb.append(buildWhereForSelect(model));
+            sb.append( buildGroupByStatement(model) );            
             sb.append(") AS ConstrainedResult ");
             sb.append(" WHERE _rownum_ BETWEEN ($P{_start}+1) AND ($P{_start}+$P{_limit}) ORDER BY _rownum_" );
             return sb.toString();
@@ -255,6 +259,9 @@ public class MsSqlDialect extends AbstractSqlDialect  {
         
         return sb.toString();
     }
+
+    
+    
     
     
 }

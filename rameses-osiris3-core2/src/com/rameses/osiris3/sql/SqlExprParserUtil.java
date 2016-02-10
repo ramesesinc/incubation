@@ -4,7 +4,7 @@
  */
 package com.rameses.osiris3.sql;
 
-import com.rameses.osiris3.schema.SchemaViewField;
+import com.rameses.osiris3.sql.SqlDialectModel.Field;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.StreamTokenizer;
@@ -39,6 +39,7 @@ public class SqlExprParserUtil {
         StreamTokenizer st = new StreamTokenizer(is);
         st.wordChars('_', '_');
         st.ordinaryChar(' ');
+        st.ordinaryChars('0', '9');
         int i = 0;
         while ((i = st.nextToken()) != st.TT_EOF) {
             ParseContext ctx = stack.peek();
@@ -49,7 +50,7 @@ public class SqlExprParserUtil {
                 if( v.indexOf(".") > 0 ) v = v.replace(".", "_");
                 
                 //check if field exists. if not ignore it.
-                SchemaViewField vf = sqlModel.findField(v);
+                Field vf = sqlModel.findField(v);
                 if(vf!=null) {
                     if(includeFieldAlias) {
                         ctx.append( stmt.getDelimiters()[0]+ vf.getTablealias() +stmt.getDelimiters()[1] +"." );

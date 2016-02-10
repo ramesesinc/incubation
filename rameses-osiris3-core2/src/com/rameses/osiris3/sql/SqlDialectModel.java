@@ -6,7 +6,6 @@ package com.rameses.osiris3.sql;
 
 import com.rameses.osiris3.schema.AbstractSchemaView;
 import com.rameses.osiris3.schema.LinkedSchemaView;
-import com.rameses.osiris3.schema.SchemaViewField;
 import com.rameses.util.ValueUtil;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,18 +26,18 @@ public class SqlDialectModel {
     private String action;
     
     private String selectExpression;
-    private List<SchemaViewField> fields = new ArrayList();
-    private List<SchemaViewField> finderFields;
+    private List<Field> fields = new ArrayList();
+    private List<Field> finderFields;
+    
+    private List<Field> orderFields;
+    private List<Field> groupFields;
     
     //fieldMap is a helper field
-    private Map<String, SchemaViewField> fieldMap = new HashMap();
+    private Map<String, Field> fieldMap = new HashMap();
     private Map<String, String> subqueries = new HashMap();
 
     //internal fields for finding things
     //for updating and saving
-    
-    private String orderExpr;
-
     private int start;
     private int limit;
     
@@ -62,19 +61,22 @@ public class SqlDialectModel {
             if(!ValueUtil.isEmpty(this.selectExpression)) {
                 sb.append("select:"+this.selectExpression+";");
             }
-            if(fields.size()>0) {
+            if(fields!=null && fields.size()>0) {
                 i = 0;
                 sb.append("fields:");
-                for( SchemaViewField f: this.getFields() ) {
+                for( Field f: this.getFields() ) {
                     if(i++>0) sb.append(",");
                     sb.append( f.getExtendedName() );
+                    if(! ValueUtil.isEmpty(f.getExpr()) ) {
+                        sb.append( "expr:"+f.getExpr());
+                    } 
                 }
                 sb.append(";");
             }
             if( finderFields!=null && finderFields.size() > 0 ) {
                 sb.append("finders:");
                 i = 0;
-                for( SchemaViewField vf : finderFields ) {
+                for( Field vf : finderFields ) {
                     if( i++>0 ) sb.append(",");
                     sb.append( vf.getExtendedName() );
                 }
@@ -94,8 +96,29 @@ public class SqlDialectModel {
                 sb.append( whereFilter.getExpr() );
                 sb.append(";");
             }
-            if(!ValueUtil.isEmpty(orderExpr)) {
-                sb.append("orderby:"+this.orderExpr+";");
+            if( this.groupFields!=null && this.groupFields.size()>0 ) {
+                sb.append( "groupby:");
+                i = 0;
+                for( Field f: this.getGroupFields() ) {
+                    if(i++>0) sb.append(",");
+                    sb.append( f.getExtendedName() );
+                    if(! ValueUtil.isEmpty(f.getExpr()) ) {
+                        sb.append( "expr:"+f.getExpr());
+                    } 
+                }        
+                sb.append(";");
+            }
+            if( this.orderFields!=null && this.orderFields.size()>0 )  {
+                sb.append( "orderby:");
+                i = 0;
+                for( Field f: this.getOrderFields() ) {
+                    if(i++>0) sb.append(",");
+                    sb.append( f.getExtendedName() );
+                    if(! ValueUtil.isEmpty(f.getExpr()) ) {
+                        sb.append( "expr:"+f.getExpr());
+                    } 
+                }        
+                sb.append(";");
             }
             if( start >0 || limit > 0 ) {
                 sb.append("start:"+start+";");
@@ -121,11 +144,11 @@ public class SqlDialectModel {
         this.tablealias = tablealias;
     }
     
-    public void setFieldMap(Map<String, SchemaViewField> fieldMap) {
+    public void setFieldMap(Map<String, Field> fieldMap) {
         this.fieldMap = fieldMap;
     }
     
-    public SchemaViewField findField(String name) {
+    public Field findField(String name) {
         return fieldMap.get(name);
     }
     
@@ -137,46 +160,17 @@ public class SqlDialectModel {
         this.action = action;
     }
 
-    /*
-    public LinkedSchemaView getLinkedView() {
-        return linkedView;
-    }
 
-    public void setLinkedView(LinkedSchemaView linkedView) {
-        this.linkedView = linkedView;
-    }
-    */ 
-    
-    /*
-    public Set<AbstractSchemaView> getLinkedViews() {
-        return linkedViews;
-    }
-
-    public void setLinkedViews(Set<AbstractSchemaView> linkedViews) {
-        this.linkedViews = linkedViews;
-    }
-    */ 
-
-    public List<SchemaViewField> getFinderFields() {
+    public List<Field> getFinderFields() {
         return finderFields;
     }
 
-    public void setFinderFields(List<SchemaViewField> finderFields) {
+    public void setFinderFields(List<Field> finderFields) {
         this.finderFields = finderFields;
-        for( SchemaViewField vf: finderFields ) {
+        for( Field vf: finderFields ) {
             fieldMap.put(vf.getExtendedName(), vf);
         }
     }
-
-    /*
-    public List<WhereFilter> getWhereList() {
-        return whereList;
-    }
-
-    public void setWhereList(List<WhereFilter> whereList) {
-        this.whereList = whereList;
-    }
-    */ 
 
     public Map<String, String> getSubqueries() {
         return subqueries;
@@ -203,15 +197,15 @@ public class SqlDialectModel {
         this.selectExpression = selectExpression;
     }
 
-    public void addField(SchemaViewField vf) {
+    public void addField(Field vf) {
         this.fields.add(vf);
     }
     
-    public List<SchemaViewField> getFields() {
+    public List<Field> getFields() {
         return fields;
     }
     
-    public Map<String, SchemaViewField> getFieldMap() {
+    public Map<String, Field> getFieldMap() {
         return fieldMap;
     }
 
@@ -231,12 +225,24 @@ public class SqlDialectModel {
         this.limit = limit;
     }
 
-    public String getOrderExpr() {
-        return orderExpr;
+    public List<Field> getGroupFields() {
+        return groupFields;
     }
 
-    public void setOrderExpr(String orderExpr) {
-        this.orderExpr = orderExpr;
+    public void setGroupFields(List<Field> groupFields) {
+        this.groupFields = groupFields;
+    }
+
+    public List<Field> getOrderFields() {
+        return orderFields;
+    }
+
+    public void setOrderFields(List<Field> orderFields) {
+        this.orderFields = orderFields;
+    }
+
+    public void setFields(List<Field> fields) {
+        this.fields = fields;
     }
 
     public static class WhereFilter {
@@ -288,6 +294,133 @@ public class SqlDialectModel {
         public void setExpr(String expr) {
             this.expr = expr;
         }
+    }
+    
+    public static class Field {
+        
+        private String name;
+        private String tablename;
+        private String tablealias;
+        private String extendedName;
+        private String fieldname;
+        private boolean primary;
+        private boolean insertable;
+        private boolean updatable;
+        private boolean serialized;
+        private boolean basefield;
+        private String sortDirection;
+        
+        private String expr;
+        
+        public String getTablename() {
+            return tablename;
+        }
+
+        public void setTablename(String tablename) {
+            this.tablename = tablename;
+        }
+
+        public String getTablealias() {
+            return tablealias;
+        }
+
+        public void setTablealias(String tablealias) {
+            this.tablealias = tablealias;
+        }
+
+        public String getFieldname() {
+            return fieldname;
+        }
+
+        public void setFieldname(String fieldname) {
+            this.fieldname = fieldname;
+        }
+
+        public String getExtendedName() {
+            return extendedName;
+        }
+
+        public void setExtendedName(String extendedName) {
+            this.extendedName = extendedName;
+        }
+
+        public boolean isPrimary() {
+            return primary;
+        }
+
+        public void setPrimary(boolean primary) {
+            this.primary = primary;
+        }
+
+        public boolean isInsertable() {
+            return insertable;
+        }
+
+        public void setInsertable(boolean insertable) {
+            this.insertable = insertable;
+        }
+
+        public boolean isUpdatable() {
+            return updatable;
+        }
+
+        public void setUpdatable(boolean updatable) {
+            this.updatable = updatable;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public boolean isSerialized() {
+            return serialized;
+        }
+
+        public void setSerialized(boolean serialized) {
+            this.serialized = serialized;
+        }
+
+        public boolean isBasefield() {
+            return basefield;
+        }
+
+        public void setBasefield(boolean basefield) {
+            this.basefield = basefield;
+        }
+
+        
+        public String getExpr() {
+            return expr;
+        }
+
+        public void setExpr(String expr) {
+            this.expr = expr;
+        }
+
+        public String getSortDirection() {
+            return sortDirection;
+        }
+
+        public void setSortDirection(String sortDirection) {
+            this.sortDirection = sortDirection;
+        }
+        
+        
+        public int hashCode() {
+            if( this.extendedName == null && this.expr!=null ) {
+                return this.expr.hashCode();
+            }
+            return extendedName.hashCode();
+        }
+
+        public boolean equals(Object obj) {
+            return hashCode() == obj.hashCode();
+        }
+
     }
     
 }

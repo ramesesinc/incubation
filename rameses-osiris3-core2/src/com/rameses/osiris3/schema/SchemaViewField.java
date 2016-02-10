@@ -64,7 +64,7 @@ public class SchemaViewField {
         }
         
         //determine updatable
-        if(joinType==null ||  !joinType.matches(matchPattern) && !isPrimary() ) {
+        if( (joinType==null ||  !joinType.matches(matchPattern)) && !isPrimary() ) {
             _updatable = true;
         }
     }

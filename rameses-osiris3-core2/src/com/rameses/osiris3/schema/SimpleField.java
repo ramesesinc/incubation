@@ -9,10 +9,6 @@
 
 package com.rameses.osiris3.schema;
 
-import java.math.BigDecimal;
-import java.sql.Timestamp;
-import java.util.Date;
-
 /**
  *
  * @author elmo
@@ -40,7 +36,6 @@ public class SimpleField extends SchemaField implements SimpleFieldTypes {
     
     public void setType(String dataType) {
         this.type = dataType;
-        initDataTypeClass(this.type);
     }
     
     public String getName() {
@@ -101,36 +96,9 @@ public class SimpleField extends SchemaField implements SimpleFieldTypes {
         super.getProperties().put("fieldname", name);  
     }
     
-    
-    private void initDataTypeClass(String dtype) {
-        if( dtype== null || dtype.trim().length() == 0 ) {
-            //if datatype not specified, the default is Object. 
-            dtype = SimpleFieldTypes.OBJECT;
-        }
-        if( dtype.equalsIgnoreCase(SimpleFieldTypes.STRING) ) {
-            dataTypeClass= String.class;
-        } else if( dtype.equalsIgnoreCase(SimpleFieldTypes.TIMESTAMP) ) {
-            dataTypeClass= Timestamp.class;
-        } else if( dtype.equalsIgnoreCase(SimpleFieldTypes.DATE) ) {
-            dataTypeClass= Date.class;
-        } else if( dtype.equalsIgnoreCase(SimpleFieldTypes.DECIMAL) ) {
-            dataTypeClass= BigDecimal.class;
-        } else if( dtype.equalsIgnoreCase(SimpleFieldTypes.DOUBLE) ) {
-            dataTypeClass= Double.class;
-        } else if( dtype.equalsIgnoreCase(SimpleFieldTypes.INTEGER) ) {
-            dataTypeClass= Integer.class;
-        } else if( dtype.equalsIgnoreCase(SimpleFieldTypes.BOOLEAN) ) {
-            dataTypeClass= Integer.class;
-        } else if( dtype.equalsIgnoreCase(SimpleFieldTypes.LONG) ) {
-            dataTypeClass= Long.class;
-        } else {
-            dataTypeClass = Object.class;
-        }
-    }
-    
     public Class getDataTypeClass() {
         if( dataTypeClass==null) {
-            initDataTypeClass( getType() );
+            dataTypeClass = SchemaUtil.getFieldClass(this, null);
         }
         return dataTypeClass;
     }
@@ -146,9 +114,10 @@ public class SimpleField extends SchemaField implements SimpleFieldTypes {
         else if( getDataTypeClass() == Object.class) {
             //do nothing...
         }
-        else if( val.getClass() != getDataTypeClass()) {
+        else if( !SchemaUtil.checkType(this, val.getClass()) ) {
             throw new Exception( " data type is incorrect.");
         }
+        
         //verify all other things
         if( getDataTypeClass() == String.class) {
             String mask = (String)getProperty("mask");
