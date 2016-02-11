@@ -314,8 +314,8 @@ public class EntityManager {
     }
     
     public Map getSchema(String name) {
-        SchemaElement elem = schemaManager.getElement(name);
-        throw new RuntimeException("getSchema not yet supported");
+        setName(name);
+        return getSchema();
     }
     
     /*

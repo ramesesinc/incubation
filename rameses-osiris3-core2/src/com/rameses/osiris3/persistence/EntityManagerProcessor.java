@@ -26,7 +26,7 @@ import java.util.Map;
  */
 public final class EntityManagerProcessor {
    
-    private boolean debug = true;
+    private boolean debug = false;
     private SqlDialect sqlDialect;
     
     private SqlContext sqlContext;

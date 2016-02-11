@@ -54,7 +54,7 @@ public class SqlDialectModel {
     /*
      * The id should be unique per call because it will cache the sql units.
      */
-     public String getId() {
+     public int getId() {
         StringBuilder sb = new StringBuilder(tablealias+":"+tablename+":"+action+";");
         int i = 0;
         if(!action.equals("create")) {
@@ -125,7 +125,7 @@ public class SqlDialectModel {
                 sb.append("limit:"+limit+";");
             }
         }
-        return sb.toString();
+        return sb.toString().hashCode();
     }
     
     public String getTablename() {
