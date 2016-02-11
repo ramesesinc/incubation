@@ -74,6 +74,14 @@ public class TestDb {
         return em;
     }
     
+    public void commit() {
+        cm.commit();
+    }
+    
+    public void rollback() {
+        cm.rollback();
+    }
+    
     public static class MyResourceProvider implements SchemaResourceProvider {
         private String homeDir;
         private Map<String, File> map = new HashMap();

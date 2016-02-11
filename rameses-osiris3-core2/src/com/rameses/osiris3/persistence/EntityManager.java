@@ -210,8 +210,27 @@ public class EntityManager {
     }
     
     /**
-     * This is applicable for updates passed as setExpr.
+     * applicable for updates with mapped parameters for example
+     * SET amount = amount + :amount. 
+     * @param data - this is a map bec. if we make this as Object it will conflict with
+     *     other update methods
+     * @param params in case there are parameters in the expression, this will be the 
+     *     values mapped 
+     * @return 
      */
+    public Object update(Map data, Map params) {
+        try {
+            buildFindersFromPrimaryKeys((Map)data);
+            return processor.update(getModel(), (Map)data, params);
+        }
+        catch(Exception e) {
+            throw new RuntimeException(e.getMessage(), e.getCause());
+        }
+    }
+    
+    /**
+    * This is applicable for updates passed as setExpr.
+    */
     public Object update(Object data) {
         try {
             if( !(data instanceof Map )) {

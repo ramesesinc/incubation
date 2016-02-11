@@ -181,7 +181,7 @@ public class TestPersist extends TestCase {
     }
     
      // TODO add test methods here. The name must begin with 'test'. For example:
-    public void testCreate() throws Exception {
+    public void ztestCreate() throws Exception {
         exec( new ExecHandler() {
             public void execute() throws Exception {
                 em.create(buildCreateData());
@@ -288,15 +288,11 @@ public class TestPersist extends TestCase {
         });
     }
     
-    public void ztestSelect() throws Exception {
+    public void testSelect() throws Exception {
         exec( new ExecHandler() {
             public void execute() throws Exception {
                 //em.select("address.barangay.name,address_barangay_city:{'cebu city'}, name:{ CONCAT(lastname, ', ', firstname) }, today: {NOW()}");
-                em.select( "stat:{ CASE WHEN state=:state THEN '1' ELSE '0' END }, yr: { YEAR(now())}" );
-                
-                em.sort("lastname ASC, firstname ASC, a:{YEAR(NOW())} DESC");
-                //List list = em.where(" 1=1 ").limit(100).list();
-                List list = em.find(getFinder()).list();
+                List list = em.select( ".*name" ).where("1=1").list();
                 printList(list);
             }
         });   
