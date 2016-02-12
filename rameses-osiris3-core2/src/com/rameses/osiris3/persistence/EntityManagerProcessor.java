@@ -26,7 +26,7 @@ import java.util.Map;
  */
 public final class EntityManagerProcessor {
    
-    private boolean debug = true;
+    private boolean debug = false;
     private SqlDialect sqlDialect;
     
     private SqlContext sqlContext;
@@ -181,6 +181,10 @@ public final class EntityManagerProcessor {
     //where statement
     //**************************************************************************
     public Map update( EntityManagerModel model, Map odata ) throws Exception {
+        return update( model, odata, null );
+    }    
+        
+    public Map update( EntityManagerModel model, Map odata, Map updateParams ) throws Exception {
         if(odata==null || odata.size()==0  ) 
             throw new Exception("update error. data must have at least one value");
         if( model.getFinders().size()==0 && model.getWhereElement()==null ) 
@@ -198,7 +202,9 @@ public final class EntityManagerProcessor {
         params.putAll( data );
         params.putAll( model.getFinders() );
         params.putAll( model.getWhereParams() );
-        
+        if( updateParams!=null) {
+            params.putAll(updateParams);
+        }
         Map vars = model.getVars();
         
         for(SqlDialectModel sqlModel: modelMap.values()) {

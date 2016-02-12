@@ -79,11 +79,10 @@ public class DynamicCrudFormModel extends CrudFormModel {
             else {
                 i.type = x.type;
             }
-            /*
-            x.datatype = x.attribute.datatype;
-            if(x.datatype.indexOf("_")>0) {
-                x.datatype = x.datatype.substring(0, x.datatype.indexOf("_"));
+            if( i.type == 'linked' ) {
+                
             }
+            /*
             if(i.type == "boolean") {
                 i.type = "subform";
                 i.handler = "business_application:yesno";
@@ -107,6 +106,7 @@ public class DynamicCrudFormModel extends CrudFormModel {
             }
             */
             i.required = x.required;
+            i.editable = (!x.editable)?true:x.editable;
             formControls << i;
         }
      }

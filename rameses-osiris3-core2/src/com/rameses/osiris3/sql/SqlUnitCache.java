@@ -4,6 +4,7 @@
  */
 package com.rameses.osiris3.sql;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,10 +14,11 @@ import java.util.Map;
  */
 public class SqlUnitCache {
     
-    private static Map<String, SqlUnit> sqlUnits = new HashMap();
+    private static Map<Integer, SqlUnit> sqlUnits = Collections.synchronizedMap(new HashMap());
     
     public static SqlUnit getSqlUnit( SqlDialectModel model, SqlDialect dialect ) throws Exception {
-        if(! sqlUnits.containsKey(model.getId()) ) {
+        Integer i = model.getId();
+        if(! sqlUnits.containsKey(i) ) {
             String action = model.getAction();
             String statement = null;
             if(action.equals("create")) {
@@ -34,7 +36,7 @@ public class SqlUnitCache {
             SqlUnit sqlUnit = new SqlUnit( statement );
             sqlUnits.put(model.getId(), sqlUnit);
         }
-        return sqlUnits.get(model.getId());
+        return sqlUnits.get(i);
     }
     
 }

@@ -107,7 +107,7 @@ public class SelectFieldsTokenizer {
             tokenList.add( t );
             return tokenList;
         }
-        
+        expr = expr.trim();
         InputStream is = null;
         Token token = new Token();
         Stack stack = new Stack();
@@ -123,6 +123,10 @@ public class SelectFieldsTokenizer {
                     String v = st.sval;
                     token.append( v );
                 }
+                else if( i == '*') {
+                    token.append( (char)i+"" );
+                }
+                
                 else if( i == ',') {
                     if( stack.empty() ) {
                         token.init();
@@ -142,7 +146,12 @@ public class SelectFieldsTokenizer {
                     token.append("}");
                 }
                 else if (i == st.TT_NUMBER) {
-                    token.append( st.nval+"" );
+                    if( i == -2 ) {
+                        token.append(".");
+                    }
+                    else {
+                        token.append( st.nval+"" );
+                    }
                 } 
                 else if( i == '\'') {
                     token.append( "'" + st.sval + "'" );

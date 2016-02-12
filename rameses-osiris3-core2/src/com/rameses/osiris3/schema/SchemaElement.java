@@ -152,10 +152,16 @@ public class SchemaElement implements Serializable {
      * the links and the join tables. 
      * @return 
      */
+    private final static Object lock = new Object();
+    private SchemaView schemaView;
     public SchemaView createView() {
-        SchemaView svw = new SchemaView(this);
-        fetchAllFields( svw, svw, null );
-        return svw;
+        synchronized(lock) {
+            if( schemaView == null ) {
+                schemaView = new SchemaView(this);
+                fetchAllFields( schemaView, schemaView, null );
+            }
+        }
+        return schemaView;
     }
     
     /**

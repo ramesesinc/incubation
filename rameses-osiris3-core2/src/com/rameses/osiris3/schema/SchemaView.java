@@ -87,7 +87,6 @@ public class SchemaView extends AbstractSchemaView {
         map.put("name", this.getName());
         List<Map> flds = new ArrayList();
         for( SchemaViewField vf: this.findAllFields() ) {
-            if(!vf.isInsertable() && !vf.isUpdatable()) continue;
             if(vf instanceof SchemaViewRelationField ) {
                 SchemaViewRelationField svrf = (SchemaViewRelationField)vf;
                 //if(svrf.getJoinType()!=null && !svrf.getJoinType().equals(JoinTypes.MANY_TO_ONE ))  continue;
@@ -104,7 +103,7 @@ public class SchemaView extends AbstractSchemaView {
                 flds.add( fld );
             }
         }
-        map.put("fields", flds);
+        map.put("columns", flds);
         return map;
         
     }    
