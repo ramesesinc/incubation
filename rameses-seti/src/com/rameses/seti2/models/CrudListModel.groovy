@@ -6,6 +6,11 @@ import com.rameses.osiris2.client.*;
 import com.rameses.osiris2.common.*;
 import com.rameses.rcp.framework.ClientContext;
         
+/**
+ * workunit properties that can be configured:
+ * allowCreate, allowOpen, allowDelete
+ *
+*/
 public class CrudListModel {
         
     @Binding
@@ -39,6 +44,7 @@ public class CrudListModel {
     def query = [:];
     def criteriaList = [];
     def queryForm;
+    def whereStatement;
     
     String role;
     String domain;
@@ -52,16 +58,24 @@ public class CrudListModel {
     }
     
     boolean isCreateAllowed() { 
+        def allowCreate = workunit.info.workunit_properties.allowCreate;        
+        if( allowCreate == 'false' ) return false;
         if( !role ) return true;
         return secProvider.checkPermission( domain, role, schemaName+".create" );
     }
         
     boolean isOpenAllowed() { 
+        def allowOpen = workunit.info.workunit_properties.allowOpen;        
+        if( allowOpen == 'false' ) return false;
+        
         if( !role ) return true;
         return secProvider.checkPermission( domain, role, schemaName+".open" );
     }
 
     boolean isDeleteAllowed() { 
+        def allowDelete = workunit.info.workunit_properties.allowDelete;        
+        if( allowDelete != 'true' ) return false;
+        
         if( !role ) return true;
         return secProvider.checkPermission( domain, role, schemaName+".delete" );
     }
@@ -79,7 +93,9 @@ public class CrudListModel {
         return "Page " + listHandler.pageIndex + " of ? " + listHandler.pageCount;
     }
     
-    
+    /**
+    * choose only columns from schema 
+    */
     void init() {
         //load role and domain if any.
         queryForm = new Opener(outcome:'queryForm')
@@ -103,12 +119,13 @@ public class CrudListModel {
         schema.name = schemaName;
         if(adapter) schema.adapter = adapter;
         
+        
         //build the initial select columns
         if(workunit.info.workunit_properties.cols!=null ) {
             selectCols = workunit.info.workunit_properties.cols;
             def arr = selectCols.split(",");
             arr.each { c->
-                schema.columns.find{ it.name ==  c.trim() }?.selected = true;
+                schema.columns.find{ it.name.replace("_",".") ==  c.trim() }?.selected = true;
             }
         }
         if(selectCols == "*") {
@@ -148,7 +165,9 @@ public class CrudListModel {
             //build the columns to retrieve
             def arr = schema.columns.findAll{it.primary==true || it.selected == true }*.name;
             m.select = arr.join(",");
-            
+            if( whereStatement !=null ) {
+                m.where = whereStatement;
+            }
             return queryService.getList( m );
         },
         onOpenItem: { o, colName ->
@@ -156,29 +175,35 @@ public class CrudListModel {
         }
     ] as PageListModel;
     
-    def buildFilter() {
+    
+    //returns the where element
+    def buildWhereStatement() {
         def buff = new StringBuilder();
         def params = [:]
-        boolean _first = true;
-        for( c in criteriaList ) {
-            if( _first ) _first = false;
-            else buff.append( " AND ");
-            buff.append( c.name + ' ' + c.entry.operator.key + ' $P{' +c.name+ '}' );
-            params.put( c.name, c.entry.value );
+        int i = 0;
+        for( c in criteriaList*.entry ) {
+            if(i++>0) buff.append( " AND ");
+            buff.append( c.field.name.replace("_",".") + ' ' + c.operator.key + ' :' +c.field.name );
+            params.put( c.field.name, c.value );
+            if( c.operator.key?.toUpperCase() == 'BETWEEN') {
+                buff.append( " AND :"+c.field.name+"2" );
+                params.put( c.field.name+"2", c.value2 );
+            }
         };
-        println buff.toString();
-        params.each {k,v->
-            println k+"="+v;
-        }
-            
-        return buff.toString();
+        return [buff.toString(), params];
     }
     
     def showFilter() {
         def h = { o->
             criteriaList.clear();
             criteriaList.addAll( o );     
-            buildFilter();
+            if( criteriaList.size() > 0 ) {
+                whereStatement = buildWhereStatement(); 
+            }
+            else {
+                whereStatement = null;       
+            }
+            listHandler.reload(); 
         }
         return Inv.lookupOpener( "crud:showcriteria", [schema: schema, handler:h, criteriaList: criteriaList] );
     }
@@ -254,6 +279,9 @@ public class CrudListModel {
         op.add( new ListAction(caption:'Close', name:'_close', obj:this, binding: binding) );
         return op;
     }
+    
+    
+    
     
 }
 

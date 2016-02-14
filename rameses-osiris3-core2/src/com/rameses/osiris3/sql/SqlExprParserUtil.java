@@ -39,7 +39,7 @@ public class SqlExprParserUtil {
         StreamTokenizer st = new StreamTokenizer(is);
         st.wordChars('_', '_');
         st.ordinaryChar(' ');
-        st.ordinaryChars('0', '9');
+        st.wordChars('0', '9');
         int i = 0;
         while ((i = st.nextToken()) != st.TT_EOF) {
             ParseContext ctx = stack.peek();

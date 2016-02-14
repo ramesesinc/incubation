@@ -17,7 +17,9 @@
             def onselect;            
                     
             void init() {
-                columnList = schema.columns;
+                //!it.visible == false means if it.visible false is sepcified. by default it.visible
+                //is null or true.  
+                columnList = schema.columns.findAll{ !it.primary && !it.jointype && (it.visible==null || it.visible=='true' ) };
             }                
                     
             def doCancel() {
@@ -30,7 +32,6 @@
                 }
                 return "_close";
             }
-                    
         }
         ]]>
     </code>

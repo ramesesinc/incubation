@@ -12,6 +12,9 @@
         
         class ShowFilterController {
         
+            @Binding
+            def binding;
+        
             def schema;
             def handler;
             
@@ -27,11 +30,14 @@
             def criteriaList = []; 
                                                                                     
             void init() {
-                fieldList = schema.columns;
+                fieldList = schema.columns.findAll{ it.indexed == 'true' };
                 controlList.clear();
                 if(criteriaList) {
                     controlList.addAll( criteriaList );
-                }    
+                }
+                else {
+                    addField();
+                }      
             }                
                
             def doCancel() {
@@ -43,15 +49,70 @@
                 return "_close";
             }                      
             
+            def clearFilter() {
+                controlList.clear();
+                if(handler) handler(controlList);
+                return "_close";
+            }
+            
+            def strOps = [
+                [caption: "equals", key:"="],
+                [caption: "like", key:"LIKE"],
+            ];
+            
+            def numOps = [
+                [caption: "greater than", key:">"],
+                [caption: "less than", key:"<"],
+                [caption: "greater than or equal to", key:">=" ],
+                [caption: "less than or equal to", key:"<="],
+                [caption: "equal to", key:"="],
+                [caption: "between", key:"BETWEEN"],
+            ];
+            
+            def lookupOps = [
+                [caption: "is any of the ff.", key: "IN"],
+                [caption: "not in any of the ff.", key:"NOT IN"],
+            ];
+            
+            def dateOps = [
+                [caption: "equals", key: "="],
+                [caption: "on or before", key: "<="],
+                [caption: "before", key:"<"],
+                [caption: "on or after", key:">="],
+                [caption: "after", key:">"],
+                [caption: "between", key:"BETWEEN"],
+            ];
+            
+            int fldIndex;
             void addField() {
-                if(!selectedField) return;
-                def k = selectedField;
-                if(k.type == null ) k.type = "string";
-                String h = "criteria:"+k.type.trim();
-                def m = [name: k.name , type:'subform', caption: k.caption, handler:h ];
-                m.entry = [:];
-                m.properties = [entry: m.entry];
-                controlList << m;                    
+                fldIndex++;
+                String h = "criteria:item";
+                def m = [type:'subform', handler:h, showCaption:false ];
+                m.entry = [index:fldIndex];
+                m.properties = [
+                    fieldList: fieldList, 
+                    numberOperators:numOps, 
+                    stringOperators: strOps,
+                    entry: m.entry
+                ];
+                controlList << m;  
+                if(binding!=null) binding.refresh();                  
+            }
+            
+            int getFieldIndex() {
+                return fldIndex;
+            }
+            
+            void removeField(def entry) {
+                def z = controlList.find{ it.entry == entry };
+                controlList.remove(z);
+                //recalc the index
+                fldIndex = 0;
+                for( o in controlList ) {
+                    fldIndex++;
+                    o.entry.index = fldIndex;
+                }
+                if(binding!=null) binding.refresh();    
             }
             
         }

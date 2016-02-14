@@ -9,7 +9,7 @@
         <invoker type="formActions" action="showFilter" tooltip="Filter" icon="images/toolbars/filter.png"/>  
         <invoker type="formActions" action="refresh" tooltip="Refresh"/>  
 
-        <invoker type="formActions" caption="Cols" tooltip="Select Columns" action="selectColumns"/>  
+        <invoker type="formActions" action="selectColumns" tooltip="Select Columns" icon="images/toolbars/table-column.png" />  
         
         <invoker type="navActions" tooltip="Move First" icon="images/navbar/first.png" action="listHandler.moveFirstPage" />
         <invoker type="navActions" tooltip="Move Previous" icon="images/navbar/previous.png" action="listHandler.moveBackPage"  />        

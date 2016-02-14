@@ -9,6 +9,7 @@
         <complex name="ids" jointype="one-to-many" ref="id" required="true">
             <key field="objid" target="parentid"/>
         </complex>
+        <field name="address2" required="true"/>
     </element>
 </schema>
 
