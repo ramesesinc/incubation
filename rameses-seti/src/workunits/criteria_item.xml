@@ -45,7 +45,7 @@
 
             @PropertyChangeListener
             def l = [
-                "entry.field" : {   
+                "entry.field" : { o->  
                     entry.operator = null;
                     entry.value = null;
                     entry.value1 = null;

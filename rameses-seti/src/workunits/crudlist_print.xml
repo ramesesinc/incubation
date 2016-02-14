@@ -12,10 +12,15 @@
         import com.rameses.osiris2.common.*;
         import com.rameses.osiris2.reports.*;
         
-        class CrudListReportController extends ReportController {
+        class CrudListReportController {
         
             def reportData;
             String reportName;
+            
+            void preview() {
+                MsgBox.alert('preview');
+                super.preview();
+            }
             
         }
         

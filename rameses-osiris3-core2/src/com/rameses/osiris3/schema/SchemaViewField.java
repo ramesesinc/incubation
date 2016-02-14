@@ -155,7 +155,8 @@ public class SchemaViewField {
     
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("name:" + getExtendedName() + "; ");
+        sb.append("name:" + getMapname() + "; ");
+        sb.append("extname:" + getExtendedName() + "; ");
         sb.append(" table:" + getTablealias() + ":"+ getTablename());
         sb.append(" dbfield:" + getFieldname() );
         sb.append(" base:"+isBaseField()+ ";"  );
@@ -166,6 +167,10 @@ public class SchemaViewField {
         return sb.toString();
     }
 
+    public String getMapname() {
+        return getExtendedName().replace("_", ".");
+    }
+    
     public String getJoinType() {
         return joinType;
     }

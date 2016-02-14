@@ -82,6 +82,9 @@ public class SchemaView extends AbstractSchemaView {
         return fieldSet.get(name);
     }
     
+    /***
+     * This is the method being used to get the schema. ignore the schemaview field
+     */ 
     public Map getSchema() {
         Map map = new HashMap();
         map.put("name", this.getName());
@@ -99,7 +102,8 @@ public class SchemaView extends AbstractSchemaView {
             else {
                 Map fld = new HashMap();
                 fld.putAll( vf.getSchemaField().toMap() );
-                fld.put("name", vf.getExtendedName());
+                fld.put("name", vf.getMapname());
+                fld.put("extname", vf.getExtendedName());
                 flds.add( fld );
             }
         }

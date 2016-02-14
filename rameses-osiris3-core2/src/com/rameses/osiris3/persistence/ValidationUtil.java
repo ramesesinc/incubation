@@ -65,16 +65,20 @@ public class ValidationUtil {
             }
             //do not proceed if valus is null bec. it will be useless
             if( value == null ) continue;
-            Class clazz = value.getClass();
+            
             if( fld instanceof SimpleField ) {
                 //check first if we need to process this field. refer to parentLink stack above
                 SimpleField sf = (SimpleField)fld;
                 String type = sf.getType();
+                //before we check the type we attempt to convert first
+                Object oval = SchemaUtil.convertData(value, type);
+                Class clazz = oval.getClass();
                 boolean passType = SchemaUtil.checkType( sf, clazz );
                 if(!passType) {
                     vr.addError( "", refName + " must be of type " + type );
                     continue;
                 }
+                DataUtil.putNestedValue(data, refName, oval);
             } 
             else if( fld instanceof ComplexField ) {
                 ComplexField cf = (ComplexField)fld;

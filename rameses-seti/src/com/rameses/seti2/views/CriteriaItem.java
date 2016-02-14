@@ -29,14 +29,14 @@ public class CriteriaItem extends javax.swing.JPanel {
         xComboBox2 = new com.rameses.rcp.control.XComboBox();
         xButton1 = new com.rameses.rcp.control.XButton();
         xPanel3 = new com.rameses.rcp.control.XPanel();
-        xPanel1 = new com.rameses.rcp.control.XPanel();
-        xTextField1 = new com.rameses.rcp.control.XTextField();
         xPanel2 = new com.rameses.rcp.control.XPanel();
         xIntegerField1 = new com.rameses.rcp.control.XIntegerField();
         xIntegerField2 = new com.rameses.rcp.control.XIntegerField();
         xPanel4 = new com.rameses.rcp.control.XPanel();
         xDecimalField1 = new com.rameses.rcp.control.XDecimalField();
         xDecimalField2 = new com.rameses.rcp.control.XDecimalField();
+        xPanel1 = new com.rameses.rcp.control.XPanel();
+        xTextField2 = new com.rameses.rcp.control.XTextField();
         xButton2 = new com.rameses.rcp.control.XButton();
         xComboBox1 = new com.rameses.rcp.control.XComboBox();
 
@@ -45,34 +45,19 @@ public class CriteriaItem extends javax.swing.JPanel {
         xComboBox2.setName("entry.field"); // NOI18N
         xComboBox2.setShowCaption(false);
 
+        xButton1.setIconResource("images/toolbars/trash.png");
         xButton1.setMargin(new java.awt.Insets(2, 2, 2, 2));
         xButton1.setName("removeField"); // NOI18N
-        xButton1.setText("-");
-        xButton1.setVisibleWhen("#{caller.fieldIndex != 1 }");
+        xButton1.setPreferredSize(new java.awt.Dimension(25, 22));
+        xButton1.setVisibleWhen("#{entry.index != 1 }");
 
         xPanel3.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 5, 5));
         xPanel3.setDepends(new String[] {"entry.field"});
         xPanel3.setName("datatype"); // NOI18N
+        xPanel3.setPreferredSize(new java.awt.Dimension(214, 30));
         xPanel3.setLayout(new java.awt.CardLayout());
 
-        xTextField1.setName("entry.value"); // NOI18N
-
-        javax.swing.GroupLayout xPanel1Layout = new javax.swing.GroupLayout(xPanel1);
-        xPanel1.setLayout(xPanel1Layout);
-        xPanel1Layout.setHorizontalGroup(
-            xPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(xPanel1Layout.createSequentialGroup()
-                .addComponent(xTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 208, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 1, Short.MAX_VALUE))
-        );
-        xPanel1Layout.setVerticalGroup(
-            xPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(xPanel1Layout.createSequentialGroup()
-                .addComponent(xTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 12, Short.MAX_VALUE))
-        );
-
-        xPanel3.add(xPanel1, "string");
+        xPanel2.setPreferredSize(new java.awt.Dimension(209, 30));
 
         xIntegerField1.setName("entry.value"); // NOI18N
 
@@ -96,10 +81,12 @@ public class CriteriaItem extends javax.swing.JPanel {
                 .addGroup(xPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(xIntegerField1, javax.swing.GroupLayout.PREFERRED_SIZE, 21, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(xIntegerField2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addGap(0, 11, Short.MAX_VALUE))
+                .addGap(0, 8, Short.MAX_VALUE))
         );
 
         xPanel3.add(xPanel2, "integer");
+
+        xPanel4.setPreferredSize(new java.awt.Dimension(209, 30));
 
         xDecimalField1.setName("entry.value"); // NOI18N
 
@@ -122,13 +109,36 @@ public class CriteriaItem extends javax.swing.JPanel {
                 .addGroup(xPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(xDecimalField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(xDecimalField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(0, 12, Short.MAX_VALUE))
+                .addGap(0, 9, Short.MAX_VALUE))
         );
 
         xPanel3.add(xPanel4, "decimal");
 
+        xPanel1.setPreferredSize(new java.awt.Dimension(209, 30));
+        xPanel1.setStretchHeight(22);
+
+        xTextField2.setName("entry.value"); // NOI18N
+
+        javax.swing.GroupLayout xPanel1Layout = new javax.swing.GroupLayout(xPanel1);
+        xPanel1.setLayout(xPanel1Layout);
+        xPanel1Layout.setHorizontalGroup(
+            xPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(xTextField2, javax.swing.GroupLayout.DEFAULT_SIZE, 209, Short.MAX_VALUE)
+        );
+        xPanel1Layout.setVerticalGroup(
+            xPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(xPanel1Layout.createSequentialGroup()
+                .addComponent(xTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 9, Short.MAX_VALUE))
+        );
+
+        xPanel3.add(xPanel1, "string");
+
+        xButton2.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        xButton2.setForeground(new java.awt.Color(0, 102, 255));
         xButton2.setMargin(new java.awt.Insets(2, 2, 2, 2));
         xButton2.setName("addField"); // NOI18N
+        xButton2.setPreferredSize(new java.awt.Dimension(25, 22));
         xButton2.setText("+");
         xButton2.setVisibleWhen("#{entry.index == caller.fieldIndex}");
 
@@ -152,17 +162,17 @@ public class CriteriaItem extends javax.swing.JPanel {
                 .addComponent(xButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(xButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(60, 60, 60))
+                .addContainerGap(27, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                .addComponent(xButton1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addComponent(xButton2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                 .addComponent(xComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addComponent(xComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-            .addComponent(xPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addComponent(xButton1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(xButton2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addComponent(xPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
         );
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -178,6 +188,6 @@ public class CriteriaItem extends javax.swing.JPanel {
     private com.rameses.rcp.control.XPanel xPanel2;
     private com.rameses.rcp.control.XPanel xPanel3;
     private com.rameses.rcp.control.XPanel xPanel4;
-    private com.rameses.rcp.control.XTextField xTextField1;
+    private com.rameses.rcp.control.XTextField xTextField2;
     // End of variables declaration//GEN-END:variables
 }

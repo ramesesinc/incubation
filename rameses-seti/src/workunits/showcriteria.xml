@@ -83,12 +83,10 @@
                 [caption: "between", key:"BETWEEN"],
             ];
             
-            int fldIndex;
             void addField() {
-                fldIndex++;
                 String h = "criteria:item";
                 def m = [type:'subform', handler:h, showCaption:false ];
-                m.entry = [index:fldIndex];
+                m.entry = [index:getFieldIndex()+1];
                 m.properties = [
                     fieldList: fieldList, 
                     numberOperators:numOps, 
@@ -100,14 +98,14 @@
             }
             
             int getFieldIndex() {
-                return fldIndex;
+                return controlList.size();
             }
             
             void removeField(def entry) {
                 def z = controlList.find{ it.entry == entry };
                 controlList.remove(z);
                 //recalc the index
-                fldIndex = 0;
+                int fldIndex = 0;
                 for( o in controlList ) {
                     fldIndex++;
                     o.entry.index = fldIndex;

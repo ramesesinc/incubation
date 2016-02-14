@@ -119,13 +119,12 @@ public class CrudListModel {
         schema.name = schemaName;
         if(adapter) schema.adapter = adapter;
         
-        
         //build the initial select columns
         if(workunit.info.workunit_properties.cols!=null ) {
             selectCols = workunit.info.workunit_properties.cols;
             def arr = selectCols.split(",");
             arr.each { c->
-                schema.columns.find{ it.name.replace("_",".") ==  c.trim() }?.selected = true;
+                schema.columns.find{ it.name ==  c.trim() }?.selected = true;
             }
         }
         if(selectCols == "*") {
@@ -146,7 +145,6 @@ public class CrudListModel {
             for( c in schema.columns.findAll{it.selected==true} ) {
                 def cc = [:];
                 cc.putAll( c );
-                if(cc.name.contains("_")) cc.name = cc.name.replace("_", ".");
                 cols << cc;
             }
             cols << [caption:''];
@@ -183,11 +181,11 @@ public class CrudListModel {
         int i = 0;
         for( c in criteriaList*.entry ) {
             if(i++>0) buff.append( " AND ");
-            buff.append( c.field.name.replace("_",".") + ' ' + c.operator.key + ' :' +c.field.name );
-            params.put( c.field.name, c.value );
+            buff.append( c.field.name + ' ' + c.operator.key + ' :' +c.field.extname );
+            params.put( c.field.extname, c.value );
             if( c.operator.key?.toUpperCase() == 'BETWEEN') {
-                buff.append( " AND :"+c.field.name+"2" );
-                params.put( c.field.name+"2", c.value2 );
+                buff.append( " AND :"+c.field.extname+"2" );
+                params.put( c.field.extname+"2", c.value2 );
             }
         };
         return [buff.toString(), params];
@@ -279,9 +277,6 @@ public class CrudListModel {
         op.add( new ListAction(caption:'Close', name:'_close', obj:this, binding: binding) );
         return op;
     }
-    
-    
-    
     
 }
 
