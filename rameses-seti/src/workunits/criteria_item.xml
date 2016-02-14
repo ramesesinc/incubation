@@ -3,70 +3,10 @@
         <invoker type="criteria:item" action="init"/>
     </invokers>
     
-    <code>
-        <![CDATA[
-        import com.rameses.rcp.common.*;
-        import com.rameses.rcp.annotations.*;
-        import com.rameses.osiris2.client.*;
-        import com.rameses.osiris2.common.*;
-        
-        class CriteriaItemController {
-        
-            @Caller
-            def caller;
-
-            def fieldList;
-            def stringOperators;
-            def numberOperators; 
-
-            def entry = [:];
-            def operatorList;
-            def datatype;
-            int fieldCount;
-            
-            void init() {
-                setFieldData();
-            }
-            
-            void setFieldData() {
-                if( !entry.field ) return;
-                datatype = entry.field.type;
-                if(datatype==null) datatype = "string";
-                if( datatype == "integer" || datatype == "decimal" ) {
-                    operatorList = numberOperators;
-                }
-                else if( datatype == "date" || datatype=="timestamp") {
-                    operatorList = dateOperators;
-                }
-                else {
-                    operatorList = stringOperators;
-                }
-            }
-
-            @PropertyChangeListener
-            def l = [
-                "entry.field" : { o->  
-                    entry.operator = null;
-                    entry.value = null;
-                    entry.value1 = null;
-                    setFieldData(); 
-                }
-            ]
-            
-            void addField() { 
-               caller.addField();
-            }     
-            
-            void removeField() {
-                caller.removeField( this.entry );
-            }
-                      
-        }
-        ]]>
-    </code>
+    <code class="com.rameses.seti2.models.FilterCriteriaItemModel"/>
     
     <pages>
-        <page template="com.rameses.seti2.views.CriteriaItem"/>
+        <page template="com.rameses.seti2.views.FilterCriteriaItemPanel"/>
     </pages>    
     
 </workunit>  

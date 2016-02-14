@@ -6,10 +6,15 @@ import com.rameses.osiris2.client.*;
 import com.rameses.osiris2.common.*;
 import com.rameses.rcp.framework.ClientContext;
         
+
 /**
- * workunit properties that can be configured:
- * allowCreate, allowOpen, allowDelete
- *
+* workunit properties
+* cols = choose only columns from schema, in the order displayed separated by commas.
+* allowCreate = if true create button will be displayed. default is true
+* allowOpen = if true open button will be displayed. default is true
+* allowDelete = if true delete button will be displayed. default is false
+* 
+* init action must be called.
 */
 public class CrudListModel {
         
@@ -46,10 +51,12 @@ public class CrudListModel {
     def queryForm;
     def whereStatement;
     
+    def cols = [];
+  
     String role;
     String domain;
     String permission;
-    String selectCols = "*";
+    
     
     def secProvider = ClientContext.getCurrentContext().getSecurityProvider();
     
@@ -93,9 +100,6 @@ public class CrudListModel {
         return "Page " + listHandler.pageIndex + " of ? " + listHandler.pageCount;
     }
     
-    /**
-    * choose only columns from schema 
-    */
     void init() {
         //load role and domain if any.
         queryForm = new Opener(outcome:'queryForm')
@@ -119,21 +123,53 @@ public class CrudListModel {
         schema.name = schemaName;
         if(adapter) schema.adapter = adapter;
         
-        //build the initial select columns
-        if(workunit.info.workunit_properties.cols!=null ) {
-            selectCols = workunit.info.workunit_properties.cols;
-            def arr = selectCols.split(",");
-            arr.each { c->
-                schema.columns.find{ it.name ==  c.trim() }?.selected = true;
+        //establish first what columns to include in internal columns
+        def includeCols = new LinkedHashSet();
+        def _includeCols = ".*";
+        if( workunit.info.workunit_properties.includeCols ) {
+            _includeCols = workunit.info.workunit_properties.includeCols;
+        }
+        //loop all fields to include.
+        for( ic in _includeCols.split(",") ) {
+            if(ic == "*") ic = ".*";
+            for( fld in schema.columns ) {
+                if(fld.primary || fld.jointype ) continue;
+                if(!(fld.visible==null || fld.visible=='true' )) continue;
+                if(fld.name.matches( ic.trim()) ) {
+                    includeCols << fld;
+                }
             }
         }
-        if(selectCols == "*") {
-            schema.columns.each{ it.selected = true };
+        
+        //establish columns to display. The tricky part here is if cols are specified
+        //it must be in the order it is specified.
+        def zcols = new LinkedHashSet();
+        def _displayCols = ".*";
+        if( workunit.info.workunit_properties.cols ) {
+            _displayCols = workunit.info.workunit_properties.cols;
         }
-        schema.columns.findAll{ it.primary == true }.each{ it.selected = false; }
-        schema.columns.findAll{!it.caption}.each {
-            it.caption = it.title;
-            if(!it.caption) it.caption = it.name;
+        for( ic in _displayCols.split(",") ) {
+            if(ic == "*") ic = ".*";
+            for( fld in includeCols ) {
+                if(fld.name.matches( ic.trim()) ) {
+                    zcols << fld;
+                    fld.selected = true;
+                }
+            }
+        }
+        cols.clear();
+        zcols.each { c->
+            cols << c;
+        }
+        includeCols.each { c->
+            if( !cols.find{it.name == c.name} ) {
+                cols << c;
+            }
+        }
+        zcols.clear();
+        includeCols.clear();
+        cols.each {fld->
+            if(!fld.caption) fld.caption = fld.name;            
         }
     }
         
@@ -141,14 +177,14 @@ public class CrudListModel {
         getColumnList: {
             if( schema == null )
                 throw new Exception("schema is null. Please call invoke method")
-            def cols = [];
-            for( c in schema.columns.findAll{it.selected==true} ) {
+            def zcols = [];
+            for( c in cols.findAll{it.selected == true} ) {
                 def cc = [:];
                 cc.putAll( c );
-                cols << cc;
+                zcols << cc;
             }
-            cols << [caption:''];
-            return cols;
+            zcols << [caption:''];
+            return zcols;
         },
         fetchList: { o->
             if( schema == null )
@@ -161,7 +197,7 @@ public class CrudListModel {
             m.adapter = schema.adapter;
             
             //build the columns to retrieve
-            def arr = schema.columns.findAll{it.primary==true || it.selected == true }*.name;
+            def arr = cols.findAll{it.selected==true}*.name;
             m.select = arr.join(",");
             if( whereStatement !=null ) {
                 m.where = whereStatement;
@@ -203,14 +239,14 @@ public class CrudListModel {
             }
             listHandler.reload(); 
         }
-        return Inv.lookupOpener( "crud:showcriteria", [schema: schema, handler:h, criteriaList: criteriaList] );
+        return Inv.lookupOpener( "crud:showcriteria", [cols: cols, handler:h, criteriaList: criteriaList] );
     }
             
     def selectColumns() {
         def h = {
             listHandler.reloadAll();
         }
-        return Inv.lookupOpener( "crud:selectcolumns", [schema: schema, onselect:h] );
+        return Inv.lookupOpener( "crud:selectcolumns", [columnList: cols, onselect:h] );
     }
     
     def create() {
@@ -263,7 +299,32 @@ public class CrudListModel {
     }
     
     def print() {
-        return Inv.lookupOpener( "crudlist:print", [reportData:'elmox'] );
+        //load first all data.
+        def m = [:];
+        m.putAll(query);
+        m.schemaname = schema.name;
+        m.adapter = schema.adapter;
+        //build the columns to retrieve
+        def arr = cols.findAll{it.selected==true}*.name;
+        m.select = arr.join(",");
+        if( whereStatement !=null ) {
+            m.where = whereStatement;
+        }
+        int i = 0;
+        def buffList = [];
+        while( true ) {
+            m._start = i;
+            m._limit = 50;
+            def l = queryService.getList( m );
+            buffList.addAll( l );
+            if( l.size() < 50  ) {
+                break;
+            }
+            i=i+50;
+        }
+        println "size of buffer " + buffList.size(); 
+        return null;
+        //return Inv.lookupOpener( "crudlist:print", [reportData:buffList] );
     }
     
     void search() {
@@ -291,5 +352,4 @@ public class ListAction extends Action {
             return obj.invokeMethod(getName(), null);
         }
     }
-    
 }

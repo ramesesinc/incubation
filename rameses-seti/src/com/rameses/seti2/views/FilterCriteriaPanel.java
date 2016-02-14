@@ -12,12 +12,12 @@ import com.rameses.rcp.ui.annotations.Template;
  * @author dell
  */
 @Template(OKCancelPage.class)
-public class ShowCriteriaPanel extends javax.swing.JPanel {
+public class FilterCriteriaPanel extends javax.swing.JPanel {
 
     /**
      * Creates new form ShowFilterPanel
      */
-    public ShowCriteriaPanel() {
+    public FilterCriteriaPanel() {
         initComponents();
     }
 
