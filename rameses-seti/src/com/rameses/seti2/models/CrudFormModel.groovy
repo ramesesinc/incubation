@@ -32,17 +32,24 @@ public class CrudFormModel {
     def adapter;
     def schema;
     def entity;
-    String schemaName;
     
     String role;
     String domain;
     String permission;
     
-    @FormTitle
-    def title;
-    
     def mode;
     
+    List styleRules = [];
+    
+    @FormTitle
+    String getTitle() {
+        return getSchemaName();
+    }
+
+    public String getSchemaName() {
+        return workunit?.info?.workunit_properties?.schemaName;
+    }
+
     def secProvider = ClientContext.getCurrentContext().getSecurityProvider();
     
     boolean isCreateAllowed() { 
@@ -65,8 +72,20 @@ public class CrudFormModel {
         return secProvider.checkPermission( domain, role, schemaName+".edit" );
     }
 
+    /*
     List getExtActions() {
         return Inv.lookupActions( schemaName+":form:extActions", [entity: entity] );
+    }
+    */
+    
+    def showMenu() {
+        def op = new PopupMenuOpener();
+        try {
+            op.addAll( Inv.lookupOpeners(schemaName+":form:menuActions") );
+        }
+        catch(Exception ign){;}
+        op.add( new FormAction(caption:'Close', name:'_close', obj:this, binding: binding) );
+        return op;
     }
     
     void initSchema() {
@@ -77,15 +96,13 @@ public class CrudFormModel {
     
     void init() {
         initSchema();
+        styleRules << new StyleRule("entity.*", "#{mode=='read'}").add("enabled", false);
+        styleRules << new StyleRule("entity.*", "#{mode!='read'}").add("enabled", true);
     }
     
     def create() {
         mode = "create";
         entity = [:];
-        if(!schemaName) {
-            def  _sname = workunit.info.workunit_properties.schemaName;
-            if( _sname ) schemaName = _sname;
-        }
         entity._schemaname = schemaName;
         init();
         return "create";
@@ -93,10 +110,6 @@ public class CrudFormModel {
     
     def open() {
         mode = "read";
-        if(!schemaName) {
-            def  _sname = workunit.info.workunit_properties.schemaName;
-            if( _sname ) schemaName = _sname;
-        }
         //we need to set the schemaname that will be used for open
         entity._schemaname = schemaName;
         entity = service.read( entity );
@@ -121,15 +134,14 @@ public class CrudFormModel {
     }
     
     def save() {
-        if(MsgBox.confirm('You are about to save this record. Proceed?')) {
-            if( mode == 'create' ) {
-                entity = service.create( entity );
-            }
-            else {
-                //extract from the DataMap
-                def e = entity.data();
-                entity = service.update( e );
-            }
+        if(!MsgBox.confirm('You are about to save this record. Proceed?')) return null;
+        if( mode == 'create' ) {
+            entity = service.create( entity );
+        }
+        else {
+            //extract from the DataMap
+            def e = entity.data();
+            entity = service.update( e );
         }
         mode = "read";
         try {
@@ -144,13 +156,19 @@ public class CrudFormModel {
         //formPanel.reload();
     }
     
-    def showDropdownMenu() {
-        def op = new PopupMenuOpener();
-        op.add( new Opener(caption:'New', action:'create', target:'process') );
         
-        //op.addAll( Inv.lookupOpeners("xxx:sample") );
-        op.add( new Opener(caption:'Close', action:'_close', target:'process') );
-        return op;
+}
+
+
+public class FormAction extends Action {
+    def obj;
+    def binding;
+    def execute() {
+        if( getName().startsWith("_")) {
+            binding.fireNavigation(getName());
+        }
+        else {
+            return obj.invokeMethod(getName(), null);
+        }
     }
-        
 }

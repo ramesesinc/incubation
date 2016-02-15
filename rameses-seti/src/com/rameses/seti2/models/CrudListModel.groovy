@@ -176,7 +176,7 @@ public class CrudListModel {
     def listHandler = [
         getColumnList: {
             if( schema == null )
-                throw new Exception("schema is null. Please call invoke method")
+                throw new Exception("schema is null. Please call init method")
             def zcols = [];
             for( c in cols.findAll{it.selected == true} ) {
                 def cc = [:];
