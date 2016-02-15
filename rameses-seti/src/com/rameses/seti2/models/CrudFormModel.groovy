@@ -156,7 +156,14 @@ public class CrudFormModel {
         //formPanel.reload();
     }
     
+    def showInfo() {
+        throw new Exception("No info handler found");
+    }
         
+    def showHelp() {
+        throw new Exception("No help handler found");
+    }
+
 }
 
 
