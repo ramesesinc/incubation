@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.rameses.osiris3.report;
+package com.rameses.osiris2.report;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;

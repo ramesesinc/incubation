@@ -1,0 +1,12 @@
+<workunit>
+    <invokers>
+        <invoker type="dynamic_report:print" action="preview" />
+        <invoker type="reportActions" caption="Close" action="_close" />
+    </invokers>
+    
+    <code class="com.rameses.osiris2.report.DynamicReportFormModel"/>
+        
+    <pages>
+        <page name="report" template="com.rameses.osiris2.reports.templates.ReportViewPage"/>
+    </pages>
+</workunit>  

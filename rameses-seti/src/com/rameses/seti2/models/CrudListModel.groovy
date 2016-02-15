@@ -237,7 +237,8 @@ public class CrudListModel {
             else {
                 whereStatement = null;       
             }
-            listHandler.reload(); 
+            //we call doSearch to set the start at 0
+            listHandler.doSearch(); 
         }
         return Inv.lookupOpener( "crud:showcriteria", [cols: cols, handler:h, criteriaList: criteriaList] );
     }
@@ -322,9 +323,11 @@ public class CrudListModel {
             }
             i=i+50;
         }
-        println "size of buffer " + buffList.size(); 
-        return null;
-        //return Inv.lookupOpener( "crudlist:print", [reportData:buffList] );
+        def reportModel = [
+            title: formTitle,
+            columns : cols.findAll{ it.selected == true }
+        ]
+        return Inv.lookupOpener( "dynamic_report:print", [reportData:buffList, reportModel:reportModel] );
     }
     
     void search() {

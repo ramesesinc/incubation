@@ -8,6 +8,7 @@ package com.rameses.seti2.views;
 
 
 import com.rameses.osiris2.themes.OKCancelPage;
+import com.rameses.rcp.common.PageListModel;
 import com.rameses.rcp.ui.annotations.Template;
 import java.awt.Component;
 import java.awt.Container;
@@ -29,7 +30,7 @@ public class CrudLookupPage extends javax.swing.JPanel {
         sidebarpanel.setName("sidebar");
         sidebarpanel.setLayout(new SideBarLayout()); 
         rightsidebarpanel.setName("rightsidebar");
-        rightsidebarpanel.setLayout(new SideBarLayout());         
+        rightsidebarpanel.setLayout(new SideBarLayout());    
     }
     
     /** This method is called from within the constructor to

@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.rameses.osiris3.report;
+package com.rameses.osiris2.report;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,6 +45,9 @@ public class SimpleTableReport {
     public ReportColumn addColumn(String caption, String name, Class fieldType, int width ) {
         ReportColumn rc = new ReportColumn();
         rc.setCaption(caption);
+        if(fieldType==null || fieldType == Object.class) {
+            fieldType = String.class;
+        }
         rc.setFieldType(fieldType);
         rc.setName(name);
         rc.setWidth(width);

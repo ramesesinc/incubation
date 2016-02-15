@@ -9,6 +9,8 @@
 
 package com.rameses.osiris3.schema;
 
+import java.util.Map;
+
 /**
  *
  * @author elmo
@@ -132,6 +134,15 @@ public class SimpleField extends SchemaField implements SimpleFieldTypes {
     public Object getDefaultValue() {
         return null;
         //returns the default value specified.
+    }
+    
+    public  Map toMap() {
+        Map map = super.toMap();
+        try {
+            map.put("datatypeClass",getDataTypeClass());
+        }
+        catch(Exception ign){;}
+        return map;
     }
     
 }
