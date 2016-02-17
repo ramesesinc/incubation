@@ -84,7 +84,7 @@ public class CrudFormModel {
             op.addAll( Inv.lookupOpeners(schemaName+":form:menuActions") );
         }
         catch(Exception ign){;}
-        op.add( new FormAction(caption:'Close', name:'_close', obj:this, binding: binding) );
+        op.add( new com.rameses.seti2.models.PopupAction(caption:'Close', name:'_close', obj:this, binding: binding) );
         return op;
     }
     
@@ -164,18 +164,30 @@ public class CrudFormModel {
         throw new Exception("No help handler found");
     }
 
-}
-
-
-public class FormAction extends Action {
-    def obj;
-    def binding;
-    def execute() {
-        if( getName().startsWith("_")) {
-            binding.fireNavigation(getName());
-        }
-        else {
-            return obj.invokeMethod(getName(), null);
+    def moveUp() {
+        if( caller?.listHandler ) {
+            caller.listHandler.moveBackRecord();
+            if( caller.selectedEntity ) {
+                entity = caller.selectedEntity;
+                return open();
+            }
+            else {
+                return "_close";
+            }
         }
     }
+
+    def moveDown() {
+        if( caller?.listHandler ) {
+            caller.listHandler.moveNextRecord();
+            if( caller.selectedEntity ) {
+                entity = caller.selectedEntity;
+                return open();
+            }
+            else {
+                return "_close";
+            }
+        }
+    }
+    
 }

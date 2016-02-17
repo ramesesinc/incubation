@@ -77,6 +77,13 @@ public class EntityManager {
         return model;
     }
     
+    //this should be called after every call.
+    private void clearModel() {
+        SchemaElement elem = schemaManager.getElement(this.schemaName);
+        model = new EntityManagerModel(elem);
+    }
+
+    
     /**************************************************************************
      *  CREATE
      **************************************************************************/ 
@@ -91,6 +98,7 @@ public class EntityManager {
             if(vr.hasErrors()) throw new Exception(vr.toString());
             //EntityValidator.validate(mdata, getModel().getElement());
             processor.create(getModel(), mdata);
+            clearModel();
             return mdata;
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
@@ -118,6 +126,7 @@ public class EntityManager {
                 //EntityValidator.validate(mdata, getModel().getElement());
             //}
             processor.create(getModel(), mdata);
+            clearModel();
             return mdata;
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
@@ -128,7 +137,9 @@ public class EntityManager {
         try {
             getModel().setStart(start);
             getModel().setLimit(size);
-            return processor.fetchList(getModel());
+            List list = processor.fetchList(getModel());
+            clearModel();
+            return list;
         }
         catch(Exception e) {
             throw new RuntimeException(e.getMessage(), e);
@@ -138,7 +149,9 @@ public class EntityManager {
     //default list size is 50
     public List list() throws Exception {
         try {
-            return processor.fetchList(getModel());
+            List list = processor.fetchList(getModel());
+            clearModel();
+            return list;
         }
         catch(Exception e) {
             throw new RuntimeException(e.getMessage(), e);
@@ -158,7 +171,9 @@ public class EntityManager {
             if( !getModel().hasCriteria() ) {
                 throw new RuntimeException("Please specify a criteria, finder or where element for first method");
             }
-            return processor.fetchFirst(getModel());
+            Map m=  processor.fetchFirst(getModel());
+            clearModel();
+            return m;
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
         }
@@ -209,6 +224,7 @@ public class EntityManager {
         getModel().getFinders().putAll(finders);
     }
     
+    
     /**
      * applicable for updates with mapped parameters for example
      * SET amount = amount + :amount. 
@@ -221,7 +237,9 @@ public class EntityManager {
     public Object update(Map data, Map params) {
         try {
             buildFindersFromPrimaryKeys((Map)data);
-            return processor.update(getModel(), (Map)data, params);
+            Object p = processor.update(getModel(), (Map)data, params);
+            clearModel();
+            return p;
         }
         catch(Exception e) {
             throw new RuntimeException(e.getMessage(), e.getCause());
@@ -237,7 +255,9 @@ public class EntityManager {
                 throw new Exception("EntityManager.update Data must be an instanceof Map ");
             }
             buildFindersFromPrimaryKeys((Map)data);
-            return processor.update(getModel(), (Map)data);
+            Object p = processor.update(getModel(), (Map)data);
+            clearModel();
+            return p;
         }
         catch(Exception e) {
             throw new RuntimeException(e.getMessage(), e.getCause());
@@ -276,7 +296,9 @@ public class EntityManager {
             } 
             */ 
             buildFindersFromPrimaryKeys((Map)data);
-            return processor.update(getModel(), mdata);
+            Object p = processor.update(getModel(), mdata);
+            clearModel();
+            return p;
         } 
         catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e.getCause());
@@ -294,6 +316,7 @@ public class EntityManager {
                 throw new RuntimeException("Please specify a criteria, finder or where element for delete");
             }
             processor.delete(getModel());
+            clearModel();
         }
         catch(Exception e) {
             throw new RuntimeException(e.getMessage());
@@ -311,6 +334,7 @@ public class EntityManager {
             }
             buildFindersFromPrimaryKeys((Map)data);
             processor.delete(getModel());
+            clearModel();
         } catch (Exception ex) {
             throw new RuntimeException(ex.getMessage(), ex);
         }
@@ -559,5 +583,10 @@ public class EntityManager {
     public SqlExpression createExpr( String statement ) {
         return new SqlExpression(statement);
     }
+    
+    public EntityManager join(EntityManager em, Map joinKeys) {
+        return this;
+    }
+    
     
 }

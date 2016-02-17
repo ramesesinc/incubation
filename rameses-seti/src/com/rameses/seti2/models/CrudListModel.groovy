@@ -334,25 +334,14 @@ public class CrudListModel {
         throw new Exception("Search not yet implemented");
     }
 
-    def showDropdownMenu() {
+    def showMenu() {
         def op = new PopupMenuOpener();
-        op.add( new ListAction(caption:'New', name:'create', obj:this, binding: binding) );
-        op.addAll( Inv.lookupOpeners(schemaName+":list:menuActions") );
-        op.add( new ListAction(caption:'Close', name:'_close', obj:this, binding: binding) );
+        //op.add( new ListAction(caption:'New', name:'create', obj:this, binding: binding) );
+        try {
+            op.addAll( Inv.lookupOpeners(schemaName+":list:menuActions") );
+        } catch(Throwable ign){;}
+        
+        op.add( new com.rameses.seti2.models.PopupAction(caption:'Close', name:'_close', obj:this, binding:binding) );
         return op;
-    }
-    
-}
-
-public class ListAction extends Action {
-    def obj;
-    def binding;
-    def execute() {
-        if( getName().startsWith("_")) {
-            binding.fireNavigation(getName());
-        }
-        else {
-            return obj.invokeMethod(getName(), null);
-        }
     }
 }

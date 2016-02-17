@@ -4,6 +4,9 @@
  */
 package com.rameses.seti2.views;
 
+import com.rameses.rcp.common.PageListModel;
+
+
 /**
  *
  * @author dell
@@ -16,15 +19,10 @@ public class CrudFormPage extends javax.swing.JPanel {
     public CrudFormPage() {
         initComponents();
         btnSave.setToolTipText("Save");
-        btnSave.setAccelerator("ctrl S");
         btnCreate.setToolTipText("New");
-        btnCreate.setAccelerator("ctrl N");
         btnEdit.setToolTipText("Edit");
-        btnEdit.setAccelerator("ctrl E");
         btnUndo.setToolTipText("Undo");
-        btnUndo.setAccelerator("ctrl U");
         btnCancel.setToolTipText("Cancel Edit");
-        btnCancel.setAccelerator("ctrl C");
     }
 
     /**
@@ -52,6 +50,8 @@ public class CrudFormPage extends javax.swing.JPanel {
         btnUndo = new com.rameses.rcp.control.XButton();
         btnCancel = new com.rameses.rcp.control.XButton();
         xActionBar1 = new com.rameses.rcp.control.XActionBar();
+        btnUp = new com.rameses.rcp.control.XButton();
+        btnDown = new com.rameses.rcp.control.XButton();
 
         setLayout(new java.awt.BorderLayout());
 
@@ -76,7 +76,7 @@ public class CrudFormPage extends javax.swing.JPanel {
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
+            .addGap(0, 727, Short.MAX_VALUE)
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -122,7 +122,7 @@ public class CrudFormPage extends javax.swing.JPanel {
             jPanel3Layout.setHorizontalGroup(
                 jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(jPanel3Layout.createSequentialGroup()
-                    .addComponent(xLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 366, Short.MAX_VALUE)
+                    .addComponent(xLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 669, Short.MAX_VALUE)
                     .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                     .addComponent(jToolBar3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
             );
@@ -145,6 +145,7 @@ public class CrudFormPage extends javax.swing.JPanel {
             btnCancel1.setName("showMenu"); // NOI18N
             jToolBar1.add(btnCancel1);
 
+            btnCreate.setAccelerator("ctrl N");
             btnCreate.setCaption("");
             btnCreate.setFocusable(false);
             btnCreate.setIconResource("images/toolbars/create.png");
@@ -152,6 +153,7 @@ public class CrudFormPage extends javax.swing.JPanel {
             btnCreate.setVisibleWhen("#{mode=='read'}");
             jToolBar1.add(btnCreate);
 
+            btnEdit.setAccelerator("ctrl E");
             btnEdit.setCaption("");
             btnEdit.setFocusable(false);
             btnEdit.setIconResource("images/toolbars/edit.png");
@@ -159,6 +161,7 @@ public class CrudFormPage extends javax.swing.JPanel {
             btnEdit.setVisibleWhen("#{mode=='read'}");
             jToolBar1.add(btnEdit);
 
+            btnSave.setAccelerator("ctrl S");
             btnSave.setCaption("");
             btnSave.setFocusable(false);
             btnSave.setIconResource("images/toolbars/save.png");
@@ -166,6 +169,7 @@ public class CrudFormPage extends javax.swing.JPanel {
             btnSave.setVisibleWhen("#{mode!='read'}");
             jToolBar1.add(btnSave);
 
+            btnUndo.setAccelerator("ctrl U");
             btnUndo.setCaption("");
             btnUndo.setFocusable(false);
             btnUndo.setIconResource("images/toolbars/undo.png");
@@ -186,6 +190,18 @@ public class CrudFormPage extends javax.swing.JPanel {
             xActionBar1.setName("extActions"); // NOI18N
             jToolBar1.add(xActionBar1);
 
+            btnUp.setFocusable(false);
+            btnUp.setIconResource("images/toolbars/arrow_up.png");
+            btnUp.setName("moveUp"); // NOI18N
+            btnUp.setVisibleWhen("#{mode=='read'}");
+            jToolBar1.add(btnUp);
+
+            btnDown.setFocusable(false);
+            btnDown.setIconResource("images/toolbars/arrow_down.png");
+            btnDown.setName("moveDown"); // NOI18N
+            btnDown.setVisibleWhen("#{mode=='read'}");
+            jToolBar1.add(btnDown);
+
             jPanel2.add(jToolBar1);
 
             add(jPanel2, java.awt.BorderLayout.NORTH);
@@ -194,9 +210,11 @@ public class CrudFormPage extends javax.swing.JPanel {
     private com.rameses.rcp.control.XButton btnCancel;
     private com.rameses.rcp.control.XButton btnCancel1;
     private com.rameses.rcp.control.XButton btnCreate;
+    private com.rameses.rcp.control.XButton btnDown;
     private com.rameses.rcp.control.XButton btnEdit;
     private com.rameses.rcp.control.XButton btnSave;
     private com.rameses.rcp.control.XButton btnUndo;
+    private com.rameses.rcp.control.XButton btnUp;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;

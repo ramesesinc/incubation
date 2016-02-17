@@ -5,12 +5,13 @@
 package com.rameses.osiris2.themes;
 
 import com.rameses.rcp.ui.annotations.Template;
+import com.rameses.seti2.views.CrudListPage;
 
 /**
  *
  * @author dell
  */
-@Template(value=ListPage.class, target="sidebar")
+@Template(value=CrudListPage.class, target="sidebar")
 public class NodeListPage extends javax.swing.JPanel {
 
     /**
@@ -32,6 +33,13 @@ public class NodeListPage extends javax.swing.JPanel {
         jScrollPane1 = new javax.swing.JScrollPane();
         xList1 = new com.rameses.rcp.control.XList();
 
+        com.rameses.rcp.control.border.XLineBorder xLineBorder1 = new com.rameses.rcp.control.border.XLineBorder();
+        xLineBorder1.setHideRight(true);
+        xLineBorder1.setLineColor(new java.awt.Color(204, 204, 204));
+        setBorder(xLineBorder1);
+
+        jScrollPane1.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+
         xList1.setExpression("#{item.title}");
         xList1.setItems("nodeList");
         xList1.setName("selectedNode"); // NOI18N
@@ -41,11 +49,11 @@ public class NodeListPage extends javax.swing.JPanel {
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 127, Short.MAX_VALUE)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 155, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 383, Short.MAX_VALUE)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 381, Short.MAX_VALUE)
         );
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
