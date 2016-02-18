@@ -535,9 +535,11 @@ public class EntityManager {
         }
         else if(args instanceof Object[]) {
             Object[] ao = (Object[])args;
-            if(! (ao[0] instanceof Map) ) 
-                throw new Exception("Unrecognied parameter for invokeSqlMethod. Must be map or Object[]");
-            m = (Map) ao[0] ;
+            if( ao.length > 0 ) {
+                if(! (ao[0] instanceof Map) ) 
+                    throw new Exception("Unrecognied parameter for invokeSqlMethod. Must be map or Object[]");
+                m = (Map) ao[0] ;
+            }
         }
         else if (args instanceof Map)  {
              m = (Map)args;

@@ -133,7 +133,7 @@ public class CrudListModel {
         for( ic in _includeCols.split(",") ) {
             if(ic == "*") ic = ".*";
             for( fld in schema.columns ) {
-                if(fld.primary || fld.jointype ) continue;
+                if(fld.jointype ) continue;
                 if(!(fld.visible==null || fld.visible=='true' )) continue;
                 if(fld.name.matches( ic.trim()) ) {
                     includeCols << fld;
