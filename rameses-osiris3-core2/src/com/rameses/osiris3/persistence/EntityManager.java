@@ -326,7 +326,9 @@ public class EntityManager {
     public void delete(String schemaName) {
         delete(schemaName, null);
     }
-
+    public void delete( Map data ) {
+        delete(schemaName, data);
+    }
     public void delete(String schemaName, Object data) {
         try {
             if( !schemaName.equals(this.schemaName) ) {
@@ -399,6 +401,9 @@ public class EntityManager {
      * insert the record. update = if true will update the record. if
      * create=true and update=false, this is insert only. you get the picture.
      */
+    public Object save(Object data) {
+        return save(this.schemaName, data);
+    }    
     public Object save(String schemaName, Object data) {
         return save(schemaName, data, null);
     }
@@ -421,7 +426,11 @@ public class EntityManager {
 
     public Object save(String schemaName, Object data, boolean create, boolean update, Map vars, UpdateChangeHandler vhandler, boolean validate) {
         if (create == true && update == true) {
-            Object test = read(schemaName, data, vars);
+            Object test = null; 
+            try { 
+                test = read(schemaName, data, vars);
+            } catch(Throwable t){;} 
+            
             if (test == null || ((test instanceof Map) && ((Map) test).isEmpty())) {
                 return create(schemaName, data, validate);
             } else {
@@ -534,7 +543,7 @@ public class EntityManager {
             m = null;
         }
         else if(args instanceof Object[]) {
-            Object[] ao = (Object[])args;
+            Object[] ao = (Object[])args; 
             if( ao.length > 0 ) {
                 if(! (ao[0] instanceof Map) ) 
                     throw new Exception("Unrecognied parameter for invokeSqlMethod. Must be map or Object[]");
@@ -548,7 +557,8 @@ public class EntityManager {
             throw new Exception("Unrecognied parameter for invokeSqlMethod. Must be map or Object[]");
         }
         if( methodName.startsWith("find") || methodName.startsWith("get") ) {
-            SqlQuery sq = sqlContext.createNamedQuery( finalMethodName );    
+            SqlQuery sq = sqlContext.createNamedQuery( finalMethodName );   
+            sq.setFetchHandler(new DataMapFetchHandler(getModel().getSchemaView())); 
             if(m!=null) {
                 sq.setVars(m).setParameters(m);
                 if(m.containsKey("_start")) {

@@ -285,6 +285,11 @@ public abstract class AbstractSqlDialect implements SqlDialect {
             sb.append( " ORDER BY ");
             int i = 0;
             for( Field f: model.getOrderFields() ) {
+                if (f.isPrimary()) {
+                    //this is only temporary 
+                    continue;
+                } 
+                
                 if(i++>0) sb.append(",");
                 if( ValueUtil.isEmpty(f.getExpr()) ) {
                     sb.append( getDelimiters()[0]+f.getTablealias()+getDelimiters()[1]+"." );
