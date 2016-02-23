@@ -4,7 +4,7 @@
  */
 package com.rameses.seti2.views;
 
-import com.rameses.rcp.common.PageListModel;
+import com.rameses.rcp.common.EditorListModel;
 
 
 /**
@@ -23,8 +23,21 @@ public class CrudFormPage extends javax.swing.JPanel {
         btnEdit.setToolTipText("Edit");
         btnUndo.setToolTipText("Undo");
         btnCancel.setToolTipText("Cancel Edit");
+        
+        btnInfo.setToolTipText("Info");
+        btnDebug.setToolTipText("Debug Info");
+        btnHelp.setToolTipText("Help");
     }
 
+    class MyItem extends EditorListModel {
+
+        
+        
+        
+        
+    }
+    
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -40,8 +53,10 @@ public class CrudFormPage extends javax.swing.JPanel {
         jPanel3 = new javax.swing.JPanel();
         xLabel1 = new com.rameses.rcp.control.XLabel();
         jToolBar3 = new javax.swing.JToolBar();
-        xButton1 = new com.rameses.rcp.control.XButton();
-        xButton2 = new com.rameses.rcp.control.XButton();
+        btnDebug = new com.rameses.rcp.control.XButton();
+        btnHelp = new com.rameses.rcp.control.XButton();
+        btnInfo = new com.rameses.rcp.control.XButton();
+        xButton3 = new com.rameses.rcp.control.XButton();
         jToolBar1 = new javax.swing.JToolBar();
         btnCancel1 = new com.rameses.rcp.control.XButton();
         btnCreate = new com.rameses.rcp.control.XButton();
@@ -101,117 +116,146 @@ public class CrudFormPage extends javax.swing.JPanel {
         jToolBar3.setRollover(true);
         jToolBar3.setOpaque(false);
 
-        xButton1.setBackground(new java.awt.Color(255, 255, 255));
-        xButton1.setCaption("\\");
-            xButton1.setFocusable(false);
-            xButton1.setIconResource("images/help.png");
-            xButton1.setName("showHelp"); // NOI18N
-            xButton1.setOpaque(true);
-            jToolBar3.add(xButton1);
+        btnDebug.setBackground(new java.awt.Color(255, 255, 255));
+        btnDebug.setCaption("\\");
+            btnDebug.setFocusable(false);
+            btnDebug.setIconResource("images/debug.png");
+            btnDebug.setName("showDebugInfo"); // NOI18N
+            btnDebug.setOpaque(true);
+            btnDebug.setVisibleWhen("#{ canDebug == true }");
+            jToolBar3.add(btnDebug);
 
-            xButton2.setBackground(new java.awt.Color(255, 255, 255));
-            xButton2.setCaption("");
-            xButton2.setFocusable(false);
-            xButton2.setIconResource("images/info.png");
-            xButton2.setName("showInfo"); // NOI18N
-            xButton2.setOpaque(true);
-            jToolBar3.add(xButton2);
+            btnHelp.setBackground(new java.awt.Color(255, 255, 255));
+            btnHelp.setCaption("\\");
+                btnHelp.setFocusable(false);
+                btnHelp.setIconResource("images/help.png");
+                btnHelp.setName("showHelp"); // NOI18N
+                btnHelp.setOpaque(true);
+                jToolBar3.add(btnHelp);
 
-            javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
-            jPanel3.setLayout(jPanel3Layout);
-            jPanel3Layout.setHorizontalGroup(
-                jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(jPanel3Layout.createSequentialGroup()
-                    .addComponent(xLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 669, Short.MAX_VALUE)
-                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                    .addComponent(jToolBar3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-            );
-            jPanel3Layout.setVerticalGroup(
-                jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addComponent(xLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 35, Short.MAX_VALUE)
-                .addComponent(jToolBar3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            );
+                btnInfo.setBackground(new java.awt.Color(255, 255, 255));
+                btnInfo.setCaption("");
+                btnInfo.setFocusable(false);
+                btnInfo.setIconResource("images/info.png");
+                btnInfo.setName("showInfo"); // NOI18N
+                btnInfo.setOpaque(true);
+                jToolBar3.add(btnInfo);
 
-            jPanel2.add(jPanel3);
+                xButton3.setBackground(new java.awt.Color(255, 255, 255));
+                xButton3.setCaption("\\");
+                    xButton3.setFocusable(false);
+                    xButton3.setIconResource("images/help.png");
+                    xButton3.setName("showHelp"); // NOI18N
+                    xButton3.setOpaque(true);
 
-            jToolBar1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 204)));
-            jToolBar1.setRollover(true);
-            jToolBar1.setPreferredSize(new java.awt.Dimension(100, 30));
+                    javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
+                    jPanel3.setLayout(jPanel3Layout);
+                    jPanel3Layout.setHorizontalGroup(
+                        jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(jPanel3Layout.createSequentialGroup()
+                            .addComponent(xLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 646, Short.MAX_VALUE)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                            .addComponent(jToolBar3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel3Layout.createSequentialGroup()
+                                .addGap(0, 352, Short.MAX_VALUE)
+                                .addComponent(xButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(0, 352, Short.MAX_VALUE)))
+                    );
+                    jPanel3Layout.setVerticalGroup(
+                        jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addComponent(xLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 35, Short.MAX_VALUE)
+                        .addComponent(jToolBar3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel3Layout.createSequentialGroup()
+                                .addGap(0, 7, Short.MAX_VALUE)
+                                .addComponent(xButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 21, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(0, 7, Short.MAX_VALUE)))
+                    );
 
-            btnCancel1.setCaption("");
-            btnCancel1.setFocusable(false);
-            btnCancel1.setIconResource("images/menu.png");
-            btnCancel1.setImmediate(true);
-            btnCancel1.setName("showMenu"); // NOI18N
-            jToolBar1.add(btnCancel1);
+                    jPanel2.add(jPanel3);
 
-            btnCreate.setAccelerator("ctrl N");
-            btnCreate.setCaption("");
-            btnCreate.setFocusable(false);
-            btnCreate.setIconResource("images/toolbars/create.png");
-            btnCreate.setName("create"); // NOI18N
-            btnCreate.setVisibleWhen("#{mode=='read'}");
-            jToolBar1.add(btnCreate);
+                    jToolBar1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 204)));
+                    jToolBar1.setRollover(true);
+                    jToolBar1.setPreferredSize(new java.awt.Dimension(100, 30));
 
-            btnEdit.setAccelerator("ctrl E");
-            btnEdit.setCaption("");
-            btnEdit.setFocusable(false);
-            btnEdit.setIconResource("images/toolbars/edit.png");
-            btnEdit.setName("edit"); // NOI18N
-            btnEdit.setVisibleWhen("#{mode=='read'}");
-            jToolBar1.add(btnEdit);
+                    btnCancel1.setCaption("");
+                    btnCancel1.setFocusable(false);
+                    btnCancel1.setIconResource("images/menu.png");
+                    btnCancel1.setImmediate(true);
+                    btnCancel1.setName("showMenu"); // NOI18N
+                    jToolBar1.add(btnCancel1);
 
-            btnSave.setAccelerator("ctrl S");
-            btnSave.setCaption("");
-            btnSave.setFocusable(false);
-            btnSave.setIconResource("images/toolbars/save.png");
-            btnSave.setName("save"); // NOI18N
-            btnSave.setVisibleWhen("#{mode!='read'}");
-            jToolBar1.add(btnSave);
+                    btnCreate.setAccelerator("ctrl N");
+                    btnCreate.setCaption("");
+                    btnCreate.setFocusable(false);
+                    btnCreate.setIconResource("images/toolbars/create.png");
+                    btnCreate.setName("create"); // NOI18N
+                    btnCreate.setVisibleWhen("#{mode=='read'}");
+                    jToolBar1.add(btnCreate);
 
-            btnUndo.setAccelerator("ctrl U");
-            btnUndo.setCaption("");
-            btnUndo.setFocusable(false);
-            btnUndo.setIconResource("images/toolbars/undo.png");
-            btnUndo.setImmediate(true);
-            btnUndo.setName("undo"); // NOI18N
-            btnUndo.setVisibleWhen("#{mode!='read'}");
-            jToolBar1.add(btnUndo);
+                    btnEdit.setAccelerator("ctrl E");
+                    btnEdit.setCaption("");
+                    btnEdit.setFocusable(false);
+                    btnEdit.setIconResource("images/toolbars/edit.png");
+                    btnEdit.setName("edit"); // NOI18N
+                    btnEdit.setVisibleWhen("#{mode=='read'}");
+                    jToolBar1.add(btnEdit);
 
-            btnCancel.setCaption("");
-            btnCancel.setFocusable(false);
-            btnCancel.setIconResource("images/toolbars/cancel.png");
-            btnCancel.setImmediate(true);
-            btnCancel.setName("unedit"); // NOI18N
-            btnCancel.setVisibleWhen("#{mode=='edit'}");
-            jToolBar1.add(btnCancel);
+                    btnSave.setAccelerator("ctrl S");
+                    btnSave.setCaption("");
+                    btnSave.setFocusable(false);
+                    btnSave.setIconResource("images/toolbars/save.png");
+                    btnSave.setName("save"); // NOI18N
+                    btnSave.setVisibleWhen("#{mode!='read'}");
+                    jToolBar1.add(btnSave);
 
-            xActionBar1.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 10, 0, 0));
-            xActionBar1.setName("extActions"); // NOI18N
-            jToolBar1.add(xActionBar1);
+                    btnUndo.setAccelerator("ctrl U");
+                    btnUndo.setCaption("");
+                    btnUndo.setFocusable(false);
+                    btnUndo.setIconResource("images/toolbars/undo.png");
+                    btnUndo.setImmediate(true);
+                    btnUndo.setName("undo"); // NOI18N
+                    btnUndo.setVisibleWhen("#{mode!='read'}");
+                    jToolBar1.add(btnUndo);
 
-            btnUp.setFocusable(false);
-            btnUp.setIconResource("images/toolbars/arrow_up.png");
-            btnUp.setName("moveUp"); // NOI18N
-            btnUp.setVisibleWhen("#{mode=='read'}");
-            jToolBar1.add(btnUp);
+                    btnCancel.setCaption("");
+                    btnCancel.setFocusable(false);
+                    btnCancel.setIconResource("images/toolbars/cancel.png");
+                    btnCancel.setImmediate(true);
+                    btnCancel.setName("unedit"); // NOI18N
+                    btnCancel.setVisibleWhen("#{mode=='edit'}");
+                    jToolBar1.add(btnCancel);
 
-            btnDown.setFocusable(false);
-            btnDown.setIconResource("images/toolbars/arrow_down.png");
-            btnDown.setName("moveDown"); // NOI18N
-            btnDown.setVisibleWhen("#{mode=='read'}");
-            jToolBar1.add(btnDown);
+                    xActionBar1.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 10, 0, 0));
+                    xActionBar1.setName("extActions"); // NOI18N
+                    jToolBar1.add(xActionBar1);
 
-            jPanel2.add(jToolBar1);
+                    btnUp.setFocusable(false);
+                    btnUp.setIconResource("images/toolbars/arrow_up.png");
+                    btnUp.setName("moveUp"); // NOI18N
+                    btnUp.setVisibleWhen("#{showNavigation==true}");
+                    jToolBar1.add(btnUp);
 
-            add(jPanel2, java.awt.BorderLayout.NORTH);
-        }// </editor-fold>//GEN-END:initComponents
+                    btnDown.setFocusable(false);
+                    btnDown.setIconResource("images/toolbars/arrow_down.png");
+                    btnDown.setName("moveDown"); // NOI18N
+                    btnDown.setVisibleWhen("#{showNavigation==true}");
+                    jToolBar1.add(btnDown);
+
+                    jPanel2.add(jToolBar1);
+
+                    add(jPanel2, java.awt.BorderLayout.NORTH);
+                }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private com.rameses.rcp.control.XButton btnCancel;
     private com.rameses.rcp.control.XButton btnCancel1;
     private com.rameses.rcp.control.XButton btnCreate;
+    private com.rameses.rcp.control.XButton btnDebug;
     private com.rameses.rcp.control.XButton btnDown;
     private com.rameses.rcp.control.XButton btnEdit;
+    private com.rameses.rcp.control.XButton btnHelp;
+    private com.rameses.rcp.control.XButton btnInfo;
     private com.rameses.rcp.control.XButton btnSave;
     private com.rameses.rcp.control.XButton btnUndo;
     private com.rameses.rcp.control.XButton btnUp;
@@ -221,8 +265,7 @@ public class CrudFormPage extends javax.swing.JPanel {
     private javax.swing.JToolBar jToolBar1;
     private javax.swing.JToolBar jToolBar3;
     private com.rameses.rcp.control.XActionBar xActionBar1;
-    private com.rameses.rcp.control.XButton xButton1;
-    private com.rameses.rcp.control.XButton xButton2;
+    private com.rameses.rcp.control.XButton xButton3;
     private com.rameses.rcp.control.XLabel xLabel1;
     private com.rameses.rcp.control.XStyleRule xStyleRule1;
     // End of variables declaration//GEN-END:variables

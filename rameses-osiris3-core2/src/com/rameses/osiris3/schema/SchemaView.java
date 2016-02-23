@@ -108,6 +108,25 @@ public class SchemaView extends AbstractSchemaView {
             }
         }
         map.put("columns", flds);
+        //load one to many children.
+        if( this.getElement().getOneToManyRelationships().size() > 0  ) {
+            List list = new ArrayList();
+            for( SchemaRelation sr: this.getElement().getOneToManyRelationships() ) {
+                Map m = new HashMap();
+                m.put("name", sr.getName());
+                m.put("ref", sr.getRef());
+                m.put("required", sr.isRequired() );
+                
+                //okay we need to get the schema element columns:
+                SchemaElement subElement = this.getElement().getSchema().getSchemaManager().getElement(sr.getRef());
+                Map subSchema = subElement.createView().getSchema();
+                m.put( "columns", subSchema.get("columns"));
+                m.put( "items", subSchema.get("items"));
+                list.add(m);
+            }
+            map.put( "items", list );
+        }
+        
         return map;
         
     }    
