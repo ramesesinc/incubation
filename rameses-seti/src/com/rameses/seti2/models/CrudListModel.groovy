@@ -142,7 +142,7 @@ public class CrudListModel {
         }
         
         //establish columns to display. The tricky part here is if cols are specified
-        //it must be in the order it is specified.
+        //it must be in the order it is specified. If 
         def zcols = new LinkedHashSet();
         def _displayCols = ".*";
         if( workunit.info.workunit_properties.cols ) {
@@ -153,7 +153,11 @@ public class CrudListModel {
             for( fld in includeCols ) {
                 if(fld.name.matches( ic.trim()) ) {
                     zcols << fld;
-                    fld.selected = true;
+                    //by default primary keys will be hidden.
+                    if( fld.primary ) 
+                        fld.selected = false;
+                    else    
+                        fld.selected = true;
                 }
             }
         }

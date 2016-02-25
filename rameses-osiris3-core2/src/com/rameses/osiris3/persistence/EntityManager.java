@@ -546,7 +546,7 @@ public class EntityManager {
             Object[] ao = (Object[])args; 
             if( ao.length > 0 ) {
                 if(! (ao[0] instanceof Map) ) 
-                    throw new Exception("Unrecognied parameter for invokeSqlMethod. Must be map or Object[]");
+                    throw new Exception("Unrecognized parameter for invokeSqlMethod. Must be map or Object[]");
                 m = (Map) ao[0] ;
             }
         }
@@ -554,7 +554,7 @@ public class EntityManager {
              m = (Map)args;
         }
         else {
-            throw new Exception("Unrecognied parameter for invokeSqlMethod. Must be map or Object[]");
+            throw new Exception("Unrecognized parameter for invokeSqlMethod. Must be map or Object[]");
         }
         if( methodName.startsWith("find") || methodName.startsWith("get") ) {
             SqlQuery sq = sqlContext.createNamedQuery( finalMethodName );   

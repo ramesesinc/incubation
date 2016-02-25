@@ -1,11 +1,9 @@
-<workunit extends="com/rameses/seti2/templates/CrudForm.xml">
+<workunit>
 
     <code class="com.rameses.seti2.models.DynamicCrudFormModel"/>    
     
     <pages>
-        <page name="create" template="com.rameses.seti2.views.DynamicCrudFormPanel"/>
-        <page name="read" template="com.rameses.seti2.views.DynamicCrudFormPanel"/>
-        <page name="edit" template="com.rameses.seti2.views.DynamicCrudFormPanel"/>
+        <page template="com.rameses.seti2.views.DynamicCrudFormPanel"/>
     </pages>
     
 </workunit> 
