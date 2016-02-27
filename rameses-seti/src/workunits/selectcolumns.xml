@@ -1,6 +1,6 @@
 <workunit>
     <invokers>
-        <invoker type="crud:selectcolumns" caption="Select Column" action="init" target="popup"/>
+        <invoker type="crud:selectcolumns" caption="Select Column" target="popup"/>
     </invokers>
     
     <code>
@@ -12,13 +12,8 @@
         
         class SelectColumnController {
         
-            def schema;
             def columnList;  
             def onselect;            
-                    
-            void init() {
-                columnList = schema.columns;
-            }                
                     
             def doCancel() {
                 return "_close";
@@ -30,7 +25,6 @@
                 }
                 return "_close";
             }
-                    
         }
         ]]>
     </code>

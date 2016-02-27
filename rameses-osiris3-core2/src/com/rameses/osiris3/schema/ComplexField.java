@@ -111,7 +111,9 @@ public class ComplexField extends SchemaField implements IRelationalField {
     }
     
     public String getFieldname() {
-        return (String)super.getProperty("fieldname");
+        String fldname = (String)super.getProperty("fieldname");
+        if(fldname==null) fldname = getName();
+        return fldname;
     }
     
     public String getInversekey() {
@@ -127,6 +129,13 @@ public class ComplexField extends SchemaField implements IRelationalField {
         m.put("min", min);
         m.put("max", max);
         return m;
+    }
+
+    @Override
+    public void verify(Object val) throws Exception {
+        if( val == null && isRequired() ) {
+            throw new Exception( getCaption() + " is required.");
+        }
     }
     
     

@@ -6,5 +6,6 @@
 
     <pages>
         <page name="report" template="com.rameses.osiris2.common.ui.ReportPreviewPage" />
+        <page name="preview" template="com.rameses.osiris2.common.ui.ReportPreviewPage" />
     </pages>
 </workunit>

@@ -11,7 +11,8 @@ package com.rameses.sql.dialect;
 
 import com.rameses.osiris3.sql.AbstractSqlDialect;
 import com.rameses.osiris3.sql.SqlDialectModel;
-import com.rameses.osiris3.sql.SqlUnit;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -32,13 +33,39 @@ public class MySqlDialect extends AbstractSqlDialect {
         return sql + " LIMIT " + start + "," + limit;
     }
 
-    public String buildBasicSelectStatement(SqlDialectModel model) throws Exception {
-        String s = super.buildBasicSelectStatement(model);
-        if(model.getStart() >= 0 && model.getLimit()>0 ) {
+    public String getUpdateStatement(SqlDialectModel model) {
+        final StringBuilder sb = new StringBuilder();
+        sb.append( " UPDATE ");
+        sb.append( buildListTablesForUpdate(model));
+        sb.append( buildUpdateFieldsStatement(model, true) );
+        sb.append( " WHERE ");
+        List<String> list = new ArrayList();
+        buildJoinTablesForUpdate(model, list);
+        buildFinderStatement(model, list, true);
+        buildSingleWhereStatement(model, list, true);
+        sb.append( concatFilterStatement(list));
+        return sb.toString();
+    }
+
+    public String getDeleteStatement(SqlDialectModel model) {
+        StringBuilder sb = new StringBuilder();
+        sb.append( " DELETE FROM ");
+        sb.append( getDelimiters()[0]+ model.getTablename()+getDelimiters()[1] );
+        sb.append( " WHERE ");
+        List<String> list = new ArrayList();
+        buildFinderStatement(model, list, false);
+        buildSingleWhereStatement(model, list, false);
+        sb.append( concatFilterStatement(list));
+        return sb.toString();
+    }
+        
+    public String getSelectStatement(SqlDialectModel model) {
+        String s = super.getSelectStatement(model);
+        if(model.getStart() > 0 || model.getLimit()>0 ) {
             s += " LIMIT $P{_start}, $P{_limit}" ;
         }
         return s;
     }
-
+    
 
 }

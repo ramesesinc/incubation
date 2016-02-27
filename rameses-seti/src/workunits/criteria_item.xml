@@ -1,0 +1,12 @@
+<workunit>
+    <invokers>
+        <invoker type="criteria:item" action="init"/>
+    </invokers>
+    
+    <code class="com.rameses.seti2.models.FilterCriteriaItemModel"/>
+    
+    <pages>
+        <page template="com.rameses.seti2.views.FilterCriteriaItemPanel"/>
+    </pages>    
+    
+</workunit>  

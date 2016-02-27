@@ -23,5 +23,6 @@ public interface SimpleFieldTypes {
     public final static String INTEGER = "integer";
     public final static String LONG = "long";
     public final static String BOOLEAN = "boolean";
+    public final static String OBJECT = "object";
     
 }

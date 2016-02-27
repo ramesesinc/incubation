@@ -15,13 +15,19 @@ package com.rameses.osiris3.sql;
  * added new methods ->
  */
 public interface SqlDialect {
+    
+    String[] getDelimiters();
+    
     String getName();
     String getPagingStatement( String sql, int start, int limit, String [] pagingKeys  );
     
-    SqlUnit getCreateSqlUnit( SqlDialectModel model ) throws Exception;
-    SqlUnit getUpdateSqlUnit( SqlDialectModel model ) throws Exception;
-    SqlUnit getReadSqlUnit( SqlDialectModel model ) throws Exception;
-    SqlUnit getDeleteSqlUnit( SqlDialectModel model ) throws Exception;
-    SqlUnit getSelectSqlUnit( SqlDialectModel model ) throws Exception;
+    String getCreateStatement( SqlDialectModel model ) throws Exception;
+    String getUpdateStatement( SqlDialectModel model ) throws Exception;
+    String getReadStatement( SqlDialectModel model ) throws Exception;
+    String getDeleteStatement( SqlDialectModel model ) throws Exception;
+    String getSelectStatement( SqlDialectModel model ) throws Exception;
+    
+    SqlDialectFunction getFunction(String funcName);
+    
     
 }

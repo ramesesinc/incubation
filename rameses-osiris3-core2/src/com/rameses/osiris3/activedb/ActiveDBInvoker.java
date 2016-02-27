@@ -9,7 +9,6 @@
 
 package com.rameses.osiris3.activedb;
 
-import com.rameses.osiris3.core.Debugger;
 import com.rameses.osiris3.persistence.EntityManager;
 import com.rameses.osiris3.schema.SchemaSerializer;
 import com.rameses.osiris3.sql.SqlExecutor;
@@ -32,6 +31,7 @@ public class ActiveDBInvoker {
     
     public Object invokeMethod(String methodName, Object[] args) {
         try {
+            
             String n = schemaName;
             String subSchema = "";
             

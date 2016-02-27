@@ -3,9 +3,9 @@
  * and open the template in the editor.
  */
 
-import com.rameses.osiris3.report.ReportColumn;
-import com.rameses.osiris3.report.SimpleTableReport;
-import com.rameses.osiris3.report.SimpleTableReportBuilder;
+import com.rameses.osiris2.report.ReportColumn;
+import com.rameses.osiris2.report.SimpleTableReport;
+import com.rameses.osiris2.report.SimpleTableReportBuilder;
 import com.rameses.rcp.common.MsgBox;
 import java.math.BigDecimal;
 import java.util.ArrayList;

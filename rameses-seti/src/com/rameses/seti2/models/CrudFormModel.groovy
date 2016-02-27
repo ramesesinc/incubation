@@ -32,17 +32,25 @@ public class CrudFormModel {
     def adapter;
     def schema;
     def entity;
-    String schemaName;
     
     String role;
     String domain;
     String permission;
     
-    @FormTitle
-    def title;
-    
     def mode;
     
+    List styleRules = [];
+    
+    
+    @FormTitle
+    String getTitle() {
+        return getSchemaName();
+    }
+
+    public String getSchemaName() {
+        return workunit?.info?.workunit_properties?.schemaName;
+    }
+
     def secProvider = ClientContext.getCurrentContext().getSecurityProvider();
     
     boolean isCreateAllowed() { 
@@ -65,8 +73,22 @@ public class CrudFormModel {
         return secProvider.checkPermission( domain, role, schemaName+".edit" );
     }
 
+  
+    
+    /*
     List getExtActions() {
         return Inv.lookupActions( schemaName+":form:extActions", [entity: entity] );
+    }
+    */
+    
+    def showMenu() {
+        def op = new PopupMenuOpener();
+        try {
+            op.addAll( Inv.lookupOpeners(schemaName+":form:menuActions") );
+        }
+        catch(Exception ign){;}
+        op.add( new com.rameses.seti2.models.PopupAction(caption:'Close', name:'_close', obj:this, binding: binding) );
+        return op;
     }
     
     void initSchema() {
@@ -75,28 +97,38 @@ public class CrudFormModel {
         }   
     }
     
+    private void buildStyleRules() {
+        styleRules.clear();
+        styleRules << new StyleRule("entity.*", "#{mode=='read'}").add("enabled", false);
+        styleRules << new StyleRule("entity.*", "#{mode!='read'}").add("enabled", true);
+        
+        //loop each editable field. for editables it is only editable during create.
+        def editables = schema.columns.findAll{ it.editable == "false" }*.name;
+        if(editables) {
+            def flds = "entity.("+editables.join("|")+")";
+            styleRules << new StyleRule( flds, "#{mode!='create'}").add("enabled",false);
+            styleRules << new StyleRule( flds, "#{mode=='create'}").add("enabled",true);
+        }
+    }
+    
+   
+    
     void init() {
         initSchema();
+        buildStyleRules();
+        buildItemHandlers();
     }
     
     def create() {
         mode = "create";
         entity = [:];
-        if(!schemaName) {
-            def  _sname = workunit.info.workunit_properties.schemaName;
-            if( _sname ) schemaName = _sname;
-        }
         entity._schemaname = schemaName;
         init();
-        return "create";
+        return null;
     }
     
     def open() {
         mode = "read";
-        if(!schemaName) {
-            def  _sname = workunit.info.workunit_properties.schemaName;
-            if( _sname ) schemaName = _sname;
-        }
         //we need to set the schemaname that will be used for open
         entity._schemaname = schemaName;
         entity = service.read( entity );
@@ -104,39 +136,38 @@ public class CrudFormModel {
         //we need to set the schema name for update.
         entity._schemaname = schemaName;
         init();
-        return "read";
+        return null;
     }
     
     def edit() {
         mode = "edit";
         entity = new DataMap( entity );
-        return "edit";
+        return null;
     }
     
     def unedit() {
         mode = "read";
         entity.unedit();
         entity = entity.data();
-        return "read";
+        return null;
     }
     
     def save() {
-        if(MsgBox.confirm('You are about to save this record. Proceed?')) {
-            if( mode == 'create' ) {
-                entity = service.create( entity );
-            }
-            else {
-                //extract from the DataMap
-                def e = entity.data();
-                entity = service.update( e );
-            }
+        if(!MsgBox.confirm('You are about to save this record. Proceed?')) return null;
+        if( mode == 'create' ) {
+            entity = service.create( entity );
+        }
+        else {
+            //extract from the DataMap
+            def e = entity.data();
+            entity = service.update( e );
         }
         mode = "read";
         try {
             caller?.refresh();
         }
         catch(ign){;}
-        return "read";
+        return null;
     }
     
     void undo() {
@@ -144,13 +175,161 @@ public class CrudFormModel {
         //formPanel.reload();
     }
     
-    def showDropdownMenu() {
-        def op = new PopupMenuOpener();
-        op.add( new Opener(caption:'New', action:'create', target:'process') );
-        
-        //op.addAll( Inv.lookupOpeners("xxx:sample") );
-        op.add( new Opener(caption:'Close', action:'_close', target:'process') );
-        return op;
+     /***************************************************************************
+    * upper right buttons
+    ***************************************************************************/
+    boolean getCanDebug() { 
+        return ClientContext.getCurrentContext().getAppEnv().get("app.debug");
+    }
+
+    def showDebugInfo() {
+        def sb = new StringBuilder();
+        entity.each { k,v->
+            sb.append( k+"="+v + "\n");
+        }
+        MsgBox.alert( sb.toString() );
+    }
+    
+    def showInfo() {
+        throw new Exception("No info handler found");
     }
         
+    def showHelp() {
+        throw new Exception("No help handler found");
+    }
+    
+    /*************************************************************************
+    * Navigation Controls
+    **************************************************************************/
+    boolean getShowNavigation() {
+        if( !caller?.listHandler ) return false;
+        return (mode == 'read');
+    }
+    
+    def moveUp() {
+        if( caller?.listHandler ) {
+            caller.listHandler.moveBackRecord();
+            if( caller.selectedEntity ) {
+                entity = caller.selectedEntity;
+                return open();
+            }
+            else {
+                return "_close";
+            }
+        }
+    }
+
+    def moveDown() {
+        if( caller?.listHandler ) {
+            caller.listHandler.moveNextRecord();
+            if( caller.selectedEntity ) {
+                entity = caller.selectedEntity;
+                return open();
+            }
+            else {
+                return "_close";
+            }
+        }
+    }
+    
+    /*************************************************************************
+    * This part here is for item handlers.  
+    **************************************************************************/
+    def itemHandlers = [:];
+   
+    private void buildItemHandlers() {
+        itemHandlers.clear();
+        if( schema.items ) {
+            schema.items.each { item->
+                def s = new SubItemHandler( subSchema: item, handler: itemHandler );
+                itemHandlers.put( item.name, s );
+            }
+        }
+    }
+    
+    public def openItem(def itemName, def item, def colName) {
+        MsgBox.alert( "open item " + itemName + " item " + item + " col "+colName);
+        return null;
+    }
+    
+    public boolean beforeColumnUpdate( def name, def colName, def  item, def newValue ) {
+       return true;
+    }
+    
+    public void afterColumnUpdate(def name, def columnName, Object item) {
+        
+    }
+    
+    def itemHandler = [ 
+        fetchList: { name, params ->
+            if( entity.get(name)==null ) entity.put(name, [] );
+            return entity.get(name);
+        },
+        addItem : {name, item->
+            entity.get(name).add( item );
+        },       
+        removeItem : {name, item->
+            String dname = name +"_deleted";
+            if( entity.get(dname) == null ) entity.put(dname, item);
+            entity.get(name).remove( item );
+        },
+        openItem: { name, item, colName ->
+            return openItem(subSchema.name, item, colName);
+        },
+        beforeColumnUpdate: { name, item, colName, newValue ->
+            return beforeColumnUpdate( name, colName, item, newValue ); 
+        },
+        afterColumnUpdate: {name, item, colName ->
+            afterColumnUpdate( name, colName, item );
+        }    
+    ];    
+    
+  
+}
+
+
+public class SubItemHandler extends EditorListModel {
+    
+    def subSchema;
+    def handler;
+    def cols = [];
+    
+    public List<Map> getColumnList() {
+        cols.clear();
+        for( i in subSchema.columns ) {
+            if( i.visible == 'false' ) continue;
+            def c = [name: i.name, caption: i.caption];
+            c.type = 'text';
+            c.editable = true;
+            cols << c;
+        }
+        return cols;
+    }
+    
+    public List fetchList(Map params) {
+        return handler.fetchList(subSchema.name, params);
+    }
+    
+    protected void onAddItem(Object item) {
+        handler.addItem(subSchema.name, item);
+    }        
+
+    protected boolean onRemoveItem(Object item) {
+        handler.removeItem(subSchema.name, item);
+        return true;
+    } 
+        
+    protected Object onOpenItem(Object item, String columnName) {
+        return handler.openItem(subSchema.name, item, columnName);
+    }
+
+    protected boolean beforeColumnUpdate(Object item, String columnName, Object newValue) {
+        return handler.beforeColumnUpdate(subSchema.name, item, columnName, newValue);
+    }
+
+    protected void afterColumnUpdate(Object item, String columnName) {
+        handler.afterColumnUpdate(subSchema.name, item, columnName);
+    }
+    
+   
 }

@@ -1,25 +1,17 @@
 <schema>
-    <element tablename="entity">
-        <field name="objid" primary="true" prefix="ENT"/>
-        <field name="entityno" />
+    <element tablename="entity" extends="abstract_entity">
+        <field name="objid" primary="true" prefix="AID"/>
         <field name="name" required="true"/>
-        <field name="mailingaddress" />
-        <!--
-        <complex name="addresses" required="true" jointype="one-to-many" ref="entity_address">
-            <key field="objid" target="parentid"/>
-        </complex>    
-        -->
-        
-        <complex name="address" required="true" jointype="one-to-one" ref="entity_address">
+        <field name="entityno" required="true"/>
+        <field name="state" required="true" editable="false"/>
+        <complex name="address" jointype="one-to-one" ref="entity_address" required="true">
             <key field="address_objid" target="objid"/>
-        </complex>    
-        
-        <complex name="type" required="true" jointype="many-to-one" ref="orgtype">
-            <key field="typeid" target="objid"/>
-        </complex>   
-        
-        <field name="address_text" /> 
-        <field name="address_barangay_objid" />
+        </complex>
+        <complex name="modifiedby" jointype="many-to-one" ref="sys_user" required="true">
+            <key field="modifiedbyid" target="objid"/>
+        </complex> 
+        <complex name="info" serializer="default"/>  
+        <field name="dtcreated" type="date"/>     
     </element>
 </schema>
 

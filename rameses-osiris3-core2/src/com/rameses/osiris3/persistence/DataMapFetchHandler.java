@@ -4,7 +4,8 @@
  */
 package com.rameses.osiris3.persistence;
 
-import com.rameses.osiris3.schema.SchemaUtil;
+import com.rameses.osiris3.schema.SchemaView;
+import com.rameses.osiris3.schema.SchemaViewField;
 import com.rameses.osiris3.sql.FetchHandler;
 import com.rameses.osiris3.sql.FieldToMap;
 import com.rameses.util.ObjectDeserializer;
@@ -21,27 +22,19 @@ import java.util.Map;
  * @author dell
  */
 public class DataMapFetchHandler implements FetchHandler {
-
-    private List columns;
-    private Map<String, ObjectDeserializer> serializers = new HashMap();
     
-    public DataMapFetchHandler(List cols) {
-        this.columns = cols;
+    private SchemaView schemaView;
+    
+    public DataMapFetchHandler( SchemaView vw ) {
+        schemaView = vw;
     }
     
     public List start() {
-        Map schema = new HashMap();
-        schema.put("columns", columns);
-        for( Object c: columns ) {
-            Map m = (Map)c;
-            if( m.containsKey("serializer")) {
-                serializers.put(m.get("name").toString(), new ObjectDeserializer());
-            }
-        };      
         return new ArrayList();
     }
 
-    public void end() {;}
+    public void end() {
+    }
     
     public Object getObject(ResultSet rs) throws Exception {
         Map data = new HashMap();
@@ -49,15 +42,23 @@ public class DataMapFetchHandler implements FetchHandler {
         int columnCount = meta.getColumnCount();
         for (int i=0; i<columnCount; i++) {
             String name = meta.getColumnName(i+1);
+            SchemaViewField fld = schemaView.getField(name);
             Object val = rs.getObject(name);
-            if( val!=null && (val instanceof String) && serializers.containsKey(name)) {
-                val = serializers.get(name).read(val.toString());
+            if(val!=null) {
+                if( fld !=null ) {
+                    if( fld.isSerialized() ) {
+                        val = ObjectDeserializer.getInstance().read(  val.toString() );
+                    }
+                }
+                else if( name.endsWith(".deserialize")) {
+                    name = name.substring(0, name.indexOf(".") );
+                    val = ObjectDeserializer.getInstance().read(  val.toString() );
+                }
             }
-            DataUtil.putData(data, name, val);
-            //data.put(name, val);
-        };
-        return data;
-        //return FieldToMap.convert(data);
+            data.put(name, val);
+        }
+        return FieldToMap.convert(data);
     }
+
     
 }

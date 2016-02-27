@@ -167,28 +167,28 @@ public final class SchemaUtil {
   
     public static Object convertData( Object v, String stype ) throws Exception {
         Object val = v;
-        if( stype.equalsIgnoreCase("integer") ) {
+        if( stype!=null && stype.equalsIgnoreCase("integer") ) {
             if(! (val instanceof Integer) ) {
                 val = Integer.parseInt(val.toString());
             } 
         }
-        else if( stype.equalsIgnoreCase("decimal")) {
+        else if( stype!=null && stype.equalsIgnoreCase("decimal")) {
             if(! (val instanceof BigDecimal) ) {
                 val = new BigDecimal(val.toString());
             } 
         }
-        else if( stype.equalsIgnoreCase("date")) {
+        else if( stype!=null && stype.equalsIgnoreCase("date")) {
             if(! (val instanceof Date) ) {
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
                 val = sdf.parse(val.toString());
             }
         }
-        else if( stype.equalsIgnoreCase("boolean")) {
+        else if( stype!=null && stype.equalsIgnoreCase("boolean")) {
             if(! (val instanceof Boolean) ) {
                 val = Boolean.valueOf(val.toString());
             }
         }
-        else if( stype.equalsIgnoreCase("timestamp")) {
+        else if( stype!=null && stype.equalsIgnoreCase("timestamp")) {
             if(!(val instanceof Timestamp)) {
                 try {
                     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
