@@ -7,7 +7,9 @@ package com.rameses.osiris3.persistence;
 import com.rameses.osiris3.schema.SchemaElement;
 import com.rameses.osiris3.schema.SchemaView;
 import java.lang.String;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -30,6 +32,8 @@ public class EntityManagerModel {
     private WhereElement whereElement;
     private String orderExpr;
     private String groupByExpr;
+    private List<WhereElement> orWhereList;
+    
     
     private int start;
     private int limit;
@@ -69,6 +73,16 @@ public class EntityManagerModel {
         this.whereElement = new WhereElement(expr, params);
     }
 
+    public void addOrWhereElement(String expr, Map params) {
+        if(params==null) params = new HashMap();
+        if( orWhereList == null ) orWhereList = new ArrayList();
+        orWhereList.add( new WhereElement(expr, params) );
+    }
+    
+    public List<WhereElement> getOrWhereList() {
+        return orWhereList;
+    }
+    
     public int getStart() {
         return start;
     }

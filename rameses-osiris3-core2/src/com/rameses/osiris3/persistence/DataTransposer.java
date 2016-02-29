@@ -88,7 +88,7 @@ public class DataTransposer {
             }
             else  {
                 SchemaViewRelationField svr = (SchemaViewRelationField)vf;
-                if( svr.getTargetJoinType().equals( JoinTypes.MANY_TO_ONE) ) {
+                if( svr.getTargetJoinType().matches( JoinTypes.MANY_TO_ONE +"|"+JoinTypes.ONE_TO_ONE ) ) {
                     String tgt = svr.getTargetFieldExtendedName();
                     String src = svr.getFieldname();
                     if( sourceData.containsKey(tgt )) {

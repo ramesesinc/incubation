@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package test2;
+package entitymanager.test;
 
 import com.rameses.osiris3.data.MockConnectionManager;
 import com.rameses.osiris3.persistence.EntityManager;
@@ -97,6 +97,7 @@ public class TestPersist extends TestCase {
         addr.put("street", "street 18");
         addr.put("barangay", brgy);
         data.put("address", addr);
+        data.put("address2", "capitol 3");
 
         Map created = new HashMap();
         created.put("objid", "EMN");
@@ -139,6 +140,7 @@ public class TestPersist extends TestCase {
         addr.put("street", "street 18");
         addr.put("barangay", brgy);
         data.put("address", addr);
+        data.put("address2", "capitol tol");
         /*
          Map addr = new HashMap();
          //addr.put("text", "19 orchid st capitol site");
@@ -188,33 +190,8 @@ public class TestPersist extends TestCase {
             }
         });
     }
-   
-    public void ztestUpdateExpr() throws Exception {
-        exec( new ExecHandler() {
-            public void execute() throws Exception {
-                Map map = new HashMap();
-                map.put("dtcreated", "{NOW()}");
-                map.put("name", "{CONCAT(firstname,',++cross ',lastname)}");
-                em.find(getFinder()).update(map);
-            }
-        });
-    }
-
-    public void ztestSimpleUpdate() throws Exception {
-        exec( new ExecHandler() {
-            public void execute() throws Exception {
-                Map d = new HashMap();
-                d.put("objid", "ENT000001");
-                Map addr = new HashMap();
-                addr.put("street", "ZZY 1072 dawis");
-                addr.put("text", "ZZY 1072 dawis tabunok talisay city");
-                d.put("address", addr);
-                em.update( d );
-            }
-        });
-    }
     
-    public void ztestUpdate() throws Exception {
+    public void testUpdate() throws Exception {
         exec( new ExecHandler() {
             public void execute() throws Exception {
                 Map created = new HashMap();
@@ -229,10 +206,12 @@ public class TestPersist extends TestCase {
 
                 //update info from other tables. 
                 Map m = new HashMap();
+                m.put("name", "{CONCAT(firstname,',--myname2--',lastname)}");
                 //m.put("createdby", created);
                 m.put("address", addr);
                 m.put("createdby", created);
                 m.put("modifiedby", modified);
+                m.put("dtcreated", "{NOW()}");
 
                 Map whereMap = new HashMap();
                 whereMap.put("entityno", "123456");
@@ -256,17 +235,6 @@ public class TestPersist extends TestCase {
         });   
     }
 
-    public void ztestDelete() throws Exception {
-        exec( new ExecHandler() {
-            public void execute() throws Exception {
-                //em.setName("barangay").find(getFinder()).delete();
-                Map finder = new HashMap();
-                finder.put("objid", "ID-518bd1bd:152bf58a4c3:-7fff");
-                em.setName("id").find(finder).delete();
-            }
-        }); 
-    }
-    
     public void ztestGroupBy() throws Exception {
         exec( new ExecHandler() {
             public void execute() throws Exception {
@@ -277,18 +245,7 @@ public class TestPersist extends TestCase {
         });
     }
     
-    public void ztestDelete1() throws Exception {
-        exec( new ExecHandler() {
-            public void execute() throws Exception {
-                em.setName("barangay");
-                Map m = new HashMap();
-                m.put("objid", "TEMP");
-                em.find( m ).delete();
-            }
-        });
-    }
-    
-    public void testSelect() throws Exception {
+    public void ztestSelect() throws Exception {
         exec( new ExecHandler() {
             public void execute() throws Exception {
                 //em.select("address.barangay.name,address_barangay_city:{'cebu city'}, name:{ CONCAT(lastname, ', ', firstname) }, today: {NOW()}");

@@ -4,6 +4,7 @@
  */
 package com.rameses.osiris3.persistence;
 
+import com.rameses.osiris3.sql.SqlExprParserUtil;
 import com.rameses.util.ValueUtil;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -113,10 +114,8 @@ public class SelectFieldsTokenizer {
         Stack stack = new Stack();
         try {
             is = new ByteArrayInputStream(expr.getBytes());
-            StreamTokenizer st = new StreamTokenizer(is);
-            st.wordChars('_', '_');
-            st.ordinaryChar(' ');
-            st.wordChars('0', '9');
+            StreamTokenizer st = SqlExprParserUtil.createStreamTokenizer(is);
+            
             int i = 0;
             while ((i = st.nextToken()) != st.TT_EOF) {
                 if (i == st.TT_WORD) {

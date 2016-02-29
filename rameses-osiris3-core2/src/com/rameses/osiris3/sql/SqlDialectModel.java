@@ -5,12 +5,15 @@
 package com.rameses.osiris3.sql;
 
 import com.rameses.osiris3.schema.AbstractSchemaView;
-import com.rameses.osiris3.schema.LinkedSchemaView;
 import com.rameses.util.ValueUtil;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 
 
@@ -48,13 +51,13 @@ public class SqlDialectModel {
     //private LinkedSchemaView linkedView;
     
     private WhereFilter whereFilter;
-    
-    //private List<WhereFilter> whereList;
+    private List<WhereFilter> orWhereList;
     
     /*
      * The id should be unique per call because it will cache the sql units.
      */
-     public int getId() {
+    
+     public String toString() {
         StringBuilder sb = new StringBuilder(tablealias+":"+tablename+":"+action+";");
         int i = 0;
         if(!action.equals("create")) {
@@ -96,6 +99,15 @@ public class SqlDialectModel {
                 sb.append( whereFilter.getExpr() );
                 sb.append(";");
             }
+            if( orWhereList!=null && orWhereList.size()>0) {
+                sb.append( "orwhere:");
+                i = 0;
+                for( WhereFilter wf: orWhereList ) {
+                    if(i++>0) sb.append(",");
+                    sb.append( wf.getExpr() );
+                    sb.append(";");
+                }        
+            }
             if( this.groupFields!=null && this.groupFields.size()>0 ) {
                 sb.append( "groupby:");
                 i = 0;
@@ -125,9 +137,13 @@ public class SqlDialectModel {
                 sb.append("limit:"+limit+";");
             }
         }
-        return sb.toString().hashCode();
+        return sb.toString();
     }
     
+    public int getId() {
+        return toString().hashCode();
+    }
+     
     public String getTablename() {
         return tablename;
     }
@@ -188,6 +204,15 @@ public class SqlDialectModel {
         //this should also add whatever fields are there in the where filter
         this.whereFilter = wf;
     }
+    
+    public void addOrWhereFilter(WhereFilter wf) {
+        if( orWhereList == null ) orWhereList = new ArrayList();
+        orWhereList.add(wf);
+    }
+    
+    public List<WhereFilter> getOrWhereList() {
+        return orWhereList;
+    }
 
     public String getSelectExpression() {
         return selectExpression;
@@ -198,7 +223,9 @@ public class SqlDialectModel {
     }
 
     public void addField(Field vf) {
-        this.fields.add(vf);
+        if( !this.fields.contains(vf)) {
+            this.fields.add(vf);
+        }
     }
     
     public List<Field> getFields() {
@@ -261,38 +288,20 @@ public class SqlDialectModel {
         this.joinedViews = vws;
     }
     
-    public List<AbstractSchemaView> getJoinedViews() {
-        return joinedViews;
-    }
-    
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append( "table name : " + this.getTablename() + ";");
-        sb.append( "table alias : " + this.getTablealias() + ";");
-        sb.append( "fields: " + this.selectExpression );
-        sb.append( "joined views \n");
-        if( getJoinedViews()!=null) {
-            for( AbstractSchemaView vw: getJoinedViews() ) {
-                sb.append( vw.getTablename() + " " + vw.getName());
-                if( vw instanceof LinkedSchemaView ) {
-                    LinkedSchemaView lv = ((LinkedSchemaView)vw);
-                    sb.append( " " + lv.getJointype() );
+    public static class SubQuery {
+        private SqlDialectModel sqlModel;
+        private Map params = new HashMap();
 
-                }
-                sb.append(";\n");
-            }
+        public SqlDialectModel getSqlModel() {
+            return sqlModel;
         }
-        return sb.toString();
-    }
-    
-    
-    public static class Subquery {
-        private String expr;
-        public String getExpr() {
-            return expr;
+
+        public void setSqlModel(SqlDialectModel sqlModel) {
+            this.sqlModel = sqlModel;
         }
-        public void setExpr(String expr) {
-            this.expr = expr;
+
+        public Map getParams() {
+            return params;
         }
     }
     
@@ -309,6 +318,7 @@ public class SqlDialectModel {
         private boolean serialized;
         private boolean basefield;
         private String sortDirection;
+        private SubQuery subQuery;
         
         private String expr;
         
@@ -409,7 +419,6 @@ public class SqlDialectModel {
             this.sortDirection = sortDirection;
         }
         
-        
         public int hashCode() {
             if( this.extendedName == null && this.expr!=null ) {
                 return this.expr.hashCode();
@@ -421,6 +430,63 @@ public class SqlDialectModel {
             return hashCode() == obj.hashCode();
         }
 
+        public SubQuery getSubQuery() {
+            return subQuery;
+        }
+
+        public void setSubQuery(SubQuery subQuery) {
+            this.subQuery = subQuery;
+        }
     }
+    
+    //aditional method
+    public void addSelectField(Field f) {
+        if(!fields.contains(f)) {
+            fields.add(f);
+        }
+    }
+    
+    public void addExprField(Field f) {
+        if( !fieldMap.containsKey(f.getExtendedName()) ) {
+            fieldMap.put(f.getExtendedName(), f);
+        }
+    }
+    
+    public void addOrderField(Field f) {
+        if( orderFields == null ) orderFields = new ArrayList();
+        if(!orderFields.contains(f)) {
+            orderFields.add(f);
+        }
+    }
+    
+    public void addGroupField(Field f) {
+        if( groupFields == null ) groupFields = new ArrayList();
+        if(!groupFields.contains(f)) {
+            groupFields.add(f);
+        }
+    }
+
+    public void addFinderField(Field f) {
+        if(finderFields==null) finderFields = new ArrayList();
+        if( !finderFields.contains(f) ) {
+            finderFields.add(f);
+        }
+    }
+    
+    private Set<AbstractSchemaView> vwSet = new HashSet();
+    public void addJoinedViews( List<AbstractSchemaView> views) {
+        vwSet.addAll( views );
+    }
+    
+    public List<AbstractSchemaView> getJoinedViews() {
+        if( joinedViews == null ) {
+            joinedViews = new ArrayList(Arrays.asList(vwSet.toArray()));
+            Collections.sort(joinedViews);
+            vwSet.clear();
+        }
+        return joinedViews;
+    }
+
+
     
 }

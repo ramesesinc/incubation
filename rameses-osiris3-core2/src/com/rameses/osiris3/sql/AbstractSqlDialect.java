@@ -9,6 +9,7 @@ import com.rameses.osiris3.schema.AbstractSchemaView;
 import com.rameses.osiris3.schema.LinkedSchemaView;
 import com.rameses.osiris3.schema.SchemaViewRelationField;
 import com.rameses.osiris3.sql.SqlDialectModel.Field;
+import com.rameses.osiris3.sql.SqlDialectModel.WhereFilter;
 import com.rameses.util.ValueUtil;
 import java.util.ArrayList;
 import java.util.List;
@@ -79,7 +80,19 @@ public abstract class AbstractSqlDialect implements SqlDialect {
             }
             sb.append(getDelimiters()[0] + vf.getFieldname() + getDelimiters()[1]);
             sb.append("=");
-            sb.append("$P{" + vf.getExtendedName() + "}");
+            if( vf.getSubQuery()!=null) {
+                try {
+                    sb.append( "(");
+                    sb.append( getSelectStatement( vf.getSubQuery().getSqlModel() )); 
+                    sb.append(")");
+                }
+                catch(Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            else {
+                sb.append("$P{" + vf.getExtendedName() + "}");
+            }
             collectFilterList.add(sb.toString());
         }
     }
@@ -304,11 +317,14 @@ public abstract class AbstractSqlDialect implements SqlDialect {
         return sb.toString();
     }
     
-    protected String buildWhereForSelect(SqlDialectModel model) {
+    protected String buildWhereForSelect(SqlDialectModel model, WhereFilter wf) {
         StringBuilder sb = new StringBuilder();
         List<String> filters = new ArrayList();
         buildFinderStatement(model, filters,true);
         buildSingleWhereStatement(model, filters,true);
+        if( wf!=null) {
+            filters.add( fixWhereStatement(model, wf, true ));
+        }
         if (filters.size() > 0) {
             sb.append(" WHERE ");
             sb.append(concatFilterStatement(filters));
@@ -316,21 +332,37 @@ public abstract class AbstractSqlDialect implements SqlDialect {
         return sb.toString();
     }
     
-    
-    
     /**
      * params is applicable for subqueries
      */ 
-    public String getSelectStatement(SqlDialectModel model) {
+    public String getSelectStatement(SqlDialectModel model, boolean includeOrderBy) {
         StringBuilder sb = new StringBuilder();
-        sb.append(" SELECT ");
-
-        sb.append(buildSelectFields(model));
-        sb.append(" FROM ");
-        sb.append(buildTablesForSelect(model));
-        sb.append( buildWhereForSelect(model) );
-        sb.append( buildGroupByStatement(model) );
-        sb.append( buildOrderStatement(model));
+        if( model.getOrWhereList()!=null && model.getOrWhereList().size()>0 ) {
+            int i = 0;
+            for( WhereFilter wf: model.getOrWhereList() ) {
+                if(i++>0) sb.append( " UNION ");
+                sb.append(" SELECT ");
+                sb.append(buildSelectFields(model));
+                sb.append(" FROM ");
+                sb.append(buildTablesForSelect(model));
+                sb.append( buildWhereForSelect(model, wf) );
+                sb.append( buildGroupByStatement(model) );
+                if(includeOrderBy) {
+                    sb.append( buildOrderStatement(model));
+                }
+            }
+        }
+        else {
+            sb.append(" SELECT ");
+            sb.append(buildSelectFields(model));
+            sb.append(" FROM ");
+            sb.append(buildTablesForSelect(model));
+            sb.append( buildWhereForSelect(model, null) );
+            sb.append( buildGroupByStatement(model) );
+            if(includeOrderBy) {
+                sb.append( buildOrderStatement(model));
+            }
+        }
         return sb.toString();
     }
     

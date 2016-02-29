@@ -12,10 +12,8 @@ package com.rameses.sql.dialect;
 
 
 import com.rameses.osiris3.sql.AbstractSqlDialect;
-import com.rameses.osiris3.sql.SqlDialectFunction;
 import com.rameses.osiris3.sql.SqlDialectModel;
-import com.rameses.sql.dialect.functions.mssql.CONCAT;
-import com.rameses.sql.dialect.functions.mssql.NOW;
+import com.rameses.osiris3.sql.SqlDialectModel.WhereFilter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -211,18 +209,18 @@ public class MsSqlDialect extends AbstractSqlDialect  {
             }
             StringBuilder sb = new StringBuilder();
             sb.append( "SELECT * FROM (");
-            sb.append("SELECT ROW_NUMBER() OVER ("+ orderBy + ") AS _rownum_," );
-            sb.append( super.buildSelectFields(model) );
+            sb.append("SELECT ROW_NUMBER() OVER ("+ orderBy + ") AS _rownum_, result.* " );
+            
             sb.append( " FROM " );
-            sb.append(buildTablesForSelect(model));
-            sb.append(buildWhereForSelect(model));
-            sb.append( buildGroupByStatement(model) );            
+            sb.append( "( ");
+            sb.append( super.getSelectStatement(model, false) );
+            sb.append( ") result ");
             sb.append(") AS ConstrainedResult ");
             sb.append(" WHERE _rownum_ BETWEEN ($P{_start}+1) AND ($P{_start}+$P{_limit}) ORDER BY _rownum_" );
             return sb.toString();
         }
         else {
-             return super.getSelectStatement(model);
+             return super.getSelectStatement(model, true);
         }
     }
 

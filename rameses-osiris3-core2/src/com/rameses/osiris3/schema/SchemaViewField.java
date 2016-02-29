@@ -57,14 +57,15 @@ public class SchemaViewField {
         }
         
         
-        //determine insertable
+        //determine insertable. do not include one to one.
         String matchPattern = JoinTypes.ONE_TO_MANY + "|" + JoinTypes.MANY_TO_ONE + "|" + JoinTypes.INVERSE;
         if( joinType==null || !joinType.matches( matchPattern ) ) {
             _insertable = true;
         }
         
-        //determine updatable
-        if( (joinType==null ||  !joinType.matches(matchPattern)) && !isPrimary() ) {
+        //determine updatable. Only primary keys will not be updatable. all the rest can be updated
+        //if( (joinType==null ||  !joinType.matches(matchPattern)) && !isPrimary() ) {
+        if(!isPrimary()) {
             _updatable = true;
         }
     }

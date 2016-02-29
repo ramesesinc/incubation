@@ -15,6 +15,7 @@ import com.rameses.osiris3.schema.SchemaSerializer;
 import com.rameses.osiris3.sql.FieldToMap;
 import com.rameses.osiris3.sql.MapToField;
 import com.rameses.osiris3.sql.SqlContext;
+import com.rameses.osiris3.sql.SqlDialectModel.SubQuery;
 import com.rameses.osiris3.sql.SqlExecutor;
 import com.rameses.osiris3.sql.SqlQuery;
 import java.util.List;
@@ -72,7 +73,7 @@ public class EntityManager {
         return this;
     }
 
-    private EntityManagerModel getModel() {
+    public EntityManagerModel getModel() {
         if( model == null ) throw new RuntimeException("Please specify an element name");
         return model;
     }
@@ -171,7 +172,7 @@ public class EntityManager {
             if( !getModel().hasCriteria() ) {
                 throw new RuntimeException("Please specify a criteria, finder or where element for first method");
             }
-            Map m=  processor.fetchFirst(getModel());
+            Map m=  processor.fetchFirst(getModel(), 0);
             clearModel();
             return m;
         } catch (Exception e) {
@@ -179,11 +180,16 @@ public class EntityManager {
         }
     }
     
-    //this merges the data with existing data.
-    public Object merge(String schemaName, Object data) {
-        throw new RuntimeException("merge not yet supported");
+    public Object merge(Map data) {
+         try {
+            Map m =  processor.merge(getModel(), data);
+            clearModel();
+            return m;
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
     }
-
+    
     /**
      * if there are no records found, this function returns null
      */
@@ -207,7 +213,7 @@ public class EntityManager {
                  setName( schemaName );
             }
             buildFindersFromPrimaryKeys( (Map)data);
-            return first();
+            return processor.fetchFirst(getModel(), 1);
         } 
         catch (Exception e) {
             System.out.println("error in read ->" + e.getMessage());
@@ -217,10 +223,10 @@ public class EntityManager {
 
     //this is applicable to updates, deletes and read, first, last where finders or where 
     //is not specified
-    private void buildFindersFromPrimaryKeys(Map data) throws Exception {
+    private void buildFindersFromPrimaryKeys(Map data)  {
         if( getModel().hasCriteria() ) return;
         Map finders = DataUtil.buildFinderFromPrimaryKeys(this.getModel().getElement(), data);
-        if( finders == null ) throw new Exception("Please specify the primary keys");
+        if( finders == null ) throw new RuntimeException("Please specify the primary keys");
         getModel().getFinders().putAll(finders);
     }
     
@@ -363,6 +369,22 @@ public class EntityManager {
         return getSchema();
     }
     
+    //this checks if a record exists. This just returns true or false
+    public boolean exists() {
+        try {
+            //this will translate to select 1 from table
+            getModel().setSelectFields("count:{ 1 }");
+            Map r = processor.fetchFirst(getModel(), 0);
+            if(r!=null && Integer.parseInt(r.get("count").toString()) > 0 ) {
+                return true;
+            }
+            return false;
+        }
+        catch(Exception e) {
+            return false;
+        }
+    }
+    
     /*
     public Object createModel(String schemaName) {
         return getModel().getElement().toMap();
@@ -425,13 +447,18 @@ public class EntityManager {
     }
 
     public Object save(String schemaName, Object data, boolean create, boolean update, Map vars, UpdateChangeHandler vhandler, boolean validate) {
+        if( !schemaName.equals(this.schemaName) ) {
+            setName( schemaName );
+        }
+        boolean exists = false;
+        try {
+            buildFindersFromPrimaryKeys((Map)data);
+            exists = exists();
+        }
+        catch(Exception ign) {;}
+        
         if (create == true && update == true) {
-            Object test = null; 
-            try { 
-                test = read(schemaName, data, vars);
-            } catch(Throwable t){;} 
-            
-            if (test == null || ((test instanceof Map) && ((Map) test).isEmpty())) {
+            if (!exists) {
                 return create(schemaName, data, validate);
             } else {
                 return update(schemaName, data, vars, vhandler, validate, true);
@@ -439,8 +466,7 @@ public class EntityManager {
         } else if (create == true && update == false) {
             return create(schemaName, data, validate);
         } else if (create == false && update == true) {
-            Object test = read(schemaName, data, vars);
-            if (test == null) {
+            if (!exists) {
                 throw new RuntimeException("Record for update does not exist");
             }
             return update(schemaName, data, vars, vhandler, validate, true);
@@ -524,9 +550,18 @@ public class EntityManager {
         return this;
     }
     
-    
     public EntityManager groupBy( String expr ) {
         getModel().setGroupByExpr(expr);
+        return this;
+    }
+
+    public EntityManager orWhere( String expr ) {
+        getModel().addOrWhereElement(expr, null);
+        return this;
+    }
+    
+    public EntityManager orWhere( String expr, Map params ) {
+        getModel().addOrWhereElement(expr, params);
         return this;
     }
 
@@ -600,5 +635,9 @@ public class EntityManager {
         return this;
     }
     
+    public SubQuery subquery() {
+        return processor.createSubQueryModel(getModel());
+    }
     
+
 }

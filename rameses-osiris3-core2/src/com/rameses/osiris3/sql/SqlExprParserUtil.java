@@ -36,10 +36,8 @@ public class SqlExprParserUtil {
         //The third replaces all spaces 1 or more if it succeeds comma, open parens and close parens
         
         InputStream is = new ByteArrayInputStream(expr.getBytes());
-        StreamTokenizer st = new StreamTokenizer(is);
-        st.wordChars('_', '_');
-        st.ordinaryChar(' ');
-        st.wordChars('0', '9');
+        StreamTokenizer st = createStreamTokenizer(is);
+        
         int i = 0;
         while ((i = st.nextToken()) != st.TT_EOF) {
             ParseContext ctx = stack.peek();
@@ -150,5 +148,14 @@ public class SqlExprParserUtil {
         }
     }
     
+    
+    public static StreamTokenizer createStreamTokenizer( InputStream is ) {
+        StreamTokenizer st = new StreamTokenizer(is);
+        st.wordChars('_', '_');
+        st.ordinaryChar(' ');
+        st.ordinaryChars('0', '9');
+        st.wordChars('0', '9');
+        return st;
+    }
     
 }

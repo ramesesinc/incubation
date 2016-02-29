@@ -111,8 +111,6 @@ public class CrudFormModel {
         }
     }
     
-   
-    
     void init() {
         initSchema();
         buildStyleRules();
@@ -154,13 +152,15 @@ public class CrudFormModel {
     
     def save() {
         if(!MsgBox.confirm('You are about to save this record. Proceed?')) return null;
+        
         if( mode == 'create' ) {
-            entity = service.create( entity );
+            entity = service.save( entity );
         }
         else {
-            //extract from the DataMap
+            //extract from the DataMap. Right now we'll use the pure data first
+            //we'll change this later to diff.
             def e = entity.data();
-            entity = service.update( e );
+            entity = service.save( e );
         }
         mode = "read";
         try {
@@ -206,28 +206,27 @@ public class CrudFormModel {
         return (mode == 'read');
     }
     
-    def moveUp() {
+    void moveUp() {
         if( caller?.listHandler ) {
             caller.listHandler.moveBackRecord();
-            if( caller.selectedEntity ) {
-                entity = caller.selectedEntity;
-                return open();
-            }
-            else {
-                return "_close";
-            }
+            reloadEntity();
         }
     }
 
-    def moveDown() {
+    void moveDown() {
         if( caller?.listHandler ) {
             caller.listHandler.moveNextRecord();
-            if( caller.selectedEntity ) {
-                entity = caller.selectedEntity;
-                return open();
-            }
-            else {
-                return "_close";
+            reloadEntity();
+        }
+    }
+    
+    def reloadEntity() {
+        if( caller.selectedEntity ) {
+            entity = caller.selectedEntity;
+            entity._schemaname = schemaName;
+            entity = service.read( entity );
+            itemHandlers.values().each {
+                it.reload();
             }
         }
     }
@@ -246,6 +245,7 @@ public class CrudFormModel {
             }
         }
     }
+    
     
     public def openItem(def itemName, def item, def colName) {
         MsgBox.alert( "open item " + itemName + " item " + item + " col "+colName);

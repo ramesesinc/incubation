@@ -2,16 +2,21 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package test2;
+package entitymanager.test;
 
 import com.rameses.osiris3.data.MockConnectionManager;
 import com.rameses.osiris3.persistence.EntityManager;
+import com.rameses.osiris3.persistence.EntityManagerModel;
+import com.rameses.osiris3.persistence.EntityManagerProcessor;
+import com.rameses.osiris3.persistence.SqlDialectModelBuilder;
 import com.rameses.osiris3.schema.SchemaManager;
 import com.rameses.osiris3.sql.SimpleDataSource;
 import com.rameses.osiris3.sql.SqlContext;
+import com.rameses.osiris3.sql.SqlDialectModel;
 import com.rameses.osiris3.sql.SqlManager;
 import com.rameses.sql.dialect.MsSqlDialect;
 import com.rameses.sql.dialect.MySqlDialect;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,14 +25,15 @@ import junit.framework.TestCase;
 /**
  * @author dell.
  */
-public class TestQuery extends TestCase {
+public class TestFindPrimaryKey extends TestCase {
 
     private SqlManager sqlManager;
     private SchemaManager schemaManager;
     private MockConnectionManager cm;
     private EntityManager em;
+    private SqlContext sqlc;
     
-    public TestQuery(String testName) {
+    public TestFindPrimaryKey(String testName) {
         super(testName);
     }
 
@@ -35,7 +41,8 @@ public class TestQuery extends TestCase {
     protected void setUp() throws Exception {
         sqlManager = SqlManager.getInstance();
         schemaManager = SchemaManager.getInstance();
-        em = new EntityManager(schemaManager, createContext(), "entityindividual");
+        sqlc = createContext();
+        em = new EntityManager(schemaManager, sqlc, "entityindividual");
         em.setDebug(true);
         super.setUp();
     }
@@ -68,14 +75,6 @@ public class TestQuery extends TestCase {
 
     }
     
-    private Map createId(String idno, String type) {
-        Map map = new HashMap();
-        map.put("idno", idno);
-        map.put("idtype", type);
-        map.put("dateissued", java.sql.Date.valueOf("2014-01-01"));
-        return map;
-    }
-
     private Map getFinder() {
         Map map = new HashMap();
         map.put("entityno", "123456");
@@ -83,40 +82,30 @@ public class TestQuery extends TestCase {
         return map;
     }
 
-    private static interface ExecHandler {
-        void execute() throws Exception;
+    public void ztestFindPrimaryKey() throws Exception {
+        EntityManagerModel model = em.find(getFinder()).getModel();
+        //EntityManagerModel model = em.where("1=1").getModel();
+        SqlDialectModel sqlModel = SqlDialectModelBuilder.buildSelectKeysForDelete(model);
+        MySqlDialect msd = new MySqlDialect();
+        String s = msd.getSelectStatement(sqlModel);
+        
+        EntityManagerProcessor proc = new EntityManagerProcessor(sqlc,new MySqlDialect());
+        List list = proc.createQuery(sqlModel, getFinder(), null).getResultList();
+        for( Object o: list ) {
+            System.out.println(o);
+        }
+        System.out.println(s);
     }
     
-    private void exec( ExecHandler h  ) throws Exception {
-        try {
-            h.execute();
-            cm.commit();
+    public void testDelete() throws Exception {
+        EntityManagerModel model = em.find(getFinder()).getModel();
+        //Map<String,SqlDialectModel> map = SqlDialectModelBuilder.buildDeleteSqlModels(model);
+        Collection<SqlDialectModel> list = SqlDialectModelBuilder.buildDeleteSqlModels1(model);
+        MySqlDialect msd = new MySqlDialect();
+        for(SqlDialectModel sqm: list) {
+            String s = msd.getDeleteStatement(sqm);
+            System.out.println(s);
         }
-        catch(Exception e) {
-            throw e;
-        }
-        finally {
-            cm.close();
-        }
-    }
-    
-    private void printList(List list) {
-        for(Object obj: list) {
-            System.out.println(obj + " class:"+obj.getClass());
-        }
-    }
-    
-
-    public void testSelect() throws Exception {
-        exec( new ExecHandler() {
-            public void execute() throws Exception {
-                Map map = new HashMap();
-                map.put("addr2", "ADDR2");
-                //em.select("address.barangay.name,address_barangay_city:{'cebu city'}, name:{ CONCAT(lastname, ', ', firstname) }, today: {NOW()}");
-                List list = em.select( ".*" ).where("address2 = :addr2", map).list();
-                printList(list);
-            }
-        });   
     }
     
     
