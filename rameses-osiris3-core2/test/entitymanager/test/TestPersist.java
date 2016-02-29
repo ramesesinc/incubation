@@ -183,7 +183,7 @@ public class TestPersist extends TestCase {
     }
     
      // TODO add test methods here. The name must begin with 'test'. For example:
-    public void ztestCreate() throws Exception {
+    public void testCreate() throws Exception {
         exec( new ExecHandler() {
             public void execute() throws Exception {
                 em.create(buildCreateData());
@@ -191,7 +191,7 @@ public class TestPersist extends TestCase {
         });
     }
     
-    public void testUpdate() throws Exception {
+    public void ztestUpdate() throws Exception {
         exec( new ExecHandler() {
             public void execute() throws Exception {
                 Map created = new HashMap();

@@ -245,19 +245,47 @@ public final class EntityManagerProcessor {
         Map parms = new HashMap();
         parms.putAll(DataTransposer.flatten(entityModel.getFinders(), "_"));
         parms.putAll(entityModel.getWhereParams());
-
         Map vars = entityModel.getVars();
-
-        StringBuilder sb = new StringBuilder();
         SqlDialectModel model = SqlDialectModelBuilder.buildSelectKeysForDelete(entityModel);
         List list = createQuery(model, parms, vars).getResultList();
         for (Object o : list) {
             Map finders = (Map) o;
-            deleteOneToOne(entityModel.getSchemaView(), finders);
+            deleteOneToMany(entityModel.getSchemaView(), finders);
+            deleteSingle(entityModel.getSchemaView(), finders);
         }
     }
+    
+    private void deleteOneToMany(SchemaView svw, Map finders) throws Exception {
+        SchemaElement parentElem = svw.getElement();
+        for(SchemaRelation sr:parentElem.getOneToManyRelationships()) {
+            //check if the linked element has relationships like one to one or one to many
+            //we have to load each record in that case.
+            Map subFinders = new HashMap();
+            for(RelationKey rk: sr.getRelationKeys()) {
+                Object val = DataUtil.getNestedValue(finders, rk.getField());
+                subFinders.put( rk.getTarget(), val );
+            }
+            SchemaElement childElement = sr.getLinkedElement();
+            if( childElement.getOneToManyRelationships().size()>0 && childElement.getOneToOneRelationships().size()>0) {
+                EntityManagerModel entityModel = new EntityManagerModel(childElement);
+                SqlDialectModel sqlModel = SqlDialectModelBuilder.buildSelectKeysForDelete(entityModel);
+                List list = createQuery(sqlModel, subFinders, null).getResultList();
+                for (Object o : list) {
+                    Map xfinders = (Map) o;
+                    deleteOneToMany(entityModel.getSchemaView(), xfinders);
+                    deleteSingle(entityModel.getSchemaView(), xfinders);
+                }
+            }
+            else {
+                //we'll simply delete the record based on its parentid
+                EntityManagerModel model = new EntityManagerModel(childElement);
+                model.getFinders().putAll(subFinders);
+                deleteSimple( model );
+            }
+        };
+    }
 
-    private void deleteOneToOne(SchemaView svw, Map finders) throws Exception {
+    private void deleteSingle(SchemaView svw, Map finders) throws Exception {
         Map fieldsToNullify = new HashMap();
         EntityManagerModel model = new EntityManagerModel(svw.getElement());
         
