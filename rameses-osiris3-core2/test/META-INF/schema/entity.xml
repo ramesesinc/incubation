@@ -12,7 +12,12 @@
         </complex> 
         <complex name="info" serializer="default"/>  
         <field name="dtcreated" type="date"/> 
-        <field name="address_text" />      
+        <field name="address_text" /> 
+        
+        <complex name="contactinfos" jointype="one-to-many" ref="contactinfo" required="true">
+            <key field="objid" target="parentid"/>
+        </complex>
+             
     </element>
 </schema>
 

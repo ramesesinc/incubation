@@ -21,14 +21,14 @@ import junit.framework.TestCase;
 /**
  * @author dell.
  */
-public class TestPersist extends TestCase {
+public class TestUpdate extends TestCase {
 
     private SqlManager sqlManager;
     private SchemaManager schemaManager;
     private MockConnectionManager cm;
     private EntityManager em;
     
-    public TestPersist(String testName) {
+    public TestUpdate(String testName) {
         super(testName);
     }
 
@@ -77,52 +77,14 @@ public class TestPersist extends TestCase {
         return map;
     }
 
-    private Map buildCreateData() {
-        Map data = new HashMap();
-        data.put("objid", "ENT000001");
-        data.put("firstname", "elmo");
-        data.put("lastname", "nazareno");
-        data.put("name", "nazareno, elmo");
-        data.put("entityno", "123456");
-        data.put("state", "ACTIVE");
-        data.put("type", "INDIVIDUAL");
-
-        Map brgy = new HashMap();
-        brgy.put("objid", "BRGY0001");
-        brgy.put("name", "POBLACION");
-
-        Map addr = new HashMap();
-        //addr.put("objid", "ADDR1");
-        addr.put("text", "18 orchid st capitol site");
-        addr.put("street", "street 18");
-        addr.put("barangay", brgy);
-        data.put("address", addr);
-        data.put("address2", "capitol 3");
-
-        Map created = new HashMap();
-        created.put("objid", "EMN");
-        created.put("username", "elmo nazareno");
-        data.put("createdby", created);
-
-        Map edited = new HashMap();
-        edited.put("objid", "WVF");
-        edited.put("username", "worgie flores");
-        data.put("modifiedby", edited);
-        data.put("billaddress", addr);
-
-        List ids = new ArrayList();
-        ids.add(createId("1287787", "Drivers License"));
-        ids.add(createId("981288", "SSS"));
-        data.put("ids", ids);
-        
-        Map info = new HashMap();
-        info.put("age", 24);
-        info.put("sss", "11267899");
-        data.put("info", info);
-        
-        return data;
+     private Map createContact(String id, String type, String value) {
+        Map map = new HashMap();
+        map.put("objid", id);
+        map.put("type", type);
+        map.put("value", value);
+        return map;
     }
-
+     
     private Map buildUpdateData() {
         Map data = new HashMap();
         data.put("firstname", "elmo");
@@ -182,16 +144,8 @@ public class TestPersist extends TestCase {
         }
     }
     
-     // TODO add test methods here. The name must begin with 'test'. For example:
-    public void ztestCreate() throws Exception {
-        exec( new ExecHandler() {
-            public void execute() throws Exception {
-                em.create(buildCreateData());
-            }
-        });
-    }
     
-    public void ztestUpdate() throws Exception {
+    public void testUpdate() throws Exception {
         exec( new ExecHandler() {
             public void execute() throws Exception {
                 Map created = new HashMap();
@@ -213,59 +167,15 @@ public class TestPersist extends TestCase {
                 m.put("modifiedby", modified);
                 m.put("dtcreated", "{NOW()}");
 
+                List items = new ArrayList();
+                items.add( createContact("CTCT13c576c5:1533050dbd9:-7ffe", "XMOBILE", "NAZA1234" ) );
+                m.put("contactinfos", items);
+                
                 Map whereMap = new HashMap();
                 whereMap.put("entityno", "123456");
                 em.where("entityno=:entityno", whereMap).update(m);
             }
         });
-    }
-    
-    public void testRead() throws Exception {
-        exec( new ExecHandler() {
-            public void execute() throws Exception {
-                Map map = new HashMap();
-                map.put( "objid", "ENT000001");
-                Map d = (Map)em.read(map);
-                for( Object m: d.entrySet() ) {
-                    Map.Entry me = (Map.Entry)m;
-                    System.out.println(me.getKey()+"="+ (me.getValue()==null?"": me.getValue().getClass()));
-                }
-                System.out.println(d);
-            }
-        });   
-    }
-
-    public void ztestGroupBy() throws Exception {
-        exec( new ExecHandler() {
-            public void execute() throws Exception {
-                em.select("maxname:{MAX(lastname)}, entityno");
-                List list = em.find(getFinder()).sort("firstname DESC,lastname, entityno").groupBy("entityno, address.barangay.objid, yr:{ YEAR(dtcreated) }").list();
-                printList(list);
-            }
-        });
-    }
-    
-    public void ztestSelect() throws Exception {
-        exec( new ExecHandler() {
-            public void execute() throws Exception {
-                //em.select("address.barangay.name,address_barangay_city:{'cebu city'}, name:{ CONCAT(lastname, ', ', firstname) }, today: {NOW()}");
-                List list = em.select( ".*name" ).where("1=1").list();
-                printList(list);
-            }
-        });   
-    }
-    
-     public void ztestSelectSession() throws Exception {
-        exec( new ExecHandler() {
-            public void execute() throws Exception {
-                em.shift("session");
-                //em.select("address.barangay.name,address_barangay_city:{'cebu city'}, name:{ CONCAT(lastname, ', ', firstname) }, today: {NOW()}");
-                Map m = new HashMap();
-                m.put("sessionid", "12222");
-                Map z = (Map)em.read(m);
-                System.out.print( z );
-            }
-        });   
     }
     
 }

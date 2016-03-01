@@ -40,7 +40,7 @@ public class CrudFormModel {
     def mode;
     
     List styleRules = [];
-    
+    def itemHandlers = [:];     //holder for all specific item handlers
     
     @FormTitle
     String getTitle() {
@@ -109,6 +109,18 @@ public class CrudFormModel {
             styleRules << new StyleRule( flds, "#{mode!='create'}").add("enabled",false);
             styleRules << new StyleRule( flds, "#{mode=='create'}").add("enabled",true);
         }
+        def requires = schema.columns.findAll{ it.required == true }*.name;
+        if( requires ) {
+            def flds = "entity.("+requires.join("|")+")";
+            styleRules << new StyleRule( flds, "#{mode!='read'}").add("required",true);
+            styleRules << new StyleRule( flds, "#{mode=='read'}").add("required",false);
+        };
+        def itemNames = schema.items*.name;
+        if(itemNames) {
+            def flds = "itemHandlers.("+itemNames.join("|")+"):item.*";
+            styleRules << new StyleRule( flds, "#{mode=='read'}").add("editable",false);
+            styleRules << new StyleRule( flds, "#{mode!='read'}").add("editable",true);
+        }
     }
     
     void init() {
@@ -131,7 +143,7 @@ public class CrudFormModel {
         entity._schemaname = schemaName;
         entity = service.read( entity );
         
-        //we need to set the schema name for update.
+        //we need to reset the schema name for update.
         entity._schemaname = schemaName;
         init();
         return null;
@@ -154,13 +166,14 @@ public class CrudFormModel {
         if(!MsgBox.confirm('You are about to save this record. Proceed?')) return null;
         
         if( mode == 'create' ) {
-            entity = service.save( entity );
+            entity = service.create( entity );
         }
         else {
             //extract from the DataMap. Right now we'll use the pure data first
             //we'll change this later to diff.
             def e = entity.data();
-            entity = service.save( e );
+            service.update( e );
+            loadData();
         }
         mode = "read";
         try {
@@ -183,11 +196,15 @@ public class CrudFormModel {
     }
 
     def showDebugInfo() {
+        def e = entity;
+        if( mode == 'edit' ) e = entity.data();
+        
         def sb = new StringBuilder();
-        entity.each { k,v->
+        e.each { k,v->
             sb.append( k+"="+v + "\n");
         }
         MsgBox.alert( sb.toString() );
+        println sb.toString();
     }
     
     def showInfo() {
@@ -220,21 +237,25 @@ public class CrudFormModel {
         }
     }
     
+    void loadData() {
+        entity._schemaname = schemaName;
+        entity = service.read( entity );
+        itemHandlers.values().each {
+            it.reload();
+        }
+    }
+    
     def reloadEntity() {
         if( caller.selectedEntity ) {
             entity = caller.selectedEntity;
-            entity._schemaname = schemaName;
-            entity = service.read( entity );
-            itemHandlers.values().each {
-                it.reload();
-            }
+            loadData();
         }
     }
     
     /*************************************************************************
     * This part here is for item handlers.  
     **************************************************************************/
-    def itemHandlers = [:];
+    
    
     private void buildItemHandlers() {
         itemHandlers.clear();
@@ -269,8 +290,11 @@ public class CrudFormModel {
             entity.get(name).add( item );
         },       
         removeItem : {name, item->
-            String dname = name +"_deleted";
-            if( entity.get(dname) == null ) entity.put(dname, item);
+            String dname = name +"::deleted";
+            if( entity.get(dname) == null ) {
+                entity.put(dname, []);
+            }
+            entity.get(dname).add( item );
             entity.get(name).remove( item );
         },
         openItem: { name, item, colName ->

@@ -23,6 +23,7 @@ public class ItemPanel extends javax.swing.JPanel {
     
     public void setHandler(String s) {
         dataTable.setHandler(s);
+        dataTable.setId(s);
     }
     
     

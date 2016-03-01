@@ -256,7 +256,11 @@ public class SchemaElement implements Serializable {
             }//do not fetch anymore.
         }
         
-
+        //load the one to many relationships
+        for( SchemaRelation sr: this.getOneToManyRelationships() ) {
+            rootVw.addOneToManyLink(new OneToManyLink(sr.getName(), prefix, this, sr));
+        }
+        
     }    
     
     private void buildRelations(String joinType, List schemaRelations) {

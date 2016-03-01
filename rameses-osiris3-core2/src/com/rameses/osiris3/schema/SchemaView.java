@@ -18,11 +18,8 @@ public class SchemaView extends AbstractSchemaView {
     private HashMap<String,SchemaViewField> fieldSet = new HashMap();
     private List<SchemaViewField> fields = new ArrayList();
     
-    //this contains the flattened out one to one relations
-    private List<SchemaRelation> oneToOneRelations;
-    private List<SchemaRelation> manyToOneRelations;
-    private List<SchemaRelation> oneToManyRelations;
-    
+    //this contains the flattened out one to many relations
+    private List<OneToManyLink> oneToManyLinks;
     
     SchemaView(SchemaElement elem) {
         super(elem.getName(), elem);
@@ -37,6 +34,11 @@ public class SchemaView extends AbstractSchemaView {
             return true;
         }
         return false;
+    }
+    
+    public void addOneToManyLink( OneToManyLink vw ) {
+        if(oneToManyLinks==null) oneToManyLinks = new ArrayList();
+        oneToManyLinks.add(vw);    
     }
     
     public List<SchemaViewField> getFields() {
@@ -109,28 +111,30 @@ public class SchemaView extends AbstractSchemaView {
         }
         map.put("columns", flds);
         //load one to many children.
-        if( this.getElement().getOneToManyRelationships().size() > 0  ) {
+        if(this.getOneToManyLinks()!=null && this.getOneToManyLinks().size()>0) {
             List list = new ArrayList();
-            for( SchemaRelation sr: this.getElement().getOneToManyRelationships() ) {
+            for( OneToManyLink oml: this.getOneToManyLinks() ) {
+                SchemaRelation sr = oml.getRelation();
                 Map m = new HashMap();
-                m.put("name", sr.getName());
+                m.put("name",oml.getName());
+                m.put("prefix", oml.getPrefix());
                 m.put("ref", sr.getRef());
-                m.put("required", sr.isRequired() );
-                
+                m.put("required",sr.isRequired() );
                 //okay we need to get the schema element columns:
                 SchemaElement subElement = this.getElement().getSchema().getSchemaManager().getElement(sr.getRef());
                 Map subSchema = subElement.createView().getSchema();
                 m.put( "columns", subSchema.get("columns"));
-                m.put( "items", subSchema.get("items"));
                 list.add(m);
             }
             map.put( "items", list );
         }
         
-        return map;
         
+        return map;
     }    
 
+    public List<OneToManyLink> getOneToManyLinks() {
+        return oneToManyLinks;
+    }
 
-   
 }

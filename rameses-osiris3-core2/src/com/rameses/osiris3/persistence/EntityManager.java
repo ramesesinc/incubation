@@ -121,9 +121,7 @@ public class EntityManager {
                  setName( schemaName );
             }
             Map mdata = (Map)data;
-            DataFillUtil.fillInitialData(getModel().getElement(), mdata);
-            ValidationResult vr = ValidationUtil.validate(mdata, getModel().getElement());
-            if(vr.hasErrors()) throw new Exception(vr.toString());
+            
                 //EntityValidator.validate(mdata, getModel().getElement());
             //}
             processor.create(getModel(), mdata);
@@ -212,7 +210,7 @@ public class EntityManager {
             if( !schemaName.equals(this.schemaName) ) {
                  setName( schemaName );
             }
-            buildFindersFromPrimaryKeys( (Map)data);
+            processor.buildFindersFromPrimaryKeys(getModel(), (Map)data);
             return processor.fetchFirst(getModel(), 1);
         } 
         catch (Exception e) {
@@ -221,16 +219,6 @@ public class EntityManager {
         }
     }
 
-    //this is applicable to updates, deletes and read, first, last where finders or where 
-    //is not specified
-    private void buildFindersFromPrimaryKeys(Map data)  {
-        if( getModel().hasCriteria() ) return;
-        Map finders = DataUtil.buildFinderFromPrimaryKeys(this.getModel().getElement(), data);
-        if( finders == null ) throw new RuntimeException("Please specify the primary keys");
-        getModel().getFinders().putAll(finders);
-    }
-    
-    
     /**
      * applicable for updates with mapped parameters for example
      * SET amount = amount + :amount. 
@@ -242,7 +230,7 @@ public class EntityManager {
      */
     public Object update(Map data, Map params) {
         try {
-            buildFindersFromPrimaryKeys((Map)data);
+            processor.buildFindersFromPrimaryKeys(getModel(), (Map)data);
             Object p = processor.update(getModel(), (Map)data, params);
             clearModel();
             return p;
@@ -260,7 +248,9 @@ public class EntityManager {
             if( !(data instanceof Map )) {
                 throw new Exception("EntityManager.update Data must be an instanceof Map ");
             }
-            buildFindersFromPrimaryKeys((Map)data);
+            if( !getModel().hasCriteria() ) {
+                processor.buildFindersFromPrimaryKeys(getModel(), (Map)data);
+            }
             Object p = processor.update(getModel(), (Map)data);
             clearModel();
             return p;
@@ -301,7 +291,9 @@ public class EntityManager {
                 validate(elem, data, model.getIncludeFields(), null);
             } 
             */ 
-            buildFindersFromPrimaryKeys((Map)data);
+            if( !getModel().hasCriteria() ) {
+                processor.buildFindersFromPrimaryKeys(getModel(), (Map)data);
+            }
             Object p = processor.update(getModel(), mdata);
             clearModel();
             return p;
@@ -340,7 +332,9 @@ public class EntityManager {
             if( !schemaName.equals(this.schemaName) ) {
                  setName( schemaName );
             }
-            buildFindersFromPrimaryKeys((Map)data);
+            if( !getModel().hasCriteria() ) {
+                processor.buildFindersFromPrimaryKeys(getModel(), (Map)data);
+            }
             processor.delete(getModel());
             clearModel();
         } catch (Exception ex) {
@@ -371,18 +365,7 @@ public class EntityManager {
     
     //this checks if a record exists. This just returns true or false
     public boolean exists() {
-        try {
-            //this will translate to select 1 from table
-            getModel().setSelectFields("count:{ 1 }");
-            Map r = processor.fetchFirst(getModel(), 0);
-            if(r!=null && Integer.parseInt(r.get("count").toString()) > 0 ) {
-                return true;
-            }
-            return false;
-        }
-        catch(Exception e) {
-            return false;
-        }
+       return processor.checkExists(getModel());
     }
     
     /*
@@ -452,7 +435,9 @@ public class EntityManager {
         }
         boolean exists = false;
         try {
-            buildFindersFromPrimaryKeys((Map)data);
+            if( !getModel().hasCriteria() ) {
+                processor.buildFindersFromPrimaryKeys(getModel(), (Map)data);
+            }
             exists = exists();
         }
         catch(Exception ign) {;}

@@ -50,14 +50,17 @@ public class CrudListModel {
     def criteriaList = [];
     def queryForm;
     def whereStatement;
+    def searchText;
     
     def cols = [];
   
     String role;
     String domain;
     String permission;
-    
-    
+    List styleRules = [];
+    List searchables;
+    List orWhereList = [];
+
     def secProvider = ClientContext.getCurrentContext().getSecurityProvider();
     
     List getExtActions() {
@@ -86,7 +89,11 @@ public class CrudListModel {
         if( !role ) return true;
         return secProvider.checkPermission( domain, role, schemaName+".delete" );
     }
-                
+           
+    boolean isAllowSearch() {
+        return (searchables);
+    }
+    
     public String getTitle() {
         return workunit.title;
     }
@@ -175,6 +182,8 @@ public class CrudListModel {
         cols.each {fld->
             if(!fld.caption) fld.caption = fld.name;            
         }
+        searchables = schema.columns.findAll{ it.searchable == "true" }*.name;
+        
     }
         
     def listHandler = [
@@ -182,6 +191,7 @@ public class CrudListModel {
             if( schema == null )
                 throw new Exception("schema is null. Please call init method")
             def zcols = [];
+            //always add the primary keys
             for( c in cols.findAll{it.selected == true} ) {
                 def cc = [:];
                 cc.putAll( c );
@@ -200,11 +210,15 @@ public class CrudListModel {
             m.schemaname = schema.name;
             m.adapter = schema.adapter;
             
+            def primKeys = cols.findAll{it.primary==true}*.name.join(",");
             //build the columns to retrieve
-            def arr = cols.findAll{it.selected==true}*.name;
-            m.select = arr.join(",");
+            def arr = cols.findAll{it.selected==true}*.name.join(",");
+            m.select = [primKeys, arr].join(",") ;
             if( whereStatement !=null ) {
                 m.where = whereStatement;
+            }
+            if( orWhereList.size() > 0 ) {
+                m.orWhereList = orWhereList;
             }
             return queryService.getList( m );
         },
@@ -213,6 +227,15 @@ public class CrudListModel {
         }
     ] as PageListModel;
     
+    void search() {
+        orWhereList.clear();
+        if( searchText ) {
+            searchables.each {
+                orWhereList << [ it + " like :searchtext", ["searchtext": "%"+searchText+"%"]  ]
+            }
+        }
+        listHandler.doSearch();
+    }
     
     //returns the where element
     def buildWhereStatement() {
@@ -334,9 +357,6 @@ public class CrudListModel {
         return Inv.lookupOpener( "dynamic_report:print", [reportData:buffList, reportModel:reportModel] );
     }
     
-    void search() {
-        throw new Exception("Search not yet implemented");
-    }
 
     def showMenu() {
         def op = new PopupMenuOpener();

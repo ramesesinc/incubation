@@ -1,6 +1,7 @@
 package com.rameses.osiris3.persistence;
 
 import com.rameses.osiris3.schema.AbstractSchemaView;
+import com.rameses.osiris3.schema.OneToManyLink;
 import com.rameses.osiris3.schema.RelationKey;
 import com.rameses.osiris3.schema.SchemaElement;
 import com.rameses.osiris3.schema.SchemaRelation;
@@ -101,8 +102,12 @@ public final class EntityManagerProcessor {
         return squ.getStatement();
     }
 
-    public Map create(EntityManagerModel model, Map data)
-            throws Exception {
+    public Map create(EntityManagerModel model, Map data) throws Exception {
+        DataFillUtil.fillInitialData(model.getElement(), data);
+        ValidationResult vr = ValidationUtil.validate(data, model.getElement());
+        if(vr.hasErrors()) 
+            throw new Exception(vr.toString());
+        
         SchemaView svw = model.getSchemaView();
         Map sqlModelMap = new LinkedHashMap();
         SqlDialectModelBuilder.buildCreateSqlModels(svw, sqlModelMap);
@@ -166,34 +171,103 @@ public final class EntityManagerProcessor {
         }
     }
 
+    public void buildFindersFromPrimaryKeys(EntityManagerModel entityModel, Map data)  {
+        Map finders = DataUtil.buildFinderFromPrimaryKeys(entityModel.getElement(), data);
+        if( finders == null ) throw new RuntimeException("Please specify the primary keys");
+        entityModel.getFinders().putAll(finders);
+    }
+    
     public Map update(EntityManagerModel model, Map odata)  throws Exception {
         return update(model, odata, null);
     }
 
-    public Map update(EntityManagerModel model, Map odata, Map updateParams) throws Exception {
+    public Map update(EntityManagerModel entityModel, Map odata, Map updateParams) throws Exception {
         if ((odata == null) || (odata.size() == 0)) {
             throw new Exception("update error. data must have at least one value");
         }
-        if ((model.getFinders().size() == 0) && (model.getWhereElement() == null)) {
+        if ((entityModel.getFinders().size() == 0) && (entityModel.getWhereElement() == null)) {
             throw new Exception("update error. finder or where must be specified");
         }
-        SchemaView svw = model.getSchemaView();
+        SchemaView svw = entityModel.getSchemaView();
         Map data = DataTransposer.prepareDataForUpdate(svw, odata);
-        Map<String, SqlDialectModel> modelMap = SqlDialectModelBuilder.buildUpdateSqlModels(model, data);
+        Map<String, SqlDialectModel> modelMap = SqlDialectModelBuilder.buildUpdateSqlModels(entityModel, data);
         Map params = new HashMap();
         params.putAll(data);
-        params.putAll(model.getFinders());
-        params.putAll(model.getWhereParams());
+        if( entityModel.getFinders()!=null) {
+            params.putAll(entityModel.getFinders());
+        }
+        if( entityModel.getWhereParams()!=null) {
+            params.putAll(entityModel.getWhereParams());
+        }
         if (updateParams != null) {
             params.putAll(updateParams);
         }
-        Map vars = model.getVars();
+        Map vars = entityModel.getVars();
         for (SqlDialectModel sqlModel : modelMap.values()) {
             executeUpdate(sqlModel, params, vars);
         }
+        updateOneToMany(svw, odata);
         return odata;
     }
 
+    public void updateOneToMany(SchemaView svw, Map parent) throws Exception {
+        //update one to many links. loop each 
+        if( svw.getOneToManyLinks()==null  ) return;
+        for(OneToManyLink oml: svw.getOneToManyLinks() ) {
+            String sname = oml.getName();
+            List items = null;
+            try { 
+                Object itm = DataUtil.getNestedValue(parent, sname); 
+                if(itm!=null && (itm instanceof List)) items = (List)itm;
+            } catch(Exception ign){;}
+            if( items !=null ) {
+                EntityManagerModel itemModel = new EntityManagerModel(oml.getRelation().getLinkedElement());
+                for(Object m: items) {
+                    if(! (m instanceof Map) ) continue;
+                    saveItem( itemModel, (Map)m, oml.getRelation(), parent);
+                }
+            };
+            //we'll also remove items that are markeed as deleted.
+            List deletedItems = null;
+            try { 
+                Object itm = DataUtil.getNestedValue(parent, sname+"::deleted"); 
+                if(itm!=null && (itm instanceof List)) deletedItems = (List)itm;
+                System.out.println("deleted items is " + deletedItems);
+            } catch(Exception ign){;}
+            if(deletedItems !=null ) {
+                EntityManagerModel itemModel = new EntityManagerModel(oml.getRelation().getLinkedElement());
+                for(Object m: deletedItems) {
+                    if(! (m instanceof Map) ) continue;
+                    buildFindersFromPrimaryKeys(itemModel, (Map)m);
+                    delete(itemModel);
+                }
+            };
+        }
+    }
+    
+    public Object saveItem(EntityManagerModel entityModel, Map data, SchemaRelation rel, Map parent) throws Exception {
+        boolean exists = false;
+        try {
+            buildFindersFromPrimaryKeys(entityModel, (Map)data);
+            exists = checkExists(entityModel);
+        }
+        catch(Exception ign) {;}
+        Map odata = data;
+        if(exists) {
+            buildFindersFromPrimaryKeys(entityModel, (Map)data);
+            odata = update( entityModel, data );
+        }
+        else {
+            //fill in the relationships
+            for(RelationKey rk: rel.getRelationKeys()) {
+                Object kval = DataUtil.getNestedValue(parent,rk.getField());
+                DataUtil.putNestedValue(data, rk.getTarget(), kval);
+            }
+            odata = create( entityModel, data );
+        }
+        return odata;
+    }    
+    
     public Map merge(EntityManagerModel model, Map data) throws Exception {
         Map m = update(model, data);
         return m;
@@ -204,6 +278,12 @@ public final class EntityManagerProcessor {
         Map parms = new HashMap();
         parms.putAll(DataTransposer.flatten(model.getFinders(), "_"));
         parms.putAll(model.getWhereParams());
+        //add the or where parameters
+        if( model.getOrWhereList()!=null && model.getOrWhereList().size()>0 ) {
+            for( EntityManagerModel.WhereElement we: model.getOrWhereList() ) {
+                parms.putAll( we.getParams() );
+            }
+        }
         Map vars = model.getVars();
         SqlQuery sqlQry = createQuery(sqlModel, parms, vars);
         sqlQry.setFetchHandler(new DataMapFetchHandler(model.getSchemaView()));
@@ -227,6 +307,21 @@ public final class EntityManagerProcessor {
         return result;
     }
 
+    public boolean checkExists(EntityManagerModel entityModel) {
+         try {
+            //this will translate to select 1 from table
+            entityModel.setSelectFields("count:{ 1 }");
+            Map r = fetchFirst(entityModel, 0);
+            if(r!=null && Integer.parseInt(r.get("count").toString()) > 0 ) {
+                return true;
+            }
+            return false;
+        }
+        catch(Exception e) {
+            return false;
+        }
+    }
+    
     public void fetchSubItems(EntityManagerModel parentModel, Map parent, int level, int nestLevel) throws Exception {
         for (SchemaRelation sr : parentModel.getElement().getOneToManyRelationships()) {
             EntityManagerModel subModel = new EntityManagerModel(sr.getLinkedElement());
@@ -240,6 +335,11 @@ public final class EntityManagerProcessor {
         }
     }
 
+    
+    
+    /**************************************************************************
+     * DELETE PROCESS
+    ***************************************************************************/
     public void delete(EntityManagerModel entityModel) throws Exception {
         SchemaElement baseElement = entityModel.getElement();
         Map parms = new HashMap();
@@ -256,8 +356,10 @@ public final class EntityManagerProcessor {
     }
     
     private void deleteOneToMany(SchemaView svw, Map finders) throws Exception {
+        if( svw.getOneToManyLinks() == null ) return;
         SchemaElement parentElem = svw.getElement();
-        for(SchemaRelation sr:parentElem.getOneToManyRelationships()) {
+        for(OneToManyLink oml:  svw.getOneToManyLinks()) {
+            SchemaRelation sr = oml.getRelation();
             //check if the linked element has relationships like one to one or one to many
             //we have to load each record in that case.
             Map subFinders = new HashMap();
@@ -268,19 +370,14 @@ public final class EntityManagerProcessor {
             SchemaElement childElement = sr.getLinkedElement();
             if( childElement.getOneToManyRelationships().size()>0 && childElement.getOneToOneRelationships().size()>0) {
                 EntityManagerModel entityModel = new EntityManagerModel(childElement);
-                SqlDialectModel sqlModel = SqlDialectModelBuilder.buildSelectKeysForDelete(entityModel);
-                List list = createQuery(sqlModel, subFinders, null).getResultList();
-                for (Object o : list) {
-                    Map xfinders = (Map) o;
-                    deleteOneToMany(entityModel.getSchemaView(), xfinders);
-                    deleteSingle(entityModel.getSchemaView(), xfinders);
-                }
+                entityModel.getFinders().putAll(subFinders);
+                delete(entityModel);
             }
             else {
                 //we'll simply delete the record based on its parentid
                 EntityManagerModel model = new EntityManagerModel(childElement);
                 model.getFinders().putAll(subFinders);
-                deleteSimple( model );
+                executeDelete( model );
             }
         };
     }
@@ -326,17 +423,17 @@ public final class EntityManagerProcessor {
             update(model, fieldsToNullify);
         }
         for (EntityManagerModel em : toDeleteMap.values()) {
-            deleteSimple(em);
+            executeDelete(em);
         }
         
-        deleteSimple(model);
+        executeDelete(model);
         
         for (EntityManagerModel em : toDeleteExtended.values()) {
-            deleteSimple(em);
+            executeDelete(em);
         }
     }
 
-    private void deleteSimple(EntityManagerModel entityModel) throws Exception {
+    private void executeDelete(EntityManagerModel entityModel) throws Exception {
         SqlDialectModel model = SqlDialectModelBuilder.buildDeleteSqlModel(entityModel);
         executeUpdate(model, entityModel.getFinders(), null);
     }

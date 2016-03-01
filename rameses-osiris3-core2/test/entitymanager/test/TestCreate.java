@@ -21,14 +21,14 @@ import junit.framework.TestCase;
 /**
  * @author dell.
  */
-public class TestPersist extends TestCase {
+public class TestCreate extends TestCase {
 
     private SqlManager sqlManager;
     private SchemaManager schemaManager;
     private MockConnectionManager cm;
     private EntityManager em;
     
-    public TestPersist(String testName) {
+    public TestCreate(String testName) {
         super(testName);
     }
 
@@ -77,6 +77,13 @@ public class TestPersist extends TestCase {
         return map;
     }
 
+    private Map createContact(String type, String value) {
+        Map map = new HashMap();
+        map.put("type", type);
+        map.put("value", value);
+        return map;
+    }
+    
     private Map buildCreateData() {
         Map data = new HashMap();
         data.put("objid", "ENT000001");
@@ -115,48 +122,17 @@ public class TestPersist extends TestCase {
         ids.add(createId("981288", "SSS"));
         data.put("ids", ids);
         
+        List contacts = new ArrayList();
+        contacts.add(createContact("PHONE", "999-000-9871"));
+        contacts.add(createContact("MOBILE", "09173870196"));
+        data.put("contactinfos", contacts);
+        
         Map info = new HashMap();
         info.put("age", 24);
         info.put("sss", "11267899");
         data.put("info", info);
         
         return data;
-    }
-
-    private Map buildUpdateData() {
-        Map data = new HashMap();
-        data.put("firstname", "elmo");
-        data.put("lastname", "nazareno");
-        data.put("entityno", "123456");
-        data.put("state", "ACTIVOR");
-
-        Map brgy = new HashMap();
-        brgy.put("objid", "BRGY0001");
-        brgy.put("name", "POBLACION");
-
-        Map addr = new HashMap();
-        //addr.put("objid", "ADDR1");
-        addr.put("text", "18 orchid st capitol site");
-        addr.put("street", "street 18");
-        addr.put("barangay", brgy);
-        data.put("address", addr);
-        data.put("address2", "capitol tol");
-        /*
-         Map addr = new HashMap();
-         //addr.put("text", "19 orchid st capitol site");
-         addr.put("city", "cebu city");
-         addr.put("province", "cebu province");
-         addr.put("municipality", "dalaguete");
-         data.put("address", addr);
-         */
-        return data;
-    }
-
-    private Map getFinder() {
-        Map map = new HashMap();
-        map.put("entityno", "123456");
-        //map.put("state", "ACTIVE");
-        return map;
     }
 
     private static interface ExecHandler {
@@ -183,89 +159,12 @@ public class TestPersist extends TestCase {
     }
     
      // TODO add test methods here. The name must begin with 'test'. For example:
-    public void ztestCreate() throws Exception {
+    public void testCreate() throws Exception {
         exec( new ExecHandler() {
             public void execute() throws Exception {
                 em.create(buildCreateData());
             }
         });
-    }
-    
-    public void ztestUpdate() throws Exception {
-        exec( new ExecHandler() {
-            public void execute() throws Exception {
-                Map created = new HashMap();
-                created.put("objid", "WVF");
-
-                Map modified = new HashMap();
-                modified.put("objid", "EMN");
-
-                Map addr = new HashMap();
-                addr.put("street", "1072 dawis");
-                addr.put("text", "1072 dawis tabunok talisay city");
-
-                //update info from other tables. 
-                Map m = new HashMap();
-                m.put("name", "{CONCAT(firstname,',--myname2--',lastname)}");
-                //m.put("createdby", created);
-                m.put("address", addr);
-                m.put("createdby", created);
-                m.put("modifiedby", modified);
-                m.put("dtcreated", "{NOW()}");
-
-                Map whereMap = new HashMap();
-                whereMap.put("entityno", "123456");
-                em.where("entityno=:entityno", whereMap).update(m);
-            }
-        });
-    }
-    
-    public void testRead() throws Exception {
-        exec( new ExecHandler() {
-            public void execute() throws Exception {
-                Map map = new HashMap();
-                map.put( "objid", "ENT000001");
-                Map d = (Map)em.read(map);
-                for( Object m: d.entrySet() ) {
-                    Map.Entry me = (Map.Entry)m;
-                    System.out.println(me.getKey()+"="+ (me.getValue()==null?"": me.getValue().getClass()));
-                }
-                System.out.println(d);
-            }
-        });   
-    }
-
-    public void ztestGroupBy() throws Exception {
-        exec( new ExecHandler() {
-            public void execute() throws Exception {
-                em.select("maxname:{MAX(lastname)}, entityno");
-                List list = em.find(getFinder()).sort("firstname DESC,lastname, entityno").groupBy("entityno, address.barangay.objid, yr:{ YEAR(dtcreated) }").list();
-                printList(list);
-            }
-        });
-    }
-    
-    public void ztestSelect() throws Exception {
-        exec( new ExecHandler() {
-            public void execute() throws Exception {
-                //em.select("address.barangay.name,address_barangay_city:{'cebu city'}, name:{ CONCAT(lastname, ', ', firstname) }, today: {NOW()}");
-                List list = em.select( ".*name" ).where("1=1").list();
-                printList(list);
-            }
-        });   
-    }
-    
-     public void ztestSelectSession() throws Exception {
-        exec( new ExecHandler() {
-            public void execute() throws Exception {
-                em.shift("session");
-                //em.select("address.barangay.name,address_barangay_city:{'cebu city'}, name:{ CONCAT(lastname, ', ', firstname) }, today: {NOW()}");
-                Map m = new HashMap();
-                m.put("sessionid", "12222");
-                Map z = (Map)em.read(m);
-                System.out.print( z );
-            }
-        });   
     }
     
 }
