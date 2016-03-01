@@ -6,6 +6,9 @@ import com.rameses.osiris2.client.*;
 import com.rameses.osiris2.common.*;
 import com.rameses.rcp.framework.ClientContext;
 import com.rameses.common.*;
+import com.rameses.rcp.constant.*;
+import java.rmi.server.*;
+import com.rameses.util.*;
         
 public class CrudFormModel {
         
@@ -44,6 +47,7 @@ public class CrudFormModel {
     
     @FormTitle
     String getTitle() {
+        if( invoker.caption ) return invoker.caption;
         return getSchemaName();
     }
 
@@ -73,13 +77,14 @@ public class CrudFormModel {
         return secProvider.checkPermission( domain, role, schemaName+".edit" );
     }
 
-  
-    
     /*
     List getExtActions() {
         return Inv.lookupActions( schemaName+":form:extActions", [entity: entity] );
     }
     */
+    
+    public void beforeCreate(){;}
+    public void beforeUpdate(){;}
     
     def showMenu() {
         def op = new PopupMenuOpener();
@@ -89,12 +94,6 @@ public class CrudFormModel {
         catch(Exception ign){;}
         op.add( new com.rameses.seti2.models.PopupAction(caption:'Close', name:'_close', obj:this, binding: binding) );
         return op;
-    }
-    
-    void initSchema() {
-        if( !schema ) {
-            schema = schemaService.getSchema( [name: schemaName, adapter: adapter]  );
-        }   
     }
     
     private void buildStyleRules() {
@@ -109,7 +108,7 @@ public class CrudFormModel {
             styleRules << new StyleRule( flds, "#{mode!='create'}").add("enabled",false);
             styleRules << new StyleRule( flds, "#{mode=='create'}").add("enabled",true);
         }
-        def requires = schema.columns.findAll{ it.required == true }*.name;
+        def requires = schema.columns.findAll{ it.required == true || it.primary == true }*.name;
         if( requires ) {
             def flds = "entity.("+requires.join("|")+")";
             styleRules << new StyleRule( flds, "#{mode!='read'}").add("required",true);
@@ -121,19 +120,46 @@ public class CrudFormModel {
             styleRules << new StyleRule( flds, "#{mode=='read'}").add("editable",false);
             styleRules << new StyleRule( flds, "#{mode!='read'}").add("editable",true);
         }
+        //style rules for style types:
+        def codeStyles = schema.columns.findAll{ it.style == 'code' }*.name;
+        if(codeStyles) {
+            def n = "entity.("+codeStyles.join("|")+")";
+            //char 95 is underscore
+            styleRules << new StyleRule( n, "#{true}").add("textCase",TextCase.UPPER).add("spaceChar",(char)95);
+        }
+        
     }
+    
+    boolean _inited_ = false;
     
     void init() {
-        initSchema();
+        if( _inited_ ) return;
+        if( !schema ) {
+            schema = schemaService.getSchema( [name: schemaName, adapter: adapter]  );
+        }   
         buildStyleRules();
         buildItemHandlers();
+        _inited_ = true;
     }
     
-    def create() {
-        mode = "create";
+    void initNewData() {
         entity = [:];
         entity._schemaname = schemaName;
+        schema.columns.each {
+            if( it.prefix ) {
+                EntityUtil.putNestedValue( entity, it.extname, it.prefix+new UID());
+            }
+            if( it.defaultValue) {
+                Object val = it.defaultValue;
+                EntityUtil.putNestedValue( entity, it.extname, val );
+            }
+        }
+    }
+
+    def create() {
+        mode = "create";
         init();
+        initNewData();
         return null;
     }
     
@@ -159,6 +185,7 @@ public class CrudFormModel {
         mode = "read";
         entity.unedit();
         entity = entity.data();
+        loadData();
         return null;
     }
     
@@ -166,13 +193,15 @@ public class CrudFormModel {
         if(!MsgBox.confirm('You are about to save this record. Proceed?')) return null;
         
         if( mode == 'create' ) {
+            beforeCreate();
             entity = service.create( entity );
         }
         else {
+            beforeUpdate();
             //extract from the DataMap. Right now we'll use the pure data first
             //we'll change this later to diff.
-            def e = entity.data();
-            service.update( e );
+            entity = entity.data();
+            service.update( entity );
             loadData();
         }
         mode = "read";
@@ -252,11 +281,10 @@ public class CrudFormModel {
         }
     }
     
+    
     /*************************************************************************
     * This part here is for item handlers.  
     **************************************************************************/
-    
-   
     private void buildItemHandlers() {
         itemHandlers.clear();
         if( schema.items ) {
@@ -266,7 +294,6 @@ public class CrudFormModel {
             }
         }
     }
-    
     
     public def openItem(def itemName, def item, def colName) {
         MsgBox.alert( "open item " + itemName + " item " + item + " col "+colName);

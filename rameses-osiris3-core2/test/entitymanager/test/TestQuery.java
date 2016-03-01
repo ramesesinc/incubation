@@ -111,8 +111,8 @@ public class TestQuery extends TestCase {
         exec( new ExecHandler() {
             public void execute() throws Exception {
                 Map map = new HashMap();
-                map.put("addr2", "%addr%");
-                em.select("address.barangay.name,address_barangay_city:{'cebu city'}, name:{ CONCAT(lastname, ',', firstname) }, today: {NOW()}");
+                map.put("addr2", "%capitol%");
+                em.select("today,fullname,address.barangay.name,address_barangay_city:{'cebu city'}, name:{ CONCAT(lastname, ',', firstname) }, today: {NOW()}");
                 List list = em.where("address2 like :addr2 and 1=1", map ).limit(2).list();
                 //List list = em.select( ".*" ).where("address2 = :addr2", map).list();
                 printList(list);

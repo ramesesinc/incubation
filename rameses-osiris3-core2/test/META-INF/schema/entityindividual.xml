@@ -11,6 +11,9 @@
         </complex>
          <field name="address2" required="true"/>
         <field name="address2" required="true"/>
+        
+        <field name="today" expr="NOW()"/>
+        <field name="fullname" expr="CONCAT(lastname,'_', firstname,'_')"/>
     </element>
 </schema>
 

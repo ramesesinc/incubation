@@ -45,7 +45,6 @@ public class DataMap extends HashMap implements Serializable {
     }
 
     public Object put(Object key, Object value) {
-        System.out.println("enter put ->"+ value);
         //check and compare first the old value and new value.
         //check first if the same value do not proceed.
         Object prevValue = data.get(key);
@@ -62,7 +61,6 @@ public class DataMap extends HashMap implements Serializable {
             return value;
         } else {
             //we should push the previous value. 
-            System.out.println("logging old " + prevValue  + " -> " + value);
             ValueEntry ve = new ValueEntry(key.toString(), prevValue);
             changeLog.push(ve);
 

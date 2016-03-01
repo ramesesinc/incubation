@@ -9,6 +9,7 @@ import com.rameses.osiris3.schema.SchemaElement;
 import com.rameses.osiris3.schema.SchemaRelation;
 import com.rameses.osiris3.schema.SchemaUtil;
 import com.rameses.osiris3.schema.SimpleField;
+import com.rameses.util.EntityUtil;
 import java.rmi.server.UID;
 import java.util.List;
 import java.util.Map;
@@ -48,7 +49,7 @@ public class DataFillUtil {
             val = SchemaUtil.convertData( val, stype );
         }
         //correct also the data type
-        DataUtil.putNestedValue( data, sf.getName(), val );
+        EntityUtil.putNestedValue( data, sf.getName(), val );
     }
     
     public static void fillInitialData( SchemaElement elem, Map rawData ) throws Exception {
@@ -99,7 +100,7 @@ public class DataFillUtil {
                         
                         //ordinary load items. inverse relationships are not specified
                         for( RelationKey rk: sr.getRelationKeys() ) {
-                            e.put( rk.getTarget(), DataUtil.getNestedValue(rawData, rk.getField() )  );
+                            e.put( rk.getTarget(), EntityUtil.getNestedValue(rawData, rk.getField() )  );
                         }
                         fillInitialData( sr.getLinkedElement(), e );
                     }

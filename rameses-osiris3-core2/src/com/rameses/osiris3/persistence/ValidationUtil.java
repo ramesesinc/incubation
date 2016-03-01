@@ -9,6 +9,7 @@ import com.rameses.osiris3.schema.SchemaElement;
 import com.rameses.osiris3.schema.SchemaField;
 import com.rameses.osiris3.schema.SchemaUtil;
 import com.rameses.osiris3.schema.SimpleField;
+import com.rameses.util.EntityUtil;
 import java.util.List;
 import java.util.Map;
 
@@ -57,7 +58,7 @@ public class ValidationUtil {
             if( excludeFields !=null && fld.getName().matches(excludeFields)) continue;
             
             String refName = fld.getName();
-            Object value = DataUtil.getNestedValue(data, refName);
+            Object value = EntityUtil.getNestedValue(data, refName);
             boolean passRequired = SchemaUtil.checkRequired(fld,value);
             if( !passRequired ) {
                 vr.addError("", refName + " is required ");
@@ -78,7 +79,7 @@ public class ValidationUtil {
                     vr.addError( "", refName + " must be of type " + type );
                     continue;
                 }
-                DataUtil.putNestedValue(data, refName, oval);
+                EntityUtil.putNestedValue(data, refName, oval);
             } 
             else if( fld instanceof ComplexField ) {
                 ComplexField cf = (ComplexField)fld;

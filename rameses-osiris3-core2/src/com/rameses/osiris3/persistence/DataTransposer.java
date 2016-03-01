@@ -7,6 +7,7 @@ package com.rameses.osiris3.persistence;
 import com.rameses.osiris3.schema.SchemaView;
 import com.rameses.osiris3.schema.SchemaViewField;
 import com.rameses.osiris3.schema.SchemaViewRelationField;
+import com.rameses.util.EntityUtil;
 import com.rameses.util.ObjectSerializer;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -33,7 +34,7 @@ public class DataTransposer {
         for( SchemaViewField vf: svw.findAllFields(".*")) {
             if(! (vf instanceof SchemaViewRelationField )) {
                 if(!vf.isInsertable()) continue;
-                Object val = DataUtil.getNestedValue(sourceData, vf.getExtendedName() );
+                Object val = EntityUtil.getNestedValue(sourceData, vf.getExtendedName() );
                 
                 if( vf.isSerialized() && val !=null) {
                     //get the default serializer
@@ -48,10 +49,10 @@ public class DataTransposer {
                 //This is to protect one to many relationships being cascaded
                 //do not include one to many
                 SchemaViewRelationField svr = (SchemaViewRelationField)vf;
-                Object val = DataUtil.getNestedValue(sourceData, svr.getExtendedName());
+                Object val = EntityUtil.getNestedValue(sourceData, svr.getExtendedName());
                 if( val == null ) {
                     //this is usually for many to one.
-                    val = DataUtil.getNestedValue(sourceData, svr.getTargetFieldExtendedName()  );
+                    val = EntityUtil.getNestedValue(sourceData, svr.getTargetFieldExtendedName()  );
                     targetData.put( svr.getFieldname(), val);
                 }
                 else {

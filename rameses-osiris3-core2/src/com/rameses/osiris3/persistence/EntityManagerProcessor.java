@@ -15,6 +15,7 @@ import com.rameses.osiris3.sql.SqlExecutor;
 import com.rameses.osiris3.sql.SqlQuery;
 import com.rameses.osiris3.sql.SqlUnit;
 import com.rameses.osiris3.sql.SqlUnitCache;
+import com.rameses.util.EntityUtil;
 import java.lang.String;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -156,7 +157,7 @@ public final class EntityManagerProcessor {
             createOneToManyLinks(vw.getExtendsView(), rawData, modelMap, vars);
         }
         for (SchemaRelation sr : vw.getElement().getOneToManyRelationships()) {
-            Object d = DataUtil.getNestedValue(rawData, sr.getName());
+            Object d = EntityUtil.getNestedValue(rawData, sr.getName());
             if (d != null) {
                 SchemaView svw = sr.getLinkedElement().createView();
                 if (!modelMap.containsKey(sr.getLinkedElement().getName())) {
@@ -217,7 +218,7 @@ public final class EntityManagerProcessor {
             String sname = oml.getName();
             List items = null;
             try { 
-                Object itm = DataUtil.getNestedValue(parent, sname); 
+                Object itm = EntityUtil.getNestedValue(parent, sname); 
                 if(itm!=null && (itm instanceof List)) items = (List)itm;
             } catch(Exception ign){;}
             if( items !=null ) {
@@ -230,7 +231,7 @@ public final class EntityManagerProcessor {
             //we'll also remove items that are markeed as deleted.
             List deletedItems = null;
             try { 
-                Object itm = DataUtil.getNestedValue(parent, sname+"::deleted"); 
+                Object itm = EntityUtil.getNestedValue(parent, sname+"::deleted"); 
                 if(itm!=null && (itm instanceof List)) deletedItems = (List)itm;
                 System.out.println("deleted items is " + deletedItems);
             } catch(Exception ign){;}
@@ -260,8 +261,8 @@ public final class EntityManagerProcessor {
         else {
             //fill in the relationships
             for(RelationKey rk: rel.getRelationKeys()) {
-                Object kval = DataUtil.getNestedValue(parent,rk.getField());
-                DataUtil.putNestedValue(data, rk.getTarget(), kval);
+                Object kval = EntityUtil.getNestedValue(parent,rk.getField());
+                EntityUtil.putNestedValue(data, rk.getTarget(), kval);
             }
             odata = create( entityModel, data );
         }
@@ -364,7 +365,7 @@ public final class EntityManagerProcessor {
             //we have to load each record in that case.
             Map subFinders = new HashMap();
             for(RelationKey rk: sr.getRelationKeys()) {
-                Object val = DataUtil.getNestedValue(finders, rk.getField());
+                Object val = EntityUtil.getNestedValue(finders, rk.getField());
                 subFinders.put( rk.getTarget(), val );
             }
             SchemaElement childElement = sr.getLinkedElement();
@@ -404,7 +405,7 @@ public final class EntityManagerProcessor {
                         toDeleteMap.put(tgt, em);
                     }
                     EntityManagerModel em = (EntityManagerModel) toDeleteMap.get(tgt);
-                    Object v = DataUtil.getNestedValue(finders, svf.getFieldname());
+                    Object v = EntityUtil.getNestedValue(finders, svf.getFieldname());
                     em.getFinders().put(svf.getTargetField().getName(), v);
                 } 
             }
@@ -415,7 +416,7 @@ public final class EntityManagerProcessor {
                     toDeleteExtended.put( tgtVw, em );
                 }
                 EntityManagerModel em = (EntityManagerModel) toDeleteExtended.get(tgtVw);
-                Object v = DataUtil.getNestedValue(finders, vf.getExtendedName());
+                Object v = EntityUtil.getNestedValue(finders, vf.getExtendedName());
                 em.getFinders().put(vf.getExtendedName(), v);
             }
         }

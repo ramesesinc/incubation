@@ -68,6 +68,13 @@ public class SchemaViewField {
         if(!isPrimary()) {
             _updatable = true;
         }
+        
+        if( schemaField instanceof SimpleField ) {
+            if( ((SimpleField)schemaField).getExpr()!=null ) {
+                _insertable = false;
+                _updatable = false;
+            }
+        }
     }
     
     public String getName() {
@@ -132,6 +139,12 @@ public class SchemaViewField {
         return _updatable;
     }
 
+    public String getExpr() {
+        if(!  (schemaField instanceof SimpleField)) return null;
+        SimpleField sf = (SimpleField)schemaField;
+        return sf.getExpr();
+    }
+    
     //this will be useful for specifying during building of sql
     public String getTablename() {
         return view.getElement().getTablename();

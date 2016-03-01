@@ -17,6 +17,7 @@ import com.rameses.osiris3.sql.SqlDialectModel.SubQuery;
 import com.rameses.osiris3.sql.SqlDialectModel.WhereFilter;
 import com.rameses.osiris3.sql.SqlExprParserUtil;
 import com.rameses.osiris3.sql.SqlUnit;
+import com.rameses.util.EntityUtil;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.StreamTokenizer;
@@ -78,6 +79,7 @@ public final class SqlDialectModelBuilder {
         f.setUpdatable(vf.isUpdatable());
         f.setSerialized(vf.isSerialized());
         f.setBasefield(vf.isBaseField());
+        f.setExpr(vf.getExpr());
         return f;
     }
     
@@ -143,7 +145,7 @@ public final class SqlDialectModelBuilder {
             //check the data if it is an expression
             SqlDialectModel.Field sqlF = createSqlField(vf);
             try {
-                Object val = DataUtil.getNestedValue(data, extName);
+                Object val = EntityUtil.getNestedValue(data, extName);
                 if(val!=null && (val instanceof String)) {
                     String t = val.toString().trim();
                     if(t.startsWith("{") && t.endsWith("}")) {
