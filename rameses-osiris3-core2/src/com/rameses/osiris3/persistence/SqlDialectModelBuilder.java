@@ -302,7 +302,7 @@ public final class SqlDialectModelBuilder {
                         fname = fname.substring(fname.indexOf(".")+1).replace(".", "_");
                         SqlDialectModel sqm = sqlModel.getSubqueries().get(prefix);
                         if(sqm!=null) {
-                            Field f = sqm.findField(fname);
+                            Field f = sqm.getSelectField(fname);
                             if( f !=null ) {
                                 sb.append( prefix + "." + fname );
                             }

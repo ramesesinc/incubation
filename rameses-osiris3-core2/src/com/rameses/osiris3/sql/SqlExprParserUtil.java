@@ -64,7 +64,7 @@ public class SqlExprParserUtil {
                     fname = fname.substring(fname.indexOf(".")+1).replace(".", "_");
                     SqlDialectModel sqm = sqlModel.getSubqueries().get(prefix);
                     if(sqm!=null) {
-                        Field f = sqm.findField(fname);
+                        Field f = sqm.getSelectField(fname);
                         if( f !=null ) {
                             ctx.append( stmt.getDelimiters()[0]+ prefix +stmt.getDelimiters()[1] +"." );
                             ctx.append( stmt.getDelimiters()[0]+ f.getExtendedName() +stmt.getDelimiters()[1]  );

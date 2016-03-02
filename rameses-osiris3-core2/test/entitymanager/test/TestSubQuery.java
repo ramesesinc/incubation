@@ -36,7 +36,7 @@ public class TestSubQuery extends AbstractTestCase {
                 joinKeys.put("objid", "objid");
                 
                 SubQueryModel sqm = em.setName("entityindividual_deleted").subquery("a");
-                em.setName("entityindividual").select("entityno,firstname,lastname,a.voided").where("a.voided IS NULL").leftJoin(sqm, joinKeys);
+                em.setName("entityindividual").select("lastname,v:{CONCAT(a.voided,'')}").where("CONCAT(a.voided,'') IS NULL").leftJoin(sqm, joinKeys);
                 em.setDebug(true);
                 List list = em.list();
                 //List list = em.select( ".*" ).where("address2 = :addr2", map).list();

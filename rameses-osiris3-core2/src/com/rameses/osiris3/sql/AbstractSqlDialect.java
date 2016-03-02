@@ -256,7 +256,7 @@ public abstract class AbstractSqlDialect implements SqlDialect {
         if( model.getSubqueries()!=null && model.getSubqueries().size()>0 ) {
             for( Object m: model.getSubqueries().entrySet() ) {
                 Map.Entry<String, SqlDialectModel> me = (Map.Entry)m;
-                sb.append( me.getValue().getJoinType() );
+                sb.append( " " + me.getValue().getJoinType() );
                 sb.append( " JOIN ");
                 sb.append( "( ");
                 sb.append( getSelectStatement(me.getValue(), true) );
