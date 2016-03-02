@@ -10,7 +10,7 @@ import com.rameses.rcp.constant.*;
 import java.rmi.server.*;
 import com.rameses.util.*;
         
-public class CrudFormModel {
+public class CrudFormModel implements CrudItemHandler {
         
     @Binding
     def binding;
@@ -83,8 +83,7 @@ public class CrudFormModel {
     }
     */
     
-    public void beforeCreate(){;}
-    public void beforeUpdate(){;}
+    public void beforeSave(def mode){;}
     
     def showMenu() {
         def op = new PopupMenuOpener();
@@ -133,6 +132,8 @@ public class CrudFormModel {
     boolean _inited_ = false;
     
     void init() {
+        if( !schemaName )
+            throw new Exception("Please provide a schema name. Put it in workunit schemaName or override the getSchemaName()");
         if( _inited_ ) return;
         if( !schema ) {
             schema = schemaService.getSchema( [name: schemaName, adapter: adapter]  );
@@ -193,11 +194,11 @@ public class CrudFormModel {
         if(!MsgBox.confirm('You are about to save this record. Proceed?')) return null;
         
         if( mode == 'create' ) {
-            beforeCreate();
+            beforeSave("create");
             entity = service.create( entity );
         }
         else {
-            beforeUpdate();
+            beforeSave("update");
             //extract from the DataMap. Right now we'll use the pure data first
             //we'll change this later to diff.
             entity = entity.data();
@@ -289,52 +290,46 @@ public class CrudFormModel {
         itemHandlers.clear();
         if( schema.items ) {
             schema.items.each { item->
-                def s = new SubItemHandler( subSchema: item, handler: itemHandler );
+                def s = new SubItemHandler( subSchema: item, handler: this );
                 itemHandlers.put( item.name, s );
             }
         }
     }
     
-    public def openItem(def itemName, def item, def colName) {
-        MsgBox.alert( "open item " + itemName + " item " + item + " col "+colName);
+    public def openItem(String name,def item, String colName) {
         return null;
     }
     
-    public boolean beforeColumnUpdate( def name, def colName, def  item, def newValue ) {
+    public boolean beforeColumnUpdate(String name, def item, String colName, def newItem) {
        return true;
     }
     
-    public void afterColumnUpdate(def name, def columnName, Object item) {
-        
+    public void afterColumnUpdate(String name, def item, String colName ) {;}
+    
+    public List fetchItems(String name, def params ) {
+        if( entity.get(name)==null ) entity.put(name, [] );
+        return entity.get(name);
     }
     
-    def itemHandler = [ 
-        fetchList: { name, params ->
-            if( entity.get(name)==null ) entity.put(name, [] );
-            return entity.get(name);
-        },
-        addItem : {name, item->
-            entity.get(name).add( item );
-        },       
-        removeItem : {name, item->
-            String dname = name +"::deleted";
-            if( entity.get(dname) == null ) {
-                entity.put(dname, []);
-            }
-            entity.get(dname).add( item );
-            entity.get(name).remove( item );
-        },
-        openItem: { name, item, colName ->
-            return openItem(subSchema.name, item, colName);
-        },
-        beforeColumnUpdate: { name, item, colName, newValue ->
-            return beforeColumnUpdate( name, colName, item, newValue ); 
-        },
-        afterColumnUpdate: {name, item, colName ->
-            afterColumnUpdate( name, colName, item );
-        }    
-    ];    
+    public void addItem (String name, def item) {
+        if( mode == 'read' ) return;
+        entity.get(name).add( item );
+    }
     
+    public boolean beforeRemoveItem(String name, def item ) {
+        return true;
+    }
+    
+    public final void removeItem( String name, def item) {
+        if( mode == 'read' ) return;
+        if( !beforeRemoveItem(name, item) ) return;
+        String dname = name +"::deleted";
+        if( entity.get(dname) == null ) {
+            entity.put(dname, []);
+        }
+        entity.get(dname).add( item );
+        entity.get(name).remove( item );
+    }
   
 }
 
@@ -358,7 +353,7 @@ public class SubItemHandler extends EditorListModel {
     }
     
     public List fetchList(Map params) {
-        return handler.fetchList(subSchema.name, params);
+        return handler.fetchItems(subSchema.name, params);
     }
     
     protected void onAddItem(Object item) {
