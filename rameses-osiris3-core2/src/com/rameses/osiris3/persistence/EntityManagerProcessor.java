@@ -447,6 +447,7 @@ public final class EntityManagerProcessor {
         this.debug = debug;
     }
 
+    /*
     public SqlDialectModel.SubQuery createSubQueryModel(EntityManagerModel model) {
         try {
             SqlDialectModel sqlModel = SqlDialectModelBuilder.buildSelectSqlModel(model);
@@ -461,4 +462,5 @@ public final class EntityManagerProcessor {
             throw new RuntimeException(e);
         }
     }
+    */ 
 }

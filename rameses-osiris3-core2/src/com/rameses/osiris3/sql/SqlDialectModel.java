@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -37,7 +38,7 @@ public class SqlDialectModel {
     
     //fieldMap is a helper field
     private Map<String, Field> fieldMap = new HashMap();
-    private Map<String, String> subqueries = new HashMap();
+    private Map<String, SqlDialectModel> subqueries = new LinkedHashMap();
 
     //internal fields for finding things
     //for updating and saving
@@ -188,14 +189,14 @@ public class SqlDialectModel {
         }
     }
 
-    public Map<String, String> getSubqueries() {
+    public void addSubQuery( String name, SqlDialectModel subQuery ) {
+        subqueries.put(name, subQuery);
+    }
+    
+    public Map<String, SqlDialectModel> getSubqueries() {
         return subqueries;
     }
     
-    public void setSubqueries(Map<String, String> subqueries) {
-        this.subqueries = subqueries;
-    }
-
     public WhereFilter getWhereFilter() {
         return whereFilter;
     }
@@ -230,6 +231,13 @@ public class SqlDialectModel {
     
     public List<Field> getFields() {
         return fields;
+    }
+    
+    public Field getSelectField(String name) {
+        for(Field f:this.fields) {
+            if( f.getExtendedName().equals(name)) return f;
+        }
+        return null;
     }
     
     public Map<String, Field> getFieldMap() {
@@ -288,23 +296,6 @@ public class SqlDialectModel {
         this.joinedViews = vws;
     }
     
-    public static class SubQuery {
-        private SqlDialectModel sqlModel;
-        private Map params = new HashMap();
-
-        public SqlDialectModel getSqlModel() {
-            return sqlModel;
-        }
-
-        public void setSqlModel(SqlDialectModel sqlModel) {
-            this.sqlModel = sqlModel;
-        }
-
-        public Map getParams() {
-            return params;
-        }
-    }
-    
     public static class Field {
         
         private String name;
@@ -318,7 +309,7 @@ public class SqlDialectModel {
         private boolean serialized;
         private boolean basefield;
         private String sortDirection;
-        private SubQuery subQuery;
+        private SqlDialectModel subQuery;
         
         private String expr;
         
@@ -430,11 +421,11 @@ public class SqlDialectModel {
             return hashCode() == obj.hashCode();
         }
 
-        public SubQuery getSubQuery() {
+        public SqlDialectModel getSubQuery() {
             return subQuery;
         }
 
-        public void setSubQuery(SubQuery subQuery) {
+        public void setSubQuery(SqlDialectModel subQuery) {
             this.subQuery = subQuery;
         }
     }
@@ -487,6 +478,72 @@ public class SqlDialectModel {
         return joinedViews;
     }
 
+    /*****************************************
+     * additional methods to support subquery
+     * ***************************************/
+    private String joinType;
+    
+    public String getJoinType() {
+        return joinType;
+    }
+    public void setJoinType(String s) {
+        this.joinType = s;
+    }
+    
+    private List<JoinRelationKey> relationKeys = new ArrayList();
 
+    public List<JoinRelationKey> getRelationKeys() {
+        return relationKeys;
+    }
+
+    public void addRelationKey(Field sourceField, Field targetField ) {
+        relationKeys.add( new JoinRelationKey(sourceField, targetField) );
+    }
+    
+    public static class JoinRelationKey {
+        private Field sourceField;
+        private Field targetField;
+        
+        public JoinRelationKey(Field source, Field target) {
+            this.sourceField = source;
+            this.targetField = target;
+        }
+
+        public Field getSourceField() {
+            return sourceField;
+        }
+
+        public Field getTargetField() {
+            return targetField;
+        }
+    }
+    
+    /***
+     *  This creates a new field from the sub queries.
+     */ 
+     public SqlDialectModel.Field findFirstSubQueryFields( String matchName ) {
+         List<SqlDialectModel.Field> list = findAllSubQueryFields(matchName);
+         if( list.size() == 0 ) throw new RuntimeException("Error findFirstSubQueryFields. No fields found in subquery that matches " + matchName);
+         return list.iterator().next();
+     }
+     
+     public List<SqlDialectModel.Field> findAllSubQueryFields( String matchName ) {
+        List<SqlDialectModel.Field> list = new ArrayList();
+        for(Object o: getSubqueries().entrySet()) {
+            Map.Entry<String, SqlDialectModel> me = (Map.Entry)o;
+            for(Field f: me.getValue().getFields()) {
+                String n = me.getKey()+"."+f.getExtendedName();
+                if( n.matches(matchName) ) {
+                    Field newfld = new Field();
+                    newfld.setExtendedName(f.getExtendedName());
+                    newfld.setFieldname(f.getExtendedName());
+                    newfld.setTablealias(me.getKey());
+                    newfld.setTablename(me.getKey());
+                    list.add( newfld );
+                }
+            }
+        }
+        return list;
+    }
     
 }

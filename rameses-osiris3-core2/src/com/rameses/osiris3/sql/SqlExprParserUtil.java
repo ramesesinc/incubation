@@ -54,19 +54,35 @@ public class SqlExprParserUtil {
                         ctx.append( stmt.getDelimiters()[0]+ vf.getTablealias() +stmt.getDelimiters()[1] +"." );
                     }
                     ctx.append( stmt.getDelimiters()[0]+ vf.getFieldname() +stmt.getDelimiters()[1] );
+                    continue;
+                }
+                
+                //check next if the field is found at the subquery
+                if( st.sval.indexOf(".")>0 ) {
+                    String fname = st.sval;
+                    String prefix = fname.substring(0, fname.indexOf("."));
+                    fname = fname.substring(fname.indexOf(".")+1).replace(".", "_");
+                    SqlDialectModel sqm = sqlModel.getSubqueries().get(prefix);
+                    if(sqm!=null) {
+                        Field f = sqm.findField(fname);
+                        if( f !=null ) {
+                            ctx.append( stmt.getDelimiters()[0]+ prefix +stmt.getDelimiters()[1] +"." );
+                            ctx.append( stmt.getDelimiters()[0]+ f.getExtendedName() +stmt.getDelimiters()[1]  );
+                            continue;
+                        }
+                    }
+                }
+                
+                //check if next token is open parens then this is a function.
+                if(  st.nextToken() == '(') {
+                    //check if there is function.
+                    SqlDialectFunction func = stmt.getFunction(v);
+                    stack.push( new FunctionContext(func) );
                 }
                 else {
-                    //check if next token is open parens then this is a function.
-                    if(  st.nextToken() == '(') {
-                        //check if there is function.
-                        SqlDialectFunction func = stmt.getFunction(v);
-                        stack.push( new FunctionContext(func) );
-                    }
-                    else {
-                        st.pushBack();
-                        ctx.append(v);
-                    }
-                }    
+                    st.pushBack();
+                    ctx.append(v);
+                }
             }
             else if (i == st.TT_NUMBER) {
                 ctx.append( st.nval+"" );

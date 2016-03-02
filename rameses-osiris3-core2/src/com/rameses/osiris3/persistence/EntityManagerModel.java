@@ -9,6 +9,7 @@ import com.rameses.osiris3.schema.SchemaView;
 import java.lang.String;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -17,7 +18,7 @@ import java.util.Map;
  * @author dell
  * This is a package level model. This should not be visible from the outside world
  */
-public class EntityManagerModel {
+public class EntityManagerModel implements ISelectModel {
     
     private SchemaView schemaView;
     private String name;
@@ -26,14 +27,13 @@ public class EntityManagerModel {
     private String selectFields;
     
     private Map finders = new HashMap();
-    private Map subqueries = new HashMap();
+    private Map<String, SubQueryModel> subqueries = new LinkedHashMap();
     private Map vars = new HashMap();
     
     private WhereElement whereElement;
     private String orderExpr;
     private String groupByExpr;
     private List<WhereElement> orWhereList;
-    
     
     private int start;
     private int limit;
@@ -52,8 +52,8 @@ public class EntityManagerModel {
         return finders;
     }
     
-    public void addSubquery(String name, String expr ) {
-        subqueries.put(name, expr);
+    public void addSubquery(String name, SubQueryModel model ) {
+        subqueries.put(name, model);
     }
 
     public SchemaView getSchemaView() {
@@ -142,7 +142,7 @@ public class EntityManagerModel {
         }
     }
     
-     public static class OrderElement {
+    public static class OrderElement {
         private String field;
         private String direction;
 
@@ -168,9 +168,9 @@ public class EntityManagerModel {
         }
     }
      
-    public Map getSubqueries() {
-        return subqueries;
-    } 
+    public Map<String,SubQueryModel> getSubqueries() {
+        return this.subqueries;
+    }
      
     public Map getWhereParams() {
         Map map = new HashMap();
@@ -191,6 +191,7 @@ public class EntityManagerModel {
                 && getWhereElement().getExpr().trim().length()>0 ) return true;
         return false;
     }
+    
     
     
 }

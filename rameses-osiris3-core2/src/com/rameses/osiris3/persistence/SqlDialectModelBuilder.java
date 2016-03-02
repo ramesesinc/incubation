@@ -8,15 +8,14 @@ import com.rameses.osiris3.persistence.EntityManagerModel.WhereElement;
 import com.rameses.osiris3.persistence.SelectFieldsTokenizer.Token;
 import com.rameses.osiris3.schema.AbstractSchemaView;
 import com.rameses.osiris3.schema.LinkedSchemaView;
+import com.rameses.osiris3.schema.RelationKey;
 import com.rameses.osiris3.schema.SchemaView;
 import com.rameses.osiris3.schema.SchemaViewField;
 import com.rameses.osiris3.schema.SchemaViewRelationField;
 import com.rameses.osiris3.sql.SqlDialectModel;
 import com.rameses.osiris3.sql.SqlDialectModel.Field;
-import com.rameses.osiris3.sql.SqlDialectModel.SubQuery;
 import com.rameses.osiris3.sql.SqlDialectModel.WhereFilter;
 import com.rameses.osiris3.sql.SqlExprParserUtil;
-import com.rameses.osiris3.sql.SqlUnit;
 import com.rameses.util.EntityUtil;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -164,7 +163,6 @@ public final class SqlDialectModelBuilder {
             //build the finders if any
             addFinders(entityModel, sqlModel, svw);
             addWhereCriteria( entityModel, sqlModel, svw );
-            sqlModel.setSubqueries(entityModel.getSubqueries());
         }
         return modelMap;
     }
@@ -269,14 +267,7 @@ public final class SqlDialectModelBuilder {
 
     
     
-    /**
-     * *
-     * sample output: WHERE parentid IN ( SELECT objid FROM entityindividual
-     * WHERE objid=$P{objid} )
-     */
-    public static SqlDialectModel buildSelectSubquery(EntityManagerModel entityModel, SqlUnit squ) {
-        return null;
-    }
+   
     
      /**
      * **********************************************************************
@@ -301,10 +292,25 @@ public final class SqlDialectModelBuilder {
                         sqlModel.addExprField( createSqlField(vf) );
                         sqlModel.addJoinedViews( vf.getView().getJoinPaths() );
                         sb.append( v );
+                        continue;
                     }
-                    else {
-                        sb.append( st.sval );
+                    
+                    //if field not exist in basic it might exist in the dialect model's subqueries
+                    if( st.sval.indexOf(".")>0 ) {
+                        String fname = st.sval;
+                        String prefix = fname.substring(0, fname.indexOf("."));
+                        fname = fname.substring(fname.indexOf(".")+1).replace(".", "_");
+                        SqlDialectModel sqm = sqlModel.getSubqueries().get(prefix);
+                        if(sqm!=null) {
+                            Field f = sqm.findField(fname);
+                            if( f !=null ) {
+                                sb.append( prefix + "." + fname );
+                            }
+                        }
+                        continue;
                     }
+                    sb.append( st.sval );
+                    
                 }
                 else if( i == '\'') {
                     sb.append( "'" + st.sval + "'" );
@@ -332,7 +338,7 @@ public final class SqlDialectModelBuilder {
         return wf;
     }
     
-    public static void addFinders( EntityManagerModel entityModel, SqlDialectModel sqlModel, SchemaView svw  ) {
+    public static void addFinders( ISelectModel entityModel, SqlDialectModel sqlModel, SchemaView svw  ) {
         if( entityModel.getFinders()!=null ) {
             Map finders = entityModel.getFinders();
             for( Object k: finders.keySet() ) {
@@ -341,8 +347,10 @@ public final class SqlDialectModelBuilder {
                 if( vf == null ) throw new RuntimeException("Finder field " + s + " does not exist" );
                 SqlDialectModel.Field sf = createSqlField(vf);
                 Object val = finders.get(k);
-                if( val !=null && (val instanceof SubQuery) ) {
-                    sf.setSubQuery((SubQuery)val);
+                if( val !=null && (val instanceof SubQueryModel) ) {
+                    SubQueryModel sqm = (SubQueryModel)val;
+                    SqlDialectModel subQryModel = buildSubQueryModel( sqm, sqlModel, svw);
+                    sf.setSubQuery(subQryModel);
                 }
                 sqlModel.addFinderField( sf );
                 sqlModel.addJoinedViews( vf.getView().getJoinPaths() );
@@ -350,7 +358,7 @@ public final class SqlDialectModelBuilder {
         }
     }
     
-    public static void addWhereCriteria( EntityManagerModel entityModel, SqlDialectModel sqlModel,  SchemaView svw  ) {
+    public static void addWhereCriteria( ISelectModel entityModel, SqlDialectModel sqlModel,  SchemaView svw  ) {
         if( entityModel.getWhereElement()!=null ) {
             WhereFilter wf = createWhereFilter(entityModel.getWhereElement(), sqlModel, svw);
             sqlModel.setWhereFilter(wf);
@@ -363,8 +371,42 @@ public final class SqlDialectModelBuilder {
         }
     }
     
+    public static SqlDialectModel buildSubQueryModel( SubQueryModel subQryModel, SqlDialectModel sqlModel, SchemaView svw ) {
+        SqlDialectModel subQuery = buildSelectSqlModel(subQryModel);
+        subQuery.setJoinType(subQryModel.getJointype());
+        //find the keys 
+        for( RelationKey rk: subQryModel.getRelationKeys() ) {
+            String extName = rk.getField().replace(".", "_");
+            SchemaViewField vf = svw.getField(extName);
+            if( vf == null ) 
+                throw new RuntimeException("Error buildSubQueryModel. field "+rk.getField()+" not found in parent");
+            SqlDialectModel.Field src = createSqlField(vf);
+            String textName = rk.getTarget().replace(".","_");
+            SqlDialectModel.Field tgt = subQuery.getSelectField(textName);
+            if(tgt==null) 
+                throw new RuntimeException("Error buildSubQueryModel. sub query field "+rk.getTarget()+" not found in parent");
+            //create 
+            Field newfld = new Field();
+            newfld.setExtendedName(tgt.getExtendedName());
+            newfld.setFieldname(tgt.getExtendedName());
+            newfld.setTablealias(subQryModel.getName());
+            newfld.setTablename(subQryModel.getName());
+            subQuery.addRelationKey(src, newfld);
+        }
+        return subQuery;
+    }
+    
+    public static void buildSubQueryModels( ISelectModel entityModel, SqlDialectModel sqlModel, SchemaView svw ) {
+        if( entityModel.getSubqueries()==null || entityModel.getSubqueries().size()<=0 ) return;
+        for( Object m: entityModel.getSubqueries().entrySet() ) {
+            Map.Entry<String, SubQueryModel> me = (Map.Entry)m;
+            SqlDialectModel subQuery = buildSubQueryModel(me.getValue(), sqlModel, svw);
+            sqlModel.addSubQuery(me.getKey(), subQuery);
+        }
+    }
+    
     //for research
-    public static SqlDialectModel buildSelectSqlModel( EntityManagerModel entityModel ) {
+    public static SqlDialectModel buildSelectSqlModel( ISelectModel entityModel ) {
         SchemaView svw = entityModel.getSchemaView();
         
         SqlDialectModel sqlModel = new SqlDialectModel();
@@ -372,15 +414,28 @@ public final class SqlDialectModelBuilder {
         sqlModel.setTablename(svw.getTablename());
         sqlModel.setTablealias(svw.getName());
         
+        //if there are subqueries, we must build it first before doing any parsing. 
+        //THIS MUST COME FIRST.
+        buildSubQueryModels(entityModel, sqlModel, svw);
+        
         //tokenize each field, then find out which fields will be considered in the select
         List<Token> fieldMatchList = SelectFieldsTokenizer.tokenize(entityModel.getSelectFields());
         for(Token t: fieldMatchList ) {
             if( !t.hasExpr()) {
+                boolean consumed = false;
                 for(SchemaViewField vf: svw.findAllFields()) {
                     if(vf.getExtendedName().matches(t.getFieldMatch())) {
                         SqlDialectModel.Field sf = createSqlField(vf);
                         sqlModel.addField(sf);
                         sqlModel.addJoinedViews( vf.getView().getJoinPaths() );
+                        consumed = true;
+                    }
+                };
+                //if token field does not have a match, try to look in the subqueries
+                if( !consumed ) {
+                    List<SqlDialectModel.Field> subQueryFlds = sqlModel.findAllSubQueryFields( t.getFieldMatch() );
+                    for( SqlDialectModel.Field f: subQueryFlds ) {
+                        sqlModel.addField(f);
                     }
                 }
             }
@@ -428,7 +483,6 @@ public final class SqlDialectModelBuilder {
                 }
             }
         }
-        sqlModel.setSubqueries(entityModel.getSubqueries());
         sqlModel.setStart(entityModel.getStart());
         sqlModel.setLimit(entityModel.getLimit());
         return sqlModel;

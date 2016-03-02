@@ -15,7 +15,6 @@ import com.rameses.osiris3.schema.SchemaSerializer;
 import com.rameses.osiris3.sql.FieldToMap;
 import com.rameses.osiris3.sql.MapToField;
 import com.rameses.osiris3.sql.SqlContext;
-import com.rameses.osiris3.sql.SqlDialectModel.SubQuery;
 import com.rameses.osiris3.sql.SqlExecutor;
 import com.rameses.osiris3.sql.SqlQuery;
 import java.util.List;
@@ -616,12 +615,31 @@ public class EntityManager {
         return new SqlExpression(statement);
     }
     
-    public EntityManager join(EntityManager em, Map joinKeys) {
+    /***
+     * joinKeys = first value is the field of the parent
+     *          = second value is the field of the sub query
+     */ 
+    public EntityManager join(SubQueryModel qryModel, Map joinKeys) {
+        for( Object m: joinKeys.entrySet() ) {
+            Map.Entry me = (Map.Entry)m;
+            qryModel.addRelation(me.getKey().toString(), me.getValue().toString());
+        }
+        getModel().addSubquery(qryModel.getName(), qryModel);
         return this;
     }
     
-    public SubQuery subquery() {
-        return processor.createSubQueryModel(getModel());
+    public EntityManager leftJoin(SubQueryModel qryModel, Map joinKeys) {
+        qryModel.setJointype("LEFT");
+        for( Object m: joinKeys.entrySet() ) {
+            Map.Entry me = (Map.Entry)m;
+            qryModel.addRelation(me.getKey().toString(), me.getValue().toString());
+        }
+        getModel().addSubquery(qryModel.getName(), qryModel);
+        return this;
+    }
+    
+    public SubQueryModel subquery(String name) {
+        return new SubQueryModel(name, getModel()); 
     }
     
 
