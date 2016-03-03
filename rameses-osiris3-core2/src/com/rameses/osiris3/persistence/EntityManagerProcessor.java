@@ -108,7 +108,6 @@ public final class EntityManagerProcessor {
         ValidationResult vr = ValidationUtil.validate(data, model.getElement());
         if(vr.hasErrors()) 
             throw new Exception(vr.toString());
-        
         SchemaView svw = model.getSchemaView();
         Map sqlModelMap = new LinkedHashMap();
         SqlDialectModelBuilder.buildCreateSqlModels(svw, sqlModelMap);

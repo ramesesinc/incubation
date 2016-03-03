@@ -7,8 +7,10 @@ package com.rameses.osiris3.persistence;
 import com.rameses.osiris3.persistence.EntityManagerModel.WhereElement;
 import com.rameses.osiris3.persistence.SelectFieldsTokenizer.Token;
 import com.rameses.osiris3.schema.AbstractSchemaView;
+import com.rameses.osiris3.schema.InverseJoinSchema;
 import com.rameses.osiris3.schema.LinkedSchemaView;
 import com.rameses.osiris3.schema.RelationKey;
+import com.rameses.osiris3.schema.SchemaRelation;
 import com.rameses.osiris3.schema.SchemaView;
 import com.rameses.osiris3.schema.SchemaViewField;
 import com.rameses.osiris3.schema.SchemaViewRelationField;
@@ -301,12 +303,40 @@ public final class SqlDialectModelBuilder {
                         String prefix = fname.substring(0, fname.indexOf("."));
                         fname = fname.substring(fname.indexOf(".")+1).replace(".", "_");
                         SqlDialectModel sqm = sqlModel.getSubqueries().get(prefix);
-                        if(sqm!=null) {
+                        InverseJoinSchema ij = svw.getInverseJoins().get(prefix);
+                        if( sqm == null ) {
+                            if(ij==null) continue;
+                            sqm = buildSubQueryModelFromInverse(ij, sqlModel, svw);
+                            sqlModel.addSubQuery(ij.getName(), sqm);
+                        }
+                        if( sqm.isInverseJoin() ) {
+                            SchemaViewField svf = ij.getElement().createView().getField(fname);
+                            //add to expression of main sql
+                            sqlModel.addExprField( createSubQueryField(svf, prefix) );
+                            //no need to check the field anymore cause i'm tired of checking this
+                            sb.append( prefix + "." + fname );
+                        }
+                        else {
                             Field f = sqm.getSelectField(fname);
                             if( f !=null ) {
                                 sb.append( prefix + "." + fname );
                             }
                         }
+                        
+                        //check if prefix exists in inverse relationships
+                        /*
+                        LinkedSchemaView lvw = svw.getInverseViews( prefix );
+                        if( lvw !=null ) {
+                            SchemaView svw1 = lvw.getElement().createView();
+                            SchemaViewField f = svw1.getField(fname);
+                            * 
+                            if(f!=null) {
+                                sb.append(prefix+"."+f.getExtendedName());
+                            }
+                            sqlModel.addSubQuery(prefix, createSubQuery()); 
+                        }
+                        */ 
+                        
                         continue;
                     }
                     sb.append( st.sval );
@@ -370,6 +400,39 @@ public final class SqlDialectModelBuilder {
             }
         }
     }
+
+    /* when building the subquery there will be no select fields yet*/
+    public static SqlDialectModel buildSubQueryModelFromInverse( InverseJoinSchema ij, SqlDialectModel sqlModel, SchemaView svw ) {
+        SqlDialectModel subModel = new SqlDialectModel();
+        SchemaRelation rel = ij.getRelation();
+        subModel.setTablealias(rel.getName());
+        subModel.setTablename(ij.getElement().getTablename());
+        subModel.setInverseJoin(true);
+        subModel.setJoinType( (rel.isRequired())? "INNER" : "LEFT" );
+        
+        SqlDialectModel.Field f = new SqlDialectModel.Field();
+        f.setExpr("*");
+        subModel.addField( f );
+        //build the relationships too
+        
+        SchemaView linkedView = ij.getElement().createView();
+        for( RelationKey rk: rel.getRelationKeys()) {
+            //this is the source field
+            String extName = rk.getField().replace(".", "_");
+            SchemaViewField vf = linkedView.getField(extName);
+            if( vf == null ) 
+                throw new RuntimeException("Error buildSubQueryModelFromInverse. field "+rk.getField()+" not found in linked element");
+            //this field is on the main side (parent). add join paths in case the linked field is not selected
+            SqlDialectModel.Field src = createSubQueryField(vf, rel.getName());
+            subModel.addJoinedViews(vf.getView().getJoinPaths());
+            //build the key from the parent
+            String textName = rk.getTarget().replace(".","_");
+            SchemaViewField svf = svw.getField(textName);
+            Field newfld = createSqlField(svf);
+            subModel.addRelationKey(src, newfld);   
+        }
+        return subModel;
+    }
     
     public static SqlDialectModel buildSubQueryModel( SubQueryModel subQryModel, SqlDialectModel sqlModel, SchemaView svw ) {
         SqlDialectModel subQuery = buildSelectSqlModel(subQryModel);
@@ -380,7 +443,10 @@ public final class SqlDialectModelBuilder {
             SchemaViewField vf = svw.getField(extName);
             if( vf == null ) 
                 throw new RuntimeException("Error buildSubQueryModel. field "+rk.getField()+" not found in parent");
+            //this field is on the main side (parent). add join paths in case the linked field is not selected
             SqlDialectModel.Field src = createSqlField(vf);
+            sqlModel.addJoinedViews(vf.getView().getJoinPaths());
+            
             String textName = rk.getTarget().replace(".","_");
             SqlDialectModel.Field tgt = subQuery.getSelectField(textName);
             if(tgt==null) 
@@ -403,6 +469,16 @@ public final class SqlDialectModelBuilder {
             SqlDialectModel subQuery = buildSubQueryModel(me.getValue(), sqlModel, svw);
             sqlModel.addSubQuery(me.getKey(), subQuery);
         }
+    }
+    
+    public static SqlDialectModel.Field createSubQueryField(SchemaViewField svf, String subQryAlias) {
+        Field newfld = new Field();
+        newfld.setExtendedName(subQryAlias + "_" + svf.getExtendedName());
+        newfld.setFieldname(svf.getExtendedName());
+        newfld.setName(svf.getExtendedName());
+        newfld.setTablealias(subQryAlias);
+        newfld.setTablename(subQryAlias);
+        return newfld;
     }
     
     //for research
@@ -432,10 +508,41 @@ public final class SqlDialectModelBuilder {
                     }
                 };
                 //if token field does not have a match, try to look in the subqueries
+                //The requirement is there must be a prefix, otherwise we will ignore it.
                 if( !consumed ) {
-                    List<SqlDialectModel.Field> subQueryFlds = sqlModel.findAllSubQueryFields( t.getFieldMatch() );
-                    for( SqlDialectModel.Field f: subQueryFlds ) {
-                        sqlModel.addField(f);
+                    //remove the first part of prefix:
+                    int idx = t.getFieldMatch().indexOf(".");
+                    if( idx > 0 ) {
+                        String prefix = t.getFieldMatch().substring(0, idx);
+                        String fname = t.getFieldMatch().substring(idx+1);
+                        if(fname.equals("*")) fname = ".*";
+                        
+                        SqlDialectModel subQryModel = sqlModel.getSubqueries().get(prefix);
+                        InverseJoinSchema ij = svw.getInverseJoins().get(prefix);
+                        if( subQryModel ==null ) {
+                            //check if it is defined in the inverse join. if not build and register it 
+                            if(ij==null) continue;
+                            subQryModel = buildSubQueryModelFromInverse(ij, sqlModel, svw);
+                            sqlModel.addSubQuery(ij.getName(), subQryModel);
+                        }
+                        //it is assumed at this point the sub query model can never be null
+                        if(subQryModel.isInverseJoin()) {
+                            //loop thru each field that matches
+                            for(SchemaViewField ssvf: ij.getElement().createView().getFields()) {
+                                if(ssvf.getExtendedName().matches(fname)) {
+                                    //add also the field in the main model
+                                    sqlModel.addField(createSubQueryField(ssvf, prefix));
+                                }
+                            }
+                        }
+                        else {
+                            List<SqlDialectModel.Field> subQryFlds = sqlModel.findAllSubQueryFields( prefix, fname );
+                            if( subQryFlds != null ) {
+                                for( SqlDialectModel.Field f: subQryFlds ) {
+                                    sqlModel.addField(f);
+                                }
+                            }
+                        }
                     }
                 }
             }

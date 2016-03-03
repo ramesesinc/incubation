@@ -39,7 +39,7 @@ public class SqlDialectModel {
     //fieldMap is a helper field
     private Map<String, Field> fieldMap = new HashMap();
     private Map<String, SqlDialectModel> subqueries = new LinkedHashMap();
-
+    
     //internal fields for finding things
     //for updating and saving
     private int start;
@@ -53,6 +53,10 @@ public class SqlDialectModel {
     
     private WhereFilter whereFilter;
     private List<WhereFilter> orWhereList;
+    
+    //marked as true if the link type is inverse. applicable to subqueries 
+    private boolean inverseJoin = false;
+    
     
     /*
      * The id should be unique per call because it will cache the sql units.
@@ -521,6 +525,14 @@ public class SqlDialectModel {
     /***
      *  This creates a new field from the sub queries.
      */ 
+    public boolean isInverseJoin() {
+        return inverseJoin;
+    }
+    
+    public void setInverseJoin(boolean b) {
+        this.inverseJoin = b;
+    }
+    
      public SqlDialectModel.Field findFirstSubQueryFields( String matchName ) {
          List<SqlDialectModel.Field> list = findAllSubQueryFields(matchName);
          if( list.size() == 0 ) throw new RuntimeException("Error findFirstSubQueryFields. No fields found in subquery that matches " + matchName);
@@ -541,6 +553,23 @@ public class SqlDialectModel {
                     newfld.setTablename(me.getKey());
                     list.add( newfld );
                 }
+            }
+        }
+        return list;
+    }
+     
+    public List<SqlDialectModel.Field> findAllSubQueryFields( String prefix, String matchName ) {
+        List<SqlDialectModel.Field> list = new ArrayList();
+        SqlDialectModel sqd = getSubqueries().get(prefix);
+        if( sqd == null ) return null;
+        for(Field f: sqd.getFields()) {
+            if( f.getExtendedName().matches(matchName) ) {
+                Field newfld = new Field();
+                newfld.setExtendedName(f.getExtendedName());
+                newfld.setFieldname(f.getExtendedName());
+                newfld.setTablealias(prefix);
+                newfld.setTablename(prefix);
+                list.add( newfld );
             }
         }
         return list;

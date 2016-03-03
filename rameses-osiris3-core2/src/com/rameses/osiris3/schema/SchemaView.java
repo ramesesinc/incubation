@@ -7,6 +7,7 @@ package com.rameses.osiris3.schema;
 import com.rameses.osiris3.schema.SchemaViewFieldFilter.ExtendedNameViewFieldFilter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -20,6 +21,8 @@ public class SchemaView extends AbstractSchemaView {
     
     //this contains the flattened out one to many relations
     private List<OneToManyLink> oneToManyLinks;
+    
+    private Map<String, InverseJoinSchema> inverseJoins = new LinkedHashMap();
     
     SchemaView(SchemaElement elem) {
         super(elem.getName(), elem);
@@ -137,4 +140,13 @@ public class SchemaView extends AbstractSchemaView {
         return oneToManyLinks;
     }
 
+    public Map<String, InverseJoinSchema> getInverseJoins() {
+        return inverseJoins;
+    }
+    
+    public void addInverseJoinSchema(SchemaRelation sr ) {
+        InverseJoinSchema ij = new InverseJoinSchema(sr);
+        inverseJoins.put( sr.getName(), ij);
+    }
+    
 }

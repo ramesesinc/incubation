@@ -5,6 +5,7 @@
 package com.rameses.osiris3.sql;
 
 
+import com.rameses.osiris3.persistence.JoinTypes;
 import com.rameses.osiris3.schema.AbstractSchemaView;
 import com.rameses.osiris3.schema.LinkedSchemaView;
 import com.rameses.osiris3.schema.SchemaViewRelationField;

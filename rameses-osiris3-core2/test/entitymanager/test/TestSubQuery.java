@@ -29,7 +29,7 @@ public class TestSubQuery extends AbstractTestCase {
         return map;
     }
 
-    public void testSelect() throws Exception {
+    public void ztestSelect() throws Exception {
         exec( new ExecHandler() {
             public void execute() throws Exception {
                 Map joinKeys = new HashMap();
@@ -48,5 +48,20 @@ public class TestSubQuery extends AbstractTestCase {
         });   
     }
     
+    public void testInverseSelect() throws Exception {
+        exec( new ExecHandler() {
+            public void execute() throws Exception {
+                Map joinKeys = new HashMap();
+                em.setName("entityindividual").select("lastname").where("CONCAT(deleted.voided) IS NULL");
+                em.setDebug(true);
+                List list = em.list();
+                //List list = em.select( ".*" ).where("address2 = :addr2", map).list();
+                printList(list);
+                
+                //Map m = em.select("count:{1}").where("1=1").first();
+                //System.out.println(m);
+            }
+        });   
+    }
     
 }

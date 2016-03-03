@@ -94,9 +94,6 @@ public class EntityManager {
             }
             Map mdata = (Map)data;
             DataFillUtil.fillInitialData(getModel().getElement(), mdata);
-            ValidationResult vr = ValidationUtil.validate(mdata, getModel().getElement());
-            if(vr.hasErrors()) throw new Exception(vr.toString());
-            //EntityValidator.validate(mdata, getModel().getElement());
             processor.create(getModel(), mdata);
             clearModel();
             return mdata;

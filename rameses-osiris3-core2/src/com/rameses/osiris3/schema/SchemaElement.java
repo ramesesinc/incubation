@@ -237,7 +237,8 @@ public class SchemaElement implements Serializable {
         // Process the inverse relationship
         SchemaRelation ir = getInverseRelationship();
         if( ir != null ) {
-            LinkedSchemaView targetVw = new LinkedSchemaView(ir.getName(), ir.getLinkedElement(), rootVw, currentVw, ir.getJointype(), ir.isRequired(), prefix  );
+            rootVw.addInverseJoinSchema(ir);
+            //make an ordinary link field. Type must be the same as the target
             for( RelationKey rk: ir.getRelationKeys() ) {
                 SimpleField tf = (SimpleField)ir.getLinkedElement().getField(rk.getTarget());
                 if( tf == null ) 
@@ -251,9 +252,10 @@ public class SchemaElement implements Serializable {
                 sf.setName(rk.getField());
                 sf.setFieldname(rk.getField());
                 sf.setType( tf.getType() );
-                SchemaViewRelationField rf = new SchemaViewRelationField(sf, rootVw, currentVw,tf, targetVw);
-                rootVw.addField( rf );
+                SchemaViewField vf = new SchemaViewField(sf, rootVw, currentVw);
+                rootVw.addField( vf );
             }//do not fetch anymore.
+            
         }
         
         //load the one to many relationships

@@ -9,6 +9,7 @@
 
 package com.rameses.osiris3.schema;
 
+import com.rameses.osiris3.persistence.JoinTypes;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -40,7 +41,11 @@ public class ComplexField extends SchemaField implements IRelationalField {
         return name;
     }
     
+    //inverse types will never be required
     public boolean isRequired() {
+        if(getJoinType()!=null && getJoinType().equals(JoinTypes.INVERSE)) {
+            return false;
+        }
         return required;
     }
     
