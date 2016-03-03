@@ -222,17 +222,11 @@ public abstract class AbstractSqlDialect implements SqlDialect {
         }
         if (model.getJoinedViews() != null) {
             int i = 0;
-            for (AbstractSchemaView avw : model.getJoinedViews()) {
-                if (!(avw instanceof LinkedSchemaView)) {
-                    continue;
-                }
-                LinkedSchemaView lsv = (LinkedSchemaView) avw;
-                if (lsv != null) {
-                    if (lsv.isRequired()) {
-                        sb.append(" INNER JOIN ");
-                    } else {
-                        sb.append(" LEFT JOIN ");
-                    }
+            for (LinkedSchemaView lsv : model.getJoinedViews()) {
+                if (lsv.isRequired()) {
+                    sb.append(" INNER JOIN ");
+                } else {
+                    sb.append(" LEFT JOIN ");
                 }
                 sb.append(" " + getDelimiters()[0] + lsv.getTablename() + getDelimiters()[1] + " ");
                 if (!lsv.getTablename().equals(lsv.getName())) {

@@ -25,8 +25,8 @@ public abstract class AbstractTestCase extends TestCase {
     protected MockConnectionManager cm;
     protected EntityManager em;
     
-    public AbstractTestCase(String testName) {
-        super(testName);
+    public AbstractTestCase() {
+        super("Test");
     }
 
     @Override
@@ -45,18 +45,22 @@ public abstract class AbstractTestCase extends TestCase {
 
     public abstract String getDialect();
     
+    public String getDbname() {
+        return "testdb";
+    }
+    
     private SqlContext createContext() throws Exception {
         cm = new MockConnectionManager();
         SimpleDataSource ds = null;
         SqlContext sqlc = null;
         if( getDialect().equals("mysql")) {
-            ds = new SimpleDataSource("com.mysql.jdbc.Driver", "jdbc:mysql://localhost/testdb", "root", "1234");
+            ds = new SimpleDataSource("com.mysql.jdbc.Driver", "jdbc:mysql://localhost/"+getDbname(), "root", "1234");
             sqlc = sqlManager.createContext(cm.getConnection("main", ds));
             sqlc.setDialect(new MySqlDialect());
         }
         else {
             //SQL SERVER
-            ds = new SimpleDataSource("com.microsoft.sqlserver.jdbc.SQLServerDriver", "jdbc:sqlserver://127.0.0.1;DatabaseName=testdb", "sa", "1234");
+            ds = new SimpleDataSource("com.microsoft.sqlserver.jdbc.SQLServerDriver", "jdbc:sqlserver://127.0.0.1;DatabaseName="+getDbname(), "sa", "1234");
             sqlc = sqlManager.createContext(cm.getConnection("main", ds));
             sqlc.setDialect(new MsSqlDialect());
         }
@@ -84,7 +88,7 @@ public abstract class AbstractTestCase extends TestCase {
     
     public void printList(List list) {
         for(Object obj: list) {
-            System.out.println(obj + " class:"+obj.getClass());
+            System.out.println(obj);
         }
     }
     

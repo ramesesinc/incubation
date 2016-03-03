@@ -61,6 +61,8 @@ public class CrudListModel {
     List searchables;
     List orWhereList = [];
 
+    String strCols;
+    
     def secProvider = ClientContext.getCurrentContext().getSecurityProvider();
     
     List getExtActions() {
@@ -148,6 +150,8 @@ public class CrudListModel {
             }
         }
         
+        strCols = workunit.info.workunit_properties.cols;
+        
         //establish columns to display. The tricky part here is if cols are specified
         //it must be in the order it is specified. If 
         def zcols = new LinkedHashSet();
@@ -213,7 +217,10 @@ public class CrudListModel {
             def primKeys = cols.findAll{it.primary==true}*.name.join(",");
             //build the columns to retrieve
             def arr = cols.findAll{it.selected==true}*.name.join(",");
-            m.select = [primKeys, arr].join(",") ;
+            //m.select = [primKeys, arr].join(",") ;
+            
+            m.select = strCols;
+            
             if( whereStatement !=null ) {
                 m.where = whereStatement;
             }

@@ -4,70 +4,22 @@
  */
 package entitymanager.test;
 
-import com.rameses.osiris3.data.MockConnectionManager;
-import com.rameses.osiris3.persistence.EntityManager;
-import com.rameses.osiris3.schema.SchemaManager;
-import com.rameses.osiris3.sql.SimpleDataSource;
-import com.rameses.osiris3.sql.SqlContext;
-import com.rameses.osiris3.sql.SqlManager;
-import com.rameses.sql.dialect.MsSqlDialect;
-import com.rameses.sql.dialect.MySqlDialect;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import junit.framework.TestCase;
 
 /**
  * @author dell.
  */
-public class TestPersist extends TestCase {
+public class TestPersist extends AbstractTestCase {
 
-    private SqlManager sqlManager;
-    private SchemaManager schemaManager;
-    private MockConnectionManager cm;
-    private EntityManager em;
     
-    public TestPersist(String testName) {
-        super(testName);
+    public String getDialect() {
+        return "mysql";
     }
-
-    @Override
-    protected void setUp() throws Exception {
-        sqlManager = SqlManager.getInstance();
-        schemaManager = SchemaManager.getInstance();
-        em = new EntityManager(schemaManager, createContext(), "entityindividual");
-        em.setDebug(true);
-        super.setUp();
-    }
-
-    @Override
-    protected void tearDown() throws Exception {
-        super.tearDown();
-    }
-
-    private String dialect = "mysql";
+    
     //private String dialect = "mssql";
-    
-    private SqlContext createContext() throws Exception {
-        cm = new MockConnectionManager();
-        SimpleDataSource ds = null;
-        SqlContext sqlc = null;
-        if( dialect.equals("mysql")) {
-            ds = new SimpleDataSource("com.mysql.jdbc.Driver", "jdbc:mysql://localhost/testdb", "root", "1234");
-            sqlc = sqlManager.createContext(cm.getConnection("main", ds));
-            sqlc.setDialect(new MySqlDialect());
-        }
-        else {
-            //SQL SERVER
-            ds = new SimpleDataSource("com.microsoft.sqlserver.jdbc.SQLServerDriver", "jdbc:sqlserver://127.0.0.1;DatabaseName=testdb", "sa", "1234");
-            sqlc = sqlManager.createContext(cm.getConnection("main", ds));
-            sqlc.setDialect(new MsSqlDialect());
-        }
-
-        return sqlc;
-
-    }
     
     private Map createId(String idno, String type) {
         Map map = new HashMap();
@@ -159,29 +111,6 @@ public class TestPersist extends TestCase {
         return map;
     }
 
-    private static interface ExecHandler {
-        void execute() throws Exception;
-    }
-    
-    private void exec( ExecHandler h  ) throws Exception {
-        try {
-            h.execute();
-            cm.commit();
-        }
-        catch(Exception e) {
-            throw e;
-        }
-        finally {
-            cm.close();
-        }
-    }
-    
-    private void printList(List list) {
-        for(Object obj: list) {
-            System.out.println(obj + " class:"+obj.getClass());
-        }
-    }
-    
      // TODO add test methods here. The name must begin with 'test'. For example:
     public void ztestCreate() throws Exception {
         exec( new ExecHandler() {
@@ -267,5 +196,6 @@ public class TestPersist extends TestCase {
             }
         });   
     }
+
     
 }

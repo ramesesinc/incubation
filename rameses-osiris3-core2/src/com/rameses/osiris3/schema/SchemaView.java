@@ -7,7 +7,6 @@ package com.rameses.osiris3.schema;
 import com.rameses.osiris3.schema.SchemaViewFieldFilter.ExtendedNameViewFieldFilter;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -21,8 +20,7 @@ public class SchemaView extends AbstractSchemaView {
     
     //this contains the flattened out one to many relations
     private List<OneToManyLink> oneToManyLinks;
-    
-    private Map<String, InverseJoinSchema> inverseJoins = new LinkedHashMap();
+    private Map<String, LinkedSchemaView> inverseViews = new HashMap();
     
     SchemaView(SchemaElement elem) {
         super(elem.getName(), elem);
@@ -30,19 +28,7 @@ public class SchemaView extends AbstractSchemaView {
     }
 
     //if true the name is not a duplicate. If false field already exists
-    boolean addField( SchemaViewField vw ) {
-        fields.add(vw);
-        if( !fieldSet.containsKey(vw.getExtendedName()) ) {
-            fieldSet.put( vw.getExtendedName(), vw );
-            return true;
-        }
-        return false;
-    }
     
-    public void addOneToManyLink( OneToManyLink vw ) {
-        if(oneToManyLinks==null) oneToManyLinks = new ArrayList();
-        oneToManyLinks.add(vw);    
-    }
     
     public List<SchemaViewField> getFields() {
         return fields;
@@ -139,14 +125,27 @@ public class SchemaView extends AbstractSchemaView {
     public List<OneToManyLink> getOneToManyLinks() {
         return oneToManyLinks;
     }
-
-    public Map<String, InverseJoinSchema> getInverseJoins() {
-        return inverseJoins;
+    
+    public Map<String, LinkedSchemaView> getInverseViews() {
+        return inverseViews;
     }
     
-    public void addInverseJoinSchema(SchemaRelation sr ) {
-        InverseJoinSchema ij = new InverseJoinSchema(sr);
-        inverseJoins.put( sr.getName(), ij);
+    boolean addField( SchemaViewField vw ) {
+        fields.add(vw);
+        if( !fieldSet.containsKey(vw.getExtendedName()) ) {
+            fieldSet.put( vw.getExtendedName(), vw );
+            return true;
+        }
+        return false;
+    }
+    
+    public void addOneToManyLink( OneToManyLink vw ) {
+        if(oneToManyLinks==null) oneToManyLinks = new ArrayList();
+        oneToManyLinks.add(vw);    
+    }
+    
+    public void addInverseView( LinkedSchemaView vw ) {
+        inverseViews.put(vw.getName(), vw );
     }
     
 }

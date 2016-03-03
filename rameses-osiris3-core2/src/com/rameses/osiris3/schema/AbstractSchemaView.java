@@ -5,7 +5,9 @@
 package com.rameses.osiris3.schema;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 
 /**
@@ -35,6 +37,8 @@ public abstract class AbstractSchemaView implements Comparable {
     
     private List<AbstractSchemaView> oneToOneViews = new ArrayList();
     private List<AbstractSchemaView> manyToOneViews = new ArrayList();
+    
+    
     
     public AbstractSchemaView(String name, SchemaElement elem) {
         this.name = name;
@@ -176,5 +180,6 @@ public abstract class AbstractSchemaView implements Comparable {
     public void setRootView(SchemaView rootView) {
         this.rootView = rootView;
     }
+
     
 }

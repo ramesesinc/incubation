@@ -5,6 +5,7 @@
 package com.rameses.osiris3.sql;
 
 import com.rameses.osiris3.schema.AbstractSchemaView;
+import com.rameses.osiris3.schema.LinkedSchemaView;
 import com.rameses.util.ValueUtil;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -47,7 +48,7 @@ public class SqlDialectModel {
     
     //consider removing
     private AbstractSchemaView schemaView;
-    private List<AbstractSchemaView> joinedViews;
+    private List<LinkedSchemaView> joinedViews;
     //private Set<AbstractSchemaView> linkedViews;
     //private LinkedSchemaView linkedView;
     
@@ -296,9 +297,11 @@ public class SqlDialectModel {
         }
     }
 
+    /*
     public void setJoinedViews(  List<AbstractSchemaView> vws ) {
         this.joinedViews = vws;
     }
+    */ 
     
     public static class Field {
         
@@ -470,10 +473,16 @@ public class SqlDialectModel {
     
     private Set<AbstractSchemaView> vwSet = new HashSet();
     public void addJoinedViews( List<AbstractSchemaView> views) {
-        vwSet.addAll( views );
+        for( AbstractSchemaView vw: views) {
+            if( vw instanceof LinkedSchemaView ) vwSet.add((LinkedSchemaView)vw);
+        }
     }
     
-    public List<AbstractSchemaView> getJoinedViews() {
+    public void addJoinedView( LinkedSchemaView vw) {
+        vwSet.add(vw);
+    }
+    
+    public List<LinkedSchemaView> getJoinedViews() {
         if( joinedViews == null ) {
             joinedViews = new ArrayList(Arrays.asList(vwSet.toArray()));
             Collections.sort(joinedViews);

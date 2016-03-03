@@ -14,10 +14,6 @@ import java.util.Map;
  */
 public class TestSubQuery extends AbstractTestCase {
 
-    public TestSubQuery() {
-        super("TestSubQuery");
-    }
-    
     public String getDialect() {
         return "mysql";
     }
@@ -29,7 +25,7 @@ public class TestSubQuery extends AbstractTestCase {
         return map;
     }
 
-    public void ztestSelect() throws Exception {
+    public void testSelect() throws Exception {
         exec( new ExecHandler() {
             public void execute() throws Exception {
                 Map joinKeys = new HashMap();
@@ -48,7 +44,7 @@ public class TestSubQuery extends AbstractTestCase {
         });   
     }
     
-    public void testInverseSelect() throws Exception {
+    public void ztestInverseSelect() throws Exception {
         exec( new ExecHandler() {
             public void execute() throws Exception {
                 Map joinKeys = new HashMap();

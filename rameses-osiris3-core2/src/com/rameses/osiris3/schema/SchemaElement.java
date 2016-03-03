@@ -37,7 +37,7 @@ public class SchemaElement implements Serializable {
     private List<SchemaRelation> manyToOneRelationships;
     
     //only one inverse join. reserved for parent
-    private SchemaRelation inverseRelationship;
+    private List<SchemaRelation> inverseRelationships;
     
     /** Creates a new instance of Schema */
     public SchemaElement(Schema schema) {
@@ -235,9 +235,10 @@ public class SchemaElement implements Serializable {
         }
         
         // Process the inverse relationship
-        SchemaRelation ir = getInverseRelationship();
-        if( ir != null ) {
-            rootVw.addInverseJoinSchema(ir);
+        List<SchemaRelation> inverseList = getInverseRelationships();
+        for( SchemaRelation ir : inverseList ) {
+            SchemaElement targetElem = ir.getLinkedElement();
+            LinkedSchemaView targetVw = new LinkedSchemaView(ir.getName(), targetElem, rootVw, currentVw, ir.getJointype(), ir.isRequired(), prefix  );
             //make an ordinary link field. Type must be the same as the target
             for( RelationKey rk: ir.getRelationKeys() ) {
                 SimpleField tf = (SimpleField)ir.getLinkedElement().getField(rk.getTarget());
@@ -252,9 +253,13 @@ public class SchemaElement implements Serializable {
                 sf.setName(rk.getField());
                 sf.setFieldname(rk.getField());
                 sf.setType( tf.getType() );
-                SchemaViewField vf = new SchemaViewField(sf, rootVw, currentVw);
-                rootVw.addField( vf );
-            }//do not fetch anymore.
+                //SchemaViewField vf = new SchemaViewField(sf, rootVw, currentVw);
+                SchemaViewRelationField rf = new SchemaViewRelationField(sf, rootVw, currentVw,tf, targetVw);
+                rootVw.addField( rf );
+                targetVw.addRelationField(rf);
+            }
+            rootVw.addInverseView(targetVw);
+            //do not fetch the fields anymore. This will be on demand.
             
         }
         
@@ -309,25 +314,12 @@ public class SchemaElement implements Serializable {
         return (this.getExtends()!=null && this.getExtends().trim().length()>0);
     }
 
-    public SchemaRelation getInverseRelationship() {
-        if( inverseRelationship == null ) {
-            for(ComplexField cf: getComplexFields()) {
-                if( cf.getJoinType() == null ) continue;
-                if( !cf.getJoinType().equals(JoinTypes.INVERSE)) continue;
-                
-                String ref = cf.getRef();
-                if(ref==null || ref.trim().length()==0) {
-                    System.out.println("SchemaElement.getInverseRelationship warning. ref not specified");
-                    continue;
-                }
-                SchemaElement elem = this.schema.getSchemaManager().getElement(ref);
-                SchemaRelation sr = new SchemaRelation(this, cf);                
-                inverseRelationship = new SchemaRelation(this, cf);
-                inverseRelationship.setLinkedElement(elem);
-                break;
-            }
+    public List<SchemaRelation> getInverseRelationships() {
+        if( inverseRelationships == null ) {
+            inverseRelationships = new ArrayList();
+            buildRelations( JoinTypes.INVERSE, inverseRelationships );
         }
-        return inverseRelationship;
+        return inverseRelationships;
     }
     
     
