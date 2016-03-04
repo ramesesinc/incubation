@@ -37,9 +37,9 @@ public class SqlDialectModel {
     //fieldMap is a helper field
     private Map<String, Field> fieldMap = new HashMap();
     private Map<String, SqlDialectModel> subqueries = new LinkedHashMap();
-    private Map<String, LinkedSchemaView> joinedViewMap = new HashMap(); 
+    private Map<String, AbstractSchemaView> joinedViewMap = new HashMap(); 
     private AbstractSchemaView schemaView;
-    private List<LinkedSchemaView> joinedViews;
+    private List<AbstractSchemaView> joinedViews;
     
     //internal fields for finding things
     //for updating and saving
@@ -481,21 +481,21 @@ public class SqlDialectModel {
     
     public void addJoinedViews( List<AbstractSchemaView> views) {
         for( AbstractSchemaView vw: views) {
-            if( vw instanceof LinkedSchemaView) addJoinedView( (LinkedSchemaView)vw );
+            addJoinedView( vw );
         }
     }
     
-    public void addJoinedView( LinkedSchemaView vw) {
+    public void addJoinedView( AbstractSchemaView vw) {
         if( !joinedViewMap.containsKey(vw.getName()) ) {
             joinedViewMap.put(vw.getName(), vw);
         }
     }
     
-    public LinkedSchemaView findJoinedView( String name ) {
+    public AbstractSchemaView findJoinedView( String name ) {
         return joinedViewMap.get(name);
     }
     
-    public List<LinkedSchemaView> getJoinedViews() {
+    public List<AbstractSchemaView> getJoinedViews() {
         if( joinedViews == null ) {
             joinedViews = new ArrayList(joinedViewMap.values());
             Collections.sort(joinedViews);

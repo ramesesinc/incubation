@@ -104,7 +104,7 @@ public abstract class AbstractSqlDialect implements SqlDialect {
         final StringBuilder valueBuff = new StringBuilder();
         sb.append("INSERT INTO ");
         sb.append(getDelimiters()[0] + model.getTablename() + getDelimiters()[1]);
-        sb.append("(");
+        sb.append(" (");
         int i = 0;
         for (Field fld : model.getFields()) {
             if (!fld.isInsertable()) {
@@ -131,7 +131,7 @@ public abstract class AbstractSqlDialect implements SqlDialect {
         final StringBuilder valueBuff = new StringBuilder();
         sb.append("INSERT INTO ");
         sb.append(getDelimiters()[0] + model.getTablename() + getDelimiters()[1]);
-        sb.append("(");
+        sb.append(" (");
         int i = 0;
         for (Field fld : model.getFields()) {
             if (i++ > 0) {
@@ -220,7 +220,11 @@ public abstract class AbstractSqlDialect implements SqlDialect {
         }
         if (model.getJoinedViews() != null) {
             int i = 0;
-            for (LinkedSchemaView lsv : model.getJoinedViews()) {
+            
+            for (AbstractSchemaView asv : model.getJoinedViews()) {
+                if ( !(asv instanceof LinkedSchemaView) ) continue;
+                
+                LinkedSchemaView lsv = (LinkedSchemaView)asv; 
                 if (lsv.isRequired()) {
                     sb.append(" INNER JOIN ");
                 } else {

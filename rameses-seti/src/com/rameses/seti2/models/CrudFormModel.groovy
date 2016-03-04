@@ -203,13 +203,15 @@ public class CrudFormModel implements CrudItemHandler {
         
         if( mode == 'create' ) {
             beforeSave("create");
+            entity._schemaname = schemaName;
             entity = service.create( entity );
         }
         else {
             beforeSave("update");
             //extract from the DataMap. Right now we'll use the pure data first
             //we'll change this later to diff.
-            entity = entity.data();
+            entity = entity.data(); 
+            entity._schemaname = schemaName;
             service.update( entity );
             loadData();
         }

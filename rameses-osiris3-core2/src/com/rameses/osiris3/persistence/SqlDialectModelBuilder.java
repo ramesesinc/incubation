@@ -311,7 +311,7 @@ public final class SqlDialectModelBuilder {
                         }
                         
                         //check if in abstract schema view
-                        LinkedSchemaView ivw = findJoinedLinkedView(prefix, entityModel, svw, sqlModel);
+                        LinkedSchemaView ivw = (LinkedSchemaView) findJoinedLinkedView(prefix, entityModel, svw, sqlModel);
                         if( ivw !=null ) {
                             SchemaViewField lf = ivw.getElement().createView().getField(fname);
                             Field ff = createSqlField(lf);
@@ -433,7 +433,7 @@ public final class SqlDialectModelBuilder {
         return newfld;
     }
     
-    private static LinkedSchemaView findJoinedLinkedView(String name, ISelectModel entityModel, SchemaView svw, SqlDialectModel sqlModel) {
+    private static AbstractSchemaView findJoinedLinkedView(String name, ISelectModel entityModel, SchemaView svw, SqlDialectModel sqlModel) {
         JoinLink joinLink = null;
         for(JoinLink jl: entityModel.getJoinLinks()) {
             if(jl.getName().equals(name)) {
@@ -447,8 +447,9 @@ public final class SqlDialectModelBuilder {
         }
         if(joinLink == null) return null;
         //check if registered in sqlModel
-        LinkedSchemaView targetVw = sqlModel.findJoinedView(name);
-        if( targetVw == null ) {
+        AbstractSchemaView lvw = sqlModel.findJoinedView(name);
+        LinkedSchemaView targetVw = null; 
+        if( lvw == null || !(lvw instanceof LinkedSchemaView) ) {
             targetVw = new LinkedSchemaView(joinLink.getName(), joinLink.getElement(), svw, svw,JoinTypes.INVERSE, joinLink.isRequired(), null);
             for( RelationKey rk: joinLink.getRelationKeys()) {
                 SimpleField tf = (SimpleField)joinLink.getElement().getField(rk.getTarget());
@@ -518,7 +519,7 @@ public final class SqlDialectModelBuilder {
                         };
                         
                         //check if field exists in the inverse joins. add it before loading
-                        LinkedSchemaView lsv = findJoinedLinkedView(prefix, entityModel, svw, sqlModel);
+                        LinkedSchemaView lsv = (LinkedSchemaView) findJoinedLinkedView(prefix, entityModel, svw, sqlModel);
                         //find fields for selection
                         if( lsv !=null) {
                             for( SchemaViewField xvf: lsv.getElement().createView().findAllFields() ) {
