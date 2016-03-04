@@ -148,15 +148,7 @@ public class CrudListPage extends javax.swing.JPanel {
         xActionTextField1 = new com.rameses.rcp.control.XActionTextField();
         jPanel4 = new javax.swing.JPanel();
         jPanel6 = new javax.swing.JPanel();
-        xDataTable1 = new com.rameses.rcp.control.XDataTable();
-        jToolBar2 = new javax.swing.JToolBar();
-        xButton3 = new com.rameses.rcp.control.XButton();
-        xButton4 = new com.rameses.rcp.control.XButton();
-        xButton5 = new com.rameses.rcp.control.XButton();
-        xButton6 = new com.rameses.rcp.control.XButton();
-        jPanel5 = new javax.swing.JPanel();
-        xLabel2 = new com.rameses.rcp.control.XLabel();
-        xLabel3 = new com.rameses.rcp.control.XLabel();
+        listPanel1 = new com.rameses.seti2.components.ListPanel();
         sidebarpanel = new javax.swing.JPanel();
 
         setLayout(new java.awt.BorderLayout());
@@ -326,52 +318,7 @@ public class CrudListPage extends javax.swing.JPanel {
 
             jPanel6.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 204)));
             jPanel6.setLayout(new java.awt.BorderLayout());
-
-            xDataTable1.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-            xDataTable1.setHandler("listHandler");
-            xDataTable1.setName("selectedEntity"); // NOI18N
-            jPanel6.add(xDataTable1, java.awt.BorderLayout.CENTER);
-
-            jToolBar2.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
-            jToolBar2.setRollover(true);
-
-            xButton3.setFocusable(false);
-            xButton3.setIconResource("images/navbar/first.png");
-            xButton3.setName("listHandler.moveFirstPage"); // NOI18N
-            jToolBar2.add(xButton3);
-
-            xButton4.setFocusable(false);
-            xButton4.setIconResource("images/navbar/previous.png");
-            xButton4.setName("listHandler.moveBackPage"); // NOI18N
-            jToolBar2.add(xButton4);
-
-            xButton5.setFocusable(false);
-            xButton5.setIconResource("images/navbar/next.png");
-            xButton5.setImmediate(true);
-            xButton5.setName("listHandler.moveNextPage"); // NOI18N
-            jToolBar2.add(xButton5);
-
-            xButton6.setFocusable(false);
-            xButton6.setIconResource("images/navbar/last.png");
-            xButton6.setName("listHandler.moveLastPage"); // NOI18N
-            jToolBar2.add(xButton6);
-
-            jPanel5.setPreferredSize(new java.awt.Dimension(100, 20));
-            jPanel5.setLayout(new com.rameses.rcp.control.layout.XLayout());
-
-            xLabel2.setDepends(new String[] {"selectedEntity"});
-            xLabel2.setExpression("#{recordCountInfo}");
-            xLabel2.setUseHtml(true);
-            jPanel5.add(xLabel2);
-
-            xLabel3.setDepends(new String[] {"selectedEntity"});
-            xLabel3.setExpression("#{pageCountInfo}");
-            xLabel3.setUseHtml(true);
-            jPanel5.add(xLabel3);
-
-            jToolBar2.add(jPanel5);
-
-            jPanel6.add(jToolBar2, java.awt.BorderLayout.SOUTH);
+            jPanel6.add(listPanel1, java.awt.BorderLayout.CENTER);
 
             jPanel4.add(jPanel6, java.awt.BorderLayout.CENTER);
 
@@ -405,25 +352,17 @@ public class CrudListPage extends javax.swing.JPanel {
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
-    private javax.swing.JPanel jPanel5;
     private javax.swing.JPanel jPanel6;
     private javax.swing.JPanel jPanel7;
     private javax.swing.JPanel jPanel8;
     private javax.swing.JToolBar jToolBar1;
-    private javax.swing.JToolBar jToolBar2;
     private javax.swing.JToolBar jToolBar3;
+    private com.rameses.seti2.components.ListPanel listPanel1;
     private javax.swing.JPanel sidebarpanel;
     private com.rameses.rcp.control.XActionBar xActionBar1;
     private com.rameses.rcp.control.XActionTextField xActionTextField1;
     private com.rameses.rcp.control.XButton xButton1;
     private com.rameses.rcp.control.XButton xButton2;
-    private com.rameses.rcp.control.XButton xButton3;
-    private com.rameses.rcp.control.XButton xButton4;
-    private com.rameses.rcp.control.XButton xButton5;
-    private com.rameses.rcp.control.XButton xButton6;
-    private com.rameses.rcp.control.XDataTable xDataTable1;
     private com.rameses.rcp.control.XLabel xLabel1;
-    private com.rameses.rcp.control.XLabel xLabel2;
-    private com.rameses.rcp.control.XLabel xLabel3;
     // End of variables declaration//GEN-END:variables
 }

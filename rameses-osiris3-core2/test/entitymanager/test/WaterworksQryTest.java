@@ -29,11 +29,11 @@ public class WaterworksQryTest extends AbstractTestCase {
                 em.setDebug(true);
                 Map m = new HashMap();
                 m.put("n", "APE%");
-                //em.shift("waterworks_meter").select("serialno,a:{CONCAT(account.acctno,account.acctname)}").where("account.acctname LIKE :n", m);
+                em.shift("waterworks_meter").select("serialno,account.acctno,account.acctname").where("1=1");
                 
                 Map k = new HashMap();
                 k.put("currentacctid", "objid");
-                em.shift( "waterworks_meter").leftJoin("waterworks_account", "zz", k).select("serialno,zz.acctno,zz.acctname").where("zz.acctname LIKE :n", m);
+                //em.shift( "waterworks_meter").leftJoin("waterworks_account", "zz", k).select("serialno,zz.acctno,zz.acctname").where("zz.acctname LIKE :n", m);
                 List list = em.list();
                 printList(list);
             }

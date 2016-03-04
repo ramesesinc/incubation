@@ -40,7 +40,7 @@ public class CrudListModel {
     @FormTitle
     def formTitle;
     
-    def selectedEntity;
+    def selectedItem;
     def list;
     def schemaName;
     def adapter;
@@ -66,7 +66,7 @@ public class CrudListModel {
     def secProvider = ClientContext.getCurrentContext().getSecurityProvider();
     
     List getExtActions() {
-        return Inv.lookupActions( schemaName+":list:extActions", [entity: selectedEntity] );
+        return Inv.lookupActions( schemaName+":list:extActions", [entity: selectedItem] );
     }
     
     boolean isCreateAllowed() { 
@@ -98,15 +98,6 @@ public class CrudListModel {
     
     public String getTitle() {
         return workunit.title;
-    }
-    
-    public String getRecordCountInfo() {
-        return "";
-        //return  listHandler.rowCount + " Record(s). " ; 
-    }
-        
-    public String getPageCountInfo() {
-        return "Page " + listHandler.pageIndex + " of ? " + listHandler.pageCount;
     }
     
     void init() {
@@ -298,11 +289,11 @@ public class CrudListModel {
     }
     
     def open() {
-        if( !selectedEntity ) 
+        if( !selectedItem ) 
             throw new Exception("Please select an item");
         def d = null;
         def ename = (!entitySchemaName)? schemaName : entitySchemaName;
-        def p = [schema:schema, schemaName:ename, adapter:adapter, entity: selectedEntity];
+        def p = [schema:schema, schemaName:ename, adapter:adapter, entity: selectedItem];
         p.title = "Open " + workunit.title;
         try {
             d = Inv.lookupOpener( ename + ":open", p );
@@ -315,11 +306,11 @@ public class CrudListModel {
     }
     
     void removeEntity() {
-        if(!selectedEntity) return;
+        if(!selectedItem) return;
         if( !MsgBox.confirm('You are about to delete this record. Proceed?')) return;
         def m = [:];
         schema.columns.findAll{it.primary}.each {
-            m.put( it.name, selectedEntity.get(it.name));
+            m.put( it.name, selectedItem.get(it.name));
         }
         def ename = (!entitySchemaName)? schemaName : entitySchemaName;
         m._schemaname = ename;

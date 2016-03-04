@@ -82,6 +82,10 @@ public class CrudFormModel implements CrudItemHandler {
         return Inv.lookupActions( schemaName+":form:extActions", [entity: entity] );
     }
     */
+    public void afterInit(){;}
+    public void afterCreate(){;}
+    public void afterOpen(){;}
+    public void afterEdit(){;}
     
     public void beforeSave(def mode){;}
     
@@ -95,7 +99,7 @@ public class CrudFormModel implements CrudItemHandler {
         return op;
     }
     
-    private void buildStyleRules() {
+    protected void buildStyleRules() {
         styleRules.clear();
         styleRules << new StyleRule("entity.*", "#{mode=='read'}").add("enabled", false);
         styleRules << new StyleRule("entity.*", "#{mode!='read'}").add("enabled", true);
@@ -110,6 +114,7 @@ public class CrudFormModel implements CrudItemHandler {
         def requires = schema.columns.findAll{ it.required == true || it.primary == true }*.name;
         if( requires ) {
             def flds = "entity.("+requires.join("|")+")";
+            println flds;
             styleRules << new StyleRule( flds, "#{mode!='read'}").add("required",true);
             styleRules << new StyleRule( flds, "#{mode=='read'}").add("required",false);
         };
@@ -126,7 +131,6 @@ public class CrudFormModel implements CrudItemHandler {
             //char 95 is underscore
             styleRules << new StyleRule( n, "#{true}").add("textCase",TextCase.UPPER).add("spaceChar",(char)95);
         }
-        
     }
     
     boolean _inited_ = false;
@@ -141,6 +145,7 @@ public class CrudFormModel implements CrudItemHandler {
         buildStyleRules();
         buildItemHandlers();
         _inited_ = true;
+        afterInit()
     }
     
     void initNewData() {
@@ -161,6 +166,7 @@ public class CrudFormModel implements CrudItemHandler {
         mode = "create";
         init();
         initNewData();
+        afterCreate();
         return null;
     }
     
@@ -173,12 +179,14 @@ public class CrudFormModel implements CrudItemHandler {
         //we need to reset the schema name for update.
         entity._schemaname = schemaName;
         init();
+        afterOpen();
         return null;
     }
     
     def edit() {
         mode = "edit";
         entity = new DataMap( entity );
+        afterEdit();
         return null;
     }
     

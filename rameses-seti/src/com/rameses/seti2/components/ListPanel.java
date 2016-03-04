@@ -4,8 +4,6 @@
  */
 package com.rameses.seti2.components;
 
-import com.rameses.rcp.common.PageListModel;
-
 /**
  *
  * @author dell
@@ -30,8 +28,10 @@ public class ListPanel extends javax.swing.JPanel {
         btnMovePrev.setName(s+".moveBackPage");
         btnMoveNext.setName(s+".moveNextPage");
         btnMoveLast.setName(s+".moveLastPage");
-        lblRecordCount.setExpression("#{" + s + ".pageIndex"  +"}");
-        lblPageCount.setExpression("#{" + s + ".pageCount"  +"}");
+        lblRecordCount.setExpression("Page #{" + s + ".pageIndex"  +"}");
+        lblRecordCount.setText("Page #{" + s + ".pageIndex"  +"}");
+        lblPageCount.setExpression("of #{" + s + ".pageCount"  +"}");
+        lblPageCount.setText("of #{" + s + ".pageCount"  +"}");
     }
     
     
@@ -59,7 +59,7 @@ public class ListPanel extends javax.swing.JPanel {
 
         tblList.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         tblList.setHandler("listHandler");
-        tblList.setName("selectedEntity"); // NOI18N
+        tblList.setName("selectedItem"); // NOI18N
         add(tblList, java.awt.BorderLayout.CENTER);
 
         jToolBar2.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
