@@ -8,14 +8,11 @@ import com.rameses.osiris3.schema.AbstractSchemaView;
 import com.rameses.osiris3.schema.LinkedSchemaView;
 import com.rameses.util.ValueUtil;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 
 
@@ -40,6 +37,9 @@ public class SqlDialectModel {
     //fieldMap is a helper field
     private Map<String, Field> fieldMap = new HashMap();
     private Map<String, SqlDialectModel> subqueries = new LinkedHashMap();
+    private Map<String, LinkedSchemaView> joinedViewMap = new HashMap(); 
+    private AbstractSchemaView schemaView;
+    private List<LinkedSchemaView> joinedViews;
     
     //internal fields for finding things
     //for updating and saving
@@ -47,8 +47,7 @@ public class SqlDialectModel {
     private int limit;
     
     //consider removing
-    private AbstractSchemaView schemaView;
-    private List<LinkedSchemaView> joinedViews;
+    
     //private Set<AbstractSchemaView> linkedViews;
     //private LinkedSchemaView linkedView;
     
@@ -100,6 +99,15 @@ public class SqlDialectModel {
                 }
                 sb.append(";");
             }
+            if( subqueries!=null && subqueries.size()>0 ) {
+                sb.append("subqueries:");
+                for( SqlDialectModel sqm: subqueries.values() ) {
+                    sb.append( sqm.toString() );
+                    sb.append(",");
+                }
+            }
+            
+            
             if( whereFilter !=null && !ValueUtil.isEmpty(whereFilter.getExpr()) ) {
                 sb.append("where:");
                 sb.append( whereFilter.getExpr() );
@@ -471,22 +479,26 @@ public class SqlDialectModel {
         }
     }
     
-    private Set<AbstractSchemaView> vwSet = new HashSet();
     public void addJoinedViews( List<AbstractSchemaView> views) {
         for( AbstractSchemaView vw: views) {
-            if( vw instanceof LinkedSchemaView ) vwSet.add((LinkedSchemaView)vw);
+            if( vw instanceof LinkedSchemaView) addJoinedView( (LinkedSchemaView)vw );
         }
     }
     
     public void addJoinedView( LinkedSchemaView vw) {
-        vwSet.add(vw);
+        if( !joinedViewMap.containsKey(vw.getName()) ) {
+            joinedViewMap.put(vw.getName(), vw);
+        }
+    }
+    
+    public LinkedSchemaView findJoinedView( String name ) {
+        return joinedViewMap.get(name);
     }
     
     public List<LinkedSchemaView> getJoinedViews() {
         if( joinedViews == null ) {
-            joinedViews = new ArrayList(Arrays.asList(vwSet.toArray()));
+            joinedViews = new ArrayList(joinedViewMap.values());
             Collections.sort(joinedViews);
-            vwSet.clear();
         }
         return joinedViews;
     }
@@ -542,6 +554,7 @@ public class SqlDialectModel {
         this.inverseJoin = b;
     }
     
+    /*
      public SqlDialectModel.Field findFirstSubQueryFields( String matchName ) {
          List<SqlDialectModel.Field> list = findAllSubQueryFields(matchName);
          if( list.size() == 0 ) throw new RuntimeException("Error findFirstSubQueryFields. No fields found in subquery that matches " + matchName);
@@ -566,7 +579,8 @@ public class SqlDialectModel {
         }
         return list;
     }
-     
+    */
+    
     public List<SqlDialectModel.Field> findAllSubQueryFields( String prefix, String matchName ) {
         List<SqlDialectModel.Field> list = new ArrayList();
         SqlDialectModel sqd = getSubqueries().get(prefix);

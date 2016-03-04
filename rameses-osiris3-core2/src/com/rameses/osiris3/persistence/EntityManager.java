@@ -8,7 +8,9 @@
  */
 package com.rameses.osiris3.persistence;
 
+import com.rameses.osiris3.schema.JoinLink;
 import com.rameses.common.UpdateChangeHandler;
+import com.rameses.osiris3.schema.RelationKey;
 import com.rameses.osiris3.schema.SchemaElement;
 import com.rameses.osiris3.schema.SchemaManager;
 import com.rameses.osiris3.schema.SchemaSerializer;
@@ -612,31 +614,45 @@ public class EntityManager {
         return new SqlExpression(statement);
     }
     
-    /***
-     * joinKeys = first value is the field of the parent
-     *          = second value is the field of the sub query
-     */ 
-    public EntityManager join(SubQueryModel qryModel, Map joinKeys) {
-        for( Object m: joinKeys.entrySet() ) {
-            Map.Entry me = (Map.Entry)m;
-            qryModel.addRelation(me.getKey().toString(), me.getValue().toString());
-        }
-        getModel().addSubquery(qryModel.getName(), qryModel);
+    public SubQueryModel subquery() {
+        return new SubQueryModel(getModel()); 
+    }
+    
+    public EntityManager addSubquery(String name, SubQueryModel model) {
+        getModel().addSubquery(name, model);
         return this;
     }
     
-    public EntityManager leftJoin(SubQueryModel qryModel, Map joinKeys) {
-        qryModel.setJointype("LEFT");
-        for( Object m: joinKeys.entrySet() ) {
-            Map.Entry me = (Map.Entry)m;
-            qryModel.addRelation(me.getKey().toString(), me.getValue().toString());
+    public EntityManager join(String elemName, String alias, Map keys ) {
+        SchemaElement elem = schemaManager.getElement(elemName);
+        JoinLink jl = new JoinLink(elem, alias);
+        jl.setRequired(true);
+        for( Object m: keys.entrySet() ) {
+            Map.Entry<String, String> me = (Map.Entry)m;
+            RelationKey rk = new RelationKey();
+            rk.setField(me.getKey());
+            rk.setTarget(me.getValue());
+            jl.getRelationKeys().add(rk);
         }
-        getModel().addSubquery(qryModel.getName(), qryModel);
+        jl.setJoinType("INNER");
+        getModel().addJoinLink(jl);
         return this;
     }
     
-    public SubQueryModel subquery(String name) {
-        return new SubQueryModel(name, getModel()); 
+     public EntityManager leftJoin(String elemName, String alias, Map keys ) {
+        SchemaElement elem = schemaManager.getElement(elemName);
+        JoinLink jl = new JoinLink(elem, alias);
+        jl.setRequired(false);
+        for( Object m: keys.entrySet() ) {
+            Map.Entry<String, String> me = (Map.Entry)m;
+            RelationKey rk = new RelationKey();
+            rk.setField(me.getKey());
+            rk.setTarget(me.getValue());
+            jl.getRelationKeys().add(rk);
+        }
+        jl.setJoinType("LEFT");
+        getModel().addJoinLink(jl);
+        return this;
     }
     
 

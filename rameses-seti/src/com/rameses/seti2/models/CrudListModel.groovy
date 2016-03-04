@@ -217,9 +217,7 @@ public class CrudListModel {
             def primKeys = cols.findAll{it.primary==true}*.name.join(",");
             //build the columns to retrieve
             def arr = cols.findAll{it.selected==true}*.name.join(",");
-            //m.select = [primKeys, arr].join(",") ;
-            
-            m.select = strCols;
+            m.select = [primKeys, arr].join(",") ;
             
             if( whereStatement !=null ) {
                 m.where = whereStatement;

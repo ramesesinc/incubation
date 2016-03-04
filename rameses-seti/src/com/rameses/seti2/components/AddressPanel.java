@@ -4,6 +4,8 @@
  */
 package com.rameses.seti2.components;
 
+import com.rameses.rcp.common.EditorListModel;
+
 /**
  *
  * @author dell
@@ -15,7 +17,9 @@ public class AddressPanel extends javax.swing.JPanel {
      */
     public AddressPanel() {
         initComponents();
+        
     }
+    
 
     /**
      * This method is called from within the constructor to initialize the form.

@@ -4,6 +4,7 @@
  */
 package com.rameses.osiris3.persistence;
 
+import com.rameses.osiris3.schema.JoinLink;
 import com.rameses.osiris3.persistence.EntityManagerModel.WhereElement;
 import com.rameses.osiris3.persistence.SelectFieldsTokenizer.Token;
 import com.rameses.osiris3.schema.AbstractSchemaView;
@@ -13,6 +14,7 @@ import com.rameses.osiris3.schema.RelationKey;
 import com.rameses.osiris3.schema.SchemaView;
 import com.rameses.osiris3.schema.SchemaViewField;
 import com.rameses.osiris3.schema.SchemaViewRelationField;
+import com.rameses.osiris3.schema.SimpleField;
 import com.rameses.osiris3.sql.SqlDialectModel;
 import com.rameses.osiris3.sql.SqlDialectModel.Field;
 import com.rameses.osiris3.sql.SqlDialectModel.WhereFilter;
@@ -150,7 +152,7 @@ public final class SqlDialectModelBuilder {
                     String t = val.toString().trim();
                     if(t.startsWith("{") && t.endsWith("}")) {
                         String texpr = t.substring(1, t.length()-1);
-                        String sexpr = parseFieldExpression(texpr, sqlModel, svw );
+                        String sexpr = parseFieldExpression(texpr, entityModel, sqlModel, svw );
                         sqlF.setExpr( sexpr );
                     }
                 }
@@ -266,10 +268,6 @@ public final class SqlDialectModelBuilder {
         return sqlModel;
     }
 
-    
-    
-   
-    
      /**
      * **********************************************************************
      * SELECT
@@ -278,7 +276,7 @@ public final class SqlDialectModelBuilder {
      * This function parses the expression for fields. It also returns the 
      * corrected expression. 
      */ 
-    public static String parseFieldExpression(String expr, SqlDialectModel sqlModel, SchemaView svw ) {
+    public static String parseFieldExpression(String expr, ISelectModel entityModel, SqlDialectModel sqlModel, SchemaView svw ) {
         InputStream is = null;
         try {
             StringBuilder sb = new StringBuilder();
@@ -313,14 +311,13 @@ public final class SqlDialectModelBuilder {
                         }
                         
                         //check if in abstract schema view
-                        LinkedSchemaView ivw = svw.getInverseViews().get(prefix);
+                        LinkedSchemaView ivw = findJoinedLinkedView(prefix, entityModel, svw, sqlModel);
                         if( ivw !=null ) {
                             SchemaViewField lf = ivw.getElement().createView().getField(fname);
                             Field ff = createSqlField(lf);
-                            ff.setExtendedName(prefix+"_"+lf.getExtendedName());
+                            ff.setExtendedName(prefix+"_"+fname);
                             ff.setTablealias(prefix);
                             sqlModel.addExprField( ff );
-                            sqlModel.addJoinedView(ivw);
                             sqlModel.addJoinedViews( lf.getView().getJoinPaths() );
                             sb.append( prefix + "." + fname );
                             continue;
@@ -350,8 +347,8 @@ public final class SqlDialectModelBuilder {
     /****
      * we will also check the values inside the params because there might be expressions also 
      */ 
-    public static WhereFilter createWhereFilter( WhereElement we, SqlDialectModel sqlModel, SchemaView svw  ) {
-        String sExpr = parseFieldExpression( we.getExpr(), sqlModel, svw );
+    public static WhereFilter createWhereFilter( WhereElement we, ISelectModel entityModel, SqlDialectModel sqlModel, SchemaView svw  ) {
+        String sExpr = parseFieldExpression( we.getExpr(),entityModel, sqlModel, svw );
         WhereFilter wf = new WhereFilter(sExpr);
         return wf;
     }
@@ -378,12 +375,12 @@ public final class SqlDialectModelBuilder {
     
     public static void addWhereCriteria( ISelectModel entityModel, SqlDialectModel sqlModel,  SchemaView svw  ) {
         if( entityModel.getWhereElement()!=null ) {
-            WhereFilter wf = createWhereFilter(entityModel.getWhereElement(), sqlModel, svw);
+            WhereFilter wf = createWhereFilter(entityModel.getWhereElement(), entityModel, sqlModel, svw);
             sqlModel.setWhereFilter(wf);
         }
         if( entityModel.getOrWhereList()!=null && entityModel.getOrWhereList().size()>0) {
             for(WhereElement we: entityModel.getOrWhereList() ) {
-                WhereFilter wf = createWhereFilter(we, sqlModel, svw);
+                WhereFilter wf = createWhereFilter(we, entityModel, sqlModel, svw);
                 sqlModel.addOrWhereFilter(wf);
             }
         }
@@ -436,6 +433,42 @@ public final class SqlDialectModelBuilder {
         return newfld;
     }
     
+    private static LinkedSchemaView findJoinedLinkedView(String name, ISelectModel entityModel, SchemaView svw, SqlDialectModel sqlModel) {
+        JoinLink joinLink = null;
+        for(JoinLink jl: entityModel.getJoinLinks()) {
+            if(jl.getName().equals(name)) {
+                joinLink = jl;
+                break;
+            }
+        }
+        //check in entityModel
+        if( joinLink == null ) {
+            joinLink = svw.getInverseJoins().get(name);
+        }
+        if(joinLink == null) return null;
+        //check if registered in sqlModel
+        LinkedSchemaView targetVw = sqlModel.findJoinedView(name);
+        if( targetVw == null ) {
+            targetVw = new LinkedSchemaView(joinLink.getName(), joinLink.getElement(), svw, svw,JoinTypes.INVERSE, joinLink.isRequired(), null);
+            for( RelationKey rk: joinLink.getRelationKeys()) {
+                SimpleField tf = (SimpleField)joinLink.getElement().getField(rk.getTarget());
+                if( tf == null ) 
+                    throw new RuntimeException("SchemaElement.buildJoins error. Target field not found");
+                
+                //build the simple field
+                SimpleField sf = new SimpleField();
+                sf.setElement(svw.getElement());
+                sf.setName(rk.getField());
+                sf.setFieldname(rk.getField());
+                sf.setType( tf.getType() );
+                SchemaViewRelationField rf = new SchemaViewRelationField(sf, svw, svw, tf, targetVw);
+                targetVw.addRelationField(rf);
+            };
+            sqlModel.addJoinedView(targetVw);
+        }
+        return targetVw;
+    }
+    
     //for research
     public static SqlDialectModel buildSelectSqlModel( ISelectModel entityModel ) {
         SchemaView svw = entityModel.getSchemaView();
@@ -484,32 +517,32 @@ public final class SqlDialectModelBuilder {
                             continue;
                         };
                         
-                        //if not in subquery, check if in inverse joins
-                        LinkedSchemaView ivw = svw.getInverseViews().get(prefix);
-                        if( ivw !=null ) {
-                            for( SchemaViewField xvf: ivw.getElement().createView().findAllFields() ) {
+                        //check if field exists in the inverse joins. add it before loading
+                        LinkedSchemaView lsv = findJoinedLinkedView(prefix, entityModel, svw, sqlModel);
+                        //find fields for selection
+                        if( lsv !=null) {
+                            for( SchemaViewField xvf: lsv.getElement().createView().findAllFields() ) {
                                 if(xvf.getExtendedName().matches(fname)) {
                                     SqlDialectModel.Field sf = createSqlField(xvf);
-                                    sf.setTablealias(ivw.getName());
-                                    sf.setExtendedName(ivw.getName()+"_"+fname);
+                                    sf.setTablealias(lsv.getName());
+                                    sf.setExtendedName(lsv.getName()+"_"+fname);
                                     sqlModel.addField(sf);
-                                    sqlModel.addJoinedView( ivw );
                                     sqlModel.addJoinedViews( xvf.getView().getJoinPaths() );
                                 }
                             }
                         }
-                        
                     }
                 }
             }
             else {
-                String expr = parseFieldExpression( t.getExpr(), sqlModel, svw );
+                String expr = parseFieldExpression( t.getExpr(), entityModel, sqlModel, svw );
                 SqlDialectModel.Field sf = new SqlDialectModel.Field();
                 sf.setExtendedName(t.getAlias());
                 sf.setExpr(expr);
                 sqlModel.addField(sf);
             }
-        }
+        };
+        
         //build the finders if any
         addFinders(entityModel, sqlModel, svw);
         addWhereCriteria( entityModel, sqlModel, svw );
@@ -523,7 +556,7 @@ public final class SqlDialectModelBuilder {
                     sqlModel.addJoinedViews( vf.getView().getJoinPaths() );
                 }
                 else {
-                    String expr = parseFieldExpression( t.getExpr(), sqlModel, svw );
+                    String expr = parseFieldExpression( t.getExpr(), entityModel, sqlModel, svw );
                     SqlDialectModel.Field sf = new SqlDialectModel.Field();
                     sf.setExpr(expr);
                     sqlModel.addGroupField(sf);    
@@ -539,7 +572,7 @@ public final class SqlDialectModelBuilder {
                     sqlModel.addJoinedViews( vf.getView().getJoinPaths() );
                 }
                 else {
-                    String expr = parseFieldExpression( t.getExpr(), sqlModel, svw );
+                    String expr = parseFieldExpression( t.getExpr(),entityModel, sqlModel, svw );
                     SqlDialectModel.Field sf = new SqlDialectModel.Field();
                     sf.setExpr(expr);
                     sqlModel.addOrderField(sf);    

@@ -4,6 +4,7 @@
  */
 package com.rameses.osiris3.persistence;
 
+import com.rameses.osiris3.schema.JoinLink;
 import com.rameses.osiris3.persistence.EntityManagerModel.WhereElement;
 import com.rameses.osiris3.schema.RelationKey;
 import com.rameses.osiris3.schema.SchemaView;
@@ -21,12 +22,16 @@ public class SubQueryModel implements ISelectModel {
     private List<RelationKey> relationKeys = new ArrayList();
     private String jointype = "INNER";
     private String name;
+    private List<JoinLink> joinLinks = new ArrayList();
     
-    public SubQueryModel(String name, EntityManagerModel m) {
+    public SubQueryModel(EntityManagerModel m) {
         this.model = m;
-        this.name = name;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+    
     public EntityManagerModel getModel() {
         return model;
     }
@@ -99,8 +104,9 @@ public class SubQueryModel implements ISelectModel {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
+
+    public List<JoinLink> getJoinLinks() {
+        return joinLinks;
     }
     
     

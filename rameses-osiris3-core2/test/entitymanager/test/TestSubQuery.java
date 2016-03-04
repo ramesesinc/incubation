@@ -31,9 +31,11 @@ public class TestSubQuery extends AbstractTestCase {
                 Map joinKeys = new HashMap();
                 joinKeys.put("objid", "objid");
                 
-                SubQueryModel sqm = em.setName("entityindividual_deleted").subquery("a");
-                em.setName("entityindividual").select("lastname,v:{CONCAT(a.voided,'')}").where("CONCAT(a.voided,'') IS NULL").leftJoin(sqm, joinKeys);
                 em.setDebug(true);
+                SubQueryModel sqm = em.setName("entityindividual_deleted").subquery();
+                em.setName("entityindividual").select("lastname,v:{CONCAT(a.voided,'')}");
+                        em.addSubquery("a", sqm).where("objid=a.objid");
+                
                 List list = em.list();
                 //List list = em.select( ".*" ).where("address2 = :addr2", map).list();
                 printList(list);
@@ -44,6 +46,7 @@ public class TestSubQuery extends AbstractTestCase {
         });   
     }
     
+    /*
     public void ztestInverseSelect() throws Exception {
         exec( new ExecHandler() {
             public void execute() throws Exception {
@@ -59,5 +62,6 @@ public class TestSubQuery extends AbstractTestCase {
             }
         });   
     }
+    */ 
     
 }

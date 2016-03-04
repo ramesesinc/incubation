@@ -5,12 +5,10 @@
 package com.rameses.osiris3.sql;
 
 
-import com.rameses.osiris3.persistence.JoinTypes;
 import com.rameses.osiris3.schema.AbstractSchemaView;
 import com.rameses.osiris3.schema.LinkedSchemaView;
 import com.rameses.osiris3.schema.SchemaViewRelationField;
 import com.rameses.osiris3.sql.SqlDialectModel.Field;
-import com.rameses.osiris3.sql.SqlDialectModel.JoinRelationKey;
 import com.rameses.osiris3.sql.SqlDialectModel.WhereFilter;
 import com.rameses.util.ValueUtil;
 import java.util.ArrayList;
@@ -251,12 +249,12 @@ public abstract class AbstractSqlDialect implements SqlDialect {
         if( model.getSubqueries()!=null && model.getSubqueries().size()>0 ) {
             for( Object m: model.getSubqueries().entrySet() ) {
                 Map.Entry<String, SqlDialectModel> me = (Map.Entry)m;
-                sb.append( " " + me.getValue().getJoinType() );
-                sb.append( " JOIN ");
+                sb.append( ",");
                 sb.append( "( ");
                 sb.append( getSelectStatement(me.getValue(), true) );
                 sb.append( ") ");
                 sb.append( getDelimiters()[0]+me.getKey()+getDelimiters()[1] );
+                /*
                 sb.append( " ON ");
                 int i = 0;
                 for(JoinRelationKey rk: me.getValue().getRelationKeys() ) {
@@ -267,6 +265,7 @@ public abstract class AbstractSqlDialect implements SqlDialect {
                     sb.append( getDelimiters()[0] + rk.getTargetField().getTablealias() + getDelimiters()[1] +"." );
                     sb.append( getDelimiters()[0] + rk.getTargetField().getFieldname() + getDelimiters()[1] );
                 }
+                */ 
             }
         }
         

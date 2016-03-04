@@ -4,6 +4,7 @@
  */
 package com.rameses.osiris3.persistence;
 
+import com.rameses.osiris3.schema.JoinLink;
 import com.rameses.osiris3.persistence.EntityManagerModel.WhereElement;
 import com.rameses.osiris3.schema.SchemaView;
 import java.util.List;
@@ -24,4 +25,5 @@ public interface ISelectModel {
     List<WhereElement> getOrWhereList();
     Map getFinders();
     Map<String, SubQueryModel> getSubqueries();
+    List<JoinLink> getJoinLinks();
 }

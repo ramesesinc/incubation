@@ -4,6 +4,7 @@
  */
 package com.rameses.osiris3.persistence;
 
+import com.rameses.osiris3.schema.JoinLink;
 import com.rameses.osiris3.schema.SchemaElement;
 import com.rameses.osiris3.schema.SchemaView;
 import java.lang.String;
@@ -34,6 +35,8 @@ public class EntityManagerModel implements ISelectModel {
     private String orderExpr;
     private String groupByExpr;
     private List<WhereElement> orWhereList;
+    
+    private List<JoinLink> joinLinks = new ArrayList();
     
     private int start;
     private int limit;
@@ -124,6 +127,7 @@ public class EntityManagerModel implements ISelectModel {
         this.groupByExpr = groupByExpr;
     }
 
+
     public static class WhereElement {
         private String expr;
         private Map params;
@@ -192,6 +196,11 @@ public class EntityManagerModel implements ISelectModel {
         return false;
     }
     
+    public void addJoinLink( JoinLink j ) {
+        this.joinLinks.add( j );
+    }
     
-    
+    public List<JoinLink> getJoinLinks() {
+        return joinLinks;
+    }
 }

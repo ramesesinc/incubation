@@ -238,29 +238,11 @@ public class SchemaElement implements Serializable {
         List<SchemaRelation> inverseList = getInverseRelationships();
         for( SchemaRelation ir : inverseList ) {
             SchemaElement targetElem = ir.getLinkedElement();
-            LinkedSchemaView targetVw = new LinkedSchemaView(ir.getName(), targetElem, rootVw, currentVw, ir.getJointype(), ir.isRequired(), prefix  );
-            //make an ordinary link field. Type must be the same as the target
-            for( RelationKey rk: ir.getRelationKeys() ) {
-                SimpleField tf = (SimpleField)ir.getLinkedElement().getField(rk.getTarget());
-                if( tf == null ) 
-                    throw new RuntimeException("SchemaElement.fetchAllFields error. Target field not found in inverse");
-                if(! (tf instanceof SimpleField) ) 
-                    throw new RuntimeException("SchemaElement.fetchAllFields error. Target field must be a simple field");
-                
-                //build the simple field
-                SimpleField sf = new SimpleField();
-                sf.setElement(currentVw.getElement());
-                sf.setName(rk.getField());
-                sf.setFieldname(rk.getField());
-                sf.setType( tf.getType() );
-                //SchemaViewField vf = new SchemaViewField(sf, rootVw, currentVw);
-                SchemaViewRelationField rf = new SchemaViewRelationField(sf, rootVw, currentVw,tf, targetVw);
-                rootVw.addField( rf );
-                targetVw.addRelationField(rf);
-            }
-            rootVw.addInverseView(targetVw);
-            //do not fetch the fields anymore. This will be on demand.
-            
+            JoinLink jl = new JoinLink(targetElem, ir.getName());
+            jl.setRequired(ir.isRequired());
+            jl.setJoinType(jl.getJoinType());
+            jl.setRelationKeys(ir.getRelationKeys());
+            rootVw.addInverseJoin(jl);
         }
         
         //load the one to many relationships
