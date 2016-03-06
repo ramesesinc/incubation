@@ -168,7 +168,7 @@ public class TestPersist extends AbstractTestCase {
         exec( new ExecHandler() {
             public void execute() throws Exception {
                 em.select("maxname:{MAX(lastname)}, entityno");
-                List list = em.find(getFinder()).sort("firstname DESC,lastname, entityno").groupBy("entityno, address.barangay.objid, yr:{ YEAR(dtcreated) }").list();
+                List list = em.find(getFinder()).orderBy("firstname DESC,lastname, entityno").groupBy("entityno, address.barangay.objid, yr:{ YEAR(dtcreated) }").list();
                 printList(list);
             }
         });

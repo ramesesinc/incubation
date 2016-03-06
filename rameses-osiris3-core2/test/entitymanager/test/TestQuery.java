@@ -31,7 +31,7 @@ public class TestQuery extends AbstractTestCase {
                 Map map = new HashMap();
                 map.put("addr2", "%capitol%");
                 em.select("today,fullname,address.barangay.name,address_barangay_city:{'cebu city'}, name:{ CONCAT(lastname, ',', firstname) }, today: {NOW()}");
-                List list = em.where("address2 like :addr2 and 1=1", map ).limit(2).list();
+                List list = em.where("address2 like :addr2 and 1=1", map ).orderBy("address.barangay.name").limit(2).list();
                 //List list = em.select( ".*" ).where("address2 = :addr2", map).list();
                 printList(list);
                 

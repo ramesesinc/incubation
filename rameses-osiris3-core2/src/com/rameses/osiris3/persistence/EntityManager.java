@@ -506,7 +506,7 @@ public class EntityManager {
         return this;
     }
     
-    public EntityManager sort(String fieldname) {
+    public EntityManager orderBy(String fieldname) {
         getModel().setOrderExpr(fieldname);
         return this;
     }

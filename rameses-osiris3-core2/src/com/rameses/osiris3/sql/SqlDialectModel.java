@@ -106,8 +106,6 @@ public class SqlDialectModel {
                     sb.append(",");
                 }
             }
-            
-            
             if( whereFilter !=null && !ValueUtil.isEmpty(whereFilter.getExpr()) ) {
                 sb.append("where:");
                 sb.append( whereFilter.getExpr() );
@@ -143,12 +141,13 @@ public class SqlDialectModel {
                     if(! ValueUtil.isEmpty(f.getExpr()) ) {
                         sb.append( "expr:"+f.getExpr());
                     } 
+                    sb.append( "::"+ f.getSortDirection() );
                 }        
                 sb.append(";");
             }
             if( start >0 || limit > 0 ) {
-                sb.append("start:"+start+";");
-                sb.append("limit:"+limit+";");
+                sb.append("start:true;");
+                sb.append("limit:true;");
             }
         }
         return sb.toString();

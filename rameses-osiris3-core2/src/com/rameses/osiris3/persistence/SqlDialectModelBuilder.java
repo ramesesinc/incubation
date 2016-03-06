@@ -470,6 +470,51 @@ public final class SqlDialectModelBuilder {
         return targetVw;
     }
     
+    private static void buildGroupBy( ISelectModel entityModel, SqlDialectModel sqlModel, SchemaView svw  ) {
+        if( entityModel.getGroupByExpr()!=null) {
+            List<Token> tokenList = SelectFieldsTokenizer.tokenize(entityModel.getGroupByExpr());
+            for( Token t: tokenList ) {
+                if( !t.hasExpr() ) {
+                    SchemaViewField vf = svw.getField(t.getFieldMatch());
+                    sqlModel.addGroupField( createSqlField(vf) );
+                    sqlModel.addJoinedViews( vf.getView().getJoinPaths() );
+                }
+                else {
+                    String expr = parseFieldExpression( t.getExpr(), entityModel, sqlModel, svw );
+                    SqlDialectModel.Field sf = new SqlDialectModel.Field();
+                    sf.setExpr(expr);
+                    sqlModel.addGroupField(sf);    
+                }
+            }
+        }     
+    }
+    
+    private static void buildOrderBy( ISelectModel entityModel, SqlDialectModel sqlModel, SchemaView svw  ) {
+        if( entityModel.getOrderExpr()!=null) {
+            List<Token> tokenList = SelectFieldsTokenizer.tokenize(entityModel.getOrderExpr());
+            for( Token t: tokenList ) {
+                if( !t.hasExpr() ) {
+                    SchemaViewField vf = svw.getField(t.getFieldMatch());
+                    if( vf == null ) {
+                        System.out.println("warning buildOrderBy. field has no match for : "+t.getFieldMatch());
+                        continue;
+                    }
+                    SqlDialectModel.Field ordf = createSqlField(vf);
+                    ordf.setSortDirection(t.getSortDirection());
+                    sqlModel.addOrderField( ordf );
+                    sqlModel.addJoinedViews( vf.getView().getJoinPaths() );
+                }
+                else {
+                    String expr = parseFieldExpression( t.getExpr(),entityModel, sqlModel, svw );
+                    SqlDialectModel.Field sf = new SqlDialectModel.Field();
+                    sf.setExpr(expr);
+                    sqlModel.addOrderField(sf);    
+                }
+            }
+        }
+        
+    }
+    
     //for research
     public static SqlDialectModel buildSelectSqlModel( ISelectModel entityModel ) {
         SchemaView svw = entityModel.getSchemaView();
@@ -547,39 +592,8 @@ public final class SqlDialectModelBuilder {
         //build the finders if any
         addFinders(entityModel, sqlModel, svw);
         addWhereCriteria( entityModel, sqlModel, svw );
-       
-        if( entityModel.getGroupByExpr()!=null) {
-            List<Token> tokenList = SelectFieldsTokenizer.tokenize(entityModel.getGroupByExpr());
-            for( Token t: tokenList ) {
-                if( !t.hasExpr() ) {
-                    SchemaViewField vf = svw.getField(t.getFieldMatch());
-                    sqlModel.addGroupField( createSqlField(vf) );
-                    sqlModel.addJoinedViews( vf.getView().getJoinPaths() );
-                }
-                else {
-                    String expr = parseFieldExpression( t.getExpr(), entityModel, sqlModel, svw );
-                    SqlDialectModel.Field sf = new SqlDialectModel.Field();
-                    sf.setExpr(expr);
-                    sqlModel.addGroupField(sf);    
-                }
-            }
-        }
-        if( entityModel.getOrderExpr()!=null) {
-            List<Token> tokenList = SelectFieldsTokenizer.tokenize(entityModel.getOrderExpr());
-            for( Token t: tokenList ) {
-                if( !t.hasExpr() ) {
-                    SchemaViewField vf = svw.getField(t.getFieldMatch());
-                    sqlModel.addOrderField( createSqlField(vf) );
-                    sqlModel.addJoinedViews( vf.getView().getJoinPaths() );
-                }
-                else {
-                    String expr = parseFieldExpression( t.getExpr(),entityModel, sqlModel, svw );
-                    SqlDialectModel.Field sf = new SqlDialectModel.Field();
-                    sf.setExpr(expr);
-                    sqlModel.addOrderField(sf);    
-                }
-            }
-        }
+        buildGroupBy( entityModel, sqlModel, svw );
+        buildOrderBy( entityModel, sqlModel, svw );
         sqlModel.setStart(entityModel.getStart());
         sqlModel.setLimit(entityModel.getLimit());
         return sqlModel;
