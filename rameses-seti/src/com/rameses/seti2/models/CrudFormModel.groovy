@@ -30,7 +30,7 @@ public class CrudFormModel implements CrudItemHandler {
     @Caller
     def caller;
 
-    def selectedEntity;
+    def selectedItem;
     
     def adapter;
     def schema;
@@ -286,8 +286,8 @@ public class CrudFormModel implements CrudItemHandler {
     }
     
     def reloadEntity() {
-        if( caller.selectedEntity ) {
-            entity = caller.selectedEntity;
+        if( caller.selectedItem ) {
+            entity = caller.selectedItem;
             loadData();
         }
     }

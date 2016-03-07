@@ -222,13 +222,13 @@ public class SchemaElement implements Serializable {
                 sf.setFieldname(rk.getField());
                 sf.setType( tf.getType() );
                 SchemaViewRelationField rf = new SchemaViewRelationField(sf, rootVw, currentVw,tf, targetVw);
-                rootVw.addField( rf );
                 if( sr.getJointype().equals(JoinTypes.ONE_TO_ONE) ) {
                     currentVw.addOneToOneView( targetVw );
                 }
                 else {
                     currentVw.addManyToOneView( targetVw );
                 }
+                rootVw.addField( rf );
                 targetVw.addRelationField(rf);
             };
             targetElem.fetchAllFields(rootVw, targetVw, targetVw.getName());
@@ -243,6 +243,17 @@ public class SchemaElement implements Serializable {
             jl.setJoinType(jl.getJoinType());
             jl.setRelationKeys(ir.getRelationKeys());
             rootVw.addInverseJoin(jl);
+            //add the field in the main schema view
+            for( RelationKey rk:  ir.getRelationKeys() ) {
+                SimpleField tf = (SimpleField)ir.getLinkedElement().getField(rk.getTarget());
+                SimpleField sf = new SimpleField();
+                sf.setElement(currentVw.getElement());
+                sf.setName(rk.getField());
+                sf.setFieldname(rk.getField());
+                sf.setType( tf.getType() );
+                rootVw.addField(new SchemaViewField(sf, rootVw, currentVw));
+            }
+            
         }
         
         //load the one to many relationships

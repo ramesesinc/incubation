@@ -81,6 +81,7 @@ public class SchemaView extends AbstractSchemaView {
         map.put("name", this.getName());
         List<Map> flds = new ArrayList();
         for( SchemaViewField vf: this.findAllFields() ) {
+            /*
             if(vf instanceof SchemaViewRelationField ) {
                 SchemaViewRelationField svrf = (SchemaViewRelationField)vf;
                 //if(svrf.getJoinType()!=null && !svrf.getJoinType().equals(JoinTypes.MANY_TO_ONE ))  continue;
@@ -91,12 +92,13 @@ public class SchemaView extends AbstractSchemaView {
                 flds.add( fld );
             }
             else {
+            */ 
                 Map fld = new HashMap();
                 fld.putAll( vf.getSchemaField().toMap() );
                 fld.put("name", vf.getMapname());
                 fld.put("extname", vf.getExtendedName());
                 flds.add( fld );
-            }
+            //}
         }
         map.put("columns", flds);
         //load one to many children.

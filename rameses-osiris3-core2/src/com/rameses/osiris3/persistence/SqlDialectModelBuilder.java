@@ -452,9 +452,15 @@ public final class SqlDialectModelBuilder {
         if( lvw == null || !(lvw instanceof LinkedSchemaView) ) {
             targetVw = new LinkedSchemaView(joinLink.getName(), joinLink.getElement(), svw, svw,JoinTypes.INVERSE, joinLink.isRequired(), null);
             for( RelationKey rk: joinLink.getRelationKeys()) {
-                SimpleField tf = (SimpleField)joinLink.getElement().getField(rk.getTarget());
-                if( tf == null ) 
+                SchemaViewField tvf = joinLink.getElement().createView().getField(rk.getTarget());
+                if( tvf == null ) 
                     throw new RuntimeException("SchemaElement.buildJoins error. Target field not found");
+                SimpleField tf = new SimpleField();
+                tf.setElement(targetVw.getElement());
+                tf.setName(tvf.getExtendedName());
+                tf.setFieldname(tvf.getFieldname());
+                sqlModel.addJoinedView(targetVw);
+                sqlModel.addJoinedViews(tvf.getView().getJoinPaths());
                 
                 //build the simple field
                 SimpleField sf = new SimpleField();
@@ -465,7 +471,6 @@ public final class SqlDialectModelBuilder {
                 SchemaViewRelationField rf = new SchemaViewRelationField(sf, svw, svw, tf, targetVw);
                 targetVw.addRelationField(rf);
             };
-            sqlModel.addJoinedView(targetVw);
         }
         return targetVw;
     }

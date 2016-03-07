@@ -57,9 +57,9 @@ public class SchemaViewField {
         }
         
         
-        //determine insertable. do not include one to one.
-        String matchPattern = JoinTypes.ONE_TO_MANY + "|" + JoinTypes.MANY_TO_ONE + "|" + JoinTypes.INVERSE;
-        if( joinType==null || !joinType.matches( matchPattern ) ) {
+        //determine insertable. applies to one to one, many to one and inverse
+        String matchPattern = JoinTypes.ONE_TO_ONE + "|" + JoinTypes.MANY_TO_ONE + "|" + JoinTypes.INVERSE;
+        if( joinType==null || joinType.matches( matchPattern ) ) {
             _insertable = true;
         }
         

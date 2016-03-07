@@ -133,7 +133,7 @@ public class CrudLookupPage extends javax.swing.JPanel {
 
         xDataTable1.setHandler("listHandler");
         xDataTable1.setImmediate(true);
-        xDataTable1.setName("selectedEntity"); // NOI18N
+        xDataTable1.setName("selectedItem"); // NOI18N
         pnlBody.add(xDataTable1, java.awt.BorderLayout.CENTER);
 
         navBar1.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 5, 0, 25));

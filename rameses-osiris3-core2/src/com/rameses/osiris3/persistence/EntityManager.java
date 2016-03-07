@@ -63,11 +63,17 @@ public class EntityManager {
         return this.sqlContext;
     }
 
+    //groovy option for better readability. Example em['entityindividual']
+    public EntityManager get(String name) {
+        return setName(name);
+    }
+    
     public EntityManager shift(String name) {
         return setName(name);
     }
     
     public EntityManager setName(String name) {
+        if(this.schemaName!=null && schemaName.equals(name)) return this;
         this.schemaName = name;
         SchemaElement elem = schemaManager.getElement(name);
         model = new EntityManagerModel(elem);
