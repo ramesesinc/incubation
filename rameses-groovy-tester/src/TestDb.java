@@ -76,6 +76,7 @@ public class TestDb {
     
     public void commit() {
         cm.commit();
+        cm.close();
     }
     
     public void rollback() {
