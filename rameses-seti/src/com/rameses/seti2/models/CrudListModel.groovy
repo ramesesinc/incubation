@@ -28,7 +28,7 @@ public class CrudListModel {
     def invoker;
     
     @Service("QueryService")
-    def queryService;
+    def service;
 
     @Service("SchemaService")
     def schemaService;
@@ -36,7 +36,6 @@ public class CrudListModel {
     @Service("PersistenceService")
     def persistenceService;
 
-    
     @FormTitle
     def formTitle;
     
@@ -64,6 +63,38 @@ public class CrudListModel {
     String strCols;
     
     def secProvider = ClientContext.getCurrentContext().getSecurityProvider();
+    
+    //overridables
+    public def beforeQuery( def m ) {
+        ;//do nothing
+    }
+    public def getQueryService() {
+        return service;
+    }
+    
+    public def getTag() {
+        return workunit.info.workunit_properties.tag;
+    }
+    
+    public def getSchema() {
+        if(!schemaName) {
+            schemaName = workunit.info.workunit_properties.schemaName;
+        }
+        if(!entitySchemaName) {
+            entitySchemaName = workunit.info.workunit_properties.entitySchemaName;
+        }
+        if(!schemaName) 
+            throw new Exception("Please specify a schema name in the workunit");
+        
+        if(!adapter) {
+            adapter = workunit.info.workunit_properties.adapter; 
+        }
+        def xschema = schemaService.getSchema( [name:schemaName, adapter: adapter] );
+        xschema.name = schemaName;
+        if(adapter) xschema.adapter = adapter;
+        return xschema;
+    }
+    //end overridables
     
     List getExtActions() {
         return Inv.lookupActions( schemaName+":list:extActions", [entity: selectedItem] );
@@ -107,21 +138,7 @@ public class CrudListModel {
         role = invoker.role;
         formTitle = invoker.caption;
         
-        if(!schemaName) {
-            schemaName = workunit.info.workunit_properties.schemaName;
-        }
-        if(!entitySchemaName) {
-            entitySchemaName = workunit.info.workunit_properties.entitySchemaName;
-        }
-        if(!schemaName) 
-            throw new Exception("Please specify a schema name in the workunit");
-        
-        if(!adapter) {
-            adapter = workunit.info.workunit_properties.adapter; 
-        }
-        schema = schemaService.getSchema( [name:schemaName, adapter: adapter] );
-        schema.name = schemaName;
-        if(adapter) schema.adapter = adapter;
+        schema = getSchema();
         
         //establish first what columns to include in internal columns
         def includeCols = new LinkedHashSet();
@@ -178,7 +195,6 @@ public class CrudListModel {
             if(!fld.caption) fld.caption = fld.name;            
         }
         searchables = schema.columns.findAll{ it.searchable == "true" }*.name;
-        
     }
         
     def listHandler = [
@@ -202,7 +218,7 @@ public class CrudListModel {
             def m = [:];
             m.putAll(o);
             m.putAll(query);
-            m.schemaname = schema.name;
+            m._schemaname = schema.name;
             m.adapter = schema.adapter;
             
             def primKeys = cols.findAll{it.primary==true}*.name.join(",");
@@ -216,7 +232,11 @@ public class CrudListModel {
             if( orWhereList.size() > 0 ) {
                 m.orWhereList = orWhereList;
             }
-            return queryService.getList( m );
+            beforeQuery( m );
+            if( getTag()!=null ) {
+                m._tag = getTag();
+            }
+            return getQueryService().getList( m );
         },
         onOpenItem: { o, colName ->
             return open();
@@ -326,7 +346,7 @@ public class CrudListModel {
         //load first all data.
         def m = [:];
         m.putAll(query);
-        m.schemaname = schema.name;
+        m._schemaname = schema.name;
         m.adapter = schema.adapter;
         //build the columns to retrieve
         def arr = cols.findAll{it.selected==true}*.name;
@@ -339,7 +359,7 @@ public class CrudListModel {
         while( true ) {
             m._start = i;
             m._limit = 50;
-            def l = queryService.getList( m );
+            def l = getQueryService().getList( m );
             buffList.addAll( l );
             if( l.size() < 50  ) {
                 break;

@@ -39,6 +39,11 @@ public class CrudFormModel implements CrudItemHandler {
     String role;
     String domain;
     String permission;
+
+    //overridable services
+    public def getPersistenceService() {
+        return service;
+    }
     
     def mode;
     
@@ -174,7 +179,7 @@ public class CrudFormModel implements CrudItemHandler {
         mode = "read";
         //we need to set the schemaname that will be used for open
         entity._schemaname = schemaName;
-        entity = service.read( entity );
+        entity = getPersistenceService().read( entity );
         
         //we need to reset the schema name for update.
         entity._schemaname = schemaName;
@@ -204,7 +209,7 @@ public class CrudFormModel implements CrudItemHandler {
         if( mode == 'create' ) {
             beforeSave("create");
             entity._schemaname = schemaName;
-            entity = service.create( entity );
+            entity = getPersistenceService().create( entity );
         }
         else {
             beforeSave("update");
@@ -212,7 +217,7 @@ public class CrudFormModel implements CrudItemHandler {
             //we'll change this later to diff.
             entity = entity.data(); 
             entity._schemaname = schemaName;
-            service.update( entity );
+            getPersistenceService().update( entity );
             loadData();
         }
         mode = "read";
@@ -279,7 +284,7 @@ public class CrudFormModel implements CrudItemHandler {
     
     void loadData() {
         entity._schemaname = schemaName;
-        entity = service.read( entity );
+        entity = getPersistenceService().read( entity );
         itemHandlers.values().each {
             it.reload();
         }
