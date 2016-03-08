@@ -215,23 +215,7 @@ public final class EntityManagerProcessor {
     public void updateOneToMany(SchemaView svw, Map parent, EntityManagerModel entityModel, Map params ) throws Exception {
                 //update one to many links. loop each 
         if( svw.getOneToManyLinks()==null  ) return;
-
         //check first if the parent has primary keys if not, we'll have to load it
-        boolean loadKeys = false;
-        for( SimpleField sf: svw.getElement().getPrimaryKeys()) {
-            Object kval = EntityUtil.getNestedValue(parent, sf.getName() );
-            if( kval == null ) {
-                loadKeys = true;
-                break;        
-            }
-        }
-        //get only the first key
-        if( loadKeys ) {
-            SqlDialectModel sqlModel = SqlDialectModelBuilder.buildSelectIndexedKeys( entityModel );
-            Map b = (Map)createQuery(sqlModel, params, null).getSingleResult();
-            if(b==null) throw new Exception("Update One to many error. Record not found");
-            parent.putAll(b);
-        }
         for(OneToManyLink oml: svw.getOneToManyLinks() ) {
             String sname = oml.getName();
             List items = null;
@@ -240,6 +224,18 @@ public final class EntityManagerProcessor {
                 if(itm!=null && (itm instanceof List)) items = (List)itm;
             } catch(Exception ign){;}
             if( items !=null ) {
+                //we try to retrieve the objid of the parent because this will be used in populating new items.
+                //if parent's primary keys do not exist we need to retrieve it.
+                for( SimpleField sf: svw.getElement().getPrimaryKeys()) {
+                    Object kval = EntityUtil.getNestedValue(parent, sf.getName() );
+                    if( kval == null ) {
+                        SqlDialectModel sqlModel = SqlDialectModelBuilder.buildSelectIndexedKeys( entityModel );
+                        Map b = (Map)createQuery(sqlModel, params, null).getSingleResult();
+                        if(b==null) throw new Exception("Update One to many error. Record not found for parent");
+                        parent.putAll(b);
+                        break;        
+                    }
+                }
                 EntityManagerModel itemModel = new EntityManagerModel(oml.getRelation().getLinkedElement());
                 for(Object m: items) {
                     if(! (m instanceof Map) ) continue;
@@ -279,6 +275,9 @@ public final class EntityManagerProcessor {
             //fill in the relationships
             for(RelationKey rk: rel.getRelationKeys()) {
                 Object kval = EntityUtil.getNestedValue(parent,rk.getField());
+                //if rel key is null, we need to try to retreive the parent
+                
+                
                 EntityUtil.putNestedValue(data, rk.getTarget(), kval);
             }
             odata = create( entityModel, data );

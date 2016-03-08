@@ -264,7 +264,7 @@ public final class SqlDialectModelBuilder {
             }
             else if( vf instanceof SchemaViewRelationField ) {
                 SchemaViewRelationField svf = (SchemaViewRelationField)vf;
-                if( svf.getTargetJoinType().matches(JoinTypes.ONE_TO_ONE) ) {
+                if( svf.getTargetJoinType().equals(JoinTypes.ONE_TO_ONE) ) {
                     sqlModel.addField(createSqlField(vf));
                 }
             }

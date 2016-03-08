@@ -34,10 +34,10 @@ public class TestUpdatePartial extends AbstractTestCase {
                 finder.put("entityno","123456" );
                 
                 List addedIds = new ArrayList();
-                addedIds.add( createId("voters id", "98192189") );
-                addedIds.add( createId("school id", "general") );
-                Map m = createId("Drviers Licensia","999");
-                m.put("objid", "ID668ec0db:1535133450e:-7ffd");
+                addedIds.add( createId("98192189", "voters id" ) );
+                addedIds.add( createId("1989-0001", "school id") );
+                Map m = createId("999", "Drviers Licensia");
+                m.put("objid", "ID3a4404d5:15353f918c8:-7ffd");
                 addedIds.add( m );
                 
                 Map d = new HashMap();
