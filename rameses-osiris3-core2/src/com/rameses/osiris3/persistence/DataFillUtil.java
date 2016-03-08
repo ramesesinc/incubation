@@ -91,16 +91,22 @@ public class DataFillUtil {
                 fillInitialData( tgt, m );
             }
         }
+        fillOneToManyData( elem, rawData );
+    }
+    
+    private static void fillOneToManyData(SchemaElement elem, Map rawData) throws Exception {
         for(SchemaRelation sr: elem.getOneToManyRelationships()) {
             List list = (List)rawData.get(sr.getName());
             if(list!=null) {
                 for(  Object o : list) {
                     if(o instanceof Map) {
                         Map e = (Map)o;
-                        
                         //ordinary load items. inverse relationships are not specified
                         for( RelationKey rk: sr.getRelationKeys() ) {
-                            e.put( rk.getTarget(), EntityUtil.getNestedValue(rawData, rk.getField() )  );
+                            Object val = EntityUtil.getNestedValue(rawData, rk.getField() );
+                            if( val !=null) {
+                                e.put( rk.getTarget(), val  );
+                            }
                         }
                         fillInitialData( sr.getLinkedElement(), e );
                     }
@@ -108,9 +114,6 @@ public class DataFillUtil {
             }
         }
     }
-    
-    
-    
     
     
 }

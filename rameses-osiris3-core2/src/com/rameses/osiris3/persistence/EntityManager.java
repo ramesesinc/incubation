@@ -235,6 +235,7 @@ public class EntityManager {
     public Object update(Map data, Map params) {
         try {
             processor.buildFindersFromPrimaryKeys(getModel(), (Map)data);
+            DataFillUtil.fillInitialData(getModel().getElement(), (Map)data);
             Object p = processor.update(getModel(), (Map)data, params);
             clearModel();
             return p;
@@ -493,7 +494,12 @@ public class EntityManager {
     }
 
     public EntityManager find(Map params) {
-        getModel().getFinders().putAll(params);
+        //replace all field names with underscores in case there are periods
+        for(  Object k: params.entrySet() ) {
+            Map.Entry me = (Map.Entry)k;
+            String s = me.getKey().toString().trim().replace(".", "_");
+            getModel().getFinders().put(s, me.getValue());    
+        }
         return this;
     }
     
