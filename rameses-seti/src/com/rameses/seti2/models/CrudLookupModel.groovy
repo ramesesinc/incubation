@@ -10,7 +10,6 @@ import com.rameses.common.*;
 public class CrudLookupModel extends CrudListModel implements SimpleLookupDataSource {
 
     def onselect;
-    String searchText;
     LookupSelector selector;
     
     void setSelector(LookupSelector s) {

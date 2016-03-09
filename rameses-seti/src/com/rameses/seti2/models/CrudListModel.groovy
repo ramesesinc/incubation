@@ -30,9 +30,6 @@ public class CrudListModel {
     @Service("QueryService")
     def service;
 
-    @Service("SchemaService")
-    def schemaService;
-
     @Service("PersistenceService")
     def persistenceService;
 
@@ -49,7 +46,7 @@ public class CrudListModel {
     def criteriaList = [];
     def queryForm;
     def whereStatement;
-    def searchText;
+    String searchText;
     
     def cols = [];
   
@@ -72,6 +69,10 @@ public class CrudListModel {
         return service;
     }
     
+    public String getCustomFilter() {
+        return workunit.info.workunit_properties.customFilter;
+    }
+    
     public def getTag() {
         return workunit.info.workunit_properties.tag;
     }
@@ -89,7 +90,7 @@ public class CrudListModel {
         if(!adapter) {
             adapter = workunit.info.workunit_properties.adapter; 
         }
-        def xschema = schemaService.getSchema( [name:schemaName, adapter: adapter] );
+        def xschema = persistenceService.getSchema( [name:schemaName, adapter: adapter] );
         xschema.name = schemaName;
         if(adapter) xschema.adapter = adapter;
         return xschema;
@@ -131,7 +132,9 @@ public class CrudListModel {
         return workunit.title;
     }
     
+    boolean _inited_ = false;
     void init() {
+        if(_inited_ ) return;
         //load role and domain if any.
         queryForm = new Opener(outcome:'queryForm')
         domain = invoker.domain;
@@ -149,7 +152,7 @@ public class CrudListModel {
         //loop all fields to include.
         for( ic in _includeCols.split(",") ) {
             if(ic == "*") ic = ".*";
-            for( fld in schema.columns ) {
+            for( fld in schema.fields ) {
                 if(fld.jointype ) continue;
                 if(!(fld.visible==null || fld.visible=='true' )) continue;
                 if(fld.name.matches( ic.trim()) ) {
@@ -194,9 +197,44 @@ public class CrudListModel {
         cols.each {fld->
             if(!fld.caption) fld.caption = fld.name;            
         }
-        searchables = schema.columns.findAll{ it.searchable == "true" }*.name;
+        searchables = schema.fields.findAll{ it.searchable == "true" }*.name;
+        _inited_ = true;
     }
         
+    public def buildSelectQuery(Map o) {
+        def m = [:];
+        if(o) m.putAll(o);
+        if(query) m.putAll(query);
+        m._schemaname = schema.name;
+        m.adapter = schema.adapter;
+        def primKeys = cols.findAll{it.primary==true}*.name.join(",");
+        
+        //build the columns to retrieve
+        def arr = cols.findAll{it.selected==true}*.name.join(",");
+        m.select = [primKeys, arr].join(",") ;
+        if(customFilter!=null) {
+            if( whereStatement==null ) {
+                whereStatement= [customFilter];
+            }
+            else {
+                whereStatement[0] = customFilter + ' AND ' + whereStatement[0];
+            }
+        } 
+
+        if( whereStatement!=null) {
+            m.where = whereStatement;
+        }
+        
+        if( orWhereList.size() > 0 ) {
+            m.orWhereList = orWhereList;
+        }
+        if( getTag()!=null ) {
+            m._tag = getTag();
+        }        
+        beforeQuery( m );
+        return m;
+    }
+    
     def listHandler = [
         getColumnList: {
             if( schema == null )
@@ -214,28 +252,8 @@ public class CrudListModel {
         fetchList: { o->
             if( schema == null )
                 throw new Exception("schema is null. Please call invoke method")
-                
-            def m = [:];
-            m.putAll(o);
-            m.putAll(query);
-            m._schemaname = schema.name;
-            m.adapter = schema.adapter;
-            
-            def primKeys = cols.findAll{it.primary==true}*.name.join(",");
-            //build the columns to retrieve
-            def arr = cols.findAll{it.selected==true}*.name.join(",");
-            m.select = [primKeys, arr].join(",") ;
-            
-            if( whereStatement !=null ) {
-                m.where = whereStatement;
-            }
-            if( orWhereList.size() > 0 ) {
-                m.orWhereList = orWhereList;
-            }
-            beforeQuery( m );
-            if( getTag()!=null ) {
-                m._tag = getTag();
-            }
+            if(!_inited_) throw new Exception("This workunit is not inited. Please call init action");
+            def m = buildSelectQuery(o);
             return getQueryService().getList( m );
         },
         onOpenItem: { o, colName ->
@@ -329,7 +347,7 @@ public class CrudListModel {
         if(!selectedItem) return;
         if( !MsgBox.confirm('You are about to delete this record. Proceed?')) return;
         def m = [:];
-        schema.columns.findAll{it.primary}.each {
+        schema.fields.findAll{it.primary}.each {
             m.put( it.name, selectedItem.get(it.name));
         }
         def ename = (!entitySchemaName)? schemaName : entitySchemaName;
@@ -344,16 +362,7 @@ public class CrudListModel {
     
     def print() {
         //load first all data.
-        def m = [:];
-        m.putAll(query);
-        m._schemaname = schema.name;
-        m.adapter = schema.adapter;
-        //build the columns to retrieve
-        def arr = cols.findAll{it.selected==true}*.name;
-        m.select = arr.join(",");
-        if( whereStatement !=null ) {
-            m.where = whereStatement;
-        }
+        def m = buildSelectQuery([:]);
         int i = 0;
         def buffList = [];
         while( true ) {
@@ -384,4 +393,29 @@ public class CrudListModel {
         op.add( new com.rameses.seti2.models.PopupAction(caption:'Close', name:'_close', obj:this, binding:binding) );
         return op;
     }
+    
+    //if there are nodes
+    private _nodeList;
+    private def _selectedNode;
+    
+    def getNodeList() {
+        if(!_nodeList) {
+            def m = [:];
+            m._schemaname = schema.name;
+            m.adapter = schema.adapter;            
+            _nodeList = queryService.getNodeList( m );
+        }
+        return _nodeList;
+    }
+    
+    void setSelectedNode(def n) {
+        _selectedNode = n;
+        query.put("node", n);
+        listHandler.reload();
+    }
+    
+    def getSelectedNode() {
+        return _selectedNode;
+    }    
+    
 }

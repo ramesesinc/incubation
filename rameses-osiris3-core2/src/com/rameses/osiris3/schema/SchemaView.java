@@ -76,12 +76,26 @@ public class SchemaView extends AbstractSchemaView {
     /***
      * This is the method being used to get the schema. ignore the schemaview field
      */ 
+    public static interface SchemaFilter {
+        boolean accept( String type, Map m );
+    }
+    
     public Map getSchema() {
+        return getSchema(new SchemaFilter() {
+             public boolean accept(String type, Map m) {
+                 if(type.equals("field"))
+                    return true;
+                 else
+                    return false;    
+            }
+        });
+    }
+    
+    public Map getSchema(SchemaFilter filter) {
         Map map = new HashMap();
         map.put("name", this.getName());
         List<Map> flds = new ArrayList();
         for( SchemaViewField vf: this.findAllFields() ) {
-            /*
             if(vf instanceof SchemaViewRelationField ) {
                 SchemaViewRelationField svrf = (SchemaViewRelationField)vf;
                 //if(svrf.getJoinType()!=null && !svrf.getJoinType().equals(JoinTypes.MANY_TO_ONE ))  continue;
@@ -89,18 +103,21 @@ public class SchemaView extends AbstractSchemaView {
                 fld.put( "name", svrf.getTargetView().getName() );
                 fld.put( "ref", svrf.getTargetView().getElement().getName() );
                 fld.put( "jointype", svrf.getTargetJoinType() );
-                flds.add( fld );
+                if( filter.accept("field", fld) ) {
+                    flds.add( fld );
+                }
             }
             else {
-            */ 
                 Map fld = new HashMap();
                 fld.putAll( vf.getSchemaField().toMap() );
                 fld.put("name", vf.getMapname());
                 fld.put("extname", vf.getExtendedName());
-                flds.add( fld );
-            //}
+                if( filter.accept("field", fld) ) {
+                    flds.add( fld );
+                }
+            }
         }
-        map.put("columns", flds);
+        map.put("fields", flds);
         //load one to many children.
         if(this.getOneToManyLinks()!=null && this.getOneToManyLinks().size()>0) {
             List list = new ArrayList();
@@ -114,13 +131,11 @@ public class SchemaView extends AbstractSchemaView {
                 //okay we need to get the schema element columns:
                 SchemaElement subElement = this.getElement().getSchema().getSchemaManager().getElement(sr.getRef());
                 Map subSchema = subElement.createView().getSchema();
-                m.put( "columns", subSchema.get("columns"));
+                m.put( "fields", subSchema.get("fields"));
                 list.add(m);
             }
             map.put( "items", list );
         }
-        
-        
         return map;
     }    
 

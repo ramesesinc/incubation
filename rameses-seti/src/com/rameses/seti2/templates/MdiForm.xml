@@ -1,0 +1,7 @@
+<workunit>
+    <code class="com.rameses.seti2.models.MdiFormModel" />   
+    <pages>
+        <page template="com.rameses.seti2.views.MdiFormPage"/>
+    </pages>
+</workunit>
+

@@ -63,7 +63,7 @@ public class DynamicCrudFormModel extends CrudFormModel {
     
      def buildFormInfos() {
         formControls.clear();
-        def infos = schema.columns;
+        def infos = schema.fields;
         //infos = sortInfos( infos );
         for( x in infos ) {
             if( x.primary && !x.visible ) continue;
