@@ -128,10 +128,19 @@ public final class Base64Cipher
     }
     
     public Object decode(String value) {
+        return decode( value, true ); 
+    }
+
+    public Object decode(String value, boolean readObject ) {
         if (value == null) return null; 
         if (!isEncoded(value)) return value; 
         
-        return decode(value.toCharArray()); 
+        char[] chars = value.toCharArray();
+        if ( readObject ) {
+            return decode( chars ); 
+        } else {
+            return decode(chars, 0, chars.length); 
+        } 
     }
     
     public Object decode(char[] chars) {

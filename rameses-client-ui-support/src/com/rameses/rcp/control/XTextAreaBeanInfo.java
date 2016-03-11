@@ -46,6 +46,7 @@ public class XTextAreaBeanInfo extends ComponentBeanInfo.Support
             
             new PropertyDescriptor("autoScrollDown", getBeanClass(), "isAutoScrollDown", "setAutoScrollDown"),
             new PropertyDescriptor("depends", getBeanClass()),
+            new PropertyDescriptor("exitOnTabKey", getBeanClass(), "isExitOnTabKey", "setExitOnTabKey"),
             new PropertyDescriptor("focusAccelerator", getBeanClass()),
             new PropertyDescriptor("handler", getBeanClass()),
             new PropertyDescriptor("hint", getBeanClass()),
