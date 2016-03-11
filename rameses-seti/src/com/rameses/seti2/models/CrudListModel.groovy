@@ -111,7 +111,6 @@ public class CrudListModel {
     boolean isOpenAllowed() { 
         def allowOpen = workunit.info.workunit_properties.allowOpen;        
         if( allowOpen == 'false' ) return false;
-        
         if( !role ) return true;
         return secProvider.checkPermission( domain, role, schemaName+".open" );
     }
@@ -119,7 +118,6 @@ public class CrudListModel {
     boolean isDeleteAllowed() { 
         def allowDelete = workunit.info.workunit_properties.allowDelete;        
         if( allowDelete != 'true' ) return false;
-        
         if( !role ) return true;
         return secProvider.checkPermission( domain, role, schemaName+".delete" );
     }
@@ -347,6 +345,7 @@ public class CrudListModel {
         if(!selectedItem) return;
         if( !MsgBox.confirm('You are about to delete this record. Proceed?')) return;
         def m = [:];
+        //show only primary key of the main element.
         schema.fields.findAll{it.primary}.each {
             m.put( it.name, selectedItem.get(it.name));
         }

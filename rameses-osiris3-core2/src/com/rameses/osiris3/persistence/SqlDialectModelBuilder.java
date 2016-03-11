@@ -539,6 +539,8 @@ public final class SqlDialectModelBuilder {
         //THIS MUST COME FIRST.
         buildSubQueryModels(entityModel, sqlModel, svw);
         
+        
+        
         //tokenize each field, then find out which fields will be considered in the select
         List<Token> fieldMatchList = SelectFieldsTokenizer.tokenize(entityModel.getSelectFields());
         for(Token t: fieldMatchList ) {
@@ -600,11 +602,12 @@ public final class SqlDialectModelBuilder {
             }
         };
         
-        //build the finders if any
+        //build the finders if any. we'll try to put this first bec. there's a problem in select fields.
         addFinders(entityModel, sqlModel, svw);
         addWhereCriteria( entityModel, sqlModel, svw );
         buildGroupBy( entityModel, sqlModel, svw );
         buildOrderBy( entityModel, sqlModel, svw );
+        
         sqlModel.setStart(entityModel.getStart());
         sqlModel.setLimit(entityModel.getLimit());
         return sqlModel;

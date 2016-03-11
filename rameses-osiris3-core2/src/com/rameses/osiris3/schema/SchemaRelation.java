@@ -56,5 +56,16 @@ public class SchemaRelation implements Serializable {
     public String getRef() {
         return complexField.getRef();
     }
+
+    public int hashCode() {
+        return (getName() +":"+ parent.getName()+"-"+linkedElement.getName()).hashCode();
+    }
+
+    public boolean equals(Object obj) {
+        return hashCode() == obj.hashCode();
+    }
+ 
+    
+    
     
 }

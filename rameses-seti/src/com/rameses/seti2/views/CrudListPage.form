@@ -117,6 +117,7 @@
                     <Property name="caption" type="java.lang.String" value="\u005c" containsInvalidXMLChars="true"/>
                     <Property name="focusable" type="boolean" value="false"/>
                     <Property name="iconResource" type="java.lang.String" value="images/help.png"/>
+                    <Property name="immediate" type="boolean" value="true"/>
                     <Property name="name" type="java.lang.String" value="showHelp" noResource="true"/>
                     <Property name="opaque" type="boolean" value="true"/>
                   </Properties>
@@ -129,6 +130,7 @@
                     <Property name="caption" type="java.lang.String" value=""/>
                     <Property name="focusable" type="boolean" value="false"/>
                     <Property name="iconResource" type="java.lang.String" value="images/info.png"/>
+                    <Property name="immediate" type="boolean" value="true"/>
                     <Property name="name" type="java.lang.String" value="showInfo" noResource="true"/>
                     <Property name="opaque" type="boolean" value="true"/>
                   </Properties>

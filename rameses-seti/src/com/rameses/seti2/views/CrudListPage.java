@@ -188,6 +188,7 @@ public class CrudListPage extends javax.swing.JPanel {
         xButton1.setCaption("\\");
             xButton1.setFocusable(false);
             xButton1.setIconResource("images/help.png");
+            xButton1.setImmediate(true);
             xButton1.setName("showHelp"); // NOI18N
             xButton1.setOpaque(true);
             jToolBar3.add(xButton1);
@@ -196,6 +197,7 @@ public class CrudListPage extends javax.swing.JPanel {
             xButton2.setCaption("");
             xButton2.setFocusable(false);
             xButton2.setIconResource("images/info.png");
+            xButton2.setImmediate(true);
             xButton2.setName("showInfo"); // NOI18N
             xButton2.setOpaque(true);
             jToolBar3.add(xButton2);

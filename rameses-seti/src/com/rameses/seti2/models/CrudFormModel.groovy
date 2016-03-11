@@ -177,19 +177,19 @@ public class CrudFormModel implements CrudItemHandler {
         catch(Exception ex){;}
     }
     
-    boolean _inited__ = false;
+    boolean _inited_ = false;
     
     void init() {
         if( !schemaName )
             throw new Exception("Please provide a schema name. Put it in workunit schemaName or override the getSchemaName()");
-        if( _inited__ ) return;
+        if( _inited_ ) return;
         if( !schema ) {
             schema = service.getSchema( [name: schemaName, adapter: adapter]  );
         }   
         buildStyleRules();
         buildItemHandlers();
         buildSections();
-        _inited__ = true;
+        _inited_ = true;
         afterInit()
     }
     
@@ -204,6 +204,10 @@ public class CrudFormModel implements CrudItemHandler {
                 Object val = it.defaultValue;
                 EntityUtil.putNestedValue( entity, it.extname, val );
             }
+        }
+        //reload the schema items
+        itemHandlers.each { k,v->
+            v.reload();
         }
     }
 

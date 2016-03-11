@@ -7,8 +7,10 @@ package com.rameses.osiris3.schema;
 import com.rameses.osiris3.schema.SchemaViewFieldFilter.ExtendedNameViewFieldFilter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author dell
@@ -88,10 +90,10 @@ public class SchemaView extends AbstractSchemaView {
                  else
                     return false;    
             }
-        });
+        }, new HashSet());
     }
     
-    public Map getSchema(SchemaFilter filter) {
+    public Map getSchema(SchemaFilter filter, Set<SchemaRelation> repeating) {
         Map map = new HashMap();
         map.put("name", this.getName());
         List<Map> flds = new ArrayList();
@@ -101,6 +103,7 @@ public class SchemaView extends AbstractSchemaView {
                 //if(svrf.getJoinType()!=null && !svrf.getJoinType().equals(JoinTypes.MANY_TO_ONE ))  continue;
                 Map fld = new HashMap();
                 fld.put( "name", svrf.getTargetView().getName() );
+                fld.put( "source", vf.getSchemaField().getElement().getName());
                 fld.put( "ref", svrf.getTargetView().getElement().getName() );
                 fld.put( "jointype", svrf.getTargetJoinType() );
                 if( filter.accept("field", fld) ) {
@@ -110,6 +113,7 @@ public class SchemaView extends AbstractSchemaView {
             else {
                 Map fld = new HashMap();
                 fld.putAll( vf.getSchemaField().toMap() );
+                fld.put( "source", vf.getSchemaField().getElement().getName());
                 fld.put("name", vf.getMapname());
                 fld.put("extname", vf.getExtendedName());
                 if( filter.accept("field", fld) ) {
@@ -123,6 +127,8 @@ public class SchemaView extends AbstractSchemaView {
             List list = new ArrayList();
             for( OneToManyLink oml: this.getOneToManyLinks() ) {
                 SchemaRelation sr = oml.getRelation();
+                if( repeating.contains(sr) ) continue;
+                repeating.add( sr ) ;
                 Map m = new HashMap();
                 m.put("name",oml.getName());
                 m.put("prefix", oml.getPrefix());
@@ -130,7 +136,7 @@ public class SchemaView extends AbstractSchemaView {
                 m.put("required",sr.isRequired() );
                 //okay we need to get the schema element columns:
                 SchemaElement subElement = this.getElement().getSchema().getSchemaManager().getElement(sr.getRef());
-                Map subSchema = subElement.createView().getSchema();
+                Map subSchema = subElement.createView().getSchema(filter, repeating);
                 m.put( "fields", subSchema.get("fields"));
                 list.add(m);
             }

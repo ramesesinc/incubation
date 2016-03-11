@@ -16,6 +16,8 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import com.rameses.osiris3.persistence.JoinTypes;
+import java.util.HashSet;
+import java.util.Set;
 
 public class SchemaElement implements Serializable {
     
@@ -158,7 +160,7 @@ public class SchemaElement implements Serializable {
         synchronized(lock) {
             if( schemaView == null ) {
                 schemaView = new SchemaView(this);
-                fetchAllFields( schemaView, schemaView, null );
+                fetchAllFields( schemaView, schemaView, null, new HashSet() );
             }
         }
         return schemaView;
@@ -169,7 +171,7 @@ public class SchemaElement implements Serializable {
      * @param rootVw - the main view
      * @param lsvw - the immediate view that relates to the field. 
      */
-    private void fetchAllFields(SchemaView rootVw, AbstractSchemaView currentVw, String prefix) {
+    private void fetchAllFields(SchemaView rootVw, AbstractSchemaView currentVw, String prefix, Set<SchemaRelation> duplicates) {
         for( SimpleField sf: this.getSimpleFields() ) {
             rootVw.addField(new SchemaViewField(sf, rootVw, currentVw));
         }
@@ -196,7 +198,7 @@ public class SchemaElement implements Serializable {
                 targetVw.addRelationField(rf);
             }
             currentVw.setExtendsView(targetVw);
-            extElement.fetchAllFields(rootVw, targetVw, prefix );
+            extElement.fetchAllFields(rootVw, targetVw, prefix, duplicates );
         }
         
         List<SchemaRelation> relList = new ArrayList();
@@ -204,7 +206,9 @@ public class SchemaElement implements Serializable {
         relList.addAll( this.getManyToOneRelationships() );
         //extract all fields related.
         for( SchemaRelation sr: relList  ) {
-            if( sr.getJointype().equals(JoinTypes.INVERSE)) continue;
+            if( duplicates.contains(sr)) continue;
+            duplicates.add(sr);
+            
             SchemaElement targetElem = sr.getLinkedElement();
             LinkedSchemaView targetVw = new LinkedSchemaView(sr.getName(), targetElem, rootVw, currentVw, sr.getJointype(), sr.isRequired(), prefix  );
             
@@ -231,7 +235,7 @@ public class SchemaElement implements Serializable {
                 rootVw.addField( rf );
                 targetVw.addRelationField(rf);
             };
-            targetElem.fetchAllFields(rootVw, targetVw, targetVw.getName());
+            targetElem.fetchAllFields(rootVw, targetVw, targetVw.getName(), duplicates);
         }
         
         // Process the inverse relationship

@@ -33,7 +33,7 @@ public abstract class AbstractTestCase extends TestCase {
     protected void setUp() throws Exception {
         sqlManager = SqlManager.getInstance();
         schemaManager = SchemaManager.getInstance();
-        em = new EntityManager(schemaManager, createContext(), "entityindividual");
+        em = new EntityManager(schemaManager, createContext(), getEntityname());
         em.setDebug(true);
         super.setUp();
     }
@@ -43,6 +43,10 @@ public abstract class AbstractTestCase extends TestCase {
         super.tearDown();
     }
 
+    public String getEntityname() {
+        return  "entityindividual";
+    }
+    
     public abstract String getDialect();
     
     public String getDbname() {

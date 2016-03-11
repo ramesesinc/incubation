@@ -110,6 +110,7 @@ public class CrudFormPage extends javax.swing.JPanel {
         btnDebug.setCaption("\\");
             btnDebug.setFocusable(false);
             btnDebug.setIconResource("images/debug.png");
+            btnDebug.setImmediate(true);
             btnDebug.setName("showDebugInfo"); // NOI18N
             btnDebug.setOpaque(true);
             btnDebug.setVisibleWhen("#{ canDebug == true }");
@@ -119,6 +120,7 @@ public class CrudFormPage extends javax.swing.JPanel {
             btnHelp.setCaption("\\");
                 btnHelp.setFocusable(false);
                 btnHelp.setIconResource("images/help.png");
+                btnHelp.setImmediate(true);
                 btnHelp.setName("showHelp"); // NOI18N
                 btnHelp.setOpaque(true);
                 jToolBar3.add(btnHelp);
@@ -127,6 +129,7 @@ public class CrudFormPage extends javax.swing.JPanel {
                 btnInfo.setCaption("");
                 btnInfo.setFocusable(false);
                 btnInfo.setIconResource("images/info.png");
+                btnInfo.setImmediate(true);
                 btnInfo.setName("showInfo"); // NOI18N
                 btnInfo.setOpaque(true);
                 jToolBar3.add(btnInfo);
@@ -206,12 +209,14 @@ public class CrudFormPage extends javax.swing.JPanel {
 
                 btnUp.setFocusable(false);
                 btnUp.setIconResource("images/toolbars/arrow_up.png");
+                btnUp.setImmediate(true);
                 btnUp.setName("moveUp"); // NOI18N
                 btnUp.setVisibleWhen("#{showNavigation==true}");
                 jToolBar1.add(btnUp);
 
                 btnDown.setFocusable(false);
                 btnDown.setIconResource("images/toolbars/arrow_down.png");
+                btnDown.setImmediate(true);
                 btnDown.setName("moveDown"); // NOI18N
                 btnDown.setVisibleWhen("#{showNavigation==true}");
                 jToolBar1.add(btnDown);

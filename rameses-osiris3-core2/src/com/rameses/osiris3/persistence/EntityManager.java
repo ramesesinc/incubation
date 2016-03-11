@@ -234,7 +234,7 @@ public class EntityManager {
      */
     public Object update(Map data, Map params) {
         try {
-            processor.buildFindersFromPrimaryKeys(getModel(), (Map)data);
+            //processor.buildFindersFromPrimaryKeys(getModel(), (Map)data);
             DataFillUtil.fillInitialData(getModel().getElement(), (Map)data);
             Object p = processor.update(getModel(), (Map)data, params);
             clearModel();
