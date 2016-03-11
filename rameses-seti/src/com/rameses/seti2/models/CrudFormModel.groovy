@@ -237,18 +237,21 @@ public class CrudFormModel implements CrudItemHandler {
         //we need to reset the schema name for update.
         entity._schemaname = schemaName;
         init();
-        
-        //check for serializer fields that are null and correct it
-        def serFields = schema.fields.findAll{ it.serializer!=null };
-        serFields.each {
-            EntityUtil.putNestedValue( entity, it.extname, [:] );
-        }
         afterOpen();
         return null;
     }
     
     def edit() {
         mode = "edit";
+        //we'll try to correct the entries like serailizers that are null;
+        //check for serializer fields that are null and correct it
+        def serFields = schema.fields.findAll{ it.serializer!=null };
+        serFields.each {
+            def val = EntityUtil.getNestedValue( entity, it.extname );
+            if( val == null ) {
+                EntityUtil.putNestedValue( entity, it.extname, [:] );
+            }
+        }        
         entity = new DataMap( entity );
         afterEdit();
         return null;
