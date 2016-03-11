@@ -5,7 +5,6 @@
 package com.rameses.osiris3.sql;
 
 import com.rameses.osiris3.schema.AbstractSchemaView;
-import com.rameses.osiris3.schema.LinkedSchemaView;
 import com.rameses.util.ValueUtil;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -65,90 +64,88 @@ public class SqlDialectModel {
      public String toString() {
         StringBuilder sb = new StringBuilder(tablealias+":"+tablename+":"+action+";");
         int i = 0;
-        if(!action.equals("create")) {
-            if(!ValueUtil.isEmpty(this.selectExpression)) {
-                sb.append("select:"+this.selectExpression+";");
+        if(!ValueUtil.isEmpty(this.selectExpression)) {
+            sb.append("select:"+this.selectExpression+";");
+        }
+        if(fields!=null && fields.size()>0) {
+            i = 0;
+            sb.append("fields:");
+            for( Field f: this.getFields() ) {
+                if(i++>0) sb.append(",");
+                sb.append( f.getExtendedName() );
+                if(! ValueUtil.isEmpty(f.getExpr()) ) {
+                    sb.append( "expr:"+f.getExpr());
+                } 
             }
-            if(fields!=null && fields.size()>0) {
-                i = 0;
-                sb.append("fields:");
-                for( Field f: this.getFields() ) {
-                    if(i++>0) sb.append(",");
-                    sb.append( f.getExtendedName() );
-                    if(! ValueUtil.isEmpty(f.getExpr()) ) {
-                        sb.append( "expr:"+f.getExpr());
-                    } 
-                }
+            sb.append(";");
+        }
+        if( finderFields!=null && finderFields.size() > 0 ) {
+            sb.append("finders:");
+            i = 0;
+            for( Field vf : finderFields ) {
+                if( i++>0 ) sb.append(",");
+                sb.append( vf.getExtendedName() );
+            }
+            sb.append(";");
+        }
+        if( getJoinedViews()!=null && getJoinedViews().size()>0 ) {
+            sb.append("joinedviews:");
+            i = 0;
+            for( AbstractSchemaView vw : getJoinedViews() ) {
+                if( i++>0 ) sb.append(",");
+                sb.append( vw.getName()+":"+vw.getTablename() );
+            }
+            sb.append(";");
+        }
+        if( subqueries!=null && subqueries.size()>0 ) {
+            sb.append("subqueries:");
+            for( SqlDialectModel sqm: subqueries.values() ) {
+                sb.append( sqm.toString() );
+                sb.append(",");
+            }
+        }
+        if( whereFilter !=null && !ValueUtil.isEmpty(whereFilter.getExpr()) ) {
+            sb.append("where:");
+            sb.append( whereFilter.getExpr() );
+            sb.append(";");
+        }
+        if( orWhereList!=null && orWhereList.size()>0) {
+            sb.append( "orwhere:");
+            i = 0;
+            for( WhereFilter wf: orWhereList ) {
+                if(i++>0) sb.append(",");
+                sb.append( wf.getExpr() );
                 sb.append(";");
-            }
-            if( finderFields!=null && finderFields.size() > 0 ) {
-                sb.append("finders:");
-                i = 0;
-                for( Field vf : finderFields ) {
-                    if( i++>0 ) sb.append(",");
-                    sb.append( vf.getExtendedName() );
-                }
-                sb.append(";");
-            }
-            if( getJoinedViews()!=null && getJoinedViews().size()>0 ) {
-                sb.append("joinedviews:");
-                i = 0;
-                for( AbstractSchemaView vw : getJoinedViews() ) {
-                    if( i++>0 ) sb.append(",");
-                    sb.append( vw.getName()+":"+vw.getTablename() );
-                }
-                sb.append(";");
-            }
-            if( subqueries!=null && subqueries.size()>0 ) {
-                sb.append("subqueries:");
-                for( SqlDialectModel sqm: subqueries.values() ) {
-                    sb.append( sqm.toString() );
-                    sb.append(",");
-                }
-            }
-            if( whereFilter !=null && !ValueUtil.isEmpty(whereFilter.getExpr()) ) {
-                sb.append("where:");
-                sb.append( whereFilter.getExpr() );
-                sb.append(";");
-            }
-            if( orWhereList!=null && orWhereList.size()>0) {
-                sb.append( "orwhere:");
-                i = 0;
-                for( WhereFilter wf: orWhereList ) {
-                    if(i++>0) sb.append(",");
-                    sb.append( wf.getExpr() );
-                    sb.append(";");
-                }        
-            }
-            if( this.groupFields!=null && this.groupFields.size()>0 ) {
-                sb.append( "groupby:");
-                i = 0;
-                for( Field f: this.getGroupFields() ) {
-                    if(i++>0) sb.append(",");
-                    sb.append( f.getExtendedName() );
-                    if(! ValueUtil.isEmpty(f.getExpr()) ) {
-                        sb.append( "expr:"+f.getExpr());
-                    } 
-                }        
-                sb.append(";");
-            }
-            if( this.orderFields!=null && this.orderFields.size()>0 )  {
-                sb.append( "orderby:");
-                i = 0;
-                for( Field f: this.getOrderFields() ) {
-                    if(i++>0) sb.append(",");
-                    sb.append( f.getExtendedName() );
-                    if(! ValueUtil.isEmpty(f.getExpr()) ) {
-                        sb.append( "expr:"+f.getExpr());
-                    } 
-                    sb.append( "::"+ f.getSortDirection() );
-                }        
-                sb.append(";");
-            }
-            if( start >0 || limit > 0 ) {
-                sb.append("start:true;");
-                sb.append("limit:true;");
-            }
+            }        
+        }
+        if( this.groupFields!=null && this.groupFields.size()>0 ) {
+            sb.append( "groupby:");
+            i = 0;
+            for( Field f: this.getGroupFields() ) {
+                if(i++>0) sb.append(",");
+                sb.append( f.getExtendedName() );
+                if(! ValueUtil.isEmpty(f.getExpr()) ) {
+                    sb.append( "expr:"+f.getExpr());
+                } 
+            }        
+            sb.append(";");
+        }
+        if( this.orderFields!=null && this.orderFields.size()>0 )  {
+            sb.append( "orderby:");
+            i = 0;
+            for( Field f: this.getOrderFields() ) {
+                if(i++>0) sb.append(",");
+                sb.append( f.getExtendedName() );
+                if(! ValueUtil.isEmpty(f.getExpr()) ) {
+                    sb.append( "expr:"+f.getExpr());
+                } 
+                sb.append( "::"+ f.getSortDirection() );
+            }        
+            sb.append(";");
+        }
+        if( start >0 || limit > 0 ) {
+            sb.append("start:true;");
+            sb.append("limit:true;");
         }
         return sb.toString();
     }

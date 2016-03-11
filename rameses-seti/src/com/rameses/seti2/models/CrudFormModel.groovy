@@ -24,13 +24,11 @@ public class CrudFormModel implements CrudItemHandler {
     @Service("PersistenceService")
     def service;
 
-    @Service("SchemaService")
-    def schemaService;
-    
     @Caller
     def caller;
 
-    def selectedItem;
+    @SubWindow
+    def subWindow;
     
     def adapter;
     def schema;
@@ -50,12 +48,29 @@ public class CrudFormModel implements CrudItemHandler {
     List styleRules = [];
     def itemHandlers = [:];     //holder for all specific item handlers
     
+    //used for mdi forms.
+    def selectedSection;
+    def sections;
+    
     @FormTitle
     String getTitle() {
-        if( invoker.caption ) return invoker.caption;
+        if( invoker.properties.formTitle ) {
+            return ExpressionResolver.getInstance().evalString(invoker.properties.formTitle,entity);
+        }
+        if( invoker.caption ) {
+            return invoker.caption;
+        }
         return getSchemaName();
     }
-
+    
+    @FormId
+    String getFormId() {
+        if( invoker.properties.formId ) {
+            return ExpressionResolver.getInstance().evalString(invoker.properties.formId,entity);
+        }
+        return workunit.workunit.id;
+    }
+    
     public String getSchemaName() {
         return workunit?.info?.workunit_properties?.schemaName;
     }
@@ -63,23 +78,39 @@ public class CrudFormModel implements CrudItemHandler {
     def secProvider = ClientContext.getCurrentContext().getSecurityProvider();
     
     boolean isCreateAllowed() { 
+        if( mode != 'read') return false;
+        def allowCreate = workunit.info.workunit_properties.allowCreate;        
+        if( allowCreate == 'false' ) return false;        
         if( !role ) return true;
         return secProvider.checkPermission( domain, role, schemaName+".create" );
     }
-        
-    boolean isOpenAllowed() { 
-        if( !role ) return true;
-        return secProvider.checkPermission( domain, role, schemaName+".open" );
-    }
-
+     
     boolean isDeleteAllowed() { 
+        def allowDelete = workunit.info.workunit_properties.allowDelete;        
+        if( allowDelete == 'false' ) return false;        
+        if( mode != 'read') return false;
         if( !role ) return true;
         return secProvider.checkPermission( domain, role, schemaName+".delete" );
     }
                 
     boolean isEditAllowed() { 
+        def allowEdit = workunit.info.workunit_properties.allowEdit;        
+        if( allowEdit == 'false' ) return false;        
+        if( mode != 'read') return false;
         if( !role ) return true;
         return secProvider.checkPermission( domain, role, schemaName+".edit" );
+    }
+
+    boolean isSaveAllowed() {
+        return ( mode != 'read');
+    }
+    
+    boolean isUndoAllowed() {
+        return ( mode != 'read');
+    }
+    
+    boolean isCancelEditAllowed() {
+        return ( mode == 'edit');
     }
 
     /*
@@ -110,13 +141,13 @@ public class CrudFormModel implements CrudItemHandler {
         styleRules << new StyleRule("entity.*", "#{mode!='read'}").add("enabled", true);
         
         //loop each editable field. for editables it is only editable during create.
-        def editables = schema.columns.findAll{ it.editable == "false" }*.name;
+        def editables = schema.fields.findAll{ it.editable == "false" }*.name;
         if(editables) {
             def flds = "entity.("+editables.join("|")+")";
             styleRules << new StyleRule( flds, "#{mode!='create'}").add("enabled",false);
             styleRules << new StyleRule( flds, "#{mode=='create'}").add("enabled",true);
         }
-        def requires = schema.columns.findAll{ it.required == true || it.primary == true }*.name;
+        def requires = schema.fields.findAll{ it.required == true || it.primary == true }*.name;
         if( requires ) {
             def flds = "entity.("+requires.join("|")+")";
             println flds;
@@ -130,7 +161,7 @@ public class CrudFormModel implements CrudItemHandler {
             styleRules << new StyleRule( flds, "#{mode!='read'}").add("editable",true);
         }
         //style rules for style types:
-        def codeStyles = schema.columns.findAll{ it.style == 'code' }*.name;
+        def codeStyles = schema.fields.findAll{ it.style == 'code' }*.name;
         if(codeStyles) {
             def n = "entity.("+codeStyles.join("|")+")";
             //char 95 is underscore
@@ -138,25 +169,34 @@ public class CrudFormModel implements CrudItemHandler {
         }
     }
     
-    boolean _inited_ = false;
+    protected void buildSections() {
+         //for items with sections....
+        try {
+            sections = Inv.lookupOpeners(schemaName + ":section",[:]);
+        } 
+        catch(Exception ex){;}
+    }
+    
+    boolean _inited__ = false;
     
     void init() {
         if( !schemaName )
             throw new Exception("Please provide a schema name. Put it in workunit schemaName or override the getSchemaName()");
-        if( _inited_ ) return;
+        if( _inited__ ) return;
         if( !schema ) {
-            schema = schemaService.getSchema( [name: schemaName, adapter: adapter]  );
+            schema = service.getSchema( [name: schemaName, adapter: adapter]  );
         }   
         buildStyleRules();
         buildItemHandlers();
-        _inited_ = true;
+        buildSections();
+        _inited__ = true;
         afterInit()
     }
     
     void initNewData() {
         entity = [:];
         entity._schemaname = schemaName;
-        schema.columns.each {
+        schema.fields.each {
             if( it.prefix ) {
                 EntityUtil.putNestedValue( entity, it.extname, it.prefix+new UID());
             }
@@ -204,6 +244,8 @@ public class CrudFormModel implements CrudItemHandler {
     }
     
     def save() {
+         if(!_inited_) throw new Exception("This workunit is not inited. Please call open or create action");
+       
         if(!MsgBox.confirm('You are about to save this record. Proceed?')) return null;
         
         if( mode == 'create' ) {
@@ -295,8 +337,10 @@ public class CrudFormModel implements CrudItemHandler {
             entity = caller.selectedItem;
             loadData();
         }
+        if(invoker.properties.target == 'window') {
+            subWindow.update( [title: getTitle() ] );
+        }
     }
-    
     
     /*************************************************************************
     * This part here is for item handlers.  
@@ -357,7 +401,7 @@ public class SubItemHandler extends EditorListModel {
     
     public List<Map> getColumnList() {
         cols.clear();
-        for( i in subSchema.columns ) {
+        for( i in subSchema.fields ) {
             if( i.visible == 'false' ) continue;
             def c = [name: i.name, caption: i.caption];
             c.type = 'text';

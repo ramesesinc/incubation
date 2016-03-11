@@ -245,7 +245,13 @@ public final class SqlDialectModelBuilder {
         return map;
     }
     
-    public static SqlDialectModel buildSelectKeysForDelete(EntityManagerModel entityModel) {
+    /**
+     * This selects primary keys as well as other keys in one to one, many-to-one
+     * keys
+     * @param entityModel
+     * @return 
+     */
+    public static SqlDialectModel buildSelectIndexedKeys(EntityManagerModel entityModel) {
         SchemaView svw = entityModel.getSchemaView();
         SqlDialectModel sqlModel = new SqlDialectModel();
         sqlModel.setAction("select");

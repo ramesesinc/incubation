@@ -8,6 +8,7 @@ import com.rameses.osiris3.schema.SchemaRelation;
 import com.rameses.osiris3.schema.SchemaView;
 import com.rameses.osiris3.schema.SchemaViewField;
 import com.rameses.osiris3.schema.SchemaViewRelationField;
+import com.rameses.osiris3.schema.SimpleField;
 import com.rameses.osiris3.sql.SqlContext;
 import com.rameses.osiris3.sql.SqlDialect;
 import com.rameses.osiris3.sql.SqlDialectModel;
@@ -206,13 +207,15 @@ public final class EntityManagerProcessor {
         for (SqlDialectModel sqlModel : modelMap.values()) {
             executeUpdate(sqlModel, params, vars);
         }
-        updateOneToMany(svw, odata);
+        //the entity model and params are passed just in case this is an update.
+        updateOneToMany(svw, odata, entityModel, params);
         return odata;
     }
 
-    public void updateOneToMany(SchemaView svw, Map parent) throws Exception {
-        //update one to many links. loop each 
+    public void updateOneToMany(SchemaView svw, Map parent, EntityManagerModel entityModel, Map params ) throws Exception {
+                //update one to many links. loop each 
         if( svw.getOneToManyLinks()==null  ) return;
+        //check first if the parent has primary keys if not, we'll have to load it
         for(OneToManyLink oml: svw.getOneToManyLinks() ) {
             String sname = oml.getName();
             List items = null;
@@ -221,6 +224,18 @@ public final class EntityManagerProcessor {
                 if(itm!=null && (itm instanceof List)) items = (List)itm;
             } catch(Exception ign){;}
             if( items !=null ) {
+                //we try to retrieve the objid of the parent because this will be used in populating new items.
+                //if parent's primary keys do not exist we need to retrieve it.
+                for( SimpleField sf: svw.getElement().getPrimaryKeys()) {
+                    Object kval = EntityUtil.getNestedValue(parent, sf.getName() );
+                    if( kval == null ) {
+                        SqlDialectModel sqlModel = SqlDialectModelBuilder.buildSelectIndexedKeys( entityModel );
+                        Map b = (Map)createQuery(sqlModel, params, null).getSingleResult();
+                        if(b==null) throw new Exception("Update One to many error. Record not found for parent");
+                        parent.putAll(b);
+                        break;        
+                    }
+                }
                 EntityManagerModel itemModel = new EntityManagerModel(oml.getRelation().getLinkedElement());
                 for(Object m: items) {
                     if(! (m instanceof Map) ) continue;
@@ -232,7 +247,6 @@ public final class EntityManagerProcessor {
             try { 
                 Object itm = EntityUtil.getNestedValue(parent, sname+"::deleted"); 
                 if(itm!=null && (itm instanceof List)) deletedItems = (List)itm;
-                System.out.println("deleted items is " + deletedItems);
             } catch(Exception ign){;}
             if(deletedItems !=null ) {
                 EntityManagerModel itemModel = new EntityManagerModel(oml.getRelation().getLinkedElement());
@@ -261,6 +275,9 @@ public final class EntityManagerProcessor {
             //fill in the relationships
             for(RelationKey rk: rel.getRelationKeys()) {
                 Object kval = EntityUtil.getNestedValue(parent,rk.getField());
+                //if rel key is null, we need to try to retreive the parent
+                
+                
                 EntityUtil.putNestedValue(data, rk.getTarget(), kval);
             }
             odata = create( entityModel, data );
@@ -335,8 +352,6 @@ public final class EntityManagerProcessor {
         }
     }
 
-    
-    
     /**************************************************************************
      * DELETE PROCESS
     ***************************************************************************/
@@ -346,7 +361,7 @@ public final class EntityManagerProcessor {
         parms.putAll(DataTransposer.flatten(entityModel.getFinders(), "_"));
         parms.putAll(entityModel.getWhereParams());
         Map vars = entityModel.getVars();
-        SqlDialectModel model = SqlDialectModelBuilder.buildSelectKeysForDelete(entityModel);
+        SqlDialectModel model = SqlDialectModelBuilder.buildSelectIndexedKeys(entityModel);
         List list = createQuery(model, parms, vars).getResultList();
         for (Object o : list) {
             Map finders = (Map) o;
