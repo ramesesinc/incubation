@@ -19,6 +19,8 @@ import java.beans.Beans;
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
 import java.beans.SimpleBeanInfo;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 
@@ -51,9 +53,9 @@ public class ComponentBeanInfo extends SimpleBeanInfo
         }
     }
     
-    public abstract static class Support extends SimpleBeanInfo
-    {
-        private String iconName;
+    public abstract static class Support extends SimpleBeanInfo {
+    
+        private String _icon = "gear.png";        
         private Class beanClass;
 
         public Support() {
@@ -64,39 +66,27 @@ public class ComponentBeanInfo extends SimpleBeanInfo
         protected abstract Class getBeanClass();         
 
         public BeanDescriptor getBeanDescriptor() {
-            return new BeanDescriptor(this.beanClass);
+            return new BeanDescriptor(this.beanClass, null);
         }
-
-        public Image getIcon(int paramInt)
-        {
-            return null; 
-            //if (this.iconName == null) return null;
-            //return Utilities.loadImage("org/netbeans/modules/form/beaninfo/awt/" + this.iconName + ".gif");
-        }
-
+        
         public BeanInfo[] getAdditionalBeanInfo() {
             return new BeanInfo[] { new ComponentBeanInfo() };
         }
 
-        public PropertyDescriptor[] getPropertyDescriptors()
-        {
-            try 
-            {
+        public PropertyDescriptor[] getPropertyDescriptors() {
+            try {
                 if (Beans.isDesignTime()) 
                     return createPropertyDescriptors(); 
                 else 
                     return super.getPropertyDescriptors(); 
-            } 
-            catch (IntrospectionException ie) 
-            {
+            } catch (IntrospectionException ie) {
                 ie.printStackTrace();
                 showError(ie);
                 return null;
             }
         }  
         
-        protected PropertyDescriptor installEditor(PropertyDescriptor pd, Class editorClass) 
-        {
+        protected PropertyDescriptor installEditor(PropertyDescriptor pd, Class editorClass) {
             pd.setPropertyEditorClass(editorClass); 
             return pd; 
         } 

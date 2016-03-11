@@ -39,6 +39,7 @@ public class XDataTableBeanInfo extends ComponentBeanInfo.Support
                         
             installEditor(new PropertyDescriptor("columns", getBeanClass()), ColumnPropertyEditor.class), 
             
+            new PropertyDescriptor("borderColor", getBeanClass()),
             new PropertyDescriptor("cellSpacing", getBeanClass()),
             new PropertyDescriptor("depends", getBeanClass()),
             new PropertyDescriptor("dynamic", getBeanClass(), "isDynamic", "setDynamic"),
