@@ -22,7 +22,6 @@ public class SchemaView extends AbstractSchemaView {
     
     //this contains the flattened out one to many relations
     private List<OneToManyLink> oneToManyLinks;
-    private Map<String, JoinLink> inverseJoins = new HashMap();
     
     SchemaView(SchemaElement elem) {
         super(elem.getName(), elem);
@@ -149,9 +148,6 @@ public class SchemaView extends AbstractSchemaView {
         return oneToManyLinks;
     }
     
-    public Map<String,JoinLink> getInverseJoins() {
-        return inverseJoins;
-    }
     
     boolean addField( SchemaViewField vw ) {
         fields.add(vw);
@@ -167,8 +163,5 @@ public class SchemaView extends AbstractSchemaView {
         oneToManyLinks.add(vw);    
     }
     
-    public void addInverseJoin( JoinLink joinLink ) {
-        inverseJoins.put(joinLink.getName(), joinLink );
-    }
     
 }

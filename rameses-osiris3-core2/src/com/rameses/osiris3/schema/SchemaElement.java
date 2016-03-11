@@ -238,28 +238,6 @@ public class SchemaElement implements Serializable {
             targetElem.fetchAllFields(rootVw, targetVw, targetVw.getName(), duplicates);
         }
         
-        // Process the inverse relationship
-        List<SchemaRelation> inverseList = getInverseRelationships();
-        for( SchemaRelation ir : inverseList ) {
-            SchemaElement targetElem = ir.getLinkedElement();
-            JoinLink jl = new JoinLink(targetElem, ir.getName());
-            jl.setRequired(ir.isRequired());
-            jl.setJoinType(jl.getJoinType());
-            jl.setRelationKeys(ir.getRelationKeys());
-            rootVw.addInverseJoin(jl);
-            //add the field in the main schema view
-            for( RelationKey rk:  ir.getRelationKeys() ) {
-                SimpleField tf = (SimpleField)ir.getLinkedElement().getField(rk.getTarget());
-                SimpleField sf = new SimpleField();
-                sf.setElement(currentVw.getElement());
-                sf.setName(rk.getField());
-                sf.setFieldname(rk.getField());
-                sf.setType( tf.getType() );
-                rootVw.addField(new SchemaViewField(sf, rootVw, currentVw));
-            }
-            
-        }
-        
         //load the one to many relationships
         for( SchemaRelation sr: this.getOneToManyRelationships() ) {
             rootVw.addOneToManyLink(new OneToManyLink(sr.getName(), prefix, this, sr));
@@ -311,13 +289,6 @@ public class SchemaElement implements Serializable {
         return (this.getExtends()!=null && this.getExtends().trim().length()>0);
     }
 
-    public List<SchemaRelation> getInverseRelationships() {
-        if( inverseRelationships == null ) {
-            inverseRelationships = new ArrayList();
-            buildRelations( JoinTypes.INVERSE, inverseRelationships );
-        }
-        return inverseRelationships;
-    }
     
     
 }

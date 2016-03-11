@@ -79,10 +79,12 @@ public class CrudFormModel implements CrudItemHandler {
     
     boolean isCreateAllowed() { 
         if( mode != 'read') return false;
-        def allowCreate = workunit.info.workunit_properties.allowCreate;        
+        def allowCreate = workunit.info.workunit_properties.allowCreate;   
         if( allowCreate == 'false' ) return false;        
         if( !role ) return true;
-        return secProvider.checkPermission( domain, role, schemaName+".create" );
+        def createPermission = workunit.info.workunit_properties.createPermission;   
+        if(createPermission!=null) createPermission = schemaName+"."+createPermission;
+        return secProvider.checkPermission( domain, role, createPermission );
     }
      
     boolean isDeleteAllowed() { 
@@ -90,7 +92,9 @@ public class CrudFormModel implements CrudItemHandler {
         if( allowDelete == 'false' ) return false;        
         if( mode != 'read') return false;
         if( !role ) return true;
-        return secProvider.checkPermission( domain, role, schemaName+".delete" );
+        def deletePermission = workunit.info.workunit_properties.deletePermission; 
+        if(deletePermission!=null) deletePermission = schemaName+"."+deletePermission;
+        return secProvider.checkPermission( domain, role, deletePermission );
     }
                 
     boolean isEditAllowed() { 
@@ -98,7 +102,9 @@ public class CrudFormModel implements CrudItemHandler {
         if( allowEdit == 'false' ) return false;        
         if( mode != 'read') return false;
         if( !role ) return true;
-        return secProvider.checkPermission( domain, role, schemaName+".edit" );
+        def editPermission = workunit.info.workunit_properties.editPermission; 
+        if(editPermission!=null) editPermission = schemaName+"."+editPermission;
+        return secProvider.checkPermission( domain, role, editPermission );
     }
 
     boolean isSaveAllowed() {
@@ -204,6 +210,9 @@ public class CrudFormModel implements CrudItemHandler {
                 Object val = it.defaultValue;
                 EntityUtil.putNestedValue( entity, it.extname, val );
             }
+            if( it.serializer !=null ) {
+                EntityUtil.putNestedValue( entity, it.extname, [:] );
+            }
         }
         //reload the schema items
         itemHandlers.each { k,v->
@@ -228,6 +237,12 @@ public class CrudFormModel implements CrudItemHandler {
         //we need to reset the schema name for update.
         entity._schemaname = schemaName;
         init();
+        
+        //check for serializer fields that are null and correct it
+        def serFields = schema.fields.findAll{ it.serializer!=null };
+        serFields.each {
+            EntityUtil.putNestedValue( entity, it.extname, [:] );
+        }
         afterOpen();
         return null;
     }

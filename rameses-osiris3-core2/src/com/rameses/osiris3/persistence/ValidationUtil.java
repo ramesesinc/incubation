@@ -88,7 +88,7 @@ public class ValidationUtil {
                 String joinType = cf.getJoinType();
                 
                 //do not include many-to-one because it is not a part of this object. so we do not validate it
-                if( joinType !=null && joinType.matches(JoinTypes.MANY_TO_ONE+"|"+JoinTypes.INVERSE) ) continue;
+                if( joinType !=null && joinType.matches(JoinTypes.MANY_TO_ONE) ) continue;
                 
                 //check complex type
                 if( cf.getSerializer()!=null ) {

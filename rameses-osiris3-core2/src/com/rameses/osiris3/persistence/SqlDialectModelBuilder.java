@@ -447,16 +447,12 @@ public final class SqlDialectModelBuilder {
                 break;
             }
         }
-        //check in entityModel
-        if( joinLink == null ) {
-            joinLink = svw.getInverseJoins().get(name);
-        }
         if(joinLink == null) return null;
         //check if registered in sqlModel
         AbstractSchemaView lvw = sqlModel.findJoinedView(name);
         LinkedSchemaView targetVw = null; 
         if( lvw == null || !(lvw instanceof LinkedSchemaView) ) {
-            targetVw = new LinkedSchemaView(joinLink.getName(), joinLink.getElement(), svw, svw,JoinTypes.INVERSE, joinLink.isRequired(), null);
+            targetVw = new LinkedSchemaView(joinLink.getName(), joinLink.getElement(), svw, svw,JoinTypes.MANY_TO_ONE, joinLink.isRequired(), null);
             for( RelationKey rk: joinLink.getRelationKeys()) {
                 SchemaViewField tvf = joinLink.getElement().createView().getField(rk.getTarget());
                 if( tvf == null ) 

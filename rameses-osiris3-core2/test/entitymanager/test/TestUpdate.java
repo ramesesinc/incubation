@@ -52,6 +52,11 @@ public class TestUpdate extends AbstractTestCase {
         addr.put("barangay", brgy);
         data.put("address", addr);
         data.put("address2", "capitol tol");
+        
+        Map info = new HashMap();
+        info.put("age", 25);
+        info.put("sss", "XXXX-11267899");
+        data.put("info", info);
         /*
          Map addr = new HashMap();
          //addr.put("text", "19 orchid st capitol site");
@@ -98,6 +103,12 @@ public class TestUpdate extends AbstractTestCase {
                 List items = new ArrayList();
                 items.add( createContact("CTCT13c576c5:1533050dbd9:-7ffe", "XMOBILE", "NAZA1234" ) );
                 m.put("contactinfos", items);
+                
+                Map info = new HashMap();
+                info.put("age", 23);
+                info.put("sss", "YYYY-11267899");
+                m.put("info", info);
+        
                 
                 Map whereMap = new HashMap();
                 whereMap.put("entityno", "123456");

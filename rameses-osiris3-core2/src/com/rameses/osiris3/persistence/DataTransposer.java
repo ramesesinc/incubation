@@ -76,14 +76,22 @@ public class DataTransposer {
         for( SchemaViewField vf: svw.findAllFields(".*")) {
             if(! (vf instanceof SchemaViewRelationField )) {
                 if(!vf.isUpdatable()) continue;
-                if( sourceData.containsKey(vf.getExtendedName()) ) {
-                    Object val = sourceData.get(vf.getExtendedName());  
-                    if( val!=null && vf.isSerialized()) {
-                        //get the default serializer
+                if( vf.isSerialized() ) {
+                    Object val = null;
+                    try {
+                        val = EntityUtil.getNestedValue(rawData, vf.getExtendedName() );
+                        if(val==null) continue;
+                        
+                        //get the default serializer                        
                         String ser = (String)vf.getProperty("serializer");
                         if(ser==null) ser = "default";
                         val = ObjectSerializer.getInstance().toString(val);
+                        targetData.put( vf.getExtendedName(), val);
                     }
+                    catch(Exception ign){;}
+                }
+                else if( sourceData.containsKey(vf.getExtendedName()) ) {
+                    Object val = sourceData.get(vf.getExtendedName());  
                     targetData.put( vf.getExtendedName(), val);
                 }
             }

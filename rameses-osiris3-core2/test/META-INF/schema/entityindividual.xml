@@ -16,7 +16,7 @@
         <field name="fullname" expr="CONCAT(lastname,'_', firstname,'_')"/>
         
         <!-- inverse joins -->
-        <complex name="deleted" jointype="inverse" ref="entityindividual_deleted" required="false">
+        <complex name="deleted" jointype="many-to-one" ref="entityindividual_deleted" required="false">
             <key field="objid" target="objid"/>
         </complex>
         

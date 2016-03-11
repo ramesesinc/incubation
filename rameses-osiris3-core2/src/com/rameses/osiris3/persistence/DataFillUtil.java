@@ -74,19 +74,6 @@ public class DataFillUtil {
         for(SchemaRelation sr: elem.getOneToOneRelationships()) {
             Map m = (Map)rawData.get(sr.getName());
             if(m!=null) {
-                //check also many to one on the other side. From the many 
-                //to one relationships, check the one that matches the 
-                //ref. 
-                /*
-                 * On hold ---- until I can figure out what to do with this.
-                for( SchemaRelation mo: tgt.getInverseRelationships() ) {
-                    if( mo.getRef().equals(elem.getName() ) ) {
-                        for(RelationKey rk: mo.getRelationKeys()  ) {
-                            m.put( rk.getField(), rawData.get(rk.getTarget()) );
-                        }
-                    }
-                }
-                */ 
                 SchemaElement tgt = sr.getLinkedElement();                
                 fillInitialData( tgt, m );
             }
@@ -101,7 +88,7 @@ public class DataFillUtil {
                 for(  Object o : list) {
                     if(o instanceof Map) {
                         Map e = (Map)o;
-                        //ordinary load items. inverse relationships are not specified
+                        //ordinary load items. 
                         for( RelationKey rk: sr.getRelationKeys() ) {
                             Object val = EntityUtil.getNestedValue(rawData, rk.getField() );
                             if( val !=null) {
