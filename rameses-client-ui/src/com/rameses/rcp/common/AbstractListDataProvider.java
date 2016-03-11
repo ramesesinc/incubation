@@ -53,6 +53,7 @@ public abstract class AbstractListDataProvider
 
     private List<ListItem> itemList = new ArrayList<ListItem>(); 
     private ListItem selectedItem; 
+    private Object selectedElement;
 
     private ListSelectionSupport selectionSupport;
     private ActionProvider actionProvider;
@@ -234,6 +235,11 @@ public abstract class AbstractListDataProvider
     {
         int index = (li == null? -1: li.getIndex()); 
         setSelectedItem(index); 
+    }
+    
+    public Object getSelectedElement() { return selectedElement; } 
+    public void setSelectedElement(Object selectedElement) {
+        this.selectedElement = selectedElement; 
     }
 
     protected void onselectedItemChanged(ListItem li) {}        
