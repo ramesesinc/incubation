@@ -100,11 +100,9 @@ public class EntityManager {
             if (!(data instanceof Map)) {
                 throw new Exception("EntityManager.create error. Data passed must be a map");
             }
-            Map mdata = (Map)data;
-            DataFillUtil.fillInitialData(getModel().getElement(), mdata);
-            processor.create(getModel(), mdata);
+            processor.create(getModel(), (Map)data);
             clearModel();
-            return mdata;
+            return data;
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
         }

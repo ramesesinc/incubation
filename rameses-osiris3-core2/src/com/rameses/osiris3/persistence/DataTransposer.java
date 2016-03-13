@@ -32,10 +32,18 @@ public class DataTransposer {
     public static Map prepareDataForInsert(SchemaView svw, Map sourceData ) throws Exception {
         Map targetData = new LinkedHashMap();
         for( SchemaViewField vf: svw.findAllFields(".*")) {
+            if( !vf.getView().equals(svw) ) {
+                if(!vf.getView().isExtendedView()) continue;
+            }
+            //System.out.println(vf.getName()+" "+vf.getView().getName()+"->"+vf.getExtendedName());
+            
+            //if(!vf.isBaseField()) continue;
             if(! (vf instanceof SchemaViewRelationField )) {
                 if(!vf.isInsertable()) continue;
+                 //create should only be on the base field
                 Object val = EntityUtil.getNestedValue(sourceData, vf.getExtendedName() );
-                
+                //ignore if null.
+                if(val==null) continue;
                 if( vf.isSerialized() && val !=null) {
                     //get the default serializer
                     String ser = (String)vf.getProperty("serializer");

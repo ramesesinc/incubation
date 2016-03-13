@@ -4,7 +4,7 @@
         <field name="street" />
         <field name="barangay_name" />
         <complex name="barangay" jointype="many-to-one" ref="barangay" required="true">
-            <key field="barangay_objid" target="objid"/>
+            <key field="barangayid" target="objid"/>
         </complex>    
         <field name="text" />
     </element>

@@ -165,8 +165,9 @@ public final class EntityManagerProcessor {
                 }
                 List list = (List) d;
                 for (Object o: list) {
-                    if (o instanceof Map);
-                    create(svw, (Map) o, modelMap, vars);
+                    if (o instanceof Map) {
+                        create(svw, (Map) o, modelMap, vars);
+                    }
                 }
             }
         }

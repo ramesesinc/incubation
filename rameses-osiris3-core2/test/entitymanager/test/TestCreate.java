@@ -35,7 +35,7 @@ public class TestCreate extends AbstractTestCase {
     
     private Map buildCreateData() {
         Map data = new HashMap();
-        data.put("objid", "ENT000001");
+        //data.put("objid", "ENT000001");
         data.put("firstname", "elmo");
         data.put("lastname", "nazareno");
         data.put("name", "nazareno, elmo");

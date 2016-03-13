@@ -73,6 +73,10 @@ public class CrudListModel {
         return workunit.info.workunit_properties.customFilter;
     }
     
+    public def getCustomFilterParams() {
+        return [:];
+    }
+    
     public def getTag() {
         return workunit.info.workunit_properties.tag;
     }
@@ -212,10 +216,13 @@ public class CrudListModel {
         m.select = [primKeys, arr].join(",") ;
         if(customFilter!=null) {
             if( whereStatement==null ) {
-                whereStatement= [customFilter];
+                whereStatement= [customFilter, customFilterParams];
             }
             else {
                 whereStatement[0] = customFilter + ' AND ' + whereStatement[0];
+                if( whereStatement.size() > 1 ) {
+                    whereStatement[1].putAll( customFilterParams );
+                }
             }
         } 
 

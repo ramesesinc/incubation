@@ -156,7 +156,6 @@ public class CrudFormModel implements CrudItemHandler {
         def requires = schema.fields.findAll{ it.required == true || it.primary == true }*.name;
         if( requires ) {
             def flds = "entity.("+requires.join("|")+")";
-            println flds;
             styleRules << new StyleRule( flds, "#{mode!='read'}").add("required",true);
             styleRules << new StyleRule( flds, "#{mode=='read'}").add("required",false);
         };
@@ -203,10 +202,11 @@ public class CrudFormModel implements CrudItemHandler {
         entity = [:];
         entity._schemaname = schemaName;
         schema.fields.each {
-            if( it.prefix ) {
+            //generate id only if primary, and schema name is this context
+            if( it.prefix && it.primary && it.source == schemaName ) {
                 EntityUtil.putNestedValue( entity, it.extname, it.prefix+new UID());
             }
-            if( it.defaultValue) {
+            if( it.defaultValue!=null) {
                 Object val = it.defaultValue;
                 EntityUtil.putNestedValue( entity, it.extname, val );
             }
@@ -358,6 +358,7 @@ public class CrudFormModel implements CrudItemHandler {
         if( caller.selectedItem ) {
             entity = caller.selectedItem;
             loadData();
+            afterOpen();
         }
         if(invoker.properties.target == 'window') {
             subWindow.update( [title: getTitle() ] );

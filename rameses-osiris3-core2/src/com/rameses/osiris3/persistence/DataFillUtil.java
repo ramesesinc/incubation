@@ -58,6 +58,7 @@ public class DataFillUtil {
             Object val = rawData.get(sf.getName());
             if( val == null ) {
                 if( sf.isPrimary() ) {
+                    //fill only if base field.
                     rawData.put( sf.getName(), generateId(sf) );
                 }
                 else if( sf.getDefaultValue()!=null ) {
