@@ -63,11 +63,6 @@ public class EntityManager {
         return this.sqlContext;
     }
 
-    //groovy option for better readability. Example em['entityindividual']
-    public EntityManager get(String name) {
-        return setName(name);
-    }
-    
     public EntityManager shift(String name) {
         return setName(name);
     }
@@ -213,7 +208,9 @@ public class EntityManager {
                  setName( schemaName );
             }
             processor.buildFindersFromPrimaryKeys(getModel(), (Map)data);
-            return processor.fetchFirst(getModel(), 1);
+            Object d = processor.fetchFirst(getModel(), 1);
+            clearModel();
+            return d;
         } 
         catch (Exception e) {
             System.out.println("error in read ->" + e.getMessage());
@@ -665,5 +662,16 @@ public class EntityManager {
         return this;
     }
     
+    //returns a single value. The first element it finds
+    public Object val() {
+        try {
+            Map m = first();
+            if( m == null || m.size() == 0 ) return null;
+            return m.values().iterator().next();
+        }
+        catch(Exception e) {
+            throw new RuntimeException("Error in val. "+e.getMessage());
+        }
+    } 
 
 }
