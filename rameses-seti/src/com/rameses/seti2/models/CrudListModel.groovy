@@ -69,12 +69,10 @@ public class CrudListModel {
         return service;
     }
     
-    public String getCustomFilter() {
-        return workunit.info.workunit_properties.customFilter;
-    }
-    
-    public def getCustomFilterParams() {
-        return [:];
+    public def getCustomFilter() {
+        String s = workunit.info.workunit_properties.customFilter;
+        if( s == null ) return null;
+        return [s, [:]];
     }
     
     public def getTag() {
@@ -109,21 +107,27 @@ public class CrudListModel {
         def allowCreate = workunit.info.workunit_properties.allowCreate;        
         if( allowCreate == 'false' ) return false;
         if( !role ) return true;
-        return secProvider.checkPermission( domain, role, schemaName+".create" );
+        def createPermission = workunit.info.workunit_properties.createPermission;   
+        if(createPermission!=null) createPermission = schemaName+"."+createPermission;
+        return secProvider.checkPermission( domain, role, createPermission );
     }
         
     boolean isOpenAllowed() { 
         def allowOpen = workunit.info.workunit_properties.allowOpen;        
         if( allowOpen == 'false' ) return false;
         if( !role ) return true;
-        return secProvider.checkPermission( domain, role, schemaName+".open" );
+        def openPermission = workunit.info.workunit_properties.openPermission; 
+        if(openPermission!=null) openPermission = schemaName+"."+openPermission;
+        return secProvider.checkPermission( domain, role, openPermission );
     }
 
     boolean isDeleteAllowed() { 
         def allowDelete = workunit.info.workunit_properties.allowDelete;        
         if( allowDelete != 'true' ) return false;
         if( !role ) return true;
-        return secProvider.checkPermission( domain, role, schemaName+".delete" );
+        def deletePermission = workunit.info.workunit_properties.deletePermission; 
+        if(deletePermission!=null) deletePermission = schemaName+"."+deletePermission;
+        return secProvider.checkPermission( domain, role, deletePermission );
     }
            
     boolean isAllowSearch() {
@@ -215,14 +219,14 @@ public class CrudListModel {
         def arr = cols.findAll{it.selected==true}*.name.join(",");
         m.select = [primKeys, arr].join(",") ;
         if(customFilter!=null) {
+            if( customFilter.size() !=2 ) 
+                throw new Exception("Custom Filter must have a statement and parameter")
             if( whereStatement==null ) {
-                whereStatement= [customFilter, customFilterParams];
+                whereStatement= customFilter;
             }
             else {
-                whereStatement[0] = customFilter + ' AND ' + whereStatement[0];
-                if( whereStatement.size() > 1 ) {
-                    whereStatement[1].putAll( customFilterParams );
-                }
+                whereStatement[0] = customFilter[0] + ' AND ' + whereStatement[0];
+                whereStatement[1].putAll( customFilter[1] );
             }
         } 
 
