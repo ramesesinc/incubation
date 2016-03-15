@@ -15,6 +15,7 @@ public class ListPanel extends javax.swing.JPanel {
      */
     public ListPanel() {
         initComponents();
+        tblList.setIndex(-1);
     }
 
     public String getHandler() {
