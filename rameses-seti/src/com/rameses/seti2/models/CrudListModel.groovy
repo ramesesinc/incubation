@@ -80,6 +80,8 @@ public class CrudListModel {
     }
     
     public def getSchema() {
+        strCols = workunit.info.workunit_properties.cols; 
+
         if(!schemaName) {
             schemaName = workunit.info.workunit_properties.schemaName;
         }
@@ -92,7 +94,11 @@ public class CrudListModel {
         if(!adapter) {
             adapter = workunit.info.workunit_properties.adapter; 
         }
-        def xschema = persistenceService.getSchema( [name:schemaName, adapter: adapter] );
+        
+        def map = [name:schemaName, adapter: adapter]; 
+        if ( strCols ) map.colnames = strCols;
+
+        def xschema = persistenceService.getSchema( map );
         xschema.name = schemaName;
         if(adapter) xschema.adapter = adapter;
         return xschema;
@@ -148,76 +154,35 @@ public class CrudListModel {
         formTitle = invoker.caption;
         
         schema = getSchema();
-        
-        //establish first what columns to include in internal columns
-        def includeCols = new LinkedHashSet();
-        def _includeCols = ".*";
-        if( workunit.info.workunit_properties.includeCols ) {
-            _includeCols = workunit.info.workunit_properties.includeCols;
-        }
-        //loop all fields to include.
-        for( ic in _includeCols.split(",") ) {
-            if(ic == "*") ic = ".*";
-            for( fld in schema.fields ) {
-                if(fld.jointype ) continue;
-                if(!(fld.visible==null || fld.visible=='true' )) continue;
-                if(fld.name.matches( ic.trim()) ) {
-                    includeCols << fld;
-                }
-            }
-        }
-        
-        strCols = workunit.info.workunit_properties.cols;
-        
-        //establish columns to display. The tricky part here is if cols are specified
-        //it must be in the order it is specified. If 
-        def zcols = new LinkedHashSet();
-        def _displayCols = ".*";
-        if( workunit.info.workunit_properties.cols ) {
-            _displayCols = workunit.info.workunit_properties.cols;
-        }
-        for( ic in _displayCols.split(",") ) {
-            if(ic == "*") ic = ".*";
-            for( fld in includeCols ) {
-                if(fld.name.matches( ic.trim()) ) {
-                    zcols << fld;
-                    //by default primary keys will be hidden.
-                    if( fld.primary ) 
-                        fld.selected = false;
-                    else    
-                        fld.selected = true;
-                }
-            }
-        }
         cols.clear();
-        zcols.each { c->
-            cols << c;
+        schema.fields.each{  
+            if ( it.primary==true ) {
+                it.selected = ( it.visible=='true' ); 
+                
+            } else if ( it.visible==null || it.visible=='true' ) {
+                it.selected = true; 
+            } 
+            
+            if ( !it.caption ) it.caption = it.name; 
+            
+            cols << it; 
         }
-        includeCols.each { c->
-            if( !cols.find{it.name == c.name} ) {
-                cols << c;
-            }
-        }
-        zcols.clear();
-        includeCols.clear();
-        cols.each {fld->
-            if(!fld.caption) fld.caption = fld.name;            
-        }
+
         searchables = schema.fields.findAll{ it.searchable == "true" }*.name;
         _inited_ = true;
     }
         
     public def buildSelectQuery(Map o) {
-        def m = [:];
+        def m = [debug:true];
         if(o) m.putAll(o);
         if(query) m.putAll(query);
         m._schemaname = schema.name;
         m.adapter = schema.adapter;
-        def primKeys = cols.findAll{it.primary==true}*.name.join(",");
-        
+        def primKeys = cols.findAll{it.primary==true}*.name;
+        def arr = cols.findAll{ it.hidden=='true' || it.selected==true }*.name; 
+
         //build the columns to retrieve
-        def arr = cols.findAll{it.selected==true}*.name.join(",");
-        m.select = [primKeys, arr].join(",") ;
+        m.select = (primKeys + arr).unique().join(",") ;
         if(customFilter!=null) {
             if( customFilter.size() !=2 ) 
                 throw new Exception("Custom Filter must have a statement and parameter")
@@ -317,7 +282,8 @@ public class CrudListModel {
         def h = {
             listHandler.reloadAll();
         }
-        return Inv.lookupOpener( "crud:selectcolumns", [columnList: cols, onselect:h] );
+        def c = cols.findAll{ it.selectable != 'false' }
+        return Inv.lookupOpener( "crud:selectcolumns", [columnList: c, onselect:h] );
     }
     
     def create() {
