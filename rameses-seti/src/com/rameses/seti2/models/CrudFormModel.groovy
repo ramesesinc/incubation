@@ -23,6 +23,9 @@ public class CrudFormModel implements SubItemListener {
     
     @Service("PersistenceService")
     def service;
+    
+    @Service("QueryService")
+    def qryService;
 
     @Caller
     def caller;
@@ -446,10 +449,25 @@ public class CrudFormModel implements SubItemListener {
         entity.get(name).remove( item );
     }
 
+    
+    //For managing small combo like lists....
     def listTypeHandler = { n->
         def fld = schema.fields.find{ it.name == n };    
         if( fld?.lov!=null ) {
             return LOV.get( fld.lov.toUpperCase() )*.key;
+        }
+        else if(fld.ref!=null) {
+            try {
+                String nn = fld.ref;
+                if(nn.indexOf(".")>0) nn = nn.split(":")[1];
+                def m = [_schemaname:nn];
+                m._limit =100;
+                m._start = 0;
+                return  qryService.getList( m );
+            }
+            catch(e) {
+                e.printStackTrace();
+            }
         }
         return [];
     }
