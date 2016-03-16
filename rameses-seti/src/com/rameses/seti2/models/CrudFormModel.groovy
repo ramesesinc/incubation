@@ -389,7 +389,8 @@ public class CrudFormModel implements SubItemListener {
         }
     }
     
-    public List getColumns(Map subSchema, String name) {
+    
+    public List getColumns(String name, Map subSchema) {
         def cols = [];
         for( i in subSchema.fields ) {
             if( i.visible == 'false' ) continue;
