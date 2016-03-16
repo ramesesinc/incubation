@@ -130,6 +130,7 @@ public class CrudFormModel implements CrudItemHandler {
     public void afterEdit(){;}
     
     public void beforeSave(def mode){;}
+    public void afterCreateData(String name, def data){;}
     
     def showMenu() {
         def op = new PopupMenuOpener();
@@ -198,22 +199,28 @@ public class CrudFormModel implements CrudItemHandler {
         afterInit()
     }
     
-    void initNewData() {
-        entity = [:];
-        entity._schemaname = schemaName;
-        schema.fields.each {
+    def createData( String _schemaname, def schemaDef  ) {
+        def map = [:];
+        map._schemaname = _schemaname;
+        schemaDef.fields.each {
             //generate id only if primary, and schema name is this context
-            if( it.prefix && it.primary && it.source == schemaName ) {
-                EntityUtil.putNestedValue( entity, it.extname, it.prefix+new UID());
+            if( it.prefix && it.primary && it.source == _schemaname ) {
+                EntityUtil.putNestedValue( map, it.extname, it.prefix+new UID());
             }
             if( it.defaultValue!=null) {
                 Object val = it.defaultValue;
-                EntityUtil.putNestedValue( entity, it.extname, val );
+                EntityUtil.putNestedValue( map, it.extname, val );
             }
             if( it.serializer !=null ) {
-                EntityUtil.putNestedValue( entity, it.extname, [:] );
+                EntityUtil.putNestedValue( map, it.extname, [:] );
             }
         }
+        afterCreateData( _schemaname, map );
+        return map;
+    }
+    
+    void initNewData() {
+        entity = createData( schemaName, schema );
         //reload the schema items
         itemHandlers.each { k,v->
             v.reload();
@@ -378,6 +385,13 @@ public class CrudFormModel implements CrudItemHandler {
         }
     }
     
+    public Map createItem(Map subSchema ) {
+        def n = subSchema.ref;
+        if(n.indexOf(":")>0) n = n.split(":")[1];
+        println "source is " + n;
+        return createData( n, subSchema );
+    }
+    
     public def openItem(String name,def item, String colName) {
         return null;
     }
@@ -412,7 +426,26 @@ public class CrudFormModel implements CrudItemHandler {
         entity.get(dname).add( item );
         entity.get(name).remove( item );
     }
-  
+
+    def listTypeHandler = { n->
+        def fld = schema.fields.find{ it.name == n };    
+        if( fld?.lov!=null ) {
+            return LOV.get( fld.lov.toUpperCase() )*.key;
+        }
+        return [];
+    }
+    def listTypes = new ListTypeMap(listTypeHandler);
+    
+}
+
+public class ListTypeMap extends HashMap {
+    def handler;
+    public ListTypeMap( def h ) {
+        handler = h;
+    }
+    public def get( def k ) {
+        return handler(k);
+    }
 }
 
 
@@ -421,6 +454,10 @@ public class SubItemHandler extends EditorListModel {
     def subSchema;
     def handler;
     def cols = [];
+    
+    public Object createItem() {
+        return handler.createItem( subSchema );
+    }
     
     public List<Map> getColumnList() {
         cols.clear();
@@ -458,6 +495,5 @@ public class SubItemHandler extends EditorListModel {
     protected void afterColumnUpdate(Object item, String columnName) {
         handler.afterColumnUpdate(subSchema.name, item, columnName);
     }
-    
    
 }

@@ -5,12 +5,14 @@
 package com.rameses.seti2.models;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  *
  * @author dell
  */
 public interface CrudItemHandler {
+    Map createItem(Map subSchema);
     List fetchItems(String name, Object params );
     void addItem (String name, Object item);
     void removeItem( String name, Object item);
