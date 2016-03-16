@@ -39,4 +39,7 @@ public class SqlUnitCache {
         return sqlUnits.get(i);
     }
     
+    public static void clear() {
+        sqlUnits.clear(); 
+    } 
 }
