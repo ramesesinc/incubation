@@ -4,12 +4,17 @@
  */
 package com.rameses.seti2.components;
 
+import com.rameses.rcp.common.Column;
+
 /**
  *
  * @author dell
  */
 public class ItemPanel extends javax.swing.JPanel {
 
+    private String cols;
+    private String orderBy;
+    
     /**
      * Creates new form ItemPanel
      */
@@ -21,7 +26,19 @@ public class ItemPanel extends javax.swing.JPanel {
         return dataTable.getHandler();
     }
     
+    public Column[] getColumns() {
+        return dataTable.getColumns();
+    }
+    
+    /***
+     * fix the handler to match the ff. expression
+     * itemHandlers.<name_of_complex_field>
+     */ 
     public void setHandler(String s) {
+        if( s.startsWith("entity")) {
+            s = s.substring( s.indexOf(".") );
+        }
+        s = "itemHandlers."+s;
         dataTable.setHandler(s);
         dataTable.setId(s);
     }
@@ -45,13 +62,13 @@ public class ItemPanel extends javax.swing.JPanel {
         dataTable.setHandler("listHandler");
         add(dataTable, java.awt.BorderLayout.CENTER);
 
-        jPanel1.setBackground(new java.awt.Color(153, 153, 153));
+        jPanel1.setBackground(new java.awt.Color(255, 0, 51));
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 492, Short.MAX_VALUE)
+            .addGap(0, 400, Short.MAX_VALUE)
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -65,5 +82,22 @@ public class ItemPanel extends javax.swing.JPanel {
     private javax.swing.JPanel jPanel1;
     // End of variables declaration//GEN-END:variables
 
+    public String getCols() {
+        return cols;
+    }
+
+    public void setCols(String cols) {
+        this.cols = cols;
+    }
+
+    public String getOrderBy() {
+        return orderBy;
+    }
+
+    public void setOrderBy(String orderBy) {
+        this.orderBy = orderBy;
+    }
+
+    
     
 }

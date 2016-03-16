@@ -10,7 +10,7 @@ import com.rameses.rcp.constant.*;
 import java.rmi.server.*;
 import com.rameses.util.*;
         
-public class CrudFormModel implements CrudItemHandler {
+public class CrudFormModel implements SubItemListener {
         
     @Binding
     def binding;
@@ -121,16 +121,20 @@ public class CrudFormModel implements CrudItemHandler {
 
     /*
     List getExtActions() {
-        return Inv.lookupActions( schemaName+":form:extActions", [entity: entity] );
+    return Inv.lookupActions( schemaName+":form:extActions", [entity: entity] );
     }
-    */
+     */
     public void afterInit(){;}
     public void afterCreate(){;}
     public void afterOpen(){;}
     public void afterEdit(){;}
     
+    
     public void beforeSave(def mode){;}
     public void afterCreateData(String name, def data){;}
+    
+    //override for items
+    public void afterFetchItems(String name, def data){;}
     
     def showMenu() {
         def op = new PopupMenuOpener();
@@ -176,7 +180,7 @@ public class CrudFormModel implements CrudItemHandler {
     }
     
     protected void buildSections() {
-         //for items with sections....
+        //for items with sections....
         try {
             sections = Inv.lookupOpeners(schemaName + ":section",[:]);
         } 
@@ -187,7 +191,7 @@ public class CrudFormModel implements CrudItemHandler {
     
     void init() {
         if( !schemaName )
-            throw new Exception("Please provide a schema name. Put it in workunit schemaName or override the getSchemaName()");
+        throw new Exception("Please provide a schema name. Put it in workunit schemaName or override the getSchemaName()");
         if( _inited_ ) return;
         if( !schema ) {
             schema = service.getSchema( [name: schemaName, adapter: adapter]  );
@@ -273,7 +277,7 @@ public class CrudFormModel implements CrudItemHandler {
     }
     
     def save() {
-         if(!_inited_) throw new Exception("This workunit is not inited. Please call open or create action");
+        if(!_inited_) throw new Exception("This workunit is not inited. Please call open or create action");
        
         if(!MsgBox.confirm('You are about to save this record. Proceed?')) return null;
         
@@ -304,9 +308,9 @@ public class CrudFormModel implements CrudItemHandler {
         //formPanel.reload();
     }
     
-     /***************************************************************************
-    * upper right buttons
-    ***************************************************************************/
+    /***************************************************************************
+     * upper right buttons
+     ***************************************************************************/
     boolean getCanDebug() { 
         return ClientContext.getCurrentContext().getAppEnv().get("app.debug");
     }
@@ -332,8 +336,8 @@ public class CrudFormModel implements CrudItemHandler {
     }
     
     /*************************************************************************
-    * Navigation Controls
-    **************************************************************************/
+     * Navigation Controls
+     **************************************************************************/
     boolean getShowNavigation() {
         if( !caller?.listHandler ) return false;
         return (mode == 'read');
@@ -373,23 +377,41 @@ public class CrudFormModel implements CrudItemHandler {
     }
     
     /*************************************************************************
-    * This part here is for item handlers.  
-    **************************************************************************/
+     * This part here is for item handlers.  
+     **************************************************************************/
     private void buildItemHandlers() {
         itemHandlers.clear();
         if( schema.items ) {
             schema.items.each { item->
-                def s = new SubItemHandler( subSchema: item, handler: this );
+                def s = new SubItemEditorListModel( item, this );
                 itemHandlers.put( item.name, s );
             }
         }
     }
     
-    public Map createItem(Map subSchema ) {
+    public List getColumns(Map subSchema, String name) {
+        def cols = [];
+        for( i in subSchema.fields ) {
+            if( i.visible == 'false' ) continue;
+            def c = [name: i.name, caption: i.caption];
+            c.type = 'text';
+            c.editable = true;
+            cols << c;
+        }
+        return cols;
+    }
+    
+    public Map createItem(String name, Map subSchema ) {
         def n = subSchema.ref;
         if(n.indexOf(":")>0) n = n.split(":")[1];
-        println "source is " + n;
         return createData( n, subSchema );
+    }
+
+    public List fetchItems(String name, Map subSchema, def params ) {
+        if( entity.get(name)==null ) entity.put(name, [] );
+        def list = entity.get(name);
+        afterFetchItems( name, list );
+        return list;
     }
     
     public def openItem(String name,def item, String colName) {
@@ -397,15 +419,11 @@ public class CrudFormModel implements CrudItemHandler {
     }
     
     public boolean beforeColumnUpdate(String name, def item, String colName, def newItem) {
-       return true;
+        return true;
     }
     
     public void afterColumnUpdate(String name, def item, String colName ) {;}
     
-    public List fetchItems(String name, def params ) {
-        if( entity.get(name)==null ) entity.put(name, [] );
-        return entity.get(name);
-    }
     
     public void addItem (String name, def item) {
         if( mode == 'read' ) return;
@@ -448,52 +466,3 @@ public class ListTypeMap extends HashMap {
     }
 }
 
-
-public class SubItemHandler extends EditorListModel {
-    
-    def subSchema;
-    def handler;
-    def cols = [];
-    
-    public Object createItem() {
-        return handler.createItem( subSchema );
-    }
-    
-    public List<Map> getColumnList() {
-        cols.clear();
-        for( i in subSchema.fields ) {
-            if( i.visible == 'false' ) continue;
-            def c = [name: i.name, caption: i.caption];
-            c.type = 'text';
-            c.editable = true;
-            cols << c;
-        }
-        return cols;
-    }
-    
-    public List fetchList(Map params) {
-        return handler.fetchItems(subSchema.name, params);
-    }
-    
-    protected void onAddItem(Object item) {
-        handler.addItem(subSchema.name, item);
-    }        
-
-    protected boolean onRemoveItem(Object item) {
-        handler.removeItem(subSchema.name, item);
-        return true;
-    } 
-        
-    protected Object onOpenItem(Object item, String columnName) {
-        return handler.openItem(subSchema.name, item, columnName);
-    }
-
-    protected boolean beforeColumnUpdate(Object item, String columnName, Object newValue) {
-        return handler.beforeColumnUpdate(subSchema.name, item, columnName, newValue);
-    }
-
-    protected void afterColumnUpdate(Object item, String columnName) {
-        handler.afterColumnUpdate(subSchema.name, item, columnName);
-    }
-   
-}
