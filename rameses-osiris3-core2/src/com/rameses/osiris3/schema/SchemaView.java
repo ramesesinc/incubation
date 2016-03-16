@@ -92,6 +92,16 @@ public class SchemaView extends AbstractSchemaView {
         }, new HashSet());
     }
     
+    public Map getSchema( String name ) {
+        final String n = name.replace(',', '|'); 
+        return getSchema(new SchemaFilter() {
+             public boolean accept(String type, Map m) { 
+                 Object o = m.get("extname");
+                 return ( o != null && o.toString().matches(n) );
+            }
+        }, new HashSet());
+    }
+    
     public Map getSchema(SchemaFilter filter, Set<SchemaRelation> repeating) {
         Map map = new HashMap();
         map.put("name", this.getName());

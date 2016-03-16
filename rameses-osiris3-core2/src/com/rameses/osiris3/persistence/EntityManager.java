@@ -358,9 +358,8 @@ public class EntityManager {
         return getModel().getElement().createView().getSchema();
     }
     
-    public Map getSchema(String name) {
-        setName(name);
-        return getSchema();
+    public Map getSchema(String colNames) {
+        return getModel().getElement().createView().getSchema( colNames );
     }
     
     //this checks if a record exists. This just returns true or false
