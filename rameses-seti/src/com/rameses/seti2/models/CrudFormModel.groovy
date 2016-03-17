@@ -122,11 +122,20 @@ public class CrudFormModel implements SubItemListener {
         return ( mode == 'edit');
     }
 
-    /*
     List getExtActions() {
-    return Inv.lookupActions( schemaName+":form:extActions", [entity: entity] );
+        def actions = []; 
+        try { 
+            actions = InvokerUtil.lookupActions("formActions", { o->
+                return o.workunitid == invoker.workunitid; 
+            } as InvokerFilter ); 
+        } 
+        catch(Throwable t) {
+            System.out.println("[WARN] error lookup actions caused by " + t.message);
+        } 
+        def actions2 = Inv.lookupActions( schemaName+":form:formActions", [entity: entity] );
+        return (actions + actions2).sort{ (it.index==null? 0: it.index) };
     }
-     */
+    
     public void afterInit(){;}
     public void afterCreate(){;}
     public void afterOpen(){;}
@@ -321,13 +330,7 @@ public class CrudFormModel implements SubItemListener {
     def showDebugInfo() {
         def e = entity;
         if( mode == 'edit' ) e = entity.data();
-        
-        def sb = new StringBuilder();
-        e.each { k,v->
-            sb.append( k+"="+v + "\n");
-        }
-        MsgBox.alert( sb.toString() );
-        println sb.toString();
+        Modal.show("crudform_debug:view", [schema:schema, data:e]);
     }
     
     def showInfo() {

@@ -59,6 +59,8 @@ public class CrudListModel {
 
     String strCols;
     
+    boolean debug = false;
+    
     def secProvider = ClientContext.getCurrentContext().getSecurityProvider();
     
     //overridables
@@ -81,7 +83,7 @@ public class CrudListModel {
     
     public def getSchema() {
         strCols = workunit.info.workunit_properties.cols; 
-
+        
         if(!schemaName) {
             schemaName = workunit.info.workunit_properties.schemaName;
         }
@@ -106,7 +108,17 @@ public class CrudListModel {
     //end overridables
     
     List getExtActions() {
-        return Inv.lookupActions( schemaName+":list:extActions", [entity: selectedItem] );
+        def actions = []; 
+        try { 
+            actions = InvokerUtil.lookupActions("formActions", { o->
+                return o.workunitid == invoker.workunitid; 
+            } as InvokerFilter ); 
+        } 
+        catch(Throwable t) {
+            System.out.println("[WARN] error lookup actions caused by " + t.message);
+        } 
+        def actions2 = Inv.lookupActions( schemaName+":list:formActions", [entity: entity] );
+        return (actions + actions2).sort{ (it.index==null? 0: it.index) };
     }
     
     boolean isCreateAllowed() { 
@@ -155,16 +167,17 @@ public class CrudListModel {
         
         schema = getSchema();
         cols.clear();
-        schema.fields.each{  
+        for( it in  schema.fields) {  
+            if(it.jointype) continue;
             if ( it.primary==true ) {
+                if( it.source != schema.name ) continue;
+                it.selectable = true;
                 it.selected = ( it.visible=='true' ); 
-                
-            } else if ( it.visible==null || it.visible=='true' ) {
+            } 
+            else if ( it.visible==null || it.visible=='true' ) {
                 it.selected = true; 
             } 
-            
             if ( !it.caption ) it.caption = it.name; 
-            
             cols << it; 
         }
 
@@ -173,12 +186,12 @@ public class CrudListModel {
     }
         
     public def buildSelectQuery(Map o) {
-        def m = [debug:true];
+        def m = [debug:debug];
         if(o) m.putAll(o);
         if(query) m.putAll(query);
         m._schemaname = schema.name;
         m.adapter = schema.adapter;
-        def primKeys = cols.findAll{it.primary==true}*.name;
+        def primKeys = cols.findAll{it.primary==true && it.source==schema.name}*.name;
         def arr = cols.findAll{ it.hidden=='true' || it.selected==true }*.name; 
 
         //build the columns to retrieve
