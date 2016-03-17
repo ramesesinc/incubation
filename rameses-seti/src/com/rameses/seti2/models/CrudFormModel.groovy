@@ -10,25 +10,13 @@ import com.rameses.rcp.constant.*;
 import java.rmi.server.*;
 import com.rameses.util.*;
         
-public class CrudFormModel implements SubItemListener {
+public class CrudFormModel extends AbstractCrudModel implements SubItemListener {
         
-    @Binding
-    def binding;
-
-    @Controller
-    def workunit;
-        
-    @Invoker
-    def invoker;
-    
     @Service("PersistenceService")
     def service;
     
     @Service("QueryService")
     def qryService;
-
-    @Caller
-    def caller;
 
     @SubWindow
     def subWindow;
@@ -41,6 +29,10 @@ public class CrudFormModel implements SubItemListener {
     String domain;
     String permission;
 
+    String getFormType() {
+        return 'form';
+    }
+    
     //overridable services
     public def getPersistenceService() {
         return service;
@@ -122,20 +114,6 @@ public class CrudFormModel implements SubItemListener {
         return ( mode == 'edit');
     }
 
-    List getExtActions() {
-        def actions = []; 
-        try { 
-            actions = InvokerUtil.lookupActions("formActions", { o->
-                return o.workunitid == invoker.workunitid; 
-            } as InvokerFilter ); 
-        } 
-        catch(Throwable t) {
-            System.out.println("[WARN] error lookup actions caused by " + t.message);
-        } 
-        def actions2 = Inv.lookupActions( schemaName+":form:formActions", [entity: entity] );
-        return (actions + actions2).sort{ (it.index==null? 0: it.index) };
-    }
-    
     public void afterInit(){;}
     public void afterCreate(){;}
     public void afterOpen(){;}
