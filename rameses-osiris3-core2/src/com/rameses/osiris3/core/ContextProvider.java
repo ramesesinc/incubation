@@ -13,14 +13,19 @@ import com.rameses.util.ConfigProperties;
 import com.rameses.util.URLDirectory;
 import com.rameses.util.URLDirectory.URLFilter;
 import groovy.lang.GroovyClassLoader;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 /**
  *
@@ -92,13 +97,59 @@ public abstract class ContextProvider {
         URLClassLoader urc = null;
         try {
             String path = getClassLoaderPath(name);
+            final List<URL> urlList = new ArrayList();
             URLDirectory ud = new URLDirectory(new URL(path));
-            URL[] urls = ud.list(new URLFilter(){
+            ud.list(new URLFilter(){
                 public boolean accept(URL u, String filter) {
-                    return (filter.endsWith(".jar") || filter.endsWith(".jar/"));
+                    if( (filter.endsWith(".jar") || filter.endsWith(".jar/"))) {
+                        urlList.add(u);
+                    }
+                    return false;
                 }
             });
-            urc = new URLClassLoader(urls);
+            
+            //we'll also add the bootstrap file.
+            System.out.println(" reading bootstrap file " + getRootUrl() + "/"+name + "/bootstrap.conf");
+            URL uf = new URL(getRootUrl() + "/"+name + "/bootstrap.conf");
+            File f = new File(uf.getFile());
+            if( f.exists() ) {
+                System.out.println("exists: yes");
+                InputStream is = null;
+                InputStreamReader isr = null;
+                BufferedReader br = null;
+                try {
+                    is = new FileInputStream(f);
+                    isr = new InputStreamReader(is);
+                    br = new BufferedReader(isr);
+                    String s = null;
+                    while( (s=br.readLine())!=null) {
+                        try {
+                            System.out.println("loading url->"+s);
+                            URL u1 = new URL(s);
+                            System.out.println(u1);
+                            urlList.add(u1);
+                        }
+                        catch(Exception ign){
+                            System.out.println("Error loading bootstrap file. " + ign.getMessage());
+                        }
+                    }
+                }
+                catch(Exception ign) {;}
+                finally {
+                    try {br.close();} catch(Exception ex){;}
+                    try {isr.close();} catch(Exception ex){;}
+                    try {is.close();} catch(Exception ex){;}
+                }
+            }
+            
+            URL[] urls = urlList.toArray(new URL[]{});
+            System.out.println("************************************");
+            System.out.println("loading name ->"+name);
+            System.out.println("************************************");
+            for(URL ul: urls) {
+                System.out.println(ul.getFile());
+            }
+            urc = new URLClassLoader(urls);           
             GroovyClassLoader gc = new GroovyClassLoader(urc);
             //add url so it can scan classes
             for( URL u : urls) {
