@@ -109,11 +109,9 @@ public abstract class ContextProvider {
             });
             
             //we'll also add the bootstrap file.
-            System.out.println(" reading bootstrap file " + getRootUrl() + "/"+name + "/bootstrap.conf");
-            URL uf = new URL(getRootUrl() + "/"+name + "/bootstrap.conf");
+            URL uf = new URL(getRootUrl() + "/"+name + "/modules.conf");
             File f = new File(uf.getFile());
             if( f.exists() ) {
-                System.out.println("exists: yes");
                 InputStream is = null;
                 InputStreamReader isr = null;
                 BufferedReader br = null;
@@ -124,12 +122,12 @@ public abstract class ContextProvider {
                     String s = null;
                     while( (s=br.readLine())!=null) {
                         try {
-                            System.out.println("loading url->"+s);
-                            URL u1 = new URL(s);
-                            System.out.println(u1);
+                            if ( s.startsWith("#")) continue; 
+                            if ( !s.endsWith("/")) s += "/";
+                            
+                            URL u1 = new URL( s );
                             urlList.add(u1);
-                        }
-                        catch(Exception ign){
+                        } catch(Throwable ign){
                             System.out.println("Error loading bootstrap file. " + ign.getMessage());
                         }
                     }
@@ -143,12 +141,6 @@ public abstract class ContextProvider {
             }
             
             URL[] urls = urlList.toArray(new URL[]{});
-            System.out.println("************************************");
-            System.out.println("loading name ->"+name);
-            System.out.println("************************************");
-            for(URL ul: urls) {
-                System.out.println(ul.getFile());
-            }
             urc = new URLClassLoader(urls);           
             GroovyClassLoader gc = new GroovyClassLoader(urc);
             //add url so it can scan classes
