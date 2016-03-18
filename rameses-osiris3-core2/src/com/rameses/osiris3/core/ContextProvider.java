@@ -111,7 +111,7 @@ public abstract class ContextProvider {
             //we'll also add the bootstrap file.
             URL uf = new URL(getRootUrl() + "/"+name + "/modules.conf");
             File f = new File(uf.getFile());
-            if( f.exists() ) {
+            if ( f.exists() ) {
                 InputStream is = null;
                 InputStreamReader isr = null;
                 BufferedReader br = null;
@@ -120,20 +120,21 @@ public abstract class ContextProvider {
                     isr = new InputStreamReader(is);
                     br = new BufferedReader(isr);
                     String s = null;
-                    while( (s=br.readLine())!=null) {
+                    while( (s=br.readLine())!=null) { 
                         try {
-                            if ( s.startsWith("#")) continue; 
-                            if ( !s.endsWith("/")) s += "/";
+                            if ( s.trim().length()== 0 ) continue;
+                            else if ( s.startsWith("#")) continue; 
+                            else if ( !s.endsWith("/")) s += "/";
                             
                             URL u1 = new URL( s );
                             urlList.add(u1);
                         } catch(Throwable ign){
-                            System.out.println("Error loading bootstrap file. " + ign.getMessage());
+                            System.out.println("Error loading module "+ s +" caused by "+ ign.getMessage());
                         }
                     }
-                }
-                catch(Exception ign) {;}
-                finally {
+                } catch(Throwable t) {
+                    System.out.println("Error loading module "+ uf +" caused by "+ t.getMessage());
+                } finally { 
                     try {br.close();} catch(Exception ex){;}
                     try {isr.close();} catch(Exception ex){;}
                     try {is.close();} catch(Exception ex){;}
