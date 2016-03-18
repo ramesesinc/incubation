@@ -16,17 +16,8 @@ import com.rameses.rcp.framework.ClientContext;
 * 
 * init action must be called.
 */
-public class CrudListModel {
+public class CrudListModel extends AbstractCrudModel {
         
-    @Binding
-    def binding;
-
-    @Controller
-    def workunit;
-        
-    @Invoker
-    def invoker;
-    
     @Service("QueryService")
     def service;
 
@@ -38,9 +29,7 @@ public class CrudListModel {
     
     def selectedItem;
     def list;
-    def schemaName;
     def adapter;
-    def schema;
     def entitySchemaName;   //used in case the view schema is not the same as entity schema
     def query = [:];
     def criteriaList = [];
@@ -49,11 +38,7 @@ public class CrudListModel {
     String searchText;
     
     def cols = [];
-  
-    String role;
-    String domain;
-    String permission;
-    List styleRules = [];
+    
     List searchables;
     List orWhereList = [];
 
@@ -61,7 +46,9 @@ public class CrudListModel {
     
     boolean debug = false;
     
-    def secProvider = ClientContext.getCurrentContext().getSecurityProvider();
+    String getFormType() {
+        return 'list';
+    }
     
     //overridables
     public def beforeQuery( def m ) {
@@ -83,10 +70,7 @@ public class CrudListModel {
     
     public def getSchema() {
         strCols = workunit.info.workunit_properties.cols; 
-        
-        if(!schemaName) {
-            schemaName = workunit.info.workunit_properties.schemaName;
-        }
+
         if(!entitySchemaName) {
             entitySchemaName = workunit.info.workunit_properties.entitySchemaName;
         }
@@ -107,46 +91,7 @@ public class CrudListModel {
     }
     //end overridables
     
-    List getExtActions() {
-        def actions = []; 
-        try { 
-            actions = InvokerUtil.lookupActions("formActions", { o->
-                return o.workunitid == invoker.workunitid; 
-            } as InvokerFilter ); 
-        } 
-        catch(Throwable t) {
-            System.out.println("[WARN] error lookup actions caused by " + t.message);
-        } 
-        def actions2 = Inv.lookupActions( schemaName+":list:formActions", [entity: entity] );
-        return (actions + actions2).sort{ (it.index==null? 0: it.index) };
-    }
     
-    boolean isCreateAllowed() { 
-        def allowCreate = workunit.info.workunit_properties.allowCreate;        
-        if( allowCreate == 'false' ) return false;
-        if( !role ) return true;
-        def createPermission = workunit.info.workunit_properties.createPermission;   
-        if(createPermission!=null) createPermission = schemaName+"."+createPermission;
-        return secProvider.checkPermission( domain, role, createPermission );
-    }
-        
-    boolean isOpenAllowed() { 
-        def allowOpen = workunit.info.workunit_properties.allowOpen;        
-        if( allowOpen == 'false' ) return false;
-        if( !role ) return true;
-        def openPermission = workunit.info.workunit_properties.openPermission; 
-        if(openPermission!=null) openPermission = schemaName+"."+openPermission;
-        return secProvider.checkPermission( domain, role, openPermission );
-    }
-
-    boolean isDeleteAllowed() { 
-        def allowDelete = workunit.info.workunit_properties.allowDelete;        
-        if( allowDelete != 'true' ) return false;
-        if( !role ) return true;
-        def deletePermission = workunit.info.workunit_properties.deletePermission; 
-        if(deletePermission!=null) deletePermission = schemaName+"."+deletePermission;
-        return secProvider.checkPermission( domain, role, deletePermission );
-    }
            
     boolean isAllowSearch() {
         return (searchables);
@@ -191,11 +136,13 @@ public class CrudListModel {
         if(query) m.putAll(query);
         m._schemaname = schema.name;
         m.adapter = schema.adapter;
+        
         def primKeys = cols.findAll{it.primary==true && it.source==schema.name}*.name;
         def arr = cols.findAll{ it.hidden=='true' || it.selected==true }*.name; 
-
+        
         //build the columns to retrieve
         m.select = (primKeys + arr).unique().join(",") ;
+        
         if(customFilter!=null) {
             if( customFilter.size() !=2 ) 
                 throw new Exception("Custom Filter must have a statement and parameter")
@@ -369,18 +316,6 @@ public class CrudListModel {
             columns : cols.findAll{ it.selected == true }
         ]
         return Inv.lookupOpener( "dynamic_report:print", [reportData:buffList, reportModel:reportModel] );
-    }
-    
-
-    def showMenu() {
-        def op = new PopupMenuOpener();
-        //op.add( new ListAction(caption:'New', name:'create', obj:this, binding: binding) );
-        try {
-            op.addAll( Inv.lookupOpeners(schemaName+":list:menuActions") );
-        } catch(Throwable ign){;}
-        
-        op.add( new com.rameses.seti2.models.PopupAction(caption:'Close', name:'_close', obj:this, binding:binding) );
-        return op;
     }
     
     //if there are nodes

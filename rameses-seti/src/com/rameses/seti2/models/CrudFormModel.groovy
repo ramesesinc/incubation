@@ -22,12 +22,8 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
     def subWindow;
     
     def adapter;
-    def schema;
-    def entity;
     
-    String role;
-    String domain;
-    String permission;
+    def entity;
 
     String getFormType() {
         return 'form';
@@ -39,8 +35,6 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
     }
     
     def mode;
-    
-    List styleRules = [];
     def itemHandlers = [:];     //holder for all specific item handlers
     
     //used for mdi forms.
@@ -66,40 +60,20 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
         return workunit.workunit.id;
     }
     
-    public String getSchemaName() {
-        return workunit?.info?.workunit_properties?.schemaName;
-    }
 
-    def secProvider = ClientContext.getCurrentContext().getSecurityProvider();
-    
     boolean isCreateAllowed() { 
         if( mode != 'read') return false;
-        def allowCreate = workunit.info.workunit_properties.allowCreate;   
-        if( allowCreate == 'false' ) return false;        
-        if( !role ) return true;
-        def createPermission = workunit.info.workunit_properties.createPermission;   
-        if(createPermission!=null) createPermission = schemaName+"."+createPermission;
-        return secProvider.checkPermission( domain, role, createPermission );
+        return super.isCreateAllowed();
     }
      
     boolean isDeleteAllowed() { 
-        def allowDelete = workunit.info.workunit_properties.allowDelete;        
-        if( allowDelete == 'false' ) return false;        
         if( mode != 'read') return false;
-        if( !role ) return true;
-        def deletePermission = workunit.info.workunit_properties.deletePermission; 
-        if(deletePermission!=null) deletePermission = schemaName+"."+deletePermission;
-        return secProvider.checkPermission( domain, role, deletePermission );
+        return super.isDeleteAllowed();
     }
                 
     boolean isEditAllowed() { 
-        def allowEdit = workunit.info.workunit_properties.allowEdit;        
-        if( allowEdit == 'false' ) return false;        
-        if( mode != 'read') return false;
-        if( !role ) return true;
-        def editPermission = workunit.info.workunit_properties.editPermission; 
-        if(editPermission!=null) editPermission = schemaName+"."+editPermission;
-        return secProvider.checkPermission( domain, role, editPermission );
+        if( mode !='read') return false;
+        return super.isEditAllowed();
     }
 
     boolean isSaveAllowed() {
@@ -125,16 +99,6 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
     
     //override for items
     public void afterFetchItems(String name, def data){;}
-    
-    def showMenu() {
-        def op = new PopupMenuOpener();
-        try {
-            op.addAll( Inv.lookupOpeners(schemaName+":form:menuActions") );
-        }
-        catch(Exception ign){;}
-        op.add( new com.rameses.seti2.models.PopupAction(caption:'Close', name:'_close', obj:this, binding: binding) );
-        return op;
-    }
     
     protected void buildStyleRules() {
         styleRules.clear();
@@ -437,7 +401,7 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
         if( fld?.lov!=null ) {
             return LOV.get( fld.lov.toUpperCase() )*.key;
         }
-        else if(fld.ref!=null) {
+        else if(fld?.ref!=null) {
             try {
                 String nn = fld.ref;
                 if(nn.indexOf(".")>0) nn = nn.split(":")[1];
@@ -456,13 +420,4 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
     
 }
 
-public class ListTypeMap extends HashMap {
-    def handler;
-    public ListTypeMap( def h ) {
-        handler = h;
-    }
-    public def get( def k ) {
-        return handler(k);
-    }
-}
 

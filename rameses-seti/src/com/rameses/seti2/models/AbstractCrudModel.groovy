@@ -20,7 +20,19 @@ public abstract class AbstractCrudModel  {
     @Caller
     def caller;
     
+    String role;
+    String domain;
+    String permission;
+    List styleRules = [];
+    def schema;
+    
+    def secProvider = ClientContext.getCurrentContext().getSecurityProvider();
+    
     public abstract String getFormType();
+    
+    public String getSchemaName() {
+        return workunit?.info?.workunit_properties?.schemaName;
+    }
     
     List getExtActions() {
         def actions1 = []; 
@@ -77,5 +89,56 @@ public abstract class AbstractCrudModel  {
         a.properties.put("Action.Invoker", inv);
         return a;
     }    
+    
+    //shared security features
+    boolean isCreateAllowed() { 
+        def allowCreate = workunit.info.workunit_properties.allowCreate;        
+        if( allowCreate == 'false' ) return false;
+        if( !role ) return true;
+        def createPermission = workunit.info.workunit_properties.createPermission;   
+        if(createPermission!=null) createPermission = schemaName+"."+createPermission;
+        return secProvider.checkPermission( domain, role, createPermission );
+    }
+        
+    boolean isOpenAllowed() { 
+        def allowOpen = workunit.info.workunit_properties.allowOpen;        
+        if( allowOpen == 'false' ) return false;
+        if( !role ) return true;
+        def openPermission = workunit.info.workunit_properties.openPermission; 
+        if(openPermission!=null) openPermission = schemaName+"."+openPermission;
+        return secProvider.checkPermission( domain, role, openPermission );
+    }
+
+    boolean isEditAllowed() { 
+        def allowEdit = workunit.info.workunit_properties.allowEdit;        
+        if( allowEdit == 'false' ) return false;        
+        if( mode != 'read') return false;
+        if( !role ) return true;
+        def editPermission = workunit.info.workunit_properties.editPermission; 
+        if(editPermission!=null) editPermission = schemaName+"."+editPermission;
+        return secProvider.checkPermission( domain, role, editPermission );
+    }
+
+    
+    boolean isDeleteAllowed() { 
+        def allowDelete = workunit.info.workunit_properties.allowDelete;        
+        if( allowDelete != 'true' ) return false;
+        if( !role ) return true;
+        def deletePermission = workunit.info.workunit_properties.deletePermission; 
+        if(deletePermission!=null) deletePermission = schemaName+"."+deletePermission;
+        return secProvider.checkPermission( domain, role, deletePermission );
+    }
+    
+    def showMenu() {
+        def op = new PopupMenuOpener();
+        //op.add( new ListAction(caption:'New', name:'create', obj:this, binding: binding) );
+        try {
+            op.addAll( Inv.lookupOpeners(schemaName+":" + getFormType() + ":menuActions") );
+        } catch(Throwable ign){;}
+        
+        op.add( new com.rameses.seti2.models.PopupAction(caption:'Close', name:'_close', obj:this, binding:binding) );
+        return op;
+    }
+    
 }
         
