@@ -145,7 +145,7 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
     
     void init() {
         if( !schemaName )
-        throw new Exception("Please provide a schema name. Put it in workunit schemaName or override the getSchemaName()");
+            throw new Exception("Please provide a schema name. Put it in workunit schemaName or override the getSchemaName()");
         if( _inited_ ) return;
         if( !schema ) {
             schema = service.getSchema( [name: schemaName, adapter: adapter]  );

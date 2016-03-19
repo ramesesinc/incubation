@@ -26,12 +26,21 @@ public abstract class AbstractCrudModel  {
     List styleRules = [];
     def schema;
     
+    private String _schemaName_ ;
+    
     def secProvider = ClientContext.getCurrentContext().getSecurityProvider();
     
     public abstract String getFormType();
     
     public String getSchemaName() {
-        return workunit?.info?.workunit_properties?.schemaName;
+        if( _schemaName_ )
+            return _schemaName_;
+        else    
+            return workunit?.info?.workunit_properties?.schemaName;
+    }
+    
+    public void setSchemaName( String s ) {
+        this._schemaName_ = s;
     }
     
     List getExtActions() {
