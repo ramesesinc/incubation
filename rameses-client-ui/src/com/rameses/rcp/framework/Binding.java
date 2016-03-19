@@ -41,6 +41,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -187,18 +188,18 @@ public class Binding
         if ( control.getDepends() != null ) _depends.add( control );
         
         Validatable vd = (Validatable) control.getClientProperty(Validatable.class); 
-        if ( vd != null ) 
+        if ( vd != null ) { 
             validatables.add(vd);
-        else if ( control instanceof Validatable ) 
+        } else if ( control instanceof Validatable ) { 
             validatables.add( (Validatable) control );
-
-        if ( control instanceof XButton && defaultButton == null ) 
-        {
+        } 
+        
+        if ( control instanceof XButton && defaultButton == null ) {
             XButton btn = (XButton) control;
             if ( btn.isDefaultCommand() ) defaultButton = btn;
         } 
-        if ( !ValueUtil.isEmpty(control.getName()) ) 
-        {
+        
+        if ( !ValueUtil.isEmpty(control.getName()) ) {
             String cname =  control.getName();
             if ( controlsIndex.containsKey(cname) ) 
             {
@@ -215,8 +216,7 @@ public class Binding
         }
         
         //for control event management support
-        if ( control instanceof Component ) 
-        {
+        if ( control instanceof Component ) {
             Component c = (Component) control;
             c.addMouseListener(support);
             c.addKeyListener(support);
@@ -246,6 +246,26 @@ public class Binding
         }
     }
     
+    public void updateDepends( UIControl uic, String[] vals ) {
+        if ( controls.contains( uic )) {
+            Iterator<Set<UIControl>> itr = depends.values().iterator(); 
+            while (itr.hasNext()) { 
+                itr.next().remove( uic ); 
+            } 
+            
+            if ( vals == null ) return;
+            
+            for ( String skey : vals ) {
+                Set<UIControl> sets = depends.get( skey );
+                if ( sets == null ) {
+                    sets = new HashSet<UIControl>(); 
+                    depends.put( skey, sets ); 
+                }
+                sets.add( uic ); 
+            } 
+        } 
+    }
+    
     public void init() 
     {
         if ( _initialized ) return;
@@ -253,8 +273,7 @@ public class Binding
         _initialized = true;
         Collections.sort( controls );
         Collections.sort( validatables );
-        for ( UIControl u : controls ) 
-        {
+        for ( UIControl u : controls ) {
             //index all default focusable controls
             if (u instanceof UIInput || u instanceof UIFocusableContainer) {
                 focusableControls.add( u );
@@ -263,17 +282,14 @@ public class Binding
             String cname = u.getName();
             if (cname == null || cname.trim().length() == 0) continue;
             
-            for (UIControl c : _depends) 
-            {
+            for (UIControl c : _depends) {
                 if ( u == c ) continue;
                 
-                for (String s : c.getDepends()) 
-                {
-                    if (cname.matches(s)) 
-                    {
-                        if (!depends.containsKey(cname)) 
+                for (String s : c.getDepends()) {
+                    if (cname.matches(s)) {
+                        if (!depends.containsKey(cname)) { 
                             depends.put(cname, new HashSet<UIControl>());
-                        
+                        } 
                         depends.get(cname).add(c);
                     }
                 }
@@ -281,16 +297,14 @@ public class Binding
         }
         
         //verify all dependency controls have been registered
-        for (UIControl c : _depends) 
-        {
+        for (UIControl c : _depends) {
             String cname = c.getName();
-            for (String s : c.getDepends()) 
-            {
+            for (String s : c.getDepends()) {
                 if (s.equals(cname)) continue;
                 
-                if (!depends.containsKey(s)) 
+                if (!depends.containsKey(s)) { 
                     depends.put(s, new HashSet<UIControl>());
-
+                } 
                 Set<UIControl> sets = depends.get(s);
                 if (!sets.contains(c)) sets.add(c);
             }

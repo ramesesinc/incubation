@@ -212,6 +212,27 @@ public class XActionBar extends JPanel implements UIComposite, MouseEventSupport
         
         //set dirty flag to true
         dirty = true;
+        
+        //build
+        List<String> deplist = new ArrayList();
+        for ( XButton btn : buttons ) {
+            buildDepends(deplist, btn.getDepends());
+        }
+        buildDepends(deplist, getDepends());
+        if ( !deplist.isEmpty() ) {
+            String[] vals = deplist.toArray(new String[]{}); 
+            getBinding().updateDepends( this, vals ); 
+        } 
+    }
+    
+    private void buildDepends( List<String> deplist, String[] vals ) {
+        if ( vals == null || vals.length==0 ) return; 
+
+        for ( String str : vals ) {
+            if ( str == null || str.trim().length()==0 ) continue; 
+
+            deplist.add( str ); 
+        }
     }
     
     private XButton createButton(Action action) {
@@ -344,10 +365,11 @@ public class XActionBar extends JPanel implements UIComposite, MouseEventSupport
                 
             } else { 
                 if ( btn.getClientProperty("default.button") != null ) {
-                    if ( getRootPane() != null )
+                    if ( getRootPane() != null ) { 
                         getRootPane().setDefaultButton( btn );
-                    else 
-                        binding.setDefaultButton( btn );
+                    } else { 
+                        binding.setDefaultButton( btn ); 
+                    } 
                 }
             }
             

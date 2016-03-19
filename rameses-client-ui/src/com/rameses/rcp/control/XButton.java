@@ -230,7 +230,7 @@ public class XButton extends JButton implements UICommand, ActionListener,
     
     // <editor-fold defaultstate="collapsed" desc=" UICommand implementation ">
     
-    public void refresh() {
+    public void refresh() { 
         if (!ValueUtil.isEmpty(expression)) {
             Object result = UIControlUtil.evaluateExpr(binding.getBean(), expression);
             setText((result==null? "": result.toString()));

@@ -25,6 +25,9 @@ public class CrudFormPage extends javax.swing.JPanel {
         btnInfo.setToolTipText("Info");
         btnDebug.setToolTipText("Debug Info");
         btnHelp.setToolTipText("Help");
+        
+        //hide the status panel for now 
+        pnlstat.setVisible(false); 
     }
 
     
@@ -39,7 +42,7 @@ public class CrudFormPage extends javax.swing.JPanel {
     private void initComponents() {
 
         xStyleRule1 = new com.rameses.rcp.control.XStyleRule();
-        jPanel1 = new javax.swing.JPanel();
+        pnlstat = new javax.swing.JPanel();
         jPanel2 = new javax.swing.JPanel();
         jPanel3 = new javax.swing.JPanel();
         xLabel1 = new com.rameses.rcp.control.XLabel();
@@ -75,20 +78,20 @@ public class CrudFormPage extends javax.swing.JPanel {
 
         add(xStyleRule1, java.awt.BorderLayout.LINE_START);
 
-        jPanel1.setPreferredSize(new java.awt.Dimension(400, 25));
+        pnlstat.setPreferredSize(new java.awt.Dimension(400, 25));
 
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+        javax.swing.GroupLayout pnlstatLayout = new javax.swing.GroupLayout(pnlstat);
+        pnlstat.setLayout(pnlstatLayout);
+        pnlstatLayout.setHorizontalGroup(
+            pnlstatLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGap(0, 727, Short.MAX_VALUE)
         );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+        pnlstatLayout.setVerticalGroup(
+            pnlstatLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGap(0, 25, Short.MAX_VALUE)
         );
 
-        add(jPanel1, java.awt.BorderLayout.PAGE_END);
+        add(pnlstat, java.awt.BorderLayout.PAGE_END);
 
         jPanel2.setPreferredSize(new java.awt.Dimension(420, 70));
         jPanel2.setLayout(new com.rameses.rcp.control.layout.YLayout());
@@ -237,11 +240,11 @@ public class CrudFormPage extends javax.swing.JPanel {
     private com.rameses.rcp.control.XButton btnSave;
     private com.rameses.rcp.control.XButton btnUndo;
     private com.rameses.rcp.control.XButton btnUp;
-    private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JToolBar jToolBar1;
     private javax.swing.JToolBar jToolBar3;
+    private javax.swing.JPanel pnlstat;
     private com.rameses.rcp.control.XActionBar xActionBar1;
     private com.rameses.rcp.control.XLabel xLabel1;
     private com.rameses.rcp.control.XStyleRule xStyleRule1;
