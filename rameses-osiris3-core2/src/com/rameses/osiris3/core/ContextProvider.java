@@ -108,8 +108,8 @@ public abstract class ContextProvider {
                 }
             });
             
-            //we'll also add the bootstrap file.
-            URL uf = new URL(getRootUrl() + "/"+name + "/modules.conf");
+            //we'll also add the modules.conf file.
+            URL uf = new URL(getRootUrl() +"/"+ name + "/modules.conf");
             File f = new File(uf.getFile());
             if ( f.exists() ) {
                 InputStream is = null;
@@ -126,43 +126,97 @@ public abstract class ContextProvider {
                             else if ( s.startsWith("#")) continue; 
                             else if ( !s.endsWith("/")) s += "/";
                             
-                            URL u1 = new URL( s );
-                            urlList.add(u1);
-                        } catch(Throwable ign){
+                            s = resolveValue(s, null); 
+                            urlList.add(new URL( s ));
+                        } catch(Throwable ign){ 
                             System.out.println("Error loading module "+ s +" caused by "+ ign.getMessage());
                         }
                     }
                 } catch(Throwable t) {
                     System.out.println("Error loading module "+ uf +" caused by "+ t.getMessage());
                 } finally { 
-                    try {br.close();} catch(Exception ex){;}
-                    try {isr.close();} catch(Exception ex){;}
-                    try {is.close();} catch(Exception ex){;}
-                }
+                    try {br.close();} catch(Exception ex){;} 
+                    try {isr.close();} catch(Exception ex){;} 
+                    try {is.close();} catch(Exception ex){;} 
+                } 
             }
             
             URL[] urls = urlList.toArray(new URL[]{});
             urc = new URLClassLoader(urls);           
             GroovyClassLoader gc = new GroovyClassLoader(urc);
             //add url so it can scan classes
-            for( URL u : urls) {
-                gc.addURL( u );    
-            }
+            for( URL u : urls) { 
+                gc.addURL( u ); 
+            } 
             return gc;
         } catch(Exception ign){
-            throw new RuntimeException("ERROR init classloader for "+name+" "+ign.getMessage());
+            throw new RuntimeException("ERROR init classloader for "+ name +" "+ ign.getMessage());
         }
     }
 
     public void stop() {
         for(AbstractContext ac: this.contexts.values()) {
             try {
-                System.out.println("stopping context provider " + ac.getName());
                 ac.stop(); 
-            } catch(Exception e) {
+            } catch( Throwable e ) {
                 System.out.println("failed to stop context provider " + ac.getName() + ", caused by " + e.getMessage());
-            }
-        }
-    }
+            } 
+        } 
+    } 
     
-}
+    // <editor-fold defaultstate="collapsed" desc=" Helper methods ">     
+    
+    private String resolveValue(String value, Map[] refs) { 
+        if ( value == null || value.trim().length()==0 ) { 
+            return value;  
+        } 
+        
+        if ( refs == null ) { 
+            refs = new HashMap[]{}; 
+        } 
+        
+        int startidx = 0; 
+        boolean has_expression = false; 
+        StringBuilder builder = new StringBuilder(); 
+        String str = value;
+        while (true) {
+            int idx0 = str.indexOf("${", startidx);
+            if (idx0 < 0) break;
+            
+            int idx1 = str.indexOf("}", idx0); 
+            if (idx1 < 0) break;
+            
+            has_expression = true; 
+            String skey = str.substring(idx0+2, idx1); 
+            builder.append(str.substring(startidx, idx0)); 
+            
+            Object objval = null; 
+            for (Map mref : refs) {
+                if (mref == null) { continue; }
+                
+                objval = mref.get(skey); 
+                if (objval != null) { break; }
+            }
+            
+            if (objval == null) {
+                objval = System.getProperty(skey);
+            } 
+            
+            if (objval == null) { 
+                builder.append(str.substring(idx0, idx1+1)); 
+            } else { 
+                builder.append(objval); 
+            } 
+            startidx = idx1+1; 
+        } 
+        
+        if (has_expression) {
+            builder.append(str.substring(startidx));  
+            return builder.toString(); 
+        } else {
+            return value; 
+        }
+    }  
+    
+    // </editor-fold>
+} 

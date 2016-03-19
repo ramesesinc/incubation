@@ -79,11 +79,10 @@ public class AppContext extends MainContext {
             ud.list( usf, loader );
         }
         //scan also shared context
-        if( getSharedContext() !=null ) {
-            System.out.println("scanning shared context");
+        if( getSharedContext() != null ) {
             loader = getSharedContext().getClassLoader();
-            if( loader !=null ) {
-            e = loader.getResources( path );
+            if( loader != null ) { 
+                e = loader.getResources( path );
                 while(e.hasMoreElements()) {
                     URLDirectory ud = new URLDirectory(e.nextElement());
                     ud.list( usf, loader );
