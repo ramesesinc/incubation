@@ -3,6 +3,7 @@ package com.rameses.server;
 import com.rameses.util.ConfigProperties;
 import com.rameses.util.Service;
 import java.io.File;
+import java.io.IOException;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -36,14 +37,15 @@ public final class BootLoader
     
     
     public void start() throws Exception {
-        removePids();
-        initProviders();
-        
         String userdir = System.getProperty("user.dir");
         String basedir = System.getProperty("osiris.base.dir", userdir);
         String rundir = System.getProperty("osiris.run.dir", userdir);
         System.getProperties().put("osiris.base.dir", basedir);
         System.getProperties().put("osiris.run.dir", rundir);
+
+        Shutdown.removePID();
+        createInstancePID(); 
+        initProviders();
         
         String baseURL = "file:///" + basedir;
         ConfigProperties conf = new ConfigProperties(rundir + "/server.conf");
@@ -92,30 +94,49 @@ public final class BootLoader
         final ShutdownAgent shutdownAgent = new ShutdownAgent();
         final Runnable shutdownHook = new Runnable() { 
             public void run() { 
-                onshutdown(); 
                 shutdownAgent.cancel(); 
+                onshutdown(); 
             } 
         }; 
         Runtime.getRuntime().addShutdownHook(new Thread(shutdownHook));
         //start the shutdown agent
         new Thread(shutdownAgent).start(); 
     }
-    
+        
     private void onshutdown() {
-        try {
+        try { 
             thread.shutdownNow(); 
         } catch(Throwable ign){;}  
+        
+        removeInstancePID(); 
+        Shutdown.removePID(); 
     }
     
-    private boolean removePids() {
-        String userdir  = System.getProperty("user.dir"); 
-        String rundir   = System.getProperty("osiris.run.dir", userdir); 
-        File file = new File(rundir + "/.shutdown_pid"); 
-        if (!file.exists()) return false; 
-
-        //remove the file
-        try { file.delete(); } catch(Throwable t) {;}
-        return true; 
+    private File getPID() {
+        String rundir  = System.getProperty("osiris.run.dir"); 
+        return new File(rundir + "/.osiris_pid"); 
+    }    
+    private void createInstancePID() {
+        File file = getPID(); 
+        if ( file.exists() ) {
+            throw new RuntimeException("Cannot start the server because there is already a process-ID instance."); 
+        } 
+        
+        try {
+            file.createNewFile(); 
+        } catch (IOException e) { 
+            throw new RuntimeException(e.getMessage(), e); 
+        } 
+    }
+    private void removeInstancePID() { 
+        File file = getPID(); 
+        if ( file.exists() ) {
+            try { 
+                file.delete(); 
+            } catch(Throwable t) {
+                //do nothing 
+            } 
+        } 
     } 
     
     private Map resolveConf(Map conf) {
@@ -168,8 +189,10 @@ public final class BootLoader
         }
     }     
     
-    private class ShutdownAgent implements Runnable 
-    {
+    // <editor-fold defaultstate="collapsed" desc=" ShutdownAgent ">  
+    
+    private class ShutdownAgent implements Runnable {
+        
         BootLoader root = BootLoader.this;
         
         private boolean cancelled;
@@ -187,18 +210,33 @@ public final class BootLoader
                 } catch(Throwable t) {;} 
                 
                 if (cancelled) break; 
-                if (!root.removePids()) continue; 
-                
-                cancelled = true;              
-                root.onshutdown(); 
-                try { 
-                    System.exit(1); 
-                } catch(Throwable t) {
-                    t.printStackTrace();
+                if (Shutdown.hasPID()) {
+                    processShutdown(); 
+                    break; 
                 } 
                 
-                break; 
+                File file = root.getPID();
+                if ( !file.exists() ) { 
+                    processShutdown(); 
+                    break; 
+                } 
             } 
-        }        
+        }     
+        
+        void processShutdown() { 
+            cancelled = true; 
+            try { 
+                root.onshutdown();  
+            } catch(Throwable t) {
+                t.printStackTrace(); 
+            }
+            try { 
+                System.exit(1); 
+            } catch(Throwable t) {
+                t.printStackTrace();
+            } 
+        }
     }
+    
+    // </editor-fold>     
 }
