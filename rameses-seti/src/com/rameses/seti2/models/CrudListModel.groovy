@@ -16,100 +16,61 @@ import com.rameses.rcp.framework.ClientContext;
 * 
 * init action must be called.
 */
-public class CrudListModel {
+public class CrudListModel extends AbstractCrudModel {
         
-    @Binding
-    def binding;
-
-    @Controller
-    def workunit;
-        
-    @Invoker
-    def invoker;
-    
     @Service("QueryService")
-    def queryService;
-
-    @Service("SchemaService")
-    def schemaService;
+    def service;
 
     @Service("PersistenceService")
     def persistenceService;
 
-    
     @FormTitle
     def formTitle;
     
-    def selectedEntity;
+    def selectedItem;
     def list;
-    def schemaName;
     def adapter;
-    def schema;
     def entitySchemaName;   //used in case the view schema is not the same as entity schema
     def query = [:];
     def criteriaList = [];
     def queryForm;
     def whereStatement;
+    String searchText;
     
     def cols = [];
-  
-    String role;
-    String domain;
-    String permission;
     
-    
-    def secProvider = ClientContext.getCurrentContext().getSecurityProvider();
-    
-    List getExtActions() {
-        return Inv.lookupActions( schemaName+":list:extActions", [entity: selectedEntity] );
-    }
-    
-    boolean isCreateAllowed() { 
-        def allowCreate = workunit.info.workunit_properties.allowCreate;        
-        if( allowCreate == 'false' ) return false;
-        if( !role ) return true;
-        return secProvider.checkPermission( domain, role, schemaName+".create" );
-    }
-        
-    boolean isOpenAllowed() { 
-        def allowOpen = workunit.info.workunit_properties.allowOpen;        
-        if( allowOpen == 'false' ) return false;
-        
-        if( !role ) return true;
-        return secProvider.checkPermission( domain, role, schemaName+".open" );
-    }
+    List searchables;
+    List orWhereList = [];
 
-    boolean isDeleteAllowed() { 
-        def allowDelete = workunit.info.workunit_properties.allowDelete;        
-        if( allowDelete != 'true' ) return false;
-        
-        if( !role ) return true;
-        return secProvider.checkPermission( domain, role, schemaName+".delete" );
-    }
-                
-    public String getTitle() {
-        return workunit.title;
+    String strCols;
+    
+    boolean debug = false;
+    
+    String getFormType() {
+        return 'list';
     }
     
-    public String getRecordCountInfo() {
-        return "";
-        //return  listHandler.rowCount + " Record(s). " ; 
+    //overridables
+    public def beforeQuery( def m ) {
+        ;//do nothing
     }
-        
-    public String getPageCountInfo() {
-        return "Page " + listHandler.pageIndex + " of ? " + listHandler.pageCount;
+    public def getQueryService() {
+        return service;
     }
     
-    void init() {
-        //load role and domain if any.
-        queryForm = new Opener(outcome:'queryForm')
-        domain = invoker.domain;
-        role = invoker.role;
-        formTitle = invoker.caption;
-        
-        if(!schemaName) {
-            schemaName = workunit.info.workunit_properties.schemaName;
-        }
+    public def getCustomFilter() {
+        String s = workunit.info.workunit_properties.customFilter;
+        if( s == null ) return null;
+        return [s, [:]];
+    }
+    
+    public def getTag() {
+        return workunit.info.workunit_properties.tag;
+    }
+    
+    public def getSchema() {
+        strCols = workunit.info.workunit_properties.cols; 
+
         if(!entitySchemaName) {
             entitySchemaName = workunit.info.workunit_properties.entitySchemaName;
         }
@@ -119,69 +80,101 @@ public class CrudListModel {
         if(!adapter) {
             adapter = workunit.info.workunit_properties.adapter; 
         }
-        schema = schemaService.getSchema( [name:schemaName, adapter: adapter] );
-        schema.name = schemaName;
-        if(adapter) schema.adapter = adapter;
         
-        //establish first what columns to include in internal columns
-        def includeCols = new LinkedHashSet();
-        def _includeCols = ".*";
-        if( workunit.info.workunit_properties.includeCols ) {
-            _includeCols = workunit.info.workunit_properties.includeCols;
-        }
-        //loop all fields to include.
-        for( ic in _includeCols.split(",") ) {
-            if(ic == "*") ic = ".*";
-            for( fld in schema.columns ) {
-                if(fld.jointype ) continue;
-                if(!(fld.visible==null || fld.visible=='true' )) continue;
-                if(fld.name.matches( ic.trim()) ) {
-                    includeCols << fld;
-                }
-            }
-        }
+        def map = [name:schemaName, adapter: adapter]; 
+        if ( strCols ) map.colnames = strCols;
+
+        def xschema = persistenceService.getSchema( map );
+        xschema.name = schemaName;
+        if(adapter) xschema.adapter = adapter;
+        return xschema;
+    }
+    //end overridables
+    
+    
+           
+    boolean isAllowSearch() {
+        return (searchables);
+    }
+    
+    public String getTitle() {
+        return workunit.title;
+    }
+    
+    boolean _inited_ = false;
+    void init() {
+        if(_inited_ ) return;
+        //load role and domain if any.
+        queryForm = new Opener(outcome:'queryForm')
+        domain = invoker.domain;
+        role = invoker.role;
+        formTitle = invoker.caption;
         
-        //establish columns to display. The tricky part here is if cols are specified
-        //it must be in the order it is specified. If 
-        def zcols = new LinkedHashSet();
-        def _displayCols = ".*";
-        if( workunit.info.workunit_properties.cols ) {
-            _displayCols = workunit.info.workunit_properties.cols;
-        }
-        for( ic in _displayCols.split(",") ) {
-            if(ic == "*") ic = ".*";
-            for( fld in includeCols ) {
-                if(fld.name.matches( ic.trim()) ) {
-                    zcols << fld;
-                    //by default primary keys will be hidden.
-                    if( fld.primary ) 
-                        fld.selected = false;
-                    else    
-                        fld.selected = true;
-                }
-            }
-        }
+        schema = getSchema();
         cols.clear();
-        zcols.each { c->
-            cols << c;
+        for( it in  schema.fields) {  
+            if(it.jointype) continue;
+            if ( it.primary==true ) {
+                if( it.source != schema.name ) continue;
+                it.selectable = true;
+                it.selected = ( it.visible=='true' ); 
+            } 
+            else if ( it.visible==null || it.visible=='true' ) {
+                it.selected = true; 
+            } 
+            if ( !it.caption ) it.caption = it.name; 
+            cols << it; 
         }
-        includeCols.each { c->
-            if( !cols.find{it.name == c.name} ) {
-                cols << c;
-            }
-        }
-        zcols.clear();
-        includeCols.clear();
-        cols.each {fld->
-            if(!fld.caption) fld.caption = fld.name;            
-        }
+
+        searchables = schema.fields.findAll{ it.searchable == "true" }*.name;
+        _inited_ = true;
     }
         
+    public def buildSelectQuery(Map o) {
+        def m = [debug:debug];
+        if(o) m.putAll(o);
+        if(query) m.putAll(query);
+        m._schemaname = schema.name;
+        m.adapter = schema.adapter;
+        
+        def primKeys = cols.findAll{it.primary==true && it.source==schema.name}*.name;
+        def arr = cols.findAll{ it.hidden=='true' || it.selected==true }*.name; 
+        
+        //build the columns to retrieve
+        m.select = (primKeys + arr).unique().join(",") ;
+        
+        if(customFilter!=null) {
+            if( customFilter.size() !=2 ) 
+                throw new Exception("Custom Filter must have a statement and parameter")
+            if( whereStatement==null ) {
+                whereStatement= customFilter;
+            }
+            else {
+                whereStatement[0] = customFilter[0] + ' AND ' + whereStatement[0];
+                whereStatement[1].putAll( customFilter[1] );
+            }
+        } 
+
+        if( whereStatement!=null) {
+            m.where = whereStatement;
+        }
+        
+        if( orWhereList.size() > 0 ) {
+            m.orWhereList = orWhereList;
+        }
+        if( getTag()!=null ) {
+            m._tag = getTag();
+        }        
+        beforeQuery( m );
+        return m;
+    }
+    
     def listHandler = [
         getColumnList: {
             if( schema == null )
                 throw new Exception("schema is null. Please call init method")
             def zcols = [];
+            //always add the primary keys
             for( c in cols.findAll{it.selected == true} ) {
                 def cc = [:];
                 cc.putAll( c );
@@ -193,26 +186,24 @@ public class CrudListModel {
         fetchList: { o->
             if( schema == null )
                 throw new Exception("schema is null. Please call invoke method")
-                
-            def m = [:];
-            m.putAll(o);
-            m.putAll(query);
-            m.schemaname = schema.name;
-            m.adapter = schema.adapter;
-            
-            //build the columns to retrieve
-            def arr = cols.findAll{it.selected==true}*.name;
-            m.select = arr.join(",");
-            if( whereStatement !=null ) {
-                m.where = whereStatement;
-            }
-            return queryService.getList( m );
+            if(!_inited_) throw new Exception("This workunit is not inited. Please call init action");
+            def m = buildSelectQuery(o);
+            return getQueryService().getList( m );
         },
         onOpenItem: { o, colName ->
             return open();
         }
     ] as PageListModel;
     
+    void search() {
+        orWhereList.clear();
+        if( searchText ) {
+            searchables.each {
+                orWhereList << [ it + " like :searchtext", ["searchtext": "%"+searchText+"%"]  ]
+            }
+        }
+        listHandler.doSearch();
+    }
     
     //returns the where element
     def buildWhereStatement() {
@@ -251,7 +242,8 @@ public class CrudListModel {
         def h = {
             listHandler.reloadAll();
         }
-        return Inv.lookupOpener( "crud:selectcolumns", [columnList: cols, onselect:h] );
+        def c = cols.findAll{ it.selectable != 'false' }
+        return Inv.lookupOpener( "crud:selectcolumns", [columnList: c, onselect:h] );
     }
     
     def create() {
@@ -270,11 +262,11 @@ public class CrudListModel {
     }
     
     def open() {
-        if( !selectedEntity ) 
+        if( !selectedItem ) 
             throw new Exception("Please select an item");
         def d = null;
         def ename = (!entitySchemaName)? schemaName : entitySchemaName;
-        def p = [schema:schema, schemaName:ename, adapter:adapter, entity: selectedEntity];
+        def p = [schema:schema, schemaName:ename, adapter:adapter, entity: selectedItem];
         p.title = "Open " + workunit.title;
         try {
             d = Inv.lookupOpener( ename + ":open", p );
@@ -287,11 +279,12 @@ public class CrudListModel {
     }
     
     void removeEntity() {
-        if(!selectedEntity) return;
+        if(!selectedItem) return;
         if( !MsgBox.confirm('You are about to delete this record. Proceed?')) return;
         def m = [:];
-        schema.columns.findAll{it.primary}.each {
-            m.put( it.name, selectedEntity.get(it.name));
+        //show only primary key of the main element.
+        schema.fields.findAll{it.primary}.each {
+            m.put( it.name, selectedItem.get(it.name));
         }
         def ename = (!entitySchemaName)? schemaName : entitySchemaName;
         m._schemaname = ename;
@@ -305,22 +298,13 @@ public class CrudListModel {
     
     def print() {
         //load first all data.
-        def m = [:];
-        m.putAll(query);
-        m.schemaname = schema.name;
-        m.adapter = schema.adapter;
-        //build the columns to retrieve
-        def arr = cols.findAll{it.selected==true}*.name;
-        m.select = arr.join(",");
-        if( whereStatement !=null ) {
-            m.where = whereStatement;
-        }
+        def m = buildSelectQuery([:]);
         int i = 0;
         def buffList = [];
         while( true ) {
             m._start = i;
             m._limit = 50;
-            def l = queryService.getList( m );
+            def l = getQueryService().getList( m );
             buffList.addAll( l );
             if( l.size() < 50  ) {
                 break;
@@ -334,18 +318,28 @@ public class CrudListModel {
         return Inv.lookupOpener( "dynamic_report:print", [reportData:buffList, reportModel:reportModel] );
     }
     
-    void search() {
-        throw new Exception("Search not yet implemented");
+    //if there are nodes
+    private _nodeList;
+    private def _selectedNode;
+    
+    def getNodeList() {
+        if(!_nodeList) {
+            def m = [:];
+            m._schemaname = schema.name;
+            m.adapter = schema.adapter;            
+            _nodeList = queryService.getNodeList( m );
+        }
+        return _nodeList;
     }
-
-    def showMenu() {
-        def op = new PopupMenuOpener();
-        //op.add( new ListAction(caption:'New', name:'create', obj:this, binding: binding) );
-        try {
-            op.addAll( Inv.lookupOpeners(schemaName+":list:menuActions") );
-        } catch(Throwable ign){;}
-        
-        op.add( new com.rameses.seti2.models.PopupAction(caption:'Close', name:'_close', obj:this, binding:binding) );
-        return op;
+    
+    void setSelectedNode(def n) {
+        _selectedNode = n;
+        query.put("node", n);
+        listHandler.reload();
     }
+    
+    def getSelectedNode() {
+        return _selectedNode;
+    }    
+    
 }

@@ -6,7 +6,6 @@
  * To change this template, choose Tools | Template Manager
  * and open the template in the editor.
  */
-
 package com.rameses.rcp.control;
 
 import com.rameses.beaninfo.ComponentBeanInfo;
@@ -20,37 +19,33 @@ import java.beans.PropertyDescriptor;
  *
  * @author wflores
  */
-public class XTextFieldBeanInfo extends ComponentBeanInfo.Support 
-{
+public class XTextFieldBeanInfo extends ComponentBeanInfo.Support {
+
     private Class beanClass;
-    
-    protected Class getBeanClass() 
-    {
-        if (beanClass == null) beanClass = XTextField.class; 
-        
+
+    protected Class getBeanClass() {
+        if (beanClass == null) {
+            beanClass = XTextField.class;
+        }
         return beanClass;
     }
-    
-    protected PropertyDescriptor[] createPropertyDescriptors() throws IntrospectionException 
-    {
-        return new PropertyDescriptor[] {
+
+    protected PropertyDescriptor[] createPropertyDescriptors() throws IntrospectionException {
+        return new PropertyDescriptor[]{
             new PropertyDescriptor("text", getBeanClass()),
             new PropertyDescriptor("border", getBeanClass()),
-            new PropertyDescriptor("margin", getBeanClass()), 
-            new PropertyDescriptor("fontStyle", getBeanClass()), 
-            new PropertyDescriptor("disabledTextColor", getBeanClass()), 
-            new PropertyDescriptor("actionCommand", getBeanClass()), 
-            
-            installEditor(new PropertyDescriptor("horizontalAlignment", getBeanClass()), SwingConstantsHAlignment.class), 
-            
+            new PropertyDescriptor("margin", getBeanClass()),
+            new PropertyDescriptor("fontStyle", getBeanClass()),
+            new PropertyDescriptor("disabledTextColor", getBeanClass()),
+            new PropertyDescriptor("actionCommand", getBeanClass()),
+            installEditor(new PropertyDescriptor("horizontalAlignment", getBeanClass()), SwingConstantsHAlignment.class),
             new PropertyDescriptor("caption", getBeanClass()),
             new PropertyDescriptor("captionFont", getBeanClass()),
             new PropertyDescriptor("captionFontStyle", getBeanClass()),
             new PropertyDescriptor("captionMnemonic", getBeanClass()),
             new PropertyDescriptor("captionWidth", getBeanClass()),
-            new PropertyDescriptor("showCaption", getBeanClass(), "isShowCaption", "setShowCaption"),            
+            new PropertyDescriptor("showCaption", getBeanClass(), "isShowCaption", "setShowCaption"),
             new PropertyDescriptor("cellPadding", getBeanClass()),
-            
             new PropertyDescriptor("depends", getBeanClass()),
             new PropertyDescriptor("filter", getBeanClass()),
             new PropertyDescriptor("focusAccelerator", getBeanClass()),
@@ -61,20 +56,16 @@ public class XTextFieldBeanInfo extends ComponentBeanInfo.Support
             new PropertyDescriptor("inputFormatErrorMsg", getBeanClass()),
             new PropertyDescriptor("maxLength", getBeanClass()),
             new PropertyDescriptor("spaceChar", getBeanClass()),
-            
             new PropertyDescriptor("nullWhenEmpty", getBeanClass(), "isNullWhenEmpty", "setNullWhenEmpty"),
             new PropertyDescriptor("readonly", getBeanClass(), "isReadonly", "setReadonly"),
             new PropertyDescriptor("required", getBeanClass(), "isRequired", "setRequired"),
             new PropertyDescriptor("editable", getBeanClass(), "isEditable", "setEditable"),
-            
             new PropertyDescriptor("stretchWidth", getBeanClass()),
             new PropertyDescriptor("stretchHeight", getBeanClass()),
-            
             new PropertyDescriptor("disableWhen", getBeanClass()),
-            new PropertyDescriptor("visibleWhen", getBeanClass()),            
-            
-            installEditor(new PropertyDescriptor("textCase", getBeanClass()), TextCasePropertyEditor.class), 
-            installEditor(new PropertyDescriptor("trimSpaceOption", getBeanClass()), TrimSpaceOptionPropertyEditor.class) 
-        }; 
-    }
+            new PropertyDescriptor("visibleWhen", getBeanClass()),
+            installEditor(new PropertyDescriptor("textCase", getBeanClass()), TextCasePropertyEditor.class),
+            installEditor(new PropertyDescriptor("trimSpaceOption", getBeanClass()), TrimSpaceOptionPropertyEditor.class)
+        };
+    }    
 }

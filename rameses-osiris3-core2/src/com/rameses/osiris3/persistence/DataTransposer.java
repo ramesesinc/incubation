@@ -7,6 +7,7 @@ package com.rameses.osiris3.persistence;
 import com.rameses.osiris3.schema.SchemaView;
 import com.rameses.osiris3.schema.SchemaViewField;
 import com.rameses.osiris3.schema.SchemaViewRelationField;
+import com.rameses.util.EntityUtil;
 import com.rameses.util.ObjectSerializer;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -31,10 +32,18 @@ public class DataTransposer {
     public static Map prepareDataForInsert(SchemaView svw, Map sourceData ) throws Exception {
         Map targetData = new LinkedHashMap();
         for( SchemaViewField vf: svw.findAllFields(".*")) {
+            if( !vf.getView().equals(svw) ) {
+                if(!vf.getView().isExtendedView()) continue;
+            }
+            //System.out.println(vf.getName()+" "+vf.getView().getName()+"->"+vf.getExtendedName());
+            
+            //if(!vf.isBaseField()) continue;
             if(! (vf instanceof SchemaViewRelationField )) {
                 if(!vf.isInsertable()) continue;
-                Object val = DataUtil.getNestedValue(sourceData, vf.getExtendedName() );
-                
+                 //create should only be on the base field
+                Object val = EntityUtil.getNestedValue(sourceData, vf.getExtendedName() );
+                //ignore if null.
+                if(val==null) continue;
                 if( vf.isSerialized() && val !=null) {
                     //get the default serializer
                     String ser = (String)vf.getProperty("serializer");
@@ -48,10 +57,10 @@ public class DataTransposer {
                 //This is to protect one to many relationships being cascaded
                 //do not include one to many
                 SchemaViewRelationField svr = (SchemaViewRelationField)vf;
-                Object val = DataUtil.getNestedValue(sourceData, svr.getExtendedName());
+                Object val = EntityUtil.getNestedValue(sourceData, svr.getExtendedName());
                 if( val == null ) {
                     //this is usually for many to one.
-                    val = DataUtil.getNestedValue(sourceData, svr.getTargetFieldExtendedName()  );
+                    val = EntityUtil.getNestedValue(sourceData, svr.getTargetFieldExtendedName()  );
                     targetData.put( svr.getFieldname(), val);
                 }
                 else {
@@ -75,20 +84,28 @@ public class DataTransposer {
         for( SchemaViewField vf: svw.findAllFields(".*")) {
             if(! (vf instanceof SchemaViewRelationField )) {
                 if(!vf.isUpdatable()) continue;
-                if( sourceData.containsKey(vf.getExtendedName()) ) {
-                    Object val = sourceData.get(vf.getExtendedName());  
-                    if( val!=null && vf.isSerialized()) {
-                        //get the default serializer
+                if( vf.isSerialized() ) {
+                    Object val = null;
+                    try {
+                        val = EntityUtil.getNestedValue(rawData, vf.getExtendedName() );
+                        if(val==null) continue;
+                        
+                        //get the default serializer                        
                         String ser = (String)vf.getProperty("serializer");
                         if(ser==null) ser = "default";
                         val = ObjectSerializer.getInstance().toString(val);
+                        targetData.put( vf.getExtendedName(), val);
                     }
+                    catch(Exception ign){;}
+                }
+                else if( sourceData.containsKey(vf.getExtendedName()) ) {
+                    Object val = sourceData.get(vf.getExtendedName());  
                     targetData.put( vf.getExtendedName(), val);
                 }
             }
             else  {
                 SchemaViewRelationField svr = (SchemaViewRelationField)vf;
-                if( svr.getTargetJoinType().equals( JoinTypes.MANY_TO_ONE) ) {
+                if( svr.getTargetJoinType().matches( JoinTypes.MANY_TO_ONE +"|"+JoinTypes.ONE_TO_ONE ) ) {
                     String tgt = svr.getTargetFieldExtendedName();
                     String src = svr.getFieldname();
                     if( sourceData.containsKey(tgt )) {

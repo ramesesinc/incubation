@@ -20,7 +20,7 @@ public class SimpleField extends SchemaField implements SimpleFieldTypes {
     private String name;
     private boolean required;
     private String type;
-    
+   
     
     private Class dataTypeClass;
     
@@ -143,6 +143,14 @@ public class SimpleField extends SchemaField implements SimpleFieldTypes {
         }
         catch(Exception ign){;}
         return map;
+    }
+    
+    public String getExpr() {
+        return (String)super.getProperties().get("expr");
+    }
+    
+    public void setExpr(String name) {
+        super.getProperties().put("expr", name);  
     }
     
 }

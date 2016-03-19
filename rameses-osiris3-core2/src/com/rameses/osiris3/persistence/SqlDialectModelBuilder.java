@@ -4,32 +4,30 @@
  */
 package com.rameses.osiris3.persistence;
 
+import com.rameses.osiris3.schema.JoinLink;
+import com.rameses.osiris3.persistence.EntityManagerModel.WhereElement;
 import com.rameses.osiris3.persistence.SelectFieldsTokenizer.Token;
 import com.rameses.osiris3.schema.AbstractSchemaView;
+
 import com.rameses.osiris3.schema.LinkedSchemaView;
-import com.rameses.osiris3.schema.SchemaElement;
+import com.rameses.osiris3.schema.RelationKey;
 import com.rameses.osiris3.schema.SchemaView;
 import com.rameses.osiris3.schema.SchemaViewField;
-import com.rameses.osiris3.schema.SchemaViewFieldFilter;
 import com.rameses.osiris3.schema.SchemaViewRelationField;
 import com.rameses.osiris3.schema.SimpleField;
 import com.rameses.osiris3.sql.SqlDialectModel;
 import com.rameses.osiris3.sql.SqlDialectModel.Field;
 import com.rameses.osiris3.sql.SqlDialectModel.WhereFilter;
-import com.rameses.osiris3.sql.SqlUnit;
-import com.rameses.util.ValueUtil;
+import com.rameses.osiris3.sql.SqlExprParserUtil;
+import com.rameses.util.EntityUtil;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.StreamTokenizer;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  *
@@ -42,121 +40,11 @@ public final class SqlDialectModelBuilder {
      * BUILDER HELPERS
      * ***********************************************************************
      */
-    public static WhereFilter buildWhereFilter(EntityManagerModel entityModel) {
-        EntityManagerModel.WhereElement we = entityModel.getWhereElement();
-        if (we == null) {
-            return null;
-        }
-        String expr = correctExpr(entityModel.getWhereElement().getExpr());
-        return new SqlDialectModel.WhereFilter(expr);
-    }
-
-    /*
-     private static String buildWhereFieldMatchPattern( List<SqlDialectModel.WhereFilter> whereList ) {
-     StringBuilder sb = new StringBuilder();
-     int i = 0;
-     for(SqlDialectModel.WhereFilter wf: whereList) {
-     if(i++>0) sb.append("|");
-     sb.append( wf.getFieldnamePattern() );
-     }
-     return sb.toString();
-     }
-     */
-    /*
-    private static String correctSelectFieldMatcher(String expr) {
-        if(expr==null) return null;
-        if( expr.equals("*") ) return ".*";
-        String[] arr = expr.split(",");
-        StringBuilder sb = new StringBuilder();
-        int i = 0;
-        for(String s: arr) {
-            if(i++>0) sb.append("|");
-            s = s.trim().replace( ".", "_").replace( "_*", ".*" );
-            sb.append(s);
-        }
-        return sb.toString();
-    }
-    */ 
-    
+      
     private static String correctExpr(String expr) {
         return expr.replaceAll("\\s{1,}", " ").replaceAll("\\s{1,}(?=[,|\\(|\\)])", "").replaceAll("(?<=[,|\\(|\\)])\\s{1,}", "");
     }
 
-    private static interface FindFieldFromExprHandler {
-        void handle( SchemaViewField  vf );
-    }
-    
-    //finds all field matches
-    private static String findAffectedFieldPattern(String expr, SchemaView svw, FindFieldFromExprHandler h) {
-        Set<String> set = new HashSet();
-        InputStream is = null;
-        try {
-            is = new ByteArrayInputStream(expr.getBytes());
-            StreamTokenizer st = new StreamTokenizer(is);
-            st.wordChars('_', '_');
-            st.ordinaryChar(' ');
-            st.wordChars('0', '9');
-            int i = 0;
-            while ((i = st.nextToken()) != st.TT_EOF) {
-                if (i == st.TT_WORD) {
-                    String v = st.sval;
-                    SchemaViewField vf = svw.getField(v);
-                    if (vf != null) {
-                        set.add(vf.getExtendedName());
-                        if(h!=null) h.handle(vf);
-                    }
-                }
-            }
-            StringBuilder s1 = new StringBuilder();
-            i = 0;
-            for (String s : set) {
-                if (i++ > 0) {
-                    s1.append("|");
-                }
-                s1.append(s);
-            }
-            return s1.toString();
-        } catch (Exception ign) {
-            //do nothing
-            return null;
-        } finally {
-            try {
-                is.close();
-            } catch (Exception e) {;
-            }
-        }
-    }
-
-    public static String findWhereAffectedFieldPattern(EntityManagerModel entityModel, SchemaView vw) {
-        EntityManagerModel.WhereElement we = entityModel.getWhereElement();
-        if (we == null) {
-            return "";
-        }
-        return findAffectedFieldPattern(correctExpr(we.getExpr()), vw, null);
-    }
-
-    public static String findFindersAffectedFieldPattern(EntityManagerModel entityModel, SchemaView vw) {
-        return DataUtil.stringifyMapKeys(entityModel.getFinders());
-    }
-
-    
-    //This is mostly used for inline expressions for field like select and update
-    private static Set<AbstractSchemaView> findJoinedViewsFromExprForUpdate( String expr, SchemaView vw ) {
-        final Set set = new LinkedHashSet();
-        findAffectedFieldPattern(correctExpr(expr), vw, new FindFieldFromExprHandler() {
-            public void handle(SchemaViewField vf) {
-                set.addAll( vf.getView().getJoinPaths() );
-            }
-        });        
-        return set;
-    }
-    
-    
-    /*
-    public static String findUpdateAffectedFieldPattern(EntityManagerModel entityModel, SchemaView vw) {
-        return findAffectedFieldPattern(entityModel.getSelectExpr(), vw);
-    }
-    */ 
 
     /**
      * ***********************************************************************
@@ -165,25 +53,20 @@ public final class SqlDialectModelBuilder {
      */
     public static void buildCreateSqlModels(SchemaView svw, final Map<String, SqlDialectModel> sqlModelMap) {
         //basic create statement
-        svw.findAllFields(new SchemaViewFieldFilter() {
-            public boolean accept(SchemaViewField vf) {
-                if (!vf.isInsertable()) {
-                    return false;
-                }
-                AbstractSchemaView vw = vf.getView();
-                SqlDialectModel model = sqlModelMap.get(vw.getName());
-                if (model == null) {
-                    model = new SqlDialectModel();
-                    model.setAction("create");
-                    model.setTablealias(vw.getName());
-                    model.setTablename(vw.getTablename());
-                    //model.setSchemaView(vw);
-                    sqlModelMap.put(vw.getName(), model);
-                }
-                model.addField(createSqlField(vf));
-                return false;
+        for( SchemaViewField vf:  svw.getFields() ) {
+            if (!vf.isInsertable()) continue;
+            AbstractSchemaView vw = vf.getView();
+            SqlDialectModel model = sqlModelMap.get(vw.getName());
+            if (model == null) {
+                model = new SqlDialectModel();
+                model.setAction("create");
+                model.setTablealias(vw.getName());
+                model.setTablename(vw.getTablename());
+                //model.setSchemaView(vw);
+                sqlModelMap.put(vw.getName(), model);
             }
-        });
+            model.addField(createSqlField(vf));
+        }
     }
 
     private static SqlDialectModel.Field createSqlField(SchemaViewField vf) {
@@ -198,53 +81,32 @@ public final class SqlDialectModelBuilder {
         f.setUpdatable(vf.isUpdatable());
         f.setSerialized(vf.isSerialized());
         f.setBasefield(vf.isBaseField());
+        f.setExpr(vf.getExpr());
         return f;
     }
     
     public static SqlDialectModel buildOneToOneUpdateLinkedId(final AbstractSchemaView targetVw) {
         SchemaView svw = targetVw.getRootView();
-        final List<Field> primKeys = new ArrayList();
-        List<SchemaViewField> flds = svw.findAllFields(new SchemaViewFieldFilter() {
-            public boolean accept(SchemaViewField vf) {
-                if (vf.isBaseField() && vf.isPrimary()) {
-                    primKeys.add(createSqlField(vf));
-                }
-                if (!(vf instanceof SchemaViewRelationField)) {
-                    return false;
-                }
-                SchemaViewRelationField svrf = (SchemaViewRelationField) vf;
-                if (!svrf.getTargetJoinType().equals(JoinTypes.ONE_TO_ONE)) {
-                    return false;
-                }
-                AbstractSchemaView tvw = svrf.getTargetView();
-                if (!tvw.equals(targetVw)) {
-                    return false;
-                }
-                return true;
-            }
-        });
-        if (flds.size() == 0) {
-            return null;
-        }
-
-        Set<AbstractSchemaView> joinedViews = new LinkedHashSet();
-        joinedViews.addAll(targetVw.getParent().getJoinPaths());
-        List<AbstractSchemaView> jvList = new ArrayList(Arrays.asList(joinedViews.toArray()));
-        Collections.sort(jvList);
-
         SqlDialectModel model = new SqlDialectModel();
         model.setAction("update");
         model.setTablealias(targetVw.getParent().getName());
         model.setTablename(targetVw.getParent().getTablename());
+        model.addJoinedViews(targetVw.getParent().getJoinPaths());
 
-        for (SchemaViewField sf : flds) {
-            Field f = createSqlField(sf);
+        for( SchemaViewField vf: svw.getFields() ) {
+            if (vf.isBaseField() && vf.isPrimary()) {
+                model.addFinderField(createSqlField(vf));
+            }
+            if (!(vf instanceof SchemaViewRelationField)) continue;
+            SchemaViewRelationField svrf = (SchemaViewRelationField) vf;
+            if (!svrf.getTargetJoinType().equals(JoinTypes.ONE_TO_ONE)) continue;
+            
+            //add the field to update
+            AbstractSchemaView tvw = svrf.getTargetView();
+            if (!tvw.equals(targetVw)) continue;
+            Field f = createSqlField(vf);
             model.addField(f);
-            model.getFieldMap().put(sf.getName(), f);
         }
-
-        model.setFinderFields(primKeys);
-        model.setJoinedViews(jvList);
         return model;
     }
 
@@ -253,399 +115,501 @@ public final class SqlDialectModelBuilder {
      * UPDATE
      * ***********************************************************************
      */
-    
-    public static Map<AbstractSchemaView, SqlDialectModel> buildUpdateSqlModels(EntityManagerModel entityModel, final Map data) {
+    public static Map<String, SqlDialectModel> buildUpdateSqlModels(EntityManagerModel entityModel, final Map data) {
 
-        final SchemaView svw = entityModel.getSchemaView();
-        //final HashSet<SchemaViewField> whereSet = new LinkedHashSet();
-        final Set<AbstractSchemaView> joinedViews = new LinkedHashSet();
-        final LinkedHashSet<String> uniqueNames = new LinkedHashSet();
-        final List<Field> vfinders = new ArrayList(); //fields used by finders
-
-        //build the finders
-        final String finderMatch = findFindersAffectedFieldPattern(entityModel, svw);
-        final String whereMatch = findWhereAffectedFieldPattern(entityModel, svw);
-        final Map<String, Field> fieldMap = new HashMap();
-
-        final String fieldMatch =  DataUtil.stringifyMapKeys(data);
-        
+        SchemaView svw = entityModel.getSchemaView();
+        String fieldMatch =  DataUtil.stringifyMapKeys(data);
+        if(fieldMatch==null) 
+            throw new RuntimeException("Update error. There should be at least one field to update");
         //build the where
-        final Map<AbstractSchemaView, SqlDialectModel> modelMap = new HashMap();
-        svw.findAllFields(new SchemaViewFieldFilter() {
-            public boolean accept(SchemaViewField vf) {
-                
-                String extName = vf.getExtendedName();
-                if (!uniqueNames.add(extName)) {
-                    return false;
-                }
-
-                AbstractSchemaView avw = svw;
-                if (vf.getView() != null) {
-                    avw = vf.getView();
-                }
-
-                boolean add_joined_view = false;
-                //check if you will add in list. if primary do not add bec. we should not update prim keys
-                if ( fieldMatch!=null && extName.matches(fieldMatch)) {
-                    boolean test = false;
-                    if (vf.isUpdatable()) {
-                        test = true;
-                    }
-                    if (test) {
-                        SqlDialectModel sqlModel = modelMap.get(avw);
-                        if (sqlModel == null) {
-                            sqlModel = new SqlDialectModel();
-                            //sqlModel.setSchemaView(svw);
-                            sqlModel.setAction("update");
-                            sqlModel.setTablename(avw.getElement().getTablename());
-                            sqlModel.setTablealias(avw.getElement().getName());
-                            modelMap.put(avw, sqlModel);
-                        }
-                        sqlModel = modelMap.get(avw);
-                        
-                        //check the data if it is an expression
-                        SqlDialectModel.Field sqlF = createSqlField(vf);
-                        try {
-                            Object val = DataUtil.getNestedValue(data, extName);
-                            if(val!=null && (val instanceof String)) {
-                                String t = val.toString().trim();
-                                if(t.startsWith("{") && t.endsWith("}")) {
-                                    String texpr = t.substring(1, t.length()-1);
-                                    sqlF.setExpr( texpr );
-                                    joinedViews.addAll(findJoinedViewsFromExprForUpdate( texpr, svw ));
-                                }
-                            }
-                        }
-                        catch(Exception ign){;}
-                        sqlModel.addField(sqlF);
-                        add_joined_view = true;
-                    }
-                }
-                
-                //check if in finders
-                if (extName.matches(finderMatch)) {
-                    vfinders.add(createSqlField(vf));
-                    add_joined_view = true;
-                }
-                //check if in where filters
-                if (extName.matches(whereMatch)) {
-                    add_joined_view = true;
-                }
-                //add joined view if teh field exists in field, finder or where
-                if (add_joined_view) {
-                    joinedViews.addAll(avw.getJoinPaths());
-                    fieldMap.put(vf.getExtendedName(), createSqlField(vf));
-                }
-                return false;
+        
+        Map<String, SqlDialectModel> modelMap = new HashMap();
+        //build update map fields
+        for(SchemaViewField vf: svw.getFields()) {
+            if(!vf.isUpdatable()) continue;
+            String extName = vf.getExtendedName();
+            if( !extName.matches(fieldMatch) ) continue;
+            AbstractSchemaView avw = svw;
+            if (vf.getView() != null) {
+                avw = vf.getView();
             }
-        });
-
-        //before attaching the views we sort it first according to the join order
-        List<AbstractSchemaView> jvList = new ArrayList(Arrays.asList(joinedViews.toArray()));
-        Collections.sort(jvList);
+            SqlDialectModel sqlModel = modelMap.get(avw.getName());
+            if (sqlModel == null) {
+                sqlModel = new SqlDialectModel();
+                //sqlModel.setSchemaView(svw);
+                sqlModel.setAction("update");
+                sqlModel.setTablename(avw.getElement().getTablename());
+                sqlModel.setTablealias(avw.getElement().getName());
+                sqlModel.addJoinedViews(avw.getJoinPaths());
+                modelMap.put(avw.getName(), sqlModel);
+            }
+            sqlModel = modelMap.get(avw.getName());
+            //check the data if it is an expression
+            SqlDialectModel.Field sqlF = createSqlField(vf);
+            try {
+                Object val = EntityUtil.getNestedValue(data, extName);
+                if(val!=null && (val instanceof String)) {
+                    String t = val.toString().trim();
+                    if(t.startsWith("{") && t.endsWith("}")) {
+                        String texpr = t.substring(1, t.length()-1);
+                        String sexpr = parseFieldExpression(texpr, entityModel, sqlModel, svw );
+                        sqlF.setExpr( sexpr );
+                    }
+                }
+            }
+            catch(Exception ign){;}
+            sqlModel.addField(sqlF);
+        }
+        
         //attach the where and finders in each sql model
         for (SqlDialectModel sqlModel : modelMap.values()) {
-            sqlModel.setFieldMap(fieldMap);
-            sqlModel.setFinderFields(vfinders);
-            sqlModel.setWhereFilter(buildWhereFilter(entityModel));
-            sqlModel.setJoinedViews(jvList);
-            sqlModel.setSubqueries(entityModel.getSubqueries());
+            //build the finders if any
+            addFinders(entityModel, sqlModel, svw);
+            addWhereCriteria( entityModel, sqlModel, svw );
         }
         return modelMap;
     }
+    
+    /**************************************************************************
+     * DELETE STATEMENTS 
+     * This is only applicable to primary keys and nothing else. We cannot use
+     * where statements because it might produce an error due to the extended
+     * tables
+    ****************************************************************************/
+    public static SqlDialectModel buildDeleteSqlModel(EntityManagerModel entityModel) {
+        SchemaView svw = entityModel.getSchemaView();
+        SqlDialectModel sqlModel = new SqlDialectModel();
+        sqlModel.setAction("delete");
+        sqlModel.setTablename(svw.getTablename());
+        sqlModel.setTablealias(svw.getName());
+        addFinders(entityModel, sqlModel, svw);
+        addWhereCriteria(entityModel, sqlModel, svw);
+        return sqlModel;
+    }
+    
+    public static Collection<SqlDialectModel> buildDeleteSqlModels1(EntityManagerModel entityModel) {
+        SchemaView svw = entityModel.getSchemaView();
+        //we use linked hash map to ensure the order of deletes
+        Map<String, SqlDialectModel> map = new LinkedHashMap();
+        for( SchemaViewField vf: svw.getFields() ) {
+            if( vf.isPrimary() ) {
+                AbstractSchemaView vw = vf.getView();
+                LinkedSchemaView lvw = null;
+                if( vw instanceof LinkedSchemaView ) {
+                    lvw = (LinkedSchemaView)vw;
+                    if(!lvw.getJointype().matches(JoinTypes.ONE_TO_ONE+"|"+JoinTypes.EXTENDED)) continue;
+                }
+                if(!map.containsKey(vw.getName())) {
+                    SqlDialectModel sqlModel = new SqlDialectModel();
+                    sqlModel.setAction("delete");
+                    sqlModel.setTablename(vw.getTablename());
+                    sqlModel.setTablealias(vw.getName());
+                    map.put(vw.getName(), sqlModel);
+                }
+                SqlDialectModel sqlModel = map.get(vw.getName());
+                if( lvw ==null || lvw.getJointype().equals(JoinTypes.EXTENDED)) {
+                    sqlModel.addFinderField(createSqlField(vf));
+                }
+                else {
+                    addFinders(entityModel, sqlModel, svw);
+                    addWhereCriteria(entityModel, sqlModel, svw);
+                }
+            }
+        }
+        return map.values();
+    }
 
+    public static Map<String, SqlDialectModel> buildNullifyOneToOneLinks(EntityManagerModel model) {
+        SchemaView svw = model.getSchemaView();
+        Map<String, SqlDialectModel> map = new HashMap();
+        for( SchemaViewField vf: svw.getFields() ) {
+            if( vf instanceof SchemaViewRelationField  ) {
+                SchemaViewRelationField svf = (SchemaViewRelationField)vf;
+                if(!svf.getTargetJoinType().equals(JoinTypes.ONE_TO_ONE)) continue;
+                AbstractSchemaView vw = vf.getView();
+                if(!map.containsKey(vw.getName())) {
+                    SqlDialectModel sqlModel = new SqlDialectModel();
+                    sqlModel.setAction("update");
+                    sqlModel.setTablename(vw.getTablename());
+                    sqlModel.setTablealias(vw.getName());
+                    addFinders( model,sqlModel,svw );
+                    addWhereCriteria( model,sqlModel,svw );
+                    map.put(vw.getName(), sqlModel);
+                };
+                SqlDialectModel sqlModel = map.get(vw.getName());
+                SqlDialectModel.Field f = createSqlField(vf);
+                f.setExpr("NULL");
+                sqlModel.addField(f);
+            }
+        }
+        return map;
+    }
+    
     /**
+     * This selects primary keys as well as other keys in one to one, many-to-one
+     * keys
+     * @param entityModel
+     * @return 
+     */
+    public static SqlDialectModel buildSelectIndexedKeys(EntityManagerModel entityModel) {
+        SchemaView svw = entityModel.getSchemaView();
+        SqlDialectModel sqlModel = new SqlDialectModel();
+        sqlModel.setAction("select");
+        sqlModel.setTablename(svw.getTablename());
+        sqlModel.setTablealias(svw.getName());
+        for( SchemaViewField vf: svw.getFields() ) {
+            if(  vf.isPrimary() && vf.isBaseField() ) {
+                sqlModel.addField(createSqlField(vf));
+                sqlModel.addJoinedViews( vf.getView().getJoinPaths() );
+            }
+            else if( vf instanceof SchemaViewRelationField ) {
+                SchemaViewRelationField svf = (SchemaViewRelationField)vf;
+                if( svf.getTargetJoinType().equals(JoinTypes.ONE_TO_ONE) ) {
+                    sqlModel.addField(createSqlField(vf));
+                }
+            }
+        }
+        addFinders(entityModel, sqlModel, svw);
+        addWhereCriteria(entityModel, sqlModel, svw);
+        return sqlModel;
+    }
+
+     /**
      * **********************************************************************
      * SELECT
     ***********************************************************************
-     */
-    public static SqlDialectModel buildSelectSqlModel(final EntityManagerModel entityModel) {
-        SchemaView svw = entityModel.getSchemaView();
-
-        List<Field> selectFieldList = new ArrayList();
-        List<Field> groupFieldList = null;  //there might be none
-        List<Field> orderFieldList = null;  //there might be none
-        
-        boolean includePrimary = true;
-        boolean hasGroup = false;
-        final Map<String, Field> fieldMap = new HashMap();
-        
-        String fldExpr = ValueUtil.isEmpty(entityModel.getSelectFields())?".*":entityModel.getSelectFields();
-        List<Token> fieldMatchList = SelectFieldsTokenizer.tokenize(fldExpr);
-        
-        if( !ValueUtil.isEmpty(entityModel.getGroupByExpr() )) {
-            List<Token> groupList = SelectFieldsTokenizer.tokenize(entityModel.getGroupByExpr());
-            for( Token t: groupList) {
-                t.setInGroup(true);
-                fieldMatchList.add(t);
-            }
-            includePrimary = false;
-            groupFieldList = new ArrayList();
-            hasGroup = true;
-        }
-        
-        if( !ValueUtil.isEmpty(entityModel.getOrderExpr())) {
-            List<Token> orderTokenList = SelectFieldsTokenizer.tokenize(entityModel.getOrderExpr());
-            for( Token t: orderTokenList ) {
-                t.setInOrder(true);
-                if(hasGroup) t.setInGroup(true);
-                fieldMatchList.add(t);
-            }
-            orderFieldList = new ArrayList();
-        }
-        
-        //temporary data holders
-        final Set<AbstractSchemaView> joinedViews = new LinkedHashSet();
-        
-        //put the found list here
-        List<SchemaViewField> allFields = svw.findAllFields(".*");
-        
-        
-        //loop each token until all matches passed. Each token represents a select view
-        for( Token t: fieldMatchList ) {
-            if(t.hasExpr()) {
-                //for expressed fields.
-                SqlDialectModel.Field sf = new SqlDialectModel.Field();
-                sf.setExtendedName(t.getAlias());
-                sf.setExpr( t.getExpr() );
-                if( !t.isInOrder()) {
-                    selectFieldList.add( sf );
+     /*
+     * This function parses the expression for fields. It also returns the 
+     * corrected expression. 
+     */ 
+    public static String parseFieldExpression(String expr, ISelectModel entityModel, SqlDialectModel sqlModel, SchemaView svw ) {
+        InputStream is = null;
+        try {
+            StringBuilder sb = new StringBuilder();
+            is = new ByteArrayInputStream(expr.getBytes());
+            StreamTokenizer st = SqlExprParserUtil.createStreamTokenizer(is);
+            int i = 0;
+            while ((i = st.nextToken()) != st.TT_EOF) {                
+                if (i == st.TT_WORD) {
+                    String v = st.sval.replace(".","_");
+                    SchemaViewField vf = svw.getField(v);
+                    if (vf != null) {
+                        sqlModel.addExprField( createSqlField(vf) );
+                        sqlModel.addJoinedViews( vf.getView().getJoinPaths() );
+                        sb.append( v );
+                        continue;
+                    }
+                    
+                    //if field not exist in basic it might exist in the dialect model's subqueries
+                    if( st.sval.indexOf(".")>0 ) {
+                        String fname = st.sval;
+                        String prefix = fname.substring(0, fname.indexOf("."));
+                        fname = fname.substring(fname.indexOf(".")+1).replace(".", "_");
+                        
+                        //check is in subquery or is in inverse views?
+                        SqlDialectModel sqm = sqlModel.getSubqueries().get(prefix);
+                        if( sqm !=null ) {
+                            Field f = sqm.getSelectField(fname);
+                            if( f !=null ) {
+                                sb.append( prefix + "." + fname );
+                            }
+                            continue;
+                        }
+                        
+                        //check if in abstract schema view
+                        LinkedSchemaView ivw = (LinkedSchemaView) findJoinedLinkedView(prefix, entityModel, svw, sqlModel);
+                        if( ivw !=null ) {
+                            SchemaViewField lf = ivw.getElement().createView().getField(fname);
+                            Field ff = createSqlField(lf);
+                            ff.setExtendedName(prefix+"_"+fname);
+                            ff.setTablealias(prefix);
+                            sqlModel.addExprField( ff );
+                            sqlModel.addJoinedViews( lf.getView().getJoinPaths() );
+                            sb.append( prefix + "." + fname );
+                            continue;
+                        }
+                    }
+                    
+                    //print if not handled 
+                    sb.append( st.sval );
+                }
+                else if( i == '\'') {
+                    sb.append( "'" + st.sval + "'" );
                 }
                 else {
-                    sf.setSortDirection(t.getSortDirection());
-                    orderFieldList.add(sf);
-                }
-                if( t.isInGroup() ) {
-                    groupFieldList.add(sf);
-                }
-                findAffectedFieldPattern(correctExpr(sf.getExpr()), svw, new FindFieldFromExprHandler() {
-                    public void handle(SchemaViewField vf) {
-                        joinedViews.addAll( vf.getView().getJoinPaths() );
-                        fieldMap.put( vf.getExtendedName(), createSqlField(vf) );
-                    }
-                });        
-            }
-            else {
-                //for normal fields.
-                for( SchemaViewField vf: allFields) {
-                    String extName = vf.getExtendedName();
-                    
-                    boolean add_fld = false;
-                    boolean passNext = false;
-
-                    if( includePrimary && vf.isPrimary() && vf.isBaseField() ) {
-                        add_fld = true;
-                    }
-                    
-                    if( !t.hasExpr() && extName.equals(t.getFieldMatch()) ) {
-                        add_fld = true;
-                        passNext = true;
-                    }
-                    else if(!t.hasExpr() && extName.matches(t.getFieldMatch())) {
-                        add_fld = true;
-                    }
-                    if (add_fld) {
-                        
-                        SqlDialectModel.Field sf = createSqlField(vf);
-                        if(!t.isInOrder()) {
-                            if(!selectFieldList.contains(sf)) selectFieldList.add( sf );
-                        }
-                        else {
-                            if(!orderFieldList.contains(sf)) {
-                                sf.setSortDirection(t.getSortDirection());
-                                orderFieldList.add(sf);
-                            }
-                        }
-                        if( t.isInGroup() ) {
-                            if(!groupFieldList.contains(sf)) {
-                                groupFieldList.add(sf);
-                            }
-                        }
-                        joinedViews.addAll(vf.getView().getJoinPaths());
-                        if(!fieldMap.containsKey(extName)) {
-                            fieldMap.put(extName, sf);
-                        }
-                        if(passNext) break; //move to the next token
-                    }
+                    sb.append( (char)i );
                 }
             }
+            return sb.toString();
+        } 
+        catch (Exception ex) {
+            throw new RuntimeException(ex);
         }
-        
-        //loop on the other fields in where, order and groupBy
-        final Set<Field> vfinders = new HashSet(); //fields used by finders
-        String finderMatch = findFindersAffectedFieldPattern(entityModel, svw);
-        String whereMatch = findWhereAffectedFieldPattern(entityModel, svw);   //buildWhereFieldMatchPattern( whereList );
-        for( SchemaViewField vf: allFields) {
-            String extName = vf.getExtendedName();
-            boolean add_joined_view = false;
-            boolean add_finder = false;
-            if (finderMatch!=null && extName.matches(finderMatch)) {
-                add_finder = true;
-                add_joined_view = true;
-            }
-            //check if in where filters
-            if (whereMatch!=null && extName.matches(whereMatch)) {
-                add_joined_view = true;
-            }
-            //add joined view if teh field exists in field, finder or where
-            if (add_joined_view) {
+        finally {
+            try { is.close(); } catch (Exception e) {;}
+        }
+    }
+    
+    /****
+     * we will also check the values inside the params because there might be expressions also 
+     */ 
+    public static WhereFilter createWhereFilter( WhereElement we, ISelectModel entityModel, SqlDialectModel sqlModel, SchemaView svw  ) {
+        String sExpr = parseFieldExpression( we.getExpr(),entityModel, sqlModel, svw );
+        WhereFilter wf = new WhereFilter(sExpr);
+        return wf;
+    }
+    
+    public static void addFinders( ISelectModel entityModel, SqlDialectModel sqlModel, SchemaView svw  ) {
+        if( entityModel.getFinders()!=null ) {
+            Map finders = entityModel.getFinders();
+            for( Object k: finders.keySet() ) {
+                String s = k.toString().trim().replace(".","_");
+                SchemaViewField vf = svw.getField(s);
+                if( vf == null ) throw new RuntimeException("Finder field " + s + " does not exist" );
                 SqlDialectModel.Field sf = createSqlField(vf);
-                if(add_finder) vfinders.add(sf);
-                joinedViews.addAll(vf.getView().getJoinPaths());
-                fieldMap.put(extName, sf);
+                Object val = finders.get(k);
+                if( val !=null && (val instanceof SubQueryModel) ) {
+                    SubQueryModel sqm = (SubQueryModel)val;
+                    SqlDialectModel subQryModel = buildSubQueryModel( sqm, sqlModel, svw);
+                    sf.setSubQuery(subQryModel);
+                }
+                sqlModel.addFinderField( sf );
+                sqlModel.addJoinedViews( vf.getView().getJoinPaths() );
+            }
+        }
+    }
+    
+    public static void addWhereCriteria( ISelectModel entityModel, SqlDialectModel sqlModel,  SchemaView svw  ) {
+        if( entityModel.getWhereElement()!=null ) {
+            WhereFilter wf = createWhereFilter(entityModel.getWhereElement(), entityModel, sqlModel, svw);
+            sqlModel.setWhereFilter(wf);
+        }
+        if( entityModel.getOrWhereList()!=null && entityModel.getOrWhereList().size()>0) {
+            for(WhereElement we: entityModel.getOrWhereList() ) {
+                WhereFilter wf = createWhereFilter(we, entityModel, sqlModel, svw);
+                sqlModel.addOrWhereFilter(wf);
+            }
+        }
+    }
+
+    public static SqlDialectModel buildSubQueryModel( SubQueryModel subQryModel, SqlDialectModel sqlModel, SchemaView svw ) {
+        SqlDialectModel subQuery = buildSelectSqlModel(subQryModel);
+        subQuery.setJoinType(subQryModel.getJointype());
+        //find the keys 
+        for( RelationKey rk: subQryModel.getRelationKeys() ) {
+            String extName = rk.getField().replace(".", "_");
+            SchemaViewField vf = svw.getField(extName);
+            if( vf == null ) 
+                throw new RuntimeException("Error buildSubQueryModel. field "+rk.getField()+" not found in parent");
+            //this field is on the main side (parent). add join paths in case the linked field is not selected
+            SqlDialectModel.Field src = createSqlField(vf);
+            sqlModel.addJoinedViews(vf.getView().getJoinPaths());
+            
+            String textName = rk.getTarget().replace(".","_");
+            SqlDialectModel.Field tgt = subQuery.getSelectField(textName);
+            if(tgt==null) 
+                throw new RuntimeException("Error buildSubQueryModel. sub query field "+rk.getTarget()+" not found in parent");
+            //create 
+            Field newfld = new Field();
+            newfld.setExtendedName(tgt.getExtendedName());
+            newfld.setFieldname(tgt.getExtendedName());
+            newfld.setTablealias(subQryModel.getName());
+            newfld.setTablename(subQryModel.getName());
+            subQuery.addRelationKey(src, newfld);
+        }
+        return subQuery;
+    }
+    
+    public static void buildSubQueryModels( ISelectModel entityModel, SqlDialectModel sqlModel, SchemaView svw ) {
+        if( entityModel.getSubqueries()==null || entityModel.getSubqueries().size()<=0 ) return;
+        for( Object m: entityModel.getSubqueries().entrySet() ) {
+            Map.Entry<String, SubQueryModel> me = (Map.Entry)m;
+            SqlDialectModel subQuery = buildSubQueryModel(me.getValue(), sqlModel, svw);
+            sqlModel.addSubQuery(me.getKey(), subQuery);
+        }
+    }
+    
+    public static SqlDialectModel.Field createSubQueryField(SchemaViewField svf, String subQryAlias) {
+        Field newfld = new Field();
+        newfld.setExtendedName(subQryAlias + "_" + svf.getExtendedName());
+        newfld.setFieldname(svf.getExtendedName());
+        newfld.setName(svf.getExtendedName());
+        newfld.setTablealias(subQryAlias);
+        newfld.setTablename(subQryAlias);
+        return newfld;
+    }
+    
+    private static AbstractSchemaView findJoinedLinkedView(String name, ISelectModel entityModel, SchemaView svw, SqlDialectModel sqlModel) {
+        JoinLink joinLink = null;
+        for(JoinLink jl: entityModel.getJoinLinks()) {
+            if(jl.getName().equals(name)) {
+                joinLink = jl;
+                break;
+            }
+        }
+        if(joinLink == null) return null;
+        //check if registered in sqlModel
+        AbstractSchemaView lvw = sqlModel.findJoinedView(name);
+        LinkedSchemaView targetVw = null; 
+        if( lvw == null || !(lvw instanceof LinkedSchemaView) ) {
+            targetVw = new LinkedSchemaView(joinLink.getName(), joinLink.getElement(), svw, svw,JoinTypes.MANY_TO_ONE, joinLink.isRequired(), null);
+            for( RelationKey rk: joinLink.getRelationKeys()) {
+                SchemaViewField tvf = joinLink.getElement().createView().getField(rk.getTarget());
+                if( tvf == null ) 
+                    throw new RuntimeException("SchemaElement.buildJoins error. Target field not found");
+                SimpleField tf = new SimpleField();
+                tf.setElement(targetVw.getElement());
+                tf.setName(tvf.getExtendedName());
+                tf.setFieldname(tvf.getFieldname());
+                sqlModel.addJoinedView(targetVw);
+                sqlModel.addJoinedViews(tvf.getView().getJoinPaths());
+                
+                //build the simple field
+                SimpleField sf = new SimpleField();
+                sf.setElement(svw.getElement());
+                sf.setName(rk.getField());
+                sf.setFieldname(rk.getField());
+                sf.setType( tf.getType() );
+                SchemaViewRelationField rf = new SchemaViewRelationField(sf, svw, svw, tf, targetVw);
+                targetVw.addRelationField(rf);
+            };
+        }
+        return targetVw;
+    }
+    
+    private static void buildGroupBy( ISelectModel entityModel, SqlDialectModel sqlModel, SchemaView svw  ) {
+        if( entityModel.getGroupByExpr()!=null) {
+            List<Token> tokenList = SelectFieldsTokenizer.tokenize(entityModel.getGroupByExpr());
+            for( Token t: tokenList ) {
+                if( !t.hasExpr() ) {
+                    SchemaViewField vf = svw.getField(t.getFieldMatch());
+                    sqlModel.addGroupField( createSqlField(vf) );
+                    sqlModel.addJoinedViews( vf.getView().getJoinPaths() );
+                }
+                else {
+                    String expr = parseFieldExpression( t.getExpr(), entityModel, sqlModel, svw );
+                    SqlDialectModel.Field sf = new SqlDialectModel.Field();
+                    sf.setExpr(expr);
+                    sqlModel.addGroupField(sf);    
+                }
+            }
+        }     
+    }
+    
+    private static void buildOrderBy( ISelectModel entityModel, SqlDialectModel sqlModel, SchemaView svw  ) {
+        if( entityModel.getOrderExpr()!=null) {
+            List<Token> tokenList = SelectFieldsTokenizer.tokenize(entityModel.getOrderExpr());
+            for( Token t: tokenList ) {
+                if( !t.hasExpr() ) {
+                    SchemaViewField vf = svw.getField(t.getFieldMatch());
+                    if( vf == null ) {
+                        System.out.println("warning buildOrderBy. field has no match for : "+t.getFieldMatch());
+                        continue;
+                    }
+                    SqlDialectModel.Field ordf = createSqlField(vf);
+                    ordf.setSortDirection(t.getSortDirection());
+                    sqlModel.addOrderField( ordf );
+                    sqlModel.addJoinedViews( vf.getView().getJoinPaths() );
+                }
+                else {
+                    String expr = parseFieldExpression( t.getExpr(),entityModel, sqlModel, svw );
+                    SqlDialectModel.Field sf = new SqlDialectModel.Field();
+                    sf.setExpr(expr);
+                    sqlModel.addOrderField(sf);    
+                }
             }
         }
         
-        List<AbstractSchemaView> jvList = new ArrayList(Arrays.asList(joinedViews.toArray()));
-        Collections.sort(jvList);
+    }
+    
+    //for research
+    public static SqlDialectModel buildSelectSqlModel( ISelectModel entityModel ) {
+        SchemaView svw = entityModel.getSchemaView();
         
-        List<Field> finderList = new ArrayList(Arrays.asList(vfinders.toArray()));
-
         SqlDialectModel sqlModel = new SqlDialectModel();
         sqlModel.setAction("select");
         sqlModel.setTablename(svw.getTablename());
         sqlModel.setTablealias(svw.getName());
         
-        sqlModel.setFields(selectFieldList);
-        sqlModel.setFieldMap(fieldMap);
-        sqlModel.setFinderFields(finderList);
-        sqlModel.setJoinedViews(jvList);
-        sqlModel.setWhereFilter(buildWhereFilter(entityModel));
-        sqlModel.setSubqueries(entityModel.getSubqueries());
+        //if there are subqueries, we must build it first before doing any parsing. 
+        //THIS MUST COME FIRST.
+        buildSubQueryModels(entityModel, sqlModel, svw);
+        
+        
+        
+        //tokenize each field, then find out which fields will be considered in the select
+        List<Token> fieldMatchList = SelectFieldsTokenizer.tokenize(entityModel.getSelectFields());
+        for(Token t: fieldMatchList ) {
+            if( !t.hasExpr()) {
+                boolean consumed = false;
+                for(SchemaViewField vf: svw.findAllFields()) {
+                    if(vf.getExtendedName().matches(t.getFieldMatch())) {
+                        SqlDialectModel.Field sf = createSqlField(vf);
+                        sqlModel.addField(sf);
+                        sqlModel.addJoinedViews( vf.getView().getJoinPaths() );
+                        consumed = true;
+                    }
+                };
+                //if token field does not have a match, try to look in the subqueries
+                //The requirement is there must be a prefix, otherwise we will ignore it.
+                if( !consumed ) {
+                    //remove the first part of prefix:
+                    int idx = t.getFieldMatch().indexOf(".");
+                    if( idx > 0 ) {
+                        String prefix = t.getFieldMatch().substring(0, idx);
+                        String fname = t.getFieldMatch().substring(idx+1);
+                        if(fname.equals("*")) fname = ".*";
+                        
+                        //check if it exists in sub query
+                        SqlDialectModel subQryModel = sqlModel.getSubqueries().get(prefix);
+                        if( subQryModel !=null ) {
+                            List<SqlDialectModel.Field> subQryFlds = sqlModel.findAllSubQueryFields( prefix, fname );
+                            if( subQryFlds != null ) {
+                                for( SqlDialectModel.Field f: subQryFlds ) {
+                                    sqlModel.addField(f);
+                                }
+                            }
+                            continue;
+                        };
+                        
+                        //check if field exists in the inverse joins. add it before loading
+                        LinkedSchemaView lsv = (LinkedSchemaView) findJoinedLinkedView(prefix, entityModel, svw, sqlModel);
+                        //find fields for selection
+                        if( lsv !=null) {
+                            for( SchemaViewField xvf: lsv.getElement().createView().findAllFields() ) {
+                                if(xvf.getExtendedName().matches(fname)) {
+                                    SqlDialectModel.Field sf = createSqlField(xvf);
+                                    sf.setTablealias(lsv.getName());
+                                    sf.setExtendedName(lsv.getName()+"_"+fname);
+                                    sqlModel.addField(sf);
+                                    sqlModel.addJoinedViews( xvf.getView().getJoinPaths() );
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            else {
+                String expr = parseFieldExpression( t.getExpr(), entityModel, sqlModel, svw );
+                SqlDialectModel.Field sf = new SqlDialectModel.Field();
+                sf.setExtendedName(t.getAlias());
+                sf.setExpr(expr);
+                sqlModel.addField(sf);
+            }
+        };
+        
+        //build the finders if any. we'll try to put this first bec. there's a problem in select fields.
+        addFinders(entityModel, sqlModel, svw);
+        addWhereCriteria( entityModel, sqlModel, svw );
+        buildGroupBy( entityModel, sqlModel, svw );
+        buildOrderBy( entityModel, sqlModel, svw );
         
         sqlModel.setStart(entityModel.getStart());
         sqlModel.setLimit(entityModel.getLimit());
-        sqlModel.setOrderFields( orderFieldList );
-        sqlModel.setGroupFields(groupFieldList);
         return sqlModel;
     }
-
-    /**
-     * **********************************************************************
-     * DELETE STATEMENTS This is a statement to delete only one table based on a
-     * single element
-    **********************************************************************
-     */
-    public static SqlDialectModel buildDeleteSqlModel(EntityManagerModel entityModel) {
-
-        SchemaView svw = entityModel.getSchemaView();
-        final List<Field> vfinders = new ArrayList(); //fields used by finders
-        final Set<AbstractSchemaView> joinedViews = new LinkedHashSet();
-        //build the finders
-        final String finderMatch = findFindersAffectedFieldPattern(entityModel, svw);
-        final String whereMatch = findWhereAffectedFieldPattern(entityModel, svw);
-        final Map<String, Field> fieldMap = new HashMap();
-        
-        for( SchemaViewField vf: svw.findAllFields()) {
-            String extName = vf.getExtendedName();
-            boolean add_joined_view = false;
-            boolean add_finder = false;
-            if (extName.matches(finderMatch)) {
-                add_finder = true;
-                add_joined_view = true;
-            }
-            if (extName.matches(whereMatch)) {
-                add_joined_view = true;
-            }
-            //add joined view if teh field exists in field, finder or where
-            if (add_joined_view) {
-                Field sqlF = createSqlField(vf);
-                if(add_finder) {
-                    vfinders.add(sqlF);
-                }
-                AbstractSchemaView vw = vf.getView();
-                if (vw instanceof LinkedSchemaView) {
-                    joinedViews.addAll(vf.getView().getJoinPaths());
-                }
-                fieldMap.put(extName, sqlF);
-            }            
-        }
-        
-        List<AbstractSchemaView> jvList = new ArrayList(Arrays.asList(joinedViews.toArray()));
-        Collections.sort(jvList);
-
-        SqlDialectModel sqlModel = new SqlDialectModel();
-        sqlModel.setAction("delete");
-        sqlModel.setFieldMap(fieldMap);
-        sqlModel.setTablename(svw.getTablename());
-        sqlModel.setTablealias(svw.getName());
-        sqlModel.setJoinedViews(jvList);
-        sqlModel.setFinderFields(vfinders);
-        sqlModel.setWhereFilter(buildWhereFilter(entityModel));
-        sqlModel.setSubqueries(entityModel.getSubqueries());
-        return sqlModel;
-    }
-
-    /**
-     * **********************************************************************
-     * facilities for the delete
-    ************************************************************************
-     */
-    public static SqlDialectModel buildSelectPrimaryKeys(EntityManagerModel entityModel) {
-        SchemaView vw = entityModel.getSchemaView();
-        final List<Field> vfinders = new ArrayList(); //fields used by finders
-        final LinkedHashSet<String> uniqueNames = new LinkedHashSet();
-        final Set<AbstractSchemaView> joinedViews = new LinkedHashSet();
-        //build the finders
-        final String finderMatch = findFindersAffectedFieldPattern(entityModel, vw);
-        final String whereMatch = findWhereAffectedFieldPattern(entityModel, vw);
-        final Map<String, Field> fieldMap = new HashMap();
-
-        final List<SqlDialectModel.Field> fieldList = new ArrayList();
-        
-        vw.findAllFields(new SchemaViewFieldFilter() {
-            public boolean accept(SchemaViewField vf) {
-                String extName = vf.getExtendedName();
-                if (!uniqueNames.add(extName)) {
-                    return false;
-                }
-
-                boolean add_joined_view = false;
-                if (vf.isPrimary() && vf.isBaseField()) {
-                    SqlDialectModel.Field sf = createSqlField(vf);
-                    if(!fieldList.contains(sf)) fieldList.add(sf);
-                }
-
-                if (extName.matches(finderMatch)) {
-                    vfinders.add(createSqlField(vf));
-                    add_joined_view = true;
-                }
-                if (extName.matches(whereMatch)) {
-                    add_joined_view = true;
-                }
-                //add joined view if teh field exists in field, finder or where
-                if (add_joined_view) {
-                    AbstractSchemaView vw = vf.getView();
-                    if (vw instanceof LinkedSchemaView) {
-                        joinedViews.addAll(vf.getView().getJoinPaths());
-                    }
-                    fieldMap.put(extName, createSqlField(vf));
-                }
-                return false;
-            }
-        });
-
-        List<AbstractSchemaView> jvList = new ArrayList(Arrays.asList(joinedViews.toArray()));
-        Collections.sort(jvList);
-
-        SqlDialectModel sqlModel = new SqlDialectModel();
-        sqlModel.setAction("select");
-        sqlModel.setFieldMap(fieldMap);
-        sqlModel.setTablename(vw.getTablename());
-        sqlModel.setFields(fieldList);
-        sqlModel.setTablealias(vw.getName());
-        sqlModel.setJoinedViews(jvList);
-        sqlModel.setFinderFields(vfinders);
-        sqlModel.setWhereFilter(buildWhereFilter(entityModel));
-        return sqlModel;
-    }
-
-    /**
-     * *
-     * sample output: WHERE parentid IN ( SELECT objid FROM entityindividual
-     * WHERE objid=$P{objid} )
-     */
-    public static SqlDialectModel buildSelectSubquery(EntityManagerModel entityModel, SqlUnit squ) {
-        return null;
-    }
+    
+    
+    
+    
 }

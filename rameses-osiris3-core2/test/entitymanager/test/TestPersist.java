@@ -2,72 +2,24 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package test2;
+package entitymanager.test;
 
-import com.rameses.osiris3.data.MockConnectionManager;
-import com.rameses.osiris3.persistence.EntityManager;
-import com.rameses.osiris3.schema.SchemaManager;
-import com.rameses.osiris3.sql.SimpleDataSource;
-import com.rameses.osiris3.sql.SqlContext;
-import com.rameses.osiris3.sql.SqlManager;
-import com.rameses.sql.dialect.MsSqlDialect;
-import com.rameses.sql.dialect.MySqlDialect;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import junit.framework.TestCase;
 
 /**
  * @author dell.
  */
-public class TestPersist extends TestCase {
+public class TestPersist extends AbstractTestCase {
 
-    private SqlManager sqlManager;
-    private SchemaManager schemaManager;
-    private MockConnectionManager cm;
-    private EntityManager em;
     
-    public TestPersist(String testName) {
-        super(testName);
+    public String getDialect() {
+        return "mysql";
     }
-
-    @Override
-    protected void setUp() throws Exception {
-        sqlManager = SqlManager.getInstance();
-        schemaManager = SchemaManager.getInstance();
-        em = new EntityManager(schemaManager, createContext(), "entityindividual");
-        em.setDebug(true);
-        super.setUp();
-    }
-
-    @Override
-    protected void tearDown() throws Exception {
-        super.tearDown();
-    }
-
-    private String dialect = "mysql";
+    
     //private String dialect = "mssql";
-    
-    private SqlContext createContext() throws Exception {
-        cm = new MockConnectionManager();
-        SimpleDataSource ds = null;
-        SqlContext sqlc = null;
-        if( dialect.equals("mysql")) {
-            ds = new SimpleDataSource("com.mysql.jdbc.Driver", "jdbc:mysql://localhost/testdb", "root", "1234");
-            sqlc = sqlManager.createContext(cm.getConnection("main", ds));
-            sqlc.setDialect(new MySqlDialect());
-        }
-        else {
-            //SQL SERVER
-            ds = new SimpleDataSource("com.microsoft.sqlserver.jdbc.SQLServerDriver", "jdbc:sqlserver://127.0.0.1;DatabaseName=testdb", "sa", "1234");
-            sqlc = sqlManager.createContext(cm.getConnection("main", ds));
-            sqlc.setDialect(new MsSqlDialect());
-        }
-
-        return sqlc;
-
-    }
     
     private Map createId(String idno, String type) {
         Map map = new HashMap();
@@ -97,6 +49,7 @@ public class TestPersist extends TestCase {
         addr.put("street", "street 18");
         addr.put("barangay", brgy);
         data.put("address", addr);
+        data.put("address2", "capitol 3");
 
         Map created = new HashMap();
         created.put("objid", "EMN");
@@ -139,6 +92,7 @@ public class TestPersist extends TestCase {
         addr.put("street", "street 18");
         addr.put("barangay", brgy);
         data.put("address", addr);
+        data.put("address2", "capitol tol");
         /*
          Map addr = new HashMap();
          //addr.put("text", "19 orchid st capitol site");
@@ -157,59 +111,11 @@ public class TestPersist extends TestCase {
         return map;
     }
 
-    private static interface ExecHandler {
-        void execute() throws Exception;
-    }
-    
-    private void exec( ExecHandler h  ) throws Exception {
-        try {
-            h.execute();
-            cm.commit();
-        }
-        catch(Exception e) {
-            throw e;
-        }
-        finally {
-            cm.close();
-        }
-    }
-    
-    private void printList(List list) {
-        for(Object obj: list) {
-            System.out.println(obj + " class:"+obj.getClass());
-        }
-    }
-    
      // TODO add test methods here. The name must begin with 'test'. For example:
     public void ztestCreate() throws Exception {
         exec( new ExecHandler() {
             public void execute() throws Exception {
                 em.create(buildCreateData());
-            }
-        });
-    }
-   
-    public void ztestUpdateExpr() throws Exception {
-        exec( new ExecHandler() {
-            public void execute() throws Exception {
-                Map map = new HashMap();
-                map.put("dtcreated", "{NOW()}");
-                map.put("name", "{CONCAT(firstname,',++cross ',lastname)}");
-                em.find(getFinder()).update(map);
-            }
-        });
-    }
-
-    public void ztestSimpleUpdate() throws Exception {
-        exec( new ExecHandler() {
-            public void execute() throws Exception {
-                Map d = new HashMap();
-                d.put("objid", "ENT000001");
-                Map addr = new HashMap();
-                addr.put("street", "ZZY 1072 dawis");
-                addr.put("text", "ZZY 1072 dawis tabunok talisay city");
-                d.put("address", addr);
-                em.update( d );
             }
         });
     }
@@ -229,10 +135,12 @@ public class TestPersist extends TestCase {
 
                 //update info from other tables. 
                 Map m = new HashMap();
+                m.put("name", "{CONCAT(firstname,',--myname2--',lastname)}");
                 //m.put("createdby", created);
                 m.put("address", addr);
                 m.put("createdby", created);
                 m.put("modifiedby", modified);
+                m.put("dtcreated", "{NOW()}");
 
                 Map whereMap = new HashMap();
                 whereMap.put("entityno", "123456");
@@ -241,7 +149,7 @@ public class TestPersist extends TestCase {
         });
     }
     
-    public void ztestRead() throws Exception {
+    public void testRead() throws Exception {
         exec( new ExecHandler() {
             public void execute() throws Exception {
                 Map map = new HashMap();
@@ -256,39 +164,17 @@ public class TestPersist extends TestCase {
         });   
     }
 
-    public void ztestDelete() throws Exception {
-        exec( new ExecHandler() {
-            public void execute() throws Exception {
-                //em.setName("barangay").find(getFinder()).delete();
-                Map finder = new HashMap();
-                finder.put("objid", "ID-518bd1bd:152bf58a4c3:-7fff");
-                em.setName("id").find(finder).delete();
-            }
-        }); 
-    }
-    
     public void ztestGroupBy() throws Exception {
         exec( new ExecHandler() {
             public void execute() throws Exception {
                 em.select("maxname:{MAX(lastname)}, entityno");
-                List list = em.find(getFinder()).sort("firstname DESC,lastname, entityno").groupBy("entityno, address.barangay.objid, yr:{ YEAR(dtcreated) }").list();
+                List list = em.find(getFinder()).orderBy("firstname DESC,lastname, entityno").groupBy("entityno, address.barangay.objid, yr:{ YEAR(dtcreated) }").list();
                 printList(list);
             }
         });
     }
     
-    public void ztestDelete1() throws Exception {
-        exec( new ExecHandler() {
-            public void execute() throws Exception {
-                em.setName("barangay");
-                Map m = new HashMap();
-                m.put("objid", "TEMP");
-                em.find( m ).delete();
-            }
-        });
-    }
-    
-    public void testSelect() throws Exception {
+    public void ztestSelect() throws Exception {
         exec( new ExecHandler() {
             public void execute() throws Exception {
                 //em.select("address.barangay.name,address_barangay_city:{'cebu city'}, name:{ CONCAT(lastname, ', ', firstname) }, today: {NOW()}");
@@ -310,5 +196,6 @@ public class TestPersist extends TestCase {
             }
         });   
     }
+
     
 }

@@ -9,6 +9,7 @@ import com.rameses.osiris3.schema.SchemaElement;
 import com.rameses.osiris3.schema.SchemaRelation;
 import com.rameses.osiris3.schema.SchemaUtil;
 import com.rameses.osiris3.schema.SimpleField;
+import com.rameses.util.EntityUtil;
 import java.rmi.server.UID;
 import java.util.List;
 import java.util.Map;
@@ -48,7 +49,7 @@ public class DataFillUtil {
             val = SchemaUtil.convertData( val, stype );
         }
         //correct also the data type
-        DataUtil.putNestedValue( data, sf.getName(), val );
+        EntityUtil.putNestedValue( data, sf.getName(), val );
     }
     
     public static void fillInitialData( SchemaElement elem, Map rawData ) throws Exception {
@@ -57,6 +58,7 @@ public class DataFillUtil {
             Object val = rawData.get(sf.getName());
             if( val == null ) {
                 if( sf.isPrimary() ) {
+                    //fill only if base field.
                     rawData.put( sf.getName(), generateId(sf) );
                 }
                 else if( sf.getDefaultValue()!=null ) {
@@ -73,33 +75,26 @@ public class DataFillUtil {
         for(SchemaRelation sr: elem.getOneToOneRelationships()) {
             Map m = (Map)rawData.get(sr.getName());
             if(m!=null) {
-                //check also many to one on the other side. From the many 
-                //to one relationships, check the one that matches the 
-                //ref. 
-                /*
-                 * On hold ---- until I can figure out what to do with this.
-                for( SchemaRelation mo: tgt.getInverseRelationships() ) {
-                    if( mo.getRef().equals(elem.getName() ) ) {
-                        for(RelationKey rk: mo.getRelationKeys()  ) {
-                            m.put( rk.getField(), rawData.get(rk.getTarget()) );
-                        }
-                    }
-                }
-                */ 
                 SchemaElement tgt = sr.getLinkedElement();                
                 fillInitialData( tgt, m );
             }
         }
+        fillOneToManyData( elem, rawData );
+    }
+    
+    private static void fillOneToManyData(SchemaElement elem, Map rawData) throws Exception {
         for(SchemaRelation sr: elem.getOneToManyRelationships()) {
             List list = (List)rawData.get(sr.getName());
             if(list!=null) {
                 for(  Object o : list) {
                     if(o instanceof Map) {
                         Map e = (Map)o;
-                        
-                        //ordinary load items. inverse relationships are not specified
+                        //ordinary load items. 
                         for( RelationKey rk: sr.getRelationKeys() ) {
-                            e.put( rk.getTarget(), DataUtil.getNestedValue(rawData, rk.getField() )  );
+                            Object val = EntityUtil.getNestedValue(rawData, rk.getField() );
+                            if( val !=null) {
+                                e.put( rk.getTarget(), val  );
+                            }
                         }
                         fillInitialData( sr.getLinkedElement(), e );
                     }
@@ -107,9 +102,6 @@ public class DataFillUtil {
             }
         }
     }
-    
-    
-    
     
     
 }

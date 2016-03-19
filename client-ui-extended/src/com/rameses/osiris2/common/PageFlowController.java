@@ -282,6 +282,11 @@ public class PageFlowController
             a.setRole(t.getRole());
             a.setPermission(t.getPermission());            
             a.setShowCaption(true);
+            
+            String sdepends = (String) t.getProperties().get("depends");
+            if ( sdepends != null ) {
+                a.getProperties().put("depends", sdepends);
+            }            
             actions.add(a);
         }
         return actions;

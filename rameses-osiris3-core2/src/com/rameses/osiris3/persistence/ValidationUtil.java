@@ -9,6 +9,7 @@ import com.rameses.osiris3.schema.SchemaElement;
 import com.rameses.osiris3.schema.SchemaField;
 import com.rameses.osiris3.schema.SchemaUtil;
 import com.rameses.osiris3.schema.SimpleField;
+import com.rameses.util.EntityUtil;
 import java.util.List;
 import java.util.Map;
 
@@ -57,7 +58,7 @@ public class ValidationUtil {
             if( excludeFields !=null && fld.getName().matches(excludeFields)) continue;
             
             String refName = fld.getName();
-            Object value = DataUtil.getNestedValue(data, refName);
+            Object value = EntityUtil.getNestedValue(data, refName);
             boolean passRequired = SchemaUtil.checkRequired(fld,value);
             if( !passRequired ) {
                 vr.addError("", refName + " is required ");
@@ -78,7 +79,7 @@ public class ValidationUtil {
                     vr.addError( "", refName + " must be of type " + type );
                     continue;
                 }
-                DataUtil.putNestedValue(data, refName, oval);
+                EntityUtil.putNestedValue(data, refName, oval);
             } 
             else if( fld instanceof ComplexField ) {
                 ComplexField cf = (ComplexField)fld;
@@ -87,7 +88,7 @@ public class ValidationUtil {
                 String joinType = cf.getJoinType();
                 
                 //do not include many-to-one because it is not a part of this object. so we do not validate it
-                if( joinType !=null && joinType.equalsIgnoreCase("many-to-one") ) continue;
+                if( joinType !=null && joinType.matches(JoinTypes.MANY_TO_ONE) ) continue;
                 
                 //check complex type
                 if( cf.getSerializer()!=null ) {

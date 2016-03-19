@@ -9,9 +9,11 @@ import com.rameses.osiris3.schema.AbstractSchemaView;
 import com.rameses.osiris3.schema.LinkedSchemaView;
 import com.rameses.osiris3.schema.SchemaViewRelationField;
 import com.rameses.osiris3.sql.SqlDialectModel.Field;
+import com.rameses.osiris3.sql.SqlDialectModel.WhereFilter;
 import com.rameses.util.ValueUtil;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author elmo
@@ -79,7 +81,20 @@ public abstract class AbstractSqlDialect implements SqlDialect {
             }
             sb.append(getDelimiters()[0] + vf.getFieldname() + getDelimiters()[1]);
             sb.append("=");
-            sb.append("$P{" + vf.getExtendedName() + "}");
+            
+            if( vf.getSubQuery()!=null) {
+                try {
+                    sb.append( "(");
+                    sb.append( getSelectStatement( vf.getSubQuery() )); 
+                    sb.append(")");
+                }
+                catch(Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            else {
+                sb.append("$P{" + vf.getExtendedName() + "}");
+            }
             collectFilterList.add(sb.toString());
         }
     }
@@ -89,7 +104,7 @@ public abstract class AbstractSqlDialect implements SqlDialect {
         final StringBuilder valueBuff = new StringBuilder();
         sb.append("INSERT INTO ");
         sb.append(getDelimiters()[0] + model.getTablename() + getDelimiters()[1]);
-        sb.append("(");
+        sb.append(" (");
         int i = 0;
         for (Field fld : model.getFields()) {
             if (!fld.isInsertable()) {
@@ -116,7 +131,7 @@ public abstract class AbstractSqlDialect implements SqlDialect {
         final StringBuilder valueBuff = new StringBuilder();
         sb.append("INSERT INTO ");
         sb.append(getDelimiters()[0] + model.getTablename() + getDelimiters()[1]);
-        sb.append("(");
+        sb.append(" (");
         int i = 0;
         for (Field fld : model.getFields()) {
             if (i++ > 0) {
@@ -205,17 +220,15 @@ public abstract class AbstractSqlDialect implements SqlDialect {
         }
         if (model.getJoinedViews() != null) {
             int i = 0;
-            for (AbstractSchemaView avw : model.getJoinedViews()) {
-                if (!(avw instanceof LinkedSchemaView)) {
-                    continue;
-                }
-                LinkedSchemaView lsv = (LinkedSchemaView) avw;
-                if (lsv != null) {
-                    if (lsv.isRequired()) {
-                        sb.append(" INNER JOIN ");
-                    } else {
-                        sb.append(" LEFT JOIN ");
-                    }
+            
+            for (AbstractSchemaView asv : model.getJoinedViews()) {
+                if ( !(asv instanceof LinkedSchemaView) ) continue;
+                
+                LinkedSchemaView lsv = (LinkedSchemaView)asv; 
+                if (lsv.isRequired()) {
+                    sb.append(" INNER JOIN ");
+                } else {
+                    sb.append(" LEFT JOIN ");
                 }
                 sb.append(" " + getDelimiters()[0] + lsv.getTablename() + getDelimiters()[1] + " ");
                 if (!lsv.getTablename().equals(lsv.getName())) {
@@ -235,6 +248,31 @@ public abstract class AbstractSqlDialect implements SqlDialect {
                 }
             }
         }
+        
+        //we'll also include the subqueries if any:
+        if( model.getSubqueries()!=null && model.getSubqueries().size()>0 ) {
+            for( Object m: model.getSubqueries().entrySet() ) {
+                Map.Entry<String, SqlDialectModel> me = (Map.Entry)m;
+                sb.append( ",");
+                sb.append( "( ");
+                sb.append( getSelectStatement(me.getValue(), true) );
+                sb.append( ") ");
+                sb.append( getDelimiters()[0]+me.getKey()+getDelimiters()[1] );
+                /*
+                sb.append( " ON ");
+                int i = 0;
+                for(JoinRelationKey rk: me.getValue().getRelationKeys() ) {
+                    if( i++>0) sb.append( " AND ");
+                    sb.append( getDelimiters()[0] + rk.getSourceField().getTablealias() + getDelimiters()[1] +"." );
+                    sb.append( getDelimiters()[0] + rk.getSourceField().getFieldname() + getDelimiters()[1] );
+                    sb.append( "=" );
+                    sb.append( getDelimiters()[0] + rk.getTargetField().getTablealias() + getDelimiters()[1] +"." );
+                    sb.append( getDelimiters()[0] + rk.getTargetField().getFieldname() + getDelimiters()[1] );
+                }
+                */ 
+            }
+        }
+        
         return sb.toString();
     }
 
@@ -304,11 +342,14 @@ public abstract class AbstractSqlDialect implements SqlDialect {
         return sb.toString();
     }
     
-    protected String buildWhereForSelect(SqlDialectModel model) {
+    protected String buildWhereForSelect(SqlDialectModel model, WhereFilter wf) {
         StringBuilder sb = new StringBuilder();
         List<String> filters = new ArrayList();
         buildFinderStatement(model, filters,true);
         buildSingleWhereStatement(model, filters,true);
+        if( wf!=null) {
+            filters.add( fixWhereStatement(model, wf, true ));
+        }
         if (filters.size() > 0) {
             sb.append(" WHERE ");
             sb.append(concatFilterStatement(filters));
@@ -316,21 +357,37 @@ public abstract class AbstractSqlDialect implements SqlDialect {
         return sb.toString();
     }
     
-    
-    
     /**
      * params is applicable for subqueries
      */ 
-    public String getSelectStatement(SqlDialectModel model) {
+    public String getSelectStatement(SqlDialectModel model, boolean includeOrderBy) {
         StringBuilder sb = new StringBuilder();
-        sb.append(" SELECT ");
-
-        sb.append(buildSelectFields(model));
-        sb.append(" FROM ");
-        sb.append(buildTablesForSelect(model));
-        sb.append( buildWhereForSelect(model) );
-        sb.append( buildGroupByStatement(model) );
-        sb.append( buildOrderStatement(model));
+        if( model.getOrWhereList()!=null && model.getOrWhereList().size()>0 ) {
+            int i = 0;
+            for( WhereFilter wf: model.getOrWhereList() ) {
+                if(i++>0) sb.append( " UNION ");
+                sb.append(" SELECT ");
+                sb.append(buildSelectFields(model));
+                sb.append(" FROM ");
+                sb.append(buildTablesForSelect(model));
+                sb.append( buildWhereForSelect(model, wf) );
+                sb.append( buildGroupByStatement(model) );
+                if(includeOrderBy) {
+                    sb.append( buildOrderStatement(model));
+                }
+            }
+        }
+        else {
+            sb.append(" SELECT ");
+            sb.append(buildSelectFields(model));
+            sb.append(" FROM ");
+            sb.append(buildTablesForSelect(model));
+            sb.append( buildWhereForSelect(model, null) );
+            sb.append( buildGroupByStatement(model) );
+            if(includeOrderBy) {
+                sb.append( buildOrderStatement(model));
+            }
+        }
         return sb.toString();
     }
     

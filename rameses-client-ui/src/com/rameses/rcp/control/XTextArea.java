@@ -104,6 +104,7 @@ public class XTextArea extends JTextArea implements UIInput, Validatable,
     
     private int stretchWidth;
     private int stretchHeight;     
+    private boolean exitOnTabKey;
     
     public XTextArea() {
         super();
@@ -150,6 +151,13 @@ public class XTextArea extends JTextArea implements UIInput, Validatable,
             
             public void keyPressed(KeyEvent e) {
                 switch(e.getKeyCode()) {
+                    case KeyEvent.VK_TAB: 
+                        if ( isExitOnTabKey() && hasFocus() ) {
+                            e.consume();
+                            transferFocus(); 
+                        }
+                        break;
+                        
                     case KeyEvent.VK_ESCAPE: break;
                     case KeyEvent.VK_DOWN: 
                         if (getPopup().isVisible() && getPopup().isShowing()) { 
@@ -301,6 +309,7 @@ public class XTextArea extends JTextArea implements UIInput, Validatable,
         Map map = new HashMap();
         map.put("focusAccelerator", getFocusAccelerator());
         map.put("handler", getHandler());
+        map.put("exitOnTabKey", isExitOnTabKey()); 
         map.put("nullWhenEmpty", isNullWhenEmpty()); 
         map.put("required", isRequired());        
         return map;
@@ -332,6 +341,11 @@ public class XTextArea extends JTextArea implements UIInput, Validatable,
     public boolean isAutoScrollDown() { return autoScrollDown; } 
     public void setAutoScrollDown(boolean autoScrollDown) {
         this.autoScrollDown = autoScrollDown; 
+    }
+    
+    public boolean isExitOnTabKey() { return exitOnTabKey; } 
+    public void setExitOnTabKey(boolean exitOnTabKey) {
+        this.exitOnTabKey = exitOnTabKey; 
     }
     
     public void setName(String name) 

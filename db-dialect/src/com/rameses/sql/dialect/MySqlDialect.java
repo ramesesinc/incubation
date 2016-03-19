@@ -53,6 +53,7 @@ public class MySqlDialect extends AbstractSqlDialect {
         sb.append( getDelimiters()[0]+ model.getTablename()+getDelimiters()[1] );
         sb.append( " WHERE ");
         List<String> list = new ArrayList();
+        buildJoinTablesForUpdate(model, list);
         buildFinderStatement(model, list, false);
         buildSingleWhereStatement(model, list, false);
         sb.append( concatFilterStatement(list));
@@ -60,11 +61,13 @@ public class MySqlDialect extends AbstractSqlDialect {
     }
         
     public String getSelectStatement(SqlDialectModel model) {
-        String s = super.getSelectStatement(model);
+        //union filters 
+        StringBuilder sb = new StringBuilder();
+        sb.append( super.getSelectStatement(model, true));
         if(model.getStart() > 0 || model.getLimit()>0 ) {
-            s += " LIMIT $P{_start}, $P{_limit}" ;
+            sb.append( " LIMIT $P{_start}, $P{_limit}" );
         }
-        return s;
+        return sb.toString();
     }
     
 

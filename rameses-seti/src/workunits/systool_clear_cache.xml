@@ -1,0 +1,28 @@
+<workunit>
+    <invokers>
+        <invoker folderid="/menu/system" icon="images/clear-cache.png" 
+                 caption="Clear Cache" action="clearCache" target="process" 
+                 domain="DEVELOPER" role="ADMIN"/>
+
+        <invoker type="toolbar" icon="images/clear-cache.png" 
+            caption="" action="clearCache" target="process" 
+            tooltip="Clear Cache" domain="DEVELOPER" role="ADMIN"/> 
+    </invokers>
+    
+    <code>
+    <![CDATA[    
+import com.rameses.rcp.annotations.*;
+import com.rameses.rcp.common.*;
+
+class SysToolClearCacheController 
+{ 
+    @Service('SysToolService') 
+    def svc; 
+    
+    void clearCache() { 
+        svc.clearCache(); 
+    } 
+}
+    ]]>
+    </code>
+</workunit>

@@ -11,7 +11,7 @@
     <AuxValue name="FormSettings_listenerGenerationStyle" type="java.lang.Integer" value="0"/>
     <AuxValue name="FormSettings_variablesLocal" type="java.lang.Boolean" value="false"/>
     <AuxValue name="FormSettings_variablesModifier" type="java.lang.Integer" value="2"/>
-    <AuxValue name="designerSize" type="java.awt.Dimension" value="-84,-19,0,5,115,114,0,18,106,97,118,97,46,97,119,116,46,68,105,109,101,110,115,105,111,110,65,-114,-39,-41,-84,95,68,20,2,0,2,73,0,6,104,101,105,103,104,116,73,0,5,119,105,100,116,104,120,112,0,0,1,101,0,0,2,-41"/>
+    <AuxValue name="designerSize" type="java.awt.Dimension" value="-84,-19,0,5,115,114,0,18,106,97,118,97,46,97,119,116,46,68,105,109,101,110,115,105,111,110,65,-114,-39,-41,-84,95,68,20,2,0,2,73,0,6,104,101,105,103,104,116,73,0,5,119,105,100,116,104,120,112,0,0,1,126,0,0,2,-41"/>
   </AuxValues>
 
   <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout"/>
@@ -117,6 +117,7 @@
                     <Property name="caption" type="java.lang.String" value="\u005c" containsInvalidXMLChars="true"/>
                     <Property name="focusable" type="boolean" value="false"/>
                     <Property name="iconResource" type="java.lang.String" value="images/help.png"/>
+                    <Property name="immediate" type="boolean" value="true"/>
                     <Property name="name" type="java.lang.String" value="showHelp" noResource="true"/>
                     <Property name="opaque" type="boolean" value="true"/>
                   </Properties>
@@ -129,6 +130,7 @@
                     <Property name="caption" type="java.lang.String" value=""/>
                     <Property name="focusable" type="boolean" value="false"/>
                     <Property name="iconResource" type="java.lang.String" value="images/info.png"/>
+                    <Property name="immediate" type="boolean" value="true"/>
                     <Property name="name" type="java.lang.String" value="showInfo" noResource="true"/>
                     <Property name="opaque" type="boolean" value="true"/>
                   </Properties>
@@ -137,124 +139,175 @@
             </Container>
           </SubComponents>
         </Container>
-        <Container class="javax.swing.JToolBar" name="jToolBar1">
-          <Properties>
-            <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-              <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
-                <EmptyBorder bottom="0" left="0" right="0" top="0"/>
-              </Border>
-            </Property>
-            <Property name="rollover" type="boolean" value="true"/>
-            <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-              <Dimension value="[100, 30]"/>
-            </Property>
-          </Properties>
+        <Container class="javax.swing.JPanel" name="jPanel8">
 
-          <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBoxLayout"/>
+          <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout"/>
           <SubComponents>
-            <Component class="com.rameses.rcp.control.XButton" name="btnCancel1">
-              <Properties>
-                <Property name="caption" type="java.lang.String" value=""/>
-                <Property name="focusable" type="boolean" value="false"/>
-                <Property name="iconResource" type="java.lang.String" value="images/menu.png"/>
-                <Property name="immediate" type="boolean" value="true"/>
-                <Property name="name" type="java.lang.String" value="showMenu" noResource="true"/>
-              </Properties>
-            </Component>
-            <Component class="com.rameses.rcp.control.XButton" name="btnCreate">
-              <Properties>
-                <Property name="accelerator" type="java.lang.String" value="ctrl N"/>
-                <Property name="caption" type="java.lang.String" value=""/>
-                <Property name="focusable" type="boolean" value="false"/>
-                <Property name="iconResource" type="java.lang.String" value="images/toolbars/create.png"/>
-                <Property name="name" type="java.lang.String" value="create" noResource="true"/>
-                <Property name="visibleWhen" type="java.lang.String" value="#{createAllowed}"/>
-              </Properties>
-            </Component>
-            <Component class="com.rameses.rcp.control.XButton" name="btnOpen">
-              <Properties>
-                <Property name="accelerator" type="java.lang.String" value="ctrl O"/>
-                <Property name="caption" type="java.lang.String" value=""/>
-                <Property name="focusable" type="boolean" value="false"/>
-                <Property name="iconResource" type="java.lang.String" value="images/toolbars/open.png"/>
-                <Property name="name" type="java.lang.String" value="open" noResource="true"/>
-                <Property name="visibleWhen" type="java.lang.String" value="#{openAllowed}"/>
-              </Properties>
-            </Component>
-            <Component class="com.rameses.rcp.control.XButton" name="btnDelete">
-              <Properties>
-                <Property name="caption" type="java.lang.String" value=""/>
-                <Property name="focusable" type="boolean" value="false"/>
-                <Property name="iconResource" type="java.lang.String" value="images/toolbars/trash.png"/>
-                <Property name="name" type="java.lang.String" value="removeEntity" noResource="true"/>
-                <Property name="visibleWhen" type="java.lang.String" value="#{deleteAllowed}"/>
-              </Properties>
-            </Component>
-            <Component class="com.rameses.rcp.control.XButton" name="btnPrint">
-              <Properties>
-                <Property name="accelerator" type="java.lang.String" value="ctrl P"/>
-                <Property name="caption" type="java.lang.String" value=""/>
-                <Property name="focusable" type="boolean" value="false"/>
-                <Property name="iconResource" type="java.lang.String" value="images/toolbars/printer.png"/>
-                <Property name="immediate" type="boolean" value="true"/>
-                <Property name="name" type="java.lang.String" value="print" noResource="true"/>
-              </Properties>
-            </Component>
-            <Component class="com.rameses.rcp.control.XButton" name="btnFilter">
-              <Properties>
-                <Property name="accelerator" type="java.lang.String" value="ctrl F"/>
-                <Property name="caption" type="java.lang.String" value=""/>
-                <Property name="focusable" type="boolean" value="false"/>
-                <Property name="iconResource" type="java.lang.String" value="images/toolbars/filter.png"/>
-                <Property name="immediate" type="boolean" value="true"/>
-                <Property name="name" type="java.lang.String" value="showFilter" noResource="true"/>
-              </Properties>
-            </Component>
-            <Component class="com.rameses.rcp.control.XButton" name="btnRefresh">
-              <Properties>
-                <Property name="accelerator" type="java.lang.String" value="ctrl R"/>
-                <Property name="caption" type="java.lang.String" value=""/>
-                <Property name="focusable" type="boolean" value="false"/>
-                <Property name="iconResource" type="java.lang.String" value="images/toolbars/refresh.png"/>
-                <Property name="immediate" type="boolean" value="true"/>
-                <Property name="name" type="java.lang.String" value="refresh" noResource="true"/>
-              </Properties>
-            </Component>
-            <Component class="com.rameses.rcp.control.XButton" name="btnSelectColumn">
-              <Properties>
-                <Property name="caption" type="java.lang.String" value=""/>
-                <Property name="focusable" type="boolean" value="false"/>
-                <Property name="iconResource" type="java.lang.String" value="images/toolbars/table-column.png"/>
-                <Property name="immediate" type="boolean" value="true"/>
-                <Property name="name" type="java.lang.String" value="selectColumns" noResource="true"/>
-              </Properties>
-            </Component>
-            <Component class="com.rameses.rcp.control.XActionBar" name="xActionBar1">
+            <Container class="javax.swing.JToolBar" name="jToolBar1">
               <Properties>
                 <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
                   <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
-                    <EmptyBorder bottom="0" left="10" right="0" top="0"/>
+                    <EmptyBorder bottom="0" left="0" right="0" top="0"/>
                   </Border>
                 </Property>
-                <Property name="name" type="java.lang.String" value="extActions" noResource="true"/>
+                <Property name="floatable" type="boolean" value="false"/>
+                <Property name="rollover" type="boolean" value="true"/>
               </Properties>
-            </Component>
-            <Component class="com.rameses.rcp.control.XButton" name="btnUp">
+              <Constraints>
+                <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
+                  <BorderConstraints direction="West"/>
+                </Constraint>
+              </Constraints>
+
+              <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBoxLayout"/>
+              <SubComponents>
+                <Component class="com.rameses.rcp.control.XButton" name="btnCancel1">
+                  <Properties>
+                    <Property name="caption" type="java.lang.String" value=""/>
+                    <Property name="focusable" type="boolean" value="false"/>
+                    <Property name="iconResource" type="java.lang.String" value="images/menu.png"/>
+                    <Property name="immediate" type="boolean" value="true"/>
+                    <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+                      <Insets value="[1, 1, 1, 1]"/>
+                    </Property>
+                    <Property name="name" type="java.lang.String" value="showMenu" noResource="true"/>
+                  </Properties>
+                </Component>
+                <Component class="com.rameses.rcp.control.XButton" name="btnCreate">
+                  <Properties>
+                    <Property name="accelerator" type="java.lang.String" value="ctrl N"/>
+                    <Property name="caption" type="java.lang.String" value=""/>
+                    <Property name="focusable" type="boolean" value="false"/>
+                    <Property name="iconResource" type="java.lang.String" value="images/toolbars/create.png"/>
+                    <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+                      <Insets value="[1, 1, 1, 1]"/>
+                    </Property>
+                    <Property name="name" type="java.lang.String" value="create" noResource="true"/>
+                    <Property name="visibleWhen" type="java.lang.String" value="#{createAllowed}"/>
+                  </Properties>
+                </Component>
+                <Component class="com.rameses.rcp.control.XButton" name="btnOpen">
+                  <Properties>
+                    <Property name="accelerator" type="java.lang.String" value="ctrl O"/>
+                    <Property name="caption" type="java.lang.String" value=""/>
+                    <Property name="focusable" type="boolean" value="false"/>
+                    <Property name="iconResource" type="java.lang.String" value="images/toolbars/open.png"/>
+                    <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+                      <Insets value="[1, 1, 1, 1]"/>
+                    </Property>
+                    <Property name="name" type="java.lang.String" value="open" noResource="true"/>
+                    <Property name="visibleWhen" type="java.lang.String" value="#{openAllowed}"/>
+                  </Properties>
+                </Component>
+                <Component class="com.rameses.rcp.control.XButton" name="btnDelete">
+                  <Properties>
+                    <Property name="caption" type="java.lang.String" value=""/>
+                    <Property name="focusable" type="boolean" value="false"/>
+                    <Property name="iconResource" type="java.lang.String" value="images/toolbars/trash.png"/>
+                    <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+                      <Insets value="[1, 1, 1, 1]"/>
+                    </Property>
+                    <Property name="name" type="java.lang.String" value="removeEntity" noResource="true"/>
+                    <Property name="visibleWhen" type="java.lang.String" value="#{deleteAllowed}"/>
+                  </Properties>
+                </Component>
+                <Component class="com.rameses.rcp.control.XButton" name="btnPrint">
+                  <Properties>
+                    <Property name="accelerator" type="java.lang.String" value="ctrl P"/>
+                    <Property name="caption" type="java.lang.String" value=""/>
+                    <Property name="focusable" type="boolean" value="false"/>
+                    <Property name="iconResource" type="java.lang.String" value="images/toolbars/printer.png"/>
+                    <Property name="immediate" type="boolean" value="true"/>
+                    <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+                      <Insets value="[1, 1, 1, 1]"/>
+                    </Property>
+                    <Property name="name" type="java.lang.String" value="print" noResource="true"/>
+                  </Properties>
+                </Component>
+                <Component class="com.rameses.rcp.control.XButton" name="btnFilter">
+                  <Properties>
+                    <Property name="accelerator" type="java.lang.String" value="ctrl F"/>
+                    <Property name="caption" type="java.lang.String" value=""/>
+                    <Property name="focusable" type="boolean" value="false"/>
+                    <Property name="iconResource" type="java.lang.String" value="images/toolbars/filter.png"/>
+                    <Property name="immediate" type="boolean" value="true"/>
+                    <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+                      <Insets value="[1, 1, 1, 1]"/>
+                    </Property>
+                    <Property name="name" type="java.lang.String" value="showFilter" noResource="true"/>
+                  </Properties>
+                </Component>
+                <Component class="com.rameses.rcp.control.XButton" name="btnRefresh">
+                  <Properties>
+                    <Property name="accelerator" type="java.lang.String" value="ctrl R"/>
+                    <Property name="caption" type="java.lang.String" value=""/>
+                    <Property name="focusable" type="boolean" value="false"/>
+                    <Property name="iconResource" type="java.lang.String" value="images/toolbars/refresh.png"/>
+                    <Property name="immediate" type="boolean" value="true"/>
+                    <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+                      <Insets value="[1, 1, 1, 1]"/>
+                    </Property>
+                    <Property name="name" type="java.lang.String" value="refresh" noResource="true"/>
+                  </Properties>
+                </Component>
+                <Component class="com.rameses.rcp.control.XButton" name="btnSelectColumn">
+                  <Properties>
+                    <Property name="caption" type="java.lang.String" value=""/>
+                    <Property name="focusable" type="boolean" value="false"/>
+                    <Property name="iconResource" type="java.lang.String" value="images/toolbars/table-column.png"/>
+                    <Property name="immediate" type="boolean" value="true"/>
+                    <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+                      <Insets value="[1, 1, 1, 1]"/>
+                    </Property>
+                    <Property name="name" type="java.lang.String" value="selectColumns" noResource="true"/>
+                  </Properties>
+                </Component>
+                <Component class="com.rameses.rcp.control.XActionBar" name="xActionBar1">
+                  <Properties>
+                    <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+                      <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+                        <EmptyBorder bottom="0" left="10" right="0" top="0"/>
+                      </Border>
+                    </Property>
+                    <Property name="name" type="java.lang.String" value="extActions" noResource="true"/>
+                  </Properties>
+                </Component>
+              </SubComponents>
+            </Container>
+            <Container class="javax.swing.JPanel" name="jPanel7">
               <Properties>
-                <Property name="focusable" type="boolean" value="false"/>
-                <Property name="iconResource" type="java.lang.String" value="images/toolbars/arrow_up.png"/>
-                <Property name="name" type="java.lang.String" value="moveUp" noResource="true"/>
-                <Property name="visibleWhen" type="java.lang.String" value="#{mode==&apos;read&apos;}"/>
+                <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+                  <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+                    <EmptyBorder bottom="0" left="0" right="5" top="0"/>
+                  </Border>
+                </Property>
               </Properties>
-            </Component>
-            <Component class="com.rameses.rcp.control.XButton" name="btnDown">
-              <Properties>
-                <Property name="focusable" type="boolean" value="false"/>
-                <Property name="iconResource" type="java.lang.String" value="images/toolbars/arrow_down.png"/>
-                <Property name="name" type="java.lang.String" value="moveDown" noResource="true"/>
-                <Property name="visibleWhen" type="java.lang.String" value="#{mode==&apos;read&apos;}"/>
-              </Properties>
-            </Component>
+              <Constraints>
+                <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
+                  <BorderConstraints direction="Center"/>
+                </Constraint>
+              </Constraints>
+
+              <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout"/>
+              <SubComponents>
+                <Component class="com.rameses.rcp.control.XActionTextField" name="xActionTextField1">
+                  <Properties>
+                    <Property name="actionName" type="java.lang.String" value="search"/>
+                    <Property name="maxLength" type="int" value="50"/>
+                    <Property name="name" type="java.lang.String" value="searchText" noResource="true"/>
+                    <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                      <Dimension value="[180, 20]"/>
+                    </Property>
+                    <Property name="visibleWhen" type="java.lang.String" value="#{allowSearch == true}"/>
+                  </Properties>
+                  <Constraints>
+                    <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
+                      <BorderConstraints direction="East"/>
+                    </Constraint>
+                  </Constraints>
+                </Component>
+              </SubComponents>
+            </Container>
           </SubComponents>
         </Container>
       </SubComponents>
@@ -303,11 +356,11 @@
             <CodeMethod name="add" class="java.awt.Container" parameterTypes="java.awt.Component"/>
           </StatementProvider>
           <Parameters>
-            <CodeExpression id="4_jToolBar1">
-              <CodeVariable name="jToolBar1" type="8194" declaredType="javax.swing.JToolBar"/>
+            <CodeExpression id="4_jPanel8">
+              <CodeVariable name="jPanel8" type="8194" declaredType="javax.swing.JPanel"/>
               <ExpressionOrigin>
                 <ExpressionProvider type="ComponentRef">
-                  <ComponentRef name="jToolBar1"/>
+                  <ComponentRef name="jPanel8"/>
                 </ExpressionProvider>
               </ExpressionOrigin>
             </CodeExpression>
@@ -342,157 +395,13 @@
 
           <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout"/>
           <SubComponents>
-            <Component class="com.rameses.rcp.control.XDataTable" name="xDataTable1">
-              <Properties>
-                <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-                  <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
-                    <EmptyBorder bottom="0" left="0" right="0" top="0"/>
-                  </Border>
-                </Property>
-                <Property name="handler" type="java.lang.String" value="listHandler"/>
-                <Property name="name" type="java.lang.String" value="selectedEntity" noResource="true"/>
-              </Properties>
+            <Component class="com.rameses.seti2.components.ListPanel" name="listPanel1">
               <Constraints>
                 <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
                   <BorderConstraints direction="Center"/>
                 </Constraint>
               </Constraints>
             </Component>
-            <Container class="javax.swing.JToolBar" name="jToolBar2">
-              <Properties>
-                <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-                  <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
-                    <EmptyBorder/>
-                  </Border>
-                </Property>
-                <Property name="rollover" type="boolean" value="true"/>
-              </Properties>
-              <Constraints>
-                <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
-                  <BorderConstraints direction="South"/>
-                </Constraint>
-              </Constraints>
-
-              <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBoxLayout"/>
-              <SubComponents>
-                <Component class="com.rameses.rcp.control.XButton" name="xButton3">
-                  <Properties>
-                    <Property name="focusable" type="boolean" value="false"/>
-                    <Property name="iconResource" type="java.lang.String" value="images/navbar/first.png"/>
-                    <Property name="name" type="java.lang.String" value="listHandler.moveFirstPage" noResource="true"/>
-                  </Properties>
-                </Component>
-                <Component class="com.rameses.rcp.control.XButton" name="xButton4">
-                  <Properties>
-                    <Property name="focusable" type="boolean" value="false"/>
-                    <Property name="iconResource" type="java.lang.String" value="images/navbar/previous.png"/>
-                    <Property name="name" type="java.lang.String" value="listHandler.moveBackPage" noResource="true"/>
-                  </Properties>
-                </Component>
-                <Component class="com.rameses.rcp.control.XButton" name="xButton5">
-                  <Properties>
-                    <Property name="focusable" type="boolean" value="false"/>
-                    <Property name="iconResource" type="java.lang.String" value="images/navbar/next.png"/>
-                    <Property name="immediate" type="boolean" value="true"/>
-                    <Property name="name" type="java.lang.String" value="listHandler.moveNextPage" noResource="true"/>
-                  </Properties>
-                </Component>
-                <Component class="com.rameses.rcp.control.XButton" name="xButton6">
-                  <Properties>
-                    <Property name="focusable" type="boolean" value="false"/>
-                    <Property name="iconResource" type="java.lang.String" value="images/navbar/last.png"/>
-                    <Property name="name" type="java.lang.String" value="listHandler.moveLastPage" noResource="true"/>
-                  </Properties>
-                </Component>
-                <Container class="javax.swing.JPanel" name="jPanel5">
-                  <Properties>
-                    <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                      <Dimension value="[100, 20]"/>
-                    </Property>
-                  </Properties>
-                  <SubComponents>
-                    <Component class="com.rameses.rcp.control.XLabel" name="xLabel2">
-                      <Properties>
-                        <Property name="depends" type="[Ljava.lang.String;" editor="org.netbeans.beaninfo.editors.StringArrayEditor">
-                          <StringArray count="1">
-                            <StringItem index="0" value="selectedEntity"/>
-                          </StringArray>
-                        </Property>
-                        <Property name="expression" type="java.lang.String" value="#{recordCountInfo}"/>
-                        <Property name="useHtml" type="boolean" value="true"/>
-                      </Properties>
-                    </Component>
-                    <Component class="com.rameses.rcp.control.XLabel" name="xLabel3">
-                      <Properties>
-                        <Property name="depends" type="[Ljava.lang.String;" editor="org.netbeans.beaninfo.editors.StringArrayEditor">
-                          <StringArray count="1">
-                            <StringItem index="0" value="selectedEntity"/>
-                          </StringArray>
-                        </Property>
-                        <Property name="expression" type="java.lang.String" value="#{pageCountInfo}"/>
-                        <Property name="useHtml" type="boolean" value="true"/>
-                      </Properties>
-                    </Component>
-                  </SubComponents>
-                  <LayoutCode>
-                    <CodeStatement>
-                      <CodeExpression id="5_jPanel5">
-                        <CodeVariable name="jPanel5" type="8194" declaredType="javax.swing.JPanel"/>
-                        <ExpressionOrigin>
-                          <ExpressionProvider type="ComponentRef">
-                            <ComponentRef name="jPanel5"/>
-                          </ExpressionProvider>
-                        </ExpressionOrigin>
-                      </CodeExpression>
-                      <StatementProvider type="CodeMethod">
-                        <CodeMethod name="setLayout" class="java.awt.Container" parameterTypes="java.awt.LayoutManager"/>
-                      </StatementProvider>
-                      <Parameters>
-                        <CodeExpression id="6">
-                          <ExpressionOrigin>
-                            <ExpressionProvider type="CodeConstructor">
-                              <CodeConstructor class="com.rameses.rcp.control.layout.XLayout" parameterTypes=""/>
-                            </ExpressionProvider>
-                          </ExpressionOrigin>
-                        </CodeExpression>
-                      </Parameters>
-                    </CodeStatement>
-                    <CodeStatement>
-                      <CodeExpression id="5_jPanel5"/>
-                      <StatementProvider type="CodeMethod">
-                        <CodeMethod name="add" class="java.awt.Container" parameterTypes="java.awt.Component"/>
-                      </StatementProvider>
-                      <Parameters>
-                        <CodeExpression id="7_xLabel2">
-                          <CodeVariable name="xLabel2" type="8194" declaredType="com.rameses.rcp.control.XLabel"/>
-                          <ExpressionOrigin>
-                            <ExpressionProvider type="ComponentRef">
-                              <ComponentRef name="xLabel2"/>
-                            </ExpressionProvider>
-                          </ExpressionOrigin>
-                        </CodeExpression>
-                      </Parameters>
-                    </CodeStatement>
-                    <CodeStatement>
-                      <CodeExpression id="5_jPanel5"/>
-                      <StatementProvider type="CodeMethod">
-                        <CodeMethod name="add" class="java.awt.Container" parameterTypes="java.awt.Component"/>
-                      </StatementProvider>
-                      <Parameters>
-                        <CodeExpression id="8_xLabel3">
-                          <CodeVariable name="xLabel3" type="8194" declaredType="com.rameses.rcp.control.XLabel"/>
-                          <ExpressionOrigin>
-                            <ExpressionProvider type="ComponentRef">
-                              <ComponentRef name="xLabel3"/>
-                            </ExpressionProvider>
-                          </ExpressionOrigin>
-                        </CodeExpression>
-                      </Parameters>
-                    </CodeStatement>
-                  </LayoutCode>
-                </Container>
-              </SubComponents>
-            </Container>
           </SubComponents>
         </Container>
         <Container class="javax.swing.JPanel" name="sidebarpanel">
@@ -508,12 +417,12 @@
           <Layout>
             <DimensionLayout dim="0">
               <Group type="103" groupAlignment="0" attributes="0">
-                  <EmptySpace min="0" pref="100" max="32767" attributes="0"/>
+                  <EmptySpace min="0" pref="120" max="32767" attributes="0"/>
               </Group>
             </DimensionLayout>
             <DimensionLayout dim="1">
               <Group type="103" groupAlignment="0" attributes="0">
-                  <EmptySpace min="0" pref="267" max="32767" attributes="0"/>
+                  <EmptySpace min="0" pref="292" max="32767" attributes="0"/>
               </Group>
             </DimensionLayout>
           </Layout>

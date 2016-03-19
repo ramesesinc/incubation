@@ -16,6 +16,8 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import com.rameses.osiris3.persistence.JoinTypes;
+import java.util.HashSet;
+import java.util.Set;
 
 public class SchemaElement implements Serializable {
     
@@ -37,7 +39,7 @@ public class SchemaElement implements Serializable {
     private List<SchemaRelation> manyToOneRelationships;
     
     //only one inverse join. reserved for parent
-    private SchemaRelation inverseRelationship;
+    private List<SchemaRelation> inverseRelationships;
     
     /** Creates a new instance of Schema */
     public SchemaElement(Schema schema) {
@@ -158,7 +160,7 @@ public class SchemaElement implements Serializable {
         synchronized(lock) {
             if( schemaView == null ) {
                 schemaView = new SchemaView(this);
-                fetchAllFields( schemaView, schemaView, null );
+                fetchAllFields( schemaView, schemaView, null, new HashSet() );
             }
         }
         return schemaView;
@@ -169,7 +171,7 @@ public class SchemaElement implements Serializable {
      * @param rootVw - the main view
      * @param lsvw - the immediate view that relates to the field. 
      */
-    private void fetchAllFields(SchemaView rootVw, AbstractSchemaView currentVw, String prefix) {
+    private void fetchAllFields(SchemaView rootVw, AbstractSchemaView currentVw, String prefix, Set<SchemaRelation> duplicates) {
         for( SimpleField sf: this.getSimpleFields() ) {
             rootVw.addField(new SchemaViewField(sf, rootVw, currentVw));
         }
@@ -196,7 +198,7 @@ public class SchemaElement implements Serializable {
                 targetVw.addRelationField(rf);
             }
             currentVw.setExtendsView(targetVw);
-            extElement.fetchAllFields(rootVw, targetVw, prefix );
+            extElement.fetchAllFields(rootVw, targetVw, prefix, duplicates );
         }
         
         List<SchemaRelation> relList = new ArrayList();
@@ -204,7 +206,9 @@ public class SchemaElement implements Serializable {
         relList.addAll( this.getManyToOneRelationships() );
         //extract all fields related.
         for( SchemaRelation sr: relList  ) {
-            if( sr.getJointype().equals(JoinTypes.INVERSE)) continue;
+            if( duplicates.contains(sr)) continue;
+            duplicates.add(sr);
+            
             SchemaElement targetElem = sr.getLinkedElement();
             LinkedSchemaView targetVw = new LinkedSchemaView(sr.getName(), targetElem, rootVw, currentVw, sr.getJointype(), sr.isRequired(), prefix  );
             
@@ -222,41 +226,23 @@ public class SchemaElement implements Serializable {
                 sf.setFieldname(rk.getField());
                 sf.setType( tf.getType() );
                 SchemaViewRelationField rf = new SchemaViewRelationField(sf, rootVw, currentVw,tf, targetVw);
-                rootVw.addField( rf );
                 if( sr.getJointype().equals(JoinTypes.ONE_TO_ONE) ) {
                     currentVw.addOneToOneView( targetVw );
                 }
                 else {
                     currentVw.addManyToOneView( targetVw );
                 }
+                rootVw.addField( rf );
                 targetVw.addRelationField(rf);
             };
-            targetElem.fetchAllFields(rootVw, targetVw, targetVw.getName());
+            targetElem.fetchAllFields(rootVw, targetVw, targetVw.getName(), duplicates);
         }
         
-        // Process the inverse relationship
-        SchemaRelation ir = getInverseRelationship();
-        if( ir != null ) {
-            LinkedSchemaView targetVw = new LinkedSchemaView(ir.getName(), ir.getLinkedElement(), rootVw, currentVw, ir.getJointype(), ir.isRequired(), prefix  );
-            for( RelationKey rk: ir.getRelationKeys() ) {
-                SimpleField tf = (SimpleField)ir.getLinkedElement().getField(rk.getTarget());
-                if( tf == null ) 
-                    throw new RuntimeException("SchemaElement.fetchAllFields error. Target field not found in inverse");
-                if(! (tf instanceof SimpleField) ) 
-                    throw new RuntimeException("SchemaElement.fetchAllFields error. Target field must be a simple field");
-                
-                //build the simple field
-                SimpleField sf = new SimpleField();
-                sf.setElement(currentVw.getElement());
-                sf.setName(rk.getField());
-                sf.setFieldname(rk.getField());
-                sf.setType( tf.getType() );
-                SchemaViewRelationField rf = new SchemaViewRelationField(sf, rootVw, currentVw,tf, targetVw);
-                rootVw.addField( rf );
-            }//do not fetch anymore.
+        //load the one to many relationships
+        for( SchemaRelation sr: this.getOneToManyRelationships() ) {
+            rootVw.addOneToManyLink(new OneToManyLink(sr.getName(), prefix, this, sr));
         }
         
-
     }    
     
     private void buildRelations(String joinType, List schemaRelations) {
@@ -303,26 +289,6 @@ public class SchemaElement implements Serializable {
         return (this.getExtends()!=null && this.getExtends().trim().length()>0);
     }
 
-    public SchemaRelation getInverseRelationship() {
-        if( inverseRelationship == null ) {
-            for(ComplexField cf: getComplexFields()) {
-                if( cf.getJoinType() == null ) continue;
-                if( !cf.getJoinType().equals(JoinTypes.INVERSE)) continue;
-                
-                String ref = cf.getRef();
-                if(ref==null || ref.trim().length()==0) {
-                    System.out.println("SchemaElement.getInverseRelationship warning. ref not specified");
-                    continue;
-                }
-                SchemaElement elem = this.schema.getSchemaManager().getElement(ref);
-                SchemaRelation sr = new SchemaRelation(this, cf);                
-                inverseRelationship = new SchemaRelation(this, cf);
-                inverseRelationship.setLinkedElement(elem);
-                break;
-            }
-        }
-        return inverseRelationship;
-    }
     
     
 }

@@ -40,6 +40,7 @@ public class ComplexField extends SchemaField implements IRelationalField {
         return name;
     }
     
+    //inverse types will never be required
     public boolean isRequired() {
         return required;
     }

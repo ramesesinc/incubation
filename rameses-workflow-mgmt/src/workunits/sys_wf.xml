@@ -1,0 +1,10 @@
+<workunit schemaName="sys_wf">
+    <invokers>
+        <invoker folderid="sys_wf:create" caption="Create Workflow" target="popup"  action="create"/>
+        <invoker folderid="sys_wf:open" caption="Open Workflow" target="popup"  action="open"/>
+    </invokers>
+    <code class="com.rameses.seti2.models.CrudFormModel"/>
+    <pages>
+        <page name="default" template="com.rameses.wf.views.SysWfPage"/>    
+    </pages>    
+</workunit>

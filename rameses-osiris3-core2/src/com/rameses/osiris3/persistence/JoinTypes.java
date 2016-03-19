@@ -14,6 +14,5 @@ public interface JoinTypes {
     public static String ONE_TO_MANY = "one-to-many";   //parent-children
     public static String MANY_TO_ONE = "many-to-one";   //attach existing objects
     public static String ONE_TO_ONE = "one-to-one";     //embedded object same as extends
-    public static String INVERSE = "inverse";           //child->parent. There should only be one inverse relationship
     
 }

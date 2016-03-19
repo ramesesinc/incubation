@@ -6,6 +6,7 @@ import com.rameses.osiris3.schema.SchemaResourceProvider;
 import com.rameses.osiris3.sql.SimpleDataSource;
 import com.rameses.osiris3.sql.SqlContext;
 import com.rameses.osiris3.sql.SqlManager;
+import com.rameses.osiris3.sql.SqlUnitCache;
 import com.rameses.sql.dialect.MsSqlDialect;
 import com.rameses.sql.dialect.MySqlDialect;
 import java.io.File;
@@ -76,10 +77,16 @@ public class TestDb {
     
     public void commit() {
         cm.commit();
+        cm.close();
     }
     
     public void rollback() {
         cm.rollback();
+    }
+    
+    public void clearCache() {
+        schemaManager.getCache().clear();
+        SqlUnitCache.clear(); 
     }
     
     public static class MyResourceProvider implements SchemaResourceProvider {

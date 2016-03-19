@@ -1,0 +1,5 @@
+<workunit extends="com/rameses/seti2/templates/CrudList.xml" schemaName="sys_wf" >
+    <invokers>
+        <invoker folderid="/explorer/setting" caption="Workflow Management 2" target="window" action="init"/>
+    </invokers>
+</workunit>

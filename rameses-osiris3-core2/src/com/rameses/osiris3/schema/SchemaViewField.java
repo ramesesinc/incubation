@@ -57,15 +57,23 @@ public class SchemaViewField {
         }
         
         
-        //determine insertable
-        String matchPattern = JoinTypes.ONE_TO_MANY + "|" + JoinTypes.MANY_TO_ONE + "|" + JoinTypes.INVERSE;
-        if( joinType==null || !joinType.matches( matchPattern ) ) {
+        //determine insertable. applies to extended, one to one 
+        String matchPattern = JoinTypes.EXTENDED + "|" + JoinTypes.ONE_TO_ONE ;
+        if( joinType==null || joinType.matches( matchPattern ) ) {
             _insertable = true;
         }
         
-        //determine updatable
-        if( (joinType==null ||  !joinType.matches(matchPattern)) && !isPrimary() ) {
+        //determine updatable. Only primary keys will not be updatable. all the rest can be updated
+        //if( (joinType==null ||  !joinType.matches(matchPattern)) && !isPrimary() ) {
+        if(!isPrimary()) {
             _updatable = true;
+        }
+        
+        if( schemaField instanceof SimpleField ) {
+            if( ((SimpleField)schemaField).getExpr()!=null ) {
+                _insertable = false;
+                _updatable = false;
+            }
         }
     }
     
@@ -131,6 +139,12 @@ public class SchemaViewField {
         return _updatable;
     }
 
+    public String getExpr() {
+        if(!  (schemaField instanceof SimpleField)) return null;
+        SimpleField sf = (SimpleField)schemaField;
+        return sf.getExpr();
+    }
+    
     //this will be useful for specifying during building of sql
     public String getTablename() {
         return view.getElement().getTablename();

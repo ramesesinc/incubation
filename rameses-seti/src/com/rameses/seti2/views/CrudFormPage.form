@@ -34,12 +34,12 @@
         </DimensionLayout>
         <DimensionLayout dim="1">
           <Group type="103" groupAlignment="0" attributes="0">
-              <EmptySpace min="0" pref="272" max="32767" attributes="0"/>
+              <EmptySpace min="0" pref="262" max="32767" attributes="0"/>
           </Group>
         </DimensionLayout>
       </Layout>
     </Container>
-    <Container class="javax.swing.JPanel" name="jPanel1">
+    <Container class="javax.swing.JPanel" name="pnlstat">
       <Properties>
         <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
           <Dimension value="[400, 25]"/>
@@ -67,7 +67,7 @@
     <Container class="javax.swing.JPanel" name="jPanel2">
       <Properties>
         <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-          <Dimension value="[420, 60]"/>
+          <Dimension value="[420, 70]"/>
         </Property>
       </Properties>
       <Constraints>
@@ -94,26 +94,12 @@
                       <EmptySpace type="unrelated" max="-2" attributes="0"/>
                       <Component id="jToolBar3" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <Group type="103" rootIndex="1" groupAlignment="0" attributes="0">
-                      <Group type="102" attributes="0">
-                          <EmptySpace min="0" pref="352" max="32767" attributes="0"/>
-                          <Component id="xButton3" min="-2" pref="23" max="-2" attributes="0"/>
-                          <EmptySpace min="0" pref="352" max="32767" attributes="0"/>
-                      </Group>
-                  </Group>
               </Group>
             </DimensionLayout>
             <DimensionLayout dim="1">
               <Group type="103" groupAlignment="0" attributes="0">
                   <Component id="xLabel1" pref="35" max="32767" attributes="0"/>
                   <Component id="jToolBar3" alignment="0" max="32767" attributes="0"/>
-                  <Group type="103" rootIndex="1" groupAlignment="0" attributes="0">
-                      <Group type="102" attributes="0">
-                          <EmptySpace min="0" pref="7" max="32767" attributes="0"/>
-                          <Component id="xButton3" min="-2" pref="21" max="-2" attributes="0"/>
-                          <EmptySpace min="0" pref="7" max="32767" attributes="0"/>
-                      </Group>
-                  </Group>
               </Group>
             </DimensionLayout>
           </Layout>
@@ -154,6 +140,7 @@
                     <Property name="caption" type="java.lang.String" value="\u005c" containsInvalidXMLChars="true"/>
                     <Property name="focusable" type="boolean" value="false"/>
                     <Property name="iconResource" type="java.lang.String" value="images/debug.png"/>
+                    <Property name="immediate" type="boolean" value="true"/>
                     <Property name="name" type="java.lang.String" value="showDebugInfo" noResource="true"/>
                     <Property name="opaque" type="boolean" value="true"/>
                     <Property name="visibleWhen" type="java.lang.String" value="#{ canDebug == true }"/>
@@ -167,6 +154,7 @@
                     <Property name="caption" type="java.lang.String" value="\u005c" containsInvalidXMLChars="true"/>
                     <Property name="focusable" type="boolean" value="false"/>
                     <Property name="iconResource" type="java.lang.String" value="images/help.png"/>
+                    <Property name="immediate" type="boolean" value="true"/>
                     <Property name="name" type="java.lang.String" value="showHelp" noResource="true"/>
                     <Property name="opaque" type="boolean" value="true"/>
                   </Properties>
@@ -179,24 +167,13 @@
                     <Property name="caption" type="java.lang.String" value=""/>
                     <Property name="focusable" type="boolean" value="false"/>
                     <Property name="iconResource" type="java.lang.String" value="images/info.png"/>
+                    <Property name="immediate" type="boolean" value="true"/>
                     <Property name="name" type="java.lang.String" value="showInfo" noResource="true"/>
                     <Property name="opaque" type="boolean" value="true"/>
                   </Properties>
                 </Component>
               </SubComponents>
             </Container>
-            <Component class="com.rameses.rcp.control.XButton" name="xButton3">
-              <Properties>
-                <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-                  <Color blue="ff" green="ff" red="ff" type="rgb"/>
-                </Property>
-                <Property name="caption" type="java.lang.String" value="\u005c" containsInvalidXMLChars="true"/>
-                <Property name="focusable" type="boolean" value="false"/>
-                <Property name="iconResource" type="java.lang.String" value="images/help.png"/>
-                <Property name="name" type="java.lang.String" value="showHelp" noResource="true"/>
-                <Property name="opaque" type="boolean" value="true"/>
-              </Properties>
-            </Component>
           </SubComponents>
         </Container>
         <Container class="javax.swing.JToolBar" name="jToolBar1">
@@ -232,7 +209,7 @@
                 <Property name="focusable" type="boolean" value="false"/>
                 <Property name="iconResource" type="java.lang.String" value="images/toolbars/create.png"/>
                 <Property name="name" type="java.lang.String" value="create" noResource="true"/>
-                <Property name="visibleWhen" type="java.lang.String" value="#{mode==&apos;read&apos;}"/>
+                <Property name="visibleWhen" type="java.lang.String" value="#{createAllowed}"/>
               </Properties>
             </Component>
             <Component class="com.rameses.rcp.control.XButton" name="btnEdit">
@@ -242,7 +219,7 @@
                 <Property name="focusable" type="boolean" value="false"/>
                 <Property name="iconResource" type="java.lang.String" value="images/toolbars/edit.png"/>
                 <Property name="name" type="java.lang.String" value="edit" noResource="true"/>
-                <Property name="visibleWhen" type="java.lang.String" value="#{mode==&apos;read&apos;}"/>
+                <Property name="visibleWhen" type="java.lang.String" value="#{editAllowed}"/>
               </Properties>
             </Component>
             <Component class="com.rameses.rcp.control.XButton" name="btnSave">
@@ -252,7 +229,7 @@
                 <Property name="focusable" type="boolean" value="false"/>
                 <Property name="iconResource" type="java.lang.String" value="images/toolbars/save.png"/>
                 <Property name="name" type="java.lang.String" value="save" noResource="true"/>
-                <Property name="visibleWhen" type="java.lang.String" value="#{mode!=&apos;read&apos;}"/>
+                <Property name="visibleWhen" type="java.lang.String" value="#{saveAllowed}"/>
               </Properties>
             </Component>
             <Component class="com.rameses.rcp.control.XButton" name="btnUndo">
@@ -263,7 +240,7 @@
                 <Property name="iconResource" type="java.lang.String" value="images/toolbars/undo.png"/>
                 <Property name="immediate" type="boolean" value="true"/>
                 <Property name="name" type="java.lang.String" value="undo" noResource="true"/>
-                <Property name="visibleWhen" type="java.lang.String" value="#{mode!=&apos;read&apos;}"/>
+                <Property name="visibleWhen" type="java.lang.String" value="#{undoAllowed}"/>
               </Properties>
             </Component>
             <Component class="com.rameses.rcp.control.XButton" name="btnCancel">
@@ -273,7 +250,7 @@
                 <Property name="iconResource" type="java.lang.String" value="images/toolbars/cancel.png"/>
                 <Property name="immediate" type="boolean" value="true"/>
                 <Property name="name" type="java.lang.String" value="unedit" noResource="true"/>
-                <Property name="visibleWhen" type="java.lang.String" value="#{mode==&apos;edit&apos;}"/>
+                <Property name="visibleWhen" type="java.lang.String" value="#{cancelEditAllowed}"/>
               </Properties>
             </Component>
             <Component class="com.rameses.rcp.control.XActionBar" name="xActionBar1">
@@ -290,6 +267,7 @@
               <Properties>
                 <Property name="focusable" type="boolean" value="false"/>
                 <Property name="iconResource" type="java.lang.String" value="images/toolbars/arrow_up.png"/>
+                <Property name="immediate" type="boolean" value="true"/>
                 <Property name="name" type="java.lang.String" value="moveUp" noResource="true"/>
                 <Property name="visibleWhen" type="java.lang.String" value="#{showNavigation==true}"/>
               </Properties>
@@ -298,6 +276,7 @@
               <Properties>
                 <Property name="focusable" type="boolean" value="false"/>
                 <Property name="iconResource" type="java.lang.String" value="images/toolbars/arrow_down.png"/>
+                <Property name="immediate" type="boolean" value="true"/>
                 <Property name="name" type="java.lang.String" value="moveDown" noResource="true"/>
                 <Property name="visibleWhen" type="java.lang.String" value="#{showNavigation==true}"/>
               </Properties>

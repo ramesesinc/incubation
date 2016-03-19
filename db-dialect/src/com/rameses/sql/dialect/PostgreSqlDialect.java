@@ -60,7 +60,7 @@ public class PostgreSqlDialect extends AbstractSqlDialect {
     }
         
     public String getSelectStatement(SqlDialectModel model) {
-        String s = super.getSelectStatement(model);
+        String s = super.getSelectStatement(model, true);
         if(model.getStart() >= 0 && model.getLimit()>0 ) {
             s += " LIMIT $P{_limit} OFFSET $P{_start}" ;
         }
