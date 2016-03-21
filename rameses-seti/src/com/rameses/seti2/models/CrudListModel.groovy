@@ -51,6 +51,10 @@ public class CrudListModel extends AbstractCrudModel {
         return 'list';
     }
     
+    public def getEntityContext() {
+        return selectedItem;
+    }
+    
     //overridables
     public def beforeQuery( def m ) {
         ;//do nothing

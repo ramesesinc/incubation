@@ -60,7 +60,11 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
         return workunit.workunit.id;
     }
     
+    public def getEntityContext() {
+        return entity;
+    }
 
+    
     boolean isCreateAllowed() { 
         if( mode != 'read') return false;
         return super.isCreateAllowed();

@@ -32,6 +32,9 @@ public abstract class AbstractCrudModel  {
     
     public abstract String getFormType();
     
+    //entity context is used in the expression
+    public abstract def getEntityContext();
+    
     public String getSchemaName() {
         if( _schemaName_ )
             return _schemaName_;
@@ -65,6 +68,7 @@ public abstract class AbstractCrudModel  {
         
         return (actions1 + actions2).sort{ (it.index==null? 0: it.index) };
     }    
+    
     
     
     final def buildActions( invokers ) {
@@ -101,8 +105,14 @@ public abstract class AbstractCrudModel  {
     
     //shared security features
     boolean isCreateAllowed() { 
-        def allowCreate = workunit.info.workunit_properties.allowCreate;        
-        if( allowCreate == 'false' ) return false;
+        def allowCreate = workunit.info.workunit_properties.allowCreate;  
+        if( allowCreate ) {
+            try {
+                boolean t = ExpressionResolver.getInstance().evalBoolean(allowCreate, getEntityContext());
+                if(t == false) return false;
+            }
+            catch(ign){;}
+        }
         if( !role ) return true;
         def createPermission = workunit.info.workunit_properties.createPermission;   
         if(createPermission!=null) createPermission = schemaName+"."+createPermission;
@@ -110,8 +120,14 @@ public abstract class AbstractCrudModel  {
     }
         
     boolean isOpenAllowed() { 
-        def allowOpen = workunit.info.workunit_properties.allowOpen;        
-        if( allowOpen == 'false' ) return false;
+        def allowOpen = workunit.info.workunit_properties.allowOpen;  
+        if(allowOpen) {
+            try {
+                boolean t = ExpressionResolver.getInstance().evalBoolean(allowOpen, getEntityContext());
+                if(t == false) return false;
+            }
+            catch(ign){;}
+        }
         if( !role ) return true;
         def openPermission = workunit.info.workunit_properties.openPermission; 
         if(openPermission!=null) openPermission = schemaName+"."+openPermission;
@@ -120,18 +136,28 @@ public abstract class AbstractCrudModel  {
 
     boolean isEditAllowed() { 
         def allowEdit = workunit.info.workunit_properties.allowEdit;        
-        if( allowEdit == 'false' ) return false;        
-        if( mode != 'read') return false;
+         if(allowEdit) {
+            try {
+                boolean t = ExpressionResolver.getInstance().evalBoolean(allowEdit, getEntityContext());
+                if(t == false) return false;
+            }
+            catch(ign){;}
+        }
         if( !role ) return true;
         def editPermission = workunit.info.workunit_properties.editPermission; 
         if(editPermission!=null) editPermission = schemaName+"."+editPermission;
         return secProvider.checkPermission( domain, role, editPermission );
     }
 
-    
     boolean isDeleteAllowed() { 
         def allowDelete = workunit.info.workunit_properties.allowDelete;        
-        if( allowDelete != 'true' ) return false;
+        if( allowDelete ) {
+            try {
+                boolean t = ExpressionResolver.getInstance().evalBoolean(allowDelete, getEntityContext());
+                if(t == false) return false;
+            }
+            catch(ign){;}
+        }
         if( !role ) return true;
         def deletePermission = workunit.info.workunit_properties.deletePermission; 
         if(deletePermission!=null) deletePermission = schemaName+"."+deletePermission;
