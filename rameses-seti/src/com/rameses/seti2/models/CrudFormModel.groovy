@@ -327,6 +327,14 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
     /*************************************************************************
      * This part here is for item handlers.  
      **************************************************************************/
+    //overridable list events:
+    public def openItem(String name,def item, String colName) { return null; }
+    public boolean beforeColumnUpdate(String name, def item, String colName, def newItem) { return true;}
+    public void afterColumnUpdate(String name, def item, String colName ) {;}
+    public void beforeAddItem(String name, def item ) {;}
+    public void afterAddItem(String name, def item ) {;}
+    
+    
     private void buildItemHandlers() {
         itemHandlers.clear();
         if( schema.items ) {
@@ -363,20 +371,12 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
         return list;
     }
     
-    public def openItem(String name,def item, String colName) {
-        return null;
-    }
-    
-    public boolean beforeColumnUpdate(String name, def item, String colName, def newItem) {
-        return true;
-    }
-    
-    public void afterColumnUpdate(String name, def item, String colName ) {;}
-    
     
     public void addItem (String name, def item) {
+        beforeAddItem(name, item);
         if( mode == 'read' ) return;
         entity.get(name).add( item );
+        afterAddItem(name, item);
     }
     
     public boolean beforeRemoveItem(String name, def item ) {

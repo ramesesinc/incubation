@@ -1,6 +1,10 @@
-<workunit extends="com/rameses/seti2/templates/DynamicCrudForm.xml">
+<workunit>
     <invokers>
         <invoker type="crudform:create" action="create" target="popup"/>
         <invoker type="crudform:open" action="open" target="popup"/>
     </invokers>
+    <code class="com.rameses.seti2.models.DynamicCrudFormModel"/>  
+    <pages>
+        <page template="com.rameses.seti2.views.DynamicCrudFormPanel"/>
+    </pages>    
 </workunit> 

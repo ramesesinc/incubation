@@ -156,7 +156,7 @@ public class SysWfPage extends javax.swing.JPanel {
                 , new Object[]{"typeHandler", new com.rameses.rcp.common.TextColumnHandler()}
             })
         });
-        xDataTable2.setItems("itemHandlers.nodes");
+        xDataTable2.setHandler("itemHandlers.nodes");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);

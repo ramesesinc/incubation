@@ -20,9 +20,18 @@ public class SchemaRelation implements Serializable {
     private SchemaElement parent;
     private ComplexField complexField;
     
+    //by default loading will be eager.
+    private boolean lazyLoad;
+    private String orderBy;
+    
     public SchemaRelation(SchemaElement parent, ComplexField cf ) {
         this.parent = parent;
         this.complexField = cf;
+        String strLazy = (String)cf.getProperty("lazy");
+        if(strLazy!=null) {
+            try { lazyLoad = Boolean.parseBoolean(strLazy); } catch(Exception e){;}
+        }
+        orderBy = (String)cf.getProperty("orderBy");
     }
 
     void setLinkedElement(SchemaElement elem ) {
@@ -63,6 +72,14 @@ public class SchemaRelation implements Serializable {
 
     public boolean equals(Object obj) {
         return hashCode() == obj.hashCode();
+    }
+
+    public boolean isLazyLoad() {
+        return lazyLoad;
+    }
+
+    public String getOrderBy() {
+        return orderBy;
     }
  
     

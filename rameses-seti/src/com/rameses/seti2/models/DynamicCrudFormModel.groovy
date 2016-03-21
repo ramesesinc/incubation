@@ -10,8 +10,7 @@ public class DynamicCrudFormModel extends CrudFormModel {
     
     def formControls = [];
 
-    void init() {
-        super.init();
+    void afterInit() {
         buildFormInfos();
     }
     
@@ -68,7 +67,7 @@ public class DynamicCrudFormModel extends CrudFormModel {
         for( x in infos ) {
             if( x.primary && !x.visible ) continue;
             def i = [
-                caption:x.caption, 
+                caption: (!x.caption)?x.name:x.caption, 
                 name:'entity.'+x.name,
                 value: entity.get( x.name )
             ];
@@ -78,9 +77,6 @@ public class DynamicCrudFormModel extends CrudFormModel {
             }
             else {
                 i.type = x.type;
-            }
-            if( i.type == 'linked' ) {
-                
             }
             /*
             if(i.type == "boolean") {
