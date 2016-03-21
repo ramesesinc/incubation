@@ -1,5 +1,6 @@
 package com.rameses.seti2.models;
  
+import com.rameses.common.*;
 import com.rameses.rcp.common.*;
 import com.rameses.rcp.annotations.*;
 import com.rameses.osiris2.client.*;
@@ -107,11 +108,17 @@ public abstract class AbstractCrudModel  {
     boolean isCreateAllowed() { 
         def allowCreate = workunit.info.workunit_properties.allowCreate;  
         if( allowCreate ) {
-            try {
-                boolean t = ExpressionResolver.getInstance().evalBoolean(allowCreate, getEntityContext());
-                if(t == false) return false;
+            if (allowCreate == 'false') return false;
+            if (allowCreate.startsWith('#{')){
+                try {
+                    boolean t = ExpressionResolver.getInstance().evalBoolean(allowCreate, [entity:getEntityContext()] );
+                    if(t == false) return false;
+                }
+                catch(ign){
+                    println 'Expression Error: ' + allowCreate;
+                    return false;
+                }
             }
-            catch(ign){;}
         }
         if( !role ) return true;
         def createPermission = workunit.info.workunit_properties.createPermission;   
@@ -121,12 +128,18 @@ public abstract class AbstractCrudModel  {
         
     boolean isOpenAllowed() { 
         def allowOpen = workunit.info.workunit_properties.allowOpen;  
-        if(allowOpen) {
-            try {
-                boolean t = ExpressionResolver.getInstance().evalBoolean(allowOpen, getEntityContext());
-                if(t == false) return false;
+        if( allowOpen ) {
+            if (allowOpen == 'false') return false;
+            if (allowOpen.startsWith('#{')){
+                try {
+                    boolean t = ExpressionResolver.getInstance().evalBoolean(allowOpen, [entity:getEntityContext()] );
+                    if(t == false) return false;
+                }
+                catch(ign){
+                    println 'Expression Error: ' + allowOpen;
+                    return false;
+                }
             }
-            catch(ign){;}
         }
         if( !role ) return true;
         def openPermission = workunit.info.workunit_properties.openPermission; 
@@ -136,12 +149,18 @@ public abstract class AbstractCrudModel  {
 
     boolean isEditAllowed() { 
         def allowEdit = workunit.info.workunit_properties.allowEdit;        
-         if(allowEdit) {
-            try {
-                boolean t = ExpressionResolver.getInstance().evalBoolean(allowEdit, getEntityContext());
-                if(t == false) return false;
+         if( allowEdit ) {
+            if (allowEdit == 'false') return false;
+            if (allowEdit.startsWith('#{')){
+                try {
+                    boolean t = ExpressionResolver.getInstance().evalBoolean(allowEdit, [entity:getEntityContext()] );
+                    if(t == false) return false;
+                }
+                catch(ign){
+                    println 'Expression Error: ' + allowEdit;
+                    return false;
+                }
             }
-            catch(ign){;}
         }
         if( !role ) return true;
         def editPermission = workunit.info.workunit_properties.editPermission; 
@@ -150,13 +169,19 @@ public abstract class AbstractCrudModel  {
     }
 
     boolean isDeleteAllowed() { 
-        def allowDelete = workunit.info.workunit_properties.allowDelete;        
+        def allowDelete = workunit.info.workunit_properties.allowDelete;  
         if( allowDelete ) {
-            try {
-                boolean t = ExpressionResolver.getInstance().evalBoolean(allowDelete, getEntityContext());
-                if(t == false) return false;
+            if (allowDelete == 'false') return false;
+            if (allowDelete.startsWith('#{')){
+                try {
+                    boolean t = ExpressionResolver.getInstance().evalBoolean(allowDelete, [entity:getEntityContext()] );
+                    if(t == false) return false;
+                }
+                catch(ign){
+                    println 'Expression Error: ' + allowDelete;
+                    return false;
+                }
             }
-            catch(ign){;}
         }
         if( !role ) return true;
         def deletePermission = workunit.info.workunit_properties.deletePermission; 

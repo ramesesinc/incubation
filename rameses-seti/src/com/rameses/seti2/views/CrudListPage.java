@@ -252,6 +252,7 @@ public class CrudListPage extends javax.swing.JPanel {
             jToolBar1.add(btnOpen);
 
             btnDelete.setCaption("");
+            btnDelete.setDepends(new String[] {"selectedItem"});
             btnDelete.setFocusable(false);
             btnDelete.setIconResource("images/toolbars/trash.png");
             btnDelete.setMargin(new java.awt.Insets(1, 1, 1, 1));
