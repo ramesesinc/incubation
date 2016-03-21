@@ -178,10 +178,16 @@ public final class SchemaUtil {
             } 
         }
         else if( stype!=null && stype.equalsIgnoreCase("date")) {
-            if(! (val instanceof Date) ) {
+            if( val instanceof Timestamp ) {
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                String s = sdf.format( (Timestamp)val );
+                return sdf.parse(s);
+            }
+            else if(! (val instanceof Date) ) {
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
                 val = sdf.parse(val.toString());
             }
+            
         }
         else if( stype!=null && stype.equalsIgnoreCase("boolean")) {
             if(! (val instanceof Boolean) ) {
