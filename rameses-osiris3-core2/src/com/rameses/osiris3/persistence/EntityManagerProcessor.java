@@ -17,6 +17,7 @@ import com.rameses.osiris3.sql.SqlQuery;
 import com.rameses.osiris3.sql.SqlUnit;
 import com.rameses.osiris3.sql.SqlUnitCache;
 import com.rameses.util.EntityUtil;
+import com.rameses.util.ValueUtil;
 import java.lang.String;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -342,12 +343,16 @@ public final class EntityManagerProcessor {
     
     public void fetchSubItems(EntityManagerModel parentModel, Map parent, int level, int nestLevel) throws Exception {
         for (SchemaRelation sr : parentModel.getElement().getOneToManyRelationships()) {
+            if( sr.isLazyLoad() ) continue;
             EntityManagerModel subModel = new EntityManagerModel(sr.getLinkedElement());
             for (RelationKey rk : sr.getRelationKeys()) {
                 subModel.getFinders().put(rk.getTarget(), parent.get(rk.getField()));
             }
             subModel.setStart(0);
             subModel.setLimit(0);
+            if(!ValueUtil.isEmpty(sr.getOrderBy())) {
+                subModel.setOrderExpr(sr.getOrderBy());
+            }
             List list = fetchList(subModel);
             parent.put(sr.getName(), list);
         }

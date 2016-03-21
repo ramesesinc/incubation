@@ -18,6 +18,7 @@ public class DynamicCrudFormPanel extends javax.swing.JPanel {
      */
     public DynamicCrudFormPanel() {
         initComponents();
+       
     }
 
     /**

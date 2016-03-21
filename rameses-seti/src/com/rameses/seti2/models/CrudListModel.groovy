@@ -5,6 +5,7 @@ import com.rameses.rcp.annotations.*;
 import com.rameses.osiris2.client.*;
 import com.rameses.osiris2.common.*;
 import com.rameses.rcp.framework.ClientContext;
+import com.rameses.util.*;
         
 
 /**
@@ -91,7 +92,9 @@ public class CrudListModel extends AbstractCrudModel {
     }
     //end overridables
     
-    
+    public String getOrderBy() {
+        return workunit.info.workunit_properties.orderBy;
+    }
            
     boolean isAllowSearch() {
         return (searchables);
@@ -164,7 +167,10 @@ public class CrudListModel extends AbstractCrudModel {
         }
         if( getTag()!=null ) {
             m._tag = getTag();
-        }        
+        }    
+        if( !ValueUtil.isEmpty(getOrderBy()) ) {
+            m.orderBy = getOrderBy();
+        }
         beforeQuery( m );
         return m;
     }
