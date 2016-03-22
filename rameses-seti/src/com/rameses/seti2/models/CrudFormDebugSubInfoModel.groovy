@@ -6,29 +6,16 @@ import com.rameses.osiris2.client.*;
 import com.rameses.osiris2.common.*;
 import com.rameses.rcp.framework.ClientContext;
 import com.rameses.common.*;
+import java.rmi.server.*;
         
-public class CrudFormDebugModel {
+public class CrudFormDebugSubInfoModel {
     
-    def schema;
     def data;
-    
-    def selectedName;
-    
-    def fieldNames;
     def dataValues;
-
-    def fieldHandler = [
-        fetchList: { o->
-            if( !selectedName ) return [];
-            def m = schema.fields.find{ it.name == selectedName };
-            def list = [];
-            m.each {k,v->
-                list << [key:k, value:v];
-            }
-            return list;
-        }
-    ] as BasicListModel;
-
+    
+    @FormId
+    def formId;
+    
     def dataValueHandler = [ 
         fetchList: { o->
             return dataValues;
@@ -38,14 +25,14 @@ public class CrudFormDebugModel {
             if(o.value instanceof Map ) {
                 Modal.show( "debug_subinfo:view", [data: o.value]);
             }
-            else if( o.value instanceof List ) {
-                Modal.show( "debug_sublist:view", [data: o.value, schema: schema]);
+            else if(o.value instanceof List ) {
+                Modal.show( "debug_sublist:view", [data: o.value]);
             }
         }
     ]as BasicListModel;
     
     void init() {
-        fieldNames = schema.fields*.name;
+        formId = "CFDSM"+new UID();
         dataValues = [];
         if(data) {
             data.each { k,v->

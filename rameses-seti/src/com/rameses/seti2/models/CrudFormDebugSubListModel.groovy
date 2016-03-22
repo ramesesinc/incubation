@@ -8,34 +8,35 @@ import com.rameses.rcp.framework.ClientContext;
 import com.rameses.common.*;
 import java.rmi.server.*;
         
-public class CrudFormDebugSubModel {
+public class CrudFormDebugSubListModel {
     
     def data;
-    def dataValues;
+    def schema;
+    
+    def selecteditem;
     
     @FormId
     def formId;
     
-    def dataValueHandler = [ 
+    def listHandler = [ 
+        getColumnList : {
+            def cols = [];
+            def o = data.iterator().next();
+            o.each { k,v->
+                cols << [name: k, caption: k];
+            }
+            return cols;
+        },
         fetchList: { o->
-            return dataValues;
+            return data;
         },
         onOpenItem: { o, colName->
-            if(o.value==null) return null;
-            if(o.value instanceof Map ) {
-                Modal.show( "crudform_subdata_debug:view", [data: o.value]);
-            }
+            Modal.show( "debug_subinfo:view", [data: o]);
         }
     ]as BasicListModel;
     
     void init() {
-        formId = "CFDSM"+new UID();
-        dataValues = [];
-        if(data) {
-            data.each { k,v->
-                dataValues << [ key:k, value:v ];
-            }
-        }
+        formId = "CFDSLM"+new UID();
     }
     
     def doClose() {

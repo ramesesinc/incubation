@@ -276,7 +276,7 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
     def showDebugInfo() {
         def e = entity;
         if( mode == 'edit' ) e = entity.data();
-        Modal.show("crudform_debug:view", [schema:schema, data:e]);
+        Modal.show("debug:view", [schema:schema, data:e]);
     }
     
     def showInfo() {
