@@ -12,12 +12,12 @@ import com.rameses.rcp.ui.annotations.Template;
  * @author dell
  */
 @Template(CloseOnlyPage.class)
-public class CrudFormDebugSubPage extends javax.swing.JPanel {
+public class CrudFormDebugSubInfoPage extends javax.swing.JPanel {
 
     /**
      * Creates new form CrudFormDebugSubPage
      */
-    public CrudFormDebugSubPage() {
+    public CrudFormDebugSubInfoPage() {
         initComponents();
     }
 

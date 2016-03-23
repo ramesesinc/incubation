@@ -36,7 +36,7 @@ public class SysWfPage extends javax.swing.JPanel {
         xTextField2 = new com.rameses.rcp.control.XTextField();
         xDataTable2 = new com.rameses.rcp.control.XDataTable();
 
-        xTextField1.setCaption("Name");
+        xTextField1.setCaption("Process Name");
         xTextField1.setName("entity.name"); // NOI18N
         xTextField1.setPreferredSize(new java.awt.Dimension(0, 20));
         xTextField1.setTextCase(com.rameses.rcp.constant.TextCase.LOWER);
@@ -51,20 +51,6 @@ public class SysWfPage extends javax.swing.JPanel {
             new com.rameses.rcp.common.Column(new Object[]{
                 new Object[]{"name", "name"}
                 , new Object[]{"caption", "Name"}
-                , new Object[]{"width", 100}
-                , new Object[]{"minWidth", 0}
-                , new Object[]{"maxWidth", 0}
-                , new Object[]{"required", false}
-                , new Object[]{"resizable", true}
-                , new Object[]{"nullWhenEmpty", true}
-                , new Object[]{"editable", true}
-                , new Object[]{"editableWhen", null}
-                , new Object[]{"textCase", com.rameses.rcp.constant.TextCase.NONE}
-                , new Object[]{"typeHandler", new com.rameses.rcp.common.TextColumnHandler()}
-            }),
-            new com.rameses.rcp.common.Column(new Object[]{
-                new Object[]{"name", "processname"}
-                , new Object[]{"caption", "Process Name"}
                 , new Object[]{"width", 100}
                 , new Object[]{"minWidth", 0}
                 , new Object[]{"maxWidth", 0}
@@ -99,7 +85,8 @@ public class SysWfPage extends javax.swing.JPanel {
                 , new Object[]{"required", false}
                 , new Object[]{"resizable", true}
                 , new Object[]{"nullWhenEmpty", true}
-                , new Object[]{"editable", false}
+                , new Object[]{"editable", true}
+                , new Object[]{"editableWhen", null}
                 , new Object[]{"textCase", com.rameses.rcp.constant.TextCase.NONE}
                 , new Object[]{"typeHandler", new com.rameses.rcp.common.TextColumnHandler()}
             }),
@@ -112,7 +99,8 @@ public class SysWfPage extends javax.swing.JPanel {
                 , new Object[]{"required", false}
                 , new Object[]{"resizable", true}
                 , new Object[]{"nullWhenEmpty", true}
-                , new Object[]{"editable", false}
+                , new Object[]{"editable", true}
+                , new Object[]{"editableWhen", null}
                 , new Object[]{"textCase", com.rameses.rcp.constant.TextCase.NONE}
                 , new Object[]{"typeHandler", new com.rameses.rcp.common.IntegerColumnHandler(null, -1, -1)}
             }),
@@ -125,7 +113,8 @@ public class SysWfPage extends javax.swing.JPanel {
                 , new Object[]{"required", false}
                 , new Object[]{"resizable", true}
                 , new Object[]{"nullWhenEmpty", true}
-                , new Object[]{"editable", false}
+                , new Object[]{"editable", true}
+                , new Object[]{"editableWhen", null}
                 , new Object[]{"textCase", com.rameses.rcp.constant.TextCase.NONE}
                 , new Object[]{"typeHandler", new com.rameses.rcp.common.IntegerColumnHandler(null, -1, -1)}
             }),
@@ -138,7 +127,8 @@ public class SysWfPage extends javax.swing.JPanel {
                 , new Object[]{"required", false}
                 , new Object[]{"resizable", true}
                 , new Object[]{"nullWhenEmpty", true}
-                , new Object[]{"editable", false}
+                , new Object[]{"editable", true}
+                , new Object[]{"editableWhen", null}
                 , new Object[]{"textCase", com.rameses.rcp.constant.TextCase.NONE}
                 , new Object[]{"typeHandler", new com.rameses.rcp.common.TextColumnHandler()}
             }),
@@ -151,7 +141,8 @@ public class SysWfPage extends javax.swing.JPanel {
                 , new Object[]{"required", false}
                 , new Object[]{"resizable", true}
                 , new Object[]{"nullWhenEmpty", true}
-                , new Object[]{"editable", false}
+                , new Object[]{"editable", true}
+                , new Object[]{"editableWhen", null}
                 , new Object[]{"textCase", com.rameses.rcp.constant.TextCase.NONE}
                 , new Object[]{"typeHandler", new com.rameses.rcp.common.TextColumnHandler()}
             })

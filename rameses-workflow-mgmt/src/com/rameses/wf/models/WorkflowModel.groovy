@@ -137,16 +137,3 @@ public abstract class WorkflowModel {
     }
 
 }
-
-class WorkflowTransitionAction extends Action {
-    
-    def transition;
-    def handler;
-    
-    def execute() {
-        if(!handler) 
-            throw new Exception("Handler not specified");
-        handler(this);
-    }
-    
-}

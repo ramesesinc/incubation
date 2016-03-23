@@ -1,6 +1,6 @@
 <workunit>
     <invokers>
-        <invoker type="crudform_debug:view" caption="Debug" action="init"/>
+        <invoker type="debug:view" caption="Debug" action="init"/>
     </invokers>
     <code class="com.rameses.seti2.models.CrudFormDebugModel" />
     <pages>

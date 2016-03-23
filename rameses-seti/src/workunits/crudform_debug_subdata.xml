@@ -1,9 +1,0 @@
-<workunit>
-    <invokers>
-        <invoker type="crudform_subdata_debug:view" caption="Debug" action="init"/>
-    </invokers>
-    <code class="com.rameses.seti2.models.CrudFormDebugSubModel" />
-    <pages>
-        <page template="com.rameses.seti2.views.CrudFormDebugSubPage"/>
-    </pages>
-</workunit> 

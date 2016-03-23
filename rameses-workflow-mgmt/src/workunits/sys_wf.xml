@@ -1,7 +1,7 @@
 <workunit schemaName="sys_wf">
     <invokers>
-        <invoker ztype="sys_wf:create" caption="Create Workflow" target="popup"  action="create"/>
-        <invoker ztype="sys_wf:open" caption="Open Workflow" target="popup"  action="open"/>
+        <invoker type="sys_wf:create" caption="Create Workflow" target="popup"  action="create"/>
+        <invoker type="sys_wf:open" caption="Open Workflow" target="popup"  action="open"/>
     </invokers>
     <code class="com.rameses.seti2.models.CrudFormModel"/>
     <pages>

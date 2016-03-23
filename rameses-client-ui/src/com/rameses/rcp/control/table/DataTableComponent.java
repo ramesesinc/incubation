@@ -545,7 +545,16 @@ public class DataTableComponent extends JTable implements TableControl
             Point p = new Point(me.getX(), me.getY());
             int colIndex = columnAtPoint(p);
             Column dc = tableModel.getColumn(colIndex);
-            if (dc != null && !dc.isEditable()) 
+            
+            int rowIndex = getSelectedRow(); 
+            Object rowObj = getDataTableModel().getItem(rowIndex); 
+            boolean _editable = getDataProvider().isColumnEditable(rowObj, dc.getName()); 
+            if ( _editable ) _editable = dc.isEditable(); 
+            
+            boolean b = "false".equals(dc.getProperties().get("_allowEdit")); 
+            if ( b ) _editable = false; 
+
+            if (dc != null && !_editable) 
             {
                 me.consume();
                 openItem(); 
@@ -609,15 +618,17 @@ public class DataTableComponent extends JTable implements TableControl
                         Object oval = r.getProperties().get("editable");
                         if (oval == null) continue;
                         
-                        if ("true".equals(oval.toString())) 
+                        if ("true".equals(oval.toString())) { 
                             columnEditable = true; 
-                        else if ("false".equals(oval.toString())) 
+                        } else if ("false".equals(oval.toString())) { 
                             columnEditable = false; 
+                        } 
                     } catch (Throwable t){;} 
                 }
             }             
         } 
         
+        oColumn.getProperties().put("_allowEdit", columnEditable); 
         if (columnEditable) editItem(rowIndex, colIndex, e); 
         
         return false;
