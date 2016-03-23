@@ -18,7 +18,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import javax.swing.ListSelectionModel;
 
 /**
  *
@@ -260,7 +259,7 @@ public abstract class AbstractListDataProvider
         
         return actionProvider; 
     }
-    
+       
     public boolean isAllowOpen() { return true; } 
     
     protected Object onOpenItem(Object item, String columnName) { return null; }
@@ -524,7 +523,9 @@ public abstract class AbstractListDataProvider
         getMultiSelectionSupport().deselectAll(); 
     }
     
-    
+    public boolean isColumnEditable(Object item, String columnName) { 
+        return false;
+    } 
     
     // <editor-fold defaultstate="collapsed" desc=" ListItem helper methods "> 
     
