@@ -719,11 +719,17 @@ public class XLookupField extends IconedTextField implements UILookup, UISelecto
             /*
              *  workaround fix when called by the JTable
              */
-            if (!loaded) {
-                loadHandler();
-                loaded = true; 
-            }             
-
+            try { 
+                if ( !loaded ) { 
+                    loadHandler(); 
+                    loaded = true; 
+                } 
+            } catch(Throwable t) { 
+                System.out.println("[XLookupField] error on field "+ XLookupField.this.getName() );
+                t.printStackTrace(); 
+                return true; 
+            } 
+            
             JComponent jcomp = XLookupField.this;
             jcomp.putClientProperty("UIControl.value", null); 
             

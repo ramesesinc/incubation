@@ -117,9 +117,10 @@ public class PlatformTabWindow extends JPanel implements SubWindow, ContentPane
         
         Object otitle = attrs.remove("title");
         if (otitle != null) this.title = otitle.toString();
-        
-        if (this.listener != null) 
+
+        if (this.listener != null) { 
             this.listener.fireUpdate(this); 
+        } 
     }
     
     // </editor-fold>    

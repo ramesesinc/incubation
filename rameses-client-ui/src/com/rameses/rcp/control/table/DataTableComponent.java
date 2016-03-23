@@ -129,7 +129,6 @@ public class DataTableComponent extends JTable implements TableControl
     private void initComponents() 
     {
         super.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        
         propertyHandler = new PropertyChangeHandlerImpl(); 
         tableModelHandler = new TableModelHandlerImpl();
         tableModel = new DataTableModel();
@@ -351,7 +350,7 @@ public class DataTableComponent extends JTable implements TableControl
         getTableHeader().setPreferredSize(new Dimension(Short.MAX_VALUE, rowHeaderHeight)); 
         getTableHeader().repaint(); 
     }
-    
+        
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc="  buildColumns  ">

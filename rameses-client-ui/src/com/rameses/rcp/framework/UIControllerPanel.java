@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
 import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRootPane;
 import javax.swing.SwingUtilities;
@@ -53,7 +54,7 @@ public class UIControllerPanel extends JPanel implements NavigatablePanel, ViewC
             
             public void ancestorMoved(AncestorEvent event) {}
             public void ancestorRemoved(AncestorEvent event) {}
-        });        
+        });  
     }
     
     //visible in the package

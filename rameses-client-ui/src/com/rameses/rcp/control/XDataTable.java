@@ -72,6 +72,8 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
     private int stretchWidth;
     private int stretchHeight;
     
+    private Color borderColor;
+    
     public XDataTable() 
     {
         init();        
@@ -110,6 +112,7 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
         
         table = new DataTableComponentImpl();
         scrollBar = new ListScrollBar();
+        borderColor = TableBorders.BORDER_COLOR; 
         
         //--create and decorate scrollpane for the JTable
         scrollPane = new JScrollPane(table);        
@@ -519,6 +522,7 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
         
         if ( showRowHeader ) {
             JLabel corner = new CellRenderers.HeaderRenderer();
+            corner.putClientProperty("Component.proxy", table); 
             scrollPane.setCorner(JScrollPane.UPPER_LEFT_CORNER, corner); 
             scrollPane.setRowHeaderView( (rowHeaderView = new RowHeaderView(table)) );
             rowHeaderView.setRowCount( table.getRowCount() );
@@ -569,6 +573,16 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
         this.readonlyWhen = readonlyWhen; 
     }
 
+    public Color getBorderColor() { return borderColor; } 
+    public void setBorderColor(Color borderColor) { 
+        this.borderColor = borderColor; 
+        putClientProperty("Border.color", borderColor); 
+        if ( table != null ) {
+            table.putClientProperty("Border.color", borderColor); 
+        } 
+        repaint();
+    }
+    
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" font support ">

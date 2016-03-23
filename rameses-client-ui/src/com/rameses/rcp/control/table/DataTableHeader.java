@@ -36,8 +36,7 @@ public class DataTableHeader extends JTableHeader
     
     public DataTableHeader(JTable table) 
     {
-        super(table.getColumnModel());
-        super.setBorder(new TableBorders.HeaderBorder(true, true, false, false));
+        super(table.getColumnModel()); 
         this.table = table; 
     }
     

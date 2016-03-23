@@ -173,6 +173,7 @@ public final class TableUtil
 //        corner.setPreferredSize(new Dimension(23,23));  
         
         JComponent corner = new DataTableHeader.CornerBorder(table, JScrollPane.UPPER_RIGHT_CORNER).createComponent();
+        corner.putClientProperty("Component.proxy", table); 
         scrollPane.setCorner(JScrollPane.UPPER_RIGHT_CORNER, corner);
         //scrollPane.setCorner(JScrollPane.UPPER_RIGHT_CORNER, (JComponent) headerRenderer);
     }

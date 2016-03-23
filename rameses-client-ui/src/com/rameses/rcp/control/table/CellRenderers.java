@@ -191,6 +191,8 @@ public class CellRenderers {
             setFont(table.getFont()); 
             setText(value+""); 
             
+            putClientProperty("Component.proxy", table); 
+            
             TableModel tm = table.getModel(); 
             if (tm instanceof DataTableModel) {
                 DataTableModel dtm = (DataTableModel) tm; 
@@ -212,6 +214,7 @@ public class CellRenderers {
             return this;
         }      
                 
+        
         protected Color getHighlightColor() {
             return getBackground().brighter();
         }
@@ -220,7 +223,7 @@ public class CellRenderers {
             return getBackground().darker();
         }  
         
-        public void paint(Graphics g) 
+        public void xpaint(Graphics g) 
         {
 //            int h = getHeight(), w = getWidth(); 
 //            Color oldColor = g.getColor();

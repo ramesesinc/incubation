@@ -80,17 +80,23 @@ public final class ControlSupport {
                     }
                 } else if ("repaint".equals(key)) {
                     component.repaint();
+                } else if ("requestFocus".equals(key) && component.isFocusable() && component.isEnabled()) { 
+                    component.requestFocusInWindow(); 
                 } else {
                     resolver.setProperty(component, key, me.getValue()); 
                 }
-            } 
-            catch(Throwable ign) {;}   
+            } catch(Throwable t) {
+                //do nothing 
+            }   
         }
         
         try { 
-            if (component instanceof JComponent) 
+            if (component instanceof JComponent) { 
                 new FontSupport().applyStyles((JComponent) component, props); 
-        } catch(Throwable t){;} 
+            } 
+        } catch(Throwable t){
+            //do nothing 
+        } 
     }
     
     public static Object init(Object bean, Map params, String action ) {

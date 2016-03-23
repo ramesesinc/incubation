@@ -14,6 +14,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Insets;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JTable;
 import javax.swing.border.AbstractBorder;
@@ -25,9 +26,38 @@ import javax.swing.plaf.metal.MetalLookAndFeel;
  */
 public class TableBorders 
 {
-    
+    public final static Color BORDER_COLOR = new Color(204, 204, 204);
+            
     public TableBorders() {
     }
+    
+    // <editor-fold defaultstate="collapsed" desc=" Helper ">    
+    
+    public static class Helper {
+        
+        public Color getBorderColor( Component c ) {
+            if ( c instanceof JComponent ) {
+                return getBorderColor((JComponent)c); 
+            } else {
+                return null; 
+            }
+        }
+        
+        public Color getBorderColor( JComponent jc ) { 
+            Color color = null; 
+            Object obj = jc.getClientProperty("Component.proxy");
+            if ( obj instanceof JComponent ) {
+                color = (Color) ((JComponent)obj).getClientProperty("Border.color"); 
+            }
+            if ( color == null ) {
+                color = (Color) jc.getClientProperty("Border.color"); 
+            }
+            return (color == null? BORDER_COLOR : color); 
+        }
+        
+    }
+    
+    // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" DefaultBorder (class) ">
     
@@ -50,11 +80,19 @@ public class TableBorders
             return insets; 
         }
         
-        public void paintBorder(Component c, Graphics g, int x, int y, int w, int h) {
-            Color oldColor = g.getColor();
-            g.setColor(MetalLookAndFeel.getControlDarkShadow());
+        public void paintBorder(Component c, Graphics g, int x, int y, int w, int h) { 
+            Color oldColor = g.getColor(); 
+            Color newColor = null; 
+            if ( c instanceof JComponent ) {
+                newColor = (Color) ((JComponent)c).getClientProperty("Border.color"); 
+            }
+            if ( newColor == null ) {
+                newColor = BORDER_COLOR; 
+            }
+            
+            g.setColor( newColor );
             g.drawRect(0, 0, w-1, h-1);
-            g.setColor(oldColor); 
+            g.setColor( oldColor ); 
         }
     }
 
@@ -84,8 +122,8 @@ public class TableBorders
         
         private void init() {
             jlabel.setOpaque(true); 
-        }
-        
+        } 
+                
         public boolean isHideTop() { return hideTop; }
         public void setHideTop(boolean hideTop) { this.hideTop = hideTop; }
         
@@ -108,24 +146,30 @@ public class TableBorders
         
         public void paintBorder(Component c, Graphics g, int x, int y, int w, int h) {
             Color oldColor = g.getColor();
+            Color color = new Helper().getBorderColor(c); 
             c.setBackground( jlabel.getBackground() ); 
+            
             if (!hideTop) {
-                g.setColor(MetalLookAndFeel.getControlDarkShadow()); 
+                //g.setColor(MetalLookAndFeel.getControlDarkShadow()); 
+                g.setColor( color );
                 g.drawLine(0, 0, w, 0);
             } 
             
             if (!hideLeft) {
-                g.setColor(getHighlightColor(c));
+                //g.setColor(getHighlightColor(c));
+                g.setColor( color );
                 g.drawLine(0, 2, 0, h-5);
             } 
             
             if (!hideBottom) {
-                g.setColor(MetalLookAndFeel.getControlDarkShadow());
+                //g.setColor(MetalLookAndFeel.getControlDarkShadow());
+                g.setColor( color );
                 g.drawLine(0, h-2, w, h-2);
             } 
             
             if (!hideRight) {
-                g.setColor(getShadowColor(c));
+                //g.setColor(getShadowColor(c));
+                g.setColor( color );
                 g.drawLine(w-1, 2, w-1, h-5);
             }
             
