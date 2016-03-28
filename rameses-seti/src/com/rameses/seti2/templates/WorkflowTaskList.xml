@@ -1,0 +1,9 @@
+<workunit>
+    
+    <code class="com.rameses.seti2.models.WorkflowTaskListModel" />    
+    
+    <pages>
+        <page template="com.rameses.osiris2.themes.NodeListPage"/>
+    </pages>
+    
+</workunit> 

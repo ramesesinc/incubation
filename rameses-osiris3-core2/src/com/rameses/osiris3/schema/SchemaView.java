@@ -96,7 +96,7 @@ public class SchemaView extends AbstractSchemaView {
         final String n = name.replace(',', '|'); 
         return getSchema(new SchemaFilter() {
              public boolean accept(String type, Map m) { 
-                 Object o = m.get("extname");
+                 Object o = m.get("name");
                  return ( o != null && o.toString().matches(n) );
             }
         }, new HashSet());
@@ -108,16 +108,22 @@ public class SchemaView extends AbstractSchemaView {
         List<Map> flds = new ArrayList();
         for( SchemaViewField vf: this.findAllFields() ) {
             if(vf instanceof SchemaViewRelationField ) {
+                //do not include this
+                /*
                 SchemaViewRelationField svrf = (SchemaViewRelationField)vf;
                 //if(svrf.getJoinType()!=null && !svrf.getJoinType().equals(JoinTypes.MANY_TO_ONE ))  continue;
                 Map fld = new HashMap();
-                fld.put( "name", svrf.getTargetView().getName() );
+                
+                //do not change this because this is used by seti particularly the listTypes.
+                fld.put( "name", svrf.getName() );
+                fld.put( "extname", svrf.getExtendedName() );
                 fld.put( "source", vf.getSchemaField().getElement().getName());
                 fld.put( "ref", svrf.getTargetView().getElement().getName() );
                 fld.put( "jointype", svrf.getTargetJoinType() );
                 if( filter.accept("field", fld) ) {
                     flds.add( fld );
                 }
+                */ 
             }
             else {
                 Map fld = new HashMap();
@@ -135,6 +141,22 @@ public class SchemaView extends AbstractSchemaView {
             }
         }
         map.put("fields", flds);
+        
+        List<Map> links = new ArrayList();
+        for(AbstractSchemaView vw: this.getManyToOneViews() ) {
+            LinkedSchemaView lvw = (LinkedSchemaView)vw;
+            Map fld = new HashMap();
+            fld.put( "source", lvw.getParent().getElement().getName() );
+            fld.put("name", lvw.getName());
+            fld.put("extname", lvw.getName());
+            fld.put("ref", lvw.getElement().getName());
+            fld.put("jointype", lvw.getJointype());
+            if( filter.accept("field", fld) ) {
+                links.add( fld );
+            }
+        }
+        map.put("links", links);
+        
         //load one to many children.
         if(this.getOneToManyLinks()!=null && this.getOneToManyLinks().size()>0) {
             List list = new ArrayList();
@@ -161,7 +183,6 @@ public class SchemaView extends AbstractSchemaView {
     public List<OneToManyLink> getOneToManyLinks() {
         return oneToManyLinks;
     }
-    
     
     boolean addField( SchemaViewField vw ) {
         fields.add(vw);

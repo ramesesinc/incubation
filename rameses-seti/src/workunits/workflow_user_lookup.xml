@@ -1,0 +1,15 @@
+<workunit extends="wtemplates/ServiceLookupController.xml" serviceName="SysUserLookupService">
+    <invokers>
+        <invoker type="workflow_user:lookup" caption="Lookup Users" target="popup"/>
+    </invokers>
+    <code>
+        class WorkflowUserLookup extends com.rameses.osiris2.common.ServiceLookupController {
+            def role;
+            def domain;
+        
+            public String getTag() {
+                return domain+"."+role;
+            }
+        }
+    </code>
+</workunit>

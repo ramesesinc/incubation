@@ -3,7 +3,7 @@
         <invoker type="sys_wf:create" caption="Create Workflow" target="popup"  action="create"/>
         <invoker type="sys_wf:open" caption="Open Workflow" target="popup"  action="open"/>
     </invokers>
-    <code class="com.rameses.seti2.models.CrudFormModel"/>
+    <code class="com.rameses.wf.models.SysWfModel"/>
     <pages>
         <page template="com.rameses.wf.views.SysWfPage"/>    
     </pages>    

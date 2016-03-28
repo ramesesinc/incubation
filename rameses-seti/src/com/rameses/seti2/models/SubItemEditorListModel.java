@@ -7,7 +7,6 @@ package com.rameses.seti2.models;
 import com.rameses.rcp.common.EditorListModel;
 import java.util.List;
 import java.util.Map;
-
 /**
  *
  * @author dell
@@ -61,4 +60,7 @@ public class SubItemEditorListModel extends EditorListModel {
         handler.afterColumnUpdate(name, item, columnName);
     }
     
+    public boolean isColumnEditable(Object item, String columnName) { 
+        return handler.isColumnEditable( name, item, columnName ); 
+    }
 }

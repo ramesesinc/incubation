@@ -19,25 +19,15 @@ import com.rameses.util.*;
 */
 public class CrudListModel extends AbstractCrudModel {
         
-    @Service("QueryService")
-    def service;
-
-    @Service("PersistenceService")
-    def persistenceService;
-
-    @FormTitle
-    def formTitle;
-    
     def selectedItem;
     def list;
     def adapter;
-    def entitySchemaName;   //used in case the view schema is not the same as entity schema
+    
     def query = [:];
     def criteriaList = [];
     def queryForm;
     def whereStatement;
     String searchText;
-    
     def cols = [];
     
     List searchables;
@@ -45,7 +35,9 @@ public class CrudListModel extends AbstractCrudModel {
 
     String strCols;
     
+    String _entitySchemaName_;   //used in case the view schema is not the same as entity schema
     boolean debug = false;
+    private String _tag_;
     
     String getFormType() {
         return 'list';
@@ -55,13 +47,26 @@ public class CrudListModel extends AbstractCrudModel {
         return selectedItem;
     }
     
+    public String getEntitySchemaName() {
+        if( !_entitySchemaName_ ) {
+            return workunit.info.workunit_properties.entitySchemaName;
+        }
+        return _entitySchemaName_;
+    } 
+    
+    public void setEntitySchemaName( String s ) {
+        this._entitySchemaName_ = s;
+    }
+    
     //overridables
     public def beforeQuery( def m ) {
         ;//do nothing
     }
-    public def getQueryService() {
-        return service;
+    
+    public def beforeFetchNodes( def m ) {
+        ;//do nothing
     }
+    
     
     public def getCustomFilter() {
         String s = workunit.info.workunit_properties.customFilter;
@@ -70,15 +75,19 @@ public class CrudListModel extends AbstractCrudModel {
     }
     
     public def getTag() {
+        if( _tag_ !=null) return _tag_;
         return workunit.info.workunit_properties.tag;
     }
     
+    public void setTag(def s) {
+        _tag_ = s;
+    }
+    
+    private def _schema;
     public def getSchema() {
+        if( _schema !=null ) return _schema;
+        
         strCols = workunit.info.workunit_properties.cols; 
-
-        if(!entitySchemaName) {
-            entitySchemaName = workunit.info.workunit_properties.entitySchemaName;
-        }
         if(!schemaName) 
             throw new Exception("Please specify a schema name in the workunit");
         
@@ -88,11 +97,11 @@ public class CrudListModel extends AbstractCrudModel {
         
         def map = [name:schemaName, adapter: adapter]; 
         if ( strCols ) map.colnames = strCols;
-
-        def xschema = persistenceService.getSchema( map );
-        xschema.name = schemaName;
-        if(adapter) xschema.adapter = adapter;
-        return xschema;
+        
+        _schema = getPersistenceService().getSchema( map );
+        _schema.name = schemaName;
+        if(adapter) _schema.adapter = adapter;
+        return _schema;
     }
     //end overridables
     
@@ -104,10 +113,6 @@ public class CrudListModel extends AbstractCrudModel {
         return (searchables);
     }
     
-    public String getTitle() {
-        return workunit.title;
-    }
-    
     boolean _inited_ = false;
     void init() {
         if(_inited_ ) return;
@@ -115,7 +120,6 @@ public class CrudListModel extends AbstractCrudModel {
         queryForm = new Opener(outcome:'queryForm')
         domain = invoker.domain;
         role = invoker.role;
-        formTitle = invoker.caption;
         
         schema = getSchema();
         cols.clear();
@@ -185,11 +189,24 @@ public class CrudListModel extends AbstractCrudModel {
                 throw new Exception("schema is null. Please call init method")
             def zcols = [];
             //always add the primary keys
-            for( c in cols.findAll{it.selected == true} ) {
+            def selCols = cols.findAll{it.selected == true};
+            int maxSz = selCols.size();
+            for( c in selCols ) {
                 def cc = [:];
                 cc.putAll( c );
+                cc.colindex = maxSz;
                 zcols << cc;
             }
+            //sort the columns based on the order in strCols
+            int i = 0;
+            if( strCols ) {
+                def arr = strCols.split(",");
+                for( ss in arr ) {
+                    def g = zcols.find{ it.name == ss.trim() }
+                    if( g ) g.colindex = (i++);
+                }
+            }
+            zcols = zcols.sort{ it.colindex };
             zcols << [caption:''];
             return zcols;
         },
@@ -259,7 +276,7 @@ public class CrudListModel extends AbstractCrudModel {
     def create() {
         def d = null;
         def ename = (!entitySchemaName)? schemaName : entitySchemaName;
-        def p = [schema:schema, schemaName:ename, adapter:adapter];
+        def p = [ schemaName:ename, adapter:adapter];
         p.title = "New " + workunit.title; 
         try {
             d = Inv.lookupOpener( ename + ":create", p );
@@ -268,6 +285,7 @@ public class CrudListModel extends AbstractCrudModel {
             d = Inv.lookupOpener( "crudform:create", p );
         }
         if(!d) throw new Exception("No handler found for . " + ename + ".create. Please check permission");
+        if( !d.target ) d.target = 'window';
         return d;
     }
     
@@ -276,7 +294,7 @@ public class CrudListModel extends AbstractCrudModel {
             throw new Exception("Please select an item");
         def d = null;
         def ename = (!entitySchemaName)? schemaName : entitySchemaName;
-        def p = [schema:schema, schemaName:ename, adapter:adapter, entity: selectedItem];
+        def p = [ schemaName:ename, adapter:adapter, entity: selectedItem];
         p.title = "Open " + workunit.title;
         try {
             d = Inv.lookupOpener( ename + ":open", p );
@@ -285,6 +303,7 @@ public class CrudListModel extends AbstractCrudModel {
             d = Inv.lookupOpener( "crudform:open", p );
         }
         if(!d) throw new Exception("No handler found for . " + ename + ".open. Please check permission");
+        if( !d.target ) d.target = 'window';
         return d;
     }
     
@@ -298,7 +317,7 @@ public class CrudListModel extends AbstractCrudModel {
         }
         def ename = (!entitySchemaName)? schemaName : entitySchemaName;
         m._schemaname = ename;
-        persistenceService.removeEntity( m );
+        getPersistenceService().removeEntity( m );
         listHandler.reload();
     }
     
@@ -322,7 +341,7 @@ public class CrudListModel extends AbstractCrudModel {
             i=i+50;
         }
         def reportModel = [
-            title: formTitle,
+            title: getTitle(),
             columns : cols.findAll{ it.selected == true }
         ]
         return Inv.lookupOpener( "dynamic_report:print", [reportData:buffList, reportModel:reportModel] );
@@ -336,7 +355,8 @@ public class CrudListModel extends AbstractCrudModel {
         if(!_nodeList) {
             def m = [:];
             m._schemaname = schema.name;
-            m.adapter = schema.adapter;            
+            m.adapter = schema.adapter;   
+            beforeFetchNodes( m );
             _nodeList = queryService.getNodeList( m );
         }
         return _nodeList;

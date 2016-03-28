@@ -12,59 +12,24 @@ import com.rameses.util.*;
         
 public class CrudFormModel extends AbstractCrudModel implements SubItemListener {
         
-    @Service("PersistenceService")
-    def service;
-    
-    @Service("QueryService")
-    def qryService;
-
-    @SubWindow
-    def subWindow;
-    
     def adapter;
-    
     def entity;
-
-    String getFormType() {
-        return 'form';
-    }
-    
-    //overridable services
-    public def getPersistenceService() {
-        return service;
-    }
-    
     def mode;
     def itemHandlers = [:];     //holder for all specific item handlers
     
-    //used for mdi forms.
-    def selectedSection;
-    def sections;
+    @Script("ListTypes")
+    def listTypes;
     
-    @FormTitle
-    String getTitle() {
-        if( invoker.properties.formTitle ) {
-            return ExpressionResolver.getInstance().evalString(invoker.properties.formTitle,entity);
-        }
-        if( invoker.caption ) {
-            return invoker.caption;
-        }
-        return getSchemaName();
-    }
-    
-    @FormId
-    String getFormId() {
-        if( invoker.properties.formId ) {
-            return ExpressionResolver.getInstance().evalString(invoker.properties.formId,entity);
-        }
-        return workunit.workunit.id;
+   
+
+    String getFormType() {
+        return 'form';
     }
     
     public def getEntityContext() {
         return entity;
     }
 
-    
     boolean isCreateAllowed() { 
         if( mode != 'read') return false;
         return super.isCreateAllowed();
@@ -137,13 +102,13 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
         }
     }
     
-    protected void buildSections() {
-        //for items with sections....
-        try {
-            sections = Inv.lookupOpeners(schemaName + ":section",[:]);
-        } 
-        catch(Exception ex){;}
+    protected boolean pageExists(String pageName) {
+        if( !workunit.views ) return false;
+        def z = workunit.views.find{ it.name == pageName };
+        if(z) return true;
+        return false;
     }
+    
     
     boolean _inited_ = false;
     
@@ -151,12 +116,10 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
         if( !schemaName )
             throw new Exception("Please provide a schema name. Put it in workunit schemaName or override the getSchemaName()");
         if( _inited_ ) return;
-        if( !schema ) {
-            schema = service.getSchema( [name: schemaName, adapter: adapter]  );
-        }   
+        schema = getPersistenceService().getSchema( [name: schemaName, adapter: adapter]  );
         buildStyleRules();
         buildItemHandlers();
-        buildSections();
+        listTypes.init( schema );
         _inited_ = true;
         afterInit()
     }
@@ -194,19 +157,21 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
         init();
         initNewData();
         afterCreate();
+        if( pageExists("create")) return "create";
         return null;
     }
     
     def open() {
         mode = "read";
+        init();
         //we need to set the schemaname that will be used for open
         entity._schemaname = schemaName;
         entity = getPersistenceService().read( entity );
         
         //we need to reset the schema name for update.
         entity._schemaname = schemaName;
-        init();
         afterOpen();
+        if( pageExists("view")) return "view";
         return null;
     }
     
@@ -223,6 +188,7 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
         }        
         entity = new DataMap( entity );
         afterEdit();
+        if( pageExists("edit")) return "edit";
         return null;
     }
     
@@ -231,6 +197,7 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
         entity.unedit();
         entity = entity.data();
         loadData();
+        if( pageExists("view")) return "view";
         return null;
     }
     
@@ -258,6 +225,7 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
             caller?.refresh();
         }
         catch(ign){;}
+        if( pageExists("view")) return "view";
         return null;
     }
     
@@ -279,14 +247,6 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
         Modal.show("debug:view", [schema:schema, data:e]);
     }
     
-    def showInfo() {
-        throw new Exception("No info handler found");
-    }
-        
-    def showHelp() {
-        throw new Exception("No help handler found");
-    }
-    
     /*************************************************************************
      * Navigation Controls
      **************************************************************************/
@@ -296,17 +256,13 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
     }
     
     void moveUp() {
-        if( caller?.listHandler ) {
-            caller.listHandler.moveBackRecord();
-            reloadEntity();
-        }
+        caller.listHandler.moveBackRecord();
+        reloadEntity();
     }
 
     void moveDown() {
-        if( caller?.listHandler ) {
-            caller.listHandler.moveNextRecord();
-            reloadEntity();
-        }
+        caller.listHandler.moveNextRecord();
+        reloadEntity();
     }
     
     void loadData() {
@@ -323,21 +279,24 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
             loadData();
             afterOpen();
         }
-        if(invoker.properties.target == 'window') {
-            subWindow.update( [title: getTitle() ] );
-        }
+        updateWindowProperties(); 
     }
     
     /*************************************************************************
      * This part here is for item handlers.  
      **************************************************************************/
     //overridable list events:
-    public def openItem(String name,def item, String colName) { return null; }
+    public def openItem(String name,def item, String colName) { 
+        return null;
+    }
     public boolean beforeColumnUpdate(String name, def item, String colName, def newItem) { return true;}
     public void afterColumnUpdate(String name, def item, String colName ) {;}
     public void beforeAddItem(String name, def item ) {;}
     public void afterAddItem(String name, def item ) {;}
     
+    boolean isColumnEditable(String name, Object item, String columnName) {
+        return (mode != 'read');
+    }
     
     private void buildItemHandlers() {
         itemHandlers.clear();
@@ -398,30 +357,6 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
         entity.get(name).remove( item );
     }
 
-    
-    //For managing small combo like lists....
-    def listTypeHandler = { n->
-        def fld = schema.fields.find{ it.name == n };    
-        if( fld?.lov!=null ) {
-            return LOV.get( fld.lov.toUpperCase() )*.key;
-        }
-        else if(fld?.ref!=null) {
-            try {
-                String nn = fld.ref;
-                if(nn.indexOf(".")>0) nn = nn.split(":")[1];
-                def m = [_schemaname:nn];
-                m._limit =100;
-                m._start = 0;
-                return  qryService.getList( m );
-            }
-            catch(e) {
-                e.printStackTrace();
-            }
-        }
-        return [];
-    }
-    def listTypes = new ListTypeMap(listTypeHandler);
-    
 }
 
 

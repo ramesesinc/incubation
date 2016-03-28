@@ -2,8 +2,9 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.rameses.osiris3.script;
+package com.rameses.osiris3.common;
 
+import com.rameses.osiris3.script.*;
 import com.rameses.osiris3.core.AbstractContext;
 import com.rameses.osiris3.core.MainContext;
 import com.rameses.osiris3.core.TransactionContext;

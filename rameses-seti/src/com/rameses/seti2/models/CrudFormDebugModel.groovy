@@ -20,7 +20,7 @@ public class CrudFormDebugModel {
     def fieldHandler = [
         fetchList: { o->
             if( !selectedName ) return [];
-            def m = schema.fields.find{ it.name == selectedName };
+            def m = (schema.fields+schema.links).find{ it.name == selectedName };
             def list = [];
             m.each {k,v->
                 list << [key:k, value:v];
@@ -45,7 +45,7 @@ public class CrudFormDebugModel {
     ]as BasicListModel;
     
     void init() {
-        fieldNames = schema.fields*.name;
+        fieldNames = (schema.fields+schema.links)*.name;
         dataValues = [];
         if(data) {
             data.each { k,v->

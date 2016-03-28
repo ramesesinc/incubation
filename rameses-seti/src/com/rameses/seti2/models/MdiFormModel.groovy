@@ -12,6 +12,23 @@ import com.rameses.util.*;
 
 public class MdiFormModel  extends CrudFormModel {
     
+    //used for mdi forms.
+    def selectedSection;
+    def sections;
+    
+    protected void buildSections() {
+        //for items with sections....
+        try {
+            sections = Inv.lookupOpeners(getSchemaName() + ":section",[:]);
+        } 
+        catch(Exception ex){;}
+    }
+    
+    void init() {
+        super.init();
+        buildSections();
+    }
+    
     boolean isAllowEdit() {return false; }    
     boolean isSaveAllowed() { return false; }
     boolean isUndoAllowed() { return false; }
