@@ -1,0 +1,9 @@
+<workunit schemaName="sys_wf_node">
+    <invokers>
+        <invoker type="sys_wf_node:open" caption="Open Workflow Node" target="popup"  action="open"/>
+    </invokers>
+    <code class="com.rameses.seti2.models.CrudFormModel"/>
+    <pages>
+        <page template="com.rameses.wf.views.SysWfNodePage"/>    
+    </pages>    
+</workunit>

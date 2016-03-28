@@ -24,4 +24,9 @@ public interface SubItemListener {
     boolean beforeColumnUpdate(String name, Object item, String colName, Object newValue);
     void afterColumnUpdate(String name, Object item, String colName );
     
+    boolean isColumnEditable(String name, Object item, String columnName);
+    
+    
 }
+
+

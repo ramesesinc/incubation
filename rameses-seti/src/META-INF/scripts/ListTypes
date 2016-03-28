@@ -1,0 +1,59 @@
+import com.rameses.rcp.annotations.*;
+import com.rameses.osiris2.common.*;
+import java.util.*;
+
+public class ListTypes extends HashMap {
+    
+    @Service("QueryService")
+    def qryService;
+
+    @Service("ListService")
+    def listService;
+
+
+    def schema;
+
+    void init( def s ) {
+        schema = s;
+    }
+    
+    public def get( def n ) {
+        def fld = (schema.fields+schema.links).find{ it.name == n };  
+        if( fld?.lov!=null ) {
+            return LOV.get( fld.lov.toUpperCase() )*.key;
+        }
+        else if(fld?.ref!=null) {
+            try {
+                String nn = fld.ref;
+                if(nn.indexOf(".")>0) nn = nn.split(":")[1];
+                def m = [_schemaname:nn];
+                m._limit =1000;
+                m._start = 0;
+                return  qryService.getList( m );
+            }
+            catch(e) {
+                e.printStackTrace();
+            }
+        }
+        else if(fld?.listname!=null) {
+            try {
+                return listService.getList([name: fld.listname]);
+            }
+            catch(e) {
+                e.printStackTrace();
+            }
+        }
+        else {
+            //test the simple lists
+            try {
+                return listService.getList([name: n]);
+            }
+            catch(e) {
+                e.printStackTrace();
+            }
+        }
+        return [];
+    }
+    
+    
+}

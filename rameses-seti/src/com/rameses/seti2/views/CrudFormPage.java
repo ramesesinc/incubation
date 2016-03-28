@@ -207,6 +207,7 @@ public class CrudFormPage extends javax.swing.JPanel {
                 jToolBar1.add(btnCancel);
 
                 xActionBar1.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 10, 0, 0));
+                xActionBar1.setDynamic(true);
                 xActionBar1.setName("extActions"); // NOI18N
                 jToolBar1.add(xActionBar1);
 

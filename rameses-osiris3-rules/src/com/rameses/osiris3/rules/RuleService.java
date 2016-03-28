@@ -183,7 +183,6 @@ public class RuleService extends ContextService {
         }
     }
     
-    
     public void execute(String ruleset, List facts, Object globals, String agenda) throws Exception {
         KnowledgeBase kbase = getRuleContext(ruleset).getKnowledgeBase();
         StatefulKnowledgeSession session = kbase.newStatefulKnowledgeSession();
@@ -224,9 +223,11 @@ public class RuleService extends ContextService {
                 session.getAgenda().getAgendaGroup(agenda).setFocus();
             }
             session.fireAllRules();
-        } catch(Exception e) {
+        } 
+        catch(Exception e) {
             throw e;
-        } finally {
+        } 
+        finally {
             session.dispose();
         }
     }

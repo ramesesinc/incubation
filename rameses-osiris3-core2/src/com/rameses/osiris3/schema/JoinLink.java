@@ -20,6 +20,7 @@ public class JoinLink {
     
     public JoinLink(SchemaElement elem, String name) {
         this.element = elem;
+        if(name==null) name = this.element.getName();
         this.name = name;
     }
 

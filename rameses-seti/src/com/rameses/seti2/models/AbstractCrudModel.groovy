@@ -6,7 +6,10 @@ import com.rameses.rcp.annotations.*;
 import com.rameses.osiris2.client.*;
 import com.rameses.osiris2.common.*;
 import com.rameses.rcp.framework.ClientContext;
-        
+import com.rameses.rcp.constant.*;
+import java.rmi.server.*;
+import com.rameses.util.*;
+
 public abstract class AbstractCrudModel  {
     
     @Binding
@@ -20,6 +23,18 @@ public abstract class AbstractCrudModel  {
     
     @Caller
     def caller;
+    
+    @SubWindow
+    def subWindow;
+    
+    @Script("User")
+    def userInfo;
+            
+    @Service("PersistenceService")
+    def persistenceSvc;
+    
+    @Service("QueryService")
+    def qryService;
     
     String role;
     String domain;
@@ -47,7 +62,44 @@ public abstract class AbstractCrudModel  {
         this._schemaName_ = s;
     }
     
-    List getExtActions() {
+    public def getPersistenceService() {
+        return persistenceSvc;
+    }
+    
+    public def getQueryService() {
+        return qryService;
+    }
+    
+    @FormTitle
+    String getWindowTitle() {
+        if( invoker.properties.windowTitle ) {
+            return ExpressionResolver.getInstance().evalString(invoker.properties.windowTitle,this);
+        }
+        else {
+            return getTitle();
+        }
+    }
+    
+    String getTitle() {
+        if( invoker.properties.formTitle ) {
+            return ExpressionResolver.getInstance().evalString(invoker.properties.formTitle,this);
+        }
+        if( invoker.caption ) {
+            return invoker.caption;
+        }
+        return getSchemaName();
+    }
+    
+    @FormId
+    String getFormId() {
+        if( invoker.properties.formId ) {
+            return ExpressionResolver.getInstance().evalString(invoker.properties.formId,this);
+        }
+        return workunit.workunit.id;
+    }
+    
+    
+    public List getExtActions() {
         def actions1 = []; 
         try { 
             def invs = Inv.lookup("formActions", null, { o-> 
@@ -70,7 +122,13 @@ public abstract class AbstractCrudModel  {
         return (actions1 + actions2).sort{ (it.index==null? 0: it.index) };
     }    
     
-    
+    void updateWindowProperties() {
+        if(invoker.properties.target == 'window') {
+            if(subWindow!=null) {
+                subWindow.update( [title: getTitle() ] );
+            }
+        }
+    }
     
     final def buildActions( invokers ) {
         def actions = []; 
@@ -199,6 +257,21 @@ public abstract class AbstractCrudModel  {
         op.add( new com.rameses.seti2.models.PopupAction(caption:'Close', name:'_close', obj:this, binding:binding) );
         return op;
     }
+    
+    //information about the user
+    public def getUser() {
+        def app = userInfo.env;
+        return [objid: app.USERID, name: app.NAME, fullname: app.FULLNAME, username: app.USER ];
+    }
+    
+    def showInfo() {
+        throw new Exception("No info handler found");
+    }
+        
+    def showHelp() {
+        throw new Exception("No help handler found");
+    }
+    
     
 }
         
