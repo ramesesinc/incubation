@@ -45,7 +45,7 @@ public class EntityManagerUtil {
     }
     
     public static EntityManager getEntityManager(String schemaName, SchemaManager sm, SqlContext sqc, ClassLoader parentClassLoader) throws Exception {
-        if(metaClasses.containsKey(schemaName)) {
+        if(!metaClasses.containsKey(schemaName)) {
             StringBuilder builder = new StringBuilder();
             builder.append( "public class ActiveEntity extends com.rameses.osiris3.persistence.EntityManager { \n" );
             builder.append( "    public ActiveEntity(com.rameses.osiris3.schema.SchemaManager m, com.rameses.osiris3.sql.SqlContext s, String n) { \n");
@@ -67,7 +67,9 @@ public class EntityManagerUtil {
         Class metaClass = (Class)metaClasses.get(schemaName);
         Class[] consts = new Class[]{SchemaManager.class, SqlContext.class};
         Object[] parms = new Object[]{sm, sqc};
-        return (EntityManager)metaClass.getDeclaredConstructor(consts).newInstance(parms);
+        EntityManager em = (EntityManager)metaClass.getDeclaredConstructor(consts).newInstance(parms);
+        em.setName(schemaName);
+        return em;
     }
     
     private static String findAdapter( SchemaManager sm,  String schemaName, String adapter ) {
