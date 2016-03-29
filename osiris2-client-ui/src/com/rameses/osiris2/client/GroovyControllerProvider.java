@@ -3,16 +3,9 @@ package com.rameses.osiris2.client;
 import com.rameses.classutils.AnnotationFieldHandler;
 import com.rameses.classutils.ClassDefUtil;
 import com.rameses.osiris2.CodeProvider;
-import com.rameses.util.URLUtil;
 import groovy.lang.GroovyClassLoader;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.net.HttpURLConnection;
-import java.net.JarURLConnection;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.net.URLConnection;
-import java.util.jar.JarFile;
 
 public class GroovyControllerProvider implements CodeProvider {
     
@@ -34,7 +27,7 @@ public class GroovyControllerProvider implements CodeProvider {
     
     public Class createClass(String source) {
         try {
-            return loader.parseClass( new ByteArrayInputStream(source.getBytes()) );
+            return loader.parseClass( source );
         } catch(RuntimeException re) {
             throw re;
         } catch(Exception ex) {

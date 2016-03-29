@@ -62,7 +62,7 @@ public final class ScriptProvider {
                     throw new RuntimeException("Cannot find script " + name + ".");
                 
                 //clazz = loader
-                Class clazz = loader.parseClass( is );
+                Class clazz = loader.parseClass( is, scriptName );
                 scriptMap.put( name, clazz );
             }
             catch(Exception e) {

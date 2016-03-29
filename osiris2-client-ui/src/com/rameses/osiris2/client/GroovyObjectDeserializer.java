@@ -53,7 +53,8 @@ public class GroovyObjectDeserializer {
         GroovyShell gs = null;
         try {
             gs = new GroovyShell();
-            return gs.evaluate(data);
+            //return gs.evaluate(data);
+            return null; 
         } catch(RuntimeException re) {
             throw re;
         } catch(Exception e) {
