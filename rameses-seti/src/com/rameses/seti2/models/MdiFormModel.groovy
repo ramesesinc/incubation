@@ -29,9 +29,7 @@ public class MdiFormModel  extends CrudFormModel {
         buildSections();
     }
     
-    boolean isAllowEdit() {return false; }    
-    boolean isSaveAllowed() { return false; }
-    boolean isUndoAllowed() { return false; }
-    boolean isCancelEditAllowed() { return false; }
+    boolean isCreateAllowed() { return false; }
+    boolean isEditAllowed() {return false; }    
    
 }

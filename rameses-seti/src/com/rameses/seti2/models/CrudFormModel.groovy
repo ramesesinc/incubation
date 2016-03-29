@@ -30,6 +30,14 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
         return entity;
     }
 
+    boolean isCloseOnSave() { 
+        def c = workunit?.info?.workunit_properties?.closeOnSave;
+        if ( c ) {
+            return "true".equals(c); 
+        } else { 
+            return false; 
+        }
+    }
     boolean isCreateAllowed() { 
         if( mode != 'read') return false;
         return super.isCreateAllowed();
@@ -188,8 +196,8 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
         }        
         entity = new DataMap( entity );
         afterEdit();
-        if( pageExists("edit")) return "edit";
-        return null;
+        if( pageExists("edit")) return "edit"; 
+        return 'default';
     }
     
     def unedit() {
@@ -198,7 +206,7 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
         entity = entity.data();
         loadData();
         if( pageExists("view")) return "view";
-        return null;
+        return 'default';
     }
     
     def save() {
@@ -225,8 +233,11 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
             caller?.refresh();
         }
         catch(ign){;}
+        
+        if (isCloseOnSave()) return '_close';
+        
         if( pageExists("view")) return "view";
-        return null;
+        return "default";
     }
     
     void undo() {
