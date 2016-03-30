@@ -71,11 +71,12 @@ public class XTitledBorder extends AbstractBorder {
         //titlebar
         if ( title == null || title.equals("")) return;
         
-        Insets padding = titlePadding;
         g2.setFont(font);
+        Insets padding = titlePadding;
         FontMetrics fm = g2.getFontMetrics();
         
-        int strWidth = fm.stringWidth(title);
+        String stitle = "  "+ title +"  "; 
+        int strWidth = fm.stringWidth( stitle );
         y2 = y + fm.getHeight() + padding.top + padding.bottom;
         x2 = x + strWidth + padding.left + padding.right;
         
@@ -101,7 +102,7 @@ public class XTitledBorder extends AbstractBorder {
         //draw the title
         g2.setColor(titleForeground);
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
-        g2.drawString(title, x + padding.left, y + padding.top + (fm.getHeight() - fm.getDescent()));
+        g2.drawString(stitle, x + padding.left, y + padding.top + (fm.getHeight() - fm.getDescent()));
         
         g2.dispose();
     }

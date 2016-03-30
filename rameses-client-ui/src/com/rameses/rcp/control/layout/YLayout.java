@@ -14,6 +14,7 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Insets;
 import java.awt.LayoutManager;
+import java.awt.Rectangle;
 
 /** 
  *
@@ -22,10 +23,16 @@ import java.awt.LayoutManager;
 public class YLayout implements LayoutManager
 {
     private int spacing = 2; 
+    private boolean autoFill;
     
     public int getSpacing() { return spacing; }
     public void setSpacing(int spacing) {
         this.spacing = spacing;
+    }
+    
+    public boolean isAutoFill() { return autoFill; } 
+    public void setAutoFill( boolean autoFill ) {
+        this.autoFill = autoFill;
     }
     
     public void addLayoutComponent(String name, Component comp) {}
@@ -71,6 +78,7 @@ public class YLayout implements LayoutManager
             int y = margin.top;
             int w = pw - (margin.left + margin.right);
             
+            Component lastComponent = null; 
             boolean has_visible_components = false; 
             Component[] comps = parent.getComponents(); 
             for (int i=0; i<comps.length; i++) {
@@ -78,10 +86,24 @@ public class YLayout implements LayoutManager
                 if (!c.isVisible()) continue;
                 if (has_visible_components) y += getSpacing();
                     
-                Dimension dim = c.getPreferredSize();
+                Dimension dim = c.getPreferredSize(); 
                 c.setBounds(x, y, w, dim.height); 
                 y += dim.height; 
+                
                 has_visible_components = true; 
+                lastComponent = c;
+            }
+            
+            if ( isAutoFill() && lastComponent != null ) { 
+                int bottomY = ph - margin.bottom; 
+                Rectangle rect = lastComponent.getBounds(); 
+                if ( rect.y+rect.height >= bottomY ) return; 
+                
+                Dimension dim = lastComponent.getPreferredSize();
+                int dh = bottomY - rect.y; 
+                if (dh < 0 ) dh = dim.height; 
+                
+                lastComponent.setBounds(rect.x, rect.y, rect.width, dh); 
             }
         }        
     }

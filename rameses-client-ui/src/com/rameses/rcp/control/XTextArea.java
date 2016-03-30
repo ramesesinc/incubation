@@ -152,9 +152,16 @@ public class XTextArea extends JTextArea implements UIInput, Validatable,
             public void keyPressed(KeyEvent e) {
                 switch(e.getKeyCode()) {
                     case KeyEvent.VK_TAB: 
-                        if ( isExitOnTabKey() && hasFocus() ) {
-                            e.consume();
-                            transferFocus(); 
+                        if ( isExitOnTabKey() && hasFocus() ) { 
+                            if ( e.isControlDown() || e.isAltDown() ) {
+                                //do nothing 
+                            } else if ( e.isShiftDown() ) {
+                                e.consume();
+                                transferFocusBackward();
+                            } else  { 
+                                e.consume();
+                                transferFocus(); 
+                            }                           
                         }
                         break;
                         

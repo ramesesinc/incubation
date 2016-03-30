@@ -182,13 +182,15 @@ public class HttpClient implements Serializable {
         ObjectInputStream in = null;
         ObjectOutputStream out = null;
         String uhost = null;
+        URL url = null;
         try {
             uhost = queue.poll();
             if( uhost == null ) { 
                 throw new AllConnectionFailed("Cannot connect to "+uhost);
             } 
             
-            URL url = new URL(uhost);
+            url = new URL(uhost);
+            //System.out.println("invoke "+ url + " started");
             conn = (HttpURLConnection) url.openConnection();
             if (conn instanceof HttpsURLConnection) {
                 HttpsURLConnection httpsc = (HttpsURLConnection)conn; 
@@ -260,7 +262,7 @@ public class HttpClient implements Serializable {
                             in = new ObjectInputStream(is);
                             retval =  in.readObject();
                         } catch(Throwable tt){
-                            System.out.println("error HttpClient. " + tt.getClass().getName() + ": "+ tt.getMessage());
+                            //System.out.println("error HttpClient. " + tt.getClass().getName() + ": "+ tt.getMessage());
                             //tt.printStackTrace(); 
                         }
                     }
@@ -288,6 +290,8 @@ public class HttpClient implements Serializable {
             try { is.close(); } catch(Throwable ign){;}
             try { out.close(); } catch(Throwable ign){;}
             try { conn.disconnect(); } catch (Throwable ign){;}
+            
+            //System.out.println("invoke "+ url + " ended");
         }
     }
 
