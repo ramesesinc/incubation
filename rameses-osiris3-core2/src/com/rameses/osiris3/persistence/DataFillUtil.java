@@ -55,7 +55,7 @@ public class DataFillUtil {
     public static void fillInitialData( SchemaElement elem, Map rawData ) throws Exception {
         for( SimpleField sf: elem.getSimpleFields() ) {
             //insert primary key ids.
-            Object val = rawData.get(sf.getName());
+            Object val = EntityUtil.getNestedValue(rawData, sf.getName());
             if( val == null ) {
                 if( sf.isPrimary() ) {
                     //fill only if base field.
