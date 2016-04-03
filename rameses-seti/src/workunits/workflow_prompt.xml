@@ -2,47 +2,7 @@
     <invokers>
         <invoker type="workflow_prompt:view" caption="Please enter message" action="init"/>
     </invokers>
-    <code>
-        <![CDATA[
-        import com.rameses.rcp.common.*;
-        import com.rameses.rcp.annotations.*;
-        import com.rameses.osiris2.client.*;
-        import com.rameses.osiris2.common.*;
-        import com.rameses.rcp.framework.ClientContext;
-
-        public class WorkflowPromptModel {
-        
-            def role;
-            def domain;
-            def assigneeList;
-            def handler;
-            def info;
-        
-            boolean showAssigneeList = false;
-        
-            public def getLookupAssignees() {
-                def h = { o->
-                    info.assignee = o;
-                }
-                return Inv.lookupOpener( "workflow_user:lookup", [domain:domain, role:role, onselect:h] );
-            }
-        
-            void init() {
-                info = [:];
-                if( role )  showAssigneeList = true;
-            }
-        
-            def doCancel() {
-                return "_close";
-            }
-            
-            def doOk() {
-                if(handler) handler(info);
-                return "_close";
-            }
-        }
-        ]]>        
-    </code>
+    <code class="com.rameses.seti2.models.WorkflowTaskPromptModel" />
     <pages>
         <page template="com.rameses.seti2.views.WorkflowPromptPage"/>
     </pages>

@@ -183,7 +183,14 @@ public class CrudListModel extends AbstractCrudModel {
         return m;
     }
     
+    public int getRows() {
+        return 20;
+    }
+    
     def listHandler = [
+        getRows : {
+            return getRows();
+        },
         getColumnList: {
             if( schema == null )
                 throw new Exception("schema is null. Please call init method")

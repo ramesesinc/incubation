@@ -11,7 +11,7 @@ import java.rmi.server.*;
 import com.rameses.util.*;
 import com.rameses.seti2.models.CrudFormModel;
 
-public class WorkflowTaskModel extends CrudFormModel {
+public class WorkflowTaskModel extends CrudFormModel implements WorkflowTaskListener {
     
     @Service("WorkflowTaskService")
     def workflowTaskSvc;
@@ -25,6 +25,9 @@ public class WorkflowTaskModel extends CrudFormModel {
         return workflowTaskSvc;
     }
     
+    def getInfoBeforeSignal( def transition  ) {
+        return null;
+    }
     
     public def open() {
         //do not use entity because it is the item from the passed list.
@@ -56,7 +59,14 @@ public class WorkflowTaskModel extends CrudFormModel {
             buildTransitionActions( t );
             task = t;
         }
-        return super.open();
+        
+        def r = super.open();
+        if( pageExists(task.state)) {
+            return task.state;
+        }
+        else {
+            return r;
+        }
     }
     
     public def signal( def transition ) {
@@ -82,11 +92,26 @@ public class WorkflowTaskModel extends CrudFormModel {
     }
     
     final void buildTransitionActions( def tsk ) {
-        def h = { t->
-            return signal(t);
+         if( !tsk.assignee?.objid ) {
+            def h = {
+                def m = [:];
+                m.processname = getSchemaName();
+                m.taskid = task.taskid;
+                def res = workflowTaskService.assignToMe(m);
+                task.assignee = res.assignee;
+                task.startdate = res.startdate;
+                transitions.clear();
+                buildTransitionActions(task);
+            }
+            transitions << new WorkflowAssignToMeAction( tsk, h );
         }
-        tsk.transitions.each{ 
-            transitions << new WorkflowTransitionAction( it, tsk, h ) 
+        else {
+            def h = { t->
+                return signal(t);
+            }
+            tsk.transitions.each{ 
+                transitions << new WorkflowTransitionAction( it, tsk, h, this ) 
+            }
         }
     }
     
@@ -109,6 +134,18 @@ public class WorkflowTaskModel extends CrudFormModel {
         return false;
     }
 
+    
+    //This is to display the standard workflow actions
+    public List getNavActions() {
+        def actions2 = [];
+        try { 
+            def actionProvider = ClientContext.currentContext.actionProvider; 
+            actions2 = actionProvider.lookupActions( "workflowtask:navActions" );
+        } catch(Throwable t) {
+            System.out.println("[WARN] error lookup invokers caused by " + t.message);
+        }
+        return actions2.sort{ (it.index==null? 0: it.index) };
+    }     
     
 }
 

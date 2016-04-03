@@ -1,5 +1,8 @@
 <folders>
     <folder id="explorer">
         <folder id="rulemgmt" caption="Rule Management"/>
+        <folder id="setting" caption="Settings">
+            <folder id="rulemgmt" caption="Rule Management"/>
+        </folder>    
     </folder>
 </folders>

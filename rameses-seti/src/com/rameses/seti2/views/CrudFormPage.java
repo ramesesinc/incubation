@@ -58,6 +58,7 @@ public class CrudFormPage extends javax.swing.JPanel {
         btnUndo = new com.rameses.rcp.control.XButton();
         btnCancel = new com.rameses.rcp.control.XButton();
         xActionBar1 = new com.rameses.rcp.control.XActionBar();
+        xActionBar2 = new com.rameses.rcp.control.XActionBar();
         btnUp = new com.rameses.rcp.control.XButton();
         btnDown = new com.rameses.rcp.control.XButton();
 
@@ -211,6 +212,12 @@ public class CrudFormPage extends javax.swing.JPanel {
                 xActionBar1.setName("extActions"); // NOI18N
                 jToolBar1.add(xActionBar1);
 
+                xActionBar2.setName("navActions"); // NOI18N
+                xActionBar2.setOrientationHAlignment("RIGHT");
+                xActionBar2.setPreferredSize(new java.awt.Dimension(100, 29));
+                xActionBar2.setTextPosition("CENTER");
+                jToolBar1.add(xActionBar2);
+
                 btnUp.setFocusable(false);
                 btnUp.setIconResource("images/toolbars/arrow_up.png");
                 btnUp.setImmediate(true);
@@ -247,6 +254,7 @@ public class CrudFormPage extends javax.swing.JPanel {
     private javax.swing.JToolBar jToolBar3;
     private javax.swing.JPanel pnlstat;
     private com.rameses.rcp.control.XActionBar xActionBar1;
+    private com.rameses.rcp.control.XActionBar xActionBar2;
     private com.rameses.rcp.control.XLabel xLabel1;
     private com.rameses.rcp.control.XStyleRule xStyleRule1;
     // End of variables declaration//GEN-END:variables

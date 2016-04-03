@@ -1,0 +1,45 @@
+<workunit>
+    <invokers>
+        <invoker type="workflowtask:navActions" caption="Task Info" target="popup" action="init"/>
+    </invokers>
+    <code>
+        <![CDATA[
+        
+        import com.rameses.rcp.common.*;
+        import com.rameses.rcp.annotations.*;
+        import com.rameses.osiris2.client.*;
+        import com.rameses.osiris2.common.*;
+        import com.rameses.common.*;
+        import com.rameses.rcp.constant.*;
+
+        class WorkflowInfo {
+        
+            @Service("WorkflowTaskService")
+            def workflowSvc;
+        
+            @Caller
+            def caller;
+        
+            def task;
+        
+            void init() {
+                task = caller.task;
+            }
+            
+            def listHandler = [
+                fetchList: { o->
+                    return workflowSvc.getTransactionHistory( [refid: task.refid, processname: caller.getSchemaName() ] );
+                }
+            ] as BasicListModel;
+            
+            def doClose() {
+                return "_close";
+            }
+            
+        }
+        ]]>
+    </code>
+    <pages>
+        <page template="com.rameses.seti2.views.WorkflowInfoPage" />
+    </pages>    
+</workunit>
