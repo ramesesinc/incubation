@@ -3,7 +3,7 @@
     <code class="com.rameses.seti2.models.WorkflowTaskListModel" />    
     
     <pages>
-        <page template="com.rameses.osiris2.themes.NodeListPage"/>
+        <page template="com.rameses.seti2.views.WorkflowTaskListPage"/>
     </pages>
     
 </workunit> 

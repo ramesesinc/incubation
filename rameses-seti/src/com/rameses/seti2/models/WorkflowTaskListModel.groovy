@@ -16,6 +16,11 @@ public class WorkflowTaskListModel extends com.rameses.seti2.models.CrudListMode
     @Service("WorkflowTaskListService")
     def wfTaskListService;
     
+    @Service('NotificationService')
+    def notificationSvc; 
+    
+    @Script('Notification')
+    def noteScript;
     
     public def getQueryService() {
         return wfTaskListService;
@@ -33,10 +38,21 @@ public class WorkflowTaskListModel extends com.rameses.seti2.models.CrudListMode
         return getEntitySchemaName() + "_task";
     }
 
+    @Close
+    void onclose() { 
+        noteScript.remove();
+    } 
+    
     public void init() {
         if( !getProcessName() ) 
             throw new Exception("Please indicate a processName");
-        super.init();    
+
+        super.init();  
+        
+        noteScript.onMessage = {
+            fetchNodeCount();
+            nodeListHandler.repaint(); 
+        }
     }
     
     public def beforeQuery( def m ) {
@@ -46,27 +62,46 @@ public class WorkflowTaskListModel extends com.rameses.seti2.models.CrudListMode
     public beforeFetchNodes( def m ) {
         m.processname = getProcessName();
     }
+
     
-    //overriding the nodelist
     boolean _nodes_loaded = false;
-    def getNodeList() {
-        def list = super.getNodeList();
-        if( !_nodes_loaded ) {
-            list.each {
-                it.origtitle = it.title;
-                if( it.domain && it.role ) {
-                    boolean pass = false;
-                    try {
-                        pass = secProvider.checkPermission( it.domain, it.role, null );
-                    }catch(e){;}
-                    if( pass) {
-                        it.title = "<html>"+it.origtitle+"&nbsp;<font color=red><b>(1)</b></font></html>";
+    
+    def nodes = [];
+    def nodeListHandler = [
+        fetchList: { 
+            nodes = super.getNodeList(); 
+            if( !_nodes_loaded ) {
+                fetchNodeCount(); 
+                _nodes_loaded = true; 
+            }
+            return nodes; 
+        },
+        onselect: { 
+            selectedNode = it; 
+        }
+    ] as ListPaneModel;    
+    
+    void fetchNodeCount() {
+        if ( !notificationSvc ) return; 
+        
+        nodes.each { 
+            if ( it.origtitle==null ) { 
+                it.origtitle = it.title; 
+            } 
+            
+            if( it.domain && it.role ) {
+                boolean pass = false;
+                try {
+                    pass = secProvider.checkPermission( it.domain, it.role, null );
+                }catch(e){;}
+                
+                if( pass) {
+                    def icount = notificationSvc.getCount([ tag: getProcessName()+':'+ it.name ]);
+                    if ( icount > 0 ) {
+                        it.title = "<html>"+it.origtitle+"&nbsp;<font color=red><b>("+ icount +")</b></font></html>";
                     }
                 }
             }
-            _nodes_loaded = true;
         }
-        return list;
     }
-    
 }
