@@ -1,0 +1,26 @@
+import com.rameses.rcp.framework.*;
+
+public class Notification implements NotificationHandler { 
+
+    def callback; 
+
+    public void setOnMessage( def callback ) { 
+        remove(); 
+        this.callback = callback; 
+        def provider = ClientContext.currentContext.notificationProvider; 
+        if ( provider ) provider.add( this ); 
+    } 
+
+    public void remove() { 
+        def provider = ClientContext.currentContext.notificationProvider; 
+        if ( provider ) provider.remove( this );   
+    } 
+
+    void onMessage(Object data) { 
+        if ( callback ) callback( data ); 
+    } 
+
+    void onRead(Object data) {
+        //do nothing 
+    } 
+} 
