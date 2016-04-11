@@ -30,7 +30,7 @@ public class WorkflowTransitionAction extends com.rameses.rcp.common.Action {
         tooltip = caption;
         
         //only visible false property will matter
-        if( t.properties.visible?.matches('false') || t.properties.visible == false) {
+        if( t.properties?.visible!=null && t.properties?.visible?.booleanValue() == false) {
             visibleWhen = "#{false}";
         } 
         else {
