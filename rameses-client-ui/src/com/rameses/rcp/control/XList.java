@@ -17,7 +17,6 @@ import com.rameses.rcp.support.FontSupport;
 import com.rameses.rcp.support.ImageIconSupport;
 import com.rameses.rcp.support.MouseEventSupport;
 import com.rameses.rcp.ui.UIControl;
-import com.rameses.rcp.util.ControlSupport;
 import com.rameses.rcp.util.UIControlUtil;
 import com.rameses.util.BreakException;
 import com.rameses.util.ValueUtil;
@@ -408,14 +407,14 @@ public class XList extends JList implements UIControl, MouseEventSupport.Compone
         model.clear(); 
         int i = 0; 
         for (Object o: list) { 
-            if (o instanceof Map) {
-                Map map = (Map) o;
-                String domain = getProperty(map, "domain");
-                String role = getProperty(map, "role");
-                String permission = getProperty(map, "permission");
-                boolean allowed = ControlSupport.isPermitted(domain, role, permission); 
-                if (!allowed) continue; 
-            } 
+//            if (o instanceof Map) {
+//                Map map = (Map) o;
+//                String domain = getProperty(map, "domain");
+//                String role = getProperty(map, "role");
+//                String permission = getProperty(map, "permission");
+//                boolean allowed = ControlSupport.isPermitted(domain, role, permission); 
+//                if (!allowed) continue; 
+//            } 
             
             model.add(i++, o); 
         } 
