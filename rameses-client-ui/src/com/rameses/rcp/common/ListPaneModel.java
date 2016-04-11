@@ -57,15 +57,15 @@ public class ListPaneModel
     public Object getBinding() {
         return (provider == null? null: provider.getBinding()); 
     }
-    
+    public void repaint() {
+        if (provider != null) provider.repaint(); 
+    }
     public void refresh() {
         if (provider != null) provider.refresh();
     }
-    
     public void reload() {
         if (provider != null) provider.reload();
     }    
-    
     public void setSelectedIndex(int index) {
         if (provider != null) provider.setSelectedIndex(index); 
     }
@@ -83,9 +83,10 @@ public class ListPaneModel
     {
         Object getBinding();
         
+        void repaint();        
         void refresh();
         void reload();
-        void setSelectedIndex(int index); 
+        void setSelectedIndex(int index);         
     }
     
     // </editor-fold>
