@@ -366,7 +366,13 @@ public class WebsocketClient
             }             
         } 
         
-        private void notify(Object data) {
+        private void notify(Object data) { 
+            try { 
+                ClientContext.getCurrentContext().getNotificationProvider().sendMessage( data ); 
+            } catch(Throwable t) {
+                t.printStackTrace();
+            }
+            
             root.model.onmessage(data);
         }
         

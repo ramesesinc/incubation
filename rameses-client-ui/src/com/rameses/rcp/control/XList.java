@@ -91,7 +91,7 @@ public class XList extends JList implements UIControl, MouseEventSupport.Compone
         setEnableNavigation(true); 
         setMultiselect(false);
         setVarName("item");
-        
+
         if ( Beans.isDesignTime() ) 
         {
             setPreferredSize(new Dimension(80, 100));
@@ -711,6 +711,9 @@ public class XList extends JList implements UIControl, MouseEventSupport.Compone
             return root.getBinding(); 
         }
 
+        public void repaint() {
+            root.repaint();
+        }
         public void refresh() {
             root.refresh();
         }

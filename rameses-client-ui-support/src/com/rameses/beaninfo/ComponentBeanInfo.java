@@ -45,7 +45,8 @@ public class ComponentBeanInfo extends SimpleBeanInfo
                 
                 new PropertyDescriptor("name", Component.class),
                 new PropertyDescriptor("visible", Component.class), 
-                new PropertyDescriptor("opaque", JComponent.class, "isOpaque", "setOpaque")
+                new PropertyDescriptor("opaque", JComponent.class, "isOpaque", "setOpaque"),
+                new PropertyDescriptor("toolTipText", JComponent.class)
             };
         } 
         catch (IntrospectionException ie) {
