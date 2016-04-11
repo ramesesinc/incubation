@@ -35,6 +35,7 @@ public class ActionDefInfo extends javax.swing.JPanel {
         xTextField2 = new com.rameses.rcp.control.XTextField();
         xTextField4 = new com.rameses.rcp.control.XTextField();
         xIntegerField1 = new com.rameses.rcp.control.XIntegerField();
+        xTextField12 = new com.rameses.rcp.control.XTextField();
         xDataTable1 = new com.rameses.rcp.control.XDataTable();
         xButton2 = new com.rameses.rcp.control.XButton();
         xButton3 = new com.rameses.rcp.control.XButton();
@@ -85,6 +86,14 @@ public class ActionDefInfo extends javax.swing.JPanel {
         xIntegerField1.setCaption("Sort Order");
         xIntegerField1.setName("entity.sortorder"); // NOI18N
         xFormPanel1.add(xIntegerField1);
+
+        xTextField12.setCaption("Domain");
+        xTextField12.setName("entity.domain"); // NOI18N
+        xTextField12.setPreferredSize(new java.awt.Dimension(150, 20));
+        xTextField12.setRequired(true);
+        xTextField12.setSpaceChar('_');
+        xTextField12.setTextCase(com.rameses.rcp.constant.TextCase.LOWER);
+        xFormPanel1.add(xTextField12);
 
         xDataTable1.setColumns(new com.rameses.rcp.common.Column[]{
             new com.rameses.rcp.common.Column(new Object[]{
@@ -216,7 +225,7 @@ public class ActionDefInfo extends javax.swing.JPanel {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addContainerGap()
-                        .addComponent(xFormPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 126, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(xFormPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jLabel1))
                     .addGroup(layout.createSequentialGroup()
@@ -229,7 +238,7 @@ public class ActionDefInfo extends javax.swing.JPanel {
                             .addComponent(xButton7, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(xButton8, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(xDataTable1, javax.swing.GroupLayout.DEFAULT_SIZE, 122, Short.MAX_VALUE)
+                .addComponent(xDataTable1, javax.swing.GroupLayout.DEFAULT_SIZE, 113, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(xButton2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -258,6 +267,7 @@ public class ActionDefInfo extends javax.swing.JPanel {
     private com.rameses.rcp.control.XIntegerField xIntegerField1;
     private com.rameses.rcp.control.XList xList1;
     private com.rameses.rcp.control.XTextField xTextField1;
+    private com.rameses.rcp.control.XTextField xTextField12;
     private com.rameses.rcp.control.XTextField xTextField2;
     private com.rameses.rcp.control.XTextField xTextField3;
     private com.rameses.rcp.control.XTextField xTextField4;

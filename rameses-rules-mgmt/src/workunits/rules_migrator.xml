@@ -1,7 +1,16 @@
 <workunit extends="wtemplates/RuleMgmtController.xml" serviceName="RuleMgmtService">
     <invokers>
-       <invoker type="rulemgmt:tools" action="exportFile" caption="Export Def" target="process" index="90"/>
+        <invoker type="rulemgmt:tools" action="exportFile" caption="Export Def" target="process" index="90"/>
         <invoker type="rulemgmt:tools" action="importFile" caption="Import Def" target="process"  index="91"/>
+        
+
+        <!-- support for the new -->
+        <invoker type="sys_rule_actiondef:list:formActions" action="exportFile" caption="Export Def" target="process" index="90"/>
+        <invoker type="sys_rule_actiondef:list:formActions" action="importFile" caption="Import Def" target="process" index="90"/>
+        
+        <invoker type="sys_rule_fact:list:formActions" action="exportFile" caption="Export Def" target="process" index="90"/>
+        <invoker type="sys_rule_fact:list:formActions" action="importFile" caption="Import Def" target="process" index="90"/>
+                
     </invokers>
     <code>
         <![CDATA[
