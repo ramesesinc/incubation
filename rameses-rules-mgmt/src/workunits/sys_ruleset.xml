@@ -1,0 +1,13 @@
+<workunit schemaName="sys_ruleset">
+    
+    <invokers>
+        <invoker type="sys_ruleset:create" caption="Create Ruleset" action="create" target="popup"/>
+        <invoker type="sys_ruleset:open" caption="Open Ruleset" action="open" target="popup"/>
+    </invokers>
+    
+    <code class="com.rameses.seti2.models.CrudFormModel" />
+    
+    <pages>
+        <page template="com.rameses.rulemgmt.views.RulesetPage"/>
+    </pages>
+</workunit>

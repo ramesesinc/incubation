@@ -67,7 +67,6 @@ public class CrudListModel extends AbstractCrudModel {
         ;//do nothing
     }
     
-    
     public def getCustomFilter() {
         String s = workunit.info.workunit_properties.customFilter;
         if( s == null ) return null;

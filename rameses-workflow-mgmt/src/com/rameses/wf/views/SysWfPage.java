@@ -36,6 +36,8 @@ public class SysWfPage extends javax.swing.JPanel {
         xTextField2 = new com.rameses.rcp.control.XTextField();
         xDataTable2 = new com.rameses.rcp.control.XDataTable();
 
+        xFormPanel1.setCaptionWidth(120);
+
         xTextField1.setCaption("Process Name");
         xTextField1.setName("entity.name"); // NOI18N
         xTextField1.setPreferredSize(new java.awt.Dimension(0, 20));
@@ -45,6 +47,7 @@ public class SysWfPage extends javax.swing.JPanel {
         xTextField2.setCaption("Title");
         xTextField2.setName("entity.title"); // NOI18N
         xTextField2.setPreferredSize(new java.awt.Dimension(0, 20));
+        xTextField2.setTextCase(com.rameses.rcp.constant.TextCase.NONE);
         xFormPanel1.add(xTextField2);
 
         xDataTable2.setColumns(new com.rameses.rcp.common.Column[]{

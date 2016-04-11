@@ -9,7 +9,8 @@ package com.rameses.seti2.models;
  * @author dell
  */
 public interface WorkflowTaskListener {
-    //for overriding. If you need to do something before signalling. 
-    //the return value will be stored in the info
-    Object getInfoBeforeSignal( Object transition  );
+    //for overriding. If you need to do something before signalling.
+    //like showing the message box or any handlers. 
+    //if true, then the signal will proceed. 
+    boolean beforeSignal( Object transition  );
 }

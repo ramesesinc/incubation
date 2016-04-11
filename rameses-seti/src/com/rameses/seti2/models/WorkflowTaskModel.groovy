@@ -17,6 +17,7 @@ public class WorkflowTaskModel extends CrudFormModel implements WorkflowTaskList
     def workflowTaskSvc;
     
     def task;
+    def refid;
     String processName;
     List transitions = [];
     List extActions;
@@ -25,8 +26,28 @@ public class WorkflowTaskModel extends CrudFormModel implements WorkflowTaskList
         return workflowTaskSvc;
     }
     
-    def getInfoBeforeSignal( def transition  ) {
-        return null;
+    //the default behavior is it displays the workflow prompt.
+    public boolean beforeSignal( def param  ) {
+        /*
+        def addInfo = 
+        if( addInfo ) param.info = addInfo;
+        */
+       boolean pass = false;
+        def h = { info->
+            if(info.assignee) {
+                param.assignee = info.remove("assignee");
+            }
+            param.message = info.remove("message");
+            if( info.size()>0 ) {
+                if(!param.info) param.info = [:]
+                param.info.putAll( info );
+            }
+            pass = true;
+        }
+        //transition role here is for the next role. Not the current one.
+        Modal.show( "workflow_prompt:view", [role:param.role, domain:param.domain, handler: h] );
+        if( !pass ) return false; 
+        return true;
     }
     
     public def open() {
@@ -41,7 +62,7 @@ public class WorkflowTaskModel extends CrudFormModel implements WorkflowTaskList
         if(entity.taskid) {
             task = [taskid: entity.taskid, refid: entity.refid];
         }
-        def refid = entity.refid;
+        refid = entity.refid;
         def primKey = schema.fields.find{ it.primary == true }?.name;
         
         def k = EntityUtil.getNestedValue(entity, primKey);
@@ -72,6 +93,7 @@ public class WorkflowTaskModel extends CrudFormModel implements WorkflowTaskList
     public def signal( def transition ) {
         transition.processname = getSchemaName();
         transition.taskid = task.taskid;
+        transition.refid = refid;
         def newTask = workflowTaskService.signal( transition );
         if( newTask?.taskid ) {
             task = newTask;
@@ -92,6 +114,7 @@ public class WorkflowTaskModel extends CrudFormModel implements WorkflowTaskList
     }
     
     final void buildTransitionActions( def tsk ) {
+         if( tsk?.state == 'end' ) return;
          if( !tsk.assignee?.objid ) {
             def h = {
                 def m = [:];

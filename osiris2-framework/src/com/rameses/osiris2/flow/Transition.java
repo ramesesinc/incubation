@@ -1,5 +1,6 @@
 package com.rameses.osiris2.flow;
 
+import java.rmi.server.UID;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -16,8 +17,10 @@ public class Transition {
     
     private String role;
     private String domain;
+    private String id;
     
     public Transition() {
+        id = "TRANS"+new UID();
     }
     // <editor-fold defaultstate="collapsed" desc="Generated Code">
     
@@ -40,7 +43,7 @@ public class Transition {
     
     public String getName() {
         if( name == null )
-            return getTo();
+            return id;
         else
             return name;
     }

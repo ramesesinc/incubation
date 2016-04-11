@@ -212,6 +212,7 @@ public class CrudFormPage extends javax.swing.JPanel {
                 xActionBar1.setName("extActions"); // NOI18N
                 jToolBar1.add(xActionBar1);
 
+                xActionBar2.setBorder(null);
                 xActionBar2.setName("navActions"); // NOI18N
                 xActionBar2.setOrientationHAlignment("RIGHT");
                 xActionBar2.setPreferredSize(new java.awt.Dimension(100, 29));
