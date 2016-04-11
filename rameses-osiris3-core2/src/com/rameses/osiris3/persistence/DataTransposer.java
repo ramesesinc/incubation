@@ -84,6 +84,7 @@ public class DataTransposer {
         for( SchemaViewField vf: svw.findAllFields(".*")) {
             if(! (vf instanceof SchemaViewRelationField )) {
                 if(!vf.isUpdatable()) continue;
+                
                 if( vf.isSerialized() ) {
                     Object val = null;
                     try {
@@ -95,13 +96,19 @@ public class DataTransposer {
                         if(ser==null) ser = "default";
                         val = ObjectSerializer.getInstance().toString(val);
                         targetData.put( vf.getExtendedName(), val);
-                    }
-                    catch(Exception ign){;}
-                }
-                else if( sourceData.containsKey(vf.getExtendedName()) ) {
+                    } catch(Throwable ign){;}
+                    
+                } else if( sourceData.containsKey(vf.getExtendedName()) ) {
                     Object val = sourceData.get(vf.getExtendedName());  
                     targetData.put( vf.getExtendedName(), val);
-                }
+                    
+                } else {
+                    String fldname = vf.getExtendedName();
+                    String[] names = fldname.split("_"); 
+                    if ( names.length > 1 && sourceData.containsKey(names[0]) ) { 
+                        targetData.put( fldname, null ); 
+                    }
+                } 
             }
             else  {
                 SchemaViewRelationField svr = (SchemaViewRelationField)vf;
@@ -141,5 +148,24 @@ public class DataTransposer {
         }
     }
     
-    
+    private static class _Helper {
+        String join( String[] values, String delim, int startIndex, int endIndex ) { 
+            int _limit = values.length; 
+            String _delim = (delim == null? "" : delim);
+            StringBuilder sb = new StringBuilder(); 
+            for (int i=startIndex, len=endIndex+1; i<len; i++) {
+                if ( i >= _limit ) { break; }
+                
+                if ( values[i] == null ) {
+                    //do nothing 
+                } else {
+                    if ( sb.length() > 0 ) { 
+                        sb.append( _delim ); 
+                    } 
+                    sb.append( values[i] );
+                }
+            }
+            return sb.toString(); 
+        }
+    }
 }

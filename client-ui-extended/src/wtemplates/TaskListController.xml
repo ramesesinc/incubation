@@ -9,7 +9,7 @@
         
         public class TaskListController  {
             
-            @Service("WorkflowTaskListService")
+            @Service("WorkflowTaskListService2")
             def service;
             
             @Service('DateService')

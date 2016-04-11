@@ -9,6 +9,8 @@ import java.util.Map;
 public abstract class PageListModel extends AbstractListDataProvider 
     implements ListPageModel, EditorListSupport.TableEditor  
 {    
+    private final static int DEFAULT_ROW_LIMIT = 20;
+    
     //stores the fetched result list size 
     private int fetchedRows;
     private int preferredRows;
@@ -47,7 +49,7 @@ public abstract class PageListModel extends AbstractListDataProvider
         getQuery().put("searchtext", searchtext); 
     }
 
-    public int getRows() { return 10; }
+    public int getRows() { return DEFAULT_ROW_LIMIT; }
     public int getRowCount() { return getRows(); }
     public int getMaxRows() { return getRows(); }            
     public Map getQuery() { return query; } 

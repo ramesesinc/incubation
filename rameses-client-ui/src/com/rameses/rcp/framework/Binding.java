@@ -373,11 +373,13 @@ public class Binding
     private void doNotifyDepends( UIControl u, String name ) 
     {
         Set<UIControl> refreshed = new HashSet();
-        if ( !ValueUtil.isEmpty(name) && depends.containsKey(name) ) 
-        {
-            for (UIControl uu : depends.get(name)) {
+        if ( !ValueUtil.isEmpty(name) && depends.containsKey(name) ) {
+            UIControl[] arrs = depends.get(name).toArray(new UIControl[]{});
+            for ( UIControl uu : arrs ) {  
+                if ( uu == null ) { continue; } 
+                
                 _doRefresh( uu, refreshed );
-            }
+            } 
         }
         refreshed.clear();
         refreshed = null;
@@ -427,7 +429,10 @@ public class Binding
     
     private void refreshImpl(String regEx) {
         Set<UIControl> refreshed = new HashSet();
-        for( UIControl uu : controls ) {
+        for ( int i=0, len=controls.size(); i<len; i++ ) {
+            UIControl uu = getUIControl( i ); 
+            if ( uu == null ) { continue; } 
+            
             String name = uu.getName();
             if ( regEx != null && name != null && !name.matches(regEx) ){
                 continue;
@@ -455,6 +460,14 @@ public class Binding
             }
             focusComponentName = null;
         }        
+    }
+    
+    private UIControl getUIControl( int index ) {
+        try {
+            return controls.get(index); 
+        } catch(Throwable t) {
+            return null; 
+        }
     }
     
     private void _doRefresh( UIControl u, Set refreshed ) { 
@@ -489,10 +502,12 @@ public class Binding
             }
             
             u.refresh();
-            if ( !ValueUtil.isEmpty(name) && depends.containsKey(name) ) 
-            {
-                for ( UIControl uu : depends.get(name)) {
-                    _doRefresh( uu, refreshed ); 
+            if ( !ValueUtil.isEmpty(name) && depends.containsKey(name) ) { 
+                UIControl[] arrs = depends.get(name).toArray(new UIControl[]{});
+                for ( UIControl uu : arrs ) {  
+                    if ( uu == null ) { continue; } 
+
+                    _doRefresh( uu, refreshed );
                 } 
             } 
         }
