@@ -23,14 +23,11 @@ import com.rameses.rcp.ui.UIControl;
 import com.rameses.rcp.util.UIControlUtil;
 import com.rameses.util.Warning;
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.Event;
 import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
-import java.awt.event.InputEvent;
-import java.awt.event.KeyEvent;
-import java.beans.Beans;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -39,7 +36,6 @@ import java.util.Map;
 import javax.swing.AbstractAction;
 import javax.swing.Icon;
 import javax.swing.JComponent;
-import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.KeyStroke;
 
@@ -54,6 +50,7 @@ public class XTabbedPane extends JTabbedPane implements UIControl, MouseEventSup
     private String handler;
 
     private int oldIndex;
+    private List<StaticItem> staticItems = new ArrayList();
     private List<Opener> openers = new ArrayList();
     private boolean nameAutoLookupAsOpener = false;
     
@@ -72,10 +69,6 @@ public class XTabbedPane extends JTabbedPane implements UIControl, MouseEventSup
     
     private void initComponents() 
     {
-        if (Beans.isDesignTime()) {
-            addTab("Tab 1", new JPanel());
-            addTab("Tab 2", new JPanel());
-        }
         new MouseEventSupport(this).install(); 
         setPreferredSize(new Dimension(100,50)); 
         Font f = ThemeUI.getFont("XTabbedPane.font");
@@ -106,8 +99,15 @@ public class XTabbedPane extends JTabbedPane implements UIControl, MouseEventSup
     
     // <editor-fold defaultstate="collapsed" desc=" UIControl implementation ">    
     
-    public void setBinding(Binding binding) { this.binding = binding; }
     public Binding getBinding() { return binding; }
+    public void setBinding(Binding binding) { 
+        this.binding = binding; 
+        
+        buildStaticItems();
+        if ( !staticItems.isEmpty() ) {
+            bindStaticItems( binding );
+        }
+    }
     
     public String[] getDepends() { return depends; }
     public void setDepends(String[] depends) { this.depends = depends; }
@@ -117,7 +117,7 @@ public class XTabbedPane extends JTabbedPane implements UIControl, MouseEventSup
         
     public void load() { 
         try {
-            if ( !dynamic ) loadTabs();
+            if ( !isDynamic() ) loadTabs();
         } catch(Throwable t) {
             System.out.println("[WARN] error loading tabs caused by " + t.getMessage());
         }
@@ -248,10 +248,55 @@ public class XTabbedPane extends JTabbedPane implements UIControl, MouseEventSup
         } catch(Throwable t) {;}
     }
     
-    private void loadTabs() {
-        loadOpeners();
-        removeAll();
+    private void buildStaticItems() {
+        if ( !staticItems.isEmpty()) { return; } 
         
+        int compCount = getTabCount();
+        for (int i=0; i<compCount; i++) { 
+            Component comp = null; 
+            try {
+                comp = getComponentAt( i ); 
+            } catch(Throwable t){
+                continue; 
+            } 
+            if ( comp == null ) {
+                //do nothing 
+            } else if ( comp instanceof TabbedItemPanel ) {
+                //do nothing 
+            } else { 
+                StaticItem si = new StaticItem();
+                si.tooltip = super.getToolTipTextAt( i ); 
+                si.mnemonic = super.getMnemonicAt( i );
+                si.title = super.getTitleAt( i ); 
+                si.icon = super.getIconAt( i );
+                si.component = comp;
+                staticItems.add( si ); 
+            } 
+        } 
+    } 
+    
+    private void bindStaticItems( Binding b ) {
+        for (int i=0; i<staticItems.size(); i++) { 
+            StaticItem si = staticItems.get( i ); 
+            Component comp = si.component;
+            if ( comp instanceof Container ) {
+                b.Utils.bindControls( (Container)comp, b );
+            }
+        }
+    }
+    
+    private void loadTabs() {
+        removeAll();
+        int compCount = staticItems.size();
+        for (int i=0; i<compCount; i++) { 
+            StaticItem si = staticItems.get( i ); 
+            super.addTab( si.title, si.component  ); 
+            if ( si.tooltip != null ) super.setToolTipTextAt( i, si.tooltip ); 
+            if ( si.icon != null ) super.setIconAt( i, si.icon ); 
+        }
+
+        loadOpeners();
+
         ExpressionResolver expRes = ExpressionResolver.getInstance();
         for (Opener op: openers) {
             Object ov = op.getProperties().get("visibleWhen");
@@ -521,4 +566,19 @@ public class XTabbedPane extends JTabbedPane implements UIControl, MouseEventSup
     } 
     
     // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" StaticItem ">
+
+    private class StaticItem {
+        
+        Component component;
+        String tooltip;
+        String title;
+        Icon icon;
+        int mnemonic; 
+        
+    }
+    
+    // </editor-fold>
+    
 }

@@ -21,11 +21,13 @@ import com.rameses.rcp.annotations.Close;
 import com.rameses.rcp.common.Validator;
 import com.rameses.rcp.common.ValidatorEvent;
 import com.rameses.rcp.common.ViewHandler;
+import com.rameses.rcp.ui.ControlContainer;
 import com.rameses.rcp.ui.UIFocusableContainer;
 import com.rameses.util.BreakException;
 import com.rameses.util.BusinessException;
 import com.rameses.util.ValueUtil;
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.EventQueue;
 import java.awt.event.ComponentEvent;
 import java.awt.event.KeyEvent;
@@ -55,6 +57,8 @@ import javax.swing.text.JTextComponent;
 public class Binding 
 {
     private static final String CHANGE_LOG_PREFIX_KEY = "CHANGE_LOG_PREFIX_KEY";
+    
+    public final Helper Utils = new Helper();  
     
     private Object bean;
     
@@ -794,7 +798,36 @@ public class Binding
         if ( viewContext != null && viewContext.getSubWindow() != null )
             viewContext.getSubWindow().setTitle(title);
     }
-    //</editor-fold>
+    
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" Helper ">
+    
+    public class Helper {
+        public void bindControls( Container cont, Binding binding ) {
+            if ( cont == null ) return; 
+
+            for ( Component c: cont.getComponents()) { 
+                if ( c instanceof UIControl ) { 
+                    UIControl uic = (UIControl)c; 
+                    uic.setBinding( binding ); 
+                    if ( binding == null ) {
+                        binding.unregister( uic );
+                    } else { 
+                        binding.register( uic ); 
+                    }
+
+                    if( c instanceof ControlContainer && ((ControlContainer) c).isHasNonDynamicContents() && c instanceof Container ) {
+                        bindControls( (Container)c, binding );
+                    } 
+                } else if( c instanceof Container ) {
+                    bindControls( (Container)c, binding );
+                }
+            }
+        }        
+    }
+    
+    // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc="  getters/setters  ">
     
