@@ -15,5 +15,7 @@ public class SysWfModel extends CrudFormModel {
         return Inv.lookupOpener( "sys_wf_node:open", [entity: item] );
     }
 
-    
+    public void afterSave() {
+        com.rameses.seti2.models.WorkflowCache.reload( entity.name );
+    }
 }

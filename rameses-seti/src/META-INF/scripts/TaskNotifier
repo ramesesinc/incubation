@@ -1,0 +1,103 @@
+import com.rameses.rcp.annotations.*;
+import com.rameses.rcp.common.*;
+import com.rameses.osiris2.common.*;
+import com.rameses.osiris2.client.*;
+import java.util.*;
+import com.rameses.rcp.framework.*;
+import com.rameses.seti2.models.*;
+
+public class TaskNotifier implements NotificationHandler {
+
+    def svc;
+    def eventProvider;
+
+    def handler;
+
+    boolean activated;
+    def nodes;
+
+    String processName;
+    def secProvider = ClientContext.getCurrentContext().getSecurityProvider();
+
+    void activate( processName, h ) {
+        try {
+            this.processName = processName;
+            svc = InvokerProxy.getInstance().create("NotificationService");
+            eventProvider = ClientContext.currentContext.notificationProvider; 
+            eventProvider.add( this );
+            handler = h;
+            activated = true;
+            fetchNodes();
+        }
+        catch(Throwable e) {
+            println "Task Notification service not activated. " + e.message;
+            //do nothing...
+        }
+    }
+
+    void send( def msg ) {
+        if(activated) {
+            try {
+                svc.send( msg );
+            }
+            catch(e) {
+                activated =false;
+                println "task notifier error. " + e.message;    
+            }
+        }    
+        else
+            println "No service provided. " + msg; 
+    }
+
+    void onMessage(Object data) { 
+        handler( data );
+    } 
+
+    void onRead(Object data) {
+        //do nothing 
+    } 
+    
+    void deactivate() {
+        eventProvider.remove(this);
+        activated = false;
+    }
+
+    public def getNodeList() {
+        return nodes;
+    }
+
+    public int getCount( def param ) {
+        if( !activated) return 0;
+        try {
+            return svc.getCount( param );
+        }
+        catch(e) {
+            println "task notifier error. " + e.message;   
+            activated = false;
+            return 0;
+        }
+    }
+
+    public void fetchNodes() {
+        if(!nodes) nodes = WorkflowCache.getNodeList( processName );
+        nodes.each { 
+            if ( it.origtitle==null ) { 
+                it.origtitle = it.title; 
+            } 
+            if( it.domain && it.role ) {
+                boolean pass = false;
+                try {
+                    pass = secProvider.checkPermission( it.domain, it.role, null );
+                }catch(e){;}
+                if( pass) {
+                    def icount = getCount([ tag: processName+':'+ it.name ]);
+                    if ( icount > 0 ) {
+                        it.title = "<html>"+it.origtitle+"&nbsp;&nbsp;<font color=red><b>("+ icount +")</b></font></html>";
+                    }
+                }
+            }
+        }
+    }
+    
+
+}

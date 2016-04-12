@@ -1,5 +1,6 @@
 import com.rameses.rcp.annotations.*;
 import com.rameses.osiris2.common.*;
+import com.rameses.osiris2.client.*;
 import java.util.*;
 
 public class ListTypes extends HashMap {
@@ -9,14 +10,21 @@ public class ListTypes extends HashMap {
 
     @Service("ListService")
     def listService;
-
-
+    
     def schema;
 
     void init( def s ) {
         schema = s;
     }
     
+    /***
+    * the ff. attributes of the field supported
+    *    lov = field has lov. list calling LOV
+    *    ref = field has ref. list calling queryService.getList
+    *    listname = display list immediately
+    *    openerlist = display list of openers
+    *    default: lookup list based on name passed
+    ***/
     public def get( def n ) {
         def fld = (schema.fields+schema.links).find{ it.name == n };  
         if( fld?.lov!=null ) {
@@ -38,6 +46,14 @@ public class ListTypes extends HashMap {
         else if(fld?.listname!=null) {
             try {
                 return listService.getList([name: fld.listname]);
+            }
+            catch(e) {
+                e.printStackTrace();
+            }
+        }
+        else if(fld?.openerlist!=null) {
+            try {
+                return Inv.lookupOpeners( fld.openerlist );
             }
             catch(e) {
                 e.printStackTrace();

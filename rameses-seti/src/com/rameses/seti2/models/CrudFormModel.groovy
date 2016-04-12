@@ -69,6 +69,7 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
     public void afterCreate(){;}
     public void afterOpen(){;}
     public void afterEdit(){;}
+    public void afterSave(){;}
     
     
     public void beforeSave(def mode){;}
@@ -228,6 +229,7 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
             getPersistenceService().update( entity );
             loadData();
         }
+        afterSave();
         mode = "read";
         try {
             caller?.refresh();

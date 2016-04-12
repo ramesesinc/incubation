@@ -117,6 +117,7 @@ public class FilterCriteriaItemPanel extends javax.swing.JPanel {
         xPanel3.add(booleanPanel, "boolean");
 
         xTextField2.setName("entry.value"); // NOI18N
+        xTextField2.setTextCase(com.rameses.rcp.constant.TextCase.NONE);
 
         javax.swing.GroupLayout stringPanelLayout = new javax.swing.GroupLayout(stringPanel);
         stringPanel.setLayout(stringPanelLayout);
