@@ -170,5 +170,10 @@ public class WorkflowTaskModel extends CrudFormModel implements WorkflowTaskList
         return actions2.sort{ (it.index==null? 0: it.index) };
     }     
     
+    def showTaskInfo() {
+        return Inv.lookupOpener("workflowtask:showinfo");
+    }
+    
+    
 }
 

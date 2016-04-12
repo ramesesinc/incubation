@@ -16,11 +16,8 @@ public class WorkflowTaskListModel extends com.rameses.seti2.models.CrudListMode
     @Service("WorkflowTaskListService")
     def wfTaskListService;
     
-    @Service('NotificationService')
-    def notificationSvc; 
-    
-    @Script('Notification')
-    def noteScript;
+    @Script('TaskNotifier')
+    def taskNotifier;
     
     public def getQueryService() {
         return wfTaskListService;
@@ -40,7 +37,7 @@ public class WorkflowTaskListModel extends com.rameses.seti2.models.CrudListMode
 
     @Close
     void onclose() { 
-        noteScript.remove();
+        taskNotifier.deactivate();
     } 
     
     public void init() {
@@ -48,11 +45,10 @@ public class WorkflowTaskListModel extends com.rameses.seti2.models.CrudListMode
             throw new Exception("Please indicate a processName");
 
         super.init();  
-        
-        noteScript.onMessage = {
-            fetchNodeCount();
+        taskNotifier.activate(getProcessName(), {
             nodeListHandler.repaint(); 
-        }
+            listHandler.reload();
+        });
     }
     
     public def beforeQuery( def m ) {
@@ -64,44 +60,14 @@ public class WorkflowTaskListModel extends com.rameses.seti2.models.CrudListMode
     }
 
     
-    boolean _nodes_loaded = false;
-    
-    def nodes = [];
     def nodeListHandler = [
         fetchList: { 
-            nodes = super.getNodeList(); 
-            if( !_nodes_loaded ) {
-                fetchNodeCount(); 
-                _nodes_loaded = true; 
-            }
-            return nodes; 
+            return taskNotifier.getNodeList();
         },
         onselect: { 
             selectedNode = it; 
         }
     ] as ListPaneModel;    
+
     
-    void fetchNodeCount() {
-        if ( !notificationSvc ) return; 
-        
-        nodes.each { 
-            if ( it.origtitle==null ) { 
-                it.origtitle = it.title; 
-            } 
-            
-            if( it.domain && it.role ) {
-                boolean pass = false;
-                try {
-                    pass = secProvider.checkPermission( it.domain, it.role, null );
-                }catch(e){;}
-                
-                if( pass) {
-                    def icount = notificationSvc.getCount([ tag: getProcessName()+':'+ it.name ]);
-                    if ( icount > 0 ) {
-                        it.title = "<html>"+it.origtitle+"&nbsp;<font color=red><b>("+ icount +")</b></font></html>";
-                    }
-                }
-            }
-        }
-    }
 }

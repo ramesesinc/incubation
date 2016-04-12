@@ -1,6 +1,6 @@
 <workunit>
     <invokers>
-        <invoker type="workflowtask:navActions" 
+        <invoker type="workflowtask:showinfo" 
                  tooltip="Task Info" 
                  icon="images/taskinfo.png"
                  target="popup" action="init"/>
