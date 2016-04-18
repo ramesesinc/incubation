@@ -39,7 +39,13 @@ public class DataTableModel extends AbstractTableModel implements TableControlMo
     private String varStatus;
     private String id;
     
+    private Object bindingBean;
+    
     void setBinding(DataTableBinding binding) { this.binding = binding; }
+    
+    void setBindingBean( Object bindingBean ) {
+        this.bindingBean = bindingBean;
+    }
     
     public void removeHandler(PropertyChangeListener handler) {
         if (handler != null) propertySupport.removePropertyChangeListener(handler); 
@@ -312,9 +318,7 @@ public class DataTableModel extends AbstractTableModel implements TableControlMo
     
     public Object createExpressionBean(Object itemBean) 
     {
-        if ( binding == null ) return null; 
-        
-        Object rootBean = binding.getRoot().getBean();
+        Object rootBean = bindingBean;
         if ( rootBean == null ) return null;
         
         ExprBeanSupport support = new ExprBeanSupport(rootBean);

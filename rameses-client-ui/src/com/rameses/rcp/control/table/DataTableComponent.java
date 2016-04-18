@@ -235,7 +235,10 @@ public class DataTableComponent extends JTable implements TableControl
         //dispose the old table model
         if (tableModel != null) tableModel.dispose(); 
         
+        Object bindingBean = (getBinding()==null? null: getBinding().getBean());
+        
         tableModel = new DataTableModel(); 
+        tableModel.setBindingBean( bindingBean );
         tableModel.setDataProvider(dataProvider); 
         tableModel.setEditorListSupport(editorSupport); 
         if (dataProvider != null) {
