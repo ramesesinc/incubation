@@ -235,7 +235,7 @@ public class DataTableComponent extends JTable implements TableControl
         //dispose the old table model
         if (tableModel != null) tableModel.dispose(); 
         
-        tableModel = new DataTableModel();         
+        tableModel = new DataTableModel(); 
         tableModel.setDataProvider(dataProvider); 
         tableModel.setEditorListSupport(editorSupport); 
         if (dataProvider != null) {
@@ -821,11 +821,13 @@ public class DataTableComponent extends JTable implements TableControl
         
         Column col = tableModel.getColumn(colIndex);
         if (col == null || !col.isEditable()) return;
-                
+        
+        boolean fired_delete_key = false; 
         try {
             if (e instanceof KeyEvent) {
                 KeyEvent ke = (KeyEvent)e; 
-                if (ke.getKeyCode() == KeyEvent.VK_DELETE && dataProvider.isLastItem(oListItem)) { 
+                fired_delete_key = (ke.getKeyCode() == KeyEvent.VK_DELETE);
+                if ( fired_delete_key && dataProvider.isLastItem(oListItem)) { 
                     //do nothing 
                     return;
                 }
@@ -891,7 +893,9 @@ public class DataTableComponent extends JTable implements TableControl
             MsgBox.err(ex); 
         }
         
-        showEditor(editor, rowIndex, colIndex, e);
+        if ( !fired_delete_key ) {
+            showEditor(editor, rowIndex, colIndex, e);
+        }
     }
 
     // </editor-fold>

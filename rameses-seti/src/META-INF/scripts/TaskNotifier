@@ -6,7 +6,7 @@ import java.util.*;
 import com.rameses.rcp.framework.*;
 import com.rameses.seti2.models.*;
 
-public class TaskNotifier implements NotificationHandler {
+public class TaskNotifier implements com.rameses.rcp.framework.NotificationHandler {
 
     def svc;
     def eventProvider;

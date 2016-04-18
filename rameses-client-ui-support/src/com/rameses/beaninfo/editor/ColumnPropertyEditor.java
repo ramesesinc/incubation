@@ -103,8 +103,13 @@ public class ColumnPropertyEditor implements PropertyEditor
             sb.append("\n, new Object[]{\"resizable\", "+ c.isResizable() +"}");
             sb.append("\n, new Object[]{\"nullWhenEmpty\", "+ c.isNullWhenEmpty() +"}");
             sb.append("\n, new Object[]{\"editable\", "+ c.isEditable() +"}");
-            if (c.isEditable()) 
+            if (c.isEditable()) { 
                 sb.append("\n, new Object[]{\"editableWhen\", "+ getStringFormat(c.getEditableWhen()) +"}");
+            }
+            sb.append("\n, new Object[]{\"visible\", "+ c.isVisible() +"}");
+            if (c.isVisible()) { 
+                sb.append("\n, new Object[]{\"visibleWhen\", "+ getStringFormat(c.getVisibleWhen()) +"}");
+            }
             if (c.getAlignment() != null) 
                 sb.append("\n, new Object[]{\"alignment\", "+ getStringFormat(c.getAlignment()) +"}");
             if (c.getTextCase() != null) 
@@ -231,6 +236,8 @@ public class ColumnPropertyEditor implements PropertyEditor
         newColumn.setAlignment(oldColumn.getAlignment()); 
         newColumn.setTextCase(oldColumn.getTextCase()); 
         newColumn.setExpression(oldColumn.getExpression()); 
+        newColumn.setVisible( oldColumn.isVisible() );  
+        newColumn.setVisibleWhen( oldColumn.getVisibleWhen() );
         return newColumn; 
     }
     
