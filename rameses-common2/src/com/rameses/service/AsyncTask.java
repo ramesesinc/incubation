@@ -5,10 +5,12 @@ import com.rameses.common.AsyncBatchResult;
 import com.rameses.common.AsyncException;
 import com.rameses.common.AsyncHandler;
 import com.rameses.common.AsyncToken;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 public class AsyncTask implements Runnable 
-{
+{   
     private ServiceProxy proxy;
     private String methodName;
     private Object[] args;
@@ -16,6 +18,8 @@ public class AsyncTask implements Runnable
     
     private AsyncPoller poller; 
     private int retrycount;
+ 
+    private final LinkedBlockingQueue WAIT_LOCKER = new LinkedBlockingQueue();
     
     public AsyncTask(ServiceProxy proxy, String methodName, Object[] args, AsyncHandler handler) {
         this.proxy = proxy;
@@ -38,7 +42,7 @@ public class AsyncTask implements Runnable
                 }
                 
                 AsyncPoller poller = new AsyncPoller(proxy.getConf(), token); 
-                handle( poller, poller.poll() ); 
+                handle( poller ); 
                 return;
             }             
             notify( result );
@@ -70,6 +74,28 @@ public class AsyncTask implements Runnable
         return null; 
     }
     
+    private Object fetchResult( AsyncPoller poller, int retryLimit ) {
+        int retrycount = 0; 
+        int maxRetryLimit = ( retryLimit > 0 ? retryLimit : 1 );
+        while ( retrycount < maxRetryLimit ) { 
+            try { 
+                retrycount += 1;
+                return poller.poll(); 
+            } catch(Exception e) {
+                System.err.println(e.getClass().getName() +": "+ e.getMessage()); 
+            } catch( Throwable t ) {
+                System.err.println(t.getClass().getName() +": "+ t.getMessage()); 
+            } 
+            
+            try {
+                WAIT_LOCKER.poll(1000, TimeUnit.MILLISECONDS); 
+            } catch(Throwable t) {
+                //do nothing 
+            } 
+        } 
+        return new RetryFailedException(); 
+    }
+    
     private boolean fireOnMessage( Object data ) {
         if (handlerProxy.isCancelRequested()) {
             try {
@@ -85,7 +111,7 @@ public class AsyncTask implements Runnable
         }
     }
     
-    private void handle(AsyncPoller poller, Object result) throws Exception {
+    private void handle( AsyncPoller poller ) throws Exception {
         if (handlerProxy.isCancelRequested()) {
             try {
                 handlerProxy.onCancel(); 
@@ -96,34 +122,34 @@ public class AsyncTask implements Runnable
             }
         }
         
+        Object result = fetchResult( poller, 3 ); 
+        if (result == null || result instanceof RetryFailedException) {
+            handlerProxy.onTimeout("poll failed after 3 retries");
+            if (handlerProxy.isRetryRequested()) { 
+                handle( poller ); 
+            } 
+            //
+            // exit fetching data 
+            // 
+            return; 
+        } 
+        
         if (result instanceof AsyncToken) {
             AsyncToken at = (AsyncToken)result;
             if (at.isClosed()) {
                 poller.close(); 
                 fireOnMessage(AsyncHandler.EOF); 
                 return;
-            } 
-        } 
-        
-        if (result == null) {
-            retrycount++; 
-            if (retrycount < 3) {
-                handle(poller, poller.poll()); 
-            } else {
-                handlerProxy.onTimeout("poll failed after 3 retries");
-                if (handlerProxy.isRetryRequested()) {
-                    retrycount = 0;
-                    handle(poller, poller.poll()); 
-                }
             }
-        } else { 
+            
+        } else {
             if (notify( result )) { 
-                handle(poller, poller.poll()); 
+                handle( poller ); 
             } else { 
                 poller.close(); 
                 handlerProxy.onMessage(AsyncHandler.EOF); 
             } 
-        } 
+        }
     } 
     
     private boolean notify(Object o) {
@@ -151,6 +177,10 @@ public class AsyncTask implements Runnable
         } else {
             return fireOnMessage( o ); 
         } 
+    }
+    
+    private class RetryFailedException extends Exception {
+        //do nothing 
     }
         
     private class AsyncHandlerProxy extends AbstractAsyncHandler {
