@@ -96,18 +96,8 @@ public abstract class ContextProvider {
     protected  ClassLoader getClassLoader(String name) {
         URLClassLoader urc = null;
         try {
-            String path = getClassLoaderPath(name);
-            final List<URL> urlList = new ArrayList();
-            URLDirectory ud = new URLDirectory(new URL(path));
-            ud.list(new URLFilter(){
-                public boolean accept(URL u, String filter) {
-                    if( (filter.endsWith(".jar") || filter.endsWith(".jar/"))) {
-                        urlList.add(u);
-                    }
-                    return false;
-                }
-            });
             
+            final List<URL> urlList = new ArrayList();
             //we'll also add the modules.conf file.
             URL uf = new URL(getRootUrl() +"/"+ name + "/modules.conf");
             File f = new File(uf.getFile());
@@ -140,6 +130,18 @@ public abstract class ContextProvider {
                     try {is.close();} catch(Exception ex){;} 
                 } 
             }
+            
+            //load modules directory
+            String path = getClassLoaderPath(name);
+            URLDirectory ud = new URLDirectory(new URL(path));
+            ud.list(new URLFilter(){
+                public boolean accept(URL u, String filter) {
+                    if( (filter.endsWith(".jar") || filter.endsWith(".jar/"))) {
+                        urlList.add(u);
+                    }
+                    return false;
+                }
+            });
             
             URL[] urls = urlList.toArray(new URL[]{});
             urc = new URLClassLoader(urls);           
