@@ -6,6 +6,7 @@
  */
 package com.rameses.rcp.control.table;
 
+import com.rameses.common.ExpressionResolver;
 import com.rameses.rcp.common.Column;
 import com.rameses.rcp.common.ListItem;
 import com.rameses.common.PropertyResolver;
@@ -13,7 +14,6 @@ import com.rameses.rcp.common.AbstractListDataProvider;
 import com.rameses.rcp.common.EditorListSupport;
 import com.rameses.rcp.common.MultiSelectionHandler;
 import com.rameses.rcp.common.MultiSelectionMode;
-import com.rameses.rcp.common.MultiSelectionSupport;
 import com.rameses.rcp.common.TableModelHandler;
 import com.rameses.util.ValueUtil;
 import java.beans.PropertyChangeListener;
@@ -127,9 +127,22 @@ public class DataTableModel extends AbstractTableModel implements TableControlMo
             } 
             columns = dataProvider.initColumns(columns); 
         }
-        
+
+        Object exprBean = createExpressionBean( new HashMap() );         
+        ExpressionResolver exprResolver = ExpressionResolver.getInstance();
         for (Column col : columns) {
-            if (col.isVisible()) columnList.add(col);
+            if (!col.isVisible()) { continue; } 
+            
+            boolean b = col.isVisible();
+            String expr = col.getVisibleWhen(); 
+            if ( expr != null && expr.trim().length()>0 ) { 
+                try { 
+                    b = exprResolver.evalBoolean(expr, exprBean);  
+                } catch(Throwable t) {
+                    continue; 
+                } 
+            }
+            if ( b ) columnList.add(col);            
         } 
     }
     
@@ -299,7 +312,11 @@ public class DataTableModel extends AbstractTableModel implements TableControlMo
     
     public Object createExpressionBean(Object itemBean) 
     {
+        if ( binding == null ) return null; 
+        
         Object rootBean = binding.getRoot().getBean();
+        if ( rootBean == null ) return null;
+        
         ExprBeanSupport support = new ExprBeanSupport(rootBean);
         support.setItem("listHandler", dataProvider); 
         
