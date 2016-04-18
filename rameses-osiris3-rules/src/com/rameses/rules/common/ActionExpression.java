@@ -77,6 +77,9 @@ public class ActionExpression {
         return ExpressionResolver.getInstance().evalBoolean(statement,params);
     }
 
+    public Object eval() {
+        return ExpressionResolver.getInstance().eval(statement,params);
+    }
     
 }
 
