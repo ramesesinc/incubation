@@ -1,5 +1,5 @@
 /*
- * SigIdPanel.java
+ * TopazPanel.java
  *
  * Created on December 19, 2013, 10:29 PM
  *
@@ -7,9 +7,10 @@
  * and open the template in the editor.
  */
 
-package com.rameses.rcp.sigid;
+package com.rameses.rcp.sigid.device;
 
 import com.rameses.rcp.common.SigIdResult;
+import com.rameses.rcp.sigid.SigIdParams;
 import com.sun.image.codec.jpeg.JPEGCodec;
 import com.sun.image.codec.jpeg.JPEGImageEncoder;
 import com.topaz.sigplus.SigPlus;
@@ -35,14 +36,14 @@ import javax.swing.border.Border;
  *
  * @author wflores
  */
-class SigIdPanel extends JPanel 
+class TopazPanel extends JPanel 
 {
     private JPanel toolbar;
     private SigPlus sigplus; 
     private Repainter repainter; 
     private SigIdParams params;
     
-    public SigIdPanel() {
+    public TopazPanel() {
         initComponent(); 
     }
     
@@ -142,7 +143,6 @@ class SigIdPanel extends JPanel
         siginfo.keyString = sigplus.getKeyString(); 
         siginfo.numOfStrokes = sigplus.getNumberOfStrokes();
         siginfo.sigImage = sigplus.sigImage();  
-        siginfo.dump();
 
         for (SelectionListener sl : listeners) { 
             sl.onselect(siginfo); 
@@ -161,7 +161,7 @@ class SigIdPanel extends JPanel
     
     private class Repainter 
     {
-        SigIdPanel root = SigIdPanel.this; 
+        TopazPanel root = TopazPanel.this; 
         
         boolean started;
         boolean cancelled;
@@ -209,7 +209,7 @@ class SigIdPanel extends JPanel
     
     private class ToolbarLayout implements LayoutManager 
     {
-        SigIdPanel root = SigIdPanel.this;
+        TopazPanel root = TopazPanel.this;
         
         public void addLayoutComponent(String name, Component comp) {}
         public void removeLayoutComponent(Component comp) {}
@@ -288,14 +288,7 @@ class SigIdPanel extends JPanel
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" SigInfoImpl "> 
-    
-    public static interface SigIdParams {
-        int getPenWidth();
-        int getImageXSize();
-        int getImageYSize();
-        String getKey();
-    }
-    
+        
     private class SigInfoImpl implements SigIdResult {
         private BufferedImage sigImage;
         private byte[] imageData;
@@ -335,13 +328,12 @@ class SigIdPanel extends JPanel
             return imageData; 
         } 
         
-        void dump() {
-            System.out.println("image=" + getImageData());  
-            System.out.println("sigImage=" + sigImage); 
+        public void dump() {
             System.out.println("keyReceipt=" + keyReceipt);
+            System.out.println("numOfStrokes=" + numOfStrokes);
             System.out.println("keyString=" + keyString);
             System.out.println("sigString=" + sigString);
-            System.out.println("numOfStrokes=" + numOfStrokes);
+            System.out.println("imageData=" + getImageData());  
         }
     }
     

@@ -10,23 +10,8 @@
 package com.rameses.rcp.sigid;
 
 import com.rameses.rcp.common.CallbackHandlerProxy;
-import com.rameses.rcp.common.MsgBox;
-import com.rameses.rcp.common.SigIdResult;
 import com.rameses.rcp.common.SigIdModel;
-import com.rameses.rcp.sigid.SigIdPanel.SigIdParams;
-import java.awt.Dialog;
-import java.awt.Dimension;
-import java.awt.EventQueue;
-import java.awt.Frame;
-import java.awt.Insets;
-import java.awt.KeyboardFocusManager;
-import java.awt.Toolkit;
-import java.awt.Window;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 import java.util.Map;
-import javax.swing.JDialog;
-import javax.swing.JOptionPane;
 
 /**
  *
@@ -61,100 +46,15 @@ public class SigIdViewer
     } 
         
     public byte[] open() { 
-        Window win = KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusedWindow(); 
-        final SigIdPanel panel = new SigIdPanel(); 
-        panel.setParams(new SigIdParamsImpl(model)); 
-        
-        JDialog dialog = null; 
-        if (win instanceof Frame) {
-            dialog = new JDialog((Frame) win); 
-        } else if (win instanceof Dialog) {
-            dialog = new JDialog((Dialog) win); 
-        } else {
-            dialog = new JDialog(); 
+        SigIdDeviceProvider prov = SigIdDeviceManager.getProvider(); 
+        if ( prov == null ) {
+            throw new RuntimeException("No available signature plugin device");
         } 
         
-        final JDialog jdialog = dialog;        
-        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE); 
-        dialog.setModal(true); 
-        dialog.setResizable(false); 
-        dialog.setContentPane(panel);         
-        dialog.setTitle(model.getTitle());
-        dialog.setSize(model.getWidth(), model.getHeight());
-        dialog.addWindowListener(new WindowListener() {
-            public void windowActivated(WindowEvent e) {}
-            public void windowClosed(WindowEvent e) {}
-            public void windowClosing(WindowEvent e) { 
-                try { 
-                    panel.stop();
-                } catch(Throwable t) {
-                    JOptionPane.showMessageDialog(jdialog, "[ERROR] " + t.getClass().getName() + ": " + t.getMessage()); 
-                } 
-                
-                oncloseImpl(); 
-            }
-            
-            public void windowDeactivated(WindowEvent e) {}
-            public void windowDeiconified(WindowEvent e) {}
-            public void windowIconified(WindowEvent e) {}
-            
-            public void windowOpened(WindowEvent e) { 
-                try { 
-                    panel.start(); 
-                } catch(Throwable t) {
-                    MsgBox.err(t); 
-                    EventQueue.invokeLater(new Runnable() {
-                        public void run() {
-                            jdialog.dispose(); 
-                        }
-                    }); 
-                }
-            }
-        }); 
-        panel.add(new SigIdPanel.SelectionListener(){
-            public void onselect(SigIdResult info) {
-                jdialog.dispose(); 
-                onselectImpl(info);
-            }
-
-            public void onclose() {
-                jdialog.dispose(); 
-                oncloseImpl(); 
-            }
-        });
-        
-        centerWindow(dialog);
-        dialog.setVisible(true); 
+        SigIdDevice device = prov.create( model ); 
+        device.open(); 
         return null; 
-    }    
-    
-    private void centerWindow(Window win) {
-        Dimension windim = win.getSize();
-        Dimension scrdim = Toolkit.getDefaultToolkit().getScreenSize(); 
-        Insets margin = Toolkit.getDefaultToolkit().getScreenInsets(win.getGraphicsConfiguration()); 
-        int scrwidth = scrdim.width - (margin.left + margin.right);
-        int scrheight = scrdim.height - (margin.top + margin.bottom);
-        int x = Math.max((scrwidth - windim.width) / 2, 0) + margin.left;
-        int y = Math.max((scrheight - windim.height) / 2, 0) + margin.top;
-        win.setLocation(x, y); 
-    }
-    
-    private void onselectImpl(SigIdResult info) {
-//        byte[] data = null;
-//        try {
-//            ByteArrayOutputStream baos = new ByteArrayOutputStream(); 
-//            ImageIO.write(image, "JPG", baos); 
-//            data = baos.toByteArray();
-//        } catch(Throwable t) {;} 
-        
-        if (model != null) {
-            model.onselect(info);
-        } 
-    }
-    
-    private void oncloseImpl() {
-        if (model != null) model.onclose();
-    }
+    } 
     
     // <editor-fold defaultstate="collapsed" desc=" SigIdModelProxy "> 
     
@@ -272,33 +172,5 @@ public class SigIdViewer
     }
     
     // </editor-fold>
-    
-    // <editor-fold defaultstate="collapsed" desc=" SigIdParamsImpl "> 
-    
-    private class SigIdParamsImpl implements SigIdParams {
-        private SigIdModel model; 
         
-        SigIdParamsImpl(SigIdModel model) {
-            this.model = model; 
-        }
-        
-        public int getPenWidth() { 
-            return model.getPenWidth(); 
-        }
-
-        public int getImageXSize() {
-            return model.getImageXSize(); 
-        }
-
-        public int getImageYSize() {
-            return model.getImageYSize(); 
-        }
-
-        public String getKey() {
-            return model.getKey(); 
-        }
-    }
-    
-    // </editor-fold>
-    
 }

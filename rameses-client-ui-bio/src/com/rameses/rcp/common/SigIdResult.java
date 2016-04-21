@@ -16,4 +16,5 @@ public interface SigIdResult {
     int getKeyReceipt(); 
     int getNumberOfStrokes(); 
     
+    void dump();
 }
