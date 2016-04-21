@@ -10,53 +10,56 @@
     
     <code>
     <![CDATA[
-        import com.rameses.rcp.common.*;
-        import com.rameses.rcp.annotations.*;
-        import com.rameses.util.*;
-        
-        public class ConnectionPreferenceController
-        {
-            def formTitle = "Connection";
-            def appUrl;
-            
-            def editmode = false;
-            def path = System.getProperty( "user.dir" ) + "/client.conf";
-            def config = new ConfigProperties(path);
-            
-            def styles = [
-                new StyleRule( "app.*", "#{editmode}", [readonly:false, enabled:true] ),
-                new StyleRule( "app.*", "#{!editmode}", [readonly:true, enabled:false] ),
-                new StyleRule( "lock", "#{true}", [ contentAreaFilled: false, iconTextGap:10, foreground: java.awt.Color.blue ] ),
-                new StyleRule( "unlock", "#{true}", [ contentAreaFilled: false, iconTextGap:10, foreground: java.awt.Color.blue ] )
-            ]
-            
-            public void init() {
-                appUrl = config.getProperty( "app.url" );
-            }
-            
-            public void lock() {
-                editmode = false;
+import com.rameses.rcp.common.*;
+import com.rameses.rcp.annotations.*;
+import com.rameses.util.*;
+
+public class ConnectionPreferenceController {
+
+    @Caller 
+    def caller; 
+
+    def formTitle = "Connection";
+    def appUrl;
+
+    def editmode = false;
+    def path = System.getProperty( "user.dir" ) + "/client.conf";
+    def config = new ConfigProperties(path);
+
+    def styles = [
+        new StyleRule( "app.*", "#{editmode}", [readonly:false, enabled:true] ),
+        new StyleRule( "app.*", "#{!editmode}", [readonly:true, enabled:false] ),
+        new StyleRule( "lock", "#{true}", [ contentAreaFilled: false, iconTextGap:10, foreground: java.awt.Color.blue ] ),
+        new StyleRule( "unlock", "#{true}", [ contentAreaFilled: false, iconTextGap:10, foreground: java.awt.Color.blue ] )
+    ]
+
+    public void init() {
+        appUrl = config.getProperty( "app.url" );
+    }
+
+    public void lock() {
+        editmode = false;
+        commit();
+    }
+
+    public void unlock() {
+        editmode = true;
+    }
+
+    private void commit() {
+        config.put( "app.url", appUrl );
+        config.update();
+    }
+
+    public void save() {
+        if(editmode) {
+            if( MsgBox.confirm( "The update center preference is currently edited. Save changes?" ) ) {
                 commit();
             }
-            
-            public void unlock() {
-                editmode = true;
-            }
-            
-            private void commit() {
-                config.put( "app.url", appUrl );
-                config.update();
-            }
-            
-            public void save() {
-                if(editmode) {
-                    if( MsgBox.confirm( "The update center preference is currently edited. Save changes?" ) ) {
-                        commit();
-                    }
-                }
-            }
         }
-        ]]>
+    }
+}
+    ]]>
     </code>
     <pages>
         <page template="system.preferences.ui.UpdateCenterPage" />
