@@ -20,8 +20,6 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
     @Script("ListTypes")
     def listTypes;
     
-   
-
     String getFormType() {
         return 'form';
     }

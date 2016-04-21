@@ -10,6 +10,7 @@
 package com.rameses.functions;
 
 import com.rameses.util.DateUtil;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -109,6 +110,10 @@ public final class DateFunc {
         cal.set(Calendar.YEAR, year);
         cal.set(Calendar.MONTH, month-1);
         cal.set(Calendar.DATE, day);
+        cal.set( Calendar.HOUR_OF_DAY, 0  );
+        cal.set( Calendar.MINUTE, 0  );
+        cal.set( Calendar.SECOND, 0  );
+        cal.set( Calendar.MILLISECOND, 0  );
         return cal.getTime();
     }
     

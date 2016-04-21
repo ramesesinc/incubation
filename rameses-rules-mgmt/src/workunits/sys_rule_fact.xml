@@ -81,7 +81,7 @@
                 entity = [objid: "RULFACT" + new UID()];
                 entity.fields  = [];
                 entity.rulesets = [];
-                entity.rulesets << [ruleset: ruleset];
+                if( ruleset ) entity.rulesets << [ruleset: ruleset];
             }
             
             void edit() {

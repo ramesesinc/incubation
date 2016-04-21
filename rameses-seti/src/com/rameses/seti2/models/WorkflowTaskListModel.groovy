@@ -9,7 +9,7 @@ import com.rameses.common.*;
 import com.rameses.rcp.constant.*;
 import java.rmi.server.*;
 import com.rameses.util.*;
-
+import com.rameses.seti2.models.*;
 
 public class WorkflowTaskListModel extends com.rameses.seti2.models.CrudListModel {
     
@@ -17,7 +17,12 @@ public class WorkflowTaskListModel extends com.rameses.seti2.models.CrudListMode
     def wfTaskListService;
     
     @Script('TaskNotifier')
-    def taskNotifier;
+    def _taskNotifier;
+    
+    public def getTaskNotifier() {
+        if( workunit.info.workunit_properties.allowNotify == 'false' ) return null;
+        return _taskNotifier;
+    }
     
     public def getQueryService() {
         return wfTaskListService;
@@ -37,7 +42,7 @@ public class WorkflowTaskListModel extends com.rameses.seti2.models.CrudListMode
 
     @Close
     void onclose() { 
-        taskNotifier.deactivate();
+        if(taskNotifier) taskNotifier.deactivate();
     } 
     
     public void init() {
@@ -45,10 +50,12 @@ public class WorkflowTaskListModel extends com.rameses.seti2.models.CrudListMode
             throw new Exception("Please indicate a processName");
 
         super.init();  
-        taskNotifier.activate(getProcessName(), {
-            nodeListHandler.repaint(); 
-            listHandler.reload();
-        });
+        if(taskNotifier) {
+            taskNotifier.activate(getProcessName(), {
+                nodeListHandler.repaint(); 
+                listHandler.reload();
+            });
+        }
     }
     
     public def beforeQuery( def m ) {
@@ -62,7 +69,12 @@ public class WorkflowTaskListModel extends com.rameses.seti2.models.CrudListMode
     
     def nodeListHandler = [
         fetchList: { 
-            return taskNotifier.getNodeList();
+            if( taskNotifier ) {
+                return taskNotifier.getNodeList();    
+            }
+            else {
+                return WorkflowCache.getNodeList( getProcessName() );
+            }
         },
         onselect: { 
             selectedNode = it; 

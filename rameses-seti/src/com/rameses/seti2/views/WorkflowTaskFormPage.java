@@ -4,6 +4,26 @@
  */
 package com.rameses.seti2.views;
 
+import com.rameses.rcp.common.AbstractListDataProvider;
+import com.rameses.rcp.control.XDropDownList;
+import com.rameses.rcp.swing.UIVisibility;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Insets;
+import java.awt.LayoutManager;
+import java.util.List;
+import javax.swing.BorderFactory;
+import javax.swing.JComponent;
+import javax.swing.JEditorPane;
+import javax.swing.JLayeredPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.text.html.HTMLEditorKit;
+
 
 /**
  *
@@ -11,6 +31,8 @@ package com.rameses.seti2.views;
  */
 public class WorkflowTaskFormPage extends javax.swing.JPanel {
 
+    private NoteRenderer renderer;
+    
     /**
      * Creates new form CrudFormPage
      */
@@ -23,6 +45,10 @@ public class WorkflowTaskFormPage extends javax.swing.JPanel {
         
         //hide the status panel for now 
         pnlstat.setVisible(false); 
+        
+        renderer = new NoteRenderer();
+        xDropDownList1.setRenderer(renderer);
+        xDropDownList1.setVisibility(new NoteVisibility(renderer));         
     }
 
     
@@ -52,6 +78,7 @@ public class WorkflowTaskFormPage extends javax.swing.JPanel {
         xActionBar2 = new com.rameses.rcp.control.XActionBar();
         btnUp = new com.rameses.rcp.control.XButton();
         btnDown = new com.rameses.rcp.control.XButton();
+        xDropDownList1 = new com.rameses.rcp.control.XDropDownList();
 
         setLayout(new java.awt.BorderLayout());
 
@@ -192,10 +219,308 @@ public class WorkflowTaskFormPage extends javax.swing.JPanel {
                     btnDown.setVisibleWhen("#{showNavigation==true}");
                     jToolBar1.add(btnDown);
 
+                    xDropDownList1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/note.png"))); // NOI18N
+                    xDropDownList1.setContentAreaFilled(false);
+                    xDropDownList1.setFocusable(false);
+                    xDropDownList1.setHandler("messagelist");
+                    xDropDownList1.setHideOnEmptyResult(true);
+                    xDropDownList1.setMargin(new java.awt.Insets(0, 2, 0, 2));
+                    xDropDownList1.addActionListener(new java.awt.event.ActionListener() {
+                        public void actionPerformed(java.awt.event.ActionEvent evt) {
+                            xDropDownList1ActionPerformed(evt);
+                        }
+                    });
+                    jToolBar1.add(xDropDownList1);
+
                     jPanel2.add(jToolBar1);
 
                     add(jPanel2, java.awt.BorderLayout.NORTH);
                 }// </editor-fold>//GEN-END:initComponents
+
+    // <editor-fold defaultstate="collapsed" desc=" LayeredPanel ">
+
+    @Override
+    protected void addImpl(Component comp, Object constraints, int index) {
+        if (constraints == null || BorderLayout.CENTER.equals(constraints)) {
+            LayeredPanel layer = getLayeredPanel(); 
+            if (layer.getParent() == null) {
+                super.addImpl(layer, constraints, index); 
+            } 
+            layer.removeAll();
+            layer.add(comp, new Integer(0)); 
+            layer.layout.contentComp = comp; 
+            layer.layout.overlayComp = renderer.getComponent();
+            layer.add(layer.layout.overlayComp, new Integer(1)); 
+        } else {
+            super.addImpl(comp, constraints, index); 
+        }
+    }
+
+    @Override
+    public void remove(Component comp) {
+        synchronized (getTreeLock()) { 
+            getLayeredPanel().remove(comp); 
+        }
+        super.remove(comp);
+    }
+    
+    private LayeredPanel layeredPanel;
+    private LayeredPanel getLayeredPanel() {
+        if (layeredPanel == null) {
+            layeredPanel = new LayeredPanel();
+        }
+        return layeredPanel;
+    }
+    
+    
+    private class LayeredPanel extends JLayeredPane {
+        
+        LayeredLayout layout;
+        JComponent overlay;
+        
+        LayeredPanel() {
+            super();
+            super.setLayout(layout=new LayeredLayout()); 
+        }
+        
+        @Override
+        public void setLayout(LayoutManager mgr) {
+        }
+    }
+    
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" LayeredLayout ">
+    
+    private class LayeredLayout implements LayoutManager {
+
+        public final static String CONTENT = "Content";
+        public final static String OVERLAY = "Overlay";
+        
+        Component contentComp;
+        Component overlayComp;
+        
+        @Override
+        public void addLayoutComponent(String name, Component comp) {
+        }
+
+        @Override
+        public void removeLayoutComponent(Component comp) {
+            synchronized (comp.getTreeLock()) {
+                if (comp == null) { return; } 
+                
+                if (comp == overlayComp) {
+                    overlayComp = null; 
+                } else if (comp == contentComp) {
+                    contentComp = null; 
+                } 
+            } 
+        }
+
+        @Override
+        public Dimension preferredLayoutSize(Container parent) {
+            synchronized (parent.getTreeLock()) {
+                Dimension dim = new Dimension(0, 0);
+                if (contentComp != null && contentComp.isVisible()) {
+                    Dimension d = contentComp.getPreferredSize();
+                    dim.width += d.width;
+                    dim.height = Math.max(d.height, dim.height);
+                }
+                
+                Insets insets = parent.getInsets();
+                dim.width += insets.left + insets.right;
+                dim.height += insets.top + insets.bottom;
+                return dim;
+            }   
+        }
+
+        @Override
+        public Dimension minimumLayoutSize(Container parent) {
+            synchronized (parent.getTreeLock()) {
+                Dimension dim = new Dimension(0, 0);
+                if (contentComp != null && contentComp.isVisible()) {
+                    Dimension d = contentComp.getMinimumSize();
+                    dim.width += d.width;
+                    dim.height = Math.max(d.height, dim.height);
+                }
+                
+                Insets insets = parent.getInsets();
+                dim.width += insets.left + insets.right;
+                dim.height += insets.top + insets.bottom;
+                return dim;
+            }            
+        }
+
+        @Override
+        public void layoutContainer(Container parent) {
+            synchronized (parent.getTreeLock()) {
+                Insets margin = parent.getInsets();
+                int pw = parent.getWidth(), ph = parent.getHeight(); 
+                int x = margin.left, y = margin.top;
+                int w = pw - (margin.left + margin.right);
+                int h = ph - (margin.top + margin.bottom); 
+                if (contentComp != null && contentComp.isVisible()) {
+                    contentComp.setSize(w, contentComp.getHeight());
+                    Dimension d = contentComp.getPreferredSize();
+                    contentComp.setBounds(x, y, w, h);
+                }
+                
+                boolean b = (renderer == null? false: renderer.isVisible()); 
+                if (overlayComp != null && b) {
+                    int r = pw - margin.right - 5;
+                    Dimension d = overlayComp.getPreferredSize(); 
+                    overlayComp.setBounds(Math.max(r-d.width,0), y, d.width, d.height);
+                }
+            }
+        }
+    }
+    
+    // </editor-fold>    
+    
+    // <editor-fold defaultstate="collapsed" desc=" NoteRenderer ">
+    
+    private class NoteRenderer implements XDropDownList.Renderer {
+        
+        AbstractListDataProvider model;
+        JScrollPane jsp;
+        JEditorPane view;
+        JPanel panel;
+        boolean visible;
+        
+        NoteRenderer() {
+            getComponent(); 
+        }
+        
+        @Override
+        public void setModel(AbstractListDataProvider model) {
+            this.model = model; 
+        }
+
+        @Override
+        public void refresh() {
+            visible = false; 
+            if (model != null) {
+                visible = (model.getDataListSize() > 0);
+            } 
+            
+            if (visible) {
+                StringBuilder builder = new StringBuilder();
+                builder.append("<html>"); 
+                builder.append("<body>"); 
+                int counter = 0;
+                List list = model.getDataList(); 
+                for (Object item : list) {
+                    String text = xDropDownList1.getItemText(item); 
+                    if (counter > 0) {
+                        builder.append("<br/><hr/>"); 
+                    }
+                    builder.append("<p style=\"padding:0;\">"); 
+                    builder.append(text); 
+                    builder.append("</p>"); 
+                    counter += 1;
+                }
+                builder.append("</body>"); 
+                builder.append("</html>"); 
+                view.setText(builder.toString()); 
+                view.repaint(); 
+            }
+        }
+
+        @Override
+        public boolean isVisible() {
+            return visible;
+        }
+
+        @Override
+        public void setVisible(boolean visible) {
+            this.visible = visible;
+            
+            getLayeredPanel().remove(getComponent()); 
+            if (visible) { 
+                int idx = getLayeredPanel().getComponentCount();
+                getLayeredPanel().layout.overlayComp = getComponent(); 
+                getLayeredPanel().add(getComponent(), new Integer(idx)); 
+            } 
+            getLayeredPanel().revalidate();
+            getLayeredPanel().repaint();
+        }
+        
+        Component getComponent() {
+            if (panel == null) {
+                Color bgcolor = new Color(254, 255, 208);
+                view = new JEditorPane();
+                view.setContentType("text/html");
+                view.setEditable(false); 
+                view.setBackground(bgcolor); 
+                view.setBorder(BorderFactory.createEmptyBorder(0,5,0,3));
+                
+                jsp = new JScrollPane(view); 
+                jsp.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+                jsp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED); 
+                jsp.setBorder(BorderFactory.createEmptyBorder());
+                
+                panel = new JPanel() {
+                    
+//                    @Override
+//                    public Insets getInsets() {
+//                        Insets ins = super.getInsets();
+//                        if (ins == null) ins = new Insets(0,0,0,0);
+//                        
+//                        ins.top += 1;
+//                        ins.left += 1;
+//                        ins.bottom += 1;
+//                        ins.right += 1;
+//                        return ins; 
+//                    }
+                    
+                    @Override
+                    public void paint(Graphics g) {
+                        super.paint(g); 
+                        Graphics g2 = g.create();
+                        g2.setColor(Color.decode("#cfcfcf"));  
+                        //g2.drawRect(0, 0, getWidth()-1, getHeight()-1); 
+                        //g2.setColor(Color.decode("#a0a0a0"));  
+                        //g2.drawRect(1, 1, getWidth()-2, getHeight()-2); 
+                        g2.dispose();
+                    }
+                };
+                panel.setPreferredSize(new Dimension(250, 250)); 
+                panel.setLayout(new BorderLayout());
+                panel.setBorder(BorderFactory.createLineBorder(Color.decode("#afafaf"))); 
+                panel.setOpaque(false); 
+                panel.add(jsp); 
+                
+                HTMLEditorKit kit = (HTMLEditorKit)view.getEditorKit();
+                kit.getStyleSheet().addRule("P {margin:3; }"); 
+                
+            }
+            return panel; 
+        }
+    } 
+    
+    private class NoteVisibility implements UIVisibility {
+
+        private NoteRenderer renderer; 
+        
+        NoteVisibility(NoteRenderer renderer) {
+            this.renderer = renderer; 
+        }
+        
+        @Override
+        public boolean isVisible() {
+            AbstractListDataProvider model = renderer.model;
+            if (model == null) { return false; } 
+            
+            return (model.getDataListSize() > 0); 
+        }
+    }
+    
+    // </editor-fold>    
+    
+    private void xDropDownList1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_xDropDownList1ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_xDropDownList1ActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private com.rameses.rcp.control.XButton btnCancel1;
     private com.rameses.rcp.control.XButton btnDebug;
@@ -211,6 +536,7 @@ public class WorkflowTaskFormPage extends javax.swing.JPanel {
     private javax.swing.JPanel pnlstat;
     private com.rameses.rcp.control.XActionBar xActionBar1;
     private com.rameses.rcp.control.XActionBar xActionBar2;
+    private com.rameses.rcp.control.XDropDownList xDropDownList1;
     private com.rameses.rcp.control.XLabel xLabel1;
     private com.rameses.rcp.control.XStyleRule xStyleRule1;
     // End of variables declaration//GEN-END:variables

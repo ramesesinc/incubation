@@ -21,10 +21,13 @@ public class WorkflowTaskModel extends CrudFormModel implements WorkflowTaskList
     String processName;
     List transitions = [];
     List extActions;
+    def messagelist = [];
     
     public def getWorkflowTaskService() {
         return workflowTaskSvc;
     }
+    
+    public void afterSignal() {;}
     
     //the default behavior is it displays the workflow prompt.
     public boolean beforeSignal( def param  ) {
@@ -48,6 +51,14 @@ public class WorkflowTaskModel extends CrudFormModel implements WorkflowTaskList
         Modal.show( "workflow_prompt:view", [role:param.role, domain:param.domain, handler: h] );
         if( !pass ) return false; 
         return true;
+    }
+    
+    protected void buildMessage() {
+        //message is only viewed by the owner.
+        messagelist.clear();
+        if( task?.assignee?.objid ==  user.objid) {
+            if(task?.message) messagelist.add( task.message );
+        }
     }
     
     public def open() {
@@ -82,6 +93,7 @@ public class WorkflowTaskModel extends CrudFormModel implements WorkflowTaskList
         }
         
         def r = super.open();
+        buildMessage();
         if( pageExists(task.state)) {
             return task.state;
         }
@@ -110,6 +122,8 @@ public class WorkflowTaskModel extends CrudFormModel implements WorkflowTaskList
             caller.listHandler.reload();
         }
         binding.refresh();
+        buildMessage();
+        afterSignal();
         return null;
     }
     

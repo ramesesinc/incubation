@@ -66,7 +66,7 @@ public class DateFact {
         month = cal.get( Calendar.MONTH ) + 1;
         day = cal.get( Calendar.DATE );
         year = cal.get( Calendar.YEAR );
-        hour = cal.get( Calendar.HOUR );
+        hour = cal.get( Calendar.HOUR_OF_DAY );
         minute = cal.get( Calendar.MINUTE );
         second = cal.get( Calendar.SECOND );
         milliSecond = cal.get( Calendar.MILLISECOND );
@@ -76,7 +76,7 @@ public class DateFact {
         else qtr = 4;
         dayOfWeek = cal.get(Calendar.DAY_OF_WEEK);
 
-        cal.set( Calendar.HOUR, 0  );
+        cal.set( Calendar.HOUR_OF_DAY, 0  );
         cal.set( Calendar.MINUTE, 0  );
         cal.set( Calendar.SECOND, 0  );
         cal.set( Calendar.MILLISECOND, 0  );
