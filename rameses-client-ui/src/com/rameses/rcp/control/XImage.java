@@ -168,7 +168,9 @@ public class XImage extends JLabel implements UIControl, MouseEventSupport.Compo
             String name = getName(); 
             if (name != null && name.length() > 0) { 
                 Object value = UIControlUtil.getBeanValue(getBinding(), name); 
-                if (value != null) { 
+                if ( value instanceof byte[] ) {
+                    iicon = new ImageIcon((byte[]) value);
+                } else if ( value != null ) { 
                     iicon = ImageIconSupport.getInstance().getIcon(value.toString()); 
                 } 
             } 
