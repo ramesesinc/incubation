@@ -1035,6 +1035,14 @@ public class DataTableComponent extends JTable implements TableControl
     
     private boolean hideEditor(JComponent editor, int rowIndex, int colIndex, boolean commit, boolean grabFocus) 
     {
+        Object propval = editor.getClientProperty("Editor.hide");
+        if ( propval != null ) {
+            editor.putClientProperty("Editor.hide", null);
+            if ( "false".equals( propval+"" ) ) {
+                return false; 
+            } 
+        }
+        
         if (editor instanceof SelectionCellEditor) commit = false;        
         /*
          * force to invoke the setValue of the editor support when editor is instanceof JCheckBox 
@@ -1081,6 +1089,7 @@ public class DataTableComponent extends JTable implements TableControl
                 if (bcx.getCause() != null) MsgBox.err(bcx.getCause());
 
                 refocusEditor(editor, inputVerifier); 
+                editor.putClientProperty("Editor.hide", false);
                 return false;
                 
             } 
@@ -1089,11 +1098,13 @@ public class DataTableComponent extends JTable implements TableControl
 
                 itemBinding.getChangeLog().undo(); 
                 refocusEditor(editor, inputVerifier); 
+                editor.putClientProperty("Editor.hide", false);
                 return false; 
             }             
             catch(Exception ex) {
                 MsgBox.err(ex);
                 refocusEditor(editor, inputVerifier); 
+                editor.putClientProperty("Editor.hide", false);
                 return false; 
             }
         } 
