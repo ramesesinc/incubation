@@ -409,8 +409,18 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
         
         String errmsg = dataProvider.getMessageSupport().getErrorMessages(); 
         actionMessage.clearMessages();
-        if ( errmsg != null ) 
-        {
+        if ( errmsg == null ) {
+            ListItem li = dataProvider.getSelectedItem(); 
+            if ( li == null ) return; 
+            
+            int state = li.getState(); 
+            if ( state==ListItem.STATE_DRAFT || state==ListItem.STATE_EDIT ) {
+                errmsg = "There are changes on your data table. Please commit or revert it first.";
+                dataProvider.getMessageSupport().addErrorMessage(li.getIndex(), errmsg); 
+                actionMessage.addMessage(null, errmsg, null);
+                dataProvider.refreshSelectedItem(); 
+            }
+        } else { 
             StringBuffer buffer = new StringBuffer(errmsg);
             if ( !ValueUtil.isEmpty(caption) ) {
                 buffer.insert(0, caption + " (\n").append("\n)");
