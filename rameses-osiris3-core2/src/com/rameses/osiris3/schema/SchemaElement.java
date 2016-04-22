@@ -160,7 +160,7 @@ public class SchemaElement implements Serializable {
         synchronized(lock) {
             if( schemaView == null ) {
                 schemaView = new SchemaView(this);
-                fetchAllFields( schemaView, schemaView, null, new HashSet() );
+                fetchAllFields( schemaView, schemaView, null, new HashSet(), true );
             }
         }
         return schemaView;
@@ -171,7 +171,8 @@ public class SchemaElement implements Serializable {
      * @param rootVw - the main view
      * @param lsvw - the immediate view that relates to the field. 
      */
-    private void fetchAllFields(SchemaView rootVw, AbstractSchemaView currentVw, String prefix, Set<SchemaRelation> duplicates) {
+    //loadOneToMany - if true then loads it. It is false if coming from a many to one recursion
+    private void fetchAllFields(SchemaView rootVw, AbstractSchemaView currentVw, String prefix, Set<SchemaRelation> duplicates, boolean loadOneToMany) {
         for( SimpleField sf: this.getSimpleFields() ) {
             rootVw.addField(new SchemaViewField(sf, rootVw, currentVw));
         }
@@ -198,7 +199,7 @@ public class SchemaElement implements Serializable {
                 targetVw.addRelationField(rf);
             }
             currentVw.setExtendsView(targetVw);
-            extElement.fetchAllFields(rootVw, targetVw, prefix, duplicates );
+            extElement.fetchAllFields(rootVw, targetVw, prefix, duplicates, true );
         }
         
         List<SchemaRelation> relList = new ArrayList();
@@ -235,14 +236,15 @@ public class SchemaElement implements Serializable {
                 rootVw.addField( rf );
                 targetVw.addRelationField(rf);
             };
-            targetElem.fetchAllFields(rootVw, targetVw, targetVw.getName(), duplicates);
+            targetElem.fetchAllFields(rootVw, targetVw, targetVw.getName(), duplicates, false);
         }
         
         //load the one to many relationships
-        for( SchemaRelation sr: this.getOneToManyRelationships() ) {
-            rootVw.addOneToManyLink(new OneToManyLink(sr.getName(), prefix, this, sr));
+        if(loadOneToMany) {
+            for( SchemaRelation sr: this.getOneToManyRelationships() ) {
+                rootVw.addOneToManyLink(new OneToManyLink(sr.getName(), prefix, this, sr));
+            }
         }
-        
     }    
     
     private void buildRelations(String joinType, List schemaRelations) {
