@@ -28,13 +28,23 @@ public final class MsgBox {
         }
     }    
     
-    public static void err(Exception e) {
-        ClientContext.getCurrentContext().getPlatform().showError(null, MessageUtil.getErrorMessage(e));
+    public static void err(Exception e) { 
+        Exception cause = MessageUtil.getErrorMessage(e); 
+        String errmsg = cause.getMessage()+""; 
+        int idx = errmsg.indexOf("Exception:"); 
+        if ( idx > 0 ) {
+            errmsg = errmsg.substring(idx+10); 
+        }
+        ClientContext.getCurrentContext().getPlatform().showError(null, new Exception(errmsg,e));
     }
     
     public static void err(Object message) {
-        Exception e = new IllegalStateException(message==null? "null": message.toString());
-        ClientContext.getCurrentContext().getPlatform().showError(null, e);
+        String errmsg = (message==null? "null": message.toString());
+        int idx = errmsg.indexOf("Exception:"); 
+        if ( idx > 0 ) {
+            errmsg = errmsg.substring(idx+10); 
+        }
+        ClientContext.getCurrentContext().getPlatform().showError(null, new Exception(errmsg));
     }
     
     public static void warn(Object msg) {
