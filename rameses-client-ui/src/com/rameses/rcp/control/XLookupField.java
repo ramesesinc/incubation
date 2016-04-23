@@ -243,8 +243,9 @@ public class XLookupField extends IconedTextField implements UILookup, UISelecto
        
     // <editor-fold defaultstate="collapsed" desc="  UILookup implementation  ">
     
-    public boolean focusFirstInput() {
-        requestFocusInWindow(); 
+    public boolean focusFirstInput() { 
+        getBinding().Utils.focusComponent( this ); 
+        //requestFocusInWindow(); 
         return true; 
     }    
     

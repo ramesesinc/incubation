@@ -29,6 +29,7 @@ import com.rameses.util.ValueUtil;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.EventQueue;
+import java.awt.KeyboardFocusManager;
 import java.awt.event.ComponentEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -48,6 +49,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.swing.JComponent;
+import javax.swing.SwingUtilities;
 import javax.swing.text.JTextComponent;
 
 /**
@@ -672,24 +674,18 @@ public class Binding
         return true;
     }
     
-    public boolean focusFirstInput() 
-    {
+    public boolean focusFirstInput() {
         //focus first UIInput that is not disabled/readonly
-        for (UIControl u: focusableControls ) 
-        {
-            if ( u instanceof UIFocusableContainer ) 
-            {
+        for (UIControl u: focusableControls ) {
+            if ( u instanceof UIFocusableContainer ) {
                 UIFocusableContainer uis = (UIFocusableContainer) u;
                 if ( uis.focusFirstInput() ) return true;
                 
-            } 
-            else if ( u instanceof UIInput ) 
-            {
+            } else if ( u instanceof UIInput ) {
                 UIInput ui = (UIInput) u;
                 Component comp = (Component) ui;
-                if ( !ui.isReadonly() && comp.isEnabled() && comp.isFocusable() ) 
-                {
-                    comp.requestFocusInWindow();
+                if (comp.isEnabled() && comp.isFocusable()) { 
+                    Utils.focusComponent( comp ); 
                     return true;
                 }
             }
@@ -803,6 +799,24 @@ public class Binding
     
     // <editor-fold defaultstate="collapsed" desc=" Helper ">
     
+    private class RequestFocusTask implements Runnable {
+
+        Component comp; 
+        
+        RequestFocusTask( Component comp ) { 
+            this.comp = comp; 
+        }
+        
+        public void run() { 
+            if ( comp != null && comp.isEnabled() && comp.isFocusable() ) {
+                if ( !comp.requestFocusInWindow() ) {
+                    EventQueue.invokeLater(new RequestFocusTask(comp));
+                }
+            }
+        }
+        
+    }    
+    
     public class Helper {
         public void bindControls( Container cont, Binding binding ) {
             if ( cont == null ) return; 
@@ -825,6 +839,29 @@ public class Binding
                 }
             }
         }        
+        
+        public void focusComponent( Component comp ) {  
+            if ( comp == null ) return; 
+            
+            EventQueue.invokeLater(new RequestFocusTask( comp )); 
+        }
+        
+        public boolean isChild( Container cont, Component child ) {
+            if ( cont == null || child == null ) return false; 
+            
+            boolean found = false; 
+            Container parent = child.getParent(); 
+            while ( parent != null ) {
+                if ( cont.equals( parent )) { 
+                    found = true;
+                    break; 
+                    
+                } else {
+                    parent = parent.getParent(); 
+                }
+            } 
+            return found; 
+        }
     }
     
     // </editor-fold>

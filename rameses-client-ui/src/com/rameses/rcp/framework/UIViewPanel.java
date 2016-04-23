@@ -84,13 +84,14 @@ public class UIViewPanel extends JPanel implements ContainerListener {
         return binding;
     }
     
-    public void refresh() {
-        binding.refresh();
+    public void refresh() { 
+        binding.refresh(); 
     }
-    
-    
-    private class CustomLayout implements LayoutManager
-    {
+        
+    // <editor-fold defaultstate="collapsed" desc=" CustomLayout ">
+
+    private class CustomLayout implements LayoutManager {
+        
         public void addLayoutComponent(String name, Component comp) {}
         public void removeLayoutComponent(Component comp) {}
 
@@ -125,5 +126,7 @@ public class UIViewPanel extends JPanel implements ContainerListener {
                 Insets margin = parent.getInsets(); 
             }
         }        
-    }
+    } 
+    
+    // </editor-fold>
 }
