@@ -584,6 +584,7 @@ public class FormPage extends javax.swing.JPanel {
             if (panel == null) {
                 Color bgcolor = new Color(254, 255, 208);
                 view = new JEditorPane();
+                view.setFocusable(false);
                 view.setContentType("text/html");
                 view.setEditable(false); 
                 view.setBackground(bgcolor); 
