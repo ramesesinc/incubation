@@ -97,6 +97,7 @@ public class FormPage extends javax.swing.JPanel {
         xabFormActions.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 5, 0, 5));
         xabFormActions.setDepends(new String[] {"entity"});
         xabFormActions.setDynamic(true);
+        xabFormActions.setFormName("formName");
         xabFormActions.setName("formActions"); // NOI18N
         leftactionpanel.add(xabFormActions);
 
