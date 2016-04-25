@@ -301,48 +301,40 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
     public boolean focusFirstInput() 
     {
         List<UIControl> allControls = new ArrayList();
-        if ( !nonDynamicControls.isEmpty() )
+        if ( !nonDynamicControls.isEmpty() ) { 
             allControls.addAll( nonDynamicControls );
-        
+        } 
         allControls.addAll(controls);
         
-        try 
-        {
-            for (UIControl c: allControls) 
-            {
-                if ( actionMessage.hasMessages() ) 
-                {
+        try {
+            for (UIControl c: allControls) {
+                if ( actionMessage.hasMessages() ) {
                     if( !(c instanceof Validatable) ) continue;
                     
                     Validatable v = (Validatable) c;
                     v.validateInput();
-                    if ( v.getActionMessage().hasMessages() ) 
-                    {
+                    if ( v.getActionMessage().hasMessages() ) {
                         ((Component) v).requestFocus();
                         return true;
                     }
-                } 
-                else if ( c instanceof UIFocusableContainer ) 
-                {
+                }  
+                else if ( c instanceof UIFocusableContainer ) {
                     UIFocusableContainer uis = (UIFocusableContainer) c;
                     if ( uis.focusFirstInput() ) return true;
-                    
                 } 
-                else if ( c instanceof UIInput ) 
-                {
+                else if ( c instanceof UIInput ) {
                     UIInput u = (UIInput) c;
                     JComponent jc = (JComponent) c;
-                    if ( u.isReadonly() || !jc.isFocusable() || !jc.isEnabled() || !jc.isShowing() )
-                        continue;
-                    
-                    jc.requestFocus();
-                    return true;
+                    if ( jc.isEnabled() && jc.isFocusable() ) { 
+                        jc.requestFocus();
+                        jc.requestFocusInWindow();
+                        return true; 
+                    }
                 }
             }
-            
-        } 
-        catch(Exception e) {;} 
-        finally {
+        } catch(Throwable e) {
+            //do nothing 
+        } finally {
             allControls = null;
         }
         return false;

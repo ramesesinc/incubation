@@ -56,7 +56,8 @@ public class XImage extends JLabel implements UIControl, MouseEventSupport.Compo
     
     private int stretchWidth;
     private int stretchHeight;     
-        
+    private boolean shrinkToFit; 
+         
     public XImage() 
     {
         super();
@@ -70,6 +71,13 @@ public class XImage extends JLabel implements UIControl, MouseEventSupport.Compo
     }
 
     // <editor-fold defaultstate="collapsed" desc=" Getters/Setters ">     
+    
+    public boolean isShrinkToFit() {
+        return shrinkToFit; 
+    }
+    public void setShrinkToFit( boolean shrinkToFit ) {
+        this.shrinkToFit = shrinkToFit;
+    }
     
     public void setName(String name) { 
         super.setName(name); 
@@ -275,7 +283,13 @@ public class XImage extends JLabel implements UIControl, MouseEventSupport.Compo
     private ImageIcon scaleIcon(ImageIcon iicon) {
         if (iicon == null) { return null; } 
         
-        Dimension scaledim = getScaleSize(); 
+        Dimension scaledim = null; 
+        if ( isShrinkToFit() ) {
+            scaledim = new Dimension(getWidth(), getHeight());
+        } else {
+            scaledim = getScaleSize(); 
+        }
+        
         if (scaledim == null) { scaledim = new Dimension(0,0); } 
         if (scaledim.width == 0 && scaledim.height == 0) { return iicon; } 
         
@@ -291,7 +305,7 @@ public class XImage extends JLabel implements UIControl, MouseEventSupport.Compo
         
         BufferedImage bi = new BufferedImage(nw, nh, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2 = (Graphics2D) bi.createGraphics(); 
-        g2.drawImage(bi, 0, 0, null);
+        g2.drawImage(iicon.getImage(), 0, 0, nw, nh, null);
         g2.dispose(); 
         return new ImageIcon(bi); 
     }

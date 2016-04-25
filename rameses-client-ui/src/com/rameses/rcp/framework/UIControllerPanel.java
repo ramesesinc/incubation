@@ -5,15 +5,16 @@ import com.rameses.platform.interfaces.SubWindow;
 import com.rameses.platform.interfaces.ViewContext;
 import com.rameses.rcp.common.Opener;
 import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.EventQueue;
+import java.awt.KeyboardFocusManager;
 import java.awt.LayoutManager;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
 import javax.swing.JButton;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRootPane;
-import javax.swing.SwingUtilities;
 import javax.swing.event.AncestorEvent;
 import javax.swing.event.AncestorListener;
 
@@ -78,28 +79,44 @@ public class UIControllerPanel extends JPanel implements NavigatablePanel, ViewC
     }
     
     private void _build() {
-        UIControllerContext current = getCurrentController();
         removeAll();
+
+        UIViewPanel view = null; 
+        UIControllerContext current = getCurrentController();
         if ( current != null ) {
-            UIViewPanel p = current.getCurrentView();
-            Binding binding = p.getBinding();
+            view = current.getCurrentView();
+            Binding binding = view.getBinding();
             binding.setViewContext(this);
             
-            Object viewname = p.getClientProperty("View.name"); 
-            boolean activated = "true".equals(p.getClientProperty("UIViewPanel.activated")+"");
+            Object viewname = view.getClientProperty("View.name"); 
+            boolean activated = "true".equals(view.getClientProperty("UIViewPanel.activated")+"");
             if (!activated) {
                 binding.fireActivatePage(viewname); 
-                p.putClientProperty("UIViewPanel.activated", "true"); 
+                view.putClientProperty("UIViewPanel.activated", "true"); 
             } 
-            
-            add(p); 
-            p.refresh(); 
+                        
+            add( view ); 
+            view.refresh(); 
+            view.requestFocusInWindow();
             binding.focusFirstInput(); 
-            binding.fireAfterRefresh(viewname);  
+            binding.fireAfterRefresh(viewname);          
         } 
-        SwingUtilities.updateComponentTreeUI(this);
+        
+        //SwingUtilities.updateComponentTreeUI(this);
+        Runnable proc = new Runnable() {
+            public void run() { 
+                revalidate();
+                repaint();
+            }
+        };
+        
+        if ( EventQueue.isDispatchThread() ) {
+            proc.run(); 
+        } else {
+            EventQueue.invokeLater( proc ); 
+        } 
     }
-    
+        
     public void setLayout(LayoutManager mgr) {;}
     
     public Stack<UIControllerContext> getControllers() {

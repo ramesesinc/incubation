@@ -37,12 +37,10 @@ class STU430Device implements SigIdDevice {
         int rescap = dc.capture(sigCtl, " ", " ", null, null); 
         if ( rescap == 0 ) {
             SigObj sig = sigCtl.signature();
-            sig.extraData("SignatoryID", "JDC");
-            sig.extraData("SignatoryName", "JUAN DELA CRUZ");
             int flags = SigObj.outputBinary | SigObj.color32BPP | SigObj.encodeData;
             int pwidth = ( this.width > 0 ? this.width : 300 );
             int pheight = ( this.height > 0 ? this.height : 150 );
-            Object binres = sig.renderBitmap(null, pwidth, pheight, "image/png", 0.5f, 0xff0000, 0xffffff, 0.0f, 0.0f, flags);
+            Object binres = sig.renderBitmap(null, pwidth, pheight, "image/png", 1.0f, 0x00, 0xffffff, 0.0f, 0.0f, flags);
                         
             SigIdResultImpl result = new SigIdResultImpl();
             result.imageData = (byte[]) binres; 
