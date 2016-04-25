@@ -98,19 +98,26 @@ public abstract class AbstractCrudModel  {
         return workunit.workunit.id;
     }
     
+    //this is used for getting the actions
+    public String getFormName() {
+        return schemaName+":"+ getFormType();
+    }
     
+    /*
+    def extActions;
     public List getExtActions() {
+        if(extActions) return extActions;
         def actions1 = []; 
         try { 
-            def invs = Inv.lookup("formActions", null, { o-> 
-                return o.workunitid == invoker.workunitid; 
+            Inv.lookup("formActions", null, { o-> 
+                if(o.workunitid == invoker.workunitid) {
+                    actions1 << createAction( o );
+                } 
+                return false;
             } as InvokerFilter ); 
-        
-            actions1 = buildActions( invs ); 
         } catch(Throwable t) {
             System.out.println("[WARN] error lookup invokers caused by " + t.message);
         } 
-
         def actions2 = [];
         try { 
             def actionProvider = ClientContext.currentContext.actionProvider; 
@@ -118,22 +125,17 @@ public abstract class AbstractCrudModel  {
         } catch(Throwable t) {
             System.out.println("[WARN] error lookup invokers caused by " + t.message);
         }
-        
-        return (actions1 + actions2).sort{ (it.index==null? 0: it.index) };
+        extActions = (actions1.unique() + actions2.unique());
+        return extActions.sort{ (it.index==null? 0: it.index) };
     }    
-    
+    */
+   
     void updateWindowProperties() {
         if(invoker.properties.target == 'window') {
             if(subWindow!=null) {
                 subWindow.update( [title: getTitle() ] );
             }
         }
-    }
-    
-    final def buildActions( invokers ) {
-        def actions = []; 
-        invokers.each{ actions << createAction( it ) }
-        return actions; 
     }
     
     final def createAction( inv ) {

@@ -261,7 +261,7 @@
                   </Border>
                 </Property>
                 <Property name="dynamic" type="boolean" value="true"/>
-                <Property name="name" type="java.lang.String" value="extActions" noResource="true"/>
+                <Property name="formName" type="java.lang.String" value="formName"/>
               </Properties>
             </Component>
             <Component class="com.rameses.rcp.control.XActionBar" name="xActionBar2">

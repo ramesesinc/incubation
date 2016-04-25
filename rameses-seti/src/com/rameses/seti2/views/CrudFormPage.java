@@ -236,7 +236,7 @@ public class CrudFormPage extends javax.swing.JPanel {
 
                 xActionBar1.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 10, 0, 0));
                 xActionBar1.setDynamic(true);
-                xActionBar1.setName("extActions"); // NOI18N
+                xActionBar1.setFormName("formName");
                 jToolBar1.add(xActionBar1);
 
                 xActionBar2.setBorder(null);
@@ -265,9 +265,7 @@ public class CrudFormPage extends javax.swing.JPanel {
                 xDropDownList1.setFocusable(false);
                 xDropDownList1.setHandler("messagelist");
                 xDropDownList1.setHideOnEmptyResult(true);
-                xDropDownList1.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
                 xDropDownList1.setMargin(new java.awt.Insets(0, 2, 0, 2));
-                xDropDownList1.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
                 xDropDownList1.addActionListener(new java.awt.event.ActionListener() {
                     public void actionPerformed(java.awt.event.ActionEvent evt) {
                         xDropDownList1ActionPerformed(evt);

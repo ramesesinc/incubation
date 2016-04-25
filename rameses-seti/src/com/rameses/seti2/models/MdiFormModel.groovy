@@ -35,14 +35,14 @@ public class MdiFormModel  extends CrudFormModel {
     void moveUp() {
         super.moveUp();
         sections.each {
-            try { it.controller.codeBean.init(); }catch(e){;}
+            try { it.controller.codeBean.reload(); }catch(e){;}
         }
     }
 
     void moveDown() {
         super.moveDown();
         sections.each {
-            try { it.controller.codeBean.init(); }catch(e){;}
+            try { it.controller.codeBean.reload(); }catch(e){;}
         }
     }
     

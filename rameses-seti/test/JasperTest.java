@@ -3,6 +3,7 @@
  * and open the template in the editor.
  */
 
+import com.rameses.osiris2.client.InvokerOpener;
 import com.rameses.osiris2.report.ReportColumn;
 import com.rameses.osiris2.report.SimpleTableReport;
 import com.rameses.osiris2.report.SimpleTableReportBuilder;
@@ -79,7 +80,6 @@ public class JasperTest extends TestCase {
     
     // TODO add test methods here. The name must begin with 'test'. For example:
     public void testHello() throws Exception {
-                
         List list = new ArrayList();
         list.add(  createRecord("Nazareno","The Quick brown fox jumped over the lazy dog over and over again",46,25000)  );
         list.add(  createRecord("Flores","Worgie",35,35256.78)  );

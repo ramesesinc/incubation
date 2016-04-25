@@ -59,7 +59,7 @@ public class CrudListModel extends AbstractCrudModel {
     }
     
     //overridables
-    public def beforeQuery( def m ) {
+    public void beforeQuery( def m ) {
         ;//do nothing
     }
     

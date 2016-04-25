@@ -1,0 +1,24 @@
+<workunit>
+    <invokers>
+        <invoker type="date:prompt" caption="Enter Date"/>
+    </invokers>
+    <code>
+        class DatePrompt {
+            def date;
+            def handler;
+        
+            def doCancel() {
+                return "_close";
+            }
+            def doOk() {
+                if(handler) handler(date);
+                return "_close";
+            }
+        }
+    </code>    
+    
+    <pages>
+        <page template="com.rameses.seti2.views.DatePrompt"/>
+    </pages>    
+    
+</workunit>  

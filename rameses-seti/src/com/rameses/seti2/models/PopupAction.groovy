@@ -14,7 +14,6 @@ public class PopupAction extends Action {
     
     def execute() {
         if( getName().startsWith("_")) { 
-            println binding; 
             binding.fireNavigation( getName() );  
             return getName(); 
             

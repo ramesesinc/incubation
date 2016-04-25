@@ -26,37 +26,42 @@ public class ListTypes extends HashMap {
     *    default: lookup list based on name passed
     ***/
     public def get( def n ) {
-        def fld = (schema.fields+schema.links).find{ it.name == n };  
-        if( fld?.lov!=null ) {
-            return LOV.get( fld.lov.toUpperCase() )*.key;
+        def fld = null;
+        if(schema!=null) {
+            fld = (schema.fields+schema.links).find{ it.name == n }; 
         }
-        else if(fld?.ref!=null) {
-            try {
-                String nn = fld.ref;
-                if(nn.indexOf(".")>0) nn = nn.split(":")[1];
-                def m = [_schemaname:nn];
-                m._limit =1000;
-                m._start = 0;
-                return  qryService.getList( m );
+        if(fld!=null) {
+            if( fld?.lov!=null ) {
+                return LOV.get( fld.lov.toUpperCase() )*.key;
             }
-            catch(e) {
-                e.printStackTrace();
+            else if(fld?.ref!=null) {
+                try {
+                    String nn = fld.ref;
+                    if(nn.indexOf(".")>0) nn = nn.split(":")[1];
+                    def m = [_schemaname:nn];
+                    m._limit =1000;
+                    m._start = 0;
+                    return  qryService.getList( m );
+                }
+                catch(e) {
+                    e.printStackTrace();
+                }
             }
-        }
-        else if(fld?.listname!=null) {
-            try {
-                return listService.getList([name: fld.listname]);
+            else if(fld?.listname!=null) {
+                try {
+                    return listService.getList([name: fld.listname]);
+                }
+                catch(e) {
+                    e.printStackTrace();
+                }
             }
-            catch(e) {
-                e.printStackTrace();
-            }
-        }
-        else if(fld?.openerlist!=null) {
-            try {
-                return Inv.lookupOpeners( fld.openerlist );
-            }
-            catch(e) {
-                e.printStackTrace();
+            else if(fld?.openerlist!=null) {
+                try {
+                    return Inv.lookupOpeners( fld.openerlist );
+                }
+                catch(e) {
+                    e.printStackTrace();
+                }
             }
         }
         else {
