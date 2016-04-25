@@ -57,7 +57,7 @@ public class XImage extends JLabel implements UIControl, MouseEventSupport.Compo
     private int stretchWidth;
     private int stretchHeight;     
     private boolean shrinkToFit; 
-        
+         
     public XImage() 
     {
         super();
