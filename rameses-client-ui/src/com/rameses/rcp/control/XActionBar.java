@@ -172,8 +172,10 @@ public class XActionBar extends JPanel implements UIComposite, MouseEventSupport
         if (actions.isEmpty() && actionProvider != null && _name != null) {
             UIController controller = binding.getController();
             List<Action> list = actionProvider.getActionsByType(getName(), controller);
-            if (list != null) actions.addAll(list);
+            if (list != null) { actions.addAll(list); }
         }
+        
+        Collections.sort( actions );
         
         String _formname = getFormName();
         if (_formname != null && _formname.length() > 0 && actionProvider != null) {
@@ -183,11 +185,13 @@ public class XActionBar extends JPanel implements UIComposite, MouseEventSupport
             if (retval != null) _formname = retval.toString();
             
             List<Action> list = actionProvider.lookupActions(_formname+":formActions");
-            if (list != null) actions.addAll(list);
+            if (list != null) { 
+                Collections.sort(list);
+                actions.addAll(list);
+            }
         }
 
         if (actions.size() > 0) {
-            Collections.sort(actions);
             for (Action action: actions) {
                 XButton btn = createButton(action);
                 btn.putClientProperty("Action.domain", action.getDomain());
