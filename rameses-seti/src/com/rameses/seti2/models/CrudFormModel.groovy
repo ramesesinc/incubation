@@ -284,11 +284,18 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
         }
     }
     
+    void reload() {
+        reloadEntity();
+    }
+    
     def reloadEntity() {
-        if( caller.selectedItem ) {
+        if( caller?.selectedItem !=null ) {
             entity = caller.selectedItem;
             loadData();
             afterOpen();
+        }
+        else {
+            open();
         }
         updateWindowProperties(); 
     }
