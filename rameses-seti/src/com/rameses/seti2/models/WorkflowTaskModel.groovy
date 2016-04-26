@@ -82,9 +82,7 @@ public class WorkflowTaskModel extends CrudFormModel implements WorkflowTaskList
                 throw new Exception("Error opening record. There must be a refid or primary key specified");
             EntityUtil.putNestedValue(entity, primKey, refid);
         }
-    
-        extActions = super.getExtActions();
-        
+            
         //find the task
         if(task) {
             def t = workflowTaskService.findTask( [processname: getSchemaName(), taskid: task.taskid] );
