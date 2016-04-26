@@ -18,6 +18,7 @@ import com.rameses.rcp.annotations.Invoker;
 import com.rameses.rcp.common.Action;
 import com.rameses.rcp.framework.ClientContext;
 import java.io.File;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -146,6 +147,13 @@ public abstract class ReportModel {
         
         conf.put("REPORT_UTIL", new ReportDataUtil());
         conf.put("REPORTHELPER", new ReportDataSourceHelper()); 
+        
+        String reportPath = "";
+        String rptName = getReportName();
+        if ( rptName.indexOf("/") > 0 ) { 
+            reportPath = rptName.substring(0, rptName.lastIndexOf("/"));
+        } 
+        conf.put(JRParameter.REPORT_CLASS_LOADER, new CustomReportClassLoader(reportPath));
     } 
     
     private JasperPrint createReport() {
@@ -252,6 +260,27 @@ public abstract class ReportModel {
             return null; 
         } 
     } 
+    
+    // <editor-fold defaultstate="collapsed" desc=" CustomReportClassLoader "> 
+    
+    class CustomReportClassLoader extends ClassLoader {
+        
+        private String basepath;
+        
+        public  CustomReportClassLoader(String basepath ){
+            this.basepath = basepath;
+            if ( basepath != null && basepath.trim().length() > 0 ) { 
+                this.basepath = basepath + "/"; 
+            } else { 
+                this.basepath = "/"; 
+            } 
+        }
+        public URL getResource(String name) {
+            return getClass().getClassLoader().getResource( this.basepath +  name );
+        }
+    } 
+    
+    // </editor-fold>
         
     // <editor-fold defaultstate="collapsed" desc=" Provider "> 
     
