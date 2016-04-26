@@ -253,7 +253,7 @@ public abstract class AbstractCrudModel  {
         def op = new PopupMenuOpener();
         //op.add( new ListAction(caption:'New', name:'create', obj:this, binding: binding) );
         try {
-            op.addAll( Inv.lookupOpeners(schemaName+":" + getFormType() + ":menuActions") );
+            op.addAll( Inv.lookupOpeners(schemaName+":" + getFormType() + ":menuActions", [entity:entityContext]) );
         } catch(Throwable ign){;}
         
         op.add( new com.rameses.seti2.models.PopupAction(caption:'Close', name:'_close', obj:this, binding:binding) );
