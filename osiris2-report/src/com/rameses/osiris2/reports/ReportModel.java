@@ -179,12 +179,7 @@ public abstract class ReportModel {
     }
     
     public void reload() { 
-        if ( reportInfo == null ) {
-            reportOutput = createReport(); 
-        } else { 
-            loadMainReport(); 
-            reportOutput = reportInfo.fillReport( mainReport );  
-        } 
+        reportOutput = createReport(); 
         if ( provider != null) { 
             provider.reload(); 
         } 
