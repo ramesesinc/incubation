@@ -282,10 +282,7 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
         itemHandlers.values().each {
             it.reload();
         }
-    }
-    
-    void reload() {
-        reloadEntity();
+        binding?.refresh();
     }
     
     def reloadEntity() {
@@ -293,9 +290,6 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
             entity = caller.selectedItem;
             loadData();
             afterOpen();
-        }
-        else {
-            open();
         }
         updateWindowProperties(); 
     }

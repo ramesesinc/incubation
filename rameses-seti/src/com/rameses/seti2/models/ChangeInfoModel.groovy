@@ -24,30 +24,27 @@ public class ChangeInfoModel extends CrudFormModel {
     def info = [:];
 
     public void afterInit() {
-        def arr = invoker.properties.editfields?.split(",");
+        def arr = invoker.properties.fields?.split(",");
         arr?.each {
-            println "loading field "+it; 
             def s = it.trim();
             schema?.fields.findAll{it.name.matches(s) }.each { f->
-                def v = EntityUtil.getNestedValue( entity, f.name );
-                EntityUtil.putNestedValue( entity, f.name, v  );
+                def v = EntityUtil.getNestedValue( entity, f.extname );
+                EntityUtil.putNestedValue( info, f.extname, v  );
             }
         };
         schema?.fields.findAll{it.primary==true && it.source == getSchemaName() }.each {
-            def v = EntityUtil.getNestedValue( entity, it.name );
-            EntityUtil.putNestedValue( entity, it.name, v  );
+            def v = EntityUtil.getNestedValue( entity, it.extname );
+            EntityUtil.putNestedValue( info, it.extname, v  );
         };
     }
     
     def doOk() {
         if(!_inited_) throw new Exception("Please run init first");
-        //[newinfo: info, oldinfo: ]
-        def m = [_schemaname : getSchemaName()];
-        m.info = info;
-        println m;
+        def m = [info:info];
+        m.info._schemaname = getSchemaName();
         changeInfoService.update( m );
         if(caller!=null) {
-            caller.reload();
+            caller.loadData();
         }
         return "_close";
     }
