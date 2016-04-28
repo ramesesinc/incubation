@@ -174,11 +174,15 @@ public class ReportURLStreamHandlerFactory implements URLStreamHandlerFactory {
         return getHandler( protocol );  
     } 
     
-    public com.rameses.util.URLStreamHandler getHandler( String protocol ) {
-        if ("classpath".equalsIgnoreCase(protocol + "")) { 
+    public com.rameses.util.URLStreamHandler getHandler( String protocol ) { 
+        if ( protocol == null || protocol.length() == 0 ) {
+            return null; 
+        } else if ("classpath".equalsIgnoreCase( protocol )) { 
             return new ClasspathURLStreamHandler(); 
-        } else if ("webresource".equalsIgnoreCase(protocol + "")) { 
+        } else if ("webresource".equalsIgnoreCase( protocol )) { 
             return new WebResURLStreamHandler(); 
+        } else if ("base64".equalsIgnoreCase( protocol)) { 
+            return new Base64URLStreamHandler(); 
         } else { 
             return null; 
         } 
