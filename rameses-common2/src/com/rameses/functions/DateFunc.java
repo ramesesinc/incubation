@@ -10,9 +10,9 @@
 package com.rameses.functions;
 
 import com.rameses.util.DateUtil;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 /**
  *
@@ -117,5 +117,35 @@ public final class DateFunc {
         return cal.getTime();
     }
     
+    public static Date getDayAdd( Date dt, int days ) {
+        return DateUtil.add(dt, days + "d");
+    }
+
+    public static Date getMonthAdd( Date dt, int months ) {
+        return DateUtil.add(dt, months + "M");
+    }
+    
+    public static int getDayOfWeek(Date dt) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(dt);
+        return cal.get(Calendar.DAY_OF_WEEK);
+    }
+
+    public static Date getFindNextWorkDay(Date dt, List holidays) {
+        int dow = getDayOfWeek(dt);
+        int add_days = 0;
+        if( dow == 1 ) add_days = 1;
+        else if( dow == 7 ) add_days = 2;
+        Date d = getDayAdd(dt, add_days);
+        if(holidays!=null && holidays.size()>0) {
+            for( Object v: holidays ) {
+                if( v instanceof Date ) {
+                    Date testDate = (Date)v;
+                    if( testDate.equals(d) ) d = getDayAdd(d, 1);
+                }
+            }
+        }
+        return d;
+    }
 
 }

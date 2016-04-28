@@ -1,0 +1,8 @@
+{
+  caption: 'DAYADD',
+  description: 'returns the date plus number of days',
+  code: 'com.rameses.functions.DateFunc.getDayAdd',
+  title: '@DAYADD( date, (int)days )', 
+  signature: '@DAYADD( |, )', 
+  group: 'date' 
+}

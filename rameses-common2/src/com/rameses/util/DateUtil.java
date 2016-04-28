@@ -205,4 +205,5 @@ public final class DateUtil {
         if( pattern ==null ) df = basicFormat;
         return df.format( d1 );
     }
+
 }

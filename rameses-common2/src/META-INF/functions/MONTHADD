@@ -1,0 +1,8 @@
+{
+  caption: 'MONTHADD',
+  description: 'returns the date plus number of months',
+  code: 'com.rameses.functions.DateFunc.getMonthAdd',
+  title: '@MONTHADD( date, (int)months )', 
+  signature: '@MONTHADD( |, )', 
+  group: 'date' 
+}
