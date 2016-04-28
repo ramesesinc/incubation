@@ -8,12 +8,12 @@ package com.rameses.seti2.views;
  *
  * @author dell
  */
-public class QueryFormPage extends javax.swing.JPanel {
+public class BlankQueryFormPanel extends javax.swing.JPanel {
 
     /**
      * Creates new form QueryFormPage
      */
-    public QueryFormPage() {
+    public BlankQueryFormPanel() {
         initComponents();
     }
 
