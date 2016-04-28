@@ -29,7 +29,6 @@ import com.rameses.util.ValueUtil;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.EventQueue;
-import java.awt.KeyboardFocusManager;
 import java.awt.event.ComponentEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -49,7 +48,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.swing.JComponent;
-import javax.swing.SwingUtilities;
 import javax.swing.text.JTextComponent;
 
 /**
@@ -685,8 +683,7 @@ public class Binding
                 UIInput ui = (UIInput) u;
                 Component comp = (Component) ui;
                 if (comp.isEnabled() && comp.isFocusable()) { 
-                    Utils.focusComponent( comp ); 
-                    return true;
+                    return comp.requestFocusInWindow();
                 }
             }
         }
@@ -809,9 +806,7 @@ public class Binding
         
         public void run() { 
             if ( comp != null && comp.isEnabled() && comp.isFocusable() ) {
-                if ( !comp.requestFocusInWindow() ) {
-                    EventQueue.invokeLater(new RequestFocusTask(comp));
-                }
+                comp.requestFocusInWindow(); 
             }
         }
         
@@ -841,8 +836,6 @@ public class Binding
         }        
         
         public void focusComponent( Component comp ) {  
-            if ( comp == null ) return; 
-            
             EventQueue.invokeLater(new RequestFocusTask( comp )); 
         }
         

@@ -5,9 +5,6 @@ import com.rameses.platform.interfaces.SubWindow;
 import com.rameses.platform.interfaces.ViewContext;
 import com.rameses.rcp.common.Opener;
 import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.EventQueue;
-import java.awt.KeyboardFocusManager;
 import java.awt.LayoutManager;
 import java.util.HashMap;
 import java.util.Map;
@@ -15,6 +12,7 @@ import java.util.Stack;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JRootPane;
+import javax.swing.SwingUtilities;
 import javax.swing.event.AncestorEvent;
 import javax.swing.event.AncestorListener;
 
@@ -79,10 +77,10 @@ public class UIControllerPanel extends JPanel implements NavigatablePanel, ViewC
     }
     
     private void _build() {
+        UIControllerContext current = getCurrentController();
         removeAll();
 
         UIViewPanel view = null; 
-        UIControllerContext current = getCurrentController();
         if ( current != null ) {
             view = current.getCurrentView();
             Binding binding = view.getBinding();
@@ -96,25 +94,12 @@ public class UIControllerPanel extends JPanel implements NavigatablePanel, ViewC
             } 
                         
             add( view ); 
-            view.refresh(); 
             view.requestFocusInWindow();
+            view.refresh(); 
             binding.focusFirstInput(); 
             binding.fireAfterRefresh(viewname);          
         } 
-        
-        //SwingUtilities.updateComponentTreeUI(this);
-        Runnable proc = new Runnable() {
-            public void run() { 
-                revalidate();
-                repaint();
-            }
-        };
-        
-        if ( EventQueue.isDispatchThread() ) {
-            proc.run(); 
-        } else {
-            EventQueue.invokeLater( proc ); 
-        } 
+        SwingUtilities.updateComponentTreeUI(this);
     }
         
     public void setLayout(LayoutManager mgr) {;}

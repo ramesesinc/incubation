@@ -245,7 +245,6 @@ public class XLookupField extends IconedTextField implements UILookup, UISelecto
     
     public boolean focusFirstInput() { 
         getBinding().Utils.focusComponent( this ); 
-        //requestFocusInWindow(); 
         return true; 
     }    
     
