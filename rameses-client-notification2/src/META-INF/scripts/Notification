@@ -1,8 +1,16 @@
+import com.rameses.rcp.annotations.*;
 import com.rameses.rcp.framework.*;
 
 public class Notification implements NotificationHandler { 
 
+    @Service('NotificationService')
+    def notificationSvc;
+
     def callback; 
+
+    public def getService() { 
+        return notificationSvc; 
+    } 
 
     public void setOnMessage( def callback ) { 
         remove(); 

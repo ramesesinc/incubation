@@ -14,6 +14,9 @@
     
     class UserNotificationLoaderController implements Runnable
     {   
+        @Script('Notification')
+        def notification;
+        
         @Notifier
         def notifier;
     
@@ -44,7 +47,7 @@
                 
                 onstart     : { 
                     try { 
-                        def svc = new UserNotificationService();
+                        def svc = notification.service; 
                         svc.getNotified([recipientid: recipientid]); 
                     } catch(Throwable t) { 
                         t.printStackTrace(); 
