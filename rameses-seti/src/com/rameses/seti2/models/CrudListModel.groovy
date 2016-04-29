@@ -223,8 +223,12 @@ public class CrudListModel extends AbstractCrudModel {
             def m = buildSelectQuery(o);
             return getQueryService().getList( m );
         },
-        onOpenItem: { o, colName ->
-            return open();
+        onOpenItem: { o, colName -> 
+            if ( isOpenAllowed() ) { 
+                return open(); 
+            } else {
+                return null;  
+            } 
         }
     ] as PageListModel;
     

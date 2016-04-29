@@ -194,8 +194,7 @@ public abstract class AbstractCrudModel  {
                 try {
                     boolean t = ExpressionResolver.getInstance().evalBoolean(allowOpen, [entity:getEntityContext()] );
                     if(t == false) return false;
-                }
-                catch(ign){
+                } catch(ign){
                     println 'Expression Error: ' + allowOpen;
                     return false;
                 }
