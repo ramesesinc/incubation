@@ -169,7 +169,7 @@ public class XActionBar extends JPanel implements UIComposite, MouseEventSupport
         
         String _name = getName();
         ActionProvider actionProvider = ClientContext.getCurrentContext().getActionProvider();
-        if (actions.isEmpty() && actionProvider != null && _name != null) {
+        if (actionProvider != null && _name != null) {
             UIController controller = binding.getController();
             List<Action> list = actionProvider.getActionsByType(getName(), controller);
             if (list != null) { actions.addAll(list); }
