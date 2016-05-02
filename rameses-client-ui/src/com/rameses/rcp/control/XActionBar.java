@@ -71,7 +71,6 @@ public class XActionBar extends JPanel implements UIComposite, MouseEventSupport
     //XButton target
     private String target;
     private String formName;
-    private String actionName = "formActions";
     
     private List<XButton> buttons = new ArrayList();
     private JComponent toolbarComponent;
@@ -141,23 +140,13 @@ public class XActionBar extends JPanel implements UIComposite, MouseEventSupport
         Map map = new HashMap();
         map.put("dynamic", isDynamic());
         map.put("formName", getFormName());
-        map.put("actionName", getActionName());
         map.put("showCaptions", isShowCaptions()); 
         map.put("target", getTarget()); 
         return map;
     }     
     
     // <editor-fold defaultstate="collapsed" desc="  helper methods  ">
-    
-    private String getPreferredActionName() {
-        String aname = getActionName(); 
-        if ( aname == null ) {
-            return "formActions"; 
-        } else {
-            return aname; 
-        }
-    }
-    
+        
     private void buildButtons() {
         buttons.clear();
         List<Action> actions = new ArrayList();
@@ -195,7 +184,7 @@ public class XActionBar extends JPanel implements UIComposite, MouseEventSupport
             
             if (retval != null) _formname = retval.toString();
             
-            List<Action> list = actionProvider.lookupActions(_formname + ":" + getPreferredActionName());
+            List<Action> list = actionProvider.lookupActions(_formname + ":" + _name);
             if (list != null) { 
                 Collections.sort(list);
                 actions.addAll(list);
@@ -407,12 +396,7 @@ public class XActionBar extends JPanel implements UIComposite, MouseEventSupport
     
     public String getFormName() { return formName; }
     public void setFormName(String formName) { this.formName = formName; }
-    
-    public String getActionName() { return actionName; } 
-    public void setActionName( String actionName ) {
-        this.actionName = actionName; 
-    }
-    
+        
     public String getTextAlignment() { return this.textAlignment; }
     public void setTextAlignment(String textAlignment) {
         this.textAlignment = textAlignment;
