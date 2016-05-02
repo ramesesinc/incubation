@@ -32,7 +32,15 @@ public class XFormulaEditorBeanInfo extends ComponentBeanInfo.Support
     
     protected PropertyDescriptor[] createPropertyDescriptors() throws IntrospectionException 
     {
-        return new PropertyDescriptor[] {            
+        return new PropertyDescriptor[] {   
+            new PropertyDescriptor("caption", getBeanClass()),
+            new PropertyDescriptor("captionMnemonic", getBeanClass()),
+            new PropertyDescriptor("captionWidth", getBeanClass()),
+            new PropertyDescriptor("captionFont", getBeanClass()),
+            new PropertyDescriptor("captionFontStyle", getBeanClass()),
+            new PropertyDescriptor("cellPadding", getBeanClass()),
+            new PropertyDescriptor("showCaption", getBeanClass(), "isShowCaption", "setShowCaption"),
+            
             new PropertyDescriptor("depends", getBeanClass()),
             new PropertyDescriptor("dynamic", getBeanClass(), "isDynamic", "setDynamic"),
             new PropertyDescriptor("handler", getBeanClass()),

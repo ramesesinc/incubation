@@ -39,7 +39,7 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.swing.*;
 
-public class XDataTable extends JPanel implements UIInput, UIComplex, Validatable, FocusListener, MouseEventSupport.ComponentInfo, ActiveControl 
+public class XDataTable extends JPanel implements UIInput, UIComplex, Validatable, FocusListener, ActiveControl, MouseEventSupport.ComponentInfo 
 {    
     private DataTableComponentImpl table;
     private ListScrollBar scrollBar;
