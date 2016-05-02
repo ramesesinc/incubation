@@ -39,7 +39,7 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.swing.*;
 
-public class XDataTable extends JPanel implements UIInput, UIComplex, Validatable, FocusListener, MouseEventSupport.ComponentInfo
+public class XDataTable extends JPanel implements UIInput, UIComplex, Validatable, FocusListener, MouseEventSupport.ComponentInfo, ActiveControl 
 {    
     private DataTableComponentImpl table;
     private ListScrollBar scrollBar;
@@ -56,7 +56,6 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
     private String[] depends;
     private String items;    
     private String handler;
-    private String caption;
     private String id;
     private String readonlyWhen;
     private int index;    
@@ -74,9 +73,11 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
     
     private Color borderColor;
     
-    public XDataTable() 
-    {
+    private ControlProperty property = new ControlProperty(); 
+
+    public XDataTable() { 
         init();        
+        
         if (!Beans.isDesignTime()) {
             rowChangeNotifier = new RowChangeNotifier(); 
             loader = new ListModelLoader();
@@ -105,8 +106,8 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
     
     // <editor-fold defaultstate="collapsed" desc=" initialize table ">
     
-    private void init() 
-    {
+    private void init() {
+        property = new ControlProperty(); 
         propertyHandler = new PropertyChangeHandlerImpl();     
         tableModelHandler = new TableModelHandlerImpl();
         
@@ -210,13 +211,76 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
     
     // </editor-fold>
     
+    // <editor-fold defaultstate="collapsed" desc=" ActiveControl implementation ">    
+    
+    public ControlProperty getControlProperty() { 
+        if ( property == null ) {
+            property = new ControlProperty(); 
+        } 
+        return property; 
+    } 
+    
+    public String getCaption() { 
+        return getControlProperty().getCaption(); 
+    }    
+    public void setCaption(String caption) { 
+        getControlProperty().setCaption( caption ); 
+    }
+    
+    public char getCaptionMnemonic() {
+        return getControlProperty().getCaptionMnemonic();
+    }    
+    public void setCaptionMnemonic(char c) {
+        getControlProperty().setCaptionMnemonic(c);
+    }
+
+    public int getCaptionWidth() {
+        return getControlProperty().getCaptionWidth();
+    }    
+    public void setCaptionWidth(int width) {
+        getControlProperty().setCaptionWidth(width);
+    }
+
+    public boolean isShowCaption() {
+        return getControlProperty().isShowCaption();
+    } 
+    public void setShowCaption(boolean show) {
+        getControlProperty().setShowCaption(show);
+    }
+    
+    public Font getCaptionFont() {
+        return getControlProperty().getCaptionFont();
+    }    
+    public void setCaptionFont(Font f) {
+        getControlProperty().setCaptionFont(f);
+    }
+    
+    public String getCaptionFontStyle() { 
+        return getControlProperty().getCaptionFontStyle();
+    } 
+    public void setCaptionFontStyle(String captionFontStyle) {
+        getControlProperty().setCaptionFontStyle(captionFontStyle); 
+    }    
+    
+    public Insets getCellPadding() {
+        return getControlProperty().getCellPadding();
+    }    
+    public void setCellPadding(Insets padding) {
+        getControlProperty().setCellPadding(padding);
+    }    
+
+    // </editor-fold>    
+    
     // <editor-fold defaultstate="collapsed" desc=" UIInput properties ">
     
     public String[] getDepends() { return depends; }    
     public void setDepends(String[] depends) { this.depends = depends; }
     
     public int getIndex() { return index; }    
-    public void setIndex(int index) { this.index = index; }
+    public void setIndex(int index) { 
+        this.index = index; 
+        getControlProperty().setIndex( index ); 
+    }
 
     public Binding getBinding() { return binding; }    
     public void setBinding(Binding binding) { this.binding = binding; }
@@ -422,6 +486,7 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
             }
         } else { 
             StringBuffer buffer = new StringBuffer(errmsg);
+            String caption = getCaption();
             if ( !ValueUtil.isEmpty(caption) ) {
                 buffer.insert(0, caption + " (\n").append("\n)");
             }
@@ -434,9 +499,6 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
     public boolean isReadonly() { return table.isReadonly(); }    
     public void setReadonly(boolean readonly) { table.setReadonly(readonly); }
         
-    public String getCaption() { return this.caption; }    
-    public void setCaption(String caption) { this.caption = caption; }
-    
     public void setName(String name) 
     {
         super.setName(name);
