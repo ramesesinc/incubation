@@ -36,7 +36,15 @@ public class XDataTableBeanInfo extends ComponentBeanInfo.Support
             new PropertyDescriptor("autoResize", getBeanClass(), "isAutoResize", "setAutoResize"),
             new PropertyDescriptor("showHorizontalLines", getBeanClass(), "isShowHorizontalLines", "setShowHorizontalLines"), 
             new PropertyDescriptor("showVerticalLines", getBeanClass(), "isShowVerticalLines", "setShowVerticalLines"),
-                        
+            
+            new PropertyDescriptor("caption", getBeanClass()),
+            new PropertyDescriptor("captionMnemonic", getBeanClass()),
+            new PropertyDescriptor("captionWidth", getBeanClass()),
+            new PropertyDescriptor("captionFont", getBeanClass()),
+            new PropertyDescriptor("captionFontStyle", getBeanClass()),
+            new PropertyDescriptor("cellPadding", getBeanClass()),
+            new PropertyDescriptor("showCaption", getBeanClass(), "isShowCaption", "setShowCaption"),
+            
             installEditor(new PropertyDescriptor("columns", getBeanClass()), ColumnPropertyEditor.class), 
             
             new PropertyDescriptor("borderColor", getBeanClass()),

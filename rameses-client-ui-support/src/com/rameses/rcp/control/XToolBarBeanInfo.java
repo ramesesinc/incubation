@@ -31,7 +31,15 @@ public class XToolBarBeanInfo extends ComponentBeanInfo.Support
     
     protected PropertyDescriptor[] createPropertyDescriptors() throws IntrospectionException 
     {
-        return new PropertyDescriptor[] {
+        return new PropertyDescriptor[] { 
+            new PropertyDescriptor("caption", getBeanClass()),
+            new PropertyDescriptor("captionMnemonic", getBeanClass()),
+            new PropertyDescriptor("captionWidth", getBeanClass()),
+            new PropertyDescriptor("captionFont", getBeanClass()),
+            new PropertyDescriptor("captionFontStyle", getBeanClass()),
+            new PropertyDescriptor("cellPadding", getBeanClass()),
+            new PropertyDescriptor("showCaption", getBeanClass(), "isShowCaption", "setShowCaption"),
+            
             new PropertyDescriptor("border", getBeanClass()),
             
             new PropertyDescriptor("depends", getBeanClass()),

@@ -27,6 +27,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Insets;
 import java.awt.LayoutManager;
@@ -36,7 +37,7 @@ import javax.swing.*;
 import javax.swing.border.AbstractBorder;
 import javax.swing.plaf.metal.MetalLookAndFeel;
 
-public class XTreeTable extends JPanel implements UIOutput, TreeTableListener, FocusListener 
+public class XTreeTable extends JPanel implements UIOutput, ActiveControl, TreeTableListener, FocusListener 
 {    
     private TreeTableComponent table;
     private ListScrollBar scrollBar;
@@ -213,6 +214,68 @@ public class XTreeTable extends JPanel implements UIOutput, TreeTableListener, F
     }    
     
     //</editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" ActiveControl implementation ">    
+    
+    private ControlProperty property; 
+    
+    public ControlProperty getControlProperty() { 
+        if ( property == null ) {
+            property = new ControlProperty(); 
+        } 
+        return property; 
+    } 
+    
+    public String getCaption() { 
+        return getControlProperty().getCaption(); 
+    }    
+    public void setCaption(String caption) { 
+        getControlProperty().setCaption( caption ); 
+    }
+    
+    public char getCaptionMnemonic() {
+        return getControlProperty().getCaptionMnemonic();
+    }    
+    public void setCaptionMnemonic(char c) {
+        getControlProperty().setCaptionMnemonic(c);
+    }
+
+    public int getCaptionWidth() {
+        return getControlProperty().getCaptionWidth();
+    }    
+    public void setCaptionWidth(int width) {
+        getControlProperty().setCaptionWidth(width);
+    }
+
+    public boolean isShowCaption() {
+        return getControlProperty().isShowCaption();
+    } 
+    public void setShowCaption(boolean show) {
+        getControlProperty().setShowCaption(show);
+    }
+    
+    public Font getCaptionFont() {
+        return getControlProperty().getCaptionFont();
+    }    
+    public void setCaptionFont(Font f) {
+        getControlProperty().setCaptionFont(f);
+    }
+    
+    public String getCaptionFontStyle() { 
+        return getControlProperty().getCaptionFontStyle();
+    } 
+    public void setCaptionFontStyle(String captionFontStyle) {
+        getControlProperty().setCaptionFontStyle(captionFontStyle); 
+    }    
+    
+    public Insets getCellPadding() {
+        return getControlProperty().getCellPadding();
+    }    
+    public void setCellPadding(Insets padding) {
+        getControlProperty().setCellPadding(padding);
+    }    
+
+    // </editor-fold>        
     
     //<editor-fold defaultstate="collapsed" desc="  table listener methods  ">
     public void refreshList() {

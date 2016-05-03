@@ -33,6 +33,14 @@ public class XPanelBeanInfo extends ComponentBeanInfo.Support
         return new PropertyDescriptor[] {
             new PropertyDescriptor("border", getBeanClass()),
             
+            new PropertyDescriptor("caption", getBeanClass()),
+            new PropertyDescriptor("captionMnemonic", getBeanClass()),
+            new PropertyDescriptor("captionWidth", getBeanClass()),
+            new PropertyDescriptor("captionFont", getBeanClass()),
+            new PropertyDescriptor("captionFontStyle", getBeanClass()),
+            new PropertyDescriptor("cellPadding", getBeanClass()),
+            new PropertyDescriptor("showCaption", getBeanClass(), "isShowCaption", "setShowCaption"),
+            
             new PropertyDescriptor("depends", getBeanClass()),
             new PropertyDescriptor("index", getBeanClass()),
             new PropertyDescriptor("stretchWidth", getBeanClass()),
