@@ -68,6 +68,7 @@ public class FormPage extends javax.swing.JPanel {
         leftactionpanel = new com.rameses.rcp.control.XHorizontalPanel();
         xabFormActions = new com.rameses.rcp.control.XActionBar();
         xActionBar1 = new com.rameses.rcp.control.XActionBar();
+        xActionBar2 = new com.rameses.rcp.control.XActionBar();
         xSubFormPanel1 = new com.rameses.rcp.control.XSubFormPanel();
         rightactionpanel = new com.rameses.rcp.control.XHorizontalPanel();
         xabNavActions = new com.rameses.rcp.control.XActionBar();
@@ -105,8 +106,14 @@ public class FormPage extends javax.swing.JPanel {
         xActionBar1.setDepends(new String[] {"entity"});
         xActionBar1.setDynamic(true);
         xActionBar1.setFormName("entityName");
-        xActionBar1.setName("extActions"); // NOI18N
         leftactionpanel.add(xActionBar1);
+
+        xActionBar2.setBorder(null);
+        xActionBar2.setDepends(new String[] {"entity"});
+        xActionBar2.setDynamic(true);
+        xActionBar2.setFormName("entityName");
+        xActionBar2.setName("extActions"); // NOI18N
+        leftactionpanel.add(xActionBar2);
 
         xSubFormPanel1.setHandler("queryForm");
         xSubFormPanel1.setName("queryForm"); // NOI18N
@@ -663,6 +670,7 @@ public class FormPage extends javax.swing.JPanel {
     private com.rameses.rcp.control.XHorizontalPanel rightactionpanel;
     private com.rameses.rcp.control.XStyleRule stylerule;
     private com.rameses.rcp.control.XActionBar xActionBar1;
+    private com.rameses.rcp.control.XActionBar xActionBar2;
     private com.rameses.rcp.control.XDropDownList xDropDownList1;
     private com.rameses.rcp.control.XSubFormPanel xSubFormPanel1;
     private com.rameses.rcp.control.XActionBar xabFormActions;
