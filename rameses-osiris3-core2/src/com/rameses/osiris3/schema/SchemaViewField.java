@@ -30,10 +30,12 @@ public class SchemaViewField {
     /**
     * The view here represents the main view that holds the field.
     */
-    public SchemaViewField(SchemaField sf, SchemaView rootView, AbstractSchemaView lvw) {
+    public SchemaViewField(SchemaField sf, SchemaView rootView, AbstractSchemaView lvw, boolean insertable, boolean updatable) {
         this.schemaField = sf;
         this.rootView = rootView;
         this.view = lvw;
+        this._insertable = insertable;
+        this._updatable = updatable;
         init();
     }
     
@@ -58,23 +60,27 @@ public class SchemaViewField {
         
         
         //determine insertable. applies to extended, one to one 
+        /*
         String matchPattern = JoinTypes.EXTENDED + "|" + JoinTypes.ONE_TO_ONE ;
         if( joinType==null || joinType.matches( matchPattern ) ) {
             _insertable = true;
         }
-        
+        else if( joinType !=null && joinType.matches(JoinTypes.MANY_TO_ONE)) {
+            _insertable = true;
+            _updatable = true;
+        }
         //determine updatable. Only primary keys will not be updatable. all the rest can be updated
         //if( (joinType==null ||  !joinType.matches(matchPattern)) && !isPrimary() ) {
         if(!isPrimary()) {
             _updatable = true;
         }
-        
         if( schemaField instanceof SimpleField ) {
             if( ((SimpleField)schemaField).getExpr()!=null ) {
                 _insertable = false;
                 _updatable = false;
             }
         }
+        */ 
     }
     
     public String getName() {

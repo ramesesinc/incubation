@@ -20,7 +20,7 @@ public class WorkflowTaskModel extends CrudFormModel implements WorkflowTaskList
     def refid;
     String processName;
     List transitions = [];
-    List extActions;
+    
     def messagelist = [];
     
     public def getWorkflowTaskService() {
@@ -150,10 +150,9 @@ public class WorkflowTaskModel extends CrudFormModel implements WorkflowTaskList
         }
     }
     
-    public List getExtActions() {
+    public List getFormActions() {
         def list = new ArrayList();
         list.addAll(transitions); 
-        if(extActions!=null) list.addAll( extActions );
         return list;
     }
     

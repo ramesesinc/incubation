@@ -220,16 +220,16 @@ public abstract class AbstractSqlDialect implements SqlDialect {
         }
         if (model.getJoinedViews() != null) {
             int i = 0;
-            
+            String sjoinType = " INNER ";
             for (AbstractSchemaView asv : model.getJoinedViews()) {
                 if ( !(asv instanceof LinkedSchemaView) ) continue;
-                
                 LinkedSchemaView lsv = (LinkedSchemaView)asv; 
-                if (lsv.isRequired()) {
-                    sb.append(" INNER JOIN ");
-                } else {
-                    sb.append(" LEFT JOIN ");
-                }
+                if (!lsv.isRequired()) {
+                    //if there is just one instance of not required then immediately make everyhting left join
+                    //This is a temporary solution because the ideal solution should have been nested.
+                    sjoinType = "LEFT";
+                } 
+                sb.append( sjoinType + " JOIN " );
                 sb.append(" " + getDelimiters()[0] + lsv.getTablename() + getDelimiters()[1] + " ");
                 if (!lsv.getTablename().equals(lsv.getName())) {
                     sb.append(" " + getDelimiters()[0] + lsv.getName() + getDelimiters()[1] + " ");

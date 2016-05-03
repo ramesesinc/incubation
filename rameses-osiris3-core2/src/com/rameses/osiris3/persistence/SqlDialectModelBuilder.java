@@ -116,7 +116,6 @@ public final class SqlDialectModelBuilder {
      * ***********************************************************************
      */
     public static Map<String, SqlDialectModel> buildUpdateSqlModels(EntityManagerModel entityModel, final Map data) {
-
         SchemaView svw = entityModel.getSchemaView();
         String fieldMatch =  DataUtil.stringifyMapKeys(data);
         if(fieldMatch==null) 
@@ -470,7 +469,7 @@ public final class SqlDialectModelBuilder {
                 sf.setName(rk.getField());
                 sf.setFieldname(rk.getField());
                 sf.setType( tf.getType() );
-                SchemaViewRelationField rf = new SchemaViewRelationField(sf, svw, svw, tf, targetVw);
+                SchemaViewRelationField rf = new SchemaViewRelationField(sf, svw, svw,false, false, tf, targetVw);
                 targetVw.addRelationField(rf);
             };
         }
