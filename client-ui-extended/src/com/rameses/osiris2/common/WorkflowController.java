@@ -86,16 +86,16 @@ public abstract class WorkflowController {
                 }
             }
         }
-        final String id = controller.getWorkunit().getWorkunit().getId();
-        List list = InvokerUtil.lookupActions( "extActions", new InvokerFilter(){
-            public boolean accept(Invoker invoker) {
-                return invoker.getWorkunitid().equals(id);
-            }
-            
-        });
-        for(Object a: list) {
-            extActions.add( ((Action) a).clone() ); 
-        }
+//        final String id = controller.getWorkunit().getWorkunit().getId();
+//        List list = InvokerUtil.lookupActions( "extActions", new InvokerFilter(){
+//            public boolean accept(Invoker invoker) {
+//                return invoker.getWorkunitid().equals(id);
+//            }
+//            
+//        });
+//        for(Object a: list) {
+//            extActions.add( ((Action) a).clone() ); 
+//        }
     }
     
     private void buildFormActions(Map task) {

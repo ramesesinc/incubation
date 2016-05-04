@@ -104,6 +104,20 @@
                     </Property>
                     <Property name="dynamic" type="boolean" value="true"/>
                     <Property name="formName" type="java.lang.String" value="entityName"/>
+                  </Properties>
+                </Component>
+                <Component class="com.rameses.rcp.control.XActionBar" name="xActionBar2">
+                  <Properties>
+                    <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+                      <Border info="null"/>
+                    </Property>
+                    <Property name="depends" type="[Ljava.lang.String;" editor="org.netbeans.beaninfo.editors.StringArrayEditor">
+                      <StringArray count="1">
+                        <StringItem index="0" value="entity"/>
+                      </StringArray>
+                    </Property>
+                    <Property name="dynamic" type="boolean" value="true"/>
+                    <Property name="formName" type="java.lang.String" value="entityName"/>
                     <Property name="name" type="java.lang.String" value="extActions" noResource="true"/>
                   </Properties>
                 </Component>
