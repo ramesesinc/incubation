@@ -172,17 +172,18 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
         return null;
     }
 
-    public def getBarcodeKey() {
+    public def getBarcodeFieldname() {
         return null;
     }
     
-    public void openBarcode() {
+    public def openBarcode() {
         if( !barcodeid ) 
             throw new Exception("Open barcode error! barcodeid is not specified" );
-        def key = getBarcodeKey();
-        if( !key ) throw new Exception("Open barcode error! Please override getBarcodeKey method" );
+        def key = getBarcodeFieldname();
+        if( !key ) throw new Exception("Open barcode error! Please override (def)getBarcodeFieldname method" );
         findBy = [:];
         findBy.put(key, barcodeid);
+        return open();
     }
     
     /**************************************************************************
@@ -194,7 +195,6 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
         findBy = [:];
         findBy.put(primKey, refid);
         //initialize also the entity bec. there is no entity in this instance
-        
     }
     
     def open() {
@@ -202,8 +202,12 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
         init();
         if( !entity ) entity = [:];
         //we need to set the schemaname that will be used for open
-        if( refid ) buildFindByForOpenByRefid();
-        if( findBy !=null ) entity.findBy = findBy;
+        if( refid ) {
+            buildFindByForOpenByRefid();
+        }
+        if( findBy !=null ) {
+            entity.findBy = findBy;
+        }
         entity._schemaname = schemaName;
         entity = getPersistenceService().read( entity );
         
