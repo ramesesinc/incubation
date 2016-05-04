@@ -82,9 +82,8 @@ public class DataTransposer {
         
         Map targetData = new LinkedHashMap();
         for( SchemaViewField vf: svw.findAllFields(".*")) {
+            if(!vf.isUpdatable()) continue;
             if(! (vf instanceof SchemaViewRelationField )) {
-                if(!vf.isUpdatable()) continue;
-                
                 if( vf.isSerialized() ) {
                     Object val = null;
                     try {
@@ -115,7 +114,13 @@ public class DataTransposer {
                 if( svr.getTargetJoinType().matches( JoinTypes.MANY_TO_ONE +"|"+JoinTypes.ONE_TO_ONE ) ) {
                     String tgt = svr.getTargetFieldExtendedName();
                     String src = svr.getFieldname();
-                    if( sourceData.containsKey(tgt )) {
+                    
+                    //test first if the value contains the key. if not check the target if it contains the key
+                    if(sourceData.containsKey(src)) {
+                        Object val =sourceData.get(src);
+                        targetData.put( src, val );        
+                    }
+                    else if( sourceData.containsKey(tgt )) {
                         Object val =sourceData.get(tgt);
                         targetData.put( src, val );        
                     }

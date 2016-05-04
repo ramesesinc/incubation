@@ -108,6 +108,7 @@ public class SchemaView extends AbstractSchemaView {
         List<Map> flds = new ArrayList();
         for( SchemaViewField vf: this.findAllFields() ) {
             if(vf instanceof SchemaViewRelationField ) {
+                
                 //do not include this
                 /*
                 SchemaViewRelationField svrf = (SchemaViewRelationField)vf;
@@ -138,6 +139,8 @@ public class SchemaView extends AbstractSchemaView {
                 else if( filter.accept("field", fld) ) {
                     flds.add( fld );
                 }
+                fld.put("insertable", vf.isInsertable());
+                fld.put("updatable", vf.isUpdatable());
             }
         }
         map.put("fields", flds);
@@ -151,6 +154,7 @@ public class SchemaView extends AbstractSchemaView {
             fld.put("extname", lvw.getName());
             fld.put("ref", lvw.getElement().getName());
             fld.put("jointype", lvw.getJointype());
+            fld.put("required", lvw.isRequired());
             if( filter.accept("field", fld) ) {
                 links.add( fld );
             }

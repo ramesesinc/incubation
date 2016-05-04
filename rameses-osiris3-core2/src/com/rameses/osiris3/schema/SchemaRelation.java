@@ -86,6 +86,10 @@ public class SchemaRelation implements Serializable {
         return orderBy;
     }
  
+    public String getIncludeFields() {
+        return (String) this.complexField.getProperty("includefields");
+    }
+    
     
     
     

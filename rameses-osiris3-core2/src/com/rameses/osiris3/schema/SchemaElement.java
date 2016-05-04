@@ -160,7 +160,7 @@ public class SchemaElement implements Serializable {
         synchronized(lock) {
             if( schemaView == null ) {
                 schemaView = new SchemaView(this);
-                fetchAllFields( schemaView, schemaView, null, new HashSet(), true );
+                fetchAllFields( schemaView, schemaView, null, true, true, new HashSet(), true, null, null );
             }
         }
         return schemaView;
@@ -172,14 +172,36 @@ public class SchemaElement implements Serializable {
      * @param lsvw - the immediate view that relates to the field. 
      */
     //loadOneToMany - if true then loads it. It is false if coming from a many to one recursion
-    private void fetchAllFields(SchemaView rootVw, AbstractSchemaView currentVw, String prefix, Set<SchemaRelation> duplicates, boolean loadOneToMany) {
+    //manyToOneRequired. 
+    //If the source relationship is not required, then automatically cascading elements should also be false.
+    //This is to solve the left join problem.
+    private void fetchAllFields(SchemaView rootVw, AbstractSchemaView currentVw, String prefix, 
+            boolean insertable, boolean updatable,  Set<SchemaRelation> duplicates, 
+            boolean loadOneToMany, String includeFields, Boolean manyToOneRequired) {
+        
         for( SimpleField sf: this.getSimpleFields() ) {
-            rootVw.addField(new SchemaViewField(sf, rootVw, currentVw));
+            boolean ins = insertable;
+            boolean upd = updatable;
+            if( sf.isPrimary() ) {
+                upd = false;
+            } 
+            else if(sf.getExpr()!=null && sf.getExpr().trim().length()>0) {
+                ins = false;
+                upd = false;
+            }
+            SchemaViewField svf = new SchemaViewField(sf, rootVw, currentVw, ins, upd);
+            //System.out.println("compare "+svf.getExtendedName()+" match "+ incFlds);
+            if( includeFields==null || svf.getExtendedName().matches(includeFields)) {
+                rootVw.addField(svf);
+            }
         }
         for( ComplexField cf: this.getSerializedFields() ) {
-            SchemaViewField vf = new SchemaViewField(cf, rootVw, currentVw);
-            vf.setSerialized(true);
-            rootVw.addField(vf);
+            SchemaViewField svf = new SchemaViewField(cf, rootVw, currentVw, insertable, updatable);
+            //System.out.println("compare "+svf.getExtendedName()+" match "+ incFlds);
+            if( includeFields==null || svf.getExtendedName().matches(includeFields)) {
+                svf.setSerialized(true);
+                rootVw.addField(svf);
+            }
         }
         
         SchemaElement extElement = this.getExtendedElement();
@@ -195,11 +217,11 @@ public class SchemaElement implements Serializable {
             for( int i=0; i<isrc; i++) {
                 SimpleField _sf = this.getPrimaryKeys().get(i);
                 SimpleField _tf = extElement.getPrimaryKeys().get(i);
-                SchemaViewRelationField rf = new SchemaViewRelationField(_sf, rootVw, currentVw, _tf, targetVw);    
+                SchemaViewRelationField rf = new SchemaViewRelationField(_sf, rootVw, currentVw,insertable, updatable, _tf, targetVw);   
                 targetVw.addRelationField(rf);
             }
             currentVw.setExtendsView(targetVw);
-            extElement.fetchAllFields(rootVw, targetVw, prefix, duplicates, true );
+            extElement.fetchAllFields(rootVw, targetVw, prefix,true, true, duplicates, true, includeFields, manyToOneRequired );
         }
         
         List<SchemaRelation> relList = new ArrayList();
@@ -211,7 +233,11 @@ public class SchemaElement implements Serializable {
             duplicates.add(sr);
             
             SchemaElement targetElem = sr.getLinkedElement();
-            LinkedSchemaView targetVw = new LinkedSchemaView(sr.getName(), targetElem, rootVw, currentVw, sr.getJointype(), sr.isRequired(), prefix  );
+            boolean isRequired = sr.isRequired();
+            if(manyToOneRequired!=null) {
+                isRequired = manyToOneRequired.booleanValue();
+            }
+            LinkedSchemaView targetVw = new LinkedSchemaView(sr.getName(), targetElem, rootVw, currentVw, sr.getJointype(),isRequired, prefix  );
             
             for( RelationKey rk: sr.getRelationKeys() ) {
                 SimpleField tf = (SimpleField)sr.getLinkedElement().getField(rk.getTarget());
@@ -226,7 +252,7 @@ public class SchemaElement implements Serializable {
                 sf.setName(rk.getField());
                 sf.setFieldname(rk.getField());
                 sf.setType( tf.getType() );
-                SchemaViewRelationField rf = new SchemaViewRelationField(sf, rootVw, currentVw,tf, targetVw);
+                SchemaViewRelationField rf = new SchemaViewRelationField(sf, rootVw, currentVw, insertable, updatable, tf, targetVw);
                 if( sr.getJointype().equals(JoinTypes.ONE_TO_ONE) ) {
                     currentVw.addOneToOneView( targetVw );
                 }
@@ -236,7 +262,38 @@ public class SchemaElement implements Serializable {
                 rootVw.addField( rf );
                 targetVw.addRelationField(rf);
             };
-            targetElem.fetchAllFields(rootVw, targetVw, targetVw.getName(), duplicates, false);
+            boolean ins = true;
+            boolean upd = true;
+            if(sr.getJointype().equals(JoinTypes.MANY_TO_ONE)) {
+                ins = false;
+                upd = false;
+            }
+            Boolean mreq = null;
+            if( manyToOneRequired!=null ) {
+                mreq = manyToOneRequired;
+            }
+            else if( !sr.isRequired() ) {
+                mreq = new Boolean(false);
+            }
+            
+            //if there are include fields, use this otherwise use the existing.
+            String incFlds = includeFields;
+            if(incFlds==null) {
+                //build the include fields statement
+                if( sr.getIncludeFields()!=null ) {
+                    StringBuilder sb = new StringBuilder();
+                    String[] arr = sr.getIncludeFields().split(",");
+                    boolean pass = false;
+                    for(String s: arr) {
+                        if(!pass) pass = true;
+                        else sb.append("|");
+                        sb.append(sr.getName()+"_");
+                        sb.append(s.trim().replace("_", "."));
+                    }
+                    incFlds = sb.toString();
+                }
+            } 
+            targetElem.fetchAllFields(rootVw, targetVw, targetVw.getName(), ins, upd, duplicates, false, incFlds, mreq);
         }
         
         //load the one to many relationships

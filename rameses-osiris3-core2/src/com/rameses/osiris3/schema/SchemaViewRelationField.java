@@ -14,8 +14,9 @@ public class SchemaViewRelationField extends SchemaViewField {
     private AbstractSchemaView targetView;
     private SimpleField targetField;
     
-    public SchemaViewRelationField(SimpleField source, SchemaView rootView, AbstractSchemaView view, SimpleField targetFld, AbstractSchemaView targetVw) {
-        super(source, rootView, view );
+    public SchemaViewRelationField(SimpleField source, SchemaView rootView, AbstractSchemaView view, 
+            boolean insertable, boolean updatable, SimpleField targetFld, AbstractSchemaView targetVw) {
+        super(source, rootView, view, insertable, updatable );
         this.targetField = targetFld;
         this.targetView = targetVw;
     }
