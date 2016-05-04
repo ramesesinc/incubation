@@ -300,6 +300,7 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
      * Navigation Controls
      **************************************************************************/
     boolean getShowNavigation() {
+        //println "show navigation";
         if( !caller?.listHandler ) return false;
         return (mode == 'read');
     }

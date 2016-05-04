@@ -68,6 +68,7 @@ public class WorkflowTaskModel extends CrudFormModel implements WorkflowTaskList
         task = entity.remove("task");
         if(!task) 
             throw new Exception("There is no task attached to this entity. Please check read interceptor");
+        buildTransitionActions(task);  
         buildMessage();
         if( pageExists(task.state)) {
             return task.state;

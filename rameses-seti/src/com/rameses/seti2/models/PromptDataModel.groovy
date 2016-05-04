@@ -20,6 +20,7 @@ public class PromptDataModel  {
     @Caller
     def caller;
     
+    String title;
     def entity = [:];
     def handler;
     
