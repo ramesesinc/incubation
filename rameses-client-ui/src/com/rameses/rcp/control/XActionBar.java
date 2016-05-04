@@ -80,6 +80,7 @@ public class XActionBar extends JPanel implements UIComposite, ActiveControl, Mo
     //flag
     private boolean dirty;
     private boolean hideOnEmpty;
+    private boolean mergeActions = true;
     
     //button template
     private XButton buttonTpl = new XButton();
@@ -99,7 +100,8 @@ public class XActionBar extends JPanel implements UIComposite, ActiveControl, Mo
         borderProxy.setBorder(new XToolbarBorder());
         super.setBorder(borderProxy);
         super.setLayout(new ContainerLayout());
-        setUseToolBar(true);
+        setUseToolBar( true );
+        setMergeActions( true ); 
         
         new MouseEventSupport(this).install(); 
         
@@ -142,7 +144,8 @@ public class XActionBar extends JPanel implements UIComposite, ActiveControl, Mo
         Map map = new HashMap();
         map.put("dynamic", isDynamic());
         map.put("formName", getFormName());
-        map.put("showCaptions", isShowCaptions()); 
+        map.put("mergeActions", isMergeActions()); 
+        map.put("showButtonCaptions", isShowCaptions()); 
         map.put("target", getTarget()); 
         return map;
     }     
@@ -231,16 +234,17 @@ public class XActionBar extends JPanel implements UIComposite, ActiveControl, Mo
             actions.addAll((Collection) value);
         }
         
-        String _name = getName();
+        String _name = getName();                 
         ActionProvider actionProvider = ClientContext.getCurrentContext().getActionProvider();
         if (actionProvider != null && _name != null) {
             UIController controller = binding.getController();
             List<Action> list = actionProvider.getActionsByType(getName(), controller);
-            if (list != null) { actions.addAll(list); }
+            if (list != null && !list.isEmpty() && (actions.isEmpty() || isMergeActions())) {  
+                Collections.sort( list ); 
+                actions.addAll( list ); 
+            }
         }
-        
-        Collections.sort( actions );
-        
+                
         String _formname = getFormName();
         if (_formname != null && _formname.length() > 0 && actionProvider != null) {
             Object retval = null;
@@ -248,7 +252,8 @@ public class XActionBar extends JPanel implements UIComposite, ActiveControl, Mo
             
             if (retval != null) _formname = retval.toString();
             
-            List<Action> list = actionProvider.lookupActions(_formname + ":" + _name);
+            String _formtype = (_name == null? "formActions" : _name);
+            List<Action> list = actionProvider.lookupActions(_formname +":"+ _formtype);
             if (list != null) { 
                 Collections.sort(list);
                 actions.addAll(list);
@@ -452,6 +457,11 @@ public class XActionBar extends JPanel implements UIComposite, ActiveControl, Mo
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" Getters/Setters ">
+    
+    public boolean isMergeActions() { return mergeActions; } 
+    public void setMergeActions( boolean mergeActions ) {
+        this.mergeActions = mergeActions; 
+    }
     
     public boolean isHideOnEmpty() { return hideOnEmpty; } 
     public void setHideOnEmpty(boolean hideOnEmpty) {
