@@ -154,6 +154,7 @@ public class SchemaView extends AbstractSchemaView {
             fld.put("extname", lvw.getName());
             fld.put("ref", lvw.getElement().getName());
             fld.put("jointype", lvw.getJointype());
+            fld.put("required", lvw.isRequired());
             if( filter.accept("field", fld) ) {
                 links.add( fld );
             }

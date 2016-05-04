@@ -11,6 +11,8 @@ import com.rameses.seti2.models.*;
 
 public class SysWfModel extends CrudFormModel {
     
+    def listHandler;    //this is a dummy so it wont produce an error.
+    
     public def openItem(String n, def item, String colName) {
         return Inv.lookupOpener( "sys_wf_node:open", [entity: item] );
     }

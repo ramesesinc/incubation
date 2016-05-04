@@ -17,7 +17,6 @@ public class WorkflowTaskModel extends CrudFormModel implements WorkflowTaskList
     def workflowTaskSvc;
     
     def task;
-    def refid;
     String processName;
     List transitions = [];
     
@@ -62,6 +61,24 @@ public class WorkflowTaskModel extends CrudFormModel implements WorkflowTaskList
     }
     
     public def open() {
+        if( entity.refid ) {
+            refid = entity.refid;
+        }
+        def v = super.open();
+        task = entity.remove("task");
+        if(!task) 
+            throw new Exception("There is no task attached to this entity. Please check read interceptor");
+        buildMessage();
+        if( pageExists(task.state)) {
+            return task.state;
+        }
+        else {
+            return v;
+        }
+    }
+    
+    /*
+    public def open() {
         //do not use entity because it is the item from the passed list.
         def p = entity;
         entity = [:];
@@ -99,6 +116,8 @@ public class WorkflowTaskModel extends CrudFormModel implements WorkflowTaskList
             return r;
         }
     }
+    */
+   
     
     public def signal( def transition ) {
         transition.processname = getSchemaName();

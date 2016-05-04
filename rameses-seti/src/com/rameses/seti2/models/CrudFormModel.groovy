@@ -17,6 +17,10 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
     def mode;
     def itemHandlers = [:];     //holder for all specific item handlers
     
+    def barcodeid;              //include the barcodeid so it will be uniform to all.
+    def findBy;                 //this is also included for opening via barcode.
+    def refid;                  //this is also used for opening. If there is no entity passed
+    
     @Script("ListTypes")
     def listTypes;
     
@@ -167,14 +171,44 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
         if( pageExists("create")) return "create";
         return null;
     }
+
+    public def getBarcodeKey() {
+        return null;
+    }
+    
+    public void openBarcode() {
+        if( !barcodeid ) 
+            throw new Exception("Open barcode error! barcodeid is not specified" );
+        def key = getBarcodeKey();
+        if( !key ) throw new Exception("Open barcode error! Please override getBarcodeKey method" );
+        findBy = [:];
+        findBy.put(key, barcodeid);
+    }
+    
+    /**************************************************************************
+     * This method is an alternative to openining a record. If specified
+     **************************************************************************/
+    public final def buildFindByForOpenByRefid() {
+        if( !schema ) throw new Exception("buildKeysForOpenByRefid error. There is no schema built yet!");
+        def primKey = schema.fields.find{ it.primary == true }?.name;
+        findBy = [:];
+        findBy.put(primKey, refid);
+        //initialize also the entity bec. there is no entity in this instance
+        
+    }
     
     def open() {
         mode = "read";
         init();
+        if( !entity ) entity = [:];
         //we need to set the schemaname that will be used for open
+        if( refid ) buildFindByForOpenByRefid();
+        if( findBy !=null ) entity.findBy = findBy;
         entity._schemaname = schemaName;
         entity = getPersistenceService().read( entity );
         
+        //we need to reset this so it can be used again.
+        findBy = null;  
         //we need to reset the schema name for update.
         entity._schemaname = schemaName;
         afterOpen();
