@@ -88,12 +88,23 @@ public class SqlExecutor extends AbstractSqlTxn {
                     ParameterMetaData md = ps.getParameterMetaData();
                     System.out.println("param count is " + md.getParameterCount());
                     for( int i = 1; i<= md.getParameterCount(); i++) {
-                        Object key = parameterNames.get(i-1);
+                        Object key = null; 
+                        try { 
+                            key = parameterNames.get(i-1); 
+                        } catch(Throwable t) { 
+                            continue; 
+                        } 
+                        
                         Object value = parameterValues.get(key);
                         System.out.println(""+(i-1)+" "+key+"="+value + " " + ((value==null)?"NULL": value.getClass().getName()));
-                    }
+                    } 
+                } 
+                
+                if ( ex instanceof RuntimeException ) {
+                    throw (RuntimeException)ex; 
+                } else {
+                    throw new RuntimeException(ex.getMessage(), ex);
                 }
-                throw new RuntimeException(ex.getMessage());
             }
         } finally {
             try {ps.close();} catch(Exception ign){;}
