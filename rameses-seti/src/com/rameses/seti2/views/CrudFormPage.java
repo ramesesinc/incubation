@@ -85,6 +85,7 @@ public class CrudFormPage extends javax.swing.JPanel {
         btnCancel = new com.rameses.rcp.control.XButton();
         xActionBar1 = new com.rameses.rcp.control.XActionBar();
         xActionBar2 = new com.rameses.rcp.control.XActionBar();
+        btnCancel2 = new com.rameses.rcp.control.XButton();
         btnUp = new com.rameses.rcp.control.XButton();
         btnDown = new com.rameses.rcp.control.XButton();
         xDropDownList1 = new com.rameses.rcp.control.XDropDownList();
@@ -245,6 +246,16 @@ public class CrudFormPage extends javax.swing.JPanel {
                 xActionBar2.setPreferredSize(new java.awt.Dimension(100, 29));
                 xActionBar2.setTextPosition("CENTER");
                 jToolBar1.add(xActionBar2);
+
+                btnCancel2.setCaption("");
+                btnCancel2.setFocusable(false);
+                btnCancel2.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+                btnCancel2.setIconResource("images/toolbars/refresh.png");
+                btnCancel2.setImmediate(true);
+                btnCancel2.setName("reloadEntity"); // NOI18N
+                btnCancel2.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+                btnCancel2.setVisibleWhen("#{mode == 'read' }");
+                jToolBar1.add(btnCancel2);
 
                 btnUp.setFocusable(false);
                 btnUp.setIconResource("images/toolbars/arrow_up.png");
@@ -567,6 +578,7 @@ public class CrudFormPage extends javax.swing.JPanel {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private com.rameses.rcp.control.XButton btnCancel;
     private com.rameses.rcp.control.XButton btnCancel1;
+    private com.rameses.rcp.control.XButton btnCancel2;
     private com.rameses.rcp.control.XButton btnCreate;
     private com.rameses.rcp.control.XButton btnDebug;
     private com.rameses.rcp.control.XButton btnDown;

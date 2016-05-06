@@ -242,9 +242,9 @@ public class SchemaElement implements Serializable {
             for( RelationKey rk: sr.getRelationKeys() ) {
                 SimpleField tf = (SimpleField)sr.getLinkedElement().getField(rk.getTarget());
                 if( tf == null ) 
-                    throw new RuntimeException("SchemaElement.fetchAllFields error. Target field not found");
+                    throw new RuntimeException("SchemaElement.fetchAllFields error. Target field not found for "+ currentVw.getElement().getName()+"."+sr.getName());
                 if(! (tf instanceof SimpleField) ) 
-                    throw new RuntimeException("SchemaElement.fetchAllFields error. Target field must be a simple field");
+                    throw new RuntimeException("SchemaElement.fetchAllFields error. Target field must be a simple field for "+currentVw.getElement().getName()+"."+sr.getName());
                 
                 //build the simple field
                 SimpleField sf = new SimpleField();

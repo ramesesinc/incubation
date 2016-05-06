@@ -68,9 +68,13 @@ public class CrudListModel extends AbstractCrudModel {
     }
     
     public def getCustomFilter() {
-        String s = workunit.info.workunit_properties.customFilter;
-        if( s == null ) return null;
-        return [s, [:]];
+        String s = invoker.properties.customFilter;
+        if( s!=null ) {
+            return [s, [:]];
+        }
+        s = workunit.info.workunit_properties.customFilter;
+        if( s != null ) return [s, [:]];
+        return null;
     }
     
     public def getTag() {
@@ -86,7 +90,11 @@ public class CrudListModel extends AbstractCrudModel {
     public def getSchema() {
         if( _schema !=null ) return _schema;
         
-        strCols = workunit.info.workunit_properties.cols; 
+        strCols = invoker.properties.cols;
+        if(!strCols) {
+            strCols = workunit.info.workunit_properties.cols;    
+        }
+        
         if(!schemaName) 
             throw new Exception("Please specify a schema name in the workunit");
         
