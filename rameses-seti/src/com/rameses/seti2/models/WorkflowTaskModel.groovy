@@ -61,13 +61,14 @@ public class WorkflowTaskModel extends CrudFormModel implements WorkflowTaskList
     }
     
     public def open() {
-        if( entity.refid ) {
+        if( entity?.refid ) {
             refid = entity.refid;
         }
         def v = super.open();
         task = entity.remove("task");
         if(!task) 
             throw new Exception("There is no task attached to this entity. Please check read interceptor");
+        buildTransitionActions(task);  
         buildMessage();
         if( pageExists(task.state)) {
             return task.state;
@@ -76,48 +77,6 @@ public class WorkflowTaskModel extends CrudFormModel implements WorkflowTaskList
             return v;
         }
     }
-    
-    /*
-    public def open() {
-        //do not use entity because it is the item from the passed list.
-        def p = entity;
-        entity = [:];
-        entity.putAll(p);
-        
-        super.init();
-        
-        //find primary keys
-        if(entity.taskid) {
-            task = [taskid: entity.taskid, refid: entity.refid];
-        }
-        refid = entity.refid;
-        def primKey = schema.fields.find{ it.primary == true }?.name;
-        
-        def k = EntityUtil.getNestedValue(entity, primKey);
-        if( !k ) {
-            if(!refid)
-                throw new Exception("Error opening record. There must be a refid or primary key specified");
-            EntityUtil.putNestedValue(entity, primKey, refid);
-        }
-            
-        //find the task
-        if(task) {
-            def t = workflowTaskService.findTask( [processname: getSchemaName(), taskid: task.taskid] );
-            buildTransitionActions( t );
-            task = t;
-        }
-        
-        def r = super.open();
-        buildMessage();
-        if( pageExists(task.state)) {
-            return task.state;
-        }
-        else {
-            return r;
-        }
-    }
-    */
-   
     
     public def signal( def transition ) {
         transition.processname = getSchemaName();
