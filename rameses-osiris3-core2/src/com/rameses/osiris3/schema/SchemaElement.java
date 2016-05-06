@@ -227,8 +227,32 @@ public class SchemaElement implements Serializable {
         List<SchemaRelation> relList = new ArrayList();
         relList.addAll( this.getOneToOneRelationships() );
         relList.addAll( this.getManyToOneRelationships() );
+        
+        String includeComplex = null; 
+        if ( includeFields != null ) {
+            StringBuilder sb = new StringBuilder();
+            String[] arr = includeFields.split("\\|"); 
+            for ( String s : arr ) {                
+                if ( s.contains(".")) {
+                    String s2 = s.substring(0, s.lastIndexOf('.')); 
+                    if ( sb.length() > 0 ) sb.append("|");  
+                    
+                    sb.append(s2); 
+                }
+            }
+            if ( sb.length() > 0) {
+                includeComplex = sb.toString(); 
+            }
+        }
+        
+        
         //extract all fields related.
-        for( SchemaRelation sr: relList  ) {
+        for( SchemaRelation sr: relList  ) { 
+            String srname = (prefix==null? "": (prefix+"_")) + sr.getName(); 
+            if ( includeComplex != null && !srname.matches(includeComplex) ) {
+                continue; 
+            }
+            
             if( duplicates.contains(sr)) continue;
             duplicates.add(sr);
             
@@ -292,7 +316,9 @@ public class SchemaElement implements Serializable {
                     }
                     incFlds = sb.toString();
                 }
-            } 
+            } else {
+                
+            }
             targetElem.fetchAllFields(rootVw, targetVw, targetVw.getName(), ins, upd, duplicates, false, incFlds, mreq);
         }
         
