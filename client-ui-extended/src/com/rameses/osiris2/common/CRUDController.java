@@ -237,10 +237,10 @@ public class CRUDController {
             formActions.add(createAction("save", "Save", "images/toolbars/save.png", "ctrl S", 's', "#{mode!='read' && allowSave==true}", false));
             formActions.add(createAction("undo", "Undo", "images/toolbars/undo.png", "ctrl Z", 'u', "#{mode=='edit'}", true));
             
-            List<Action> xactions = lookupActions("formActions");
-            while (!xactions.isEmpty()) {
-                formActions.add(xactions.remove(0));
-            }
+//            List<Action> xactions = lookupActions("formActions");
+//            while (!xactions.isEmpty()) {
+//                formActions.add(xactions.remove(0));
+//            }
         }
         return formActions;
     }
@@ -263,9 +263,9 @@ public class CRUDController {
     }
     
     public List getExtActions() {
-        if (extActions == null)
-            extActions = lookupActions("extActions");
-        
+        if (extActions == null) { 
+//            extActions = lookupActions("extActions");
+        } 
         return extActions;
     }
     
