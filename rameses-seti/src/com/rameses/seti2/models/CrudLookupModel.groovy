@@ -25,13 +25,14 @@ public class CrudLookupModel extends CrudListModel implements SimpleLookupDataSo
         this.selector = s;
     }
     
-    def doOk() {
-        //if(!onselect) throw new Exception("Please specify an onselect");
-        if(!selectedItem) throw new Exception("Please select an entity");
-        if(onselect) onselect( selectedItem );
-        else if(selector) selector.select( selectedItem );
-        return "_close";
-    }
+    def doOk() { 
+        def selobj = listHandler.getSelectedValue(); 
+        if ( !selobj ) throw new Exception("Please select an item"); 
+        
+        if ( onselect ) onselect( selobj );
+        else if ( selector ) selector.select( selobj );
+        return "_close"; 
+    } 
     
     def doCancel() {
         return "_close";

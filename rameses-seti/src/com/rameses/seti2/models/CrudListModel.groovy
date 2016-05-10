@@ -39,6 +39,8 @@ public class CrudListModel extends AbstractCrudModel {
     boolean debug = false;
     private String _tag_;
     
+    boolean _multiSelect; 
+    
     String getFormType() {
         return 'list';
     }
@@ -194,7 +196,14 @@ public class CrudListModel extends AbstractCrudModel {
         return 20;
     }
     
-    def listHandler = [
+    public void setMultiSelect( boolean b ) { 
+        this._multiSelect = b; 
+    } 
+    
+    def listHandler = [ 
+        isMultiSelect: {
+            return _multiSelect; 
+        }, 
         getRows : {
             return getRows();
         },
