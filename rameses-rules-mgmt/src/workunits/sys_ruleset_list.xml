@@ -1,6 +1,7 @@
 <workunit extends="com/rameses/seti2/templates/CrudList.xml" 
           schemaName="sys_ruleset" orderBy="domain,role,name">
     <invokers>
-        <invoker folderid="/explorer/rulemgmt/system" caption="Rulesets" index="0" target="window" action="init" />
+        <invoker folderid="/explorer/rulemgmt/system" caption="Rulesets" 
+                 action="init" index="0" target="window" role="MASTER"/> 
     </invokers>
 </workunit>
