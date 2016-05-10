@@ -239,17 +239,18 @@ public class XComponent extends JPanel implements UIControl, ActiveControl, Mous
         for ( Component c: cont.getComponents()) { 
             if ( c instanceof UIControl ) { 
                 UIControl uic = (UIControl)c; 
-                uic.setBinding( binding ); 
-                if ( binding == null ) {
-                    binding.unregister( uic );
-                    //
+                if ( binding == null ) { 
+                    uic.setBinding( binding ); 
+                    binding.unregister( uic ); 
+                    // 
                     // invoke a callback method after a control has been unregistered 
-                    //                    
+                    // 
                     unregisterControl( uic );
                 } else { 
-                    //
+                    binding.bind( uic ); 
+                    // 
                     // invoke a callback method before registering this control
-                    //                     
+                    // 
                     registerControl( uic ); 
                     binding.register( uic ); 
                 }

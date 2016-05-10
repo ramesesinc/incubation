@@ -44,7 +44,7 @@ public class UIViewPanel extends JPanel implements ContainerListener {
         for( Component c: cont.getComponents()) {
             if( c instanceof UIControl ) {
                 UIControl uic = (UIControl)c;
-                uic.setBinding(binding);
+                binding.bind( uic ); 
                 binding.register(uic);
                 
                 if( c instanceof ControlContainer && ((ControlContainer) c).isHasNonDynamicContents() && c instanceof Container )
@@ -60,7 +60,7 @@ public class UIViewPanel extends JPanel implements ContainerListener {
         Component comp = e.getChild();
         if( comp instanceof UIControl ) {
             UIControl uic = (UIControl)comp;
-            uic.setBinding(binding);
+            binding.bind( uic ); 
             binding.register(uic);
             
             if( comp instanceof ControlContainer && ((ControlContainer) comp).isHasNonDynamicContents() && comp instanceof Container )

@@ -14,6 +14,8 @@ import com.rameses.rcp.framework.ClientContext;
 import com.rameses.rcp.ui.UIInput;
 import com.rameses.common.PropertyResolver;
 import com.rameses.rcp.framework.ValidatorException;
+import com.rameses.rcp.ui.UIControlEvent;
+import com.rameses.rcp.ui.UIControlHandler;
 import com.rameses.util.BreakException;
 import com.rameses.util.ExceptionManager;
 import com.rameses.util.ValueUtil;
@@ -142,7 +144,11 @@ public class UIInputUtil {
             if (addLog) {
                 //add entry to change log
                 binding.getChangeLog().addEntry(bean, name, beanValue, inputValue);
-            }
+            } 
+            
+            // fire value change event 
+            createHandlerSupport(control).valueChanged( inputValue ); 
+            
             //notify value change support 
             binding.getValueChangeSupport().notify(name, inputValue);
             //refresh the component
@@ -212,5 +218,33 @@ public class UIInputUtil {
                 ((UIInputUtil.EventHandler)o).afterUpdate(value);
             }
         }
+    } 
+    
+    public static synchronized HandlerSupport createHandlerSupport( UIInput uic ) {
+        return new HandlerSupport( uic ); 
     }
+    public static class HandlerSupport {
+        
+        private UIInput uic; 
+        
+        HandlerSupport( UIInput uic ) {
+            this.uic = uic; 
+        } 
+        
+        UIControlHandler getControlHandler() {
+            Object o = uic.getClientProperty(UIControlHandler.class); 
+            if ( o instanceof UIControlHandler ) {
+                return (UIControlHandler)o; 
+            } else {
+                return null; 
+            }
+        } 
+        
+        public void valueChanged( Object value ) { 
+            UIControlHandler uihandler = getControlHandler(); 
+            if ( uihandler != null ) { 
+                uihandler.valueChanged( new UIControlEvent( uic, value )); 
+            } 
+        }
+    }     
 }

@@ -480,41 +480,53 @@ public class Binding
     
     private void _doRefresh( UIControl u, Set refreshed, String name ) 
     {
-        if ( refreshed.add(u) ) 
-        {
-            if ( u instanceof UIComposite ) 
-            {
+        if ( refreshed.add(u) ) {
+            if ( u instanceof UIComposite ) {
                 UIComposite comp = (UIComposite)u;
-                if ( comp.isDynamic() ) 
-                {
+                if ( comp.isDynamic() ) {
                     JComponent jc = (JComponent) comp;
                     //do not reload on first refresh since load is first called
                     //this should only be called on the next refresh
-                    if ( jc.getClientProperty(getClass() + "REFRESHED") != null )
-                        comp.reload();
-                    else
-                        jc.putClientProperty(getClass() + "REFRESHED", true);
-                }
+                    if ( jc.getClientProperty(getClass() + "REFRESHED") != null ) { 
+                        comp.reload(); 
+                    } else { 
+                        jc.putClientProperty(getClass() + "REFRESHED", true); 
+                    } 
+                } 
                 
                 //apply style rules to children
-                for (UIControl uic: comp.getControls()) applyStyle(uic);
+                for (UIControl uic: comp.getControls()) {
+                    applyStyle(uic);
+                }
                 //apply style rules to parent
-                applyStyle(u);                
+                applyStyle(u); 
+            } else {
+                applyStyle(u); 
             } 
-            else {
-                applyStyle(u);
-            }
             
-            u.refresh();
+            u.refresh(); 
+            
+            try { 
+                Object o = u.getClientProperty(UIHandler.class); 
+                if ( o instanceof UIHandler ) { 
+                    ((UIHandler) o).refresh( new UIEvent(u, u.getBinding(), u.getName()) ); 
+                } 
+            } catch(Throwable t) { 
+                System.out.println("[ERROR] " + t.getMessage()); 
+                if (ClientContext.getCurrentContext().isDebugMode()) { 
+                    t.printStackTrace(); 
+                } 
+            } 
+            
             if ( !ValueUtil.isEmpty(name) && depends.containsKey(name) ) { 
                 UIControl[] arrs = depends.get(name).toArray(new UIControl[]{});
                 for ( UIControl uu : arrs ) {  
-                    if ( uu == null ) { continue; } 
-
-                    _doRefresh( uu, refreshed );
+                    if ( uu != null ) { 
+                        _doRefresh( uu, refreshed ); 
+                    } 
                 } 
             } 
-        }
+        } 
     }
     
     public final void applyStyle(UIControl u) {
@@ -796,6 +808,45 @@ public class Binding
     
     // <editor-fold defaultstate="collapsed" desc=" Helper ">
     
+    public void bind( UIControl uic ) {
+        if ( uic != null ) { 
+            uic.setBinding( this ); 
+            
+            try { 
+                Object o = uic.getClientProperty(UIHandler.class); 
+                if ( o instanceof UIHandler ) { 
+                    ((UIHandler) o).bind( new UIEvent(uic, uic.getBinding(), uic.getName()) ); 
+                } 
+            } catch(Throwable t) { 
+                System.out.println("[ERROR] " + t.getMessage()); 
+                if (ClientContext.getCurrentContext().isDebugMode()) { 
+                    t.printStackTrace(); 
+                } 
+            } 
+        } 
+    } 
+    public void unbind( UIControl uic ) {
+        if ( uic != null ) { 
+            try { 
+                uic.setBinding( null ); 
+            } catch(Throwable t) {
+                //do nothing 
+            }
+            
+            try { 
+                Object o = uic.getClientProperty(UIHandler.class); 
+                if ( o instanceof UIHandler ) { 
+                    ((UIHandler) o).unbind( new UIEvent(uic, uic.getBinding(), uic.getName()) ); 
+                } 
+            } catch(Throwable t) { 
+                System.out.println("[ERROR] " + t.getMessage()); 
+                if (ClientContext.getCurrentContext().isDebugMode()) { 
+                    t.printStackTrace(); 
+                } 
+            } 
+        }
+    }
+    
     private class RequestFocusTask implements Runnable {
 
         Component comp; 
@@ -819,10 +870,11 @@ public class Binding
             for ( Component c: cont.getComponents()) { 
                 if ( c instanceof UIControl ) { 
                     UIControl uic = (UIControl)c; 
-                    uic.setBinding( binding ); 
                     if ( binding == null ) {
+                        uic.setBinding( null ); 
                         binding.unregister( uic );
                     } else { 
+                        binding.bind( uic ); 
                         binding.register( uic ); 
                     }
 

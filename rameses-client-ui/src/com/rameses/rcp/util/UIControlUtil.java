@@ -13,6 +13,8 @@ import com.rameses.rcp.framework.UIControllerPanel;
 import com.rameses.rcp.ui.UIControl;
 import com.rameses.common.ExpressionResolver;
 import com.rameses.common.PropertyResolver;
+import com.rameses.rcp.ui.UIControlEvent;
+import com.rameses.rcp.ui.UIControlHandler;
 import com.rameses.rcp.ui.UIInput;
 import com.rameses.rcp.ui.Validatable;
 import com.rameses.util.ValueUtil;
@@ -178,5 +180,44 @@ public class UIControlUtil
             
             actionMessage.addMessage(ac);
         }
+    } 
+
+    public static synchronized HandlerSupport createHandlerSupport( UIControl uic ) {
+        return new HandlerSupport( uic ); 
+    }
+    public static class HandlerSupport {
+        
+        private UIControl uic; 
+        
+        HandlerSupport( UIControl uic ) {
+            this.uic = uic; 
+        } 
+        
+        UIControlHandler getControlHandler() {
+            Object o = uic.getClientProperty(UIControlHandler.class); 
+            if ( o instanceof UIControlHandler ) {
+                return (UIControlHandler)o; 
+            } else {
+                return null; 
+            }
+        } 
+        
+        public void fireBind( Binding binding ) { 
+            UIControlHandler uihandler = getControlHandler(); 
+            if ( uihandler == null ) {
+                //do nothing 
+            } else if ( binding == null ) {
+                uihandler.unbind( new UIControlEvent(uic) );  
+            } else {
+                uihandler.bind( new UIControlEvent(uic) );  
+            }
+        }
+        
+        public void refresh() {
+            UIControlHandler uihandler = getControlHandler(); 
+            if ( uihandler != null ) { 
+                uihandler.refresh( new UIControlEvent(uic) ); 
+            } 
+        } 
     } 
 }

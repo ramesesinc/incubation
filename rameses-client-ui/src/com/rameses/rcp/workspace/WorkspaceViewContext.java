@@ -78,7 +78,7 @@ public class WorkspaceViewContext extends JPanel implements ViewContext {
         for( Component c: comp.getComponents()) {
             if( c instanceof UIControl ) {
                 UIControl uic = (UIControl)c;
-                uic.setBinding(binding);
+                binding.bind( uic );
                 binding.register(uic);
                 
                 if( c instanceof ControlContainer && ((ControlContainer) c).isHasNonDynamicContents() && c instanceof Container )
