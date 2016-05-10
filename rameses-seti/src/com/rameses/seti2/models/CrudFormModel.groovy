@@ -141,6 +141,20 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
         afterInit()
     }
     
+    def convertValue( valuetype, defaultvalue ) { 
+        if ( defaultvalue == null ) return null; 
+        
+        if ( valuetype == 'integer' ) {
+            return defaultvalue.toInteger(); 
+        } else if ( valuetype == 'decimal' ) {
+            return new BigDecimal( defaultvalue.toDouble()); 
+        } else if ( valuetype == 'date' ) {
+            return new java.text.SimpleDateFormat('yyyy-MM-dd').parse( defaultvalue.toString()); 
+        } else { 
+            return defaultvalue; 
+        }
+    }
+    
     def createData( String _schemaname, def schemaDef  ) {
         def map = [:];
         map._schemaname = _schemaname;
@@ -149,8 +163,8 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
             if( it.prefix && it.primary && it.source == _schemaname ) {
                 EntityUtil.putNestedValue( map, it.extname, it.prefix+new UID());
             }
-            if( it.defaultValue!=null) {
-                Object val = it.defaultValue;
+            if( it.defaultValue!=null) { 
+                Object val = convertValue( it.type, it.defaultValue );
                 EntityUtil.putNestedValue( map, it.extname, val );
             }
             if( it.serializer !=null ) {
