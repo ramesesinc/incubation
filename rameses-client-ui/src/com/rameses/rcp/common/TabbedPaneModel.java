@@ -24,6 +24,10 @@ public class TabbedPaneModel {
     
     public List<Opener> getOpeners() { return null; } 
     
+    public List fetchList( Object params ) { 
+        return getOpeners(); 
+    } 
+    
     public boolean beforeSelect(Opener opener) { return true; } 
     public boolean beforeSelect(Opener opener, int index) {
         return beforeSelect(opener); 

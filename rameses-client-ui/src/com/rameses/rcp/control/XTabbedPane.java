@@ -51,13 +51,14 @@ public class XTabbedPane extends JTabbedPane implements UIControl, ActiveControl
     private boolean dynamic;
     private String disableWhen;
     private String handler;
+    private String items; 
 
     private int oldIndex;
     private List<StaticItem> staticItems = new ArrayList();
     private List<Opener> openers = new ArrayList();
     private boolean nameAutoLookupAsOpener = false;
     
-    private TabbedPaneModel model;
+    private TabbedPaneModelProxy model;
     private boolean noSelectionAllowed;
    
     private int stretchWidth;
@@ -97,6 +98,11 @@ public class XTabbedPane extends JTabbedPane implements UIControl, ActiveControl
     
     public String getHandler() { return handler; } 
     public void setHandler(String handler) { this.handler = handler; } 
+    
+    public String getItems() { return items; } 
+    public void setItems( String items ) {
+        this.items = items; 
+    }
         
     // </editor-fold>
     
@@ -266,8 +272,9 @@ public class XTabbedPane extends JTabbedPane implements UIControl, ActiveControl
             if (c instanceof TabbedItemPanel) {
                 TabbedItemPanel itemPanel = (TabbedItemPanel)c; 
                 Opener opener = itemPanel.getOpener(); 
-                if (model != null) { 
-                    boolean b = model.beforeSelect(opener, index);  
+                TabbedPaneModel tpm = (this.model == null? null: this.model.getSource()); 
+                if ( tpm != null ) { 
+                    boolean b = tpm.beforeSelect(opener, index);  
                     if (!b) return; 
                 } 
                 
@@ -363,7 +370,7 @@ public class XTabbedPane extends JTabbedPane implements UIControl, ActiveControl
         loadOpeners();
 
         ExpressionResolver expRes = ExpressionResolver.getInstance();
-        for (Opener op: openers) {
+        for ( Opener op : openers ) { 
             Object ov = op.getProperties().get("visibleWhen");
             String sv = (ov == null? null: ov.toString()); 
             boolean allowed = true;
@@ -435,58 +442,98 @@ public class XTabbedPane extends JTabbedPane implements UIControl, ActiveControl
             return;
         }
         
-        Object value = null;
-        String handler = getHandler();
+        Object itemsObj = null; 
+        Object handlerObj = null;
+        String sitems = getItems(); 
+        if ( sitems != null && sitems.length() > 0 ) {
+            itemsObj = UIControlUtil.getBeanValue(getBinding(), sitems); 
+        }
+        String handler = getHandler(); 
         if (handler != null && handler.length() > 0) {
             if (handler.matches(".+:.+")) {
-                value = openerProvider.lookupOpeners(handler, new HashMap()); 
+                handlerObj = openerProvider.lookupOpeners(handler, new HashMap()); 
             } else {
-                value = UIControlUtil.getBeanValue(getBinding(), handler); 
+                handlerObj = UIControlUtil.getBeanValue(getBinding(), handler); 
             }
         }
         
-        TabbedPaneModel newModel = null;
-        if (value instanceof TabbedPaneModel) {
-            newModel = (TabbedPaneModel)value; 
-            newModel.setProvider(getProviderImpl()); 
+        TabbedPaneModelProxy newModel = null;
+        if (handlerObj instanceof TabbedPaneModel) {
+            TabbedPaneModel tpm = (TabbedPaneModel)handlerObj; 
+            newModel = new TabbedPaneModelProxy( tpm, itemsObj ); 
+            newModel.activate(); 
         } else {
-            newModel = new TabbedPaneModelImpl(value);
-        }
+            newModel = new TabbedPaneModelProxy( null, itemsObj ); 
+        } 
 
-        List<Opener> list = newModel.getOpeners(); 
-        if (list != null) openers.addAll(list); 
+        List<Opener> list = newModel.fetchList( new HashMap() ); 
+        if  (list != null ) openers.addAll( list );  
         
-        TabbedPaneModel oldModel = this.model;
-        if (oldModel != null) oldModel.setProvider(null); 
-        
+        TabbedPaneModelProxy oldModel = this.model; 
+        if ( oldModel != null ) { 
+            oldModel.deactivate(); 
+        } 
         this.model = newModel; 
     } 
     
     // </editor-fold>
 
-    // <editor-fold defaultstate="collapsed" desc=" DefaultTabbedPaneModel ">
+    // <editor-fold defaultstate="collapsed" desc=" TabbedPaneModel proxy ">
     
-    private class TabbedPaneModelImpl extends TabbedPaneModel 
-    {
-        private List<Opener> list;
+    private class TabbedPaneModelProxy extends TabbedPaneModel {
         
-        TabbedPaneModelImpl(Object value) {
-            list = new ArrayList();
+        private TabbedPaneModel model; 
+        private List<Opener> items; 
+        
+        TabbedPaneModelProxy( TabbedPaneModel model, Object value ) {
+            this.model = model; 
+            this.items = new ArrayList();
             
-            if (value == null) {
-                //do nothing
-            } else if (value.getClass().isArray()) {
-                Opener[] arrays = (Opener[]) value;
-                for (Opener o: arrays) list.add(o); 
-
-            } else if (value instanceof Collection) {
-                list.addAll((Collection) value);
-            }  
+            if (value == null) { 
+                //do nothing 
+            } else { 
+                Object[] arrays = new Object[0]; 
+                if (value.getClass().isArray()) { 
+                    arrays = (Object[]) value; 
+                } else if (value instanceof Collection) { 
+                    Collection coll = (Collection)value;
+                    arrays = coll.toArray(); 
+                } 
+                
+                for ( int i=0; i<arrays.length; i++)  { 
+                    if ( arrays[i] instanceof Opener ) {
+                        items.add( (Opener) arrays[i] );
+                    }
+                }
+            } 
+        } 
+        
+        TabbedPaneModel getSource() {
+            return model; 
+        } 
+        
+        void activate() {
+            if ( model == null ) {
+                //do nothing 
+            } else {
+                model.setProvider( getProviderImpl() );  
+            }
+        } 
+        void deactivate() {
+            if ( model == null ) { 
+                //do nothing 
+            } else { 
+                model.setProvider( null );  
+            } 
         }
 
-        public List<Opener> getOpeners() { 
-            return list; 
-        }
+        public List fetchList(Object params) { 
+            if ( model == null ) { 
+                return items; 
+            } else {
+                return model.fetchList( params ); 
+            } 
+        } 
     }
     
     // </editor-fold>
@@ -570,10 +617,13 @@ public class XTabbedPane extends JTabbedPane implements UIControl, ActiveControl
             return root.getBinding(); 
         }
 
-        public Map getOpenerParams(Object o) {
-            if (root.model == null) return null;
-            
-            return root.model.getOpenerParams(o); 
+        public Map getOpenerParams(Object o) { 
+            TabbedPaneModel tpm = (root.model == null? null: root.model.getSource()); 
+            if ( tpm == null) { 
+                return null;
+            } else {
+                return tpm.getOpenerParams( o ); 
+            }  
         }
     }
     
