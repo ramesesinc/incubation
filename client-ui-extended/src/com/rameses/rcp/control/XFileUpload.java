@@ -14,6 +14,8 @@ import com.rameses.rcp.support.ImageIconSupport;
 import com.rameses.rcp.ui.ActiveControl;
 import com.rameses.rcp.ui.ControlProperty;
 import com.rameses.rcp.ui.UIControl;
+import com.rameses.rcp.ui.Validatable;
+import com.rameses.rcp.util.ActionMessage;
 import com.rameses.rcp.util.UIControlUtil;
 import com.rameses.rcp.util.UIExpression;
 import com.rameses.util.BreakException;
@@ -21,6 +23,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -30,16 +33,18 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.beans.Beans;
 import java.io.File;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -48,7 +53,9 @@ import javax.swing.JPanel;
  *
  * @author wflores 
  */
-public class XFileUpload extends JPanel implements UIControl, ActiveControl {
+public class XFileUpload extends JPanel implements UIControl, ActiveControl, Validatable {
+    
+    private final static String DEFAULT_TEXT_MESSAGE = " Select a file to upload... "; 
     
     public final static String STAT_READY       = "READY";
     public final static String STAT_PROCESSING  = "PROCESSING"; 
@@ -56,9 +63,11 @@ public class XFileUpload extends JPanel implements UIControl, ActiveControl {
     public final static Insets ACTION_DEFAULT_MARGIN = new Insets(1,3,1,3); 
     public final static Insets ACTION_PRESS_MARGIN   = new Insets(2,4,0,2); 
 
-    private final Color DEFAULT_PROGRESS_BAR_COLOR = new Color(176, 197, 227);
+    //private final Color DEFAULT_PROGRESS_BAR_COLOR = new Color(176, 197, 227);
+    private final Color DEFAULT_PROGRESS_BAR_COLOR = new Color(208, 223, 244);
     private final Color DEFAULT_FOREGROUND = new Color(30,30,30);
     private final Color CANCELLED_FOREGROUND = new Color(150,150,150);
+    private final Color SUCCESS_BACKGROUND = new Color(199, 255, 218);
     
     private JFileChooser fileChooser;
     private BrowseAction cmdBrowse; 
@@ -69,6 +78,7 @@ public class XFileUpload extends JPanel implements UIControl, ActiveControl {
     private FileUploadModel model; 
     private ProviderImpl provider;
     
+    private boolean showProgressBarColor; 
     private Color progressBarColor; 
     private ProgressData progressData; 
     private ProgressValue progressValue;
@@ -78,12 +88,13 @@ public class XFileUpload extends JPanel implements UIControl, ActiveControl {
     private String handler; 
     private String visibleWhen;
     private String disableWhen; 
+    private String expression; 
+    private String varName; 
     
     public XFileUpload() {
         super(); 
-        initComponents();
-    }
-        
+        initComponents(); 
+    } 
     
     // <editor-fold defaultstate="collapsed" desc=" init components ">  
 
@@ -92,6 +103,7 @@ public class XFileUpload extends JPanel implements UIControl, ActiveControl {
     } 
     
     private void initComponents() { 
+        varName = "item";
         status = STAT_READY; 
         provider = new ProviderImpl();
         fileChooser = new JFileChooser(); 
@@ -126,9 +138,24 @@ public class XFileUpload extends JPanel implements UIControl, ActiveControl {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g); 
         
-        ProgressData data = progressData; 
-        if ( data == null ) return; 
+        if ( Beans.isDesignTime() ) { 
+            Graphics2D g2 = (Graphics2D) g.create();  
+            if ( isShowProgressBarColor() ) {
+                Color color = getProgressBarColor(); 
+                if ( color == null ) {
+                    color = DEFAULT_PROGRESS_BAR_COLOR;
+                }   
+                g2.setColor( color ); 
+                g2.fillRect(0, 0, getWidth(), getHeight()); 
+            } 
+            g2.dispose(); 
+            return; 
+        }
         
+        ProgressData data = progressData; 
+        if ( data == null ) return;
+        if ( data.terminated ) return; 
+
         Graphics2D g2 = (Graphics2D) g.create();  
         if ( data.error != null ) {
             g2.setColor( Color.PINK ); 
@@ -138,7 +165,8 @@ public class XFileUpload extends JPanel implements UIControl, ActiveControl {
             //do nothing 
             
         } else if ( data.success ) {
-            //do nothing 
+            g2.setColor( SUCCESS_BACKGROUND ); 
+            g2.fillRect(0, 0, getWidth(), getHeight()); 
             
         } else {
             double dwidth = getWidth() * 1.0; 
@@ -146,14 +174,15 @@ public class XFileUpload extends JPanel implements UIControl, ActiveControl {
             int iwidth = (int)dwidth; 
 
             Color color = getProgressBarColor(); 
-            if ( color == null ) color = DEFAULT_PROGRESS_BAR_COLOR; 
-            
+            if ( color == null ) {
+                color = DEFAULT_PROGRESS_BAR_COLOR;
+            }             
             g2.setColor( color ); 
             g2.fillRect(0, 0, iwidth, getHeight()); 
         } 
         g2.dispose(); 
     }
-    
+        
     private void showInfo( MouseEvent e ) { 
         if ( progressData == null ) return; 
         
@@ -167,27 +196,35 @@ public class XFileUpload extends JPanel implements UIControl, ActiveControl {
     
     // <editor-fold defaultstate="collapsed" desc=" getters/setters ">  
     
+    public String getVarName() { return varName; }
+    public void setVarName(String varName) { 
+        this.varName = varName; 
+    }
+    
+    public String getExpression() { return expression; }    
+    public void setExpression(String expression) {
+        this.expression = expression;
+    }
+    
+    public boolean isShowProgressBarColor() {
+        return showProgressBarColor; 
+    }
+    public void setShowProgressBarColor( boolean showProgressBarColor ) {
+        this.showProgressBarColor = showProgressBarColor; 
+    }
+    
     public Color getProgressBarColor() { return progressBarColor; } 
     public void setProgressBarColor( Color progressBarColor ) {
         this.progressBarColor = progressBarColor; 
     }
-    
-    public String getStatus() { return status; }
-    public void setStatus( String status ) {
-        if ( STAT_PROCESSING.equals( status )) {
-            this.status = status; 
-        } else { 
-            this.status = STAT_READY; 
-        } 
-    }
-    
+        
     public String getMessage() { 
-        return ( fileNameLabel == null? null: fileNameLabel.getText()); 
+        return ( fileNameLabel == null? null: fileNameLabel.getMessage()); 
     }
     public void setMessage( String message ) {
         if ( fileNameLabel != null ) { 
-            fileNameLabel.setText( message ); 
-        } 
+            fileNameLabel.setMessage( message ); 
+        }  
     } 
     
     public FileUploadModel getModel() { return model; } 
@@ -229,6 +266,7 @@ public class XFileUpload extends JPanel implements UIControl, ActiveControl {
         
         boolean success;
         boolean cancelled;
+        boolean terminated;
         
         ProgressData( String message ) {
             this( message, 0.0 ); 
@@ -241,23 +279,39 @@ public class XFileUpload extends JPanel implements UIControl, ActiveControl {
     
     private class FileNameLabel extends JLabel { 
         XFileUpload root = XFileUpload.this;
+        String message;
         
         FileNameLabel() {
             setBorder(BorderFactory.createEmptyBorder(1,5,1,5));
-            setText(" Select a file to upload... "); 
+            setText( DEFAULT_TEXT_MESSAGE ); 
         } 
         void update() { 
             ProgressData data = root.progressData;
-            if ( data == null ) return; 
+            String msg = ((data==null || data.terminated)? null: data.message);
+            setText( msg==null ? " " : msg ); 
             
-            String msg = data.message;
-            setText( msg==null ? "..." : msg ); 
-            
-            if ( data.cancelled ) {
+            if ( data != null && data.cancelled ) { 
                 setForeground( CANCELLED_FOREGROUND ); 
-            } else {
+            } else { 
                 setForeground( DEFAULT_FOREGROUND ); 
+            } 
+        } 
+        String getMessage() { return message; } 
+        void setMessage( String message ) {
+            this.message = message; 
+            
+            if ( message == null || message.length()==0 ) {
+                setText( DEFAULT_TEXT_MESSAGE ); 
+            } else {
+                setText( message ); 
             }
+            
+            RefreshComponent rc = new RefreshComponent( this ); 
+            if ( EventQueue.isDispatchThread()) {
+                rc.run(); 
+            } else {
+                EventQueue.invokeLater( rc ); 
+            } 
         }
     }
     private class FileSizeLabel extends JLabel { 
@@ -269,12 +323,10 @@ public class XFileUpload extends JPanel implements UIControl, ActiveControl {
         } 
         void update() { 
             ProgressData data = root.progressData;
-            if ( data == null ) return; 
-            
-            String msg = data.message2;
+            String msg = ((data==null || data.terminated)? null: data.message2);
             setText( msg==null ? "" : msg ); 
             
-            if ( data.cancelled ) {
+            if ( data != null && data.cancelled ) {
                 setForeground( CANCELLED_FOREGROUND ); 
             } else {
                 setForeground( DEFAULT_FOREGROUND ); 
@@ -291,7 +343,10 @@ public class XFileUpload extends JPanel implements UIControl, ActiveControl {
         
         void update() { 
             ProgressData data = root.progressData;
-            if ( data == null ) return; 
+            if ( data==null || data.terminated ) { 
+                setText(""); 
+                return; 
+            } 
             
             double percentage = data.percentage; 
             if ( percentage > 0.0 ) { 
@@ -308,8 +363,22 @@ public class XFileUpload extends JPanel implements UIControl, ActiveControl {
             }
         }
     }
-    
-    // </editor-fold>   
+    private class RefreshComponent implements Runnable {
+
+        private JComponent comp; 
+        
+        RefreshComponent( JComponent comp ) {
+            this.comp = comp; 
+        }
+        
+        public void run() { 
+            if ( comp != null ) {
+                comp.revalidate();
+                comp.repaint();
+            }
+        }
+    }
+    // </editor-fold> 
     
     // <editor-fold defaultstate="collapsed" desc=" Actions ">  
     
@@ -431,7 +500,7 @@ public class XFileUpload extends JPanel implements UIControl, ActiveControl {
         }
     }
     
-    // </editor-fold>   
+    // </editor-fold> 
     
     // <editor-fold defaultstate="collapsed" desc=" LayoutImpl ">  
     
@@ -454,7 +523,7 @@ public class XFileUpload extends JPanel implements UIControl, ActiveControl {
             return new Component[]{ cmdBrowse, cmdCancel }; 
         }
         private Component getActionComponent() { 
-            String stat = root.getStatus(); 
+            String stat = root.status; 
             if ( STAT_PROCESSING.equals( stat ) ) { 
                 return root.cmdCancel; 
             } else { 
@@ -555,26 +624,30 @@ public class XFileUpload extends JPanel implements UIControl, ActiveControl {
     
     // <editor-fold defaultstate="collapsed" desc=" FileChunkHandler ">  
     
+    void refreshComponents() { 
+        fileNameLabel.update();
+        fileSizeLabel.update();
+        progressValue.update();
+        revalidate(); 
+        repaint(); 
+    } 
+    
     private class FileChunkHandler extends AbstractChunkHandler {
 
         XFileUpload root = XFileUpload.this; 
-        
+
         Throwable error;
         double filesize; 
         double chunksize;
         
-        void refreshComponents() { 
-            root.fileNameLabel.update();
-            root.fileSizeLabel.update();            
-            root.progressValue.update();
-            root.revalidate(); 
-            root.repaint(); 
-        } 
+        final int BATCH_COUNT = 5; 
+        List buffer = new ArrayList();
         
         public void start() { 
-            root.setStatus( STAT_PROCESSING ); 
+            buffer = new ArrayList();
+            root.status = STAT_PROCESSING; 
             root.progressData = new ProgressData("Reading file information..."); 
-            refreshComponents();
+            root.refreshComponents();
                         
             root.provider.fileid = getMeta().getId();             
             root.provider.filename = getMeta().getFileName(); 
@@ -600,37 +673,46 @@ public class XFileUpload extends JPanel implements UIControl, ActiveControl {
             refreshComponents(); 
 
             filesize = root.provider.filesize * 1.0; 
-            chunksize = 0.0;             
-            fireOnStart();
-        }
+            chunksize = 0.0; 
+            fireOnStart(); 
+        } 
         
         public void end() { 
-            root.setStatus( STAT_READY ); 
+            root.status = STAT_READY; 
             if ( error == null ) { 
                 if ( isCancelled() ) { 
                     if ( root.progressData != null ) { 
                         root.progressData.cancelled = true; 
                     } 
-                    refreshComponents(); 
+                    root.refreshComponents(); 
+                    
                 } else { 
-                    if ( root.progressData != null ) { 
-                        root.progressData.success = true; 
+                    if ( !buffer.isEmpty() ) { 
+                        Object resp = getProxyModel().addItems( root.provider.fileid, buffer ); 
+                        buffer.clear(); 
+                        if ( resp instanceof Throwable ) {
+                            error = (Throwable) resp;
+                            cancel(); 
+                        } 
                     } 
-                    refreshComponents();
-                    fireOnComplete(); 
+                    if ( isCancelled() ) {
+                        root.refreshComponents(); 
+                        
+                    } else if ( root.progressData != null ) { 
+                        root.progressData.success = true; 
+                        root.refreshComponents(); 
+                        fireOnComplete(); 
+                    } 
                 } 
             } else { 
                 try { 
                     if ( root.progressData != null ) {
                         root.progressData.error = error; 
-                        refreshComponents(); 
+                        root.refreshComponents(); 
                     } 
                     
                     fireUpdateBeanValue( null ); 
-                    FileUploadModel fum = root.getModel(); 
-                    if ( fum != null ) { 
-                        fum.onerror( error );
-                    } 
+                    getProxyModel().onerror( error ); 
                 } catch( BreakException be ) { 
                     //do nothing 
                 } catch( Exception e ) { 
@@ -643,46 +725,55 @@ public class XFileUpload extends JPanel implements UIControl, ActiveControl {
         
         public void handle(int indexno, byte[] bytes) { 
             try { 
-                if ( root.progressData != null ) {
+                if ( root.progressData != null ) { 
+                    if ( root.progressData.terminated ) {
+                        cancel(); 
+                        return; 
+                    } 
+                    
                     chunksize += bytes.length; 
                     BigDecimal bd = new BigDecimal(chunksize / filesize); 
                     double value = bd.setScale(2, RoundingMode.HALF_UP).doubleValue(); 
                     root.progressData.percentage = value; 
                 } 
-                refreshComponents(); 
+                root.refreshComponents(); 
                 
+                Map data = new HashMap(); 
+                data.put("indexno", indexno); 
+                data.put("content", bytes ); 
+                buffer.add( data ); 
+                if ( buffer.size() >= BATCH_COUNT ) { 
+                    Object resp = getProxyModel().addItems( root.provider.fileid, buffer ); 
+                    buffer.clear(); 
+                    if ( resp instanceof Throwable ) {
+                        error = (Throwable) resp; 
+                        cancel(); 
+                    }
+                } 
             } catch(Throwable t) {
                 error = t; 
                 cancel(); 
             } 
         } 
         
-        void fireOnStart() {
-            FileUploadModel fum = root.getModel(); 
-            if ( fum == null ) { return; } 
-            
-            try {
-                fum.onstart(); 
+        void fireOnStart() { 
+            try { 
+                if ( root.progressData != null && root.progressData.terminated ) { 
+                    cancel(); 
+                    return; 
+                } 
+                
+                getProxyModel().onstart(); 
             } catch(Throwable t) { 
                 error = t; 
                 cancel();
             } 
         } 
         void fireOnComplete() {
-            Map data = new HashMap();
-            data.put("fileid", root.provider.fileid);
-            data.put("filename", root.provider.filename);
-            data.put("filetype", root.provider.filetype);
-            data.put("filesize", root.provider.filesize);
-            data.put("chunkcount", root.provider.chunkcount);
-            
             try { 
+                Map data = getProxyModel().buildData();
                 fireUpdateBeanValue( data ); 
-                
-                FileUploadModel fum = root.getModel(); 
-                if ( fum != null ) {
-                    fum.oncomplete( data );
-                } 
+                getProxyModel().oncomplete( data ); 
             } catch(Throwable t) { 
                 MsgBox.err( t ); 
             } 
@@ -693,19 +784,70 @@ public class XFileUpload extends JPanel implements UIControl, ActiveControl {
                 UIControlUtil.setBeanValue(root.getBinding(), name, data); 
             }
         }
-        
-        LinkedBlockingQueue BLOCKER = new LinkedBlockingQueue();
-        void locked() {
-            try { 
-                BLOCKER.poll(25, TimeUnit.MILLISECONDS);
-            } catch (Throwable ex) {
-                ;
-            }
-        }
     } 
         
     
     // </editor-fold> 
+    
+    // <editor-fold defaultstate="collapsed" desc=" ProxyModel ">  
+    
+    private class ProxyModel {
+        
+        XFileUpload root = XFileUpload.this; 
+        
+        private FileUploadModel defaultModel;
+        private FileUploadModel source; 
+        
+        ProxyModel( FileUploadModel source ) {
+            this.defaultModel = new FileUploadModel();
+            this.source = source; 
+        }
+                
+        void onstart() { 
+            if ( source == null ) { 
+                defaultModel.register( buildData() ); 
+            } else {     
+                source.onstart(); 
+                source.register( buildData() ); 
+            } 
+        }
+        void oncomplete( Object data ) {
+            if ( source != null ) { 
+                source.oncomplete( data ); 
+            } 
+        } 
+        void onerror( Throwable error ) { 
+            if ( source != null ) { 
+                source.onerror( error ); 
+            } 
+        } 
+        Object addItems( String fileid, List items ) { 
+            try { 
+                Map data = new HashMap(); 
+                data.put("fileid", fileid); 
+                data.put("items", items);                     
+                if ( source == null ) {
+                    defaultModel.addItems( data );
+                } else {  
+                    source.addItems( data ); 
+                } 
+                return null; 
+            } catch(Throwable t) {
+                return t; 
+            } 
+        }
+        Map buildData() {
+            Map data = new HashMap();
+            data.put("fileid", root.provider.fileid);
+            data.put("filename", root.provider.filename);
+            data.put("filetype", root.provider.filetype);
+            data.put("filesize", root.provider.filesize);
+            data.put("chunkcount", root.provider.chunkcount);
+            return data; 
+        } 
+    } 
+    
+    // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" UIControl ">  
     
@@ -714,6 +856,8 @@ public class XFileUpload extends JPanel implements UIControl, ActiveControl {
     private int index; 
     private int stretchWidth;
     private int stretchHeight;
+    
+    private ProxyModel proxyModel;
     
     public Binding getBinding() { return binding; }
     public void setBinding(Binding binding) { 
@@ -751,20 +895,49 @@ public class XFileUpload extends JPanel implements UIControl, ActiveControl {
     } 
 
     public void refresh() { 
+        if ( progressData != null ) {
+            progressData.terminated = true; 
+        } 
+        
         Object o = UIControlUtil.getBeanValue(getBinding(), getHandler()); 
-        if ( o instanceof FileUploadModel ) {
+        if ( o instanceof FileUploadModel ) { 
             setModel( (FileUploadModel) o ); 
         } else if ( o == null ) {
             setModel( null ); 
         } else { 
             System.out.println("[WARN] handler must be an instance of FileUploadModel");
             setModel( null ); 
-        }
+        } 
+                
+        proxyModel = new ProxyModel( getModel() ); 
         
         UIExpression uix = new UIExpression(); 
         uix.disableWhen( this, getDisableWhen() ); 
         uix.visibleWhen( this, getVisibleWhen() ); 
+        refreshComponents(); 
+        
+        o = UIControlUtil.getBeanValue( this ); 
+        if ( uix.isEmpty(getExpression())) {
+            if ( o == null || o.toString().trim().length()==0 ) {
+                fileNameLabel.setMessage( DEFAULT_TEXT_MESSAGE ); 
+            } else {
+                fileNameLabel.setMessage( o.toString() ); 
+            } 
+        } else { 
+            Object result = uix.translateExpr(this, getExpression(), getVarName(), o ); 
+            if ( result == null || result.toString().trim().length()==0 ) { 
+                result = DEFAULT_TEXT_MESSAGE; 
+            } 
+            fileNameLabel.setMessage( result.toString() ); 
+        } 
     } 
+    
+    private ProxyModel getProxyModel() {
+        if ( proxyModel == null ) {
+            proxyModel = new ProxyModel( null );
+        }
+        return proxyModel; 
+    }
     
     // </editor-fold> 
     
@@ -828,5 +1001,52 @@ public class XFileUpload extends JPanel implements UIControl, ActiveControl {
         getControlProperty().setCellPadding(padding);
     }    
 
+    // </editor-fold> 
+    
+    // <editor-fold defaultstate="collapsed" desc=" Validatable implementation ">    
+    
+    private ActionMessage actionMessage; 
+    private boolean required; 
+
+    public ActionMessage getActionMessage() {
+        if ( actionMessage == null ) {
+            actionMessage = new ActionMessage(); 
+        }
+        return actionMessage; 
+    }
+
+    public boolean isRequired() { return required; }
+    public void setRequired( boolean required ) {
+        this.required = required; 
+    } 
+    
+    public void validateInput() { 
+        ControlProperty property = getControlProperty(); 
+        property.setErrorMessage( null );
+        ActionMessage am = getActionMessage();
+        am.clearMessages();
+        
+        String name = getName();
+        if ( isRequired() && name != null && name.length() > 0 ) {
+            Object o = UIControlUtil.getBeanValue( this ); 
+            if ( o == null ) { 
+                am.addMessage("1001", "{0} is required.", new Object[] {getCaption()}); 
+                property.setErrorMessage( am.toString() ); 
+                return; 
+            } 
+        } 
+        
+        ProgressData pdata = progressData; 
+        if ( pdata != null ) {
+            if ( pdata.success || pdata.cancelled ) {
+                //do nothing, upload process is done...
+            } else {
+                am.addMessage("1001", "Uploading file in progress please wait...", new Object[]{}); 
+                property.setErrorMessage( am.toString() ); 
+                return; 
+            } 
+        }
+    }
+    
     // </editor-fold> 
 }
