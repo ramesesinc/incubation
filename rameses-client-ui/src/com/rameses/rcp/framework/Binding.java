@@ -500,7 +500,7 @@ public class Binding
                 }
                 //apply style rules to parent
                 applyStyle(u); 
-            } else {
+            } else { 
                 applyStyle(u); 
             } 
             
