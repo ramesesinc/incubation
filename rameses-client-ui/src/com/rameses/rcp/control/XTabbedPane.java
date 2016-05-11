@@ -196,7 +196,7 @@ public class XTabbedPane extends JTabbedPane implements UIControl, ActiveControl
     public int getStretchHeight() { return stretchHeight; } 
     public void setStretchHeight(int stretchHeight) {
         this.stretchHeight = stretchHeight;
-    }    
+    } 
     
     // </editor-fold>
     
@@ -357,8 +357,10 @@ public class XTabbedPane extends JTabbedPane implements UIControl, ActiveControl
         }
     }
     
-    private void loadTabs() {
-        removeAll();
+    private void loadTabs() { 
+        int selindex = getSelectedIndex(); 
+        
+        removeAll(); 
         int compCount = staticItems.size();
         for (int i=0; i<compCount; i++) { 
             StaticItem si = staticItems.get( i ); 
@@ -421,7 +423,12 @@ public class XTabbedPane extends JTabbedPane implements UIControl, ActiveControl
             getKeyboardActionManager().register( itemPanel ); 
         }
         
-        if (getTabCount() > 0) setSelectedIndex(0);        
+        if (getTabCount() > 0) { 
+            if ( selindex < 0 ) selindex=0; 
+            if ( selindex >= getTabCount() ) selindex=0; 
+            
+            setSelectedIndex( selindex );  
+        }        
     }
     
     private Icon getOpenerIcon(Opener o) {
