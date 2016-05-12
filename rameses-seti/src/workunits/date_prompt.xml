@@ -4,6 +4,7 @@
     </invokers>
     <code>
         class DatePrompt {
+            String title;
             def date;
             def handler;
         
@@ -11,6 +12,7 @@
                 return "_close";
             }
             def doOk() {
+                if(!handler) throw new Exception("Please specify handler in date:prompt");
                 if(handler) handler(date);
                 return "_close";
             }
