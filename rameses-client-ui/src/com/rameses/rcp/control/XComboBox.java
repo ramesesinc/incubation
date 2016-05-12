@@ -399,61 +399,57 @@ public class XComboBox extends JComboBox implements UIInput, Validatable, Active
         return getBinding(); 
     }
     
-    private Collection fetchItems() 
-    {        
+    private Collection fetchItems() {        
         Collection list = null;
-        try 
-        {
+        try {
             Class type = null; 
             Binding oBinding = getCurrentBinding();            
             Object beanItems = UIControlUtil.getBeanValue(oBinding, getItems());
-            if ( beanItems != null ) 
-            {
+            if ( beanItems != null ) {
                 type = beanItems.getClass();
-                if ( type.isArray() ) 
-                    list = Arrays.asList((Object[]) beanItems);
-                else if ( beanItems instanceof Collection ) 
-                    list = (Collection) beanItems;
-            } 
-            else 
-            {
-                if ( fieldType != null )
-                    type = fieldType;
-                else
-                    type = UIControlUtil.getValueType(this, getName());
+                if ( type.isArray() ) { 
+                    list = Arrays.asList((Object[]) beanItems); 
+                } else if ( beanItems instanceof Collection ) { 
+                    list = (Collection) beanItems; 
+                } 
+            } else {
+                if ( fieldType != null ) { 
+                    type = fieldType; 
+                } else { 
+                    type = UIControlUtil.getValueType(this, getName()); 
+                } 
                 
                 //if type is null, happens when the source is a Map key and no fieldType supplied
                 //try to use the classtype of the value if it is not null
-                if ( type == null ) 
-                {
+                if ( type == null ) {
                     Object value = UIControlUtil.getBeanValue(this);
                     if ( value != null ) type = value.getClass();
                 }
                 
-                if ( type != null && type.isEnum()) 
-                    list = Arrays.asList(type.getEnumConstants());
-            }
-        } 
-        catch(Exception e) {;}
+                if ( type != null && type.isEnum()) { 
+                    list = Arrays.asList(type.getEnumConstants()); 
+                } 
+            } 
+        } catch(Throwable e) {;} 
         
-        if ( itemsObject != null ) 
-        {
+        if ( itemsObject != null ) {
             Collection col = null;
-            if ( itemsObject instanceof Collection )
-                col = (Collection) itemsObject;
-            else if ( itemsObject.getClass().isArray() )
-                col = Arrays.asList((Object[]) itemsObject);
+            if ( itemsObject instanceof Collection ) { 
+                col = (Collection) itemsObject; 
+            } else if ( itemsObject.getClass().isArray() ) { 
+                col = Arrays.asList((Object[]) itemsObject); 
+            } 
             
-            if ( list == null )
-                list = col;
-            else
-                list.addAll( col );
-        }        
+            if ( list == null ) { 
+                list = col; 
+            } else { 
+                list.addAll( col ); 
+            } 
+        }    
         return list;
     }
     
-    private void buildList() 
-    {
+    private void buildList() { 
         updating = true;
         model.removeAllElements(); //clear combo model
         
@@ -504,9 +500,7 @@ public class XComboBox extends JComboBox implements UIInput, Validatable, Active
         
         if ( !immediate ) {
             //super.addItemListener(this);
-        } 
-        else 
-        {
+        } else {
             super.setInputVerifier(new InputVerifier() {
                 public boolean verify(JComponent input) 
                 {
