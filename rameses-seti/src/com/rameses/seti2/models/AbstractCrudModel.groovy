@@ -273,6 +273,12 @@ public abstract class AbstractCrudModel  {
         throw new Exception("No help handler found");
     }
     
+    protected boolean pageExists(String pageName) {
+        if( !workunit.views ) return false;
+        def z = workunit.views.find{ it.name == pageName };
+        if(z) return true;
+        return false;
+    }
     
 }
         

@@ -12,38 +12,5 @@ import com.rameses.util.*;
 
 public class MdiFormModel  extends CrudFormModel {
     
-    //used for mdi forms.
-    def selectedSection;
-    def sections;
-    
-    protected void buildSections() {
-        //for items with sections....
-        try {
-            sections = Inv.lookupOpeners(getSchemaName() + ":section",[:]);
-        } 
-        catch(Exception ex){;}
-    }
-    
-    void init() {
-        super.init();
-        buildSections();
-    }
-    
-    boolean isCreateAllowed() { return false; }
-    boolean isEditAllowed() {return false; }    
-   
-    void moveUp() {
-        super.moveUp();
-        sections.each {
-            try { it.controller.codeBean.reload(); }catch(e){;}
-        }
-    }
-
-    void moveDown() {
-        super.moveDown();
-        sections.each {
-            try { it.controller.codeBean.reload(); }catch(e){;}
-        }
-    }
     
 }

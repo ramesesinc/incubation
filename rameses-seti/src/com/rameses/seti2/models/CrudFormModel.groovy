@@ -21,6 +21,10 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
     def findBy;                 //this is also included for opening via barcode.
     def refid;                  //this is also used for opening. If there is no entity passed
     
+     //used for mdi forms.
+    def selectedSection;
+    def sections;
+    
     @Script("ListTypes")
     def listTypes;
     
@@ -113,13 +117,13 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
         }
     }
     
-    protected boolean pageExists(String pageName) {
-        if( !workunit.views ) return false;
-        def z = workunit.views.find{ it.name == pageName };
-        if(z) return true;
-        return false;
+    protected void buildSections() {
+        //for items with sections....
+        try {
+            sections = Inv.lookupOpeners(getSchemaName() + ":section",[:]);
+        } 
+        catch(Exception ex){;}
     }
-    
     
     boolean _inited_ = false;
     
@@ -128,9 +132,11 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
             throw new Exception("Please provide a schema name. Put it in workunit schemaName or override the getSchemaName()");
         if( _inited_ ) return;
         schema = getPersistenceService().getSchema( [name: schemaName, adapter: adapter]  );
+        listTypes.init( schema );
+
         buildStyleRules();
         buildItemHandlers();
-        listTypes.init( schema );
+        buildSections();
         _inited_ = true;
         afterInit()
     }
@@ -308,11 +314,17 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
     void moveUp() {
         caller.listHandler.moveBackRecord();
         reloadEntity();
+        sections?.each {
+            try { it.controller.codeBean.reload(); }catch(e){;}
+        }        
     }
 
     void moveDown() {
         caller.listHandler.moveNextRecord();
         reloadEntity();
+        sections?.each {
+            try { it.controller.codeBean.reload(); }catch(e){;}
+        }
     }
     
     void loadData() {

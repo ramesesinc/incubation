@@ -72,10 +72,6 @@ public class CrudFormPage extends javax.swing.JPanel {
         jPanel2 = new javax.swing.JPanel();
         jPanel3 = new javax.swing.JPanel();
         xLabel1 = new com.rameses.rcp.control.XLabel();
-        jToolBar3 = new javax.swing.JToolBar();
-        btnDebug = new com.rameses.rcp.control.XButton();
-        btnHelp = new com.rameses.rcp.control.XButton();
-        btnInfo = new com.rameses.rcp.control.XButton();
         jToolBar1 = new javax.swing.JToolBar();
         btnCancel1 = new com.rameses.rcp.control.XButton();
         btnCreate = new com.rameses.rcp.control.XButton();
@@ -85,6 +81,9 @@ public class CrudFormPage extends javax.swing.JPanel {
         btnCancel = new com.rameses.rcp.control.XButton();
         xActionBar1 = new com.rameses.rcp.control.XActionBar();
         xActionBar2 = new com.rameses.rcp.control.XActionBar();
+        btnDebug = new com.rameses.rcp.control.XButton();
+        btnInfo = new com.rameses.rcp.control.XButton();
+        btnHelp = new com.rameses.rcp.control.XButton();
         btnCancel2 = new com.rameses.rcp.control.XButton();
         btnUp = new com.rameses.rcp.control.XButton();
         btnDown = new com.rameses.rcp.control.XButton();
@@ -127,16 +126,80 @@ public class CrudFormPage extends javax.swing.JPanel {
 
         jPanel3.setBackground(new java.awt.Color(255, 255, 255));
         jPanel3.setPreferredSize(new java.awt.Dimension(420, 35));
+        jPanel3.setLayout(new java.awt.BorderLayout());
 
         xLabel1.setBackground(new java.awt.Color(255, 255, 255));
         xLabel1.setExpression("#{title}");
         xLabel1.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         xLabel1.setOpaque(true);
         xLabel1.setPreferredSize(new java.awt.Dimension(41, 30));
+        jPanel3.add(xLabel1, java.awt.BorderLayout.NORTH);
 
-        jToolBar3.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
-        jToolBar3.setRollover(true);
-        jToolBar3.setOpaque(false);
+        jPanel2.add(jPanel3);
+
+        jToolBar1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 204)));
+        jToolBar1.setRollover(true);
+        jToolBar1.setPreferredSize(new java.awt.Dimension(100, 30));
+
+        btnCancel1.setCaption("");
+        btnCancel1.setFocusable(false);
+        btnCancel1.setIconResource("images/menu.png");
+        btnCancel1.setImmediate(true);
+        btnCancel1.setName("showMenu"); // NOI18N
+        jToolBar1.add(btnCancel1);
+
+        btnCreate.setAccelerator("ctrl N");
+        btnCreate.setCaption("");
+        btnCreate.setFocusable(false);
+        btnCreate.setIconResource("images/toolbars/create.png");
+        btnCreate.setName("create"); // NOI18N
+        btnCreate.setVisibleWhen("#{createAllowed}");
+        jToolBar1.add(btnCreate);
+
+        btnEdit.setAccelerator("ctrl E");
+        btnEdit.setCaption("");
+        btnEdit.setFocusable(false);
+        btnEdit.setIconResource("images/toolbars/edit.png");
+        btnEdit.setName("edit"); // NOI18N
+        btnEdit.setVisibleWhen("#{editAllowed}");
+        jToolBar1.add(btnEdit);
+
+        btnSave.setAccelerator("ctrl S");
+        btnSave.setCaption("");
+        btnSave.setFocusable(false);
+        btnSave.setIconResource("images/toolbars/save.png");
+        btnSave.setName("save"); // NOI18N
+        btnSave.setVisibleWhen("#{saveAllowed}");
+        jToolBar1.add(btnSave);
+
+        btnUndo.setAccelerator("ctrl U");
+        btnUndo.setCaption("");
+        btnUndo.setFocusable(false);
+        btnUndo.setIconResource("images/toolbars/undo.png");
+        btnUndo.setImmediate(true);
+        btnUndo.setName("undo"); // NOI18N
+        btnUndo.setVisibleWhen("#{undoAllowed}");
+        jToolBar1.add(btnUndo);
+
+        btnCancel.setCaption("");
+        btnCancel.setFocusable(false);
+        btnCancel.setIconResource("images/toolbars/cancel.png");
+        btnCancel.setImmediate(true);
+        btnCancel.setName("unedit"); // NOI18N
+        btnCancel.setVisibleWhen("#{cancelEditAllowed}");
+        jToolBar1.add(btnCancel);
+
+        xActionBar1.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 10, 0, 0));
+        xActionBar1.setDynamic(true);
+        xActionBar1.setFormName("formName");
+        jToolBar1.add(xActionBar1);
+
+        xActionBar2.setBorder(null);
+        xActionBar2.setName("navActions"); // NOI18N
+        xActionBar2.setOrientationHAlignment("RIGHT");
+        xActionBar2.setPreferredSize(new java.awt.Dimension(100, 29));
+        xActionBar2.setTextPosition("CENTER");
+        jToolBar1.add(xActionBar2);
 
         btnDebug.setBackground(new java.awt.Color(255, 255, 255));
         btnDebug.setCaption("\\");
@@ -144,9 +207,16 @@ public class CrudFormPage extends javax.swing.JPanel {
             btnDebug.setIconResource("images/debug.png");
             btnDebug.setImmediate(true);
             btnDebug.setName("showDebugInfo"); // NOI18N
-            btnDebug.setOpaque(true);
             btnDebug.setVisibleWhen("#{ canDebug == true }");
-            jToolBar3.add(btnDebug);
+            jToolBar1.add(btnDebug);
+
+            btnInfo.setBackground(new java.awt.Color(255, 255, 255));
+            btnInfo.setCaption("");
+            btnInfo.setFocusable(false);
+            btnInfo.setIconResource("images/info.png");
+            btnInfo.setImmediate(true);
+            btnInfo.setName("showInfo"); // NOI18N
+            jToolBar1.add(btnInfo);
 
             btnHelp.setBackground(new java.awt.Color(255, 255, 255));
             btnHelp.setCaption("\\");
@@ -154,98 +224,7 @@ public class CrudFormPage extends javax.swing.JPanel {
                 btnHelp.setIconResource("images/help.png");
                 btnHelp.setImmediate(true);
                 btnHelp.setName("showHelp"); // NOI18N
-                btnHelp.setOpaque(true);
-                jToolBar3.add(btnHelp);
-
-                btnInfo.setBackground(new java.awt.Color(255, 255, 255));
-                btnInfo.setCaption("");
-                btnInfo.setFocusable(false);
-                btnInfo.setIconResource("images/info.png");
-                btnInfo.setImmediate(true);
-                btnInfo.setName("showInfo"); // NOI18N
-                btnInfo.setOpaque(true);
-                jToolBar3.add(btnInfo);
-
-                javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
-                jPanel3.setLayout(jPanel3Layout);
-                jPanel3Layout.setHorizontalGroup(
-                    jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addComponent(xLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 646, Short.MAX_VALUE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jToolBar3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                );
-                jPanel3Layout.setVerticalGroup(
-                    jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(xLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 35, Short.MAX_VALUE)
-                    .addComponent(jToolBar3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                );
-
-                jPanel2.add(jPanel3);
-
-                jToolBar1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 204)));
-                jToolBar1.setRollover(true);
-                jToolBar1.setPreferredSize(new java.awt.Dimension(100, 30));
-
-                btnCancel1.setCaption("");
-                btnCancel1.setFocusable(false);
-                btnCancel1.setIconResource("images/menu.png");
-                btnCancel1.setImmediate(true);
-                btnCancel1.setName("showMenu"); // NOI18N
-                jToolBar1.add(btnCancel1);
-
-                btnCreate.setAccelerator("ctrl N");
-                btnCreate.setCaption("");
-                btnCreate.setFocusable(false);
-                btnCreate.setIconResource("images/toolbars/create.png");
-                btnCreate.setName("create"); // NOI18N
-                btnCreate.setVisibleWhen("#{createAllowed}");
-                jToolBar1.add(btnCreate);
-
-                btnEdit.setAccelerator("ctrl E");
-                btnEdit.setCaption("");
-                btnEdit.setFocusable(false);
-                btnEdit.setIconResource("images/toolbars/edit.png");
-                btnEdit.setName("edit"); // NOI18N
-                btnEdit.setVisibleWhen("#{editAllowed}");
-                jToolBar1.add(btnEdit);
-
-                btnSave.setAccelerator("ctrl S");
-                btnSave.setCaption("");
-                btnSave.setFocusable(false);
-                btnSave.setIconResource("images/toolbars/save.png");
-                btnSave.setName("save"); // NOI18N
-                btnSave.setVisibleWhen("#{saveAllowed}");
-                jToolBar1.add(btnSave);
-
-                btnUndo.setAccelerator("ctrl U");
-                btnUndo.setCaption("");
-                btnUndo.setFocusable(false);
-                btnUndo.setIconResource("images/toolbars/undo.png");
-                btnUndo.setImmediate(true);
-                btnUndo.setName("undo"); // NOI18N
-                btnUndo.setVisibleWhen("#{undoAllowed}");
-                jToolBar1.add(btnUndo);
-
-                btnCancel.setCaption("");
-                btnCancel.setFocusable(false);
-                btnCancel.setIconResource("images/toolbars/cancel.png");
-                btnCancel.setImmediate(true);
-                btnCancel.setName("unedit"); // NOI18N
-                btnCancel.setVisibleWhen("#{cancelEditAllowed}");
-                jToolBar1.add(btnCancel);
-
-                xActionBar1.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 10, 0, 0));
-                xActionBar1.setDynamic(true);
-                xActionBar1.setFormName("formName");
-                jToolBar1.add(xActionBar1);
-
-                xActionBar2.setBorder(null);
-                xActionBar2.setName("navActions"); // NOI18N
-                xActionBar2.setOrientationHAlignment("RIGHT");
-                xActionBar2.setPreferredSize(new java.awt.Dimension(100, 29));
-                xActionBar2.setTextPosition("CENTER");
-                jToolBar1.add(xActionBar2);
+                jToolBar1.add(btnHelp);
 
                 btnCancel2.setCaption("");
                 btnCancel2.setFocusable(false);
@@ -591,7 +570,6 @@ public class CrudFormPage extends javax.swing.JPanel {
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JToolBar jToolBar1;
-    private javax.swing.JToolBar jToolBar3;
     private javax.swing.JPanel pnlstat;
     private com.rameses.rcp.control.XActionBar xActionBar1;
     private com.rameses.rcp.control.XActionBar xActionBar2;

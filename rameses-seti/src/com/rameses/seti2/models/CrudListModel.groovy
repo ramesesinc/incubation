@@ -115,6 +115,8 @@ public class CrudListModel extends AbstractCrudModel {
     //end overridables
     
     public String getOrderBy() {
+        String s = invoker.properties.orderBy;
+        if( s ) return s;
         return workunit.info.workunit_properties.orderBy;
     }
            
@@ -126,7 +128,9 @@ public class CrudListModel extends AbstractCrudModel {
     void init() {
         if(_inited_ ) return;
         //load role and domain if any.
-        queryForm = new Opener(outcome:'queryForm')
+        if( pageExists("queryForm")) {
+            queryForm = new Opener(outcome:'queryForm')
+        }
         domain = invoker.domain;
         role = invoker.role;
         
@@ -217,6 +221,9 @@ public class CrudListModel extends AbstractCrudModel {
             for( c in selCols ) {
                 def cc = [:];
                 cc.putAll( c );
+                if(c.datatype) {
+                    cc.type = c.datatype;
+                }
                 cc.colindex = maxSz;
                 zcols << cc;
             }
