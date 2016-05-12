@@ -193,7 +193,13 @@ public class Column implements Serializable
         if (oldTypeHandler != null) oldTypeHandler.setColumn(null); 
         
         this.typeHandler = typeHandler; 
-        if (this.typeHandler != null) this.typeHandler.setColumn(this); 
+        if (this.typeHandler != null) { 
+            this.typeHandler.setColumn(this);
+            type = this.typeHandler.getType(); 
+        } 
+        if ( type == null ) {
+            type = "string";   
+        }
     } 
     
     public int getWidth() { return width; }    

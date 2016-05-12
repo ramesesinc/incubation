@@ -109,6 +109,7 @@ public final class TableUtil
         renderers.put("opener", new CellRenderers.OpenerRenderer());
         renderers.put("icon", new CellRenderers.IconRenderer());
         renderers.put("dynamic", new DynamicCellRenderer());
+        renderers.put("button", new CellRenderers.ButtonRenderer());
         
         renderers.put(SelectionColumnHandler.class, new SelectionCellRenderer());
         
@@ -684,4 +685,5 @@ public final class TableUtil
         
     }
     //</editor-fold>
+    
 }

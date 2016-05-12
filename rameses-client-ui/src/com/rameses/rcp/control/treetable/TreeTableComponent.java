@@ -349,6 +349,10 @@ public class TreeTableComponent extends JTable implements ListModelListener, Tab
     public Object createExpressionBean(Object bean) {
         return bean;
     }
+    
+    public void invokeAction( String name, Object[] args ) throws Exception { 
+        //do nothing 
+    }
 
     //<editor-fold defaultstate="collapsed" desc="  SheetSelectionListener (class)  ">
     private class SheetSelectionListener implements ListSelectionListener {
@@ -395,4 +399,5 @@ public class TreeTableComponent extends JTable implements ListModelListener, Tab
         }
     }
     //</editor-fold>
+    
 }

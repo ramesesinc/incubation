@@ -11,6 +11,7 @@ package com.rameses.rcp.control.table;
 
 import com.rameses.common.ExpressionResolver;
 import com.rameses.rcp.common.AbstractListDataProvider;
+import com.rameses.rcp.common.ButtonColumnHandler;
 import com.rameses.rcp.common.CheckBoxColumnHandler;
 import com.rameses.rcp.common.Column;
 import com.rameses.rcp.common.ComboBoxColumnHandler;
@@ -45,6 +46,7 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -77,6 +79,7 @@ public class CellRenderers {
         renderers.put("label", LabelRenderer.class);
         renderers.put("lookup", LookupRenderer.class);
         renderers.put("opener", OpenerRenderer.class);
+        renderers.put("button", ButtonRenderer.class);
     }
     
     public static AbstractRenderer getRendererFor(Column oColumn) {
@@ -677,6 +680,64 @@ public class CellRenderers {
     
     // </editor-fold>
     
+    // <editor-fold defaultstate="collapsed" desc=" ButtonRenderer "> 
+    
+    public static class ButtonRenderer extends AbstractRenderer implements ActionColumnHandler {
+
+        private JLabel label; 
+        private JButton button;
+        
+        public ButtonRenderer() {
+            label = new JLabel();
+            button = new JButton();
+            button.setMargin(new Insets(0,0,0,0)); 
+        } 
+        
+        public JComponent getComponent(JTable table, int rowIndex, int columnIndex) { 
+            button.setVisible(getContext().getItemData() != null);
+            if ( !button.isVisible() ) {
+                return label; 
+            }
+
+            Column oColumn = getContext().getColumn(); 
+            ButtonColumnHandler bch = (ButtonColumnHandler) oColumn.getTypeHandler(); 
+            String expr = bch.getVisibleWhen();
+            if ( expr != null && expr.trim().length() > 0 ) { 
+                boolean b = false; 
+                try { 
+                    Object exprBean = getContext().createExpressionBean(); 
+                    b = UIControlUtil.evaluateExprBoolean(exprBean, expr); 
+                } catch(Throwable t) {;} 
+
+                button.setVisible( b ); 
+            } 
+            return ( button.isVisible()? button : label ); 
+        } 
+
+        public void refresh(JTable table, Object value, boolean selected, boolean focus, int rowIndex, int colIndex) { 
+            if ( !button.isVisible()) return; 
+            
+            Object cellValue = null; 
+            Column oColumn = getContext().getColumn(); 
+            String expr = oColumn.getExpression(); 
+            if ( expr != null && expr.trim().length() > 0 ) { 
+                Object exprBean = getContext().createExpressionBean(); 
+                cellValue = UIControlUtil.evaluateExpr(exprBean, expr);
+            }             
+            button.setText( cellValue==null? " " : cellValue.toString() ); 
+        } 
+        
+        public void invokeAction() throws Exception { 
+            Column oColumn = getContext().getColumn(); 
+            String name = oColumn.getName(); 
+            if ( name != null && name.trim().length() > 0 ) { 
+                getContext().getTableControl().invokeAction( name, new Object[]{} ); 
+            } 
+        } 
+    } 
+    
+    // </editor-fold>
+    
     // <editor-fold defaultstate="collapsed" desc="  LabelRenderer (class)  ">
     
     public static class LabelRenderer extends AbstractRenderer {
@@ -898,4 +959,13 @@ public class CellRenderers {
     
     // </editor-fold>
     
+    // <editor-fold defaultstate="collapsed" desc=" ActionColumnHandler ">
+    
+    public static interface ActionColumnHandler {
+        
+        void invokeAction() throws Exception; 
+        
+    }
+    
+    // </editor-fold> 
 }

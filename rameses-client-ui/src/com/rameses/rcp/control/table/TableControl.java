@@ -24,10 +24,12 @@ public interface TableControl
     
     Object createExpressionBean(Object bean);
     
-    public Color getEvenBackground();
-    public Color getOddBackground();
-    public Color getErrorBackground();
-    public Color getEvenForeground();
-    public Color getOddForeground();
-    public Color getErrorForeground();    
+    Color getEvenBackground();
+    Color getOddBackground();
+    Color getErrorBackground();
+    Color getEvenForeground();
+    Color getOddForeground();
+    Color getErrorForeground();   
+    
+    void invokeAction( String name, Object[] args ) throws Exception; 
 }

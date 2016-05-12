@@ -62,7 +62,8 @@ public class ColumnEditorPage2 extends javax.swing.JPanel {
         controller.addExtendedPage("decimal", new DecimalExtendedPage()); 
         controller.addExtendedPage("label", new LabelExtendedPage()); 
         controller.addExtendedPage("lookup", new LookupExtendedPage()); 
-        controller.addExtendedPage("opener", new OpenerExtendedPage());         
+        controller.addExtendedPage("opener", new OpenerExtendedPage()); 
+        controller.addExtendedPage("button", new ButtonExtendedPage()); 
         controller.setEnableComponents(false); 
         
         cboTextcase.setItems(new ComboItem[]{
@@ -97,7 +98,8 @@ public class ColumnEditorPage2 extends javax.swing.JPanel {
            new ComboItem("decimal"),
            new ComboItem("label"),
            new ComboItem("lookup"),
-           new ComboItem("opener")
+           new ComboItem("opener"),
+           new ComboItem("button")
         });
         cbotype.setUpdateable(false); 
         cbotype.addItemListener(new TypeHandler());    

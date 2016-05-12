@@ -25,7 +25,7 @@ import java.util.Map;
 import javax.swing.table.AbstractTableModel;
 
 public class DataTableModel extends AbstractTableModel implements TableControlModel, TableModelHandler 
-{    
+{ 
     public final static String DEFAULT_MULTI_SELECT_NAME = "listHandler.checkedItems";
     
     private PropertyChangeSupport propertySupport = new PropertyChangeSupport(this);

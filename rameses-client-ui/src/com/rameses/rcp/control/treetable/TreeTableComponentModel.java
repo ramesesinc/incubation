@@ -7,7 +7,6 @@
 package com.rameses.rcp.control.treetable;
 
 import com.rameses.rcp.common.AbstractListDataProvider;
-import com.rameses.rcp.common.AbstractListModel;
 import com.rameses.rcp.common.Column;
 import com.rameses.rcp.common.ListItem;
 import com.rameses.rcp.control.table.TableControlModel;

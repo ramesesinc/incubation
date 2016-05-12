@@ -7,6 +7,7 @@
 package com.rameses.rcp.control.table;
 
 import com.rameses.common.ExpressionResolver;
+import com.rameses.common.MethodResolver;
 import com.rameses.rcp.common.AbstractListDataProvider;
 import com.rameses.rcp.common.AbstractListModel;
 import com.rameses.rcp.common.Action;
@@ -15,10 +16,12 @@ import com.rameses.rcp.common.EditorListSupport;
 import com.rameses.rcp.common.ListItem;
 import com.rameses.rcp.common.ListPageModel;
 import com.rameses.rcp.common.MsgBox;
+import com.rameses.rcp.common.Opener;
 import com.rameses.rcp.common.PropertyChangeHandler;
 import com.rameses.rcp.common.StyleRule;
 import com.rameses.rcp.common.TableModelHandler;
 import com.rameses.rcp.control.XCheckBox;
+import com.rameses.rcp.control.table.CellRenderers.ActionColumnHandler;
 import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.framework.ChangeLog;
 import com.rameses.rcp.framework.ClientContext;
@@ -543,29 +546,42 @@ public class DataTableComponent extends JTable implements TableControl
         // do not do anything if there is an active process running
         if (processingRequest) return;
         
-        if (me.getID()==MouseEvent.MOUSE_CLICKED && me.getClickCount()==2) 
-        {
-            Point p = new Point(me.getX(), me.getY());
-            int colIndex = columnAtPoint(p);
-            Column dc = tableModel.getColumn(colIndex);
-            
-            int rowIndex = getSelectedRow(); 
-            Object rowObj = getDataTableModel().getItem(rowIndex); 
-            boolean _editable = getDataProvider().isColumnEditable(rowObj, dc.getName()); 
-            if ( _editable ) _editable = dc.isEditable(); 
-            
-            boolean b = "false".equals(dc.getProperties().get("_allowEdit")); 
-            if ( b ) _editable = false; 
+        if ( me.getID()==MouseEvent.MOUSE_CLICKED ) { 
+            if ( me.getClickCount()==1 ) { 
+                int colIndex = getSelectedColumn(); 
+                if ( colIndex >= 0 && colIndex < getColumnCount() ) {
+                    TableCellRenderer renderer = getColumnModel().getColumn(colIndex).getCellRenderer(); 
+                    if ( renderer instanceof ActionColumnHandler ) {
+                        ActionColumnHandler ach = (ActionColumnHandler) renderer; 
+                        EventQueue.invokeLater(new ActionColumnInvoker( ach )); 
+                        me.consume();
+                        return; 
+                    } 
+                }
+            } else if ( me.getClickCount()==2 ) { 
+                Point p = new Point(me.getX(), me.getY()); 
+                int colIndex = columnAtPoint(p); 
+                Column dc = tableModel.getColumn(colIndex); 
 
-            if (dc != null && !_editable) 
-            {
-                me.consume();
-                openItem(); 
-                return;
+                int rowIndex = getSelectedRow(); 
+                Object rowObj = getDataTableModel().getItem(rowIndex); 
+                boolean _editable = getDataProvider().isColumnEditable(rowObj, dc.getName()); 
+                if ( _editable ) _editable = dc.isEditable(); 
+
+                boolean b = "false".equals(dc.getProperties().get("_allowEdit")); 
+                if ( b ) _editable = false; 
+
+                if (dc != null && !_editable) 
+                {
+                    me.consume();
+                    openItem(); 
+                    return;
+                }
             }
         }
     
         onprocessMouseEvent(me); 
+        
         if (me.isConsumed()) {
             //do nothing
         } else { 
@@ -573,16 +589,25 @@ public class DataTableComponent extends JTable implements TableControl
         }
     }
     
-    public boolean editCellAt(int rowIndex, int colIndex, EventObject e) 
-    {
-        if (isReadonly()) return false;
+    public boolean editCellAt(int rowIndex, int colIndex, EventObject e) { 
+        TableCellRenderer renderer = getColumnModel().getColumn(colIndex).getCellRenderer(); 
+        if ( renderer instanceof ActionColumnHandler ) {
+            if ( isSpaceBarKey(e) ) { 
+                ActionColumnHandler ach = (ActionColumnHandler) renderer; 
+                EventQueue.invokeLater(new ActionColumnInvoker( ach )); 
+            } 
+            return false; 
+        } 
+        
+        if (isReadonly()) {
+            return false;
+        } 
         
         Column oColumn = tableModel.getColumn(colIndex); 
         if (oColumn == null) return false;
 
         //automatically this column turns editable if handler is SelectionColumnHandler
-        if (oColumn.getTypeHandler() instanceof SelectionColumnHandler) 
-        {
+        if (oColumn.getTypeHandler() instanceof SelectionColumnHandler) {
             if (dataProvider.getListItemData(rowIndex) == null) return false;
             
             JComponent editor = editors.get(colIndex);
@@ -594,8 +619,7 @@ public class DataTableComponent extends JTable implements TableControl
         if (editorSupport == null) return false; 
         //if (editorModel == null) return false; 
         
-        if (e instanceof MouseEvent) 
-        {
+        if (e instanceof MouseEvent) {
             MouseEvent me = (MouseEvent) e;
             if (me.getClickCount()==2 && SwingUtilities.isLeftMouseButton(me)) {
                 //do nothing
@@ -632,7 +656,16 @@ public class DataTableComponent extends JTable implements TableControl
         } 
         
         oColumn.getProperties().put("_allowEdit", columnEditable); 
-        if (columnEditable) editItem(rowIndex, colIndex, e); 
+        if ( columnEditable ) { 
+            if ( e instanceof KeyEvent ) { 
+                KeyEvent ke = (KeyEvent) e; 
+                if ( ke.isControlDown() || ke.isAltDown() ) { 
+                    return false; 
+                } 
+            } 
+            
+            editItem(rowIndex, colIndex, e);
+        } 
         
         return false;
     }
@@ -644,14 +677,12 @@ public class DataTableComponent extends JTable implements TableControl
         
         int oldColIndex = getSelectedColumn();
         int oldRowIndex = getSelectedRow();
-        if (editingMode) 
-        {
-            //Point point = (Point) currentEditor.getClientProperty(COLUMN_POINT);
+        if ( editingMode ) {
             if (rowIndex != oldRowIndex || columnIndex != oldColIndex) {
                 boolean success = hideEditor(currentEditor, oldRowIndex, oldColIndex, true, true);
                 if (!success) return; 
             } 
-        }
+        } 
 
         if (rowIndex != oldRowIndex && editorSupport != null && editingRow >= 0) { 
             ListItem li = editorSupport.getSource().getListItem(editingRow);
@@ -967,6 +998,26 @@ public class DataTableComponent extends JTable implements TableControl
         return false;
     }
     
+    private boolean isSpaceBarKey( EventObject e ) {
+        if ( e instanceof KeyEvent ) {
+            KeyEvent ke = (KeyEvent) e;
+            if ( ke.getKeyCode() == KeyEvent.VK_SPACE ) {
+                return true; 
+            }
+        } 
+        return false; 
+    }
+    private boolean isMouseClicked( EventObject e ) { 
+        if ( e instanceof MouseEvent ) {
+            MouseEvent me = (MouseEvent) e; 
+            if ( SwingUtilities.isLeftMouseButton( me )) {
+                return (me.getID() == MouseEvent.MOUSE_CLICKED && me.getClickCount()==1); 
+            } 
+        }
+        return false; 
+    }
+    
+    
     private void selectAll(JComponent editor, EventObject evt) 
     {
         if (editor instanceof JTextComponent) { 
@@ -1221,18 +1272,15 @@ public class DataTableComponent extends JTable implements TableControl
         editor.putClientProperty("updateBeanValue", false); 
         editor.putClientProperty("allowSelectAll", false);
         
-        if (e instanceof MouseEvent || isEditKey(e)) 
-        {
+        if (e instanceof MouseEvent || isEditKey(e)) {
             if (!refreshed) ui.refresh();
             
-            //UIInput uiinput = (UIInput) editor;
             selectAll(editor, e);
             if (editor instanceof XCheckBox) {
                 hideEditor(editor, rowIndex, colIndex, true, true); 
                 return;
             }
-        } 
-        else if (isPrintableKey(e))  {
+        } else if (isPrintableKey(e))  {
             if (editor instanceof UIInput) {
                 ((UIInput) editor).setValue(currentKeyEvent);
             } 
@@ -1246,13 +1294,11 @@ public class DataTableComponent extends JTable implements TableControl
                 hideEditor(editor, rowIndex, colIndex, true, true); 
                 return;
             }  
-        } 
-        else {
+        } else {
             return;
         }
         
-        if (editor instanceof ImmediateCellEditor) 
-        {
+        if (editor instanceof ImmediateCellEditor) {
             //exit right away since this was tagged as immediate
             editorBeanLoaded = false;
             return;
@@ -1262,8 +1308,7 @@ public class DataTableComponent extends JTable implements TableControl
         previousItem = dataProvider.getSelectedItem();
         
         InputVerifier verifier = (InputVerifier) editor.getClientProperty(InputVerifier.class);
-        if ( verifier == null ) 
-        {
+        if ( verifier == null ) {
             verifier = editor.getInputVerifier();
             editor.putClientProperty(InputVerifier.class, verifier);
         }
@@ -1961,6 +2006,45 @@ public class DataTableComponent extends JTable implements TableControl
             return false; 
         }
     }
+    
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" ActionColumnInvoker "> 
+    
+    public void invokeAction( String name, Object[] args ) throws Exception { 
+        Binding binding = getBinding();
+        Object bean = (binding == null? null: binding.getBean()); 
+        Object result = MethodResolver.getInstance().invoke( bean, name, args ); 
+        if ( result instanceof Opener ) {
+            Opener o = (Opener)result; 
+            String target = o.getTarget();
+            if ( target==null || target.trim().length()==0 || target.matches("self")) {
+                o.setTarget("popup"); 
+            } 
+            binding.fireNavigation( o ); 
+        } 
+    } 
+    
+    private class ActionColumnInvoker implements Runnable {
+        
+        private ActionColumnHandler handler; 
+        
+        ActionColumnInvoker( ActionColumnHandler handler ) {
+            this.handler = handler; 
+        }
+        
+        public void run() { 
+            try {
+                if ( handler != null ) {
+                    handler.invokeAction(); 
+                } 
+            } catch(Exception e) {
+                MsgBox.err( e );
+            } catch(Throwable t) {
+                MsgBox.err(new Exception(t.getMessage(), t), t.getMessage()); 
+            } 
+        } 
+    } 
     
     // </editor-fold>
 }

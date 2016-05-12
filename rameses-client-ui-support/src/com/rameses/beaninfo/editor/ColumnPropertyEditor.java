@@ -10,6 +10,7 @@
 package com.rameses.beaninfo.editor;
 
 import com.rameses.beaninfo.editor.table.ColumnEditorPage2;
+import com.rameses.rcp.common.ButtonColumnHandler;
 import com.rameses.rcp.common.CheckBoxColumnHandler;
 import com.rameses.rcp.common.Column;
 import com.rameses.rcp.common.ComboBoxColumnHandler;
@@ -164,58 +165,54 @@ public class ColumnPropertyEditor implements PropertyEditor
                 sb.append(Boolean.class.getName()+".class, "+ chk.getCheckValue() + ", " + chk.getUncheckValue());
 
             sb.append(")");
-        }
-        else if (typeHandler instanceof ComboBoxColumnHandler) {
+        } else if (typeHandler instanceof ComboBoxColumnHandler) {
             ComboBoxColumnHandler combo = (ComboBoxColumnHandler) typeHandler;
             sb.append("new " + combo.getClass().getName() + "(");
             sb.append(convertString(combo.getItems()) + ", " + convertString(combo.getItemKey()) + ", " + convertString(combo.getExpression()));
             sb.append(")");
-        }
-        else if (typeHandler instanceof DateColumnHandler) {
+        } else if (typeHandler instanceof DateColumnHandler) {
             DateColumnHandler date = (DateColumnHandler) typeHandler;
             sb.append("new " + date.getClass().getName() + "(");
             sb.append(convertString(date.getInputFormat()) + ", " + convertString(date.getOutputFormat()) + ", " + convertString(date.getValueFormat())); 
             sb.append(")");
-        }    
-        else if (typeHandler instanceof DecimalColumnHandler) {
+        } else if (typeHandler instanceof DecimalColumnHandler) {
             DecimalColumnHandler dec = (DecimalColumnHandler) typeHandler;
             sb.append("new " + dec.getClass().getName() + "(");
             sb.append(convertString(dec.getFormat()));
             sb.append(", " + dec.getMinValue() + ", " + dec.getMaxValue());
             sb.append(", " + dec.isUsePrimitiveValue() + ", " + dec.getScale()); 
             sb.append(")");
-        }           
-        else if (typeHandler instanceof DoubleColumnHandler) {
+        } else if (typeHandler instanceof DoubleColumnHandler) {
             DoubleColumnHandler num = (DoubleColumnHandler) typeHandler;
             sb.append("new " + num.getClass().getName() + "(");
             sb.append(convertString(num.getFormat()) + ", " + num.getMinValue() + ", " + num.getMaxValue()); 
             sb.append(")");
-        }                 
-        else if (typeHandler instanceof IntegerColumnHandler) {
+        } else if (typeHandler instanceof IntegerColumnHandler) {
             IntegerColumnHandler num = (IntegerColumnHandler) typeHandler;
             sb.append("new " + num.getClass().getName() + "(");
             sb.append(convertString(num.getFormat()) + ", " + num.getMinValue() + ", " + num.getMaxValue()); 
             sb.append(")");
-        } 
-        else if (typeHandler instanceof LabelColumnHandler) {
+        } else if (typeHandler instanceof LabelColumnHandler) {
             LabelColumnHandler lch = (LabelColumnHandler) typeHandler;
             sb.append("new " + lch.getClass().getName() + "()");
-        }         
-        else if (typeHandler instanceof LookupColumnHandler) {
+        } else if (typeHandler instanceof LookupColumnHandler) {
             LookupColumnHandler lkp = (LookupColumnHandler) typeHandler;
             sb.append("new " + lkp.getClass().getName() + "(");
             sb.append(convertString(lkp.getExpression()) + ", " + convertString(lkp.getHandler())); 
             sb.append(")");
-        } 
-        else if (typeHandler instanceof OpenerColumnHandler) {
+        } else if (typeHandler instanceof OpenerColumnHandler) {
             OpenerColumnHandler handler = (OpenerColumnHandler) typeHandler;
             sb.append("new " + handler.getClass().getName() + "(");
             sb.append(convertString(handler.getExpression()) + ", " + convertString(handler.getHandler())); 
             sb.append(")");
-        }         
-        else {
-            sb.append("new " + TextColumnHandler.class.getName() + "()");
-        }
+        } else if ( typeHandler instanceof ButtonColumnHandler ) { 
+            ButtonColumnHandler handler = (ButtonColumnHandler) typeHandler;
+            sb.append("new " + handler.getClass().getName() + "(");
+            sb.append(convertString(handler.getVisibleWhen())); 
+            sb.append(")");
+        } else { 
+            sb.append("new " + TextColumnHandler.class.getName() + "()"); 
+        } 
         return sb.toString(); 
     }
     
