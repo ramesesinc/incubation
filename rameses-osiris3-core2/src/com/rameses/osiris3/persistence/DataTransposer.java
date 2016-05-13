@@ -76,7 +76,7 @@ public class DataTransposer {
     
     //This will create a new map of flattened, not nested data. This will also
     //only update fields that exist in the data source
-    public static Map prepareDataForUpdate(SchemaView svw, Map rawData ) {
+    public static Map prepareDataForUpdate(SchemaView svw, Map rawData ) throws Exception {
         
         Map sourceData = flatten(rawData, "_");
         
@@ -115,7 +115,18 @@ public class DataTransposer {
                     String tgt = svr.getTargetFieldExtendedName();
                     String src = svr.getFieldname();
                     
+                    Object val = EntityUtil.getNestedValue(sourceData, svr.getExtendedName());
+                    if( val == null ) {
+                        //this is usually for many to one.
+                        val = EntityUtil.getNestedValue(sourceData, svr.getTargetFieldExtendedName()  );
+                        targetData.put( svr.getFieldname(), val);
+                    }
+                    else {
+                        targetData.put( svr.getExtendedName(), val);
+                    }
+                    
                     //test first if the value contains the key. if not check the target if it contains the key
+                    /*
                     if(sourceData.containsKey(src)) {
                         Object val =sourceData.get(src);
                         targetData.put( src, val );        
@@ -124,7 +135,7 @@ public class DataTransposer {
                         Object val =sourceData.get(tgt);
                         targetData.put( src, val );        
                     }
-                    
+                    */ 
                 }
             }
         }
