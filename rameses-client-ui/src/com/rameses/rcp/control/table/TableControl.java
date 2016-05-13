@@ -22,6 +22,8 @@ public interface TableControl
     TableModel getModel();
     AbstractListDataProvider getDataProvider(); 
     
+    Binding getItemBinding();
+    
     Object createExpressionBean(Object bean);
     
     Color getEvenBackground();

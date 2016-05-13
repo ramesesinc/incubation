@@ -227,26 +227,28 @@ public class DataTableModel extends AbstractTableModel implements TableControlMo
             return null; 
     }  
 
-    public void setValueAt(Object value, int rowIndex, int columnIndex) 
-    {
+    public void setValueAt(Object value, int rowIndex, int columnIndex) {
+        setValueAt( value, rowIndex, columnIndex, false );
+    }
+    
+    public void setValueAt(Object value, int rowIndex, int columnIndex, boolean forceUpdate) {
         Column column = getColumn(columnIndex);
         if (column == null) return;
         if (ValueUtil.isEmpty(column.getName())) return;
         
         Object item = getItem(rowIndex); 
-        if (item == null) 
+        if (item == null) { 
             throw new NullPointerException("The item object in row " + rowIndex + " column " + columnIndex + " is not initialized");
+        } 
         
         PropertyResolver resolver = PropertyResolver.getInstance();
-        if (column.getTypeHandler() instanceof SelectionColumnHandler)
-        {
+        if (column.getTypeHandler() instanceof SelectionColumnHandler) {
             boolean selected = "true".equals(value+""); 
             int multiSelectMode = getDataProvider().getMultiSelectMode(); 
             AbstractListDataProvider.ListSelectionSupport lss = getDataProvider().getSelectionSupport();            
             if ( multiSelectMode == MultiSelectionMode.CONTINUOUS ) { 
                 boolean row_selection_changed = false; 
                 for (int idx=rowIndex+1; idx < getRowCount(); idx++) {
-                    
                     Object rowdata = getItem(idx);
                     if (lss.containsItem(rowdata)) {
                         lss.setItemChecked(rowdata, selected);
@@ -273,26 +275,30 @@ public class DataTableModel extends AbstractTableModel implements TableControlMo
             Object oldValue = null; 
             try { 
                 oldValue = resolver.getProperty(item, column.getName()); 
-            } catch(Exception ex) {;} 
+            } catch(Throwable t) {;} 
 
-            //exit if no changes made
-            if (!hasValueChanged(oldValue, value)) return;
+            if ( forceUpdate ) {
+                //do nothing 
+            } else if (!hasValueChanged(oldValue, value)) {
+                // exit if no changes made 
+                return; 
+            } 
 
             ListItem li = getListItem(rowIndex); 
             //fire notification before column update
-            if (editorSupport != null)  
+            if (editorSupport != null) { 
                 editorSupport.fireBeforeColumnUpdate(li, value);
-            
+            } 
             resolver.setProperty(item, column.getName(), value); 
 
-            if (li.getState() == ListItem.STATE_SYNC) 
+            if (li.getState() == ListItem.STATE_SYNC) { 
                 li.setState(ListItem.STATE_EDIT); 
-
+            } 
             fireTableRowsUpdated(rowIndex, rowIndex); 
 
             try { 
                 binding.getChangeLog().addEntry(item, column.getName(), oldValue, value);
-            } catch(Exception ex) {;} 
+            } catch(Throwable t) {;} 
             
             //fire notification after the column has been updated
             if (editorSupport != null) editorSupport.fireColumnUpdate(li); 

@@ -17,11 +17,13 @@ import com.rameses.rcp.common.Column;
 import com.rameses.rcp.common.ComboBoxColumnHandler;
 import com.rameses.rcp.common.DateColumnHandler;
 import com.rameses.rcp.common.DecimalColumnHandler;
+import com.rameses.rcp.common.EditorListSupport;
 import com.rameses.rcp.common.IconColumnHandler;
 import com.rameses.rcp.common.IntegerColumnHandler;
 import com.rameses.rcp.common.LabelColumnHandler;
 import com.rameses.rcp.common.ListItem;
 import com.rameses.rcp.common.LookupColumnHandler;
+import com.rameses.rcp.common.MsgBox;
 import com.rameses.rcp.common.OpenerColumnHandler;
 import com.rameses.rcp.common.StyleRule;
 import com.rameses.rcp.constant.TextCase;
@@ -166,6 +168,30 @@ public class CellRenderers {
         public Object createExpressionBean(Object bean) {
             return getTableControl().createExpressionBean(bean);
         }
+        
+        public boolean setValueAt( int rowIndex, int colIndex, Object value ) {
+            try { 
+                getTable().getModel().setValueAt(value, rowIndex, colIndex); 
+                return true; 
+            } catch(EditorListSupport.BeforeColumnUpdateException bcx) {
+                if (bcx.getCause() != null) MsgBox.err(bcx.getCause());
+                return false; 
+            } catch(EditorListSupport.AfterColumnUpdateException acx) { 
+                if (acx.getCause() != null) MsgBox.err(acx.getCause());  
+                return true; 
+            } catch(Exception ex) { 
+                MsgBox.err(ex); 
+                return false; 
+            } 
+        }
+        
+        public Object fetchValueAt( int rowIndex, int colIndex) { 
+            Object itemData = getItemData(rowIndex); 
+            if ( itemData == null ) { return null; }
+            
+            String name = getColumn( colIndex ).getName(); 
+            return UIControlUtil.getBeanValue( itemData, name ); 
+        } 
     }
     
     // </editor-fold>
@@ -535,10 +561,11 @@ public class CellRenderers {
         
         private boolean resolveValue(Column oColumn, Object value) {
             Object checkValue = null;
-            if (oColumn.getTypeHandler() instanceof CheckBoxColumnHandler)
-                checkValue = ((CheckBoxColumnHandler) oColumn.getTypeHandler()).getCheckValue();
-            else
-                checkValue = oColumn.getCheckValue();
+            if (oColumn.getTypeHandler() instanceof CheckBoxColumnHandler) { 
+                checkValue = ((CheckBoxColumnHandler) oColumn.getTypeHandler()).getCheckValue(); 
+            } else { 
+                checkValue = oColumn.getCheckValue(); 
+            } 
             
             boolean selected = false;
             if (value == null) selected = false;
@@ -550,9 +577,8 @@ public class CellRenderers {
             else if ("y".equals(value+"")) selected = true;
             else if ("1".equals(value+"")) selected = true;
             
-            //System.out.println("renderer: name="+oColumn.getName() + ", value="+value + ", selected="+selected);
             return selected;
-        }
+        } 
     }
     
     // </editor-fold>

@@ -11,6 +11,7 @@ import com.rameses.common.MethodResolver;
 import com.rameses.rcp.common.AbstractListDataProvider;
 import com.rameses.rcp.common.AbstractListModel;
 import com.rameses.rcp.common.Action;
+import com.rameses.rcp.common.CheckBoxColumnHandler;
 import com.rameses.rcp.common.Column;
 import com.rameses.rcp.common.EditorListSupport;
 import com.rameses.rcp.common.ListItem;
@@ -73,15 +74,16 @@ import javax.swing.event.TableModelEvent;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
+import javax.swing.table.TableModel;
 import javax.swing.text.JTextComponent;
 
 public class DataTableComponent extends JTable implements TableControl 
 {    
     private static final String COLUMN_POINT = "COLUMN_POINT";
 
-    private Map<Integer, JComponent> editors = new HashMap();
-    private DataTableBinding itemBinding = new DataTableBinding();    
-        
+    private Map<Integer, JComponent> editors = new HashMap(); 
+    private DataTableBinding itemBinding = new DataTableBinding(); 
+    
     private DataTableModel tableModel;
     private TableListener tableListener;
     private ListPageModel pageModel;    
@@ -122,6 +124,8 @@ public class DataTableComponent extends JTable implements TableControl
     private JLabel lblProcessing;
     private boolean fetching;
     private int rowHeaderHeight = -1;
+    
+    private CellContext cellContext; 
     
     public DataTableComponent() {
         initComponents();
@@ -201,10 +205,8 @@ public class DataTableComponent extends JTable implements TableControl
     protected void install(AbstractListDataProvider dataProvider) {}
     
     public AbstractListDataProvider getDataProvider() { return dataProvider; }    
-    public void setDataProvider(AbstractListDataProvider dataProvider) 
-    {
-        if (Beans.isDesignTime())
-        {
+    public void setDataProvider(AbstractListDataProvider dataProvider) { 
+        if (Beans.isDesignTime()) { 
             Column[] columns = (dataProvider == null? null: dataProvider.getColumns());
             DataTableModelDesignTime dtm = new DataTableModelDesignTime(columns);
             setModel(dtm); 
@@ -220,17 +222,21 @@ public class DataTableComponent extends JTable implements TableControl
             uninstall(oldDataProvider); 
         }
         EditorListSupport oldEditorSupport = this.editorSupport;
-        if (oldEditorSupport != null) oldEditorSupport.setTableEditorProvider(null); 
+        if (oldEditorSupport != null) {
+            oldEditorSupport.setTableEditorProvider(null);
+        } 
         
+        this.cellContext = new CellContext();         
         this.dataProvider = dataProvider; 
         this.editorSupport = null;
         this.pageModel = null;  
         
-        if (this.dataProvider != null) 
+        if (this.dataProvider != null) { 
             this.dataProvider.addHandler(propertyHandler); 
-        if (dataProvider instanceof ListPageModel) 
+        } 
+        if (dataProvider instanceof ListPageModel) {
             this.pageModel = (ListPageModel) dataProvider; 
-        
+        } 
         if (dataProvider instanceof EditorListSupport.TableEditor) { 
             this.editorSupport = EditorListSupport.create(dataProvider); 
         } 
@@ -255,9 +261,9 @@ public class DataTableComponent extends JTable implements TableControl
         
         itemBinding.setRoot(getBinding()); 
         tableModel.setBinding(itemBinding); 
-        initDataTableModel();        
-        setModel(tableModel);
-        buildColumns();
+        initDataTableModel(); 
+        setModel(tableModel); 
+        buildColumns(); 
         onTableModelChanged(tableModel); 
     }
     
@@ -306,6 +312,8 @@ public class DataTableComponent extends JTable implements TableControl
     
     public void setBinding(Binding binding) { this.binding = binding; }
     public Binding getBinding() { return binding; }
+    
+    public Binding getItemBinding() { return itemBinding; } 
     
     public void setListener(TableListener listener) { this.tableListener = listener; }
     
@@ -599,8 +607,8 @@ public class DataTableComponent extends JTable implements TableControl
             return false; 
         } 
         
-        if (isReadonly()) {
-            return false;
+        if (isReadonly()) { 
+            return false; 
         } 
         
         Column oColumn = tableModel.getColumn(colIndex); 
@@ -621,12 +629,16 @@ public class DataTableComponent extends JTable implements TableControl
         
         if (e instanceof MouseEvent) {
             MouseEvent me = (MouseEvent) e;
-            if (me.getClickCount()==2 && SwingUtilities.isLeftMouseButton(me)) {
-                //do nothing
+            if ( SwingUtilities.isLeftMouseButton(me) ) {
+                if ( me.getClickCount()==2 ) {
+                    // do nothing 
+                } else if ( !(oColumn.getTypeHandler() instanceof CheckBoxColumnHandler )) {
+                     return false; 
+                } 
             } else {
                 return false; 
-            }
-        }
+            } 
+        } 
                 
         //evaluate style rule for this column
         boolean columnEditable = true;
@@ -670,70 +682,100 @@ public class DataTableComponent extends JTable implements TableControl
         return false;
     }
     
-    public void changeSelection(int rowIndex, int columnIndex, boolean toggle, boolean extend) 
-    {
+    public void changeSelection(int rowIndex, int columnIndex, boolean toggle, boolean extend) {
         // do not do anything if there is an active process running
-        if (processingRequest) return;
-        
-        int oldColIndex = getSelectedColumn();
-        int oldRowIndex = getSelectedRow();
-        if ( editingMode ) {
-            if (rowIndex != oldRowIndex || columnIndex != oldColIndex) {
-                boolean success = hideEditor(currentEditor, oldRowIndex, oldColIndex, true, true);
-                if (!success) return; 
+        if ( processingRequest ) return;
+
+        int oldRowIndex = getSelectedRow();     
+        int oldColIndex = getSelectedColumn(); 
+        if ( editingMode ) { 
+            if (rowIndex != oldRowIndex || columnIndex != oldColIndex) { 
+                currentEditor.putClientProperty("Editor.hide", null); 
+                boolean success = hideEditor(currentEditor, oldRowIndex, oldColIndex, true, true); 
+                if ( !success ) { return; }  
             } 
         } 
-
-        if (rowIndex != oldRowIndex && editorSupport != null && editingRow >= 0) { 
-            ListItem li = editorSupport.getSource().getListItem(editingRow);
-            if (li != null && (editorSupport.isTemporaryItem(li) || li.getState()==ListItem.STATE_EDIT)) {  
-                try {
-                    if (!validateRow(editingRow)){
-                        String errmsg = editorSupport.getSource().getMessageSupport().getErrorMessage(editingRow); 
-                        if (errmsg != null) throw new Exception(errmsg); 
-
-                        //exit from this process
-                        return;
-                    } 
-
-                    if (li.getState() == ListItem.STATE_DRAFT) { 
-                        editorSupport.flushTemporaryItem(li); 
-                    } else if (li.getState() == ListItem.STATE_EDIT) { 
-                        editorSupport.fireUpdateItem(li); 
-                    } 
-                    editorSupport.fireCommitItem(li);
-                    itemBinding.getChangeLog().clear(); 
-                    editingRow = -1;
-                } catch(Throwable ex) {
-                    tableModel.fireTableRowsUpdated(editingRow, editingRow);       
-                    MsgBox.err(ex); 
+        
+        if ( columnIndex != oldColIndex ) { 
+            if ( cellContext.hasError() ) {
+                cellContext.showError(); 
+                grabFocus(); 
+                return; 
+            } 
+            
+            cellContext.reset(); 
+        } 
+        
+        if ( rowIndex != oldRowIndex && editorSupport != null ) {  
+            int editRowIndex = editingRow; 
+            if ( editRowIndex < 0 ) {
+                ListItem li = editorSupport.getSource().getListItem( oldRowIndex ); 
+                if ( li != null && li.isDirty() ) {
+                    editRowIndex = oldRowIndex; 
+                } 
+            } 
+            
+            CellHelper cellhelper = new CellHelper( oldColIndex ); 
+            if ( cellhelper.isType("checkbox") && cellContext.hasError() ) { 
+                commitData( cellContext.value, cellContext.rowIndex, cellContext.colIndex ); 
+                if ( cellContext.hasError() ) { 
+                    grabFocus(); 
                     return; 
+                } 
+            } 
+            
+            if ( editRowIndex >= 0 ) {                
+                ListItem li = editorSupport.getSource().getListItem( editRowIndex );
+                if (li != null && (editorSupport.isTemporaryItem(li) || li.getState()==ListItem.STATE_EDIT)) {  
+                    try {
+                        if (!validateRow(editRowIndex)){
+                            String errmsg = editorSupport.getSource().getMessageSupport().getErrorMessage(editRowIndex); 
+                            if (errmsg != null) throw new Exception(errmsg); 
+
+                            //exit from this process
+                            return;
+                        } 
+
+                        if (li.getState() == ListItem.STATE_DRAFT) { 
+                            editorSupport.flushTemporaryItem(li); 
+                        } else if (li.getState() == ListItem.STATE_EDIT) { 
+                            editorSupport.fireUpdateItem(li); 
+                        } 
+                        editorSupport.fireCommitItem(li);
+                        itemBinding.getChangeLog().clear(); 
+                        editingRow = -1;
+                    } catch(Throwable ex) {
+                        tableModel.fireTableRowsUpdated(editRowIndex, editRowIndex);       
+                        MsgBox.err(ex); 
+                        return; 
+                    } 
                 } 
             } 
         }
         
         super.changeSelection(rowIndex, columnIndex, toggle, extend);
-        putClientProperty("selectionPoint", new Point(columnIndex, rowIndex));        
+        putClientProperty("selectionPoint", new Point(columnIndex, rowIndex)); 
         if (rowIndex != oldRowIndex) editingRow = -1;
             
-        if (columnIndex != oldColIndex && dataProvider != null)
-        {
+        if (columnIndex != oldColIndex && dataProvider != null) { 
             Column oColumn = tableModel.getColumn(columnIndex);
             dataProvider.setSelectedColumn((oColumn == null? null: oColumn.getName()));
+            //cellContext.reset();
         }
-            
-        if (rowIndex != oldRowIndex) rowSelectionChanged(rowIndex);
+        if (rowIndex != oldRowIndex) { 
+            //cellContext.reset(); 
+            rowSelectionChanged(rowIndex);
+        } 
     }
     
-    protected void processKeyEvent(KeyEvent e) 
-    {
+    protected void processKeyEvent(KeyEvent e) {
         // do not do anything if there is an active process running
-        if (processingRequest) return;
+        if (processingRequest) return; 
         if (currentEditor != null) return; 
         
-        currentKeyEvent = e;
-        super.processKeyEvent(e);
-    }
+        currentKeyEvent = e; 
+        super.processKeyEvent(e); 
+    } 
     
     // </editor-fold>
     
@@ -761,14 +803,11 @@ public class DataTableComponent extends JTable implements TableControl
     } 
     
     protected void oncancelRowEdit() {}
-    public final void cancelRowEdit() 
-    {
-        if (!rowCommited) 
-        {
+    public final void cancelRowEdit() {
+        if ( !rowCommited ) {
             ChangeLog log = itemBinding.getChangeLog();
             List<ChangeLog.ChangeEntry> ceList = log.undoAll();
-            for (ChangeLog.ChangeEntry ce : ceList) 
-            {
+            for (ChangeLog.ChangeEntry ce : ceList) {
                 //dataProvider.setSelectedColumn(ce.getFieldName());
                 //dataProvider.updateSelectedItem();
             }
@@ -776,6 +815,9 @@ public class DataTableComponent extends JTable implements TableControl
             rowCommited = true;
             int row = getSelectedRow();
             tableModel.fireTableRowsUpdated(row, row);
+            if ( cellContext != null ) { 
+                cellContext.reset(); 
+            } 
             oncancelRowEdit();
         }
     }
@@ -871,7 +913,7 @@ public class DataTableComponent extends JTable implements TableControl
                 editorSupport.loadTemporaryItem(oListItem, col.getName());
                 oListItem.setRoot(binding.getBean()); 
                 tableModel.fireTableRowsUpdated(rowIndex, rowIndex); 
-            }       
+            } 
         } catch(Exception ex) {
             MsgBox.err(ex); 
             return; 
@@ -927,7 +969,7 @@ public class DataTableComponent extends JTable implements TableControl
             MsgBox.err(ex); 
         }
         
-        if ( !fired_delete_key ) {
+        if ( !fired_delete_key ) { 
             showEditor(editor, rowIndex, colIndex, e);
         }
     }
@@ -938,8 +980,7 @@ public class DataTableComponent extends JTable implements TableControl
     
     protected void onfocusGained(FocusEvent e) {} 
     protected void onfocusLost(FocusEvent e) {}    
-    protected final void processFocusEvent(FocusEvent e) 
-    {
+    protected final void processFocusEvent(FocusEvent e) {
         if (e.getID() == FocusEvent.FOCUS_GAINED) { 
             onfocusGained(e); 
         } else if (e.getID() == FocusEvent.FOCUS_LOST) { 
@@ -958,14 +999,12 @@ public class DataTableComponent extends JTable implements TableControl
         }
     }
     
-    private void log(String msg) 
-    {
+    private void log(String msg) {
         String name = getClass().getSimpleName();
         System.out.println("["+name+"] " + msg);
     }
     
-    private boolean isPrintableKey(EventObject e) 
-    {
+    private boolean isPrintableKey(EventObject e) {
         KeyEvent ke = null;
         if (e instanceof KeyEvent) ke = (KeyEvent) e;
         if (ke == null) ke = currentKeyEvent; 
@@ -973,8 +1012,7 @@ public class DataTableComponent extends JTable implements TableControl
         
         if (ke.isActionKey() || ke.isControlDown() || ke.isAltDown()) return false;
         
-        switch (ke.getKeyCode()) 
-        {
+        switch (ke.getKeyCode()) {
             case KeyEvent.VK_ESCAPE:
             case KeyEvent.VK_DELETE:
             case KeyEvent.VK_ENTER:
@@ -983,13 +1021,11 @@ public class DataTableComponent extends JTable implements TableControl
         return true;
     }
     
-    private boolean isEditKey(EventObject e) 
-    {
+    private boolean isEditKey(EventObject e) {
         if (!(e instanceof KeyEvent)) return false; 
         
         KeyEvent ke = (KeyEvent) e;
-        switch (ke.getKeyCode()) 
-        {
+        switch (ke.getKeyCode()) {
             case KeyEvent.VK_F2:
             case KeyEvent.VK_INSERT:
             case KeyEvent.VK_BACK_SPACE:
@@ -1018,50 +1054,28 @@ public class DataTableComponent extends JTable implements TableControl
     }
     
     
-    private void selectAll(JComponent editor, EventObject evt) 
-    {
+    private void selectAll(JComponent editor, EventObject evt) {
         if (editor instanceof JTextComponent) { 
             ((JTextComponent) editor).selectAll();
-        }
-        else 
-        {
-            if (editor instanceof UIInput)
+        } else {
+            if (editor instanceof UIInput) { 
                 ((UIInput) editor).setRequestFocus(true);
-            
-            if (editor instanceof JCheckBox) 
-                ((UIInput) editor).setValue(evt);
+            } 
+            if (editor instanceof JCheckBox) { 
+                ((UIInput) editor).setValue(evt); 
+            } 
         } 
-    }
+    } 
     
-    private void focusNextCellFrom(int rowIndex, int colIndex) 
-    {
+    private void focusNextCellFrom(int rowIndex, int colIndex) {
         int nextCol = findNextEditableColFrom(colIndex);
         int firstEditable = findNextEditableColFrom(-1);
         
         if (nextCol >= 0) {
             this.changeSelection(rowIndex, nextCol, false, false);
-        } 
-        else if (rowIndex+1 < tableModel.getRowCount()) { 
+        } else if (rowIndex+1 < tableModel.getRowCount()) { 
             this.changeSelection(rowIndex+1, firstEditable, false, false); 
         } 
-        else {
-            ListItem item = dataProvider.getSelectedItem();
-            /*
-            boolean lastRow = !(rowIndex + dataProvider.getTopRow() < dataProvider.getMaxRows());
-            
-            if ( item.getState() == ListItem.STATE_EMPTY ) lastRow = false;
-            
-            if ( !lastRow ) 
-            {
-                this.changeSelection(rowIndex, firstEditable, false, false);
-                moveNextRecord();
-            } 
-            else 
-            {
-                this.changeSelection(0, firstEditable, false, false);
-                dataProvider.moveFirstPage();
-            }*/
-        }
     }
     
     private int findNextEditableColFrom(int colIndex) 
@@ -1076,20 +1090,18 @@ public class DataTableComponent extends JTable implements TableControl
         hideEditor(commit, true);
     }
     
-    private void hideEditor(boolean commit, boolean grabFocus) 
-    {
+    private void hideEditor(boolean commit, boolean grabFocus) {
         if ( !editingMode || currentEditor == null ) return;
         
         Point point = (Point) currentEditor.getClientProperty(COLUMN_POINT);
         hideEditor(currentEditor, point.y, point.x, commit, grabFocus);
     }
     
-    private boolean hideEditor(JComponent editor, int rowIndex, int colIndex, boolean commit, boolean grabFocus) 
-    {
+    private boolean hideEditor(JComponent editor, int rowIndex, int colIndex, boolean commit, boolean grabFocus) {
         Object propval = editor.getClientProperty("Editor.hide");
         if ( propval != null ) {
             editor.putClientProperty("Editor.hide", null);
-            if ( "false".equals( propval+"" ) ) {
+            if ( "false".equals( propval+"" ) ) { 
                 return false; 
             } 
         }
@@ -1099,8 +1111,7 @@ public class DataTableComponent extends JTable implements TableControl
          * force to invoke the setValue of the editor support when editor is instanceof JCheckBox 
          * to make sure that the data has been sent to the temporary storage before committing. 
          */
-        if (editor instanceof JCheckBox && editor instanceof UIInput) 
-        {
+        if (editor instanceof JCheckBox && editor instanceof UIInput) {
             UIInput uiinput = (UIInput) editor;
             uiinput.putClientProperty("cellEditorValue", uiinput.getValue()); 
         }
@@ -1117,7 +1128,7 @@ public class DataTableComponent extends JTable implements TableControl
         if (editor instanceof UILookup && editorSupport != null) {
             UILookup lkp = (UILookup) editor;
             Object lkpval = lkp.getClientProperty("UIControl.value"); 
-            if (lkpval instanceof Object[]) {
+            if ( lkpval instanceof Object[] ) {
                 ListItem oListItem = editorSupport.getSource().getListItem(editingRow);
                 Object[] objs = (Object[]) lkpval; 
                 if (objs.length > 0 && oListItem.getState() != ListItem.STATE_DRAFT) {
@@ -1128,51 +1139,86 @@ public class DataTableComponent extends JTable implements TableControl
         
         if (commit) {
             tableModel.setBinding(itemBinding); 
-
             try {
+                cellContext.value = value; 
+                cellContext.rowIndex = rowIndex;
+                cellContext.colIndex = colIndex; 
                 tableModel.setValueAt(value, rowIndex, colIndex); 
-                //if (editorModel != null) { 
-                //    ListItem oListItem = editorModel.getListItem(editingRow);
-                //    editorModel.fireColumnUpdate(oListItem);
-                //}
-            } 
-            catch(EditorListSupport.BeforeColumnUpdateException bcx) {
-                if (bcx.getCause() != null) MsgBox.err(bcx.getCause());
-
-                refocusEditor(editor, inputVerifier); 
-                editor.putClientProperty("Editor.hide", false);
-                return false;
+                cellContext.reset();
+            } catch(EditorListSupport.BeforeColumnUpdateException bcx) { 
+                if (bcx.getCause() != null) { 
+                    MsgBox.err(bcx.getCause()); 
+                } 
+                if ( !(editor instanceof JCheckBox )) { 
+                    refocusEditor(editor, inputVerifier); 
+                    editor.putClientProperty("Editor.hide", false); 
+                } 
+                cellContext.error = (bcx.getCause()== null? bcx : bcx.getCause()); 
+                return false; 
                 
+            } catch(EditorListSupport.AfterColumnUpdateException acx) { 
+                if (acx.getCause() != null) {
+                    MsgBox.err(acx.getCause());
+                } 
+                if ( !(editor instanceof JCheckBox )) { 
+                    itemBinding.getChangeLog().undo(); 
+                    refocusEditor(editor, inputVerifier); 
+                    editor.putClientProperty("Editor.hide", false); 
+                } 
+                cellContext.error = (acx.getCause()== null? acx : acx.getCause()); 
+                return false; 
+                
+            } catch( Exception ex ) { 
+                MsgBox.err(ex);  
+                if ( !(editor instanceof JCheckBox )) { 
+                    refocusEditor(editor, inputVerifier); 
+                    editor.putClientProperty("Editor.hide", false); 
+                } 
+                cellContext.error = ex;                 
+                return false; 
             } 
-            catch(EditorListSupport.AfterColumnUpdateException acx) { 
-                if (acx.getCause() != null) MsgBox.err(acx.getCause());  
-
-                itemBinding.getChangeLog().undo(); 
-                refocusEditor(editor, inputVerifier); 
-                editor.putClientProperty("Editor.hide", false);
-                return false; 
-            }             
-            catch(Exception ex) {
-                MsgBox.err(ex);
-                refocusEditor(editor, inputVerifier); 
-                editor.putClientProperty("Editor.hide", false);
-                return false; 
-            }
         } 
         
         tableModel.fireTableRowsUpdated(rowIndex, rowIndex); 
-        if (grabFocus) grabFocus();
+        if ( grabFocus && !editor.isVisible() ) { 
+            grabFocus(); 
+        } 
         
         return true;
     } 
     
-    private void refocusEditor(JComponent editor, InputVerifier inputVerifier) {
-        editor.setVisible(true);
+    private void commitData( Object value, int rowIndex, int colIndex ) {
+        try {
+            cellContext.value = value; 
+            cellContext.rowIndex = rowIndex;
+            cellContext.colIndex = colIndex; 
+            tableModel.setValueAt(value, rowIndex, colIndex, true); 
+            cellContext.reset();
+        } catch(EditorListSupport.BeforeColumnUpdateException bcx) { 
+            if (bcx.getCause() != null) { 
+                MsgBox.err(bcx.getCause()); 
+            } 
+            cellContext.error = (bcx.getCause()== null? bcx : bcx.getCause()); 
+
+        } catch(EditorListSupport.AfterColumnUpdateException acx) { 
+            if (acx.getCause() != null) {
+                MsgBox.err(acx.getCause());
+            } 
+            cellContext.error = (acx.getCause()== null? acx : acx.getCause()); 
+
+        } catch( Exception ex ) { 
+            MsgBox.err(ex);  
+            cellContext.error = ex;                 
+        } 
+    } 
+    
+    private void refocusEditor( JComponent editor, InputVerifier inputVerifier ) { 
+        editor.setVisible(true); 
         editor.setInputVerifier(inputVerifier); 
-        editingMode = true;
+        editingMode = true; 
         currentEditor = editor; 
-        currentEditor.grabFocus();         
-    }
+        currentEditor.grabFocus(); 
+    } 
     
     public void clearEditors() { 
         if (currentEditor != null) { 
@@ -1272,28 +1318,28 @@ public class DataTableComponent extends JTable implements TableControl
         editor.putClientProperty("updateBeanValue", false); 
         editor.putClientProperty("allowSelectAll", false);
         
+        boolean editor_forcely_hidden = false; 
         if (e instanceof MouseEvent || isEditKey(e)) {
             if (!refreshed) ui.refresh();
             
             selectAll(editor, e);
             if (editor instanceof XCheckBox) {
                 hideEditor(editor, rowIndex, colIndex, true, true); 
-                return;
+                editor_forcely_hidden = true;
             }
-        } else if (isPrintableKey(e))  {
-            if (editor instanceof UIInput) {
-                ((UIInput) editor).setValue(currentKeyEvent);
-            } 
-            else if (editor instanceof UILookup) {
+        } else if (isPrintableKey(e))  { 
+            if (editor instanceof UILookup) {
                 UILookup lkp = (UILookup) editor;
                 lkp.setValue(currentKeyEvent); 
                 lkp.putClientProperty("UIControl.value", null); 
-            }
-
+            } else if (editor instanceof UIInput) {
+                ((UIInput) editor).setValue(currentKeyEvent);
+            } 
+            
             if (editor instanceof XCheckBox) {
                 hideEditor(editor, rowIndex, colIndex, true, true); 
-                return;
-            }  
+                editor_forcely_hidden = true;
+            } 
         } else {
             return;
         }
@@ -1305,7 +1351,8 @@ public class DataTableComponent extends JTable implements TableControl
         } 
         
         oneditCellAt(rowIndex, colIndex);
-        previousItem = dataProvider.getSelectedItem();
+        previousItem = dataProvider.getSelectedItem();        
+        if ( editor_forcely_hidden ) return; 
         
         InputVerifier verifier = (InputVerifier) editor.getClientProperty(InputVerifier.class);
         if ( verifier == null ) {
@@ -2047,4 +2094,91 @@ public class DataTableComponent extends JTable implements TableControl
     } 
     
     // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" CellContext ">
+    
+    private class CellContext {
+        
+        int rowIndex; 
+        int colIndex; 
+        Throwable error; 
+        Object value; 
+        
+        void reset() { 
+            rowIndex = colIndex = -1;
+            error = null; 
+        } 
+        boolean hasError() {
+            return ( error != null ); 
+        }
+        void showError() {
+            if ( error != null ) {
+                MsgBox.err( error ); 
+            }
+        }
+    }
+    
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" CellHelper ">
+    
+    private class CellHelper {
+        
+        private int colIndex; 
+        private Column colObj; 
+        private Column.TypeHandler colTypeHandler; 
+        private DataTableModel model; 
+        
+        CellHelper( int colIndex ) {
+            this.colIndex = colIndex; 
+            
+            TableModel tm = DataTableComponent.this.getModel();
+            if ( tm instanceof DataTableModel ) {
+                model = (DataTableModel) tm; 
+                colObj = model.getColumn( colIndex ); 
+            } 
+            if ( colObj != null ) { 
+                colTypeHandler = colObj.getTypeHandler(); 
+            } 
+        } 
+        
+        public DataTableModel getModel() { return model; } 
+        public Column getColumn() { return colObj; } 
+        
+        public Column.TypeHandler getTypeHandler() {
+            return colTypeHandler; 
+        }
+        
+        public TableCellRenderer getRenderer() { 
+            if ( colObj == null ) { 
+                return null;
+            } else {
+                return getColumnModel().getColumn( colIndex ).getCellRenderer(); 
+            }
+        } 
+        public boolean isType( String type ) {
+            Column.TypeHandler cth = getTypeHandler();
+            String stype = (cth == null ? null : cth.getType())+""; 
+            return stype.equalsIgnoreCase( type+"" ); 
+        } 
+        public Object getCheckBoxValue() { 
+            if ( colObj == null ) return null; 
+            
+            JComponent editor = editors.get( colIndex ); 
+            boolean selected = false; 
+            if ( editor instanceof XCheckBox ) {
+                selected = ((XCheckBox) editor).isSelected(); 
+            } else if ( editor instanceof JCheckBox ) {
+                selected = ((JCheckBox) editor).isSelected(); 
+            } else { 
+                return null; 
+            } 
+            
+            Object objval = (selected ? colObj.getCheckValue() : colObj.getUncheckValue()); 
+            return (objval == null ? selected : objval); 
+        }
+    }
+    
+    // </editor-fold>
+    
 }

@@ -121,11 +121,10 @@ public final class TableUtil
     
     // </editor-fold>    
         
-    public static JComponent createCellEditor(Column oColumn) 
-    {
-        if (oColumn.getTypeHandler() == null) 
+    public static JComponent createCellEditor(Column oColumn) {
+        if (oColumn.getTypeHandler() == null) { 
             oColumn.setTypeHandler(ColumnHandlerUtil.newInstance().createTypeHandler(oColumn)); 
-        
+        } 
         oColumn.setType(oColumn.getTypeHandler().getType()); 
         Class editorClass = editors.get(oColumn.getType()); 
         JComponent editor = null;

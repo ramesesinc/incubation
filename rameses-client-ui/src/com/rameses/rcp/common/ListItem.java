@@ -38,8 +38,7 @@ public class ListItem implements Cloneable
         handlerSupport.add(handler); 
     }
     
-    public ListItem clone() 
-    {
+    public ListItem clone() {
         ListItem item = new ListItem();
         item.item = this.item;
         item.state = this.state;
@@ -64,35 +63,30 @@ public class ListItem implements Cloneable
         this.item = item;
     } 
     
-    public final void loadItem(Object item, int state) 
-    { 
+    public final void loadItem(Object item, int state) { 
         setState(state); 
         this.item = item;
         this.state = state;
     }     
     
     public final Object getItem() { return item; }    
-    public final void setItem(Object newItem) 
-    {
+    public final void setItem(Object newItem) {
         if (item == null && newItem == null) return;
         if (item != null && item.equals(newItem)) return;
         
-        try 
-        {
+        try {
             //fire only replace if the previous item is not null.
             handlerSupport.replaceSelectedItem(this, newItem);
             this.item = newItem;             
             this.state = STATE_SYNC; 
             handlerSupport.refreshItemUpdated(this); 
-        } 
-        catch(Exception e) {
+        } catch(Exception e) {
             MsgBox.err(e);
         }
     }
         
     public int getState() { return state; }    
-    public void setState(int state) 
-    {
+    public void setState(int state) {
         stateCheck(state); 
         this.state = state;
     }
@@ -108,8 +102,7 @@ public class ListItem implements Cloneable
     }
     
     public boolean isSelected() { return selected; }    
-    public void setSelected(boolean selected) 
-    {
+    public void setSelected(boolean selected) {
         this.selected = (item == null)? false: selected;
         handlerSupport.setSelected(this, this.selected); 
     }
@@ -119,21 +112,26 @@ public class ListItem implements Cloneable
         this.root = root;
     }
 
-    protected void finalize() throws Throwable 
-    {
+    protected void finalize() throws Throwable {
         handlerSupport.removeAll(); 
         item = null;
     }
     
-    private void stateCheck(int state) 
-    {
-        switch (state) 
-        {
+    private void stateCheck(int state) {
+        switch (state) {
             case STATE_DRAFT: break;
             case STATE_EDIT: break;
             case STATE_EMPTY: break;
             case STATE_SYNC: break;
             default: throw new IllegalStateException("Invalid state value for ListItem");
+        }
+    }
+    
+    public boolean isDirty() {
+        if ( getState()==STATE_DRAFT || getState()==STATE_EDIT ) {
+            return true;  
+        } else {
+            return false; 
         }
     }
     

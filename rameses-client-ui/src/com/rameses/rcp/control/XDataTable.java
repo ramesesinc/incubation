@@ -467,8 +467,7 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
     public boolean isRequired() { return table.isRequired(); }    
     public void setRequired(boolean required) {}
     
-    public void validateInput() 
-    {
+    public void validateInput() {
         if (dataProvider == null) return;
         
         String errmsg = dataProvider.getMessageSupport().getErrorMessages(); 
@@ -499,28 +498,24 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
     public boolean isReadonly() { return table.isReadonly(); }    
     public void setReadonly(boolean readonly) { table.setReadonly(readonly); }
         
-    public void setName(String name) 
-    {
-        super.setName(name);
-        
-        if ( table != null ) table.setName(name);
+    public void setName(String name) {
+        super.setName(name); 
+        if ( table != null ) {
+            table.setName(name);
+        }
     }
     
     public void setLayout(LayoutManager mgr) {;}
     
     public Column[] getColumns() { return columns; }
-    public void setColumns(Column[] columns) 
-    { 
+    public void setColumns(Column[] columns) { 
         this.columns = columns; 
-        if (Beans.isDesignTime()) 
-        {
-            try 
-            {
+        if (Beans.isDesignTime()) {
+            try {
                 ReadonlyListModel lm = new ReadonlyListModel(null);
                 lm.setColumns(columns);                
                 table.setDataProvider(lm);
-            }
-            catch(Exception ex) {
+            } catch(Exception ex) {
                 MsgBox.err(ex); 
             }
         }

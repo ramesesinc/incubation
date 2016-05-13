@@ -85,9 +85,12 @@ public class TreeTableComponent extends JTable implements ListModelListener, Tab
     public Binding getBinding() {
         return binding;
     }
-
     public void setBinding(Binding binding) {
         this.binding = binding;
+    }
+    
+    public Binding getItemBinding() {
+        return null; 
     }
 
     public void setListener(TreeTableListener listener) {
