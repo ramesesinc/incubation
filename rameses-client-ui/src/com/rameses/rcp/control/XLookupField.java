@@ -590,7 +590,8 @@ public class XLookupField extends IconedTextField implements UILookup, UISelecto
             lookupHandlerProxy.setHandler((LookupHandler) o); 
             
         } else if (o instanceof Opener) { 
-            Opener opener = (Opener) o;             
+            Opener opener = (Opener) o; 
+            opener.setCaller( getBinding().getController() );  
             opener = ControlSupport.initOpener( opener, getBinding().getController() );
             lookupHandlerProxy.setOpener(opener); 
         }
