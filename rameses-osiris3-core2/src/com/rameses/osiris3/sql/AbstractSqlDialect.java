@@ -227,7 +227,7 @@ public abstract class AbstractSqlDialect implements SqlDialect {
                 if (!lsv.isRequired()) {
                     //if there is just one instance of not required then immediately make everyhting left join
                     //This is a temporary solution because the ideal solution should have been nested.
-                    sjoinType = "LEFT";
+                    sjoinType = " LEFT ";
                 } 
                 sb.append( sjoinType + " JOIN " );
                 sb.append(" " + getDelimiters()[0] + lsv.getTablename() + getDelimiters()[1] + " ");

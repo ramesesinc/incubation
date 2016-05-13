@@ -24,6 +24,7 @@ public class CrudListModel extends AbstractCrudModel {
     def adapter;
     
     def query = [:];
+    def findBy = [:];
     def criteriaList = [];
     def queryForm;
     def whereStatement;
@@ -157,7 +158,12 @@ public class CrudListModel extends AbstractCrudModel {
     public def buildSelectQuery(Map o) {
         def m = [debug:debug];
         if(o) m.putAll(o);
-        if(query) m.putAll(query);
+        if(query) {
+            m.putAll(query);
+        };
+        if(findBy) {
+            m.findBy = findBy;
+        };
         m._schemaname = schema.name;
         m.adapter = schema.adapter;
         
