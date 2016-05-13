@@ -570,17 +570,15 @@ public class XLookupField extends IconedTextField implements UILookup, UISelecto
             if (handler.matches(".+:.+")) {
                 //handler is a module:workunit name                
                 o = LookupOpenerSupport.lookupOpener(handler, new HashMap()); 
-            }
-            else {
+            } else {
                 //check if there is a binding object passed by the JTable
                 Binding oBinding = (Binding) getClientProperty(Binding.class); 
                 if (oBinding == null) oBinding = getBinding(); 
-                
+
                 o = UIControlUtil.getBeanValue(oBinding, handler);
                 if (o instanceof Exception) return o;
             }
-        } 
-        else if ( handlerObject != null ) { 
+        } else if ( handlerObject != null ) { 
             o = handlerObject;
         } 
 
@@ -590,9 +588,11 @@ public class XLookupField extends IconedTextField implements UILookup, UISelecto
             lookupHandlerProxy.setHandler((LookupHandler) o); 
             
         } else if (o instanceof Opener) { 
+            Binding oBinding = (Binding) getClientProperty(Binding.class); 
+            if (oBinding == null) oBinding = getBinding(); 
+
             Opener opener = (Opener) o; 
-            opener.setCaller( getBinding().getController() );  
-            opener = ControlSupport.initOpener( opener, getBinding().getController() );
+            opener = ControlSupport.initOpener( opener, oBinding.getController() );
             lookupHandlerProxy.setOpener(opener); 
         }
         return null;
