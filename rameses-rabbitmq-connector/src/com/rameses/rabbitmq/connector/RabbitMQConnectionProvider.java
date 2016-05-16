@@ -8,12 +8,13 @@ import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
-import com.rabbitmq.client.Consumer;
 import com.rabbitmq.client.DefaultConsumer;
 import com.rabbitmq.client.Envelope;
 import com.rameses.osiris3.xconnection.MessageConnection;
 import com.rameses.osiris3.xconnection.XConnection;
 import com.rameses.osiris3.xconnection.XConnectionProvider;
+import com.rameses.util.Base64Cipher;
+import com.rameses.util.SealedMessage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
@@ -33,23 +34,23 @@ public class RabbitMQConnectionProvider extends XConnectionProvider {
     private Channel channel;
     
     private String queue;
+    private Sender sender; 
     
     public String getProviderName() {
         return PROVIDER_NAME; 
     }
 
     public XConnection createConnection(String name, Map conf) { 
-        
-        try {
-            RabbitMQConnection mqc = new RabbitMQConnection(name, context, conf ); 
+        try { 
             Channel channel = getChannel( conf ); 
+            RabbitMQConnection mqc = new RabbitMQConnection(name, context, conf, sender ); 
             channel.basicConsume( queue, true, new Receiver(channel, mqc));  
             return mqc; 
         } catch(RuntimeException re) { 
             throw re; 
-        } catch(Exception e) {
-            throw new RuntimeException(e.getMessage(), e);
-        }
+        } catch(Exception e) { 
+            throw new RuntimeException(e.getMessage(), e); 
+        } 
     }
     
     Channel getChannel( Map conf ) { 
@@ -82,11 +83,11 @@ public class RabbitMQConnectionProvider extends XConnectionProvider {
                 
                 String channelgroup = (String) conf.get("channelgroup"); 
                 String exchange = (String) conf.get("exchange");
-                
                 if ( exchange != null ) {
                     channel.exchangeDeclare( exchange, "direct", true );
                     channel.queueBind( queue, exchange, channelgroup);
-                }
+                } 
+                sender = new Sender( queue, exchange, channelgroup );                 
             } 
             return channel; 
         } catch (RuntimeException re) { 
@@ -101,19 +102,26 @@ public class RabbitMQConnectionProvider extends XConnectionProvider {
     public class Receiver extends DefaultConsumer {
         
         private MessageConnection messageConn; 
+        private Base64Cipher base64; 
         
         Receiver( Channel channel, MessageConnection messageConn ) { 
             super( channel ); 
             
             this.messageConn = messageConn; 
+            this.base64 = new Base64Cipher();
         }
         
         public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException { 
-            String message = new String(body, "UTF-8");
-            System.out.println(" [x] Received: '" + message + ";");
+            if ( body == null || body.length==0 ) return; 
             
             if ( messageConn != null ) { 
-                messageConn.notifyHandlers( message ); 
+                String message = new String(body, "UTF-8");
+                if ( base64.isEncoded( message ) ) {
+                    Object o = base64.decode( message ); 
+                    messageConn.notifyHandlers( o ); 
+                } else { 
+                    messageConn.notifyHandlers( message ); 
+                } 
             } 
         } 
     } 
@@ -128,37 +136,26 @@ public class RabbitMQConnectionProvider extends XConnectionProvider {
         private String exchange;
         private String channelgroup;
         
+        private Base64Cipher base64; 
+        
         Sender( String queue, String exchange, String channelgroup ) {
             this.queue = queue;
             this.exchange = exchange;
             this.channelgroup = channelgroup;
+            this.base64 = new Base64Cipher(); 
         }
         
         public void send( Object message ) { 
-            ByteArrayOutputStream baos = null; 
-            ObjectOutputStream oos = null; 
-            byte[] bytes = null; 
-            try {
-                baos = new ByteArrayOutputStream();
-                oos = new ObjectOutputStream( baos ); 
-                oos.writeObject( message ); 
-                oos.flush(); 
-                bytes = baos.toByteArray(); 
-            } catch(RuntimeException re) {
-                throw re; 
-            } catch (Exception e) { 
-                throw new RuntimeException( e.getMessage(), e ); 
-            } finally {
-                try { oos.close(); }catch(Throwable t){;}
-                try { baos.close(); }catch(Throwable t){;}
-            }
-            
-            send( bytes ); 
-        }
+            send( base64.encode( message ).getBytes() );  
+        } 
         
         public void send( String message ) { 
-            send( message.getBytes() ); 
-        }
+            if ( base64.isEncoded( message )) {
+                send( message.getBytes() ); 
+            } else {
+                send( base64.encode( message ).getBytes() );
+            }
+        } 
         
         public void send( byte[] message ) { 
             try { 

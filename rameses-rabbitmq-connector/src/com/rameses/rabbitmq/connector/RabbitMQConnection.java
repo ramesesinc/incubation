@@ -6,6 +6,7 @@ package com.rameses.rabbitmq.connector;
 
 import com.rameses.osiris3.core.AbstractContext;
 import com.rameses.osiris3.xconnection.MessageConnection;
+import com.rameses.rabbitmq.connector.RabbitMQConnectionProvider.Sender;
 import java.util.Map;
 
 /**
@@ -18,12 +19,14 @@ public class RabbitMQConnection extends MessageConnection {
     private String name;
     private Map conf; 
     
+    private Sender sender; 
     private boolean enabled;
     
-    public RabbitMQConnection(String name, AbstractContext context, Map conf ) {
+    public RabbitMQConnection(String name, AbstractContext context, Map conf, Sender sender ) {
         this.context = context;
         this.name = name;
         this.conf = conf; 
+        this.sender = sender; 
         
         if ("false".equals( getProperty("enabled")+"")) { 
             enabled = false; 
@@ -48,9 +51,11 @@ public class RabbitMQConnection extends MessageConnection {
         return ( o == null ? null: o.toString()); 
     }
 
-    public void send(Object data) {
+    public void send( Object data ) { 
+        sender.send( data ); 
     }
 
-    public void sendText(String data) {
+    public void sendText( String data ) {
+        sender.send( data ); 
     }
 }
