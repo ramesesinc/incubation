@@ -142,6 +142,7 @@ public class CrudListPage extends javax.swing.JPanel {
         btnSelectColumn = new com.rameses.rcp.control.XButton();
         xActionBar1 = new com.rameses.rcp.control.XActionBar();
         jPanel7 = new javax.swing.JPanel();
+        xSubFormPanel1 = new com.rameses.rcp.control.XSubFormPanel();
         jToolBar2 = new javax.swing.JToolBar();
         xActionTextField1 = new com.rameses.rcp.control.XActionTextField();
         xButton2 = new com.rameses.rcp.control.XButton();
@@ -270,6 +271,21 @@ public class CrudListPage extends javax.swing.JPanel {
         jPanel7.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 5));
         jPanel7.setLayout(new java.awt.BorderLayout());
 
+        xSubFormPanel1.setHandler("queryForm");
+
+        javax.swing.GroupLayout xSubFormPanel1Layout = new javax.swing.GroupLayout(xSubFormPanel1);
+        xSubFormPanel1.setLayout(xSubFormPanel1Layout);
+        xSubFormPanel1Layout.setHorizontalGroup(
+            xSubFormPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 235, Short.MAX_VALUE)
+        );
+        xSubFormPanel1Layout.setVerticalGroup(
+            xSubFormPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 25, Short.MAX_VALUE)
+        );
+
+        jPanel7.add(xSubFormPanel1, java.awt.BorderLayout.CENTER);
+
         jToolBar2.setFloatable(false);
         jToolBar2.setRollover(true);
 
@@ -354,5 +370,6 @@ public class CrudListPage extends javax.swing.JPanel {
     private com.rameses.rcp.control.XButton xButton1;
     private com.rameses.rcp.control.XButton xButton2;
     private com.rameses.rcp.control.XLabel xLabel1;
+    private com.rameses.rcp.control.XSubFormPanel xSubFormPanel1;
     // End of variables declaration//GEN-END:variables
 }
