@@ -133,7 +133,7 @@ public class SchemaView extends AbstractSchemaView {
                 fld.put("name", vf.getMapname());
                 fld.put("extname", vf.getExtendedName());
                 //always include the primary key
-                if( vf.isPrimary() && vf.isBaseField()) {
+                if( vf.isPrimary()) { // && vf.isBaseField()) {
                     flds.add( fld );
                 }
                 else if( filter.accept("field", fld) ) {

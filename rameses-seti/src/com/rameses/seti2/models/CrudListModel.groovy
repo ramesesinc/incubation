@@ -107,7 +107,6 @@ public class CrudListModel extends AbstractCrudModel {
         
         def map = [name:schemaName, adapter: adapter]; 
         if ( strCols ) map.colnames = strCols;
-        
         _schema = getPersistenceService().getSchema( map );
         _schema.name = schemaName;
         if(adapter) _schema.adapter = adapter;
@@ -140,9 +139,14 @@ public class CrudListModel extends AbstractCrudModel {
         for( it in  schema.fields) {  
             if(it.jointype) continue;
             if ( it.primary==true ) {
-                if( it.source != schema.name ) continue;
-                it.selectable = true;
-                it.selected = ( it.visible=='true' ); 
+                if( it.source != schema.name ) {
+                    it.visible = false;
+                    it.hidden = 'true'
+                }
+                else {
+                    it.selectable = true;
+                    it.selected = ( it.visible=='true' ); 
+                }
             } 
             else if ( it.visible==null || it.visible=='true' ) {
                 it.selected = true; 
@@ -172,7 +176,6 @@ public class CrudListModel extends AbstractCrudModel {
         
         //build the columns to retrieve
         m.select = (primKeys + arr).unique().join(",") ;
-        
         if(customFilter!=null) {
             if( customFilter.size() !=2 ) 
                 throw new Exception("Custom Filter must have a statement and parameter")
