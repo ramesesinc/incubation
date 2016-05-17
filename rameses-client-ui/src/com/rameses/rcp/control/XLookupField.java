@@ -458,14 +458,12 @@ public class XLookupField extends IconedTextField implements UILookup, UISelecto
         fireLookup(); 
     }       
     
-    private void fireLookup() 
-    {
+    private void fireLookup() {
         if (Beans.isDesignTime()) return;
         if (isReadonly()) return;
 
-        try 
-        {
-            getInputVerifierProxy().setEnabled(false);    
+        try {
+            getInputVerifierProxy().setEnabled(false); 
             Object obj = loadHandler();
             loaded = true;
             
@@ -475,18 +473,16 @@ public class XLookupField extends IconedTextField implements UILookup, UISelecto
                 return; 
             }
             
-            if (lookupHandlerProxy.getModel() == null)
-            {
+            if (lookupHandlerProxy.getModel() == null) { 
                 MsgBox.alert("No available lookup model found. Please check.");
                 return;
-            }
+            } 
 
             selectionOption = JOptionPane.CANCEL_OPTION;
             lookupHandlerProxy.getModel().setSelector(this); 
             lookupHandlerProxy.getModel().setReturnFields(getReturnFields()); 
             boolean show = lookupHandlerProxy.getModel().show( getText() ); 
-            if (show) 
-            {
+            if ( show ) {
                 Object oModel = lookupHandlerProxy.getModel();
                 if (oModel instanceof LookupModel) {
                     ((LookupModel) oModel).setSelectedItem(-1);
@@ -508,8 +504,7 @@ public class XLookupField extends IconedTextField implements UILookup, UISelecto
                 props.put("id", conId);
                 props.put("title", uic.getTitle());
                 
-                try 
-                {
+                try {
                     Map openerProps = lookupHandlerProxy.opener.getProperties(); 
                     props.put("width", openerProps.get("width"));
                     props.put("height", openerProps.get("height"));
@@ -517,11 +512,10 @@ public class XLookupField extends IconedTextField implements UILookup, UISelecto
                 
                 platform.showPopup(this, lookupPanel, props);
             }
-        } 
-        catch(Exception e) {
-            MsgBox.err(e);
+        } catch( Exception e ) {
+            MsgBox.err(e); 
             getInputVerifierProxy().setEnabled(true); 
-        }
+        } 
     }    
     
     public Object select(Object value) {
