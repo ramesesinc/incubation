@@ -115,6 +115,10 @@ public class DataTransposer {
                     String tgt = svr.getTargetFieldExtendedName();
                     String src = svr.getFieldname();
                     
+                    if ( !EntityUtil.checkNestedValueExist( sourceData, svr.getExtendedName())) {
+                        continue; 
+                    }
+                    
                     Object val = EntityUtil.getNestedValue(sourceData, svr.getExtendedName());
                     if( val == null ) {
                         //this is usually for many to one.

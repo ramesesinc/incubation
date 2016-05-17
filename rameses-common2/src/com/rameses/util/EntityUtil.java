@@ -117,6 +117,30 @@ public final class EntityUtil {
         return target;
     }
     
+    public static boolean checkNestedValueExist( Map data, String name ) throws Exception { 
+        if( name.indexOf("_")>0) {
+            //try first if there is an actual field with underscores.
+            if( data.containsKey(name)) {
+                return true; 
+            }
+            Map odata = data;
+            String[] arr = name.split("_");
+            for(int i=0; i<(arr.length-1); i++) {
+                Object z = odata.get(arr[i]);
+                if ( z == null ) return false; 
+                
+                if( !(z instanceof Map )) {
+                    return false;
+                }
+                
+                odata = (Map)z;
+            }
+            return true; 
+        } 
+        else {
+            return (data.containsKey(name)? true: false); 
+        }
+    }
     
     public static Object getNestedValue( Map data, String name ) throws Exception {
         if( name.indexOf("_")>0) {
