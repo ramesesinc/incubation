@@ -364,7 +364,11 @@ public class DataTableComponent extends JTable implements TableControl
         getTableHeader().setPreferredSize(new Dimension(Short.MAX_VALUE, rowHeaderHeight)); 
         getTableHeader().repaint(); 
     }
-        
+    
+    public boolean hasRowHeader() {
+        return false; 
+    } 
+    
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc="  buildColumns  ">

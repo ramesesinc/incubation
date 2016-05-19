@@ -55,6 +55,7 @@ import javax.swing.JLabel;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
+import javax.swing.border.AbstractBorder;
 import javax.swing.border.Border;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
@@ -201,12 +202,14 @@ public class CellRenderers {
     public static class HeaderRenderer extends JLabel implements TableCellRenderer {
         
         private ComponentSupport componentSupport; 
-        private TableBorders.HeaderBorder border;
+        private boolean hideAll;
         
         public HeaderRenderer() { 
-            border = new TableBorders.HeaderBorder(true, true, false, false);
-            setBorder( border ); 
-            setBackground(java.awt.SystemColor.control); 
+            this( false ); 
+        } 
+        
+        public HeaderRenderer( boolean hideAll ) { 
+            this.hideAll = hideAll;
         }
         
         private ComponentSupport getComponentSupport() {
@@ -216,6 +219,13 @@ public class CellRenderers {
             return componentSupport; 
         }
         
+        private void init( Column col ) { 
+            if ( col == null ) return; 
+
+            String alignment = getPreferredAlignment( col ); 
+            getComponentSupport().alignText(this, alignment); 
+        } 
+        
         public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int rowIndex, int colIndex) {
             setFont(table.getFont()); 
             setText(value+""); 
@@ -223,23 +233,36 @@ public class CellRenderers {
             putClientProperty("Component.proxy", table); 
             
             TableModel tm = table.getModel(); 
-            if (tm instanceof DataTableModel) {
+            if ( tm instanceof DataTableModel ) { 
                 DataTableModel dtm = (DataTableModel) tm; 
-                Column oColumn = dtm.getColumn(colIndex); 
-                if (oColumn == null) return this;
-                                                
-                String alignment = oColumn.getAlignment();
-                getComponentSupport().alignText(this, alignment); 
+                init ( dtm.getColumn( colIndex )); 
+            } else if ( tm instanceof DataTableModelDesignTime ) { 
+                DataTableModelDesignTime dtm = (DataTableModelDesignTime) tm; 
+                init ( dtm.getColumn( colIndex )); 
             } 
             
+            HeaderBorder border = new HeaderBorder();
+            if ( hideAll ) {
+                border.showLeft = border.showRight = false; 
+                return this; 
+            }
+            
+            boolean hasRowHeader = false; 
+            if ( table instanceof DataTableComponent ) {
+                hasRowHeader = ((DataTableComponent) table).hasRowHeader(); 
+            }
+            border.showLeft = true; 
+            if ( colIndex == 0 && !hasRowHeader ) {
+                border.showLeft = false; 
+            }
+            
             boolean autoresizeoff = (table.getAutoResizeMode() == JTable.AUTO_RESIZE_OFF);
-            if ( autoresizeoff ) {
-                border.setHideRight( false ); 
-            } else if ( (colIndex+1) == tm.getColumnCount() ) {
-                border.setHideRight( true ); 
+            if ( autoresizeoff ) { 
+                border.showRight = ((colIndex+1) == tm.getColumnCount());
             } else { 
-                border.setHideRight( false ); 
+                border.showRight = false; 
             } 
+            setBorder( border ); 
             return this;
         }      
                 
@@ -252,30 +275,50 @@ public class CellRenderers {
             return getBackground().darker();
         }  
         
-        public void xpaint(Graphics g) 
-        {
-//            int h = getHeight(), w = getWidth(); 
-//            Color oldColor = g.getColor();
-//            Color shadow = getShadowColor(); 
-//            Color bg = ColorUtil.brighter(shadow, 30);
-//            Graphics2D g2 = (Graphics2D) g.create();
-//            GradientPaint gp = new GradientPaint(0, 0, bg, 0, h/2, ColorUtil.brighter(shadow,25));
-//            g2.setPaint(gp);
-//            g2.fillRect(0, 0, w, h);
-//            g2.setPaint(null);
-//            g2.setColor(ColorUtil.brighter(shadow,22));
-//            g2.fillRoundRect(0, h/2, w, h, 5, 0);
-//            g2.dispose();
-//            g.setColor(oldColor); 
-            super.paint(g); 
-        } 
         
         // The following methods override the defaults for performance reasons
         public void validate() {}
         public void revalidate() {}
         protected void firePropertyChange(String propertyName, Object oldValue, Object newValue) {}
         public void firePropertyChange(String propertyName, boolean oldValue, boolean newValue) {}            
-    }
+    } 
+    
+    private static class HeaderBorder extends AbstractBorder {
+
+        private final Color BORDER_COLOR = new Color(204, 204, 204);
+        
+        boolean showLeft = true;
+        boolean showRight = false;
+                
+        public Insets getBorderInsets(Component c) {
+            return getBorderInsets(c, new Insets(0,0,0,0)); 
+        }
+
+        public Insets getBorderInsets(Component c, Insets pad) { 
+            if ( pad == null ) pad = new Insets(0,0,0,0); 
+            
+            Insets newpad = new Insets(0,0,0,0); 
+            newpad.top = newpad.bottom = 5;
+            newpad.left = newpad.right = 8;
+            return newpad;
+        }
+        
+        public void paintBorder(Component c, Graphics g, int x, int y, int w, int h) {
+            Color oldColor = g.getColor(); 
+            g.setColor( BORDER_COLOR );
+            if ( showLeft ) {
+                g.drawLine(0, 5, 0, h-6 ); 
+            }
+            if ( showRight ) {
+                g.drawLine(w-1, 5, w-1, h-6 ); 
+            } 
+            // draw bottom line 
+            g.drawLine(0, h-1, w, h-1);
+            g.setColor( oldColor );
+        } 
+    } 
+    
+    //private static class HeaderBorder extends 
     
     // </editor-fold>    
       

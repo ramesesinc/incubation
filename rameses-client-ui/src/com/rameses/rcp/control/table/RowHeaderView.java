@@ -35,8 +35,7 @@ public class RowHeaderView extends JPanel implements TableModelListener
         setLayout(new RowHeaderLayout());
     }
     
-    public void setRowCount(int rowCount) 
-    {
+    public void setRowCount( int rowCount ) { 
         if ( this.rowCount == rowCount ) return;
         
         this.rowCount = rowCount;
@@ -65,35 +64,35 @@ public class RowHeaderView extends JPanel implements TableModelListener
         currentRow = row;
     }
 
-    public void tableChanged(TableModelEvent e) 
-    {
+    public void tableChanged(TableModelEvent e) {
         setRowCount(table.getRowCount());
         repaint();
     }
     
     // <editor-fold defaultstate="collapsed" desc="  RowView (class)  ">
     
-    private class RowView extends JLabel {
+    private class RowView extends JLabel { 
         
         private Color defaultColor = java.awt.SystemColor.control; 
         private JTable table;
         
-        public RowView(JTable table) {
+        public RowView(JTable table) { 
             this.table = table; 
-            setPreferredSize(new Dimension(23,23));
-            setHorizontalAlignment(SwingConstants.CENTER);
-            setVerticalAlignment(SwingConstants.CENTER);
-            setForeground(Color.BLUE);
-            setFont(new Font("Courier", Font.PLAIN, 11)); 
+            setPreferredSize(new Dimension(23,23)); 
+            setHorizontalAlignment(SwingConstants.CENTER); 
+            setVerticalAlignment(SwingConstants.CENTER); 
+            setForeground(Color.BLUE); 
+            setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12)); 
         }
         
         public void setText(String text) {;}
 
         public void edit(boolean b) {
-            if (b)
-                super.setText("*");
-            else
-                super.setText("");
+            if (b) { 
+                super.setText("*"); 
+            } else { 
+                super.setText(""); 
+            } 
         }          
     }
     

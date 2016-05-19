@@ -14,7 +14,7 @@ import java.awt.LayoutManager;
  *
  * @author wflores 
  */
-public class SingleLayout implements LayoutManager {
+public class XFillLayout implements LayoutManager {
             
     public void addLayoutComponent(String name, Component comp) {}
     public void removeLayoutComponent(Component comp) {}
@@ -25,6 +25,17 @@ public class SingleLayout implements LayoutManager {
 
     public Dimension minimumLayoutSize(Container parent) {
         return getLayoutSize( parent ); 
+    }
+
+    private Component getVisibleComponent( Container parent ) {
+        Component[] comps = parent.getComponents(); 
+        for (int i=0; i<comps.length; i++ ) {
+            Component c = comps[i];
+            if ( c != null && c.isVisible() ) {
+                return c; 
+            } 
+        } 
+        return null; 
     }
 
     private Dimension getLayoutSize( Container parent ) {
@@ -43,17 +54,6 @@ public class SingleLayout implements LayoutManager {
         }
     }
     
-    private Component getVisibleComponent( Container parent ) {
-        Component[] comps = parent.getComponents(); 
-        for (int i=0; i<comps.length; i++ ) {
-            Component c = comps[i];
-            if ( c != null && c.isVisible() ) {
-                return c; 
-            } 
-        } 
-        return null; 
-    }
-
     public void layoutContainer(Container parent) { 
         synchronized (parent.getTreeLock()) {
             Insets margin = parent.getInsets();

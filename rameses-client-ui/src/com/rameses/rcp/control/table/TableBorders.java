@@ -150,25 +150,21 @@ public class TableBorders
             c.setBackground( jlabel.getBackground() ); 
             
             if (!hideTop) {
-                //g.setColor(MetalLookAndFeel.getControlDarkShadow()); 
                 g.setColor( color );
                 g.drawLine(0, 0, w, 0);
             } 
             
             if (!hideLeft) {
-                //g.setColor(getHighlightColor(c));
                 g.setColor( color );
                 g.drawLine(0, 2, 0, h-5);
             } 
             
             if (!hideBottom) {
-                //g.setColor(MetalLookAndFeel.getControlDarkShadow());
                 g.setColor( color );
                 g.drawLine(0, h-2, w, h-2);
             } 
             
             if (!hideRight) {
-                //g.setColor(getShadowColor(c));
                 g.setColor( color );
                 g.drawLine(w-1, 2, w-1, h-5);
             }
