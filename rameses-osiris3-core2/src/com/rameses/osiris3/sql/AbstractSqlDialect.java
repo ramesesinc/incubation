@@ -318,9 +318,14 @@ public abstract class AbstractSqlDialect implements SqlDialect {
     }
     
     protected String buildOrderStatement(SqlDialectModel model) {
-        StringBuilder sb = new StringBuilder();
+        return buildOrderStatement( model, null ); 
+    }
+    
+    protected String buildOrderStatement(SqlDialectModel model, String alias ) { 
+        StringBuilder sb = new StringBuilder(); 
         if( model.getOrderFields()!=null &&  model.getOrderFields().size()>0 ) {
-            sb.append( " ORDER BY ");
+            sb.append( " ORDER BY "); 
+            
             int i = 0;
             for( Field f: model.getOrderFields() ) {
                 if (f.isPrimary()) {
@@ -329,13 +334,17 @@ public abstract class AbstractSqlDialect implements SqlDialect {
                 } 
                 
                 if(i++>0) sb.append(",");
-                if( ValueUtil.isEmpty(f.getExpr()) ) {
-                    sb.append( getDelimiters()[0]+f.getTablealias()+getDelimiters()[1]+"." );
+                if( ValueUtil.isEmpty(f.getExpr()) ) { 
+                    String preferredAlias = alias; 
+                    if ( preferredAlias==null || preferredAlias.trim().length()==0 ) {
+                        preferredAlias = f.getTablealias();
+                    }
+
+                    sb.append( getDelimiters()[0]+preferredAlias+getDelimiters()[1]+"." );
                     sb.append( getDelimiters()[0]+f.getFieldname()+getDelimiters()[1] );
-                }
-                else {
+                } else {
                     sb.append( fixStatement(model, f.getExpr(), true) );
-                }
+                } 
                 sb.append( " " + f.getSortDirection() );
             }
         }
@@ -363,31 +372,37 @@ public abstract class AbstractSqlDialect implements SqlDialect {
     public String getSelectStatement(SqlDialectModel model, boolean includeOrderBy) {
         StringBuilder sb = new StringBuilder();
         if( model.getOrWhereList()!=null && model.getOrWhereList().size()>0 ) {
-            int i = 0;
+            int i=0;
+            StringBuilder buff = new StringBuilder();
             for( WhereFilter wf: model.getOrWhereList() ) {
-                if(i++>0) sb.append( " UNION ");
-                sb.append(" SELECT ");
-                sb.append(buildSelectFields(model));
-                sb.append(" FROM ");
-                sb.append(buildTablesForSelect(model));
-                sb.append( buildWhereForSelect(model, wf) );
-                sb.append( buildGroupByStatement(model) );
-                if(includeOrderBy) {
-                    sb.append( buildOrderStatement(model));
+                if (i++ > 0) {
+                    buff.append( " UNION ");
                 }
-            }
-        }
-        else {
+                buff.append(" SELECT ");
+                buff.append( buildSelectFields(model) );
+                buff.append(" FROM ");
+                buff.append( buildTablesForSelect(model) );
+                buff.append( buildWhereForSelect(model, wf) );
+                buff.append( buildGroupByStatement(model) );
+            } 
+            if ( includeOrderBy ) { 
+                sb.append(" SELECT * FROM ( ").append( buff ).append(" )xx ");
+                sb.append( buildOrderStatement(model, "xx") ); 
+            
+            } else { 
+                return buff.toString(); 
+            } 
+        } else { 
             sb.append(" SELECT ");
-            sb.append(buildSelectFields(model));
+            sb.append( buildSelectFields(model) );
             sb.append(" FROM ");
-            sb.append(buildTablesForSelect(model));
+            sb.append( buildTablesForSelect(model) );
             sb.append( buildWhereForSelect(model, null) );
             sb.append( buildGroupByStatement(model) );
-            if(includeOrderBy) {
+            if ( includeOrderBy ) {
                 sb.append( buildOrderStatement(model));
-            }
-        }
+            } 
+        } 
         return sb.toString();
     }
     
