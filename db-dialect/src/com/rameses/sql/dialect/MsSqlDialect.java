@@ -202,24 +202,34 @@ public class MsSqlDialect extends AbstractSqlDialect  {
 
    
     public String getSelectStatement( SqlDialectModel model )  {
-        if(model.getStart() > 0 || model.getLimit()>0 ) {
-            String orderBy = super.buildOrderStatement(model);
-            if( orderBy == null || orderBy.trim().length() == 0 ) {
-                orderBy = " ORDER BY (SELECT NULL) "; 
+        if ( model.getStart() > 0 || model.getLimit()>0 ) { 
+            boolean hasOrderBy = true; 
+            String orderBy = super.buildOrderStatement(model, "xx");  
+            if ( orderBy == null || orderBy.trim().length()==0 ) {
+                hasOrderBy = false; 
             }
-            StringBuilder sb = new StringBuilder();
-            sb.append( "SELECT * FROM (");
-            sb.append("SELECT ROW_NUMBER() OVER ("+ orderBy + ") AS _rownum_, result.* " );
             
-            sb.append( " FROM " );
-            sb.append( "( ");
-            sb.append( super.getSelectStatement(model, false) );
-            sb.append( ") result ");
-            sb.append(") AS ConstrainedResult ");
-            sb.append(" WHERE _rownum_ BETWEEN ($P{_start}+1) AND ($P{_start}+$P{_limit}) ORDER BY _rownum_" );
+            StringBuilder buff = new StringBuilder();
+            buff.append(" SELECT "); 
+            if ( hasOrderBy ) {
+                buff.append(" TOP 100 PERCENT "); 
+            } 
+            buff.append(" ROW_NUMBER() OVER (ORDER BY (SELECT NULL)) AS _rownum_, xx.* "); 
+            buff.append(" FROM ( ");
+            buff.append( super.getSelectStatement(model, false) );
+            buff.append(" )xx "); 
+            if ( hasOrderBy ) { 
+                buff.append( orderBy ); 
+            } 
+            
+            StringBuilder sb = new StringBuilder();
+            sb.append(" SELECT TOP "+ model.getLimit() +" * ");
+            sb.append(" FROM ( ").append( buff ).append(" )xx ");  
+            sb.append(" WHERE _rownum_ > $P{_start} ");
+            sb.append(" ORDER BY _rownum_ ");
             return sb.toString();
-        }
-        else {
+            
+        } else {
              return super.getSelectStatement(model, true);
         }
     }
