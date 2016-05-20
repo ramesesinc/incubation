@@ -198,7 +198,7 @@ public final class EntityUtil {
         return (List)l;
     }
     
-    
-    
-    
+    public static Map clone( Map source, String fieldExpr ) {
+        return new CloneHelper().clone(source, fieldExpr);
+    }
 }
