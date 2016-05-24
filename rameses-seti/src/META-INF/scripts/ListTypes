@@ -1,6 +1,7 @@
 import com.rameses.rcp.annotations.*;
 import com.rameses.osiris2.common.*;
 import com.rameses.osiris2.client.*;
+import com.rameses.rcp.common.*;
 import java.util.*;
 
 public class ListTypes extends HashMap {
@@ -28,7 +29,7 @@ public class ListTypes extends HashMap {
     public def get( def n ) {
         def fld = null;
         if(schema!=null) {
-            fld = (schema.fields+schema.links).find{ it.name == n }; 
+            fld = (schema.fields+schema.links).find{ it.extname == n }; 
         }
         if(fld!=null) {
             if( fld?.lov!=null ) {
