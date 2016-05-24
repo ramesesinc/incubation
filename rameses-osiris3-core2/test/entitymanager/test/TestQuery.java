@@ -24,7 +24,7 @@ public class TestQuery extends AbstractTestCase {
         //map.put("state", "ACTIVE");
         return map;
     }
-
+ 
     public void testSelect() throws Exception {
         exec( new ExecHandler() {
             public void execute() throws Exception {

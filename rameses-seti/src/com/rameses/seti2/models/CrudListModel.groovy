@@ -37,7 +37,7 @@ public class CrudListModel extends AbstractCrudModel {
     String strCols;
     
     String _entitySchemaName_;   //used in case the view schema is not the same as entity schema
-    boolean debug = false;
+    
     private String _tag_;
     
     boolean _multiSelect; 

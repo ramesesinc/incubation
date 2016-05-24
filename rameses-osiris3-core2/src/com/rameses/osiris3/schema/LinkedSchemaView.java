@@ -22,6 +22,7 @@ public class LinkedSchemaView extends AbstractSchemaView {
     private String jointype;
     private boolean required;
     private String prefix;
+    private String includeFields;
     
     private List<SchemaViewRelationField> relationFields = new ArrayList();
 
@@ -69,6 +70,14 @@ public class LinkedSchemaView extends AbstractSchemaView {
 
     public String getPrefix() {
         return prefix;
+    }
+
+    public String getIncludeFields() {
+        return includeFields;
+    }
+
+    public void setIncludeFields(String includeFields) {
+        this.includeFields = includeFields;
     }
 
     

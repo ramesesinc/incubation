@@ -267,7 +267,7 @@ public class SchemaElement implements Serializable {
                     isRequired = manyToOneRequired.booleanValue();
                 }
                 LinkedSchemaView targetVw = new LinkedSchemaView(sr.getName(), targetElem, rootVw, currentVw, sr.getJointype(),isRequired, prefix  );
-
+                targetVw.setIncludeFields(sr.getIncludeFields());
                 for( RelationKey rk: sr.getRelationKeys() ) {
                     SimpleField tf = (SimpleField)sr.getLinkedElement().getField(rk.getTarget());
                     if( tf == null ) 

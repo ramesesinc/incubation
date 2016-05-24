@@ -42,6 +42,8 @@ public abstract class AbstractCrudModel  {
     List styleRules = [];
     def schema;
     
+    boolean debug = false;
+    
     private String _schemaName_ ;
     
     def secProvider = ClientContext.getCurrentContext().getSecurityProvider();

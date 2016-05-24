@@ -40,6 +40,9 @@ public class ListTypes extends HashMap {
                     String nn = fld.ref;
                     if(nn.indexOf(".")>0) nn = nn.split(":")[1];
                     def m = [_schemaname:nn];
+                    if(fld.includefields) {
+                        m.select = fld.includefields;
+                    }    
                     m._limit =1000;
                     m._start = 0;
                     return  qryService.getList( m );

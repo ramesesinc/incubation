@@ -215,7 +215,9 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
             entity.findBy = findBy;
         }
         entity._schemaname = schemaName;
+        if( debug ) entity.debug = debug;
         entity = getPersistenceService().read( entity );
+        
         
         //we need to reset this so it can be used again.
         findBy = null;  
