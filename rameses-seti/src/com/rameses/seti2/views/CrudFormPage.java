@@ -25,6 +25,7 @@ import javax.swing.JScrollPane;
 import javax.swing.text.html.HTMLEditorKit;
 
 
+
 /**
  *
  * @author dell
@@ -79,6 +80,7 @@ public class CrudFormPage extends javax.swing.JPanel {
         btnSave = new com.rameses.rcp.control.XButton();
         btnUndo = new com.rameses.rcp.control.XButton();
         btnCancel = new com.rameses.rcp.control.XButton();
+        btnPrint = new com.rameses.rcp.control.XButton();
         xActionBar1 = new com.rameses.rcp.control.XActionBar();
         xActionBar2 = new com.rameses.rcp.control.XActionBar();
         btnDebug = new com.rameses.rcp.control.XButton();
@@ -189,6 +191,16 @@ public class CrudFormPage extends javax.swing.JPanel {
         btnCancel.setVisibleWhen("#{cancelEditAllowed}");
         jToolBar1.add(btnCancel);
 
+        btnPrint.setAccelerator("ctrl P");
+        btnPrint.setCaption("");
+        btnPrint.setFocusable(false);
+        btnPrint.setIconResource("images/toolbars/printer.png");
+        btnPrint.setImmediate(true);
+        btnPrint.setMargin(new java.awt.Insets(1, 1, 1, 1));
+        btnPrint.setName("viewReport"); // NOI18N
+        btnPrint.setVisibleWhen("#{viewReportAllowed}");
+        jToolBar1.add(btnPrint);
+
         xActionBar1.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 10, 0, 0));
         xActionBar1.setDynamic(true);
         xActionBar1.setFormName("formName");
@@ -228,11 +240,9 @@ public class CrudFormPage extends javax.swing.JPanel {
 
                 btnCancel2.setCaption("");
                 btnCancel2.setFocusable(false);
-                btnCancel2.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
                 btnCancel2.setIconResource("images/toolbars/refresh.png");
                 btnCancel2.setImmediate(true);
                 btnCancel2.setName("reloadEntity"); // NOI18N
-                btnCancel2.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
                 btnCancel2.setVisibleWhen("#{mode == 'read' }");
                 jToolBar1.add(btnCancel2);
 
@@ -564,6 +574,7 @@ public class CrudFormPage extends javax.swing.JPanel {
     private com.rameses.rcp.control.XButton btnEdit;
     private com.rameses.rcp.control.XButton btnHelp;
     private com.rameses.rcp.control.XButton btnInfo;
+    private com.rameses.rcp.control.XButton btnPrint;
     private com.rameses.rcp.control.XButton btnSave;
     private com.rameses.rcp.control.XButton btnUndo;
     private com.rameses.rcp.control.XButton btnUp;

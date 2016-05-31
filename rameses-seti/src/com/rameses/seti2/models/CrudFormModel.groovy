@@ -73,6 +73,7 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
 
     public void afterInit(){;}
     public void afterCreate(){;}
+    public void beforeOpen(){;}
     public void afterOpen(){;}
     public void afterEdit(){;}
     public void afterSave(){;}
@@ -216,6 +217,7 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
         }
         entity._schemaname = schemaName;
         if( debug ) entity.debug = debug;
+        beforeOpen();
         entity = getPersistenceService().read( entity );
         
         
@@ -260,16 +262,16 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
         if(!MsgBox.confirm('You are about to save this record. Proceed?')) return null;
         
         if( mode == 'create' ) {
-            beforeSave("create");
             entity._schemaname = schemaName;
+            beforeSave("create");
             entity = getPersistenceService().create( entity );
         }
         else {
-            beforeSave("update");
             //extract from the DataMap. Right now we'll use the pure data first
             //we'll change this later to diff.
             entity = entity.data(); 
             entity._schemaname = schemaName;
+            beforeSave("update");
             getPersistenceService().update( entity );
             loadData();
         }
