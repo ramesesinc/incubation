@@ -13,9 +13,15 @@ public class ListTypes extends HashMap {
     def listService;
     
     def schema;
+    def _handlers = [:];
 
     void init( def s ) {
         schema = s;
+        _handlers = [:];
+    }
+
+    void setHandlers( handlers ) {
+        this._handlers = handlers; 
     }
     
     /***
@@ -34,8 +40,7 @@ public class ListTypes extends HashMap {
         if(fld!=null) {
             if( fld?.lov!=null ) {
                 return LOV.get( fld.lov.toUpperCase() )*.key;
-            }
-            else if(fld?.ref!=null) {
+            } else if(fld?.ref!=null) {
                 try {
                     String nn = fld.ref;
                     if(nn.indexOf(".")>0) nn = nn.split(":")[1];
@@ -43,42 +48,36 @@ public class ListTypes extends HashMap {
                     if(fld.includefields) {
                         m.select = fld.includefields;
                     }    
+                    if ( _handlers.containsKey(n) ) {
+                        m.findBy = _handlers.get(n)();
+                    }
                     m._limit =1000;
                     m._start = 0;
                     return  qryService.getList( m );
-                }
-                catch(e) {
+                } catch(e) {
                     e.printStackTrace();
                 }
-            }
-            else if(fld?.listname!=null) {
+            } else if(fld?.listname!=null) {
                 try {
                     return listService.getList([name: fld.listname]);
-                }
-                catch(e) {
+                } catch(e) {
                     e.printStackTrace();
                 }
-            }
-            else if(fld?.openerlist!=null) {
+            } else if(fld?.openerlist!=null) {
                 try {
                     return Inv.lookupOpeners( fld.openerlist );
-                }
-                catch(e) {
+                } catch(e) {
                     e.printStackTrace();
                 }
             }
-        }
-        else {
+        } else {
             //test the simple lists
             try {
                 return listService.getList([name: n]);
-            }
-            catch(e) {
+            } catch(e) {
                 e.printStackTrace();
             }
         }
         return [];
-    }
-    
-    
+    }   
 }
