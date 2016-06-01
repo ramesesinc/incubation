@@ -263,7 +263,7 @@ public class CrudListPage extends javax.swing.JPanel {
 
         xActionBar1.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 10, 0, 0));
         xActionBar1.setFormName("formName");
-        xActionBar1.setName("extActions"); // NOI18N
+        xActionBar1.setName("listActions"); // NOI18N
         jToolBar1.add(xActionBar1);
 
         jPanel8.add(jToolBar1, java.awt.BorderLayout.WEST);

@@ -24,7 +24,7 @@ public class CrudListModel extends AbstractCrudModel {
     def adapter;
     
     def query = [:];
-    def findBy = [:];
+    def _findBy = [:];
     def criteriaList = [];
     def queryForm;
     def whereStatement;
@@ -48,6 +48,10 @@ public class CrudListModel extends AbstractCrudModel {
     
     public def getEntityContext() {
         return selectedItem;
+    }
+    
+    public def getFindBy() {
+        return _findBy;
     }
     
     public String getEntitySchemaName() {
@@ -165,8 +169,8 @@ public class CrudListModel extends AbstractCrudModel {
         if(query) {
             m.putAll(query);
         };
-        if(findBy) {
-            m.findBy = findBy;
+        if(getFindBy()) {
+            m.findBy = getFindBy();
         };
         m._schemaname = schema.name;
         m.adapter = schema.adapter;
@@ -365,6 +369,10 @@ public class CrudListModel extends AbstractCrudModel {
     }
     
     void refresh() {
+        listHandler.reload();
+    }
+    
+    void reload() {
         listHandler.reload();
     }
     
