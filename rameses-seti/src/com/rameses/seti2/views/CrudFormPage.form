@@ -263,7 +263,7 @@
                 <Property name="name" type="java.lang.String" value="showHelp" noResource="true"/>
               </Properties>
             </Component>
-            <Component class="com.rameses.rcp.control.XButton" name="btnCancel2">
+            <Component class="com.rameses.rcp.control.XButton" name="btnRefresh">
               <Properties>
                 <Property name="caption" type="java.lang.String" value=""/>
                 <Property name="focusable" type="boolean" value="false"/>
