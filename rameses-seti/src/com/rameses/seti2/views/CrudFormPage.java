@@ -15,6 +15,8 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Insets;
 import java.awt.LayoutManager;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
@@ -22,6 +24,7 @@ import javax.swing.JEditorPane;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.KeyStroke;
 import javax.swing.text.html.HTMLEditorKit;
 
 
@@ -54,7 +57,11 @@ public class CrudFormPage extends javax.swing.JPanel {
         
         renderer = new NoteRenderer();
         xDropDownList1.setRenderer(renderer);
-        xDropDownList1.setVisibility(new NoteVisibility(renderer));         
+        xDropDownList1.setVisibility(new NoteVisibility(renderer)); 
+        
+        btnRefresh.setAcceleratorKey( KeyStroke.getKeyStroke(KeyEvent.VK_F5, InputEvent.CTRL_DOWN_MASK)); 
+        btnUp.setAcceleratorKey( KeyStroke.getKeyStroke(KeyEvent.VK_UP, InputEvent.CTRL_DOWN_MASK)); 
+        btnDown.setAcceleratorKey( KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, InputEvent.CTRL_DOWN_MASK)); 
     }
 
     
@@ -86,7 +93,7 @@ public class CrudFormPage extends javax.swing.JPanel {
         btnDebug = new com.rameses.rcp.control.XButton();
         btnInfo = new com.rameses.rcp.control.XButton();
         btnHelp = new com.rameses.rcp.control.XButton();
-        btnCancel2 = new com.rameses.rcp.control.XButton();
+        btnRefresh = new com.rameses.rcp.control.XButton();
         btnUp = new com.rameses.rcp.control.XButton();
         btnDown = new com.rameses.rcp.control.XButton();
         xDropDownList1 = new com.rameses.rcp.control.XDropDownList();
@@ -239,13 +246,13 @@ public class CrudFormPage extends javax.swing.JPanel {
                 btnHelp.setName("showHelp"); // NOI18N
                 jToolBar1.add(btnHelp);
 
-                btnCancel2.setCaption("");
-                btnCancel2.setFocusable(false);
-                btnCancel2.setIconResource("images/toolbars/refresh.png");
-                btnCancel2.setImmediate(true);
-                btnCancel2.setName("reloadEntity"); // NOI18N
-                btnCancel2.setVisibleWhen("#{mode == 'read' }");
-                jToolBar1.add(btnCancel2);
+                btnRefresh.setCaption("");
+                btnRefresh.setFocusable(false);
+                btnRefresh.setIconResource("images/toolbars/refresh.png");
+                btnRefresh.setImmediate(true);
+                btnRefresh.setName("reloadEntity"); // NOI18N
+                btnRefresh.setVisibleWhen("#{mode == 'read' }");
+                jToolBar1.add(btnRefresh);
 
                 btnUp.setFocusable(false);
                 btnUp.setIconResource("images/toolbars/arrow_up.png");
@@ -568,7 +575,6 @@ public class CrudFormPage extends javax.swing.JPanel {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private com.rameses.rcp.control.XButton btnCancel;
     private com.rameses.rcp.control.XButton btnCancel1;
-    private com.rameses.rcp.control.XButton btnCancel2;
     private com.rameses.rcp.control.XButton btnCreate;
     private com.rameses.rcp.control.XButton btnDebug;
     private com.rameses.rcp.control.XButton btnDown;
@@ -576,6 +582,7 @@ public class CrudFormPage extends javax.swing.JPanel {
     private com.rameses.rcp.control.XButton btnHelp;
     private com.rameses.rcp.control.XButton btnInfo;
     private com.rameses.rcp.control.XButton btnPrint;
+    private com.rameses.rcp.control.XButton btnRefresh;
     private com.rameses.rcp.control.XButton btnSave;
     private com.rameses.rcp.control.XButton btnUndo;
     private com.rameses.rcp.control.XButton btnUp;
