@@ -1,5 +1,5 @@
 /*
- * XLineBorder.java
+ * XTitledBorder.java
  *
  * Created on October 13, 2010, 8:15 PM
  * @author jaycverg
@@ -17,8 +17,6 @@ import java.awt.Insets;
 import java.awt.Polygon;
 import java.awt.RenderingHints;
 import javax.swing.border.AbstractBorder;
-
-
 
 public class XTitledBorder extends AbstractBorder {
     
@@ -107,7 +105,8 @@ public class XTitledBorder extends AbstractBorder {
         g2.dispose();
     }
     
-    //<editor-fold defaultstate="collapsed" desc="  Getters/Setters  ">
+    // <editor-fold defaultstate="collapsed" desc=" Getters/Setters ">
+    
     public Insets getBorderInsets(Component c) {
         FontMetrics fm = c.getFontMetrics(font);
         Insets p = titlePadding;
@@ -182,7 +181,6 @@ public class XTitledBorder extends AbstractBorder {
     public void setBackground(Color background) {
         this.background = background;
     }
-    //</editor-fold>
     
     public Insets getPadding() {
         if ( padding == null && comp != null ) {
@@ -199,4 +197,7 @@ public class XTitledBorder extends AbstractBorder {
     public void setPadding(Insets padding) {
         this.padding = padding;
     }
+    
+    //</editor-fold>
+
 }

@@ -10,6 +10,8 @@
 package com.rameses.rcp.control;
 
 import com.rameses.beaninfo.ComponentBeanInfo;
+import com.rameses.beaninfo.editor.TabLayoutPolicyEditor;
+import com.rameses.beaninfo.editor.TabPlacementEditor;
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
 
@@ -47,8 +49,11 @@ public class XTabbedPaneBeanInfo extends ComponentBeanInfo.Support
             new PropertyDescriptor("items", getBeanClass()), 
             new PropertyDescriptor("nameAutoLookupAsOpener", getBeanClass(), "isNameAutoLookupAsOpener", "setNameAutoLookupAsOpener"),
             new PropertyDescriptor("stretchWidth", getBeanClass()),
-            new PropertyDescriptor("stretchHeight", getBeanClass())
+            new PropertyDescriptor("stretchHeight", getBeanClass()), 
             
+            installEditor(new PropertyDescriptor("tabLayoutPolicy", getBeanClass()), TabLayoutPolicyEditor.class),  
+            installEditor(new PropertyDescriptor("tabPlacement", getBeanClass()), TabPlacementEditor.class) 
         }; 
     }
+    
 }

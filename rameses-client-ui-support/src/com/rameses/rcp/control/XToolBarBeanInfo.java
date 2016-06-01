@@ -24,8 +24,9 @@ public class XToolBarBeanInfo extends ComponentBeanInfo.Support
     
     protected Class getBeanClass() 
     {
-        if (beanClass == null) beanClass = XToolBar.class; 
-        
+        if (beanClass == null) {
+            beanClass = XToolBar.class;
+        } 
         return beanClass;
     }
     
@@ -46,9 +47,7 @@ public class XToolBarBeanInfo extends ComponentBeanInfo.Support
             new PropertyDescriptor("index", getBeanClass()),
             
             new PropertyDescriptor("stretchWidth", getBeanClass()),
-            new PropertyDescriptor("stretchHeight", getBeanClass()),
-            
-            installEditor(new PropertyDescriptor("orientation", getBeanClass()), UIConstantsHAlignmentPropertyEditor.class) 
+            new PropertyDescriptor("stretchHeight", getBeanClass()) 
         }; 
     }
 }
