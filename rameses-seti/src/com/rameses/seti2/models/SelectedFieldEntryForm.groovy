@@ -50,8 +50,24 @@ public class SelectedFieldEntryForm  {
         listTypes.init( schema );
     }
  
+    public void initDynamic() {
+        if(!formControls) throw new Exception("Please provide formConrols");
+        if(entity==null) throw new Exception("Please provide entity");
+        def flist = [];
+        for( f in formControls ) {
+            def fc = FormControlUtil.createControl( f, entity );
+            if(fc==null) continue;
+            if( !flist.find{ ff-> ff.name == fc.name } ) {
+                flist << fc;
+            }
+        }
+        formControls = flist;
+    }
+    
     def doOk() {
-        handler( entity );
+        if( handler ) {
+            handler( entity );
+        }
         return "_close";
     }
     
