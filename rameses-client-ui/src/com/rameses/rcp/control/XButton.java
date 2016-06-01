@@ -78,13 +78,18 @@ public class XButton extends JButton implements UICommand, ActionListener,
         this.accelerator = accelerator;
         
         try {
-            if (acceleratorKS != null) unregisterKeyboardAction(acceleratorKS);
-            
-            acceleratorKS = KeyStroke.getKeyStroke(accelerator);
-            
-            if (acceleratorKS != null)
-                registerKeyboardAction(this, acceleratorKS, JComponent.WHEN_IN_FOCUSED_WINDOW);
-        } catch(Exception ign) {;}
+            setAcceleratorKey( KeyStroke.getKeyStroke(accelerator) );
+        } catch(Throwable ign) {;}
+    }
+    
+    public void setAcceleratorKey( KeyStroke ks  ) {
+        if (acceleratorKS != null) { 
+            unregisterKeyboardAction(acceleratorKS);
+        }
+        acceleratorKS = ks; 
+        if (acceleratorKS != null) { 
+            registerKeyboardAction(this, acceleratorKS, JComponent.WHEN_IN_FOCUSED_WINDOW); 
+        } 
     }
     
     public String[] getDepends() { return depends; }
