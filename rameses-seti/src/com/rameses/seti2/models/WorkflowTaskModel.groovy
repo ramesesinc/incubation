@@ -60,6 +60,10 @@ public class WorkflowTaskModel extends CrudFormModel implements WorkflowTaskList
         }
     }
     
+    public void beforeOpen() {
+        entity._wf = true;
+    }
+    
     public def open() {
         if( entity?.refid ) {
             refid = entity.refid;
