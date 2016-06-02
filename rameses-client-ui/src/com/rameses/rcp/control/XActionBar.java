@@ -254,7 +254,7 @@ public class XActionBar extends JPanel implements UIComposite, ActiveControl, Mo
             
             String _formtype = (_name == null? "formActions" : _name);
             List<Action> list = actionProvider.lookupActions(_formname +":"+ _formtype);
-            if (list != null) { 
+            if ( list != null && !list.isEmpty()) { 
                 Collections.sort(list);
                 actions.addAll(list);
             }
