@@ -31,7 +31,7 @@ public final class FormControlUtil  {
         if(!dtype) dtype = fld.datatype;
         if(!dtype) dtype = 'string';
         i.type = dtype;
-        if(!fld.updatable || fld.updatable=="false") {
+        if(fld.updatable!=null && (fld.updatable=="false" || fld.updatable==false)) {
             i.type = "label";
             i.expression = "#{"+i.name+"}"
         }
@@ -77,7 +77,6 @@ public final class FormControlUtil  {
             i.properties = [item:i.bean];
             i.showCaption = false;
         }
-        
         //COMBO BOXES
         return i;
     }
