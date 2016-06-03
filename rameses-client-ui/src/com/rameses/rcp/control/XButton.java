@@ -99,7 +99,9 @@ public class XButton extends JButton implements UICommand, ActionListener,
     public void setIndex(int index) { this.index = index; }
     
     public Binding getBinding() { return binding; }
-    public void setBinding(Binding binding) { this.binding = binding; }
+    public void setBinding(Binding binding) { 
+        this.binding = binding; 
+    }
     
     public String getActionName() { return getName(); }
     

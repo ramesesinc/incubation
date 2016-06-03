@@ -25,8 +25,7 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
     def selectedSection;
     def sections;
     
-    @Script("ListTypes")
-    def listTypes;
+   
     
     String getFormType() {
         return 'form';

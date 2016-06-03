@@ -18,10 +18,16 @@ import com.rameses.util.*;
 *    entity = the original bean
 *    schema = the schema map to check field properties
 *****/
-public class SelectedFieldEntryForm  {
+public class DynamicEntryForm  {
     
     @Script("ListTypes")
     def listTypes;
+    
+    @Script("Lov")
+    def lov;
+    
+    @Script("RefList")
+    def refList;
 
     def handler;
     def fields;
@@ -52,9 +58,10 @@ public class SelectedFieldEntryForm  {
  
     public void initDynamic() {
         if(!formControls) throw new Exception("Please provide formConrols");
-        if(entity==null) throw new Exception("Please provide entity");
+        if(entity==null) entity = [:];
         def flist = [];
         for( f in formControls ) {
+            if(f.required == null) f.required= true;
             def fc = FormControlUtil.createControl( f, entity );
             if(fc==null) continue;
             if( !flist.find{ ff-> ff.name == fc.name } ) {
