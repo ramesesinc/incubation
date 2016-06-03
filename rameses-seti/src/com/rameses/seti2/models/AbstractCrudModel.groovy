@@ -36,11 +36,19 @@ public abstract class AbstractCrudModel  {
     @Service("QueryService")
     def qryService;
     
+    @Script("ListTypes")
+    def listTypes;
+    
+    @Script("Lov")
+    def lov;
+    
     String role;
     String domain;
     String permission;
     List styleRules = [];
     def schema;
+    
+    
     
     boolean debug = false;
     

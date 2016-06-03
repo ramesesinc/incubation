@@ -38,15 +38,24 @@ public final class FormControlUtil  {
         else if( fld.lov ) {
             i.type = "combo";
             i.dynamic = true;
-            i.items = "listTypes."+fld.extname;
+            i.items = "lov."+fld.lov;
         };
         else if( fld.ref ) {
             i.type = "lookup";
             i.handler = fld.ref + ":lookup";
-            i.expression = "#{"+cname+"."+fld.name+"}";
+            i.expression = fld.expression;
+            
+            /*
+            if( fld.expr ) {
+                //i.expression = "#{"+cname+"."+fld.name+"}";
+                i.expression = fld.expr;
+            }
+            */
+            /*
             if( fld.name.indexOf(".") > 0  ) {
                 i.name = cname+"."+fld.name.substring(0, fld.name.lastIndexOf("."));
             }
+            */
         }
         else if(i.type == "boolean") {
             i.type = "subform";

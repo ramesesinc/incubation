@@ -13,6 +13,9 @@ import com.rameses.osiris2.reports.*;
 
 public class CrudReportModel extends ReportModel {
     
+    @Caller
+    def caller;
+    
     def mode = "view-report";
     def entity;
     
