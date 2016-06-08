@@ -88,12 +88,12 @@ public class CrudFormPage extends javax.swing.JPanel {
         btnUndo = new com.rameses.rcp.control.XButton();
         btnCancel = new com.rameses.rcp.control.XButton();
         btnPrint = new com.rameses.rcp.control.XButton();
+        btnRefresh = new com.rameses.rcp.control.XButton();
         xActionBar1 = new com.rameses.rcp.control.XActionBar();
         xActionBar2 = new com.rameses.rcp.control.XActionBar();
         btnDebug = new com.rameses.rcp.control.XButton();
         btnInfo = new com.rameses.rcp.control.XButton();
         btnHelp = new com.rameses.rcp.control.XButton();
-        btnRefresh = new com.rameses.rcp.control.XButton();
         btnUp = new com.rameses.rcp.control.XButton();
         btnDown = new com.rameses.rcp.control.XButton();
         xDropDownList1 = new com.rameses.rcp.control.XDropDownList();
@@ -208,6 +208,14 @@ public class CrudFormPage extends javax.swing.JPanel {
         btnPrint.setVisibleWhen("#{viewReportAllowed}");
         jToolBar1.add(btnPrint);
 
+        btnRefresh.setCaption("");
+        btnRefresh.setFocusable(false);
+        btnRefresh.setIconResource("images/toolbars/refresh.png");
+        btnRefresh.setImmediate(true);
+        btnRefresh.setName("reloadEntity"); // NOI18N
+        btnRefresh.setVisibleWhen("#{mode == 'read' }");
+        jToolBar1.add(btnRefresh);
+
         xActionBar1.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 10, 0, 0));
         xActionBar1.setDynamic(true);
         xActionBar1.setFormName("formName");
@@ -245,14 +253,6 @@ public class CrudFormPage extends javax.swing.JPanel {
                 btnHelp.setImmediate(true);
                 btnHelp.setName("showHelp"); // NOI18N
                 jToolBar1.add(btnHelp);
-
-                btnRefresh.setCaption("");
-                btnRefresh.setFocusable(false);
-                btnRefresh.setIconResource("images/toolbars/refresh.png");
-                btnRefresh.setImmediate(true);
-                btnRefresh.setName("reloadEntity"); // NOI18N
-                btnRefresh.setVisibleWhen("#{mode == 'read' }");
-                jToolBar1.add(btnRefresh);
 
                 btnUp.setFocusable(false);
                 btnUp.setIconResource("images/toolbars/arrow_up.png");
