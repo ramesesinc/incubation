@@ -328,10 +328,7 @@ public abstract class AbstractSqlDialect implements SqlDialect {
             
             int i = 0;
             for( Field f: model.getOrderFields() ) {
-                if (f.isPrimary()) {
-                    //this is only temporary 
-                    continue;
-                } 
+                //if (f.isPrimary()) { continue; } 
                 
                 if(i++>0) sb.append(",");
                 if( ValueUtil.isEmpty(f.getExpr()) ) { 
