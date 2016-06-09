@@ -59,7 +59,7 @@ class RuleConditionController  {
     /*****************************************************************
     * constraints
     *****************************************************************/
-    void addConstraintControl(def constraint) {
+    void addConstraintControl(def constraint) { 
         def field = constraint.field;
         def m = [:];
         m.objid = constraint.objid;
