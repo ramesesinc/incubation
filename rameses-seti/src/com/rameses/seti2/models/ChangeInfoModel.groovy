@@ -24,6 +24,9 @@ public class ChangeInfoModel  {
     @Caller
     def caller;
     
+    @Script("ListTypes")
+    def listTypes;
+    
     def handler;
     def fields;
     def entity;
@@ -42,10 +45,14 @@ public class ChangeInfoModel  {
 
         def primKeyMatch = schema.fields.findAll{ it.primary == true && it.source == schema.name }*.name.join("|");
         
-        info.findBy = EntityUtil.clone( entity, primKeyMatch );
+        info.findBy = EntityUtil.clone( entity, primKeyMatch ); 
+        listTypes.init( schema ); 
+        
         _inited_ = true;
+        
         def vw = invoker.properties.view;
-        if(!vw)vw= "default";
+        if ( !vw ) vw = "default";
+        
         return vw;
     }
     
