@@ -183,7 +183,7 @@
                       <Insets value="[1, 1, 1, 1]"/>
                     </Property>
                     <Property name="name" type="java.lang.String" value="create" noResource="true"/>
-                    <Property name="visibleWhen" type="java.lang.String" value="#{createAllowed}"/>
+                    <Property name="visibleWhen" type="java.lang.String" value="#{createAllowed==true}"/>
                   </Properties>
                 </Component>
                 <Component class="com.rameses.rcp.control.XButton" name="btnOpen">
@@ -196,7 +196,7 @@
                       <Insets value="[1, 1, 1, 1]"/>
                     </Property>
                     <Property name="name" type="java.lang.String" value="open" noResource="true"/>
-                    <Property name="visibleWhen" type="java.lang.String" value="#{openAllowed}"/>
+                    <Property name="visibleWhen" type="java.lang.String" value="#{openAllowed==true}"/>
                   </Properties>
                 </Component>
                 <Component class="com.rameses.rcp.control.XButton" name="btnDelete">
@@ -213,7 +213,7 @@
                       <Insets value="[1, 1, 1, 1]"/>
                     </Property>
                     <Property name="name" type="java.lang.String" value="removeEntity" noResource="true"/>
-                    <Property name="visibleWhen" type="java.lang.String" value="#{deleteAllowed}"/>
+                    <Property name="visibleWhen" type="java.lang.String" value="#{deleteAllowed==true}"/>
                   </Properties>
                 </Component>
                 <Component class="com.rameses.rcp.control.XButton" name="btnPrint">

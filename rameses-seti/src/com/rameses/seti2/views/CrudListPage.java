@@ -205,7 +205,7 @@ public class CrudListPage extends javax.swing.JPanel {
         btnCreate.setIconResource("images/toolbars/create.png");
         btnCreate.setMargin(new java.awt.Insets(1, 1, 1, 1));
         btnCreate.setName("create"); // NOI18N
-        btnCreate.setVisibleWhen("#{createAllowed}");
+        btnCreate.setVisibleWhen("#{createAllowed==true}");
         jToolBar1.add(btnCreate);
 
         btnOpen.setAccelerator("ctrl O");
@@ -214,7 +214,7 @@ public class CrudListPage extends javax.swing.JPanel {
         btnOpen.setIconResource("images/toolbars/open.png");
         btnOpen.setMargin(new java.awt.Insets(1, 1, 1, 1));
         btnOpen.setName("open"); // NOI18N
-        btnOpen.setVisibleWhen("#{openAllowed}");
+        btnOpen.setVisibleWhen("#{openAllowed==true}");
         jToolBar1.add(btnOpen);
 
         btnDelete.setCaption("");
@@ -223,7 +223,7 @@ public class CrudListPage extends javax.swing.JPanel {
         btnDelete.setIconResource("images/toolbars/trash.png");
         btnDelete.setMargin(new java.awt.Insets(1, 1, 1, 1));
         btnDelete.setName("removeEntity"); // NOI18N
-        btnDelete.setVisibleWhen("#{deleteAllowed}");
+        btnDelete.setVisibleWhen("#{deleteAllowed==true}");
         jToolBar1.add(btnDelete);
 
         btnPrint.setAccelerator("ctrl P");

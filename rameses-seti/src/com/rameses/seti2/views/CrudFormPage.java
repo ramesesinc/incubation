@@ -162,7 +162,7 @@ public class CrudFormPage extends javax.swing.JPanel {
         btnCreate.setFocusable(false);
         btnCreate.setIconResource("images/toolbars/create.png");
         btnCreate.setName("create"); // NOI18N
-        btnCreate.setVisibleWhen("#{createAllowed}");
+        btnCreate.setVisibleWhen("#{createAllowed==true}");
         jToolBar1.add(btnCreate);
 
         btnEdit.setAccelerator("ctrl E");
@@ -170,7 +170,7 @@ public class CrudFormPage extends javax.swing.JPanel {
         btnEdit.setFocusable(false);
         btnEdit.setIconResource("images/toolbars/edit.png");
         btnEdit.setName("edit"); // NOI18N
-        btnEdit.setVisibleWhen("#{editAllowed}");
+        btnEdit.setVisibleWhen("#{editAllowed==true}");
         jToolBar1.add(btnEdit);
 
         btnSave.setAccelerator("ctrl S");
@@ -178,7 +178,7 @@ public class CrudFormPage extends javax.swing.JPanel {
         btnSave.setFocusable(false);
         btnSave.setIconResource("images/toolbars/save.png");
         btnSave.setName("save"); // NOI18N
-        btnSave.setVisibleWhen("#{saveAllowed}");
+        btnSave.setVisibleWhen("#{saveAllowed==true}");
         jToolBar1.add(btnSave);
 
         btnUndo.setAccelerator("ctrl U");
@@ -187,7 +187,7 @@ public class CrudFormPage extends javax.swing.JPanel {
         btnUndo.setIconResource("images/toolbars/undo.png");
         btnUndo.setImmediate(true);
         btnUndo.setName("undo"); // NOI18N
-        btnUndo.setVisibleWhen("#{undoAllowed}");
+        btnUndo.setVisibleWhen("#{undoAllowed==true}");
         jToolBar1.add(btnUndo);
 
         btnCancel.setCaption("");
@@ -195,7 +195,7 @@ public class CrudFormPage extends javax.swing.JPanel {
         btnCancel.setIconResource("images/toolbars/cancel.png");
         btnCancel.setImmediate(true);
         btnCancel.setName("unedit"); // NOI18N
-        btnCancel.setVisibleWhen("#{cancelEditAllowed}");
+        btnCancel.setVisibleWhen("#{cancelEditAllowed==true}");
         jToolBar1.add(btnCancel);
 
         btnPrint.setAccelerator("ctrl P");
@@ -205,7 +205,7 @@ public class CrudFormPage extends javax.swing.JPanel {
         btnPrint.setImmediate(true);
         btnPrint.setMargin(new java.awt.Insets(1, 1, 1, 1));
         btnPrint.setName("viewReport"); // NOI18N
-        btnPrint.setVisibleWhen("#{viewReportAllowed}");
+        btnPrint.setVisibleWhen("#{viewReportAllowed==true}");
         jToolBar1.add(btnPrint);
 
         btnRefresh.setCaption("");

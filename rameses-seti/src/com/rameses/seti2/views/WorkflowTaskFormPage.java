@@ -207,7 +207,7 @@ public class WorkflowTaskFormPage extends javax.swing.JPanel {
                     btnPrint.setImmediate(true);
                     btnPrint.setMargin(new java.awt.Insets(1, 1, 1, 1));
                     btnPrint.setName("viewReport"); // NOI18N
-                    btnPrint.setVisibleWhen("#{viewReportAllowed}");
+                    btnPrint.setVisibleWhen("#{viewReportAllowed==true}");
                     jToolBar1.add(btnPrint);
 
                     xActionBar2.setBorder(null);
