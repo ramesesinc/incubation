@@ -27,6 +27,23 @@ public class RuleConstraintLOVHandler extends RuleConstraintListValueHandler {
             multiSelectHandler: { o->
                 return (constraint.listvalue?.find{ it == o.key }!=null);
             },
+            afterSelectItem: { o-> 
+                if ( !o ) return; 
+                
+                def fk = o.data?.key; 
+                if ( constraint.listvalue == null ) {
+                    constraint.listvalue = []; 
+                } 
+                
+                def ofk = constraint.listvalue.find{ it == fk }
+                if ( o.selected==true ) {
+                    if ( ofk == null ) {
+                        constraint.listvalue << fk; 
+                    } 
+                } else if ( ofk ) { 
+                    constraint.listvalue.remove( fk );  
+                } 
+            }, 
             onselect: { o->
                 constraint.listvalue = [];
                 o.each {
