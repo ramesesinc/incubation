@@ -251,12 +251,22 @@ public class SchemaElement implements Serializable {
             relList.addAll( this.getOneToOneRelationships() );
             relList.addAll( this.getManyToOneRelationships() );
 
+            String[] incflds = (includeComplex != null ? includeComplex.split("\\|") : null); 
+            
             //extract all fields related.
             for( SchemaRelation sr: relList  ) { 
                 String srname = (prefix==null? "": (prefix+"_")) + sr.getName(); 
-                if ( includeComplex != null && !srname.matches(includeComplex) ) {
-                    continue; 
-                }
+                if ( incflds != null && incflds.length > 0 ) { 
+                    boolean has_matches = false; 
+                    for ( String str : incflds ) {
+                        if ( str.equals( srname ) || str.startsWith(srname)) { 
+                            has_matches = true;
+                            break; 
+                        } 
+                    } 
+                        
+                    if ( !has_matches ) continue; 
+                } 
 
                 if( duplicates.contains(sr)) continue;
                 duplicates.add(sr);
