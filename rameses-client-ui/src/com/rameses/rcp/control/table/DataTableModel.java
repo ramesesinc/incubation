@@ -251,7 +251,7 @@ public class DataTableModel extends AbstractTableModel implements TableControlMo
                 for (int idx=rowIndex+1; idx < getRowCount(); idx++) {
                     Object rowdata = getItem(idx);
                     if (lss.containsItem(rowdata)) {
-                        lss.setItemChecked(rowdata, selected);
+                        lss.setItemChecked(rowdata, selected, idx);
                         row_selection_changed = true; 
                     }
                 }                
@@ -261,12 +261,12 @@ public class DataTableModel extends AbstractTableModel implements TableControlMo
                 } else { 
                     for (int idx=0; idx <= rowIndex; idx++) {
                         Object rowdata = getItem( idx ); 
-                        lss.setItemChecked(rowdata, selected); 
+                        lss.setItemChecked(rowdata, selected, idx); 
                     } 
                     fireTableRowsUpdated(0, rowIndex);
                 } 
             } else {
-                lss.setItemChecked(item, selected); 
+                lss.setItemChecked(item, selected, rowIndex); 
                 fireTableRowsUpdated(rowIndex, rowIndex); 
             } 
             firePropertyChange("checkedItemsChanged", !selected, selected); 
@@ -370,7 +370,7 @@ public class DataTableModel extends AbstractTableModel implements TableControlMo
             
             for (int idx=0; idx < rowCount; idx++) {
                 Object rowdata = getItem( idx ); 
-                root.getDataProvider().getSelectionSupport().setItemChecked(rowdata, true); 
+                root.getDataProvider().getSelectionSupport().setItemChecked(rowdata, true, idx); 
             }
             
             root.fireTableRowsUpdated(0, rowCount-1); 
@@ -385,7 +385,7 @@ public class DataTableModel extends AbstractTableModel implements TableControlMo
             
             for (int idx=0; idx < rowCount; idx++) {
                 Object rowdata = getItem( idx ); 
-                root.getDataProvider().getSelectionSupport().setItemChecked(rowdata, false); 
+                root.getDataProvider().getSelectionSupport().setItemChecked(rowdata, false, idx); 
             }
             
             root.fireTableRowsUpdated(0, rowCount-1); 
