@@ -249,16 +249,10 @@ public abstract class ActiveWorkflowService {
             if( tAction!=null &&  !tAction.equals(o.get("action"))) continue;
             if(!fireAll) breakTransition = true;
             
-            //add an eval
-            String eval = (String)o.get("eval");
-            if(eval!=null) {
-                Map m = new HashMap();
-                m.put("data", env.get("data"));
-                boolean b = ExpressionResolver.getInstance().evalBoolean(eval, m);
-                if(!b) {
-                    breakTransition = false;  
-                    continue;
-                }
+            boolean pass = checkEvalExpression(o);
+            if(!pass) {
+                breakTransition = false;  
+                continue;
             }
             
             if( "fork".equals( o.get("tonodetype") )) {
@@ -306,6 +300,18 @@ public abstract class ActiveWorkflowService {
                 collector.add( tsk );
             }
         }
+    }
+    
+    private boolean checkEvalExpression(Map o){
+        //add an eval
+        String eval = (String)o.get("eval");
+        if(eval!=null && eval.trim().length() > 0) {
+            Map m = new HashMap();
+            m.put("data", env.get("data"));
+            m.put("env", env);
+            return ExpressionResolver.getInstance().evalBoolean(eval, m);
+        }
+        return true;
     }
     
     @ProxyMethod
@@ -467,8 +473,11 @@ public abstract class ActiveWorkflowService {
         List xtransitions = new ArrayList();
         if( transitions.size() > 0 ) {
             for(Map m: transitions) {
-                loadTransition( m, task );
-                xtransitions.add(m);
+                boolean pass = checkEvalExpression(m);
+                if(pass) {
+                    loadTransition( m, task );
+                    xtransitions.add(m);
+                }
             }
         }
         task.put("transitions", xtransitions );
