@@ -542,14 +542,14 @@ public class XComboBox extends JComboBox implements UIInput, Validatable, Active
                 EventQueue.invokeLater(new Runnable(){
                     public void run() {
                         try {
-                            updating = false; 
+                            updating = true; 
                             buildList();
                         } catch(Exception e) {
                             if (ClientContext.getCurrentContext().isDebugMode()) { 
                                 e.printStackTrace(); 
                             } 
                         } finally { 
-                            updating = true; 
+                            updating = false; 
                         } 
                     } 
                 });
@@ -564,7 +564,9 @@ public class XComboBox extends JComboBox implements UIInput, Validatable, Active
                         if (ClientContext.getCurrentContext().isDebugMode()) { 
                             e.printStackTrace(); 
                         } 
-                    } 
+                    } finally {
+                        updating = false; 
+                    }
                 }
             });
             
