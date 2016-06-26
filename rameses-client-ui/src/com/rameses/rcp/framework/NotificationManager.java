@@ -8,6 +8,8 @@ import com.sun.jmx.remote.util.Service;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  *
@@ -15,8 +17,10 @@ import java.util.List;
  */
 public final class NotificationManager {
     
+    private final static ExecutorService THREAD_POOL = Executors.newFixedThreadPool(100); 
     private final static NotificationManager instance = new NotificationManager(); 
-    private final static Object LOCKED = new Object(); 
+    private final static Object HANDLER_LOCKED = new Object(); 
+    private final static Object RENDERER_LOCKED = new Object(); 
     
     public static NotificationProvider getDefaultProvider() { 
         try { 
@@ -30,7 +34,7 @@ public final class NotificationManager {
     } 
     
     public static void addHandler( NotificationHandler handler ) { 
-        synchronized ( LOCKED ) {
+        synchronized ( HANDLER_LOCKED ) {
             if ( handler == null ) return; 
             
             instance.handlers.remove( handler ); 
@@ -38,7 +42,7 @@ public final class NotificationManager {
         }
     }
     public static void removeHandler( NotificationHandler handler ) { 
-        synchronized ( LOCKED ) {
+        synchronized ( HANDLER_LOCKED ) {
             if ( handler != null ) {
                 instance.handlers.remove( handler ); 
             }
@@ -48,8 +52,34 @@ public final class NotificationManager {
         return instance.handlers; 
     }
     
+    public static void addRenderer( NotificationRenderer renderer ) { 
+        synchronized ( RENDERER_LOCKED ) {
+            if ( renderer == null ) return; 
+            
+            instance.renderers.remove( renderer ); 
+            instance.renderers.add( renderer ); 
+        }
+    }
+    public static void removeHandler( NotificationRenderer renderer ) { 
+        synchronized ( RENDERER_LOCKED ) { 
+            if ( renderer != null ) { 
+                instance.renderers.remove( renderer ); 
+            } 
+        } 
+    } 
+    public static void updateRenderers() { 
+        for ( int i=0; i<instance.renderers.size(); i++ ) {
+            try {
+                THREAD_POOL.submit(new RendererRefreshProc( instance.renderers.get(i) )); 
+            } catch(Throwable t) {
+                continue; 
+            }
+        }
+    }
+    
     
     private final List<NotificationProvider> providers = new ArrayList();
+    private final List<NotificationRenderer> renderers = new ArrayList();
     private final List<NotificationHandler> handlers = new ArrayList();
     
     private NotificationProvider emptyProvider;
@@ -77,4 +107,23 @@ public final class NotificationManager {
         } 
         return emptyProvider; 
     }
+    
+    // <editor-fold defaultstate="collapsed" desc=" RendererRefreshProc "> 
+    
+    private static class RendererRefreshProc implements Runnable {
+        
+        private NotificationRenderer handler; 
+        
+        RendererRefreshProc( NotificationRenderer handler ) {
+            this.handler = handler; 
+        }
+
+        public void run() {
+            if ( handler != null ) {
+                handler.refresh(); 
+            } 
+        } 
+    } 
+    
+    // </editor-fold>
 }
