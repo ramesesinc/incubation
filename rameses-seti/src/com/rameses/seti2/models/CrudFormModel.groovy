@@ -25,8 +25,7 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
     def selectedSection;
     def sections;
     
-    @Script("ListTypes")
-    def listTypes;
+   
     
     String getFormType() {
         return 'form';
@@ -73,6 +72,7 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
 
     public void afterInit(){;}
     public void afterCreate(){;}
+    public void beforeOpen(){;}
     public void afterOpen(){;}
     public void afterEdit(){;}
     public void afterSave(){;}
@@ -141,6 +141,20 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
         afterInit()
     }
     
+    def convertValue( valuetype, defaultvalue ) { 
+        if ( defaultvalue == null ) return null; 
+        
+        if ( valuetype == 'integer' ) {
+            return defaultvalue.toInteger(); 
+        } else if ( valuetype == 'decimal' ) {
+            return new BigDecimal( defaultvalue.toDouble()); 
+        } else if ( valuetype == 'date' ) {
+            return new java.text.SimpleDateFormat('yyyy-MM-dd').parse( defaultvalue.toString()); 
+        } else { 
+            return defaultvalue; 
+        }
+    }
+    
     def createData( String _schemaname, def schemaDef  ) {
         def map = [:];
         map._schemaname = _schemaname;
@@ -149,8 +163,8 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
             if( it.prefix && it.primary && it.source == _schemaname ) {
                 EntityUtil.putNestedValue( map, it.extname, it.prefix+new UID());
             }
-            if( it.defaultValue!=null) {
-                Object val = it.defaultValue;
+            if( it.defaultValue!=null) { 
+                Object val = convertValue( it.type, it.defaultValue );
                 EntityUtil.putNestedValue( map, it.extname, val );
             }
             if( it.serializer !=null ) {
@@ -215,7 +229,10 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
             entity.findBy = findBy;
         }
         entity._schemaname = schemaName;
+        if( debug ) entity.debug = debug;
+        beforeOpen();
         entity = getPersistenceService().read( entity );
+        
         
         //we need to reset this so it can be used again.
         findBy = null;  
@@ -258,16 +275,16 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
         if(!MsgBox.confirm('You are about to save this record. Proceed?')) return null;
         
         if( mode == 'create' ) {
-            beforeSave("create");
             entity._schemaname = schemaName;
+            beforeSave("create");
             entity = getPersistenceService().create( entity );
         }
         else {
-            beforeSave("update");
             //extract from the DataMap. Right now we'll use the pure data first
             //we'll change this later to diff.
             entity = entity.data(); 
             entity._schemaname = schemaName;
+            beforeSave("update");
             getPersistenceService().update( entity );
             loadData();
         }
@@ -307,7 +324,10 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
      **************************************************************************/
     boolean getShowNavigation() {
         //println "show navigation";
-        if( !caller?.listHandler ) return false;
+        try { 
+            if( !caller?.listHandler ) return false; 
+        } catch(Throwable t) {;} 
+        
         return (mode == 'read');
     }
     

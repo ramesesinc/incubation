@@ -10,6 +10,7 @@
 package com.rameses.functions;
 
 import com.rameses.util.DateUtil;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -148,4 +149,22 @@ public final class DateFunc {
         return d;
     }
 
+    public static Date formatDate(Object dt,String pattern) {
+        SimpleDateFormat df = new SimpleDateFormat(pattern);
+        String sdt = null;
+        if( dt instanceof Date ) {
+            sdt = df.format((Date)dt);
+        }
+        else {
+            sdt = dt.toString();
+        }
+        try {
+            return df.parse(sdt);
+        }
+        catch(Exception e) {
+            System.out.println("error  " + e.getMessage());
+            return null;
+        }
+    }
+    
 }

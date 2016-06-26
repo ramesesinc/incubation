@@ -143,7 +143,7 @@
                 <Property name="focusable" type="boolean" value="false"/>
                 <Property name="iconResource" type="java.lang.String" value="images/toolbars/create.png"/>
                 <Property name="name" type="java.lang.String" value="create" noResource="true"/>
-                <Property name="visibleWhen" type="java.lang.String" value="#{createAllowed}"/>
+                <Property name="visibleWhen" type="java.lang.String" value="#{createAllowed==true}"/>
               </Properties>
             </Component>
             <Component class="com.rameses.rcp.control.XButton" name="btnEdit">
@@ -153,7 +153,7 @@
                 <Property name="focusable" type="boolean" value="false"/>
                 <Property name="iconResource" type="java.lang.String" value="images/toolbars/edit.png"/>
                 <Property name="name" type="java.lang.String" value="edit" noResource="true"/>
-                <Property name="visibleWhen" type="java.lang.String" value="#{editAllowed}"/>
+                <Property name="visibleWhen" type="java.lang.String" value="#{editAllowed==true}"/>
               </Properties>
             </Component>
             <Component class="com.rameses.rcp.control.XButton" name="btnSave">
@@ -163,7 +163,7 @@
                 <Property name="focusable" type="boolean" value="false"/>
                 <Property name="iconResource" type="java.lang.String" value="images/toolbars/save.png"/>
                 <Property name="name" type="java.lang.String" value="save" noResource="true"/>
-                <Property name="visibleWhen" type="java.lang.String" value="#{saveAllowed}"/>
+                <Property name="visibleWhen" type="java.lang.String" value="#{saveAllowed==true}"/>
               </Properties>
             </Component>
             <Component class="com.rameses.rcp.control.XButton" name="btnUndo">
@@ -174,7 +174,7 @@
                 <Property name="iconResource" type="java.lang.String" value="images/toolbars/undo.png"/>
                 <Property name="immediate" type="boolean" value="true"/>
                 <Property name="name" type="java.lang.String" value="undo" noResource="true"/>
-                <Property name="visibleWhen" type="java.lang.String" value="#{undoAllowed}"/>
+                <Property name="visibleWhen" type="java.lang.String" value="#{undoAllowed==true}"/>
               </Properties>
             </Component>
             <Component class="com.rameses.rcp.control.XButton" name="btnCancel">
@@ -184,7 +184,31 @@
                 <Property name="iconResource" type="java.lang.String" value="images/toolbars/cancel.png"/>
                 <Property name="immediate" type="boolean" value="true"/>
                 <Property name="name" type="java.lang.String" value="unedit" noResource="true"/>
-                <Property name="visibleWhen" type="java.lang.String" value="#{cancelEditAllowed}"/>
+                <Property name="visibleWhen" type="java.lang.String" value="#{cancelEditAllowed==true}"/>
+              </Properties>
+            </Component>
+            <Component class="com.rameses.rcp.control.XButton" name="btnPrint">
+              <Properties>
+                <Property name="accelerator" type="java.lang.String" value="ctrl P"/>
+                <Property name="caption" type="java.lang.String" value=""/>
+                <Property name="focusable" type="boolean" value="false"/>
+                <Property name="iconResource" type="java.lang.String" value="images/toolbars/printer.png"/>
+                <Property name="immediate" type="boolean" value="true"/>
+                <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+                  <Insets value="[1, 1, 1, 1]"/>
+                </Property>
+                <Property name="name" type="java.lang.String" value="viewReport" noResource="true"/>
+                <Property name="visibleWhen" type="java.lang.String" value="#{viewReportAllowed==true}"/>
+              </Properties>
+            </Component>
+            <Component class="com.rameses.rcp.control.XButton" name="btnRefresh">
+              <Properties>
+                <Property name="caption" type="java.lang.String" value=""/>
+                <Property name="focusable" type="boolean" value="false"/>
+                <Property name="iconResource" type="java.lang.String" value="images/toolbars/refresh.png"/>
+                <Property name="immediate" type="boolean" value="true"/>
+                <Property name="name" type="java.lang.String" value="reloadEntity" noResource="true"/>
+                <Property name="visibleWhen" type="java.lang.String" value="#{mode == &apos;read&apos; }"/>
               </Properties>
             </Component>
             <Component class="com.rameses.rcp.control.XActionBar" name="xActionBar1">
@@ -196,6 +220,7 @@
                 </Property>
                 <Property name="dynamic" type="boolean" value="true"/>
                 <Property name="formName" type="java.lang.String" value="formName"/>
+                <Property name="name" type="java.lang.String" value="formActions" noResource="true"/>
               </Properties>
             </Component>
             <Component class="com.rameses.rcp.control.XActionBar" name="xActionBar2">
@@ -246,18 +271,6 @@
                 <Property name="iconResource" type="java.lang.String" value="images/help.png"/>
                 <Property name="immediate" type="boolean" value="true"/>
                 <Property name="name" type="java.lang.String" value="showHelp" noResource="true"/>
-              </Properties>
-            </Component>
-            <Component class="com.rameses.rcp.control.XButton" name="btnCancel2">
-              <Properties>
-                <Property name="caption" type="java.lang.String" value=""/>
-                <Property name="focusable" type="boolean" value="false"/>
-                <Property name="horizontalTextPosition" type="int" value="0"/>
-                <Property name="iconResource" type="java.lang.String" value="images/toolbars/refresh.png"/>
-                <Property name="immediate" type="boolean" value="true"/>
-                <Property name="name" type="java.lang.String" value="reloadEntity" noResource="true"/>
-                <Property name="verticalTextPosition" type="int" value="3"/>
-                <Property name="visibleWhen" type="java.lang.String" value="#{mode == &apos;read&apos; }"/>
               </Properties>
             </Component>
             <Component class="com.rameses.rcp.control.XButton" name="btnUp">

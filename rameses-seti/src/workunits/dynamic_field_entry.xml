@@ -1,0 +1,10 @@
+<workunit>
+    <invokers>
+        <invoker type="selected_field:entry" action="init" target="popup" caption="Selected Field Entry"/>
+        <invoker type="dynamic_field:entry" action="initDynamic" target="popup" caption="Field Entry"/>
+    </invokers>
+    <code class="com.rameses.seti2.models.DynamicEntryForm"/>  
+    <pages>
+        <page template="com.rameses.seti2.views.SelectedFieldFormPanel"/>
+    </pages>    
+</workunit> 

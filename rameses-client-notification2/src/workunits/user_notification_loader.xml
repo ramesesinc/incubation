@@ -37,7 +37,7 @@
             println 'user-notification-loader started...';            
             def headers = ClientContext.currentContext.headers;
             recipientid = headers.USERID; 
-            
+                        
             WebsocketClient.open([ 
                 protocol        : 'user', 
                 host            : env['ws.host'], 

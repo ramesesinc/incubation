@@ -11,6 +11,7 @@ package com.rameses.osiris2.common;
 
 import com.rameses.common.MethodResolver;
 import com.rameses.rcp.annotations.FormTitle;
+import com.rameses.rcp.common.CallbackHandlerProxy;
 import com.rameses.rcp.common.Column;
 import com.rameses.rcp.common.LookupModel;
 import java.util.ArrayList;
@@ -28,6 +29,9 @@ public class LOVLookupController extends LookupModel {
     private Object selectedEntity;
     private Object onselect;
     private boolean multiSelect = false;
+    
+    private Object beforeSelectItem;
+    private Object afterSelectItem;
     
     /** Creates a new instance of LOVLookupController */
     public LOVLookupController() {
@@ -109,5 +113,24 @@ public class LOVLookupController extends LookupModel {
         this.multiSelect = multiSelect;
     }
     
+    public void setBeforeSelectItem( Object beforeSelectItem ) {
+        this.beforeSelectItem = beforeSelectItem; 
+    }
+    public void setAfterSelectItem( Object afterSelectItem ) {
+        this.afterSelectItem = afterSelectItem; 
+    }
     
+    
+    private CallbackHandlerProxy callbackProxy = new CallbackHandlerProxy( null ); 
+    
+    protected void beforeSelectItem( Object fact ) {
+        if ( beforeSelectItem != null ) {
+            callbackProxy.invoke( beforeSelectItem, fact ); 
+        }
+    }
+    protected void afterSelectItem( Object fact ) {
+        if ( afterSelectItem != null ) {
+            callbackProxy.invoke( afterSelectItem, fact ); 
+        } 
+    } 
 }

@@ -116,7 +116,7 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
         borderColor = TableBorders.BORDER_COLOR; 
         
         //--create and decorate scrollpane for the JTable
-        scrollPane = new JScrollPane(table);        
+        scrollPane = new JScrollPane(table); 
         TableUtil.customize(scrollPane, table);
         //--additional customization for the JScrollPane 
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
@@ -308,43 +308,38 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
         refreshed = true;
     }
     
-    public void load() 
-    {
-        //System.out.println("load: class="+getClass().getName()+"@"+hashCode() + ", loaded="+hasLoaded + ", name="+getName());
+    public void load() {
         if (hasLoaded) return;
         
         applyExpressions();
         
         refreshed = false;
         AbstractListDataProvider newProvider = null;
-        if ( handler != null ) 
-        {
+        if ( handler != null ) {
             Object oHandler = UIControlUtil.getBeanValue(this, handler);
-            if ( oHandler instanceof AbstractListDataProvider ) 
+            if ( oHandler instanceof AbstractListDataProvider ) { 
                 newProvider = (AbstractListDataProvider) oHandler;  
-            
-            else {
+            } else {
                 System.out.println("[WARN] '"+handler+"' list model is null");
                 newProvider = new ReadonlyListModel(null); 
             }
         }
         
-        if (newProvider == null && getItems() != null) 
-        {
-            if (isEditable())
+        if (newProvider == null && getItems() != null) {
+            if (isEditable()) { 
                 newProvider = new EditableListModel(getItems()); 
-            else 
+            } else { 
                 newProvider = new ReadonlyListModel(getItems()); 
-        }
+            } 
+        } 
         
-        if (newProvider != null)
-        {
+        if (newProvider != null) {
             if (getColumns() != null) newProvider.setColumns(getColumns());            
-            if (newProvider instanceof EditorListModel) 
-                setShowRowHeader(true);
-            else 
+            if (newProvider instanceof EditorListModel) { 
+                setShowRowHeader(true); 
+            } else { 
                 setShowRowHeader(false);
-                            
+            } 
             dataProvider = newProvider;
             table.setBinding(binding);
             table.setDataProvider(dataProvider);
@@ -413,7 +408,7 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
             }
         } 
     }
-         
+     
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" UIComplex implementation ">
@@ -428,13 +423,13 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
     
     // <editor-fold defaultstate="collapsed" desc="  table listener methods  ">
     
-    public void cancelRowEdit() 
-    {
-        if ( rowHeaderView != null ) rowHeaderView.clearEditing();
+    public void cancelRowEdit() {
+        if ( rowHeaderView != null ) { 
+            rowHeaderView.clearEditing();
+        }
     }
         
-    protected void log(String msg) 
-    {
+    protected void log(String msg) {
         String name = getClass().getSimpleName(); 
         System.out.println("["+name+"] " + msg);
     }
@@ -588,7 +583,7 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
         this.showRowHeader = showRowHeader;
         
         if ( showRowHeader ) {
-            JLabel corner = new CellRenderers.HeaderRenderer();
+            JLabel corner = new CellRenderers.HeaderRenderer(true);
             corner.putClientProperty("Component.proxy", table); 
             scrollPane.setCorner(JScrollPane.UPPER_LEFT_CORNER, corner); 
             scrollPane.setRowHeaderView( (rowHeaderView = new RowHeaderView(table)) );
@@ -895,34 +890,26 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
         private boolean refreshOnly;
         private boolean processing;
                 
-        Runnable load() 
-        {
+        Runnable load() {
             refreshOnly = false; 
             return this; 
         }
         
-        Runnable refresh() 
-        {
+        Runnable refresh() {
             refreshOnly = true; 
             return this; 
         } 
         
-        public void run()
-        {
-            synchronized(LOCK) 
-            {
-                try 
-                {
-                    if (refreshOnly)
+        public void run() {
+            synchronized(LOCK) {
+                try {
+                    if (refreshOnly) { 
                         dataProvider.refresh();
-                    
-                    else 
-                    {
+                    } else {
                         dataProvider.load();
                         table.onrowChanged(); 
                     }
-                }
-                catch(Exception ex) {
+                } catch(Exception ex) {
                     showError(ex); 
                 }
             }
@@ -941,8 +928,8 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
     
     // <editor-fold defaultstate="collapsed" desc="  DataTableComponentImpl (Class)  ">
     
-    private class DataTableComponentImpl extends DataTableComponent 
-    {
+    private class DataTableComponentImpl extends DataTableComponent {
+        
         XDataTable root = XDataTable.this;
         
         PropertyChangeListener propertyHandler = new PropertyChangeListener() {
@@ -951,29 +938,25 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
             }
         };
         
-        protected void onPropertyChange(PropertyChangeEvent e) 
-        {
+        protected void onPropertyChange(PropertyChangeEvent e) {
             String propName = e.getPropertyName();
-            if ("checkedItemsChanged".equals(propName)) 
-            {
+            if ("checkedItemsChanged".equals(propName)) {
                 if (!dataProvider.isMultiSelect()) return;
 
                 String multiName = getMultiSelectName();
-                if (multiName == null) 
+                if (multiName == null) { 
                     multiName = table.getDataTableModel().DEFAULT_MULTI_SELECT_NAME; 
-                
+                } 
                 rowChangeNotifier.notifyDependsCheckedItems(multiName); 
             }
         }
 
-        protected void uninstall(AbstractListDataProvider dataProvider) 
-        {
+        protected void uninstall(AbstractListDataProvider dataProvider) {
             dataProvider.removeHandler(root.propertyHandler);
             dataProvider.removeHandler(root.tableModelHandler); 
         }
         
-        protected void install(AbstractListDataProvider dataProvider) 
-        {
+        protected void install(AbstractListDataProvider dataProvider) {
             dataProvider.addHandler(root.propertyHandler);
             dataProvider.addHandler(root.tableModelHandler);             
         }
@@ -982,8 +965,7 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
             tableModel.addHandler(propertyHandler); 
         } 
         
-        protected void onrowChanged() 
-        { 
+        protected void onrowChanged() { 
             if (dataProvider == null) return;
             
             ListItem selectedItem = dataProvider.getSelectedItem();
@@ -992,25 +974,24 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
             Object newValue = (selectedItem == null? null: selectedItem.getItem());            
             
             currentItem = null; 
-            if (selectedItem != null) 
+            if (selectedItem != null) { 
                 currentItem = selectedItem.clone(); 
-            if (oldValue != newValue && rowChangeNotifier != null) 
+            } 
+            if (oldValue != newValue && rowChangeNotifier != null) { 
                 rowChangeNotifier.execute(); 
-            if (rowHeaderView != null) 
+            } 
+            if (rowHeaderView != null) { 
                 rowHeaderView.clearEditing();
-            
+            } 
             try { 
                 root.scrollBar.adjustValues(); 
             } catch(Exception ex) {;} 
         } 
         
-        protected void onopenItem() 
-        { 
-            try 
-            {
+        protected void onopenItem() { 
+            try {
                 ListItem selectedItem = dataProvider.getSelectedItem();
-                if (selectedItem != null && selectedItem.getItem() != null) 
-                {
+                if (selectedItem != null && selectedItem.getItem() != null) {
                     Object outcome = dataProvider.openSelectedItem();
                     if (outcome == null) return; 
 
@@ -1021,22 +1002,29 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
                     
                     binding.fireNavigation(outcome); 
                 }
-            } 
-            catch(Exception ex) {
+            } catch(Exception ex) {
                 MsgBox.err(ex); 
             } 
         } 
 
-        protected void onchangedItem(ListItem li) 
-        {
-            currentItem = null;
-            if (li != null) currentItem = li.clone(); 
-            if (rowChangeNotifier != null) rowChangeNotifier.execute(); 
+        protected void onchangedItem(ListItem li) {
+            currentItem = null; 
+            if ( li != null ) { 
+                currentItem = li.clone(); 
+            } 
+            if ( rowChangeNotifier != null ) { 
+                rowChangeNotifier.execute(); 
+            } 
         }
 
-        protected void oneditCellAt(int rowIndex, int colIndex) 
-        {
-            if (root.rowHeaderView != null) root.rowHeaderView.editRow(rowIndex);
+        protected void oneditCellAt(int rowIndex, int colIndex) { 
+            if (root.rowHeaderView != null) { 
+                root.rowHeaderView.editRow(rowIndex); 
+            } 
+        } 
+
+        public boolean hasRowHeader() { 
+            return root.isShowRowHeader(); 
         } 
     } 
     

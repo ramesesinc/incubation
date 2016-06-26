@@ -33,6 +33,7 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Graphics;
 import java.awt.Insets;
 import java.awt.LayoutManager;
 import java.awt.Rectangle;
@@ -46,9 +47,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JEditorPane;
 import javax.swing.JLabel;
@@ -56,6 +55,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
+import javax.swing.border.AbstractBorder;
 import javax.swing.border.Border;
 import javax.swing.text.JTextComponent;
 
@@ -70,7 +70,6 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
     private String orientation = UIConstants.VERTICAL;
     private String visibleWhen;
     private Insets padding;
-    private Border origBorder;
     
     //caption options
     private int captionWidth = 80;
@@ -138,6 +137,7 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
         setFont(font); 
         setCaptionFont(font); 
         setCaptionForeground(UIManager.getColor("Label.foreground")); 
+        setBorder( getInnerBorder() ); 
     }
 
     // <editor-fold defaultstate="collapsed" desc=" FormPanel implementations ">
@@ -743,25 +743,10 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
         this.cellspacing = cellspacing; 
         propertySupport.firePropertyChange("cellSpacing", cellspacing); 
     }
-    
-    public Border getBorder() {
-        return super.getBorder(); 
-    }
-    
-    public void setBorder(Border border) {
-        this.origBorder = border;
-        if ( padding != null ) {
-            Border inner = BorderFactory.createEmptyBorder(padding.top, padding.left, padding.bottom, padding.right);
-            super.setBorder(BorderFactory.createCompoundBorder(border, inner));
-        } else {
-            super.setBorder(border);
-        }
-    }
-    
+        
     public Insets getPadding() { return padding; }
     public void setPadding(Insets padding) {
         this.padding = padding;
-        setBorder(origBorder);
     }
     
     public int getCaptionWidth() { return captionWidth; }
@@ -1467,4 +1452,51 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
     } 
     
     // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" InnerBorder ">
+    
+    private InnerBorder innerBorder; 
+    private InnerBorder getInnerBorder() {
+        if ( innerBorder == null ) {
+            innerBorder = new InnerBorder(); 
+        }
+        return innerBorder; 
+    }
+    
+    private class InnerBorder extends AbstractBorder {
+        
+        XFormPanel root = XFormPanel.this; 
+        
+        public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
+        }
+        
+        public Insets getBorderInsets( Component c )       {
+            return getBorderInsets();
+        }
+        public Insets getBorderInsets(Component c, Insets ins) { 
+            Insets pad = getBorderInsets(); 
+            if ( ins == null ) {
+                ins = new Insets(0,0,0,0); 
+            }
+            ins.top = pad.top;
+            ins.left = pad.left;
+            ins.bottom = pad.bottom;
+            ins.right = pad.right;
+            return ins;
+        }
+        
+        public boolean isBorderOpaque() { return false; }
+        
+        public Insets getBorderInsets() { 
+            Insets pad = root.getPadding(); 
+            if ( pad == null ) {
+                pad = new Insets(0,0,0,0); 
+            } 
+            return new Insets( pad.top, pad.left, pad.bottom, pad.right );
+        }
+        
+    }
+    
+    // </editor-fold>
+    
 }

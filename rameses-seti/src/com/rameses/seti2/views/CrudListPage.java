@@ -142,6 +142,7 @@ public class CrudListPage extends javax.swing.JPanel {
         btnSelectColumn = new com.rameses.rcp.control.XButton();
         xActionBar1 = new com.rameses.rcp.control.XActionBar();
         jPanel7 = new javax.swing.JPanel();
+        xSubFormPanel1 = new com.rameses.rcp.control.XSubFormPanel();
         jToolBar2 = new javax.swing.JToolBar();
         xActionTextField1 = new com.rameses.rcp.control.XActionTextField();
         xButton2 = new com.rameses.rcp.control.XButton();
@@ -204,7 +205,7 @@ public class CrudListPage extends javax.swing.JPanel {
         btnCreate.setIconResource("images/toolbars/create.png");
         btnCreate.setMargin(new java.awt.Insets(1, 1, 1, 1));
         btnCreate.setName("create"); // NOI18N
-        btnCreate.setVisibleWhen("#{createAllowed}");
+        btnCreate.setVisibleWhen("#{createAllowed==true}");
         jToolBar1.add(btnCreate);
 
         btnOpen.setAccelerator("ctrl O");
@@ -213,7 +214,7 @@ public class CrudListPage extends javax.swing.JPanel {
         btnOpen.setIconResource("images/toolbars/open.png");
         btnOpen.setMargin(new java.awt.Insets(1, 1, 1, 1));
         btnOpen.setName("open"); // NOI18N
-        btnOpen.setVisibleWhen("#{openAllowed}");
+        btnOpen.setVisibleWhen("#{openAllowed==true}");
         jToolBar1.add(btnOpen);
 
         btnDelete.setCaption("");
@@ -222,7 +223,7 @@ public class CrudListPage extends javax.swing.JPanel {
         btnDelete.setIconResource("images/toolbars/trash.png");
         btnDelete.setMargin(new java.awt.Insets(1, 1, 1, 1));
         btnDelete.setName("removeEntity"); // NOI18N
-        btnDelete.setVisibleWhen("#{deleteAllowed}");
+        btnDelete.setVisibleWhen("#{deleteAllowed==true}");
         jToolBar1.add(btnDelete);
 
         btnPrint.setAccelerator("ctrl P");
@@ -262,13 +263,28 @@ public class CrudListPage extends javax.swing.JPanel {
 
         xActionBar1.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 10, 0, 0));
         xActionBar1.setFormName("formName");
-        xActionBar1.setName("extActions"); // NOI18N
+        xActionBar1.setName("listActions"); // NOI18N
         jToolBar1.add(xActionBar1);
 
         jPanel8.add(jToolBar1, java.awt.BorderLayout.WEST);
 
         jPanel7.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 5));
         jPanel7.setLayout(new java.awt.BorderLayout());
+
+        xSubFormPanel1.setHandler("queryForm");
+
+        javax.swing.GroupLayout xSubFormPanel1Layout = new javax.swing.GroupLayout(xSubFormPanel1);
+        xSubFormPanel1.setLayout(xSubFormPanel1Layout);
+        xSubFormPanel1Layout.setHorizontalGroup(
+            xSubFormPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 235, Short.MAX_VALUE)
+        );
+        xSubFormPanel1Layout.setVerticalGroup(
+            xSubFormPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 25, Short.MAX_VALUE)
+        );
+
+        jPanel7.add(xSubFormPanel1, java.awt.BorderLayout.CENTER);
 
         jToolBar2.setFloatable(false);
         jToolBar2.setRollover(true);
@@ -354,5 +370,6 @@ public class CrudListPage extends javax.swing.JPanel {
     private com.rameses.rcp.control.XButton xButton1;
     private com.rameses.rcp.control.XButton xButton2;
     private com.rameses.rcp.control.XLabel xLabel1;
+    private com.rameses.rcp.control.XSubFormPanel xSubFormPanel1;
     // End of variables declaration//GEN-END:variables
 }

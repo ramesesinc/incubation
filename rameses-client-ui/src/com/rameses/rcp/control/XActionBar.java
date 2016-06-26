@@ -254,7 +254,7 @@ public class XActionBar extends JPanel implements UIComposite, ActiveControl, Mo
             
             String _formtype = (_name == null? "formActions" : _name);
             List<Action> list = actionProvider.lookupActions(_formname +":"+ _formtype);
-            if (list != null) { 
+            if ( list != null && !list.isEmpty()) { 
                 Collections.sort(list);
                 actions.addAll(list);
             }
@@ -419,7 +419,7 @@ public class XActionBar extends JPanel implements UIComposite, ActiveControl, Mo
         if (isDynamic()) buildButtons();
 
         boolean found = false;
-        for (XButton btn: buttons) {
+        for (XButton btn: buttons) { 
             String domain = (String) btn.getClientProperty("Action.domain");
             String role = (String) btn.getClientProperty("Action.role");
             String permission = (String) btn.getClientProperty("Action.permission");
@@ -446,7 +446,7 @@ public class XActionBar extends JPanel implements UIComposite, ActiveControl, Mo
                 }
             }
             
-            if ( dirty ) toolbarComponent.add(btn);
+            if ( dirty ) toolbarComponent.add(btn); 
         }
 
         revalidate(); 

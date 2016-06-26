@@ -36,11 +36,21 @@ public abstract class AbstractCrudModel  {
     @Service("QueryService")
     def qryService;
     
+    @Script("ListTypes")
+    def listTypes;
+    
+    @Script("Lov")
+    def lov;
+    
     String role;
     String domain;
     String permission;
     List styleRules = [];
     def schema;
+    
+    
+    
+    boolean debug = false;
     
     private String _schemaName_ ;
     
@@ -248,6 +258,24 @@ public abstract class AbstractCrudModel  {
         return secProvider.checkPermission( domain, role, deletePermission );
     }
     
+    boolean isViewReportAllowed() { 
+        def allowViewReport = workunit.info.workunit_properties.allowViewReport;  
+        if( allowViewReport ) {
+            if (allowViewReport == 'false') return false;
+            if (allowViewReport.startsWith('#{')){
+                try {
+                    boolean t = ExpressionResolver.getInstance().evalBoolean(allowViewReport, [entity:getEntityContext()] );
+                    if(t == false) return false;
+                }
+                catch(ign){
+                    println 'Expression Error: ' + allowViewReport;
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+    
     def showMenu() {
         def op = new PopupMenuOpener();
         //op.add( new ListAction(caption:'New', name:'create', obj:this, binding: binding) );
@@ -278,6 +306,16 @@ public abstract class AbstractCrudModel  {
         def z = workunit.views.find{ it.name == pageName };
         if(z) return true;
         return false;
+    }
+    
+    def viewReport() {
+        def op = new PopupMenuOpener();
+        try {
+            def list = Inv.lookupOpeners(schemaName+":" + getFormType() + ":reports", [entity:entityContext]);
+            if(!list) throw new Exception("No reports are defined for " + schemaName+":" + getFormType() );
+            op.addAll( list );
+        } catch(Throwable ign){;}
+        return op;
     }
     
 }

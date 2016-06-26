@@ -1,4 +1,4 @@
-/*
+ /*
  * Schema.java
  *
  * Created on August 12, 2010, 10:11 AM
@@ -160,7 +160,7 @@ public class SchemaElement implements Serializable {
         synchronized(lock) {
             if( schemaView == null ) {
                 schemaView = new SchemaView(this);
-                fetchAllFields( schemaView, schemaView, null, true, true, new HashSet(), true, null, null );
+                fetchAllFields( schemaView, schemaView, null, true, true, new HashSet(), true, null, null, true );
             }
         }
         return schemaView;
@@ -175,11 +175,13 @@ public class SchemaElement implements Serializable {
     //manyToOneRequired. 
     //If the source relationship is not required, then automatically cascading elements should also be false.
     //This is to solve the left join problem.
+    //includePrimary is false for extended elements. but should be included for many to one views
     private void fetchAllFields(SchemaView rootVw, AbstractSchemaView currentVw, String prefix, 
             boolean insertable, boolean updatable,  Set<SchemaRelation> duplicates, 
-            boolean loadOneToMany, String includeFields, Boolean manyToOneRequired) {
+            boolean loadOneToMany, String includeFields, Boolean manyToOneRequired, boolean includePrimary) {
         
         for( SimpleField sf: this.getSimpleFields() ) {
+            if(sf.isPrimary() && !includePrimary) continue;
             boolean ins = insertable;
             boolean upd = updatable;
             if( sf.isPrimary() ) {
@@ -221,7 +223,7 @@ public class SchemaElement implements Serializable {
                 targetVw.addRelationField(rf);
             }
             currentVw.setExtendsView(targetVw);
-            extElement.fetchAllFields(rootVw, targetVw, prefix,true, true, duplicates, true, includeFields, manyToOneRequired );
+            extElement.fetchAllFields(rootVw, targetVw, prefix,true, true, duplicates, true, includeFields, manyToOneRequired, false );
         }
         
         boolean processManyToOne = true; 
@@ -249,12 +251,22 @@ public class SchemaElement implements Serializable {
             relList.addAll( this.getOneToOneRelationships() );
             relList.addAll( this.getManyToOneRelationships() );
 
+            String[] incflds = (includeComplex != null ? includeComplex.split("\\|") : null); 
+            
             //extract all fields related.
             for( SchemaRelation sr: relList  ) { 
                 String srname = (prefix==null? "": (prefix+"_")) + sr.getName(); 
-                if ( includeComplex != null && !srname.matches(includeComplex) ) {
-                    continue; 
-                }
+                if ( incflds != null && incflds.length > 0 ) { 
+                    boolean has_matches = false; 
+                    for ( String str : incflds ) {
+                        if ( str.equals( srname ) || str.startsWith(srname)) { 
+                            has_matches = true;
+                            break; 
+                        } 
+                    } 
+                        
+                    if ( !has_matches ) continue; 
+                } 
 
                 if( duplicates.contains(sr)) continue;
                 duplicates.add(sr);
@@ -265,7 +277,7 @@ public class SchemaElement implements Serializable {
                     isRequired = manyToOneRequired.booleanValue();
                 }
                 LinkedSchemaView targetVw = new LinkedSchemaView(sr.getName(), targetElem, rootVw, currentVw, sr.getJointype(),isRequired, prefix  );
-
+                targetVw.setIncludeFields(sr.getIncludeFields());
                 for( RelationKey rk: sr.getRelationKeys() ) {
                     SimpleField tf = (SimpleField)sr.getLinkedElement().getField(rk.getTarget());
                     if( tf == null ) 
@@ -322,7 +334,7 @@ public class SchemaElement implements Serializable {
                 } else {
 
                 }
-                targetElem.fetchAllFields(rootVw, targetVw, targetVw.getName(), ins, upd, duplicates, false, incFlds, mreq);
+                targetElem.fetchAllFields(rootVw, targetVw, targetVw.getName(), ins, upd, duplicates, false, incFlds, mreq, true);
             }
         }
         

@@ -133,7 +133,7 @@ public class SchemaView extends AbstractSchemaView {
                 fld.put("name", vf.getMapname());
                 fld.put("extname", vf.getExtendedName());
                 //always include the primary key
-                if( vf.isPrimary() && vf.isBaseField()) {
+                if( vf.isPrimary()) { // && vf.isBaseField()) {
                     flds.add( fld );
                 }
                 else if( filter.accept("field", fld) ) {
@@ -155,6 +155,7 @@ public class SchemaView extends AbstractSchemaView {
             fld.put("ref", lvw.getElement().getName());
             fld.put("jointype", lvw.getJointype());
             fld.put("required", lvw.isRequired());
+            fld.put("includefields", lvw.getIncludeFields());
             if( filter.accept("field", fld) ) {
                 links.add( fld );
             }

@@ -1,6 +1,6 @@
 <workunit>
     <invokers>
-        <invoker type="loader" caption="notification-provider-loader" action="init" target="process" index="99"/>
+        <invoker xtype="loader" caption="notification-provider-loader" action="init" target="process" index="99"/>
     </invokers>
     
     <code>
@@ -12,6 +12,7 @@
         public class NotificationProviderLoader
         {
             void init() {  
+                println 'setting notification provider impl';
                 def cctx = com.rameses.rcp.framework.ClientContext.currentContext;
                 def np = new com.rameses.client.notification.NotificationProviderImpl();
                 cctx.setNotificationProvider(np); 

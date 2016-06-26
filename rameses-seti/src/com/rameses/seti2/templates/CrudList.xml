@@ -24,7 +24,9 @@
     
     <pages>
         <page template="com.rameses.seti2.views.CrudListPage"/>
+        <!--
         <page name="queryForm" template="com.rameses.osiris2.themes.DefaultQueryFormPanel"/>
+        -->
     </pages>
     
 </workunit> 

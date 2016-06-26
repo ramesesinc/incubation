@@ -144,6 +144,9 @@ public class NotificationButton extends JButton implements ActionListener, Toolb
                     remove(objid); 
                     return;
                 }
+
+                String recipientid = getBeanValueAsString(data, "recipientid");
+                if (recipientid == null || recipientid.trim().length()==0 ) return;
                 
                 if (root.messages.containsKey(objid)) return; 
                 

@@ -489,30 +489,30 @@ public abstract class AbstractListDataProvider
     } 
     
     
-    protected void beforeSelectionItemChange( Object fact ) {} 
-    protected void beforeSelectionItemChange(Object item, boolean selected, int rowIndex) {
+    protected void beforeSelectItem( Object fact ) {}
+    protected void beforeSelectItem(Object item, boolean selected, int rowIndex) {
         Map fact = new HashMap();
         fact.put("selected", selected); 
         fact.put("index", rowIndex); 
         fact.put("data", item); 
-        beforeSelectionItemChange( fact ); 
+        beforeSelectItem( fact ); 
     }
     
-    protected void afterSelectionItemChange( Object fact ) {} 
-    protected void afterSelectionItemChange( Object item, boolean selected, int rowIndex ) {
+    protected void afterSelectItem( Object fact ) {} 
+    protected void afterSelectItem( Object item, boolean selected, int rowIndex ) {
         Map fact = new HashMap();
         fact.put("selected", selected); 
         fact.put("index", rowIndex); 
         fact.put("data", item); 
-        afterSelectionItemChange( fact ); 
+        afterSelectItem( fact ); 
     } 
     
-    public final void fireBeforeSelectionItemChange(Object item, boolean selected, int rowIndex) {
-        beforeSelectionItemChange(item, selected, rowIndex); 
+    public final void fireBeforeSelectItem(Object item, boolean selected, int rowIndex) {
+        beforeSelectItem(item, selected, rowIndex); 
     }
     
-    public final void fireAfterSelectionItemChange(Object item, boolean selected, int rowIndex) {
-        afterSelectionItemChange(item, selected, rowIndex); 
+    public final void fireAfterSelectItem(Object item, boolean selected, int rowIndex) {
+        afterSelectItem(item, selected, rowIndex); 
     } 
     
     // multi selection events 
@@ -804,7 +804,9 @@ public abstract class AbstractListDataProvider
                 checked = root.isItemSelected(itemData); 
             } catch(Exception ex) {;} 
             
-            if (checked) setItemChecked(itemData, checked); 
+            if ( checked ) {
+                setItemChecked(itemData, checked, -1);
+            } 
             
             return checked; 
         }
@@ -836,12 +838,20 @@ public abstract class AbstractListDataProvider
             } 
         } 
         
-        public synchronized void setItemChecked(Object itemData, boolean checked) { 
-            if ( checked ) {
+        public synchronized void setItemChecked(Object itemData, boolean checked, int rowIndex) { 
+            if ( rowIndex >= 0 ) {
+                fireBeforeSelectItem(itemData, checked, rowIndex); 
+            }
+            
+            if ( checked ) { 
                 checkedItems.put(itemData, checked); 
             } else {
                 checkedItems.remove(itemData); 
-            }
+            } 
+            
+            if ( rowIndex >= 0 ) { 
+                fireAfterSelectItem(itemData, checked, rowIndex); 
+            } 
         } 
         
         public List getSelectedValues() 

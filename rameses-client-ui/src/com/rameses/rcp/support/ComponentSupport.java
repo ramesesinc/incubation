@@ -50,23 +50,20 @@ public class ComponentSupport
         int[] values = alignment_options.get(textAlignment.toUpperCase()); 
         if (values == null) return;
         
-        if (comp instanceof AbstractButton)
-        {
+        if (comp instanceof AbstractButton) {
             AbstractButton jc = (AbstractButton) comp; 
             jc.setVerticalAlignment(values[0]);
             jc.setHorizontalAlignment(values[1]); 
-        }
-        else if (comp instanceof JLabel)
-        {
+            
+        } else if (comp instanceof JLabel) {
             JLabel jc = (JLabel) comp;
             jc.setVerticalAlignment(values[0]);
             jc.setHorizontalAlignment(values[1]); 
-        }
-        else if (comp instanceof JTextField)
-        {
-            JTextField jc = (JTextField) comp;
+            
+        } else if (comp instanceof JTextField) {
+            JTextField jc = (JTextField) comp; 
             jc.setHorizontalAlignment(values[1]); 
-        }         
+        } 
     }
 
     public void alignTextPosition(JComponent comp, String textPosition) 

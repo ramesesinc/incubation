@@ -510,7 +510,7 @@ public class XComboBox extends JComboBox implements UIInput, Validatable, Active
                 }
             });
         }
-    }   
+    } 
     
     public void refresh() {
         try {
@@ -542,33 +542,41 @@ public class XComboBox extends JComboBox implements UIInput, Validatable, Active
                 EventQueue.invokeLater(new Runnable(){
                     public void run() {
                         try {
+                            updating = true; 
                             buildList();
                         } catch(Exception e) {
-                            if (ClientContext.getCurrentContext().isDebugMode()) 
-                                e.printStackTrace();
-                        }
-                    }
+                            if (ClientContext.getCurrentContext().isDebugMode()) { 
+                                e.printStackTrace(); 
+                            } 
+                        } finally { 
+                            updating = false; 
+                        } 
+                    } 
                 });
-            }
-            //else {
-                EventQueue.invokeLater(new Runnable() {
-                    public void run() {
-                        try {
-                            Object value = UIControlUtil.getBeanValue(XComboBox.this);
-                            setValue(value);
-                        } catch(Exception e) {
-                            if (ClientContext.getCurrentContext().isDebugMode())
-                                e.printStackTrace();
-                        }
+            } 
+            
+            EventQueue.invokeLater(new Runnable() {
+                public void run() {
+                    try {
+                        Object value = UIControlUtil.getBeanValue(XComboBox.this);
+                        setValue(value);
+                    } catch(Exception e) {
+                        if (ClientContext.getCurrentContext().isDebugMode()) { 
+                            e.printStackTrace(); 
+                        } 
+                    } finally {
+                        updating = false; 
                     }
-                }); 
-            //} 
-        } 
-        catch(Exception e) {
+                }
+            });
+            
+        } catch( Exception e ) {
             setEnabled(false);
             setFocusable(false);
             
-            if ( ClientContext.getCurrentContext().isDebugMode() ) e.printStackTrace();
+            if ( ClientContext.getCurrentContext().isDebugMode() ) {
+                e.printStackTrace();
+            }
         }
     }
     

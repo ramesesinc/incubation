@@ -24,7 +24,7 @@ public class CrudListModel extends AbstractCrudModel {
     def adapter;
     
     def query = [:];
-    def findBy = [:];
+    def _findBy = [:];
     def criteriaList = [];
     def queryForm;
     def whereStatement;
@@ -37,7 +37,7 @@ public class CrudListModel extends AbstractCrudModel {
     String strCols;
     
     String _entitySchemaName_;   //used in case the view schema is not the same as entity schema
-    boolean debug = false;
+    
     private String _tag_;
     
     boolean _multiSelect; 
@@ -48,6 +48,10 @@ public class CrudListModel extends AbstractCrudModel {
     
     public def getEntityContext() {
         return selectedItem;
+    }
+    
+    public def getFindBy() {
+        return _findBy;
     }
     
     public String getEntitySchemaName() {
@@ -107,7 +111,6 @@ public class CrudListModel extends AbstractCrudModel {
         
         def map = [name:schemaName, adapter: adapter]; 
         if ( strCols ) map.colnames = strCols;
-        
         _schema = getPersistenceService().getSchema( map );
         _schema.name = schemaName;
         if(adapter) _schema.adapter = adapter;
@@ -140,9 +143,14 @@ public class CrudListModel extends AbstractCrudModel {
         for( it in  schema.fields) {  
             if(it.jointype) continue;
             if ( it.primary==true ) {
-                if( it.source != schema.name ) continue;
-                it.selectable = true;
-                it.selected = ( it.visible=='true' ); 
+                if( it.source != schema.name ) {
+                    it.visible = false;
+                    it.hidden = 'true'
+                }
+                else {
+                    it.selectable = true;
+                    it.selected = ( it.visible=='true' ); 
+                }
             } 
             else if ( it.visible==null || it.visible=='true' ) {
                 it.selected = true; 
@@ -161,8 +169,8 @@ public class CrudListModel extends AbstractCrudModel {
         if(query) {
             m.putAll(query);
         };
-        if(findBy) {
-            m.findBy = findBy;
+        if(getFindBy()) {
+            m.findBy = getFindBy();
         };
         m._schemaname = schema.name;
         m.adapter = schema.adapter;
@@ -172,7 +180,6 @@ public class CrudListModel extends AbstractCrudModel {
         
         //build the columns to retrieve
         m.select = (primKeys + arr).unique().join(",") ;
-        
         if(customFilter!=null) {
             if( customFilter.size() !=2 ) 
                 throw new Exception("Custom Filter must have a statement and parameter")
@@ -362,6 +369,10 @@ public class CrudListModel extends AbstractCrudModel {
     }
     
     void refresh() {
+        listHandler.reload();
+    }
+    
+    void reload() {
         listHandler.reload();
     }
     

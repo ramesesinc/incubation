@@ -78,7 +78,7 @@ public class DataTransposer {
     //only update fields that exist in the data source
     public static Map prepareDataForUpdate(SchemaView svw, Map rawData ) throws Exception {
         
-        Map sourceData = flatten(rawData, "_");
+        Map flattenedData = flatten(rawData, "_");
         
         Map targetData = new LinkedHashMap();
         for( SchemaViewField vf: svw.findAllFields(".*")) {
@@ -97,14 +97,14 @@ public class DataTransposer {
                         targetData.put( vf.getExtendedName(), val);
                     } catch(Throwable ign){;}
                     
-                } else if( sourceData.containsKey(vf.getExtendedName()) ) {
-                    Object val = sourceData.get(vf.getExtendedName());  
+                } else if( flattenedData.containsKey(vf.getExtendedName()) ) {
+                    Object val = flattenedData.get(vf.getExtendedName());  
                     targetData.put( vf.getExtendedName(), val);
                     
                 } else {
                     String fldname = vf.getExtendedName();
                     String[] names = fldname.split("_"); 
-                    if ( names.length > 1 && sourceData.containsKey(names[0]) ) { 
+                    if ( names.length > 1 && flattenedData.containsKey(names[0]) ) { 
                         targetData.put( fldname, null ); 
                     }
                 } 
@@ -112,30 +112,16 @@ public class DataTransposer {
             else  {
                 SchemaViewRelationField svr = (SchemaViewRelationField)vf;
                 if( svr.getTargetJoinType().matches( JoinTypes.MANY_TO_ONE +"|"+JoinTypes.ONE_TO_ONE ) ) {
-                    String tgt = svr.getTargetFieldExtendedName();
-                    String src = svr.getFieldname();
-                    
-                    Object val = EntityUtil.getNestedValue(sourceData, svr.getExtendedName());
-                    if( val == null ) {
-                        //this is usually for many to one.
-                        val = EntityUtil.getNestedValue(sourceData, svr.getTargetFieldExtendedName()  );
+                    if( flattenedData.containsKey(svr.getTargetFieldExtendedName()) ) {
+                        Object val = flattenedData.get(svr.getTargetFieldExtendedName());
                         targetData.put( svr.getFieldname(), val);
                     }
-                    else {
-                        targetData.put( svr.getExtendedName(), val);
+                    //check if we need to include this in update. Two fields we need to check
+                    //the field directly linked or the embedded object to be linked. 
+                    else if ( flattenedData.containsKey(svr.getExtendedName())) {
+                        Object val = flattenedData.get( svr.getExtendedName() );
+                        targetData.put( svr.getFieldname(), val);
                     }
-                    
-                    //test first if the value contains the key. if not check the target if it contains the key
-                    /*
-                    if(sourceData.containsKey(src)) {
-                        Object val =sourceData.get(src);
-                        targetData.put( src, val );        
-                    }
-                    else if( sourceData.containsKey(tgt )) {
-                        Object val =sourceData.get(tgt);
-                        targetData.put( src, val );        
-                    }
-                    */ 
                 }
             }
         }

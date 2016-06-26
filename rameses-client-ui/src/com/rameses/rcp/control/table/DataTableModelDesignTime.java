@@ -42,39 +42,43 @@ class DataTableModelDesignTime extends AbstractTableModel
         return (columns == null? 0: columns.length); 
     }
 
-    public String getColumnName(int index) 
-    {
-        int colCount = getColumnCount();
-        if (index >= 0 && index < colCount) 
-            return columns[index].getCaption(); 
-        else
-            return "";
-    }
+    public String getColumnName(int index) { 
+        Column col = getColumn( index ); 
+        return (col == null? "": col.getCaption()); 
+    } 
     
-    public Object getValueAt(int rowIndex, int columnIndex) {
-        return "";
-    }
+    public Column getColumn( int index ) { 
+        int colCount = getColumnCount(); 
+        if (index >= 0 && index < colCount) { 
+            return columns[index]; 
+        } else { 
+            return null; 
+        } 
+    } 
+    
+    public Object getValueAt(int rowIndex, int columnIndex) { 
+        return ""; 
+    } 
 
-    void applyColumnAttributes(DataTableComponent table) 
-    {
+    void applyColumnAttributes(DataTableComponent table) {
         int columnCount = getColumnCount(); 
-        for (int i=0; i<columnCount; i++) 
-        {
+        for (int i=0; i<columnCount; i++) {
             Column oColumn = columns[i];             
-            if (oColumn.getTypeHandler() instanceof SelectionColumnHandler) 
+            if (oColumn.getTypeHandler() instanceof SelectionColumnHandler) { 
                 oColumn.setEditable(true);
-
+            } 
+            
             TableColumn oTableColumn = table.getColumnModel().getColumn(i);            
-            if (oColumn.getWidth() >= 0)
-            {
+            if (oColumn.getWidth() >= 0) { 
                 oTableColumn.setPreferredWidth(oColumn.getWidth());
                 oTableColumn.setWidth(oColumn.getWidth());
             }
-            if (oColumn.getMinWidth() > 0) 
-                oTableColumn.setMinWidth(oColumn.getMinWidth());
-            if (oColumn.getMaxWidth() > 0) 
+            if (oColumn.getMinWidth() > 0) { 
+                oTableColumn.setMinWidth(oColumn.getMinWidth()); 
+            } 
+            if (oColumn.getMaxWidth() > 0) { 
                 oTableColumn.setMaxWidth(oColumn.getMaxWidth());
-            
+            } 
             oTableColumn.setResizable(oColumn.isResizable()); 
             oTableColumn.setCellRenderer(new DefaultRenderer()); 
         }

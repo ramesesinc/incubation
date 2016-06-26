@@ -44,7 +44,7 @@ public class WorkflowPromptWithSignaturePage extends javax.swing.JPanel {
         xLookupField1.setHandler("lookupAssignees");
         xLookupField1.setName("info.assignee"); // NOI18N
         xLookupField1.setPreferredSize(new java.awt.Dimension(0, 20));
-        xLookupField1.setVisibleWhen("#{showAssigneeList}");
+        xLookupField1.setVisibleWhen("#{showAssigneeList==true}");
         xFormPanel1.add(xLookupField1);
 
         jScrollPane1.setPreferredSize(new java.awt.Dimension(0, 100));

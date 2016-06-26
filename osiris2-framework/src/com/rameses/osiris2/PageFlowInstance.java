@@ -48,6 +48,8 @@ public class PageFlowInstance {
         {
             Object data = workunit.getController();
             Transition t = findTransition(prevNode, n, data);
+            if ( t == null ) return null; 
+            
             fireTransitionAction(t);
             //resolve to if it is expression-like
             String to = t.getTo();

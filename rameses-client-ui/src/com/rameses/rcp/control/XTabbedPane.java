@@ -364,6 +364,8 @@ public class XTabbedPane extends JTabbedPane implements UIControl, ActiveControl
         int compCount = staticItems.size();
         for (int i=0; i<compCount; i++) { 
             StaticItem si = staticItems.get( i ); 
+            if ( !si.isVisible() ) continue; 
+            
             super.addTab( si.title, si.component  ); 
             if ( si.tooltip != null ) super.setToolTipTextAt( i, si.tooltip ); 
             if ( si.icon != null ) super.setIconAt( i, si.icon ); 
@@ -698,6 +700,21 @@ public class XTabbedPane extends JTabbedPane implements UIControl, ActiveControl
         String title;
         Icon icon;
         int mnemonic; 
+        
+        boolean isVisible() { 
+            Object ov = UIControlUtil.getBeanValue( component, "visibleWhen" ); 
+            String sv = (ov == null? null: ov.toString()); 
+            if (sv != null && sv.length() > 0) {
+                try {
+                    ExpressionResolver expRes = ExpressionResolver.getInstance();
+                    return expRes.evalBoolean(sv, getBinding().getBean()); 
+                } catch(Throwable t) { 
+                    return false; 
+                } 
+            } else {
+                return true; 
+            }
+        }
         
     }
     

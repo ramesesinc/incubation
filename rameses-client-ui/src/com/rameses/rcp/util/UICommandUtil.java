@@ -112,6 +112,7 @@ public class UICommandUtil {
             if (handler != null) {
                 if (opener != null) callbackErrorHandler = opener.getProperties().get("windowError");
                 
+                navPanel = UIControlUtil.getParentPanel((JComponent)command, "parent");
                 handler.navigate(navPanel, command, outcome);
                 
                 if (opener != null) {

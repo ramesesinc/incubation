@@ -65,44 +65,8 @@ public class DynamicCrudFormModel extends CrudFormModel {
         def infos = schema.fields;
         //infos = sortInfos( infos );
         for( x in infos ) {
-            if( x.primary && !x.visible ) continue;
-            def i = [
-                caption: (!x.caption)?x.name:x.caption, 
-                name:'entity.'+x.name,
-                value: entity.get( x.name )
-            ];
-            //fix the datatype
-            if( !x.type ) {
-                i.type = "text";
-            }
-            else {
-                i.type = x.type;
-            }
-            /*
-            if(i.type == "boolean") {
-                i.type = "subform";
-                i.handler = "business_application:yesno";
-                i.properties = [item:x];
-            }
-            else if(i.type == "string_array") {
-                i.type = "combo";
-                i.preferredSize = '150,20';
-                i.itemsObject = x.attribute.arrayvalues;
-            }
-            else if( i.type == 'decimal' ) {
-                i.preferredSize = '150,20';
-            }
-            else if( i.type == "string" ) {
-                i.type = "text";
-            }
-            else if( i.type == "info") {
-                i.type = "subform";
-                i.properties = [item:i.bean];
-                i.showCaption = false;
-            }
-            */
-            i.required = x.required;
-            i.editable = (!x.editable)?true:x.editable;
+            def i = FormControlUtil.createControl( x, entity );
+            if(i==null) continue;
             formControls << i;
         }
      }

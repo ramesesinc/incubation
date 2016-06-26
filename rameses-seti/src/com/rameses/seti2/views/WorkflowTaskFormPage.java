@@ -75,6 +75,7 @@ public class WorkflowTaskFormPage extends javax.swing.JPanel {
         jToolBar1 = new javax.swing.JToolBar();
         btnCancel1 = new com.rameses.rcp.control.XButton();
         xActionBar1 = new com.rameses.rcp.control.XActionBar();
+        btnPrint = new com.rameses.rcp.control.XButton();
         xActionBar2 = new com.rameses.rcp.control.XActionBar();
         btnUp = new com.rameses.rcp.control.XButton();
         btnDown = new com.rameses.rcp.control.XButton();
@@ -198,6 +199,16 @@ public class WorkflowTaskFormPage extends javax.swing.JPanel {
                     xActionBar1.setFormName("formName");
                     xActionBar1.setName("formActions"); // NOI18N
                     jToolBar1.add(xActionBar1);
+
+                    btnPrint.setAccelerator("ctrl P");
+                    btnPrint.setCaption("");
+                    btnPrint.setFocusable(false);
+                    btnPrint.setIconResource("images/toolbars/printer.png");
+                    btnPrint.setImmediate(true);
+                    btnPrint.setMargin(new java.awt.Insets(1, 1, 1, 1));
+                    btnPrint.setName("viewReport"); // NOI18N
+                    btnPrint.setVisibleWhen("#{viewReportAllowed==true}");
+                    jToolBar1.add(btnPrint);
 
                     xActionBar2.setBorder(null);
                     xActionBar2.setName("navActions"); // NOI18N
@@ -528,6 +539,7 @@ public class WorkflowTaskFormPage extends javax.swing.JPanel {
     private com.rameses.rcp.control.XButton btnDown;
     private com.rameses.rcp.control.XButton btnHelp;
     private com.rameses.rcp.control.XButton btnInfo;
+    private com.rameses.rcp.control.XButton btnPrint;
     private com.rameses.rcp.control.XButton btnTaskInfo;
     private com.rameses.rcp.control.XButton btnUp;
     private javax.swing.JPanel jPanel2;

@@ -140,13 +140,11 @@ public abstract class ClientContext
     }
     
     public final NotificationProvider getNotificationProvider() { 
-        if (notificationProvider == null) {
-            notificationProvider = new EmptyNotificationProvider(); 
-        } 
-        return notificationProvider; 
+        return NotificationManager.getDefaultProvider(); 
     } 
     public void setNotificationProvider(NotificationProvider notificationProvider) {
-        this.notificationProvider = notificationProvider; 
+        // DEPRECATED 
+        //this.notificationProvider = notificationProvider; 
     }
     
     public Map getHeaders() { return headers; }

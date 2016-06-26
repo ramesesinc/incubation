@@ -292,9 +292,9 @@ public abstract class ListController extends BasicListController implements Page
             
             formActions.add(createAction("reload", "Refresh", "images/toolbars/refresh.png", "ctrl R", 'r', null, true)); 
             
-            List extActions = lookupActions("formActions");
-            formActions.addAll(extActions);
-            extActions.clear(); 
+            //List extActions = lookupActions("formActions");
+            //formActions.addAll(extActions);
+            //extActions.clear(); 
         } 
         return formActions; 
     }

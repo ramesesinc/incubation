@@ -24,7 +24,7 @@
         
         def init() {
             NotificationLoader.add(this); 
-            return '_close';        
+            return '_close'; 
         } 
         
         void run() { 

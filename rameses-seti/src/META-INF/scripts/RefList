@@ -1,0 +1,33 @@
+import com.rameses.rcp.annotations.*;
+import com.rameses.osiris2.common.*;
+import com.rameses.osiris2.client.*;
+import com.rameses.rcp.common.*;
+import java.util.*;
+
+public class RefList extends HashMap {
+    
+    @Service("QueryService")
+    def qryService;
+
+    def _handlers = [:];
+
+    public def get( def fld ) {
+        try {
+            String nn = fld.ref;
+            if(nn.indexOf(".")>0) nn = nn.split(":")[1];
+            def m = [_schemaname:nn];
+            if(fld.includefields) {
+                m.select = fld.includefields;
+            }
+            if ( _handlers.containsKey(fld.name) ) {
+                m.findBy = _handlers.get(fld.name)();
+            }
+            m._limit =1000;
+            m._start = 0;
+            return  qryService.getList( m );
+        } catch(e) {
+            e.printStackTrace();
+        }
+    }   
+
+}

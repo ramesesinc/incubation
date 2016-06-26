@@ -131,7 +131,7 @@
                       <Insets value="[1, 1, 1, 1]"/>
                     </Property>
                     <Property name="name" type="java.lang.String" value="create" noResource="true"/>
-                    <Property name="visibleWhen" type="java.lang.String" value="#{createAllowed}"/>
+                    <Property name="visibleWhen" type="java.lang.String" value="#{createAllowed==true}"/>
                   </Properties>
                 </Component>
                 <Component class="com.rameses.rcp.control.XButton" name="btnOpen">
@@ -144,7 +144,7 @@
                       <Insets value="[1, 1, 1, 1]"/>
                     </Property>
                     <Property name="name" type="java.lang.String" value="open" noResource="true"/>
-                    <Property name="visibleWhen" type="java.lang.String" value="#{openAllowed}"/>
+                    <Property name="visibleWhen" type="java.lang.String" value="#{openAllowed==true}"/>
                   </Properties>
                 </Component>
                 <Component class="com.rameses.rcp.control.XButton" name="btnDelete">
@@ -161,7 +161,7 @@
                       <Insets value="[1, 1, 1, 1]"/>
                     </Property>
                     <Property name="name" type="java.lang.String" value="removeEntity" noResource="true"/>
-                    <Property name="visibleWhen" type="java.lang.String" value="#{deleteAllowed}"/>
+                    <Property name="visibleWhen" type="java.lang.String" value="#{deleteAllowed==true}"/>
                   </Properties>
                 </Component>
                 <Component class="com.rameses.rcp.control.XButton" name="btnPrint">
@@ -223,7 +223,7 @@
                       </Border>
                     </Property>
                     <Property name="formName" type="java.lang.String" value="formName"/>
-                    <Property name="name" type="java.lang.String" value="extActions" noResource="true"/>
+                    <Property name="name" type="java.lang.String" value="listActions" noResource="true"/>
                   </Properties>
                 </Component>
               </SubComponents>
@@ -244,6 +244,29 @@
 
               <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout"/>
               <SubComponents>
+                <Container class="com.rameses.rcp.control.XSubFormPanel" name="xSubFormPanel1">
+                  <Properties>
+                    <Property name="handler" type="java.lang.String" value="queryForm"/>
+                  </Properties>
+                  <Constraints>
+                    <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
+                      <BorderConstraints direction="Center"/>
+                    </Constraint>
+                  </Constraints>
+
+                  <Layout>
+                    <DimensionLayout dim="0">
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <EmptySpace min="0" pref="235" max="32767" attributes="0"/>
+                      </Group>
+                    </DimensionLayout>
+                    <DimensionLayout dim="1">
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <EmptySpace min="0" pref="25" max="32767" attributes="0"/>
+                      </Group>
+                    </DimensionLayout>
+                  </Layout>
+                </Container>
                 <Container class="javax.swing.JToolBar" name="jToolBar2">
                   <Properties>
                     <Property name="floatable" type="boolean" value="false"/>
