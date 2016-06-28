@@ -72,9 +72,9 @@ class InvokerUtilImpl
             
             Object callee = u.getCodeBean();
             ControlSupport.injectInvoker(callee, callee.getClass(), invoker);
-            if ( caller != null ) 
+            if ( caller != null ) { 
                 ControlSupport.injectCaller(callee, callee.getClass(), caller);
-            
+            }
             String action = invoker.getAction();
             u.setId( createInvokerId(invoker) );
             u.setName( wuId );
@@ -145,6 +145,10 @@ class InvokerUtilImpl
     
     public static void invoke( Opener opener, UIController caller ) {
         ControlSupport.initOpener(opener, caller);
+        String target = opener.getTarget()+""; 
+        if ( target.equalsIgnoreCase("process")) { 
+            return; 
+        }
         
         UIControllerContext uic = new UIControllerContext( opener.getController() );
         UIControllerPanel panel = new UIControllerPanel( uic );
@@ -156,7 +160,6 @@ class InvokerUtilImpl
         
         winParams.put("id", uic.getId() );
         winParams.put("title", uic.getTitle() );
-        String target = opener.getTarget();
         
         if ( "_popup".equals(target) || "popup".equals(target) ) {
             ClientContext.getCurrentContext().getPlatform().showPopup(null, panel, winParams);
