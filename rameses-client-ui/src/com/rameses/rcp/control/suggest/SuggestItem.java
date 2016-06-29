@@ -17,6 +17,7 @@ public class SuggestItem
 {
     private Object userObject;
     private String caption;
+    private String icon;
     
     public SuggestItem() {
     }
@@ -34,5 +35,10 @@ public class SuggestItem
     public String getCaption() { return caption; }
     public void setCaption(String caption) {
         this.caption = caption;
+    }
+    
+    public String getIcon() { return icon; } 
+    public void setIcon( String icon ) {
+        this.icon = icon; 
     }
 }
