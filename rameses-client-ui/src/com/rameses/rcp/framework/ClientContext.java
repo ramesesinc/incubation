@@ -130,7 +130,8 @@ public abstract class ClientContext
         currentContext.eventManager = new EventManager();
         currentContext.taskManager = new TaskManager();
         currentContext.services = new Services();   
-    }
+        NotificationManager.reset(); 
+    } 
     
     public final TaskManager getTaskManager() { return taskManager; }
     public final Services getServices() { return services; }
@@ -140,13 +141,11 @@ public abstract class ClientContext
     }
     
     public final NotificationProvider getNotificationProvider() { 
-        if (notificationProvider == null) {
-            notificationProvider = new EmptyNotificationProvider(); 
-        } 
-        return notificationProvider; 
+        return NotificationManager.getDefaultProvider(); 
     } 
     public void setNotificationProvider(NotificationProvider notificationProvider) {
-        this.notificationProvider = notificationProvider; 
+        // DEPRECATED 
+        // Please refer to NotificationManager 
     }
     
     public Map getHeaders() { return headers; }

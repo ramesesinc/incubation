@@ -29,7 +29,6 @@ import com.rameses.rcp.ui.UIInput;
 import com.rameses.rcp.ui.Validatable;
 import com.rameses.rcp.util.ActionMessage;
 import com.rameses.rcp.util.ErrorDialog;
-import com.rameses.rcp.util.TimerManager;
 import com.rameses.rcp.util.UIControlUtil;
 import com.rameses.rcp.util.UIInputUtil;
 import com.rameses.util.ValueUtil;
@@ -51,6 +50,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import javax.swing.AbstractAction;
 import javax.swing.ActionMap;
 import javax.swing.InputMap;
@@ -62,9 +64,10 @@ import javax.swing.KeyStroke;
  *
  * @author wflores
  */
-public class XSuggest extends IconedTextField implements MouseEventSupport.ComponentInfo, 
-    UIInput, ActiveControl, Validatable   
+public class XSuggest extends IconedTextField implements MouseEventSupport.ComponentInfo, UIInput, ActiveControl, Validatable   
 {
+    private final static ScheduledExecutorService TASK_POOL = Executors.newScheduledThreadPool(100); 
+
     public final String ACTION_MAPPING_VK_DOWN = "ACTION_MAPPING_VK_DOWN";
     public final String ACTION_MAPPING_VK_UP = "ACTION_MAPPING_VK_UP";
     
@@ -579,15 +582,29 @@ public class XSuggest extends IconedTextField implements MouseEventSupport.Compo
         params.put("searchtext", getText()); 
         params.put("_start", 0);
         params.put("_limit", (model == null? 10: model.getRows())); 
-        TimerManager.getInstance().schedule(new LookupTask(params), 300); 
+        TASK_POOL.schedule(new SearchTask(), 10, TimeUnit.MILLISECONDS);
+        TASK_POOL.schedule(new LookupTask(params), 300, TimeUnit.MILLISECONDS);
     }
     
     // </editor-fold>    
  
     // <editor-fold defaultstate="collapsed" desc=" LookupTask ">
         
-    private class LookupTask implements Runnable 
-    {
+    private class SearchTask implements Runnable {
+        
+        XSuggest root = XSuggest.this;
+        
+        public void run() { 
+            EventQueue.invokeLater(new Runnable() {
+                public void run() {
+                    showSearchStatus();
+                }
+            }); 
+        } 
+    }    
+    
+    private class LookupTask implements Runnable {
+        
         XSuggest root = XSuggest.this;
         
         private String searchtext; 
@@ -607,7 +624,7 @@ public class XSuggest extends IconedTextField implements MouseEventSupport.Compo
             if (!str.equals(searchtext)) return;
             
             List list = (root.model == null? null: root.model.fetchList(params)); 
-            EventQueue.invokeLater(new ResultDataLoader(list)); 
+            EventQueue.invokeLater(new ResultDataLoader(list, searchtext)); 
         }
     }
     
@@ -689,19 +706,41 @@ public class XSuggest extends IconedTextField implements MouseEventSupport.Compo
         popup.pack();
         popup.show(this, 0, rect.height); 
     }
+    
+    private void showSearchStatus() {
+        if (!enable_search) return;
 
-    private class ResultDataLoader implements Runnable 
-    {
+        String str = getText();
+        if (str == null || str.length() == 0) {
+            getPopup().setVisible(false); 
+        } else {
+            getPopup().loadSearchComponent(); 
+            showPopup();
+        }
+    }
+
+    private class ResultDataLoader implements Runnable {
+        
         XSuggest root = XSuggest.this;
         
         private List result;
+        private String searchtext; 
         
-        ResultDataLoader(List result) {
+        ResultDataLoader(List result, String searchtext) {
             this.result = result;
+            this.searchtext = searchtext; 
         }
         
-        public void run() {
+        public void run() { 
             SuggestPopup popup = root.getPopup(); 
+            String str = root.getText();
+            if (str == null || str.length() == 0) {
+                popup.setVisible(false); 
+                return;
+            }
+            if (!str.equals(searchtext)) {
+                return;
+            }
             if (result == null || result.isEmpty()) {
                 popup.setVisible(false); 
                 return; 

@@ -15,7 +15,9 @@ import com.rameses.osiris2.client.ToolbarUtil;
 import com.rameses.rcp.common.MsgBox;
 import com.rameses.rcp.common.Opener;
 import com.rameses.rcp.framework.ClientContext;
+import com.rameses.rcp.framework.NotificationManager;
 import com.rameses.rcp.framework.NotificationProvider;
+import com.rameses.rcp.framework.NotificationRenderer;
 import com.rameses.rcp.framework.UIController;
 import com.rameses.rcp.support.ImageIconSupport;
 import com.rameses.rcp.util.OpenerUtil;
@@ -74,7 +76,8 @@ public class NotificationButton extends JButton implements ActionListener, Toolb
         
         messages = new LinkedHashMap();
         initComponent(); 
-        
+
+        NotificationManager.addRenderer(new NotificationRendererImpl());         
         NotificationProvider np = ClientContext.getCurrentContext().getNotificationProvider();
         if (np != null) np.add(new NotificationHandlerImpl()); 
         
@@ -144,6 +147,9 @@ public class NotificationButton extends JButton implements ActionListener, Toolb
                     remove(objid); 
                     return;
                 }
+
+                String recipientid = getBeanValueAsString(data, "recipientid");
+                if (recipientid == null || recipientid.trim().length()==0 ) return;
                 
                 if (root.messages.containsKey(objid)) return; 
                 
@@ -448,6 +454,27 @@ public class NotificationButton extends JButton implements ActionListener, Toolb
                 OpenerUtil.show(opener); 
             }
         }        
+    }
+    
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" NotificationRendererImpl ">
+    
+    private class NotificationRendererImpl implements NotificationRenderer, Runnable {
+
+        NotificationButton root = NotificationButton.this; 
+        
+        public void refresh() { 
+            if ( EventQueue.isDispatchThread() ) { 
+                run(); 
+            } else { 
+                EventQueue.invokeLater( this ); 
+            } 
+        }
+
+        public void run() { 
+            root.updateCount(); 
+        }
     }
     
     // </editor-fold>

@@ -41,10 +41,11 @@ class STU430Device implements SigIdDevice {
             int pwidth = ( this.width > 0 ? this.width : 300 );
             int pheight = ( this.height > 0 ? this.height : 150 );
             Object binres = sig.renderBitmap(null, pwidth, pheight, "image/png", 1.0f, 0x00, 0xffffff, 0.0f, 0.0f, flags);
-                        
+            
             SigIdResultImpl result = new SigIdResultImpl();
             result.imageData = (byte[]) binres; 
             result.sigString = sig.sigText(); 
+            result.numOfStrokes = 1; 
             doSelect( result ); 
             
         } else {

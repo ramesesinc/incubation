@@ -49,6 +49,10 @@ public class CrudReportModel extends ReportModel {
         throw new Exception("Please specify a report name");
     }
     
+    final def getModel() { 
+        return this; 
+    }
+    
     def preview() { 
         viewReport(); 
         mode = 'preview'; 

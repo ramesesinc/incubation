@@ -48,7 +48,7 @@ public class ActiveDBInvoker {
             if(subSchema.trim().length()==0) {
                 subSchema = ":"+n;
             }
-            
+                        
             if(methodName.equals("create")) {
                 return em.create(n+subSchema, m);
             }
@@ -92,6 +92,7 @@ public class ActiveDBInvoker {
                         }
                     }
                 }
+                sq.setDebug( getEntityManager().isDebug() ); 
                 return sq.getResultList();
             }
             else if(methodName.startsWith("find")) {
@@ -99,6 +100,7 @@ public class ActiveDBInvoker {
                 if(m!=null) {
                     sq.setVars(m).setParameters(m);
                 }
+                sq.setDebug( getEntityManager().isDebug() ); 
                 return sq.getSingleResult();
             }
             else {
@@ -122,5 +124,4 @@ public class ActiveDBInvoker {
     public EntityManager getEntityManager() {
         return em;
     }
-
 }

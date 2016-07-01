@@ -10,12 +10,18 @@
 package com.rameses.rcp.common;
 
 import com.rameses.rcp.framework.ClientContext;
+import com.rameses.rcp.framework.NotificationHandler;
+import com.rameses.rcp.framework.NotificationManager;
 import com.rameses.util.Base64Cipher;
 import com.rameses.util.MessageObject;
 import java.net.URI;
 import java.rmi.server.UID;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import org.eclipse.jetty.websocket.WebSocket;
 import org.eclipse.jetty.websocket.WebSocketClient;
@@ -27,6 +33,7 @@ import org.eclipse.jetty.websocket.WebSocketClientFactory;
  */
 public class WebsocketClient 
 {
+    private final static ExecutorService THREAD_POOL = Executors.newFixedThreadPool(100); 
     private final static int MAX_BINARY_MESSAGE_SIZE = 16384;    
     
     public static WebsocketClient.Handle open(Map options) {
@@ -50,6 +57,7 @@ public class WebsocketClient
     private WebsocketClient(WebsocketModel model) {
         this.model = (model == null? new WebsocketModel(): model); 
         init();
+        
     }
 
     private WebsocketClient(Map options) {
@@ -368,12 +376,26 @@ public class WebsocketClient
         
         private void notify(Object data) { 
             try { 
-                ClientContext.getCurrentContext().getNotificationProvider().sendMessage( data ); 
-            } catch(Throwable t) {
+                root.model.onmessage(data); 
+            } catch( Throwable t) { 
                 t.printStackTrace();
+            } 
+            
+            List<NotificationHandler> list = new ArrayList();
+            try { 
+                list = NotificationManager.getHandlers(); 
+            } catch(Throwable t) {
+                t.printStackTrace(); 
+                return; 
             }
             
-            root.model.onmessage(data);
+            for (int i=0; i<list.size(); i++) { 
+                try { 
+                    THREAD_POOL.submit(new SendMessageProcess(list.get(i), data)); 
+                } catch( Throwable t ) { 
+                    continue; 
+                } 
+            }
         }
         
         private void invokeOnstart() { 
@@ -425,6 +447,27 @@ public class WebsocketClient
             if (wsclient != null) wsclient.close(); 
         }
     }
+    
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" SendMessageProcess "> 
+    
+    private class SendMessageProcess implements Runnable {
+        
+        private Object data;
+        private NotificationHandler handler; 
+        
+        SendMessageProcess( NotificationHandler handler, Object data ) {
+            this.handler = handler; 
+            this.data = data; 
+        }
+
+        public void run() {
+            if ( handler != null && data != null ) {
+                handler.onMessage( data ); 
+            } 
+        } 
+    } 
     
     // </editor-fold>
 }
