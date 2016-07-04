@@ -911,6 +911,11 @@ public class DataTableComponent extends JTable implements TableControl
                     //do nothing 
                     return;
                 }
+                
+                if ( ke.isActionKey() ) {
+                    //do nothing 
+                    return; 
+                }
             }
             
             if (oListItem.getItem() == null || oListItem.getState() == ListItem.STATE_EMPTY) {
