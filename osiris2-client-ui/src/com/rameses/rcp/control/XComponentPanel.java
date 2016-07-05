@@ -60,11 +60,10 @@ public abstract class XComponentPanel extends JPanel implements UIControl, Activ
     public void afterRefresh() {
     } 
     
-    public abstract Object getCodeBean();
-    
-    private final Object instantiateBean() {
-        return getCodeBean();
+    public Object getCodeBean() {
+        return null; 
     }
+    
     
     // <editor-fold defaultstate="collapsed" desc=" UIControl ">
         
@@ -89,7 +88,7 @@ public abstract class XComponentPanel extends JPanel implements UIControl, Activ
                 throw new RuntimeException(e.getMessage(), e); 
             } 
         } else { 
-            obj = instantiateBean(); 
+            obj = getCodeBean(); 
         }
         
         compBean = (ComponentBean) obj; 
