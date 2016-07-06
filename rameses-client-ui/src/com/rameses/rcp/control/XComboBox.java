@@ -305,15 +305,16 @@ public class XComboBox extends JComboBox implements UIInput, Validatable, Active
         property.setCellPadding(padding);
     }
     
-    public void validateInput() 
-    {
-        actionMessage.clearMessages();
+    public void validateInput() { 
+        validateInput( actionMessage ); 
+    }
+    public void validateInput( ActionMessage am ) {
+        am.clearMessages();
         property.setErrorMessage(null);
-        if ( isRequired() && ValueUtil.isEmpty(getValue()) ) 
-        {
-            actionMessage.clearMessages();
-            actionMessage.addMessage("1001", "{0} is required.", new Object[] {getCaption()});
-            property.setErrorMessage(actionMessage.toString());
+        if ( isRequired() && ValueUtil.isEmpty(getValue()) ) {
+            am.clearMessages();
+            am.addMessage("1001", "{0} is required.", new Object[] {getCaption()});
+            property.setErrorMessage(am.toString());
         }
     }
     

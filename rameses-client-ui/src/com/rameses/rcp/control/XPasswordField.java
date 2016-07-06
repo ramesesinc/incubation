@@ -228,12 +228,15 @@ public class XPasswordField extends DefaultPasswordField implements UIInput,
     }
 
     public void validateInput() {
-        getActionMessage().clearMessages();
+        validateInput( getActionMessage() ); 
+    }
+    public void validateInput( ActionMessage am ) {
+        am.clearMessages();
         getControlProperty().setErrorMessage(null);
         char[] chars = getPassword();
         if ((chars == null || chars.length == 0) && isRequired()) {
-            getActionMessage().addMessage("", "{0} is required.", new Object[] {getCaption()});
-            getControlProperty().setErrorMessage(actionMessage.toString());
+            am.addMessage("", "{0} is required.", new Object[] {getCaption()});
+            getControlProperty().setErrorMessage(am.toString());
         } 
     }
     

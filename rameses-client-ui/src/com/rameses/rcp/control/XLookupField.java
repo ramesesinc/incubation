@@ -425,18 +425,19 @@ public class XLookupField extends IconedTextField implements UILookup, UISelecto
 
     public ActionMessage getActionMessage() { return actionMessage; } 
     
-    public void validateInput() 
-    {
-        actionMessage.clearMessages();
+    public void validateInput() {
+        validateInput( actionMessage ); 
+    } 
+    public void validateInput( ActionMessage am ) {
+        am.clearMessages();
         property.setErrorMessage(null);
-        if ( ValueUtil.isEmpty(getText()) ) 
-        {
-            if (isRequired()) 
-                actionMessage.addMessage("1001", "{0} is required.", new Object[] { getCaption() });
-
+        if ( ValueUtil.isEmpty(getText()) ) {
+            if (isRequired()) {
+                am.addMessage("1001", "{0} is required.", new Object[] { getCaption() });
+            }
         }         
-        if ( actionMessage.hasMessages() ) {
-            property.setErrorMessage( actionMessage.toString() );
+        if ( am.hasMessages() ) {
+            property.setErrorMessage( am.toString() );
         }        
     }
 

@@ -276,19 +276,21 @@ public class XDateField extends AbstractDateField implements UIInput, ActiveCont
         return actionMessage;
     }
     
-    
     public void validateInput() {
-        ActionMessage actionMessage = getActionMessage();
+        validateInput( getActionMessage() ); 
+    }
+    public void validateInput( ActionMessage am ) {
+        am.clearMessages();
         ControlProperty property = getControlProperty();
-        actionMessage.clearMessages();
         property.setErrorMessage(null);
         if ( ValueUtil.isEmpty(getText()) ) {
-            if (isRequired())
-                actionMessage.addMessage("1001", "{0} is required.", new Object[] { getCaption() });
+            if (isRequired()) {
+                am.addMessage("1001", "{0} is required.", new Object[] { getCaption() });
+            } 
         }
-        
-        if ( actionMessage.hasMessages() )
-            property.setErrorMessage( actionMessage.toString() );
+        if ( am.hasMessages() ) { 
+            property.setErrorMessage( am.toString() );
+        } 
     }
     
     // </editor-fold>

@@ -222,8 +222,11 @@ public class XRadioList extends RadioListPanel implements UIControl,
     }
     
     public void validateInput() {
+        validateInput( getActionMessage() ); 
+    }
+    public void validateInput( ActionMessage am ) {
+        am.clearMessages();
         getControlProperty().setErrorMessage(null);
-        getActionMessage().clearMessages();
         if (!isRequired()) return; 
 
         Object value = getBeanValue();
@@ -231,10 +234,9 @@ public class XRadioList extends RadioListPanel implements UIControl,
             String caption = getCaption(); 
             if (caption == null) caption = getName(); 
             
-            ActionMessage amsg = getActionMessage(); 
-            amsg.addMessage("1001", "{0} is required.", new Object[]{caption}); 
-            if (amsg.hasMessages()) { 
-                getControlProperty().setErrorMessage(amsg.toString()); 
+            am.addMessage("1001", "{0} is required.", new Object[]{caption}); 
+            if (am.hasMessages()) { 
+                getControlProperty().setErrorMessage(am.toString()); 
             }
         } 
     } 

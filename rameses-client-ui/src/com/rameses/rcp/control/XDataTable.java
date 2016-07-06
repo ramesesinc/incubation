@@ -462,11 +462,14 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
     public boolean isRequired() { return table.isRequired(); }    
     public void setRequired(boolean required) {}
     
-    public void validateInput() {
+    public void validateInput() { 
+        validateInput( actionMessage ); 
+    } 
+    public void validateInput( ActionMessage am ) {
         if (dataProvider == null) return;
-        
+
+        am.clearMessages();        
         String errmsg = dataProvider.getMessageSupport().getErrorMessages(); 
-        actionMessage.clearMessages();
         if ( errmsg == null ) {
             ListItem li = dataProvider.getSelectedItem(); 
             if ( li == null ) return; 
@@ -475,7 +478,7 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
             if ( state==ListItem.STATE_DRAFT || state==ListItem.STATE_EDIT ) {
                 errmsg = "There are changes on your data table. Please commit or revert it first.";
                 dataProvider.getMessageSupport().addErrorMessage(li.getIndex(), errmsg); 
-                actionMessage.addMessage(null, errmsg, null);
+                am.addMessage(null, errmsg, null);
                 dataProvider.refreshSelectedItem(); 
             }
         } else { 
@@ -484,7 +487,7 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
             if ( !ValueUtil.isEmpty(caption) ) {
                 buffer.insert(0, caption + " (\n").append("\n)");
             }
-            actionMessage.addMessage(null, buffer.toString(), null);
+            am.addMessage(null, buffer.toString(), null);
         }
     }
     

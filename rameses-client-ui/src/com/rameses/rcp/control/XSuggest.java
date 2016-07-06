@@ -451,17 +451,20 @@ public class XSuggest extends IconedTextField implements MouseEventSupport.Compo
     }
 
     public void validateInput() {
-        getActionMessage().clearMessages();
+        validateInput( getActionMessage() ); 
+    }
+    public void validateInput( ActionMessage am ) {
+        am.clearMessages();
         getControlProperty().setErrorMessage(null);
         Object value = getBeanValue();
         if (ValueUtil.isEmpty(value)) {
             if (isRequired()) { 
-                getActionMessage().addMessage("1001", "{0} is required.", new Object[]{getCaption()});
+                am.addMessage("1001", "{0} is required.", new Object[]{getCaption()});
             } 
         } 
         
-        if (getActionMessage().hasMessages()) {
-            getControlProperty().setErrorMessage(getActionMessage().toString());
+        if (am.hasMessages()) {
+            getControlProperty().setErrorMessage(am.toString());
         }        
     }     
     
