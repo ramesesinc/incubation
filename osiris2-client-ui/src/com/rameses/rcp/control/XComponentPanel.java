@@ -7,7 +7,6 @@ package com.rameses.rcp.control;
 import com.rameses.classutils.ClassDefUtil;
 import com.rameses.osiris2.AppContext;
 import com.rameses.osiris2.client.FieldInjectionHandler;
-import com.rameses.osiris2.client.ScriptProvider;
 import com.rameses.rcp.common.ComponentBean;
 import com.rameses.rcp.common.PropertySupport.PropertyInfo;
 import com.rameses.rcp.framework.Binding;
@@ -17,6 +16,8 @@ import com.rameses.rcp.ui.ControlContainer;
 import com.rameses.rcp.ui.ControlProperty;
 import com.rameses.rcp.ui.UICommand;
 import com.rameses.rcp.ui.UIControl;
+import com.rameses.rcp.ui.Validatable;
+import com.rameses.rcp.util.ActionMessage;
 import com.rameses.rcp.util.UIControlUtil;
 import java.awt.Component;
 import java.awt.Container;
@@ -30,7 +31,7 @@ import javax.swing.JPanel;
  *
  * @author wflores 
  */
-public abstract class XComponentPanel extends JPanel implements UIControl, ActiveControl, MouseEventSupport.ComponentInfo {
+public abstract class XComponentPanel extends JPanel implements UIControl, ActiveControl, Validatable, MouseEventSupport.ComponentInfo {
 
     protected Binding callerBinding;
     protected Binding binding;
@@ -48,7 +49,7 @@ public abstract class XComponentPanel extends JPanel implements UIControl, Activ
     private String actionPrefix; 
     
     private ComponentBean compBean;
-        
+    
     public void init() {
     }
     public void registerControl( UIControl uic ) {
@@ -234,6 +235,49 @@ public abstract class XComponentPanel extends JPanel implements UIControl, Activ
     }
 
     // </editor-fold> 
+    
+    // <editor-fold defaultstate="collapsed" desc=" Validatable ">
+
+    private boolean required;
+    private ActionMessage actionMessage; 
+
+    public ActionMessage getActionMessage() {
+        if ( actionMessage == null ) {
+            actionMessage = new ActionMessage(); 
+        }
+        return actionMessage; 
+    }
+    
+    public boolean isRequired() { 
+        return getControlProperty().isRequired(); 
+    }
+    public void setRequired( boolean required ) { 
+        getControlProperty().setRequired( required );
+    }
+    
+    public final void validateInput() { 
+        if ( !isRequired() ) return;
+        
+        ActionMessage am = getActionMessage(); 
+        am.clearMessages(); 
+
+        ActionMessage am0 = new ActionMessage();
+        binding.Utils.validateInput( am0 );
+        if ( am0.hasMessages() ) {
+            am.addMessage( am0 ); 
+        } 
+        
+        ActionMessage am1 = new ActionMessage();
+        validateInput( am1 );
+        if ( am1.hasMessages() ) {
+            am.addMessage( am1 ); 
+        } 
+    }
+    public void validateInput( ActionMessage am ) { 
+        //do nothing 
+    }
+    
+    // </editor-fold>    
     
     // <editor-fold defaultstate="collapsed" desc=" MouseEventSupport.ComponentInfo ">
 
