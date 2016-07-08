@@ -5,17 +5,24 @@
 package com.rameses.rcp.common;
 
 import com.rameses.common.PropertyResolver;
+import com.rameses.rcp.framework.Binding;
 
 public abstract class ComponentBean {
  
     private String bindingName; 
     private Object caller;
+    private Binding binding; 
     
     public String getBindingName() {
         return bindingName; 
     }
     public void setBindingName( String name ) {
         this.bindingName = name; 
+    }
+    
+    public Binding getBinding() { return binding; } 
+    public void setBinding( Binding binding ) {
+        this.binding = binding; 
     }
     
     public Object getCaller() { return caller; } 

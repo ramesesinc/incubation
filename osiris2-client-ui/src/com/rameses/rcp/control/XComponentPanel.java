@@ -102,6 +102,7 @@ public abstract class XComponentPanel extends JPanel implements UIControl, Activ
         compBean.setBindingName( this.getName() ); 
         binding = new Binding(); 
         binding.setBean( compBean ); 
+        compBean.setBinding( binding ); 
         
         //
         // initialize this component after Binding is set. 
@@ -325,6 +326,10 @@ public abstract class XComponentPanel extends JPanel implements UIControl, Activ
     
     // </editor-fold> 
 
+    public Object getComponentBean() {
+        return (binding == null ? null: binding.getBean()); 
+    }
+    
     private String getComponentName( UIControl uic ) { 
         String keyword = "XComponent.UIControl.name"; 
         String[] props = (String[]) uic.getClientProperty( keyword ); 
