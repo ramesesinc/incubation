@@ -19,6 +19,7 @@ import com.rameses.rcp.ui.UIControl;
 import com.rameses.rcp.ui.Validatable;
 import com.rameses.rcp.util.ActionMessage;
 import com.rameses.rcp.util.UIControlUtil;
+import com.rameses.rcp.util.UIHelper;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Font;
@@ -34,7 +35,7 @@ import javax.swing.JPanel;
 public abstract class XComponentPanel extends JPanel implements UIControl, ActiveControl, Validatable, MouseEventSupport.ComponentInfo {
 
     protected Binding callerBinding;
-    protected Binding binding;
+    protected Binding innerBinding;
     
     private ControlProperty property;
     private String[] depends;
@@ -67,53 +68,39 @@ public abstract class XComponentPanel extends JPanel implements UIControl, Activ
     
     
     // <editor-fold defaultstate="collapsed" desc=" UIControl ">
-        
-    public Binding getBinding() { return binding; }
+
+    public Binding getInnerBinding() { return innerBinding; } 
+    
+    public Binding getBinding() { return callerBinding; } 
     public final void setBinding(Binding callerBinding) { 
         this.callerBinding = callerBinding; 
-        this.binding = null; 
         
-        Object obj = null; 
-        Class annoClass = com.rameses.rcp.ui.annotations.ComponentBean.class;
-        if ( this.getClass().isAnnotationPresent( annoClass )) {
-            com.rameses.rcp.ui.annotations.ComponentBean cb = (com.rameses.rcp.ui.annotations.ComponentBean) this.getClass().getAnnotation( annoClass ); 
-            try { 
-                if ( cb.value() == null ) {
-                    obj = cb.valueClass()[0].newInstance();
-                } else {
-                    obj = AppContext.getInstance().getCodeProvider().loadClass( cb.value() ).newInstance(); 
-                } 
-            } catch(RuntimeException re) {
-                throw re; 
-            } catch(Exception e) {
-                throw new RuntimeException(e.getMessage(), e); 
-            } 
-        } else { 
-            obj = getCodeBean(); 
-        }
-        
-        compBean = (ComponentBean) obj; 
-        if ( compBean == null ) {
-            throw new RuntimeException("Please provide a ComponentBean for ("+ getName() + ")");   
+        if ( callerBinding == null ) {
+            compBean = null; 
+            innerBinding = null; 
+        } else {
+            compBean = loadComponentBean(); 
+            innerBinding = new Binding(); 
+            compBean.setBinding( innerBinding ); 
+            compBean.setBindingName( getName() ); 
+            compBean.setCallerBinding( callerBinding ); 
         } 
         
-        ClassDefUtil.getInstance().injectFields(compBean, new FieldInjectionHandler()); 
-        
-        compBean.setBindingName( this.getName() ); 
-        binding = new Binding(); 
-        binding.setBean( compBean ); 
-        compBean.setBinding( binding ); 
-        
-        //
-        // initialize this component after Binding is set. 
-        //
-        if ( binding != null ) {
+        if ( innerBinding != null ) {
             init(); 
         }
-        //
-        // register all components attached to this container 
-        //
-        registerComponents( this, binding ); 
+
+        BindingHelperImpl bi = new BindingHelperImpl(); 
+        bi.bind( innerBinding, this ); 
+        if ( innerBinding != null ) { 
+            innerBinding.init(); 
+            
+            try { 
+                bi.loadStyleRule( innerBinding, getClass() ); 
+            } catch(Throwable t) {
+                t.printStackTrace(); 
+            } 
+        } 
     } 
 
     public String[] getDepends() { return depends; } 
@@ -126,17 +113,14 @@ public abstract class XComponentPanel extends JPanel implements UIControl, Activ
         this.index = index; 
     }
 
-    public final void load() { 
-        if ( compBean != null ) {
-            compBean.setCaller( callerBinding==null? null: callerBinding.getBean() ); 
+    public final void load() {         
+        Binding ib = getInnerBinding(); 
+        if ( ib != null && compBean != null ) { 
+            ib.setBean( compBean ); 
         } 
         
-        fireEvent( this, "load" );
-        //
-        // invoke a callback method after the component has been loaded 
-        //
         afterLoad(); 
-    }
+    } 
 
     public final void refresh() {  
         String expr = getVisibleWhen(); 
@@ -150,11 +134,11 @@ public abstract class XComponentPanel extends JPanel implements UIControl, Activ
             setVisible(result); 
         } 
         
-        fireEvent( this, "refresh" );
+        if ( isVisible() ) { 
+            Binding ib = getInnerBinding(); 
+            if ( ib != null ) ib.refresh(); 
+        } 
         
-        //
-        // invoke a callback method after the component has been refreshed
-        //        
         afterRefresh(); 
     } 
 
@@ -263,7 +247,7 @@ public abstract class XComponentPanel extends JPanel implements UIControl, Activ
         am.clearMessages(); 
 
         ActionMessage am0 = new ActionMessage();
-        binding.Utils.validateInput( am0 );
+        getInnerBinding().Utils.validateInput( am0 );
         if ( am0.hasMessages() ) {
             am.addMessage( am0 ); 
         } 
@@ -307,10 +291,15 @@ public abstract class XComponentPanel extends JPanel implements UIControl, Activ
         return UIControlUtil.getBeanValue( binding, name ); 
     }
     
-    public Object getBean() {
+    public final Object getBean() {
         Binding binding = getBinding(); 
         return (binding == null? null: binding.getBean()); 
     }
+
+    public final Object getComponentBean() { 
+        Binding binding = getInnerBinding(); 
+        return (binding == null ? null: binding.getBean()); 
+    } 
     
     public String getDataPrefix() { return dataPrefix; } 
     public void setDataPrefix( String dataPrefix ) {
@@ -325,10 +314,27 @@ public abstract class XComponentPanel extends JPanel implements UIControl, Activ
     }
     
     // </editor-fold> 
+    
+    // <editor-fold defaultstate="collapsed" desc=" BindingHelperImpl ">
+    
+    private class BindingHelperImpl extends UIHelper.BindingHelper {
 
-    public Object getComponentBean() {
-        return (binding == null ? null: binding.getBean()); 
-    }
+        XComponentPanel root = XComponentPanel.this; 
+        
+        public void afterRegister(UIControl uic) {
+            super.afterRegister(uic);
+            root.registerControl( uic ); 
+        }
+
+        public void afterUnregister(UIControl uic) {
+            super.afterUnregister(uic);
+            root.unregisterControl( uic ); 
+        } 
+    } 
+    
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" helper methods ">
     
     private String getComponentName( UIControl uic ) { 
         String keyword = "XComponent.UIControl.name"; 
@@ -428,4 +434,36 @@ public abstract class XComponentPanel extends JPanel implements UIControl, Activ
             return text; 
         }
     }
+    
+    private ComponentBean loadComponentBean() {
+        Object obj = null; 
+        Class annoClass = com.rameses.rcp.ui.annotations.ComponentBean.class;
+        if ( this.getClass().isAnnotationPresent( annoClass )) {
+            com.rameses.rcp.ui.annotations.ComponentBean cb = (com.rameses.rcp.ui.annotations.ComponentBean) this.getClass().getAnnotation( annoClass ); 
+            try { 
+                if ( cb.value() == null ) {
+                    obj = cb.valueClass()[0].newInstance();
+                } else {
+                    obj = AppContext.getInstance().getCodeProvider().loadClass( cb.value() ).newInstance(); 
+                } 
+            } catch(RuntimeException re) {
+                throw re; 
+            } catch(Exception e) {
+                throw new RuntimeException(e.getMessage(), e); 
+            } 
+        } else { 
+            obj = getCodeBean(); 
+        }
+        
+        ComponentBean compBean = (ComponentBean) obj; 
+        if ( compBean == null ) {
+            throw new RuntimeException("Please provide a ComponentBean for ("+ getName() + ")");   
+        } 
+        
+        ClassDefUtil.getInstance().injectFields(compBean, new FieldInjectionHandler());  
+        return compBean; 
+    }
+    
+    // </editor-fold>
+    
 }
