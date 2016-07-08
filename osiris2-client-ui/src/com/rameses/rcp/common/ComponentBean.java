@@ -48,7 +48,11 @@ public abstract class ComponentBean {
     public void setValue( Object value ) { 
         setValue( bindingName, value ); 
     } 
-    public void setValue( String name, Object value ) {
+    public void setValue( String name, Object value ) { 
+        Binding bi = getCallerBinding(); 
+        if ( bi == null ) return; 
+        
         PropertyResolver.getInstance().setProperty( getCaller(), name, value ); 
+        bi.notifyDepends( name ); 
     }
 }
