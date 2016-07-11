@@ -240,7 +240,7 @@ public class MsSqlDialect extends AbstractSqlDialect  {
         sb.append( " UPDATE ");
         sb.append( getDelimiters()[0]+model.getTablealias()+getDelimiters()[1] );
         sb.append( " ");
-        sb.append( buildUpdateFieldsStatement(model, false) );
+        sb.append( buildUpdateFieldsStatement(model, true) );
         
         sb.append( " FROM " );
         sb.append( buildListTablesForUpdate(model));
@@ -251,7 +251,6 @@ public class MsSqlDialect extends AbstractSqlDialect  {
         buildFinderStatement(model, list, true);
         buildSingleWhereStatement(model, list, true);
         sb.append( concatFilterStatement(list));        
-
         return sb.toString();
     }
 
