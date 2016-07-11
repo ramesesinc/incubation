@@ -29,8 +29,12 @@ public class CONCAT implements SqlDialectFunction {
         StringBuilder sb = new StringBuilder();
         int i = 0;
         for( String s: params ) {
-            if(i++>0) sb.append("+");
+            if(i++>0) sb.append(" + ");
             sb.append( s );
+        }
+        if ( sb.length() > 0 ) {
+            sb.insert(0, "(");
+            sb.append(")"); 
         }
         return sb.toString();
     }
