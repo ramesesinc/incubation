@@ -20,6 +20,7 @@ import com.rameses.rcp.ui.Validatable;
 import com.rameses.rcp.util.ActionMessage;
 import com.rameses.rcp.util.UIControlUtil;
 import com.rameses.rcp.util.UIHelper;
+import com.rameses.util.ValueUtil;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Font;
@@ -245,11 +246,18 @@ public abstract class XComponentPanel extends JPanel implements UIControl, Activ
         
         ActionMessage am = getActionMessage(); 
         am.clearMessages(); 
-
+        
         ActionMessage am0 = new ActionMessage();
-        getInnerBinding().Utils.validateInput( am0 );
-        if ( am0.hasMessages() ) {
+        ControlProperty property = getControlProperty();
+        property.setErrorMessage(null);
+        if ( ValueUtil.isEmpty( compBean.getValue() ) ) {
+            if (isRequired()) {
+                am0.addMessage("1001", "{0} is required.", new Object[] { getCaption() });
+            } 
+        }
+        if ( am0.hasMessages() ) { 
             am.addMessage( am0 ); 
+            property.setErrorMessage( am0.toString() );
         } 
         
         ActionMessage am1 = new ActionMessage();
