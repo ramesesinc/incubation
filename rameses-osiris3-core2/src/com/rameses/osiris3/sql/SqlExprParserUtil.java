@@ -49,6 +49,7 @@ public class SqlExprParserUtil {
                 
                 //check if field exists. if not ignore it.
                 Field vf = sqlModel.findField(v);
+                //System.out.println("find field " + v + ((vf!=null)? vf.getExtendedName(): "not found"));
                 if(vf!=null) {
                     if(includeFieldAlias) {
                         ctx.append( stmt.getDelimiters()[0]+ vf.getTablealias() +stmt.getDelimiters()[1] +"." );

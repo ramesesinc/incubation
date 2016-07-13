@@ -138,8 +138,8 @@ public class CrudListPage extends javax.swing.JPanel {
         btnDelete = new com.rameses.rcp.control.XButton();
         btnPrint = new com.rameses.rcp.control.XButton();
         btnFilter = new com.rameses.rcp.control.XButton();
-        btnRefresh = new com.rameses.rcp.control.XButton();
         btnSelectColumn = new com.rameses.rcp.control.XButton();
+        btnRefresh = new com.rameses.rcp.control.XButton();
         xActionBar1 = new com.rameses.rcp.control.XActionBar();
         jPanel7 = new javax.swing.JPanel();
         xSubFormPanel1 = new com.rameses.rcp.control.XSubFormPanel();
@@ -233,6 +233,7 @@ public class CrudListPage extends javax.swing.JPanel {
         btnPrint.setImmediate(true);
         btnPrint.setMargin(new java.awt.Insets(1, 1, 1, 1));
         btnPrint.setName("print"); // NOI18N
+        btnPrint.setVisibleWhen("#{printAllowed}");
         jToolBar1.add(btnPrint);
 
         btnFilter.setAccelerator("ctrl F");
@@ -242,7 +243,17 @@ public class CrudListPage extends javax.swing.JPanel {
         btnFilter.setImmediate(true);
         btnFilter.setMargin(new java.awt.Insets(1, 1, 1, 1));
         btnFilter.setName("showFilter"); // NOI18N
+        btnFilter.setVisibleWhen("#{filterAllowed}");
         jToolBar1.add(btnFilter);
+
+        btnSelectColumn.setCaption("");
+        btnSelectColumn.setFocusable(false);
+        btnSelectColumn.setIconResource("images/toolbars/table-column.png");
+        btnSelectColumn.setImmediate(true);
+        btnSelectColumn.setMargin(new java.awt.Insets(1, 1, 1, 1));
+        btnSelectColumn.setName("selectColumns"); // NOI18N
+        btnSelectColumn.setVisibleWhen("#{showColsAllowed}");
+        jToolBar1.add(btnSelectColumn);
 
         btnRefresh.setAccelerator("ctrl R");
         btnRefresh.setCaption("");
@@ -252,14 +263,6 @@ public class CrudListPage extends javax.swing.JPanel {
         btnRefresh.setMargin(new java.awt.Insets(1, 1, 1, 1));
         btnRefresh.setName("refresh"); // NOI18N
         jToolBar1.add(btnRefresh);
-
-        btnSelectColumn.setCaption("");
-        btnSelectColumn.setFocusable(false);
-        btnSelectColumn.setIconResource("images/toolbars/table-column.png");
-        btnSelectColumn.setImmediate(true);
-        btnSelectColumn.setMargin(new java.awt.Insets(1, 1, 1, 1));
-        btnSelectColumn.setName("selectColumns"); // NOI18N
-        jToolBar1.add(btnSelectColumn);
 
         xActionBar1.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 10, 0, 0));
         xActionBar1.setFormName("formName");

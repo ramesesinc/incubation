@@ -8,7 +8,6 @@ import com.rameses.osiris3.schema.JoinLink;
 import com.rameses.osiris3.persistence.EntityManagerModel.WhereElement;
 import com.rameses.osiris3.persistence.SelectFieldsTokenizer.Token;
 import com.rameses.osiris3.schema.AbstractSchemaView;
-
 import com.rameses.osiris3.schema.LinkedSchemaView;
 import com.rameses.osiris3.schema.RelationKey;
 import com.rameses.osiris3.schema.SchemaView;
@@ -20,6 +19,7 @@ import com.rameses.osiris3.sql.SqlDialectModel.Field;
 import com.rameses.osiris3.sql.SqlDialectModel.WhereFilter;
 import com.rameses.osiris3.sql.SqlExprParserUtil;
 import com.rameses.util.EntityUtil;
+import com.rameses.util.ValueUtil;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.StreamTokenizer;
@@ -53,7 +53,9 @@ public final class SqlDialectModelBuilder {
      */
     public static void buildCreateSqlModels(SchemaView svw, final Map<String, SqlDialectModel> sqlModelMap) {
         //basic create statement
+        
         for( SchemaViewField vf:  svw.getFields() ) {
+            //System.out.println("field for insert ->" + vf.getName() + ":vwname: "+vf.getView().getName()+ ":: insertable?" + vf.isInsertable() + " element name:"+vf.getElement().getName());
             if (!vf.isInsertable()) continue;
             AbstractSchemaView vw = vf.getView();
             SqlDialectModel model = sqlModelMap.get(vw.getName());
@@ -304,7 +306,7 @@ public final class SqlDialectModelBuilder {
                         String fname = st.sval;
                         String prefix = fname.substring(0, fname.indexOf("."));
                         fname = fname.substring(fname.indexOf(".")+1).replace(".", "_");
-                        
+
                         //check is in subquery or is in inverse views?
                         SqlDialectModel sqm = sqlModel.getSubqueries().get(prefix);
                         if( sqm !=null ) {
@@ -314,7 +316,6 @@ public final class SqlDialectModelBuilder {
                             }
                             continue;
                         }
-                        
                         //check if in abstract schema view
                         LinkedSchemaView ivw = (LinkedSchemaView) findJoinedLinkedView(prefix, entityModel, svw, sqlModel);
                         if( ivw !=null ) {
@@ -534,8 +535,6 @@ public final class SqlDialectModelBuilder {
         //THIS MUST COME FIRST.
         buildSubQueryModels(entityModel, sqlModel, svw);
         
-        
-        
         //tokenize each field, then find out which fields will be considered in the select
         List<Token> fieldMatchList = SelectFieldsTokenizer.tokenize(entityModel.getSelectFields());
         for(Token t: fieldMatchList ) {
@@ -545,7 +544,14 @@ public final class SqlDialectModelBuilder {
                     if(vf.getExtendedName().matches(t.getFieldMatch())) {
                         SqlDialectModel.Field sf = createSqlField(vf);
                         sqlModel.addField(sf);
-                        sqlModel.addJoinedViews( vf.getView().getJoinPaths() );
+                        //handle fields with expressions
+                        if( !ValueUtil.isEmpty(vf.getExpr())) {
+                            String expr = parseFieldExpression( vf.getExpr(), entityModel, sqlModel, svw );
+                            sf.setExpr(expr);
+                        }
+                        else {
+                            sqlModel.addJoinedViews( vf.getView().getJoinPaths() );
+                        }    
                         consumed = true;
                     }
                 };

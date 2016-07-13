@@ -93,7 +93,7 @@ public class SchemaView extends AbstractSchemaView {
     }
     
     public Map getSchema( String name ) {
-        final String n = name.replace(',', '|'); 
+        final String n = name.replace(',', '|').replaceAll("\\:","\\\\\\:").replaceAll("\\{", "\\\\\\{").replaceAll("\\}", "\\\\\\}");
         return getSchema(new SchemaFilter() {
              public boolean accept(String type, Map m) { 
                  Object o = m.get("name");

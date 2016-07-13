@@ -223,7 +223,7 @@ public class SchemaElement implements Serializable {
                 targetVw.addRelationField(rf);
             }
             currentVw.setExtendsView(targetVw);
-            extElement.fetchAllFields(rootVw, targetVw, prefix,true, true, duplicates, true, includeFields, manyToOneRequired, false );
+            extElement.fetchAllFields(rootVw, targetVw, prefix,true, true, duplicates, true, includeFields, manyToOneRequired, true );
         }
         
         boolean processManyToOne = true; 

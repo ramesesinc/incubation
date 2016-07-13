@@ -135,8 +135,7 @@ public class CrudListModel extends AbstractCrudModel {
         if( pageExists("queryForm")) {
             queryForm = new Opener(outcome:'queryForm')
         }
-        domain = invoker.domain;
-        role = invoker.role;
+        super.initRole();
         
         schema = getSchema();
         cols.clear();
@@ -180,11 +179,12 @@ public class CrudListModel extends AbstractCrudModel {
         
         //build the columns to retrieve
         m.select = (primKeys + arr).unique().join(",") ;
-        if(customFilter!=null) {
-            if( customFilter.size() !=2 ) 
-                throw new Exception("Custom Filter must have a statement and parameter")
+        if(customFilter!=null && customFilter.size() > 0 ) {
             if( whereStatement==null ) {
                 whereStatement= customFilter;
+            }
+            else if( customFilter.size() == 1 ) {
+                whereStatement[0] = customFilter[0] + ' AND ' + whereStatement[0];
             }
             else {
                 whereStatement[0] = customFilter[0] + ' AND ' + whereStatement[0];

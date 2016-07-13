@@ -12,6 +12,18 @@ public class CrudLookupModel extends CrudListModel implements SimpleLookupDataSo
     def onselect;
     LookupSelector selector;
     
+    boolean isOpenAllowed() {
+        return false;
+    }
+    
+    boolean isCreateAllowed() {
+        return false;
+    }
+    
+    boolean isDeleteAllowed() {
+        return false;
+    }
+
     boolean _first_search = false;
     public void setSearchText(String s) {
         super.setSearchText(s);

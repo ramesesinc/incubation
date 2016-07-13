@@ -143,11 +143,12 @@ public class CrudLookupPage extends javax.swing.JPanel {
         btnDelete = new com.rameses.rcp.control.XButton();
         btnPrint = new com.rameses.rcp.control.XButton();
         btnFilter = new com.rameses.rcp.control.XButton();
-        btnRefresh = new com.rameses.rcp.control.XButton();
         btnSelectColumn = new com.rameses.rcp.control.XButton();
+        btnRefresh = new com.rameses.rcp.control.XButton();
         xActionBar1 = new com.rameses.rcp.control.XActionBar();
         jPanel7 = new javax.swing.JPanel();
         xActionTextField1 = new com.rameses.rcp.control.XActionTextField();
+        xSubFormPanel1 = new com.rameses.rcp.control.XSubFormPanel();
         jPanel4 = new javax.swing.JPanel();
         jPanel6 = new javax.swing.JPanel();
         listPanel1 = new com.rameses.seti2.components.ListPanel();
@@ -266,6 +267,7 @@ public class CrudLookupPage extends javax.swing.JPanel {
             btnPrint.setImmediate(true);
             btnPrint.setMargin(new java.awt.Insets(1, 1, 1, 1));
             btnPrint.setName("print"); // NOI18N
+            btnPrint.setVisibleWhen("#{printAllowed}");
             jToolBar1.add(btnPrint);
 
             btnFilter.setAccelerator("ctrl F");
@@ -275,7 +277,17 @@ public class CrudLookupPage extends javax.swing.JPanel {
             btnFilter.setImmediate(true);
             btnFilter.setMargin(new java.awt.Insets(1, 1, 1, 1));
             btnFilter.setName("showFilter"); // NOI18N
+            btnFilter.setVisibleWhen("#{filterAllowed}");
             jToolBar1.add(btnFilter);
+
+            btnSelectColumn.setCaption("");
+            btnSelectColumn.setFocusable(false);
+            btnSelectColumn.setIconResource("images/toolbars/table-column.png");
+            btnSelectColumn.setImmediate(true);
+            btnSelectColumn.setMargin(new java.awt.Insets(1, 1, 1, 1));
+            btnSelectColumn.setName("selectColumns"); // NOI18N
+            btnSelectColumn.setVisibleWhen("#{showColsAllowed}");
+            jToolBar1.add(btnSelectColumn);
 
             btnRefresh.setAccelerator("ctrl R");
             btnRefresh.setCaption("");
@@ -285,14 +297,6 @@ public class CrudLookupPage extends javax.swing.JPanel {
             btnRefresh.setMargin(new java.awt.Insets(1, 1, 1, 1));
             btnRefresh.setName("refresh"); // NOI18N
             jToolBar1.add(btnRefresh);
-
-            btnSelectColumn.setCaption("");
-            btnSelectColumn.setFocusable(false);
-            btnSelectColumn.setIconResource("images/toolbars/table-column.png");
-            btnSelectColumn.setImmediate(true);
-            btnSelectColumn.setMargin(new java.awt.Insets(1, 1, 1, 1));
-            btnSelectColumn.setName("selectColumns"); // NOI18N
-            jToolBar1.add(btnSelectColumn);
 
             xActionBar1.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 10, 0, 0));
             xActionBar1.setName("extActions"); // NOI18N
@@ -309,6 +313,21 @@ public class CrudLookupPage extends javax.swing.JPanel {
             xActionTextField1.setPreferredSize(new java.awt.Dimension(180, 20));
             xActionTextField1.setVisibleWhen("#{allowSearch == true}");
             jPanel7.add(xActionTextField1, java.awt.BorderLayout.EAST);
+
+            xSubFormPanel1.setHandler("queryForm");
+
+            javax.swing.GroupLayout xSubFormPanel1Layout = new javax.swing.GroupLayout(xSubFormPanel1);
+            xSubFormPanel1.setLayout(xSubFormPanel1Layout);
+            xSubFormPanel1Layout.setHorizontalGroup(
+                xSubFormPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGap(0, 283, Short.MAX_VALUE)
+            );
+            xSubFormPanel1Layout.setVerticalGroup(
+                xSubFormPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGap(0, 25, Short.MAX_VALUE)
+            );
+
+            jPanel7.add(xSubFormPanel1, java.awt.BorderLayout.CENTER);
 
             jPanel8.add(jPanel7, java.awt.BorderLayout.CENTER);
 
@@ -368,5 +387,6 @@ public class CrudLookupPage extends javax.swing.JPanel {
     private com.rameses.rcp.control.XButton xButton1;
     private com.rameses.rcp.control.XButton xButton2;
     private com.rameses.rcp.control.XLabel xLabel1;
+    private com.rameses.rcp.control.XSubFormPanel xSubFormPanel1;
     // End of variables declaration//GEN-END:variables
 }

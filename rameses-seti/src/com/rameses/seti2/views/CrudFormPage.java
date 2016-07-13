@@ -192,7 +192,7 @@ public class CrudFormPage extends javax.swing.JPanel {
 
         btnCancel.setCaption("");
         btnCancel.setFocusable(false);
-        btnCancel.setIconResource("images/toolbars/cancel.png");
+        btnCancel.setIconResource("images/toolbars/cancel-edit.png");
         btnCancel.setImmediate(true);
         btnCancel.setName("unedit"); // NOI18N
         btnCancel.setVisibleWhen("#{cancelEditAllowed==true}");
