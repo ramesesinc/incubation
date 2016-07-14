@@ -584,32 +584,34 @@ public class XOpenerField extends DefaultTextField implements UIInput,
 
     public ActionMessage getActionMessage() { return actionMessage; }
     
-    public void validateInput() 
-    {
-        actionMessage.clearMessages();
+    public void validateInput() {
+        validateInput( getActionMessage() );  
+    }
+    public void validateInput( ActionMessage am ) {
+        am.clearMessages();
         property.setErrorMessage(null);
         
         Object value = getValue();
         String text = (value == null? null: value.toString()); 
         
-        if (ValueUtil.isEmpty(text)) 
-        {
-            if (isRequired()) 
-                actionMessage.addMessage("1001", "{0} is required.", new Object[] { getCaption() });
-        } 
-        else if (!ValueUtil.isEmpty(getInputFormat()) && !text.matches(getInputFormat()) ) 
-        {
-            String msg = null;
-            if ( inputFormatErrorMsg != null )
-                msg = inputFormatErrorMsg;
-            else
-                msg = "Invalid input format for {0}";
+        if (ValueUtil.isEmpty(text)) {
+            if (isRequired()) {
+                am.addMessage("1001", "{0} is required.", new Object[] { getCaption() });
+            }
             
-            actionMessage.addMessage(null, msg, new Object[]{ getCaption() });
+        } else if (!ValueUtil.isEmpty(getInputFormat()) && !text.matches(getInputFormat()) ) {
+            String msg = null;
+            if ( inputFormatErrorMsg != null ) {
+                msg = inputFormatErrorMsg; 
+            } else {
+                msg = "Invalid input format for {0}"; 
+            } 
+            am.addMessage(null, msg, new Object[]{ getCaption() });
         }
         
-        if (actionMessage.hasMessages()) 
-            property.setErrorMessage(actionMessage.toString());
+        if (am.hasMessages()) {
+            property.setErrorMessage(am.toString());
+        }
     }
 
     // </editor-fold>

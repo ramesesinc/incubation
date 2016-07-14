@@ -234,9 +234,10 @@ public class EntityManager {
             Object p = processor.update(getModel(), (Map)data, params);
             clearModel();
             return p;
-        }
-        catch(Exception e) {
-            throw new RuntimeException(e.getMessage(), e.getCause());
+        } catch(RuntimeException re) {
+            throw re; 
+        } catch(Exception e) {
+            throw new RuntimeException(e.getMessage(), e);
         }
     }
     

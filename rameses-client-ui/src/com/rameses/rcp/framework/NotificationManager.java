@@ -4,7 +4,6 @@
  */
 package com.rameses.rcp.framework;
 
-import com.sun.jmx.remote.util.Service;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -21,6 +20,14 @@ public final class NotificationManager {
     private final static NotificationManager instance = new NotificationManager(); 
     private final static Object HANDLER_LOCKED = new Object(); 
     private final static Object RENDERER_LOCKED = new Object(); 
+    
+    static synchronized void reset() { 
+        try { 
+            instance.resetImpl(); 
+        } catch(Throwable t) {
+            t.printStackTrace(); 
+        }
+    } 
     
     public static NotificationProvider getDefaultProvider() { 
         try { 
@@ -85,9 +92,15 @@ public final class NotificationManager {
     private NotificationProvider emptyProvider;
     private boolean allow_fetch_providers = true; 
     
+    private void resetImpl() { 
+        allow_fetch_providers = true; 
+        renderers.clear();
+        handlers.clear();
+    }
+    
     private synchronized List<NotificationProvider> getProviders() { 
         if ( allow_fetch_providers ) {  
-            Iterator itr = Service.providers(NotificationProvider.class, ClientContext.getCurrentContext().getClassLoader()); 
+            Iterator itr = com.rameses.util.Service.providers(NotificationProvider.class, ClientContext.getCurrentContext().getClassLoader()); 
             allow_fetch_providers = false; 
             providers.clear(); 
 

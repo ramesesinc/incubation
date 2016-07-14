@@ -185,6 +185,7 @@ public final class EntityManagerProcessor {
     }
 
     public Map update(EntityManagerModel entityModel, Map odata, Map updateParams) throws Exception {
+        
         if ((odata == null) || (odata.size() == 0)) {
             throw new Exception("update error. data must have at least one value");
         }

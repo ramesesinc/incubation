@@ -9,10 +9,12 @@
 
 package com.rameses.rcp.control.suggest;
 
+import com.rameses.rcp.support.ImageIconSupport;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Insets;
 import java.awt.LayoutManager;
 import java.awt.event.MouseEvent;
@@ -158,9 +160,22 @@ public class SuggestPopup extends JPopupMenu
     }
 
     protected void addImpl(Component comp, Object constraints, int index) {
-        if (!(comp instanceof ItemLabel)) return;
-        
-        super.addImpl(comp, constraints, index); 
+        if ((comp instanceof ItemLabel) || (comp instanceof SearchComponent)) {
+            super.addImpl(comp, constraints, index); 
+        }
+    }
+    
+    public void loadSearchComponent() {
+        getModel().setSelectedItem(null); 
+        removeAll();
+        add( new SearchComponent()); 
+    } 
+    public boolean isSearchComponentLoaded() {
+        try {
+            return (getComponent(0) instanceof SearchComponent); 
+        } catch(Throwable t) {
+            return false; 
+        }
     }
     
     
@@ -258,6 +273,13 @@ public class SuggestPopup extends JPopupMenu
             
             String caption = (item == null? null: item.getCaption());
             setText(caption == null? "": caption.toString());  
+            
+            String sicon = (item == null? null: item.getIcon()); 
+            if ( sicon != null ) { 
+                try { 
+                    setIcon( ImageIconSupport.getInstance().getIcon( sicon ) ); 
+                } catch(Throwable t) {;}
+            }
         }
 
         public SuggestItem getSuggestItem() {
@@ -283,6 +305,26 @@ public class SuggestPopup extends JPopupMenu
                 sl.onselect(item);
             }
         }        
+    } 
+    
+    private class SearchComponent extends JLabel {
+        
+        private String strIcon = "com/rameses/rcp/icons/loading16.gif"; 
+        private String strCaption = " searching...";
+        
+        public SearchComponent() { 
+            super();
+            
+            setOpaque(true);  
+            setBackground(new Color(250,250,250)); 
+            setBorder(BorderFactory.createEmptyBorder(5,5,5,5)); 
+            setText( strCaption );
+            try { 
+                setIcon( ImageIconSupport.getInstance().getIcon( strIcon ) ); 
+            } catch(Throwable t) {;}
+            
+            setFont(Font.decode("Dialog-bold-11")); 
+        }
     }
     
     // </editor-fold>

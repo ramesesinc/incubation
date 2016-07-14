@@ -16,8 +16,13 @@ public class CrudReportModel extends ReportModel {
     @Caller
     def caller;
     
+    @Controller
+    def workunit;
+    
     def mode = "view-report";
     def entity;
+    
+    def data;
     
     public String getTitle() {
         String s = invoker.caption;
@@ -30,6 +35,7 @@ public class CrudReportModel extends ReportModel {
     }
     
     public Object getReportData() {
+        if(data!=null) return data;
         return entity;
     }
     
@@ -38,7 +44,7 @@ public class CrudReportModel extends ReportModel {
         if( s!=null ) {
             return s;
         }
-        s = workunit.info.workunit_properties.reportName;
+        s = workunit?.info?.workunit_properties?.reportName;
         if( s != null ) return s;
         throw new Exception("Please specify a report name");
     }

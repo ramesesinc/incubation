@@ -154,7 +154,7 @@ public abstract class AbstractSqlDialect implements SqlDialect {
         int i = 0;
         for (Field vf : model.getFields()) {
             if (i++ > 0) {
-                sb.append(",");
+                sb.append(", ");
             }
             if( withAlias ) {
                 sb.append(getDelimiters()[0] + vf.getTablealias() + getDelimiters()[1] + ".");
@@ -180,7 +180,7 @@ public abstract class AbstractSqlDialect implements SqlDialect {
         int i = 0;
         for (AbstractSchemaView vw : model.getJoinedViews()) {
             if (i++ > 0) {
-                sb.append(",");
+                sb.append(", ");
             }
             sb.append(getDelimiters()[0] + vw.getTablename() + getDelimiters()[1]);
             if (!vw.getTablename().equals(vw.getName())) {

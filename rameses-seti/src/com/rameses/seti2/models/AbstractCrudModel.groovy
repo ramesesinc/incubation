@@ -113,6 +113,11 @@ public abstract class AbstractCrudModel  {
         return schemaName+":"+ getFormType();
     }
         
+    void initRole() {
+        domain = invoker.domain;
+        role = invoker.role;
+    }
+    
     /*
     def extActions;
     public List getExtActions() {
@@ -141,11 +146,11 @@ public abstract class AbstractCrudModel  {
     */
    
     void updateWindowProperties() {
-        if(invoker.properties.target == 'window') {
+        //if(invoker.properties.target == 'window') {
             if(subWindow!=null) {
                 subWindow.update( [title: getTitle() ] );
             }
-        }
+        //}
     }
     
     final def createAction( inv ) {
@@ -191,11 +196,30 @@ public abstract class AbstractCrudModel  {
             }
         }
         if( !role ) return true;
-        def createPermission = workunit.info.workunit_properties.createPermission;   
+        def createPermission = workunit.info.workunit_properties.createPermission;  
+        if(createPermission==null) createPermission = "create";
         if(createPermission!=null) createPermission = schemaName+"."+createPermission;
         return secProvider.checkPermission( domain, role, createPermission );
     }
-        
+    
+    boolean isFilterAllowed() {
+        def allowed = workunit.info.workunit_properties.allowFilter;  
+        if(!allowed) return true;
+        return allowed.toBoolean();
+    }
+    
+    boolean isShowColsAllowed() {
+        def allowed = workunit.info.workunit_properties.allowShowCols;  
+        if(!allowed) return true;
+        return allowed.toBoolean();
+    }
+    
+    boolean isPrintAllowed() {
+        def allowed = workunit.info.workunit_properties.allowPrint;  
+        if(!allowed) return true;
+        return allowed.toBoolean();
+    }
+    
     boolean isOpenAllowed() { 
         def allowOpen = workunit.info.workunit_properties.allowOpen;  
         if( allowOpen ) {
@@ -212,6 +236,7 @@ public abstract class AbstractCrudModel  {
         }
         if( !role ) return true;
         def openPermission = workunit.info.workunit_properties.openPermission; 
+        if(openPermission==null) openPermission = "open";
         if(openPermission!=null) openPermission = schemaName+"."+openPermission;
         return secProvider.checkPermission( domain, role, openPermission );
     }
@@ -233,6 +258,7 @@ public abstract class AbstractCrudModel  {
         }
         if( !role ) return true;
         def editPermission = workunit.info.workunit_properties.editPermission; 
+        if(editPermission==null) editPermission = "edit";
         if(editPermission!=null) editPermission = schemaName+"."+editPermission;
         return secProvider.checkPermission( domain, role, editPermission );
     }
@@ -254,6 +280,7 @@ public abstract class AbstractCrudModel  {
         }
         if( !role ) return true;
         def deletePermission = workunit.info.workunit_properties.deletePermission; 
+        if(deletePermission==null) deletePermission = "delete";
         if(deletePermission!=null) deletePermission = schemaName+"."+deletePermission;
         return secProvider.checkPermission( domain, role, deletePermission );
     }

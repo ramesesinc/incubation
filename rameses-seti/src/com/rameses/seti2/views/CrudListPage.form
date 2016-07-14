@@ -175,6 +175,7 @@
                       <Insets value="[1, 1, 1, 1]"/>
                     </Property>
                     <Property name="name" type="java.lang.String" value="print" noResource="true"/>
+                    <Property name="visibleWhen" type="java.lang.String" value="#{printAllowed}"/>
                   </Properties>
                 </Component>
                 <Component class="com.rameses.rcp.control.XButton" name="btnFilter">
@@ -188,6 +189,20 @@
                       <Insets value="[1, 1, 1, 1]"/>
                     </Property>
                     <Property name="name" type="java.lang.String" value="showFilter" noResource="true"/>
+                    <Property name="visibleWhen" type="java.lang.String" value="#{filterAllowed}"/>
+                  </Properties>
+                </Component>
+                <Component class="com.rameses.rcp.control.XButton" name="btnSelectColumn">
+                  <Properties>
+                    <Property name="caption" type="java.lang.String" value=""/>
+                    <Property name="focusable" type="boolean" value="false"/>
+                    <Property name="iconResource" type="java.lang.String" value="images/toolbars/table-column.png"/>
+                    <Property name="immediate" type="boolean" value="true"/>
+                    <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+                      <Insets value="[1, 1, 1, 1]"/>
+                    </Property>
+                    <Property name="name" type="java.lang.String" value="selectColumns" noResource="true"/>
+                    <Property name="visibleWhen" type="java.lang.String" value="#{showColsAllowed}"/>
                   </Properties>
                 </Component>
                 <Component class="com.rameses.rcp.control.XButton" name="btnRefresh">
@@ -201,18 +216,6 @@
                       <Insets value="[1, 1, 1, 1]"/>
                     </Property>
                     <Property name="name" type="java.lang.String" value="refresh" noResource="true"/>
-                  </Properties>
-                </Component>
-                <Component class="com.rameses.rcp.control.XButton" name="btnSelectColumn">
-                  <Properties>
-                    <Property name="caption" type="java.lang.String" value=""/>
-                    <Property name="focusable" type="boolean" value="false"/>
-                    <Property name="iconResource" type="java.lang.String" value="images/toolbars/table-column.png"/>
-                    <Property name="immediate" type="boolean" value="true"/>
-                    <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
-                      <Insets value="[1, 1, 1, 1]"/>
-                    </Property>
-                    <Property name="name" type="java.lang.String" value="selectColumns" noResource="true"/>
                   </Properties>
                 </Component>
                 <Component class="com.rameses.rcp.control.XActionBar" name="xActionBar1">

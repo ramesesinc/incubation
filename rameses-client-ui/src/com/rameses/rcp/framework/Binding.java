@@ -560,15 +560,14 @@ public class Binding
     
     // <editor-fold defaultstate="collapsed" desc="  utility methods  ">
     
-    public void validate() 
-    {
+    public void validate() {
         ActionMessage am = new ActionMessage();
         validate(am);
         
         if (am.hasMessages()) {
-            if (am.getSource() != null) 
+            if (am.getSource() != null) { 
                 am.getSource().requestFocusInWindow();
-            
+            } 
             throw new BusinessException(am.toString());
         }
 
@@ -863,7 +862,9 @@ public class Binding
         
     }    
     
-    public class Helper {
+    public class Helper { 
+        Binding root = Binding.this;
+        
         public void bindControls( Container cont, Binding binding ) {
             if ( cont == null ) return; 
 
@@ -906,6 +907,13 @@ public class Binding
                 }
             } 
             return found; 
+        }
+        
+        public void validateInput( ActionMessage am ) { 
+            UIControlUtil.validate( validatables, am ); 
+            for ( BindingListener bl: listeners ) {
+                bl.validate( am, root ); 
+            } 
         }
     }
     

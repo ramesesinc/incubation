@@ -24,6 +24,7 @@ import java.util.Map;
 public class SqlExecutor extends AbstractSqlTxn {
     
     private ExecutorExceptionHandler exceptionHandler;
+    private boolean debug;
     
     //contains list of parameterValues
     private List<Map> batchData;
@@ -82,6 +83,7 @@ public class SqlExecutor extends AbstractSqlTxn {
                 exceptionHandler.handleException(this, ex);
                 return 0;
             } else {
+                System.out.println(" ");
                 System.out.println("DEBUG:");
                 System.out.println("SQL: " + _sql);
                 if( ps !=null ) {
@@ -177,6 +179,9 @@ public class SqlExecutor extends AbstractSqlTxn {
         this.batchData = batchData;
     }
     
-    
+    public boolean isDebug() { return debug; } 
+    public void setDebug( boolean debug ) {
+        this.debug = debug; 
+    }    
     
 }

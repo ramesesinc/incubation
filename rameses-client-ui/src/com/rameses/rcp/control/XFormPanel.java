@@ -158,10 +158,8 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
             return null;
     }
     
-    protected void addImpl(Component comp, Object constraints, int index) 
-    {
-        if (comp instanceof FormItemPanel) 
-        {
+    protected void addImpl(Component comp, Object constraints, int index) {
+        if (comp instanceof FormItemPanel) {
             super.addImpl(comp, constraints, index); 
             return;
         } 
@@ -170,16 +168,14 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
         Component control = comp;        
         if (comp instanceof ActiveControl) {
             p = new ItemPanel(this, comp);
-        } 
-        else if (comp instanceof JScrollPane) 
-        {
+            
+        } else if (comp instanceof JScrollPane) {
             control = ((JScrollPane) comp).getViewport().getView();
             if ( control instanceof ActiveControl ) 
                 p = new ItemPanel(this, control, comp);
         }
                 
-        if (p != null) 
-        {
+        if (p != null) {
             if ( !loaded && control instanceof UIControl ) { 
                 nonDynamicControls.add( (UIControl) control );
             } 
@@ -276,19 +272,20 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
         return UIControlUtil.compare(this, o);
     }
     
-    public void validateInput() 
-    {
-        actionMessage.clearMessages();
+    public void validateInput() {
+        validateInput( actionMessage ); 
+    }
+    public void validateInput( ActionMessage am ) {
+        am.clearMessages();
         
         //do not validate if in html view
         if ( ValueUtil.isEqual(viewType, HTML_VIEW) ) return;
         
-        for (UIControl c: controls) 
-        {
+        for (UIControl c: controls) {
             if ( !(c instanceof Validatable) ) continue;
             
             Validatable v = (Validatable) c;
-            UIControlUtil.validate(v, actionMessage);
+            UIControlUtil.validate(v, am);
         }
     }
     

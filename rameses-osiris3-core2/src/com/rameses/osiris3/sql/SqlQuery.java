@@ -36,6 +36,8 @@ public class SqlQuery extends AbstractSqlTxn {
     private boolean fieldToMap = true;
     private String fieldToMapExclude;
     
+    private boolean debug; 
+    
     /***
      * By default, DataSource is passed by the SqlManager
      * however connection can be manually overridden by setting
@@ -66,7 +68,7 @@ public class SqlQuery extends AbstractSqlTxn {
         ResultSet rs = null;
         String oldCatalogName = null;
         String _sql = null;
-        
+                
         try {
             if(connection!=null)
                 conn = connection;
@@ -102,6 +104,12 @@ public class SqlQuery extends AbstractSqlTxn {
             this.origStatement = oldOrigStatement; //reset the original value of origStatement
             
             _sql = getFixedSqlStatement();
+            if ( isDebug() ) {
+                System.out.println(" ");
+                System.out.println("DEBUG : ");
+                System.out.println("SQL   : " + _sql);
+            } 
+            
             ps = conn.prepareStatement( _sql );
             fillParameters(ps);
             
@@ -131,13 +139,14 @@ public class SqlQuery extends AbstractSqlTxn {
             if( cols !=null) {
                 cols.addAll( buildMetaData(rs) );
             }
-            
             return resultList;
             
-        } 
-        catch(Exception ex) {
-            System.out.println("DEBUG:");
-            System.out.println("SQL: " + _sql);
+        } catch(Exception ex) { 
+            if ( !isDebug() ) { 
+                System.out.println(" ");
+                System.out.println("DEBUG : ");
+                System.out.println("SQL   : " + _sql);
+            } 
             ex.printStackTrace();
             throw new RuntimeException(ex.getMessage());
         } finally {
@@ -228,7 +237,12 @@ public class SqlQuery extends AbstractSqlTxn {
                 parameterHandler = new BasicParameterHandler();
             
             //get the results
-            _sql = getFixedSqlStatement();
+            _sql = getFixedSqlStatement(); 
+            if ( isDebug() ) {
+                System.out.println("DEBUG : ");
+                System.out.println("SQL   : " + _sql);
+            } 
+            
             ps = conn.prepareStatement( _sql );
             fillParameters(ps);
             
@@ -242,9 +256,11 @@ public class SqlQuery extends AbstractSqlTxn {
             fetchHandler.end();
             return val;
             
-        } catch(Exception ex) {
-            System.out.println("DEBUG:");
-            System.out.println("SQL: " + _sql);
+        } catch(Exception ex) { 
+            if ( !isDebug() ) { 
+                System.out.println("DEBUG : ");
+                System.out.println("SQL   : " + _sql); 
+            } 
             ex.printStackTrace();
             throw new RuntimeException(ex.getMessage());
         } finally {
@@ -398,5 +414,10 @@ public class SqlQuery extends AbstractSqlTxn {
     
     public void setFieldToMapExclude(String fieldToMapExclude) {
         this.fieldToMapExclude = fieldToMapExclude;
+    }
+    
+    public boolean isDebug() { return debug; } 
+    public void setDebug( boolean debug ) {
+        this.debug = debug; 
     }
 }

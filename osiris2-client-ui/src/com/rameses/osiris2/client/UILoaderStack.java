@@ -5,6 +5,7 @@ import com.rameses.rcp.framework.UIController;
 import com.rameses.rcp.framework.ClientContext;
 import com.rameses.rcp.framework.ControllerProvider;
 import com.rameses.rcp.framework.UIControllerContext;
+import com.rameses.rcp.util.ControlSupport;
 import com.rameses.util.ValueUtil;
 import java.util.List;
 import java.util.Stack;
@@ -75,7 +76,11 @@ public class UILoaderStack extends Stack {
                 }
                 
                 ControllerProvider cp = ctx.getControllerProvider();
-                UIController c = cp.getController( i.getWorkunitid(), null );
+                UIController c = cp.getController( i.getWorkunitid(), null ); 
+                if ( i != null ) {
+                    Object callee = c.getCodeBean(); 
+                    ControlSupport.injectInvoker(callee, callee.getClass(), i); 
+                }
                 
                 if( target!=null && target.matches(".*process")) {
                     try {

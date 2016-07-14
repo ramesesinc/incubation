@@ -138,6 +138,7 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
         buildItemHandlers();
         buildSections();
         _inited_ = true;
+        super.initRole();
         afterInit()
     }
     

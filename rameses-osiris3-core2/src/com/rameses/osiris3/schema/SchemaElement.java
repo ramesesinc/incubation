@@ -223,7 +223,7 @@ public class SchemaElement implements Serializable {
                 targetVw.addRelationField(rf);
             }
             currentVw.setExtendsView(targetVw);
-            extElement.fetchAllFields(rootVw, targetVw, prefix,true, true, duplicates, true, includeFields, manyToOneRequired, false );
+            extElement.fetchAllFields(rootVw, targetVw, prefix,true, true, duplicates, true, includeFields, manyToOneRequired, true );
         }
         
         boolean processManyToOne = true; 
@@ -352,7 +352,7 @@ public class SchemaElement implements Serializable {
             if(!cf.getJoinType().toLowerCase().equals(joinType) ) continue;
             String ref = cf.getRef();
             if(ref==null || ref.trim().length()==0) {
-                System.out.println("SchemaElement.buildRelations warning. ref not specified");
+                System.out.println("SchemaElement.buildRelations warning." + cf.getName()  + " ref not specified");
                 continue;
             }
             SchemaElement elem = this.schema.getSchemaManager().getElement(ref);
