@@ -53,6 +53,7 @@ public abstract class ComponentBean {
         if ( bi == null ) return; 
         
         PropertyResolver.getInstance().setProperty( getCaller(), name, value ); 
+        bi.getValueChangeSupport().notify(name, value); 
         bi.notifyDepends( name ); 
     }
 }
