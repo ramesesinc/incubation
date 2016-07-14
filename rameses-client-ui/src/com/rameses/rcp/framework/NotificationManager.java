@@ -34,6 +34,8 @@ public final class NotificationManager {
             return instance.getProviders().get(0); 
         } catch(ArrayIndexOutOfBoundsException aie) { 
             //do nothing 
+        } catch(IndexOutOfBoundsException ie) { 
+            //do nothing 
         } catch(Throwable t) {
             t.printStackTrace(); 
         } 
