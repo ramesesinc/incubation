@@ -128,41 +128,26 @@ public class SelectionCellEditor extends JCheckBox implements UIInput, Immediate
     
     // <editor-fold defaultstate="collapsed" desc="  ItemHandler (class)  ">
     
-    private class ItemHandler implements ItemListener
-    {
+    private class ItemHandler implements ItemListener {
         private SelectionCellUtil cellUtil = SelectionCellUtil.newInstance();
         private boolean enabled = true;
         
-        public void itemStateChanged(ItemEvent e) 
-        {
+        public void itemStateChanged(ItemEvent e) {
             if (!enabled) return;
             
-            try 
-            {
+            try {
                 boolean value = (e.getStateChange() == ItemEvent.SELECTED);
                 DataTableBinding tableBinding = (DataTableBinding) binding;
                 tableBinding.getTableModel().setValueAt(value, tableBinding.getRowIndex(), tableBinding.getColumnIndex()); 
-            } 
-            catch(Exception ex) {
+            } catch(Exception ex) {
                 MsgBox.err(ex);
             }
         }      
         
-        boolean isItemMatches() 
-        {
+        boolean isItemMatches() {
             DataTableBinding tableBinding = getTableBinding(); 
             Object itemData = getTableModel().getDataProvider().getListItemData(tableBinding.getRowIndex()); 
             return getSelectionSupport().isItemChecked(itemData); 
-//            boolean matched = false;
-//            if (getSelectionSupport().containsItem(itemData)) { 
-//                matched = getSelectionSupport().isItemChecked(itemData); 
-//            }
-//            else 
-//            {
-//                matched = getSelectionSupport().isItemCheckedFromHandler(itemData); 
-//                if (matched) getSelectionSupport().setItemChecked(itemData, true); 
-//            } 
-//            return matched; 
         }
     }
     

@@ -123,12 +123,12 @@ public class LOVLookupController extends LookupModel {
     
     private CallbackHandlerProxy callbackProxy = new CallbackHandlerProxy( null ); 
     
-    protected void beforeSelectItem( Object fact ) {
+    protected void beforeSelectionChange( Object fact ) {
         if ( beforeSelectItem != null ) {
             callbackProxy.invoke( beforeSelectItem, fact ); 
         }
     }
-    protected void afterSelectItem( Object fact ) {
+    protected void afterSelectionChange( Object fact ) {
         if ( afterSelectItem != null ) {
             callbackProxy.invoke( afterSelectItem, fact ); 
         } 

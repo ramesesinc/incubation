@@ -106,13 +106,11 @@ public class DataTableModel extends AbstractTableModel implements TableControlMo
         dataProvider = null; 
     }
     
-    public void reIndexColumns() 
-    {
+    public void reIndexColumns() {
         columnList.clear(); 
         
         if (dataProvider == null) return;        
-        if (dataProvider.isMultiSelect()) 
-        {
+        if (dataProvider.isMultiSelect()) {
             String multiName = getMultiSelectName();
             if (multiName == null) multiName = DEFAULT_MULTI_SELECT_NAME; 
             
@@ -122,8 +120,7 @@ public class DataTableModel extends AbstractTableModel implements TableControlMo
         } 
         
         Column[] columns = dataProvider.getColumns(); 
-        if (columns == null) 
-        {
+        if (columns == null) {
             List<Map> list = dataProvider.getColumnList();    
             if (list == null) list = new ArrayList(); 
             
@@ -250,7 +247,7 @@ public class DataTableModel extends AbstractTableModel implements TableControlMo
                 boolean row_selection_changed = false; 
                 for (int idx=rowIndex+1; idx < getRowCount(); idx++) {
                     Object rowdata = getItem(idx);
-                    if (lss.containsItem(rowdata)) {
+                    if (lss.contains(rowdata)) {
                         lss.setItemChecked(rowdata, selected, idx);
                         row_selection_changed = true; 
                     }

@@ -71,7 +71,8 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
     private int stretchWidth;
     private int stretchHeight;
     
-    private Color borderColor;
+    private Color borderColor; 
+    private String multiSelectFieldName; 
     
     private ControlProperty property = new ControlProperty(); 
 
@@ -288,8 +289,7 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
     private boolean refreshed;
     private boolean hasLoaded;
     
-    public void refresh() 
-    {
+    public void refresh() {
         //force to update component status
         if (isEnabled()) setReadonly(isReadonly()); 
         
@@ -334,11 +334,13 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
         } 
         
         if (newProvider != null) {
-            if (getColumns() != null) newProvider.setColumns(getColumns());            
+            if (getColumns() != null) {
+                newProvider.setColumns(getColumns());
+            }            
             if (newProvider instanceof EditorListModel) { 
                 setShowRowHeader(true); 
             } else { 
-                setShowRowHeader(false);
+                setShowRowHeader(false); 
             } 
             dataProvider = newProvider;
             table.setBinding(binding);
@@ -648,6 +650,12 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
         repaint();
     }
     
+    public String getMultiSelectFieldName() {
+        return multiSelectFieldName; 
+    }   
+    public void setMultiSelectFieldName( String multiSelectFieldName ) {
+        this.multiSelectFieldName = multiSelectFieldName; 
+    }
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" font support ">
@@ -849,19 +857,17 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
         {
             if (!dataProvider.isMultiSelect()) return;
             
-            if (immediate)
+            if (immediate) { 
                 binding.notifyDepends(XDataTable.this, name); 
-
-            else 
-            {
+            } else { 
                 Thread thread = new Thread(new Runnable() {
                     public void run() { 
-                        notifyDependsCheckedItemsAsync(name);
-                    }
-                });
+                        notifyDependsCheckedItemsAsync(name); 
+                    } 
+                }); 
                 thread.start(); 
-            }
-        }
+            } 
+        } 
         
         private synchronized void notifyDependsAsync(int selectedRow) 
         {

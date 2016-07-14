@@ -8,9 +8,11 @@
  */
 package com.rameses.rcp.common;
 
+import com.rameses.common.PropertyResolver;
 import com.rameses.rcp.common.Column.TypeHandler;
 import com.rameses.rcp.framework.ActionProvider;
 import com.rameses.rcp.framework.ClientContext;
+import com.rameses.util.BreakException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -49,6 +51,7 @@ public abstract class AbstractListDataProvider
         
     private boolean multiSelect;
     private Object multiSelectHandler; 
+    private String multiSelectFieldName; 
 
     private List<ListItem> itemList = new ArrayList<ListItem>(); 
     private ListItem selectedItem; 
@@ -76,11 +79,13 @@ public abstract class AbstractListDataProvider
     public List<Map> getColumnList() { return null; }
         
     public Column[] getColumns() { return columns; } 
-    public void setColumns(Column[] columns) { this.columns = columns; }   
+    public void setColumns(Column[] columns) { 
+        this.columns = columns; 
+    } 
     
     public Column[] initColumns(Column[] columns) {
         return columns; 
-    }    
+    } 
     
     // the data for the popup menu
     public List<Map> getContextMenu(Object item, String columnName) { 
@@ -113,6 +118,13 @@ public abstract class AbstractListDataProvider
     public Object getMultiSelectHandler() { return multiSelectHandler; } 
     public void setMultiSelectHandler(Object multiSelectHandler) {
         this.multiSelectHandler = multiSelectHandler; 
+    }
+        
+    public String getMultiSelectFieldName() {
+        return multiSelectFieldName; 
+    }
+    public void setMultiSelectFieldName( String multiSelectFieldName ) {
+        this.multiSelectFieldName = multiSelectFieldName; 
     }
     
     public Column getPrimaryColumn() { return null; } 
@@ -507,14 +519,37 @@ public abstract class AbstractListDataProvider
         afterSelectItem( fact ); 
     } 
     
+    protected void beforeSelectionChange( Object o ) {} 
+    protected void afterSelectionChange( Object o ) {} 
+    protected Object buildSelectionKey( Object o ) { 
+        String str = getMultiSelectFieldName(); 
+        if ( str != null && str.trim().length() > 0) {
+            String[] names = str.trim().split(",");
+            if ( names.length == 0 ) return o; 
+            
+            PropertyResolver pr = PropertyResolver.getInstance(); 
+            Map map = new HashMap();
+            for ( String sname : names ) {
+                sname = sname.trim(); 
+                try { 
+                    map.put(sname, pr.getProperty(o, sname)); 
+                } catch(Throwable t) {
+                    map.put(sname, null); 
+                } 
+            } 
+            return map; 
+        } else {
+            return o; 
+        }
+    } 
+    
     public final void fireBeforeSelectItem(Object item, boolean selected, int rowIndex) {
         beforeSelectItem(item, selected, rowIndex); 
     }
-    
     public final void fireAfterSelectItem(Object item, boolean selected, int rowIndex) {
         afterSelectItem(item, selected, rowIndex); 
     } 
-    
+
     // multi selection events 
     public void selectAll() {
         getMultiSelectionSupport().selectAll(); 
@@ -526,7 +561,7 @@ public abstract class AbstractListDataProvider
     public boolean isColumnEditable(Object item, String columnName) { 
         return false;
     } 
-    
+        
     // <editor-fold defaultstate="collapsed" desc=" ListItem helper methods "> 
     
     public ListItemStatus createListItemStatus(ListItem oListItem) 
@@ -771,15 +806,35 @@ public abstract class AbstractListDataProvider
     
     // <editor-fold defaultstate="collapsed" desc=" ListSelectionSupport (Class) ">    
     
-    public class ListSelectionSupport
-    {
+    public class SelectionEvent { 
+        private Object key; 
+        private Object data;
+        private boolean selected;
+        private int index;
+        
+        public SelectionEvent( Object data, int index ) {
+            this( data, index, false ); 
+        } 
+        
+        public SelectionEvent( Object data, int index, boolean selected ) {
+            this.data = data; 
+            this.index = index; 
+            this.selected = selected;
+        }
+        
+        public boolean isSelected() { return selected; } 
+        public Object getKey() { return key; }
+        public Object getData() { return data; } 
+        public int getIndex() { return index; } 
+    }    
+    
+    public class ListSelectionSupport {
         AbstractListDataProvider root = AbstractListDataProvider.this; 
         
-        private Map<Object, Boolean> checkedItems; 
+        private Map<Object, SelectionEvent> checkedItems; 
         private CallbackHandlerProxy callbackProxy;
         
-        public ListSelectionSupport() 
-        {
+        public ListSelectionSupport() {
             checkedItems = new LinkedHashMap(); 
             callbackProxy = new CallbackHandlerProxy(null); 
         }
@@ -787,92 +842,122 @@ public abstract class AbstractListDataProvider
         protected void finalize() throws Throwable { 
             checkedItems.clear(); 
         } 
-                
-        public boolean containsItem(Object itemData) {
-            return (itemData == null? false: checkedItems.containsKey(itemData)); 
+        
+        public boolean contains( Object data ) { 
+            return contains( new SelectionEvent( data, -1 ) ); 
+        }
+        public boolean contains( SelectionEvent se ) { 
+            if (se == null || se.getData() == null) { 
+                return false; 
+            } 
+            
+            Object key = se.key; 
+            if ( key == null ) {
+                key = root.buildSelectionKey( se.getData() ); 
+                se.key = key; 
+            } 
+            
+            return (key == null? false: checkedItems.containsKey(key)); 
         } 
         
-        public boolean isItemChecked(Object itemData) 
-        {
-            if (itemData == null) return false; 
-            
-            if (containsItem(itemData))
-                return checkedItems.get(itemData).booleanValue(); 
+        public boolean isItemChecked( Object data ) {
+            return isItemChecked( new SelectionEvent( data, -1 )); 
+        }
+        public boolean isItemChecked( SelectionEvent se ) {
+            if (se == null || se.getData() == null) { 
+                return false; 
+            } 
+            if ( contains( se )) { 
+                return true; 
+            } 
             
             boolean checked = false; 
             try {
-                checked = root.isItemSelected(itemData); 
-            } catch(Exception ex) {;} 
+                checked = root.isItemSelected( se.getData() );  
+            } catch(Throwable t) { 
+                t.printStackTrace(); 
+            } 
             
-            if ( checked ) {
-                setItemChecked(itemData, checked, -1);
+            if ( checked ) { 
+                setItemChecked( se, checked ); 
             } 
             
             return checked; 
         }
         
-        public boolean isItemCheckedFromHandler(Object itemData) 
-        {
+        public boolean isItemCheckedFromHandler(Object itemData) {
             Object callback = root.getMultiSelectHandler();
             return isItemCheckedFromHandler(callback, itemData); 
         }  
         
-        public boolean isItemCheckedFromHandler(Object callback, Object itemData) 
-        {
-            try 
-            {
+        public boolean isItemCheckedFromHandler(Object callback, Object itemData) {
+            try {
                 if (callback == null) return false;
                 
                 Object res = callbackProxy.invoke(callback, itemData); 
-                if (res instanceof Boolean) 
+                if (res instanceof Boolean) { 
                     return ((Boolean) res).booleanValue(); 
-                else 
+                } else { 
                     return "true".equals(res+""); 
-            } 
-            catch(Throwable ex) 
-            {
-                if (ClientContext.getCurrentContext().isDebugMode()) 
+                } 
+            } catch(Throwable ex) {
+                if (ClientContext.getCurrentContext().isDebugMode()) {
                     ex.printStackTrace(); 
-
+                } 
                 return false; 
             } 
         } 
         
-        public synchronized void setItemChecked(Object itemData, boolean checked, int rowIndex) { 
-            if ( rowIndex >= 0 ) {
-                fireBeforeSelectItem(itemData, checked, rowIndex); 
-            }
+        public synchronized void setItemChecked( Object data, boolean checked ) { 
+            setItemChecked( data, checked, -1 ); 
+        }
+        public synchronized void setItemChecked( Object data, boolean checked, int index ) { 
+            setItemChecked( new SelectionEvent( data, index), checked ); 
+        }
+        public synchronized void setItemChecked( SelectionEvent se, boolean checked ) { 
+            boolean exists = contains( se ); 
+            if ( exists && checked ) return; 
             
-            if ( checked ) { 
-                checkedItems.put(itemData, checked); 
-            } else {
-                checkedItems.remove(itemData); 
+            se.selected = checked; 
+            if ( se.getIndex() >= 0 ) { 
+                try { 
+                    beforeSelectionChange( se ); 
+                } catch(BreakException be) {
+                    return; 
+                } 
             } 
             
-            if ( rowIndex >= 0 ) { 
-                fireAfterSelectItem(itemData, checked, rowIndex); 
+            if ( checked ) { 
+                checkedItems.put( se.key, se );  
+            } else {
+                checkedItems.remove( se.key );  
+            } 
+            
+            if ( se.getIndex() >= 0 ) { 
+                try { 
+                    afterSelectionChange( se ); 
+                } catch(BreakException be) {
+                    return; 
+                } 
             } 
         } 
         
-        public List getSelectedValues() 
-        {
+        public List getSelectedValues() {
             List list = new ArrayList(); 
-            for (Map.Entry<Object,Boolean> entry : checkedItems.entrySet()) {
-                if (entry.getValue().booleanValue()) { 
-                    Object okey = entry.getKey(); 
-                    if ( okey != null) list.add( okey ); 
-                } 
+            for (Map.Entry<Object,SelectionEvent> entry : checkedItems.entrySet()) { 
+                SelectionEvent se = entry.getValue(); 
+                list.add( se.getData() ); 
             } 
             return list; 
-        }
+        } 
         
-        public Object getSelectedValue() 
-        {
+        public Object getSelectedValue() {
             List values = getSelectedValues(); 
-            if (values == null || values.isEmpty()) 
+            if (values == null || values.isEmpty()) { 
                 return null; 
-            else 
+            } else {
                 return values.get(0); 
+            }
         }
     }
     

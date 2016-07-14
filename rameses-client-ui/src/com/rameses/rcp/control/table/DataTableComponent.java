@@ -373,16 +373,14 @@ public class DataTableComponent extends JTable implements TableControl
     
     // <editor-fold defaultstate="collapsed" desc="  buildColumns  ">
     
-    private void buildColumns() 
-    {
+    private void buildColumns() {
         removeAll(); //remove all editors
         editors.clear(); //clear column editors map
         required = false; //reset flag to false
         
         ColumnHandlerUtil handlerUtil = ColumnHandlerUtil.newInstance();
         int length = tableModel.getColumnCount();        
-        for ( int i=0; i<length; i++ ) 
-        {
+        for ( int i=0; i<length; i++ ) {
             Column col = tableModel.getColumn(i);
             TableCellRenderer cellRenderer = TableUtil.getCellRenderer(col);
             handlerUtil.prepare(col);
@@ -603,6 +601,15 @@ public class DataTableComponent extends JTable implements TableControl
     
     public boolean editCellAt(int rowIndex, int colIndex, EventObject e) { 
         TableCellRenderer renderer = getColumnModel().getColumn(colIndex).getCellRenderer(); 
+        if ( renderer instanceof SelectionCellRenderer && isSpaceBarKey(e) ) { 
+            Object itemdata = tableModel.getItem( rowIndex ); 
+            if ( itemdata == null ) return false; 
+            
+            boolean o = !tableModel.getDataProvider().getSelectionSupport().isItemChecked( itemdata );
+            tableModel.setValueAt(o, rowIndex, colIndex); 
+            return false; 
+        } 
+        
         if ( renderer instanceof ActionColumnHandler ) {
             if ( isSpaceBarKey(e) ) { 
                 ActionColumnHandler ach = (ActionColumnHandler) renderer; 
