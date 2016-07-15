@@ -42,8 +42,12 @@ public abstract class ComponentBean {
     public Object getValue() {
         return getValue( bindingName ); 
     }
-    public Object getValue( String name ) {
-        return PropertyResolver.getInstance().getProperty( getCaller(), name ); 
+    public Object getValue( String name ) { 
+        try { 
+            return PropertyResolver.getInstance().getProperty( getCaller(), name ); 
+        } catch(Throwable t) {
+            return null; 
+        }
     } 
     public void setValue( Object value ) { 
         setValue( bindingName, value ); 
@@ -57,10 +61,14 @@ public abstract class ComponentBean {
         bi.notifyDepends( name ); 
     }
     
-    public Object getProperty( String name ) {
-        return PropertyResolver.getInstance().getProperty( this, name ); 
+    public Object getProperty( String name ) { 
+        try { 
+            return PropertyResolver.getInstance().getProperty( this, name ); 
+        } catch(Throwable t) {
+            return null; 
+        } 
     }
-    public void setProperty( String name, Object value ) {
+    public void setProperty( String name, Object value ) { 
         PropertyResolver.getInstance().setProperty( this, name, value ); 
-    }
+    } 
 }
