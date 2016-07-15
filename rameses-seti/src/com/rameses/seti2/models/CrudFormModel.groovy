@@ -348,6 +348,10 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
         }
     }
     
+    void reload() {
+        loadData();
+    }
+    
     void loadData() {
         entity._schemaname = schemaName;
         entity = getPersistenceService().read( entity );
