@@ -55,4 +55,11 @@ public abstract class ComponentBean {
         PropertyResolver.getInstance().setProperty( getCaller(), name, value ); 
         bi.notifyDepends( name ); 
     }
+    
+    public Object getProperty( String name ) {
+        return PropertyResolver.getInstance().getProperty( this, name ); 
+    }
+    public void setProperty( String name, Object value ) {
+        PropertyResolver.getInstance().setProperty( this, name, value ); 
+    }
 }
