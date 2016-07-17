@@ -602,6 +602,11 @@ public class DataTableComponent extends JTable implements TableControl
     public boolean editCellAt(int rowIndex, int colIndex, EventObject e) { 
         TableCellRenderer renderer = getColumnModel().getColumn(colIndex).getCellRenderer(); 
         if ( renderer instanceof SelectionCellRenderer && isSpaceBarKey(e) ) { 
+            if ( !tableModel.getDataProvider().isMultiSelect() ) {
+                // this renderer is activated only when multiSelect is set to true 
+                return false; 
+            }
+            
             Object itemdata = tableModel.getItem( rowIndex ); 
             if ( itemdata == null ) return false; 
             
@@ -626,8 +631,14 @@ public class DataTableComponent extends JTable implements TableControl
         if (oColumn == null) return false;
 
         //automatically this column turns editable if handler is SelectionColumnHandler
-        if (oColumn.getTypeHandler() instanceof SelectionColumnHandler) {
-            if (dataProvider.getListItemData(rowIndex) == null) return false;
+        if (oColumn.getTypeHandler() instanceof SelectionColumnHandler) { 
+            if ( !dataProvider.isMultiSelect() ) {
+                // this renderer is activated only when multiSelect is set to true 
+                return false; 
+            }
+            if (dataProvider.getListItemData(rowIndex) == null) {
+                return false;
+            }
             
             JComponent editor = editors.get(colIndex);
             if (editor != null) showEditor(editor, rowIndex, colIndex, e);

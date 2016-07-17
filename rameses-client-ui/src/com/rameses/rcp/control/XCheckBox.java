@@ -51,12 +51,13 @@ public class XCheckBox extends JCheckBox implements UIInput, ActiveControl, Mous
     private String disableWhen;
     private String visibleWhen;
     
-    public XCheckBox() 
-    {
+    public XCheckBox() {
         new MouseEventSupport(this).install(); 
         //default font
         Font f = ThemeUI.getFont("XCheckBox.font");
         if ( f != null ) setFont( f );
+        
+        setOpaque( false ); 
     }
     
     public void refresh() {
