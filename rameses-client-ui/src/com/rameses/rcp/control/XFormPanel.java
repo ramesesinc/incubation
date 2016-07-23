@@ -353,8 +353,11 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
     
     // <editor-fold defaultstate="collapsed" desc=" refresh/load ">
     
-    public void refresh() 
-    {
+    public void refresh() { 
+        if ( isDynamic()) { 
+            build(); 
+        } 
+        
         if ( reloaded || (viewTypeSet && !ValueUtil.isEqual(oldViewType, viewType))) {
             refreshForm();
             oldViewType = viewType;
@@ -378,16 +381,16 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
         } catch(Throwable t) {;}         
     }
     
-    public void load() 
-    {
-        binding.addBindingListener(new FormPanelBindingListener());
-        build();
+    public void load() {
+        binding.addBindingListener(new FormPanelBindingListener()); 
+        if ( !isDynamic()) {
+            build(); 
+        }
         loaded = true;
         reloaded = true;
     }
     
-    public void reload() 
-    {
+    public void reload() {      
         build();
         reloaded = true;
     }
@@ -515,7 +518,9 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
             if ( htmlView ) {
                 FormControlUtil fcUtil = FormControlUtil.getInstance();
                 htmlPane.setText( fcUtil.renderHtml(getAllControls(), this) );
-            } else {
+                
+            } else { 
+                super.setLayout(layout); 
                 //attach again the nonDynamicControls
                 //if they were removed temporarily
                 if ( dynamicControlsRemoved ) {
@@ -529,37 +534,32 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
                 FormItemPanel formItemPanel = null;
                 Map<String,String> categories = new WeakHashMap(); 
                 for (UIControl u : controls) {
-                    u.refresh();
-                    if ( !htmlView ) {
-                        if (layout != super.getLayout()) super.setLayout(layout);
-                        
-                        //add component if form panel is reloaded
-                        //this happends if the form panel is dynamic
-                        if ( reloaded && u instanceof JComponent ) {
-                            JComponent jc = (JComponent) u; 
-                            if (model != null && isShowCategory()) { 
-                                FormControl fc = (FormControl) jc.getClientProperty(FormControl.class); 
-                                String newCategoryid = (fc == null? null: fc.getCategoryid()); 
-                                String oldCategoryid = (formItemPanel == null? null: formItemPanel.getId()); 
-                                if (formItemPanel == null || !(newCategoryid+"").equals(oldCategoryid+"")) { 
-                                    formItemPanel = new FormItemPanel(newCategoryid); 
-                                    formItemPanel.setFormPanelProperty(this); 
-                                    add(formItemPanel); 
-                                }                                     
+                    //add component if form panel is reloaded
+                    //this happends if the form panel is dynamic
+                    if ( reloaded && u instanceof JComponent ) {
+                        JComponent jc = (JComponent) u; 
+                        if (model != null && isShowCategory()) { 
+                            FormControl fc = (FormControl) jc.getClientProperty(FormControl.class); 
+                            String newCategoryid = (fc == null? null: fc.getCategoryid()); 
+                            String oldCategoryid = (formItemPanel == null? null: formItemPanel.getId()); 
+                            if (formItemPanel == null || !(newCategoryid+"").equals(oldCategoryid+"")) { 
+                                formItemPanel = new FormItemPanel(newCategoryid); 
+                                formItemPanel.setFormPanelProperty(this); 
+                                add(formItemPanel); 
+                            }                                     
 
-                                String fiCaption = formItemPanel.getCaption();
-                                if (fiCaption == null || fiCaption.length() == 0) { 
-                                    String s = model.getCategory(newCategoryid); 
-                                    if (s != null) formItemPanel.setCaption(s); 
-                                    
-                                    //if (ov != null) ov = model.getCategory(ov.toString()); 
-                                    //if (ov != null) formItemPanel.setCaption(ov.toString()); 
-                                }                            
-                            }
-                            add(jc); 
-                        } 
-                        u.refresh(); 
-                    }
+                            String fiCaption = formItemPanel.getCaption();
+                            if (fiCaption == null || fiCaption.length() == 0) { 
+                                String s = model.getCategory(newCategoryid); 
+                                if (s != null) formItemPanel.setCaption(s); 
+
+                                //if (ov != null) ov = model.getCategory(ov.toString()); 
+                                //if (ov != null) formItemPanel.setCaption(ov.toString()); 
+                            }                            
+                        }
+                        add(jc); 
+                    } 
+                    u.refresh(); 
                 }
                 categories.clear();
             }
@@ -1079,21 +1079,25 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
                     if (isShowCategory()) { y += 10; } 
                 } 
 
-                int dw = dim.width; 
-                int sw = fip.getStretchWidth(); 
-                if (sw > 0) { 
-                    double d0 = (double) w; 
-                    if (w < preferredMaxWidth) { 
-                        d0 = (double) preferredMaxWidth; 
-                    } 
-                    double d1 = sw / 100.0; 
-                    double d2 = d0 * d1; 
-                    dw = new BigDecimal(d2).setScale(0, RoundingMode.HALF_UP).intValue(); 
-                    if (dw < dim.width) { dw = dim.width; } 
-                } 
+//                int dw = dim.width; 
+//                int sw = fip.getStretchWidth(); 
+//                if ( isShowCategory() && sw==0 ) {
+//                    sw = 100; 
+//                }
+//                
+//                if (sw > 0) { 
+//                    double d0 = (double) w; 
+//                    if (w < preferredMaxWidth) { 
+//                        d0 = (double) preferredMaxWidth; 
+//                    } 
+//                    double d1 = sw / 100.0; 
+//                    double d2 = d0 * d1; 
+//                    dw = new BigDecimal(d2).setScale(0, RoundingMode.HALF_UP).intValue(); 
+//                    if (dw < dim.width) { dw = dim.width; } 
+//                } 
                 
                 y += cellpadding.top;
-                c.setBounds(x, y, dw, dim.height);
+                c.setBounds(x, y, w, dim.height);
                 y += dim.height + cellpadding.bottom;
             }
         }

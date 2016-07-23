@@ -1,3 +1,6 @@
 <workunit>
-    <code class="com.rameses.seti2.models.DynamicCrudFormModel"/>    
+    <code class="com.rameses.seti2.models.DynamicCrudFormModel"/>   
+    <pages>
+        <page template="com.rameses.seti2.views.DynamicCrudFormPanel"/>
+    </pages> 
 </workunit> 

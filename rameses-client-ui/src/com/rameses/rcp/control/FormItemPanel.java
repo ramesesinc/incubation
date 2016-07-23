@@ -10,12 +10,14 @@
 package com.rameses.rcp.control;
 
 import com.rameses.rcp.common.PropertyChangeSupport;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Insets;
 import java.awt.LayoutManager;
+import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
@@ -38,6 +40,7 @@ public class FormItemPanel extends JPanel implements FormItemProperty
         lblCaption = new JLabel(" ");
         lblCaption.setFont(lblCaption.getFont().deriveFont(Font.BOLD)); 
         formPropertySupport = new FormPanelPropertySupport(null); 
+        //setBorder( BorderFactory.createLineBorder(Color.RED));
     }
 
     public final LayoutManager getLayout() { return layout; }

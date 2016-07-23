@@ -41,11 +41,12 @@ public abstract class XComponentPanel extends JPanel implements UIControl, Activ
     private ControlProperty property;
     private String[] depends;
     private String visibleWhen;
+    private String disableWhen;
     private boolean dynamic; 
     private int index; 
     
     private int stretchWidth;
-    private int stretchHeight;     
+    private int stretchHeight;
     
     private String dataPrefix; 
     private String actionPrefix; 
@@ -125,7 +126,7 @@ public abstract class XComponentPanel extends JPanel implements UIControl, Activ
 
     public final void refresh() {  
         String expr = getVisibleWhen(); 
-        if (expr != null && expr.length() > 0) {
+        if (expr != null && expr.trim().length() > 0) {
             boolean result = false; 
             try { 
                 result = UIControlUtil.evaluateExprBoolean(getBinding().getBean(), expr);
@@ -138,6 +139,17 @@ public abstract class XComponentPanel extends JPanel implements UIControl, Activ
         if ( isVisible() ) { 
             Binding ib = getInnerBinding(); 
             if ( ib != null ) ib.refresh(); 
+        } 
+        
+        expr = getDisableWhen(); 
+        if (expr != null && expr.trim().length() > 0) {
+            boolean result = false; 
+            try { 
+                result = UIControlUtil.evaluateExprBoolean(getBinding().getBean(), expr);
+            } catch(Throwable t) {
+                t.printStackTrace();
+            } 
+            setEnabled( !result );
         } 
         
         afterRefresh(); 
@@ -291,6 +303,11 @@ public abstract class XComponentPanel extends JPanel implements UIControl, Activ
     public void setVisibleWhen(String visibleWhen) {
         this.visibleWhen = visibleWhen; 
     }
+    
+    public String getDisableWhen() { return disableWhen; } 
+    public void setDisableWhen(String disableWhen) {
+        this.disableWhen = disableWhen; 
+    }    
    
     public Object getProperty( String name ) { 
         Binding binding = getBinding(); 

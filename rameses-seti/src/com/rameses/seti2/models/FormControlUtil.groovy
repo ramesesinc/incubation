@@ -9,6 +9,7 @@ import com.rameses.rcp.framework.ClientContext;
 import com.rameses.rcp.constant.*;
 import java.rmi.server.*;
 import com.rameses.util.*;
+import java.text.*;
 
 public final class FormControlUtil  {
 
@@ -22,18 +23,42 @@ public final class FormControlUtil  {
     public static def createControl( def fld, def entity, String contextName ) {
         String cname = (contextName==null)?"entity":contextName;
         
-        if( fld.primary && !fld.visible ) return null;
+        if( fld.primary && fld.visible.toString() != 'true' ) return null;
+        if ( fld.visible.toString() == 'false' ) return null; 
         def i = [
             caption: (!fld.caption)?fld.name:fld.caption, 
             name:cname+'.'+fld.name,
         ];
+        
+        if(fld.category) i.categoryid = fld.category;
+        if(fld.width) i.width = fld.width.toString().toInteger();
+        
         def dtype = fld.type;
         if(!dtype) dtype = fld.datatype;
-        if(!dtype) dtype = 'string';
+        if( fld.ui ) dtype = fld.ui; 
+        if(!dtype) dtype = 'text';
         i.type = dtype;
-        if(fld.updatable!=null && (fld.updatable=="false" || fld.updatable==false)) {
+        if (fld.required) i.required = fld.required; 
+        
+        boolean enabled = true;
+        if(fld.editable!=null && fld.editable.toBoolean() == false ) {
+            enabled = false;
+        }
+        else if(fld.updatable!=null && (fld.updatable=="false" || fld.updatable==false)) {
+            enabled = false;
+        }
+        
+        if(!enabled) {
             i.type = "label";
-            i.expression = "#{"+i.name+"}"
+            i.expression = "#{"+i.name+"}";
+            //right align decimal
+            if(fld.type == 'decimal') {
+                i.horizontalAlignment = javax.swing.SwingConstants.RIGHT;
+            }
+            else if( fld.type == 'integer') {
+                i.horizontalAlignment = javax.swing.SwingConstants.CENTER;
+            }
+            //center align integer
         }
         else if( fld.lov ) {
             i.type = "combo";
@@ -44,49 +69,7 @@ public final class FormControlUtil  {
             i.type = "lookup";
             i.handler = fld.ref + ":lookup";
             i.expression = fld.expression;
-            
-            /*
-            if( fld.expr ) {
-                //i.expression = "#{"+cname+"."+fld.name+"}";
-                i.expression = fld.expr;
-            }
-            */
-            /*
-            if( fld.name.indexOf(".") > 0  ) {
-                i.name = cname+"."+fld.name.substring(0, fld.name.lastIndexOf("."));
-            }
-            */
-        }
-        else if(i.type == "boolean") {
-            i.type = "subform";
-            i.handler = "business_application:yesno";
-            i.properties = [item:fld];
-            i.required = fld.required;
-            i.editable = (!fld.editable)?true:fld.editable;
-        }
-        else if(i.type == "string_array") {
-            i.type = "combo";
-            i.preferredSize = '150,20';
-            i.itemsObject = fld.attribute.arrayvalues;
-            i.required = fld.required;
-            i.editable = (!fld.editable)?true:fld.editable;
-        }
-        else if( i.type == 'decimal' ) {
-            i.preferredSize = '150,20';
-            i.required = fld.required;
-            i.editable = (!fld.editable)?true:fld.editable;
-        }
-        else if( i.type == "string" ) {
-            i.type = "text";
-            i.required = fld.required;
-            i.editable = (!fld.editable)?true:fld.editable;
-        }
-        else if( i.type == "info") {
-            i.type = "subform";
-            i.properties = [item:i.bean];
-            i.showCaption = false;
-        }
-        //COMBO BOXES
+        } 
         return i;
     }
     

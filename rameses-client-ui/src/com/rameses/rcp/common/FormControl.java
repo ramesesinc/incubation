@@ -39,8 +39,13 @@ public class FormControl
         this.properties = (props == null? new HashMap(): props);
         this.categoryid = categoryid;
         
+        Integer height = 20;
+        Integer width = 0;
+        if(props.containsKey("width")) {
+            width = (Integer)props.get("width");
+        }
         if (!this.properties.containsKey("preferredSize")) 
-            this.properties.put("preferredSize", "0,19");        
+            this.properties.put("preferredSize", width+","+height);        
     }
         
     public String getType() { return type; }    

@@ -24,6 +24,8 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import javax.swing.BorderFactory;
 import javax.swing.JEditorPane;
 import javax.swing.JLabel;
@@ -335,6 +337,9 @@ public class ItemPanel extends JPanel implements FormItemProperty {
             int sw = 0;
             if (editor == null) {
                 //do nothing 
+            } else if ( uicontrol != null ) { 
+                sw = (uicontrol == null? 0: uicontrol.getStretchWidth()); 
+                if (sw > 100) { sw = 100; } 
             } else if (editor.getPreferredSize().width == 0) {
                 sw = 100; 
             } else {
@@ -496,6 +501,10 @@ public class ItemPanel extends JPanel implements FormItemProperty {
                 } 
                 
                 Dimension dim = editor.getPreferredSize(); 
+                if ( editor instanceof JPanel ) { 
+                    JPanel panel = (JPanel)editor; 
+                    dim = panel.getLayout().preferredLayoutSize( panel ); 
+                }
                 h = Math.max(h, dim.height); 
                 w += dim.width;                 
             } 
@@ -535,8 +544,24 @@ public class ItemPanel extends JPanel implements FormItemProperty {
                 }
 
                 cw = Math.max(parent.getWidth()-x-margin.right, 0); 
-                int dw = editor.getPreferredSize().width; 
-                if (dw > 0 && cw < dw) { cw = dw; }
+                int pw = editor.getPreferredSize().width; 
+                int sw = uimodel.getStretchWidth(); 
+                if ( sw > 0 ) {
+                    double d0 = (double) cw; 
+                    if (cw < pw) { 
+                        d0 = (double) pw; 
+                    } 
+                    double d1 = sw / 100.0; 
+                    double d2 = d0 * d1; 
+                    int dw = new BigDecimal(d2).setScale(0, RoundingMode.HALF_UP).intValue(); 
+                    if (dw < pw) { dw = pw; }
+                    
+                    cw = dw; 
+                } else if ( pw > 0 ) {
+                    cw = pw; 
+                } 
+                
+                //if (dw > 0 && cw < dw) { cw = dw; }
                 
                 editor.setBounds(x, y, cw, h); 
             } 

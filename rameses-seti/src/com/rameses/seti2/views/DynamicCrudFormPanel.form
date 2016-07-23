@@ -18,7 +18,7 @@
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" alignment="0" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
-              <Component id="xFormPanel1" pref="380" max="32767" attributes="0"/>
+              <Component id="xFormPanel1" pref="336" max="32767" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
       </Group>
@@ -27,7 +27,7 @@
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" alignment="0" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
-              <Component id="xFormPanel1" pref="278" max="32767" attributes="0"/>
+              <Component id="xFormPanel1" pref="270" max="32767" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
       </Group>
@@ -38,6 +38,7 @@
       <Properties>
         <Property name="dynamic" type="boolean" value="true"/>
         <Property name="name" type="java.lang.String" value="formControls" noResource="true"/>
+        <Property name="showCategory" type="boolean" value="true"/>
       </Properties>
     </Container>
   </SubComponents>

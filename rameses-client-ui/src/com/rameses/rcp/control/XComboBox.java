@@ -526,6 +526,8 @@ public class XComboBox extends JComboBox implements UIInput, Validatable, Active
                 setVisible( result ); 
             }
 
+            if (isEnabled()) setReadonly(isReadonly());
+            
             whenExpr = getDisableWhen();
             if (whenExpr != null && whenExpr.length() > 0) {
                 boolean disabled = false; 
@@ -536,9 +538,7 @@ public class XComboBox extends JComboBox implements UIInput, Validatable, Active
                 }
                 setEnabled( !disabled ); 
             }
-            
-            if (isEnabled()) setReadonly(isReadonly());
-            
+                        
             if ( dynamic ) {
                 EventQueue.invokeLater(new Runnable(){
                     public void run() {
