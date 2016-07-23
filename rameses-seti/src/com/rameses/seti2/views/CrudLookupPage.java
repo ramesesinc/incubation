@@ -147,8 +147,8 @@ public class CrudLookupPage extends javax.swing.JPanel {
         btnRefresh = new com.rameses.rcp.control.XButton();
         xActionBar1 = new com.rameses.rcp.control.XActionBar();
         jPanel7 = new javax.swing.JPanel();
-        xActionTextField1 = new com.rameses.rcp.control.XActionTextField();
         xSubFormPanel1 = new com.rameses.rcp.control.XSubFormPanel();
+        xActionTextField1 = new com.rameses.rcp.control.XActionTextField();
         jPanel4 = new javax.swing.JPanel();
         jPanel6 = new javax.swing.JPanel();
         listPanel1 = new com.rameses.seti2.components.ListPanel();
@@ -307,13 +307,6 @@ public class CrudLookupPage extends javax.swing.JPanel {
             jPanel7.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 5));
             jPanel7.setLayout(new java.awt.BorderLayout());
 
-            xActionTextField1.setActionName("search");
-            xActionTextField1.setMaxLength(50);
-            xActionTextField1.setName("searchText"); // NOI18N
-            xActionTextField1.setPreferredSize(new java.awt.Dimension(180, 20));
-            xActionTextField1.setVisibleWhen("#{allowSearch == true}");
-            jPanel7.add(xActionTextField1, java.awt.BorderLayout.EAST);
-
             xSubFormPanel1.setHandler("queryForm");
 
             javax.swing.GroupLayout xSubFormPanel1Layout = new javax.swing.GroupLayout(xSubFormPanel1);
@@ -328,6 +321,13 @@ public class CrudLookupPage extends javax.swing.JPanel {
             );
 
             jPanel7.add(xSubFormPanel1, java.awt.BorderLayout.CENTER);
+
+            xActionTextField1.setActionName("search");
+            xActionTextField1.setMaxLength(50);
+            xActionTextField1.setName("searchText"); // NOI18N
+            xActionTextField1.setPreferredSize(new java.awt.Dimension(180, 20));
+            xActionTextField1.setVisibleWhen("#{allowSearch == true}");
+            jPanel7.add(xActionTextField1, java.awt.BorderLayout.EAST);
 
             jPanel8.add(jPanel7, java.awt.BorderLayout.CENTER);
 
