@@ -10,6 +10,7 @@ import com.rameses.osiris2.client.FieldInjectionHandler;
 import com.rameses.rcp.common.ComponentBean;
 import com.rameses.rcp.common.PropertySupport.PropertyInfo;
 import com.rameses.rcp.framework.Binding;
+import com.rameses.rcp.framework.ValueChangeSupport;
 import com.rameses.rcp.support.MouseEventSupport;
 import com.rameses.rcp.ui.ActiveControl;
 import com.rameses.rcp.ui.ControlContainer;
@@ -20,6 +21,7 @@ import com.rameses.rcp.ui.Validatable;
 import com.rameses.rcp.util.ActionMessage;
 import com.rameses.rcp.util.UIControlUtil;
 import com.rameses.rcp.util.UIHelper;
+import com.rameses.rcp.util.UIInputUtil;
 import com.rameses.util.ValueUtil;
 import java.awt.Component;
 import java.awt.Container;
@@ -33,7 +35,9 @@ import javax.swing.JPanel;
  *
  * @author wflores 
  */
-public abstract class XComponentPanel extends JPanel implements UIControl, ActiveControl, Validatable, MouseEventSupport.ComponentInfo {
+public abstract class XComponentPanel extends JPanel 
+    implements UIControl, ActiveControl, Validatable, 
+               MouseEventSupport.ComponentInfo, ValueChangeSupport.Handler {
 
     protected Binding callerBinding;
     protected Binding innerBinding;
@@ -115,10 +119,15 @@ public abstract class XComponentPanel extends JPanel implements UIControl, Activ
         this.index = index; 
     }
 
-    public final void load() {         
+    public final void load() { 
         Binding ib = getInnerBinding(); 
         if ( ib != null && compBean != null ) { 
             ib.setBean( compBean ); 
+            
+            Object o = getClientProperty(UIInputUtil.Support.class); 
+            if ( o != null ) {
+                ib.getValueChangeSupport().add(this);  
+            } 
         } 
         
         afterLoad(); 
@@ -491,4 +500,16 @@ public abstract class XComponentPanel extends JPanel implements UIControl, Activ
     
     // </editor-fold>
     
+    // <editor-fold defaultstate="collapsed" desc=" ValueChangeHandler ">
+    
+    public void valueChange(String name, Object value) { 
+        Object o = getClientProperty(UIInputUtil.Support.class); 
+        if ( o == null ) return; 
+        
+        putClientProperty("UIControl.forceUpdate", Boolean.TRUE); 
+        UIInputUtil.Support sup = (UIInputUtil.Support)o; 
+        sup.setValue( name, value, this ); 
+    }
+    
+    // </editor-fold>
 }

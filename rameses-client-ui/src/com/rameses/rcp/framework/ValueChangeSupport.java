@@ -22,17 +22,28 @@ import java.util.Set;
  */
 public class ValueChangeSupport 
 {
-    private Map<String,List> handlers = new HashMap();  
-    private List<Map> extendedHandlers = new ArrayList();
+    private Map<String,List> handlers = new HashMap(); 
+    private List<Map> extendedHandlers = new ArrayList(); 
+    private List<Handler> vhandlers = new ArrayList();
             
     ValueChangeSupport() {}
 
+    public void add( Handler handler ) {
+        if ( handler != null && !vhandlers.contains(handler) ) {
+            vhandlers.add( handler ); 
+        }
+    }
+    public void remove( Handler handler ) {
+        if ( handler != null ) {
+            vhandlers.remove( handler ); 
+        }
+    }    
+    
     public void addExtendedHandler(Map extended) { 
         if (extended != null) extendedHandlers.add(extended); 
     } 
     
-    public void add(String property, Object callbackListener) 
-    {
+    public void add(String property, Object callbackListener) {
         if (property == null || callbackListener == null) return;
         
         List list = handlers.get(property); 
@@ -55,21 +66,22 @@ public class ValueChangeSupport
         }         
     }
     
-    public void removeAll() 
-    {
+    public void removeAll() {
         for (List list : handlers.values()) list.clear(); 
                 
         handlers.clear(); 
         extendedHandlers.clear();
     }
     
-    public void notify(String property, Object value) 
-    {
+    public void notify(String property, Object value) {
         if (property == null) return;
         
+        for (Handler vh : vhandlers) {
+            vh.valueChange( property, value ); 
+        } 
+        
         Set<Map.Entry<String,List>> entries = handlers.entrySet(); 
-        for (Map.Entry<String,List> entry: entries) 
-        {
+        for (Map.Entry<String,List> entry: entries) {
             String regex = entry.getKey();
             if (!match(property, regex)) continue;
             
@@ -123,5 +135,10 @@ public class ValueChangeSupport
             System.out.println("[ValueChangeSupport_notify] failed caused by " + ex.getMessage());
             if (ClientContext.getCurrentContext().isDebugMode()) ex.printStackTrace(); 
         } 
+    } 
+    
+    
+    public static interface Handler {
+        void valueChange( String name, Object value ); 
     }
 }
