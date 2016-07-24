@@ -1390,7 +1390,8 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
             
             Binding binding = uic.getBinding();
             Object userObj = uic.getClientProperty("UIControl.userObject"); 
-            try { propertyResolver.setProperty(userObj, "value", value); } catch(Throwable t){;}             
+            try { propertyResolver.setProperty(userObj, "name", name); } catch(Throwable t){;} 
+            try { propertyResolver.setProperty(userObj, "value", value); } catch(Throwable t){;} 
             try { root.model.updateBean(name, value, userObj); } catch(Throwable t){;} 
             
             //fire onchange handle on the item if available 

@@ -508,7 +508,7 @@ public abstract class XComponentPanel extends JPanel
         
         putClientProperty("UIControl.forceUpdate", Boolean.TRUE); 
         UIInputUtil.Support sup = (UIInputUtil.Support)o; 
-        sup.setValue( name, value, this ); 
+        sup.setValue( getName(), value, this );  
     }
     
     // </editor-fold>
