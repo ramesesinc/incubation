@@ -76,6 +76,7 @@ public class WorkflowTaskFormPage extends javax.swing.JPanel {
         btnCancel1 = new com.rameses.rcp.control.XButton();
         xActionBar1 = new com.rameses.rcp.control.XActionBar();
         btnPrint = new com.rameses.rcp.control.XButton();
+        xSubFormPanel1 = new com.rameses.rcp.control.XSubFormPanel();
         xActionBar2 = new com.rameses.rcp.control.XActionBar();
         btnUp = new com.rameses.rcp.control.XButton();
         btnDown = new com.rameses.rcp.control.XButton();
@@ -209,6 +210,21 @@ public class WorkflowTaskFormPage extends javax.swing.JPanel {
                     btnPrint.setName("viewReport"); // NOI18N
                     btnPrint.setVisibleWhen("#{viewReportAllowed==true}");
                     jToolBar1.add(btnPrint);
+
+                    xSubFormPanel1.setHandler("queryForm");
+
+                    javax.swing.GroupLayout xSubFormPanel1Layout = new javax.swing.GroupLayout(xSubFormPanel1);
+                    xSubFormPanel1.setLayout(xSubFormPanel1Layout);
+                    xSubFormPanel1Layout.setHorizontalGroup(
+                        xSubFormPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGap(0, 438, Short.MAX_VALUE)
+                    );
+                    xSubFormPanel1Layout.setVerticalGroup(
+                        xSubFormPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGap(0, 28, Short.MAX_VALUE)
+                    );
+
+                    jToolBar1.add(xSubFormPanel1);
 
                     xActionBar2.setBorder(null);
                     xActionBar2.setName("navActions"); // NOI18N
@@ -552,5 +568,6 @@ public class WorkflowTaskFormPage extends javax.swing.JPanel {
     private com.rameses.rcp.control.XDropDownList xDropDownList1;
     private com.rameses.rcp.control.XLabel xLabel1;
     private com.rameses.rcp.control.XStyleRule xStyleRule1;
+    private com.rameses.rcp.control.XSubFormPanel xSubFormPanel1;
     // End of variables declaration//GEN-END:variables
 }

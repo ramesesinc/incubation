@@ -13,6 +13,9 @@ public abstract class ComponentBean {
     private Binding innerBinding;
     private Binding callerBinding;
     
+    // applied only to dynamic data 
+    private Object userObject;
+    
     public String getBindingName() {
         return bindingName; 
     }
@@ -44,7 +47,13 @@ public abstract class ComponentBean {
     }
     public Object getValue( String name ) { 
         try { 
-            return PropertyResolver.getInstance().getProperty( getCaller(), name ); 
+            PropertyResolver pr = PropertyResolver.getInstance();
+            Object bean = getUserObject();
+            if ( bean != null ) {
+                Object ov = pr.getProperty(bean, "value");
+                if( ov != null ) return ov;
+            }
+            return pr.getProperty( getCaller(), name ); 
         } catch(Throwable t) {
             return null; 
         }
@@ -53,10 +62,15 @@ public abstract class ComponentBean {
         setValue( bindingName, value ); 
     } 
     public void setValue( String name, Object value ) { 
+        PropertyResolver pr = PropertyResolver.getInstance();
+        Object bean = getUserObject();
+        if ( bean != null && name==bindingName ) {
+            pr.setProperty(bean, "value", value);
+        }
         Binding bi = getCallerBinding(); 
         if ( bi == null ) return; 
         
-        PropertyResolver.getInstance().setProperty( getCaller(), name, value ); 
+        pr.setProperty( getCaller(), name, value ); 
         bi.getValueChangeSupport().notify(name, value); 
         bi.notifyDepends( name ); 
     }
@@ -71,4 +85,9 @@ public abstract class ComponentBean {
     public void setProperty( String name, Object value ) { 
         PropertyResolver.getInstance().setProperty( this, name, value ); 
     } 
+    
+    public Object getUserObject() { return userObject; }
+    public void setUserObject( Object userObject ) {
+        this.userObject = userObject; 
+    }
 }

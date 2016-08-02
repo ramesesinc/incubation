@@ -74,6 +74,10 @@ public class CrudListModel extends AbstractCrudModel {
         ;//do nothing
     }
     
+    public void initColumn( def c ) {
+        //do nothing
+    }
+    
     public def getCustomFilter() {
         String s = invoker.properties.customFilter;
         if( s!=null ) {
@@ -179,21 +183,22 @@ public class CrudListModel extends AbstractCrudModel {
         
         //build the columns to retrieve
         m.select = (primKeys + arr).unique().join(",") ;
-        if(customFilter!=null && customFilter.size() > 0 ) {
-            if( whereStatement==null ) {
-                whereStatement= customFilter;
-            }
-            else if( customFilter.size() == 1 ) {
-                whereStatement[0] = customFilter[0] + ' AND ' + whereStatement[0];
-            }
-            else {
-                whereStatement[0] = customFilter[0] + ' AND ' + whereStatement[0];
-                whereStatement[1].putAll( customFilter[1] );
-            }
-        } 
 
-        if( whereStatement!=null) {
-            m.where = whereStatement;
+        def s1 = [];
+        def s2 = [:];
+        if( whereStatement!=null ) {
+            s1 << whereStatement[0];
+            s2.putAll( whereStatement[1]);
+        };
+        def xFilter = customFilter;
+        if(xFilter!=null) {
+            s1 << xFilter[0]
+            if( xFilter.size() > 1 ) {
+                s2.putAll( xFilter[1] );
+            }
+        }
+        if( s1 ) {
+            m.where = [ s1.join(" AND "), s2];
         }
         
         if( orWhereList.size() > 0 ) {
@@ -238,6 +243,7 @@ public class CrudListModel extends AbstractCrudModel {
                     cc.type = c.datatype;
                 }
                 cc.colindex = maxSz;
+                initColumn( cc );
                 zcols << cc;
             }
             //sort the columns based on the order in strCols

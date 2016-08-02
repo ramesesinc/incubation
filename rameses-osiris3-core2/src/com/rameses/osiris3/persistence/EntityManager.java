@@ -167,7 +167,22 @@ public class EntityManager {
             if( !getModel().hasCriteria() ) {
                 throw new RuntimeException("Please specify a criteria, finder or where element for first method");
             }
-            Map m=  processor.fetchFirst(getModel(), 0);
+            Map m = processor.fetchFirst(getModel(), 0);
+            clearModel();
+            return m;
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
+    }
+    
+    public Map first(int level) {
+        try {
+            getModel().setLimit(1);
+            getModel().setStart(0);
+            if( !getModel().hasCriteria() ) {
+                throw new RuntimeException("Please specify a criteria, finder or where element for first method");
+            }
+            Map m = processor.fetchFirst(getModel(), level);
             clearModel();
             return m;
         } catch (Exception e) {

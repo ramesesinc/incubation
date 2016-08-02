@@ -146,6 +146,7 @@ public class WorkflowTaskListPage extends javax.swing.JPanel {
         xActionBar1 = new com.rameses.rcp.control.XActionBar();
         jPanel7 = new javax.swing.JPanel();
         xActionTextField1 = new com.rameses.rcp.control.XActionTextField();
+        xSubFormPanel1 = new com.rameses.rcp.control.XSubFormPanel();
         jPanel4 = new javax.swing.JPanel();
         jPanel6 = new javax.swing.JPanel();
         listPanel1 = new com.rameses.seti2.components.ListPanel();
@@ -313,6 +314,21 @@ public class WorkflowTaskListPage extends javax.swing.JPanel {
             xActionTextField1.setVisibleWhen("#{allowSearch == true}");
             jPanel7.add(xActionTextField1, java.awt.BorderLayout.EAST);
 
+            xSubFormPanel1.setHandler("queryForm");
+
+            javax.swing.GroupLayout xSubFormPanel1Layout = new javax.swing.GroupLayout(xSubFormPanel1);
+            xSubFormPanel1.setLayout(xSubFormPanel1Layout);
+            xSubFormPanel1Layout.setHorizontalGroup(
+                xSubFormPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGap(0, 283, Short.MAX_VALUE)
+            );
+            xSubFormPanel1Layout.setVerticalGroup(
+                xSubFormPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGap(0, 25, Short.MAX_VALUE)
+            );
+
+            jPanel7.add(xSubFormPanel1, java.awt.BorderLayout.CENTER);
+
             jPanel8.add(jPanel7, java.awt.BorderLayout.CENTER);
 
             jPanel2.add(jPanel8);
@@ -371,5 +387,6 @@ public class WorkflowTaskListPage extends javax.swing.JPanel {
     private com.rameses.rcp.control.XButton xButton2;
     private com.rameses.rcp.control.XLabel xLabel1;
     private com.rameses.rcp.control.XList xList1;
+    private com.rameses.rcp.control.XSubFormPanel xSubFormPanel1;
     // End of variables declaration//GEN-END:variables
 }

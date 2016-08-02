@@ -5,6 +5,7 @@
 package com.rameses.rcp.control;
 
 import com.rameses.classutils.ClassDefUtil;
+import com.rameses.common.PropertyResolver;
 import com.rameses.osiris2.AppContext;
 import com.rameses.osiris2.client.FieldInjectionHandler;
 import com.rameses.rcp.common.ComponentBean;
@@ -128,6 +129,8 @@ public abstract class XComponentPanel extends JPanel
             if ( o != null ) {
                 ib.getValueChangeSupport().add(this);  
             } 
+            
+            compBean.setUserObject(getClientProperty("UIControl.userObject"));
         } 
         
         afterLoad(); 
@@ -271,7 +274,7 @@ public abstract class XComponentPanel extends JPanel
         ActionMessage am0 = new ActionMessage();
         ControlProperty property = getControlProperty();
         property.setErrorMessage(null);
-        if ( ValueUtil.isEmpty( compBean.getValue() ) ) {
+        if ( ValueUtil.isEmpty( getValueImpl() ) ) {
             if (isRequired()) {
                 am0.addMessage("1001", "{0} is required.", new Object[] { getCaption() });
             } 
@@ -289,6 +292,18 @@ public abstract class XComponentPanel extends JPanel
     }
     public void validateInput( ActionMessage am ) { 
         //do nothing 
+    }
+    
+    private Object getValueImpl() {
+        //applied to dynamic bean
+        Object bean = getClientProperty("UIControl.userObject"); 
+        if ( bean != null ) {
+            try {
+                Object ov = PropertyResolver.getInstance().getProperty(bean, "value"); 
+                if( ov != null ) return ov; 
+            } catch(Throwable t){;}
+        }
+        return (compBean==null? null: compBean.getValue());
     }
     
     // </editor-fold>    
