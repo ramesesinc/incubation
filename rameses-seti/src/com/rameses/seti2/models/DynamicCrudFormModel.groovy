@@ -27,6 +27,11 @@ public class DynamicCrudFormModel extends CrudFormModel {
         }
     ] as FormPanelModel;
 
+    public void initControl( def o ) {
+        //do nothing
+    }
+    
+    
     def buildFormInfos() {
         formControls.clear();
         def infos = schema.fields;
@@ -36,6 +41,7 @@ public class DynamicCrudFormModel extends CrudFormModel {
             if(_captionWidth!=null) {
                 i.captionWidth = _captionWidth;
             }
+            initControl(i);
             formControls << i;
         }
     }

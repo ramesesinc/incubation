@@ -1,0 +1,33 @@
+<workunit>
+    <!--
+    To use:
+       users can call preview or query. 
+       query = displays the parameters
+       preview = immediately shows the report without parameters
+    -->
+    <invokers>
+        <invoker type="formActions" action="_close" caption="Close" mnemonic="c"  
+                 icon="images/toolbars/cancel.png" immediate="true" visibleWhen="#{mode == 'query'}"/>
+        
+        <invoker type="formActions" action="preview" caption="Preview" mnemonic="p"  
+                 icon="images/toolbars/preview.png" visibleWhen="#{mode=='query'}"/>
+
+        <invoker type="formActions" action="sendToPrint" caption="Send to Printer" mnemonic="s"  
+                 icon="images/toolbars/printer.png" visibleWhen="#{mode=='query'}"/>
+
+        <invoker type="formActions" action="back" caption="Back" mnemonic="b"  
+         immediate="true" visibleWhen="#{mode=='preview' &amp;&amp; queryView==true}"/>
+
+        <invoker type="formActions" action="_close" caption="Close" mnemonic="c"  
+         immediate="true" visibleWhen="#{mode=='preview' &amp;&amp; queryView==false}"/>
+
+    </invokers>
+    
+    <code class="com.rameses.seti2.models.QueryReportModel" />
+    <pages>
+        <page name="query" template="com.rameses.seti2.views.ReportQueryPage" />
+        <page name="processing" template="com.rameses.seti2.views.ProcessingPage" />
+        <page name="preview" template="com.rameses.seti2.views.ReportPreviewPage" />
+    </pages>
+</workunit>
+

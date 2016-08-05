@@ -12,13 +12,13 @@ import java.util.List;
 /**
  * @author dell
  */
-public class DATE_ADD implements SqlDialectFunction {
+public class MONTH_DIFF implements SqlDialectFunction {
     
     protected List<String> params = new ArrayList(); 
 
     @Override
     public String getName() {
-        return "DATE_ADD";
+        return "MONTH_DIFF";
     }
 
     @Override
@@ -27,22 +27,17 @@ public class DATE_ADD implements SqlDialectFunction {
     }
 
     public String toString() { 
+        if(params.size() != 2) 
+            throw new RuntimeException("MONTH_DIFF error. There must be two parameters passed, startdate, enddate");
         StringBuilder sb = new StringBuilder(); 
-        sb.append("DATE_ADD( ");
-        if ( params.size() == 3 ) {
-            String arg0 = params.get(0); 
-            String arg1 = params.get(1); 
-            String arg2 = params.get(2); 
-            sb.append( arg2 == null? " " : arg2 ).append(", INTERVAL ");
-            sb.append( arg1 == null? " " : arg1 ).append(" ");
-            sb.append( arg0 == null? " " : arg0 );
-        } else {
-            for (int i=0; i<params.size(); i++) {
-                if ( i > 0 ) sb.append(","); 
-                
-                sb.append( params.get(i) ); 
-            }
-        } 
+        sb.append("PERIOD_DIFF( ");
+        sb.append( "DATE_FORMAT(" );
+        sb.append( params.get(1)); 
+        sb.append(",'%Y%m')");
+        sb.append(",");
+        sb.append( "DATE_FORMAT(" );
+        sb.append( params.get(0)); 
+        sb.append(",'%Y%m')");
         sb.append(")"); 
         return sb.toString();
     }

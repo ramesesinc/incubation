@@ -11,6 +11,13 @@ import com.rameses.rcp.annotations.*;
 import com.rameses.osiris2.client.*;
 import com.rameses.osiris2.reports.*;
 
+
+/***
+* modes
+*    view-report = directly calls report. There is no back button
+*    query = shows query page before the report
+*    preview = called after query. There is a back page  
+*/
 public class CrudReportModel extends ReportModel {
     
     @Caller
@@ -19,10 +26,7 @@ public class CrudReportModel extends ReportModel {
     @Controller
     def workunit;
     
-    def mode = "view-report";
     def entity;
-    
-    def data;
     
     public String getTitle() {
         String s = invoker.caption;
@@ -35,7 +39,6 @@ public class CrudReportModel extends ReportModel {
     }
     
     public Object getReportData() {
-        if(data!=null) return data;
         return entity;
     }
     
@@ -53,27 +56,9 @@ public class CrudReportModel extends ReportModel {
         return this; 
     }
     
-    def preview() { 
-        viewReport(); 
-        mode = 'preview'; 
-        return mode; 
-    } 
-    
     //this is called if you want to display the report directly
-    def view() { 
+    void view() { 
         viewReport(); 
-        mode = 'view-report'; 
-        return mode; 
-    } 
-    
-    void print() { 
-        viewReport(); 
-        ReportUtil.print( report, true ); 
-    } 
-            
-    def back() { 
-        mode = 'query'; 
-        return 'default'; 
     } 
     
 }
