@@ -48,7 +48,8 @@ class NotificationListController extends ListController
             params.recipienttype = selectedMenu.type;
             
             if (selectedMenu.type == 'all') {
-                params.recipients = categories.collect{ it.name }; 
+                params.recipienttype = 'my-messages';
+                //params.recipients = categories.collect{ it.name }; 
             } else if (selectedMenu.type == 'user') {
                 params.recipientid = params.userid;
             } else if (selectedMenu.type == 'group') { 
@@ -93,5 +94,23 @@ class NotificationListController extends ListController
             selectedMenu = o;
             reload();
         } 
-    ] as ListPaneModel;     
+    ] as ListPaneModel; 
+    
+    
+    public void onMessage( data ) { 
+        def np = ctx.getNotificationProvider(); 
+        if ( np == null ) return; 
+
+        def env = ctx.getHeaders(); 
+        if ( data.recipienttype == 'user' && data.recipientid == env?.USERID) {
+            np.sendMessage( data ); 
+            
+        } else if ( data.recipienttype == 'group' && groups.contains(data.recipientid.toString().toUpperCase()) ) {  
+            np.sendMessage( data ); 
+        }
+    } 
+    
+    public void onRead( data ) { 
+        //
+    }     
 } 
