@@ -1,5 +1,5 @@
 package com.rameses.seti2.models;
- 
+
 import com.rameses.common.*;
 import com.rameses.rcp.common.*;
 import com.rameses.rcp.annotations.*;
@@ -18,7 +18,7 @@ import java.rmi.server.UID;
 *    query = shows query page before the report
 *    preview = called after query. There is a back page  
 */
-public class QueryReportModel extends ReportModel {
+public class FormReportModel extends ReportModel {
     
     @Caller
     def caller;
@@ -29,10 +29,9 @@ public class QueryReportModel extends ReportModel {
     @Binding
     def binding;
     
-    @Service("ReportService")
+    @Service("FormReportService")
     def reportService;
-    
-    
+        
     int _captionWidth;
     
     String reportId;

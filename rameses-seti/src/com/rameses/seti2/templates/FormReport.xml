@@ -23,7 +23,7 @@
 
     </invokers>
     
-    <code class="com.rameses.seti2.models.QueryReportModel" />
+    <code class="com.rameses.seti2.models.FormReportModel" />
     <pages>
         <page name="query" template="com.rameses.seti2.views.ReportQueryPage" />
         <page name="processing" template="com.rameses.seti2.views.ProcessingPage" />
