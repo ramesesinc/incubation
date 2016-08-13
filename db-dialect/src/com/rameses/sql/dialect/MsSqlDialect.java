@@ -82,6 +82,7 @@ public class MsSqlDialect extends AbstractSqlDialect  {
         StringBuilder groupBuilder = new StringBuilder();
         StringBuilder havingBuilder = new StringBuilder();
         StringBuilder orderBuilder = new StringBuilder();
+        
 
         StringBuilder currentBuilder = null;
         Stack stack = new Stack();
@@ -148,56 +149,43 @@ public class MsSqlDialect extends AbstractSqlDialect  {
             else {
                 currentBuilder.append( " " + s );
             }
-        }
+        } 
 
-        /*
-        String orderBy = "ORDER BY (SELECT NULL)";
-        if(orderBuilder.length()>0) {
-            orderBy = orderBuilder.toString();
+        boolean hasOrderBy = false;
+        if ( orderBuilder.length() > 0 ) {
+            hasOrderBy = true; 
         }
-        //System.out.println("start "+(start+1)+" to "+(start+limit));
-        StringBuilder sresult = new StringBuilder();
-        sresult.append("SELECT * FROM (");
-        sresult.append(selectBuilder);
-        sresult.append(" ROW_NUMBER() OVER (" + orderBy + ") AS _rownum_,"  );
-        sresult.append(columnBuilder);
-        sresult.append(" " + fromBuilder);
-        sresult.append(" " + whereBuilder);
-        sresult.append(" " + groupBuilder);
-        sresult.append(" " + havingBuilder);
-        sresult.append(") AS ConstrainedResult ");
-        sresult.append(" WHERE _rownum_ BETWEEN ");
-        sresult.append( (start+1) + " AND " + (start+limit));
-        */
         
-        StringBuilder sresult = new StringBuilder();
-        sresult.append(selectBuilder);
-        sresult.append( " top " + limit + " ");
-        sresult.append(columnBuilder);
-        sresult.append(fromBuilder);
-        if( whereBuilder.length() == 0 ) {
-            sresult.append(" where ");
+        StringBuilder buff = new StringBuilder();
+        buff.append(" SELECT "); 
+        buff.append(" ROW_NUMBER() OVER (ORDER BY (SELECT NULL)) AS _rownum_, xx.* "); 
+        buff.append(" FROM ( \n");
+        buff.append( selectBuilder );
+        if ( hasOrderBy && !columnBuilder.toString().trim().toLowerCase().startsWith("top ") ) {
+            buff.append(" TOP 100 PERCENT "); 
         }
-        else {
-            sresult.append(" " + whereBuilder);
-            sresult.append(" and ");
-        }
-        sresult.append( " " + ids + " not in ");
+        buff.append( columnBuilder );
+        buff.append( fromBuilder ); 
+        buff.append( whereBuilder ); 
+        buff.append( groupBuilder ); 
+        buff.append( havingBuilder ); 
+        buff.append( orderBuilder ); 
+        buff.append("\n )xx "); 
 
-        sresult.append("( select top " +  start + " " + ids + " ");
-        sresult.append( " " + fromBuilder);
-        sresult.append( " " + whereBuilder);
-        sresult.append( " " + groupBuilder);
-        sresult.append( " " + orderBuilder);
-        sresult.append( " )" );
-        sresult.append( " " + groupBuilder);
-        sresult.append( " " + orderBuilder);
-        
-        if( "true".equals((System.getProperty("app.debugMode")+"").toLowerCase()) ) {
-            System.out.println("mssql dialect debug: ");
-            System.out.println( sresult );
+        StringBuilder sb = new StringBuilder();
+        sb.append(" SELECT TOP ");
+        if ( limit > 0 ) {
+            sb.append("" + limit); 
+        } else {
+            sb.append("100 PERCENT "); 
         }
-        return sresult.toString();
+        sb.append(" * "); 
+        sb.append(" FROM ( ").append( buff ).append(" )xx "); 
+        if ( start >= 0 ) { 
+            sb.append(" WHERE _rownum_ > "+ start ); 
+        } 
+        sb.append(" ORDER BY _rownum_ "); 
+        return sb.toString();        
     }
 
    
@@ -266,9 +254,4 @@ public class MsSqlDialect extends AbstractSqlDialect  {
         
         return sb.toString();
     }
-
-    
-    
-    
-    
 }
