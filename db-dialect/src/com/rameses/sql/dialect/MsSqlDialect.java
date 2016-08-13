@@ -13,7 +13,6 @@ package com.rameses.sql.dialect;
 
 import com.rameses.osiris3.sql.AbstractSqlDialect;
 import com.rameses.osiris3.sql.SqlDialectModel;
-import com.rameses.osiris3.sql.SqlDialectModel.WhereFilter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,6 +20,7 @@ import java.util.List;
 
 import java.util.Stack;
 import java.util.StringTokenizer;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -152,39 +152,79 @@ public class MsSqlDialect extends AbstractSqlDialect  {
         } 
 
         boolean hasOrderBy = false;
-        if ( orderBuilder.length() > 0 ) {
-            hasOrderBy = true; 
+        String sqlOrderBy = null; 
+        if ( orderBuilder.length() > 0 ) { 
+            Pattern p = Pattern.compile("(ORDER BY[\\s]{1,}).*?", Pattern.CASE_INSENSITIVE|Pattern.UNICODE_CASE); 
+            Matcher m = p.matcher( orderBuilder );
+            if ( m.find()) {
+                sqlOrderBy = orderBuilder.substring(m.end()); 
+                hasOrderBy = true; 
+            }
         }
         
         StringBuilder buff = new StringBuilder();
-        buff.append(" SELECT "); 
-        buff.append(" ROW_NUMBER() OVER (ORDER BY (SELECT NULL)) AS _rownum_, xx.* "); 
-        buff.append(" FROM ( \n");
         buff.append( selectBuilder );
-        if ( hasOrderBy && !columnBuilder.toString().trim().toLowerCase().startsWith("top ") ) {
-            buff.append(" TOP 100 PERCENT "); 
+
+        boolean hasSelectTop = false; 
+        String sqlSelectTop = null;      
+        String sqlSelectCols = null; 
+        Pattern p = Pattern.compile("(TOP[\\s]{1,}[0-9]{1,}[\\s]{1,}PERCENT).*?", Pattern.CASE_INSENSITIVE|Pattern.UNICODE_CASE); 
+        Matcher m = p.matcher( columnBuilder );
+        if ( m.find() ) {
+            sqlSelectTop = m.group();
+            sqlSelectCols = columnBuilder.substring( m.end() ); 
+            hasSelectTop = true; 
+
+        } else {
+            p = Pattern.compile("(TOP[\\s]{1,}[0-9]{1,}[\\s]{1,}).*?", Pattern.CASE_INSENSITIVE|Pattern.UNICODE_CASE); 
+            m = p.matcher( columnBuilder );
+            if ( m.find() ) {
+                sqlSelectTop = m.group();
+                sqlSelectCols = columnBuilder.substring( m.end() ); 
+                hasSelectTop = true; 
+            } 
+        } 
+        
+        buff.append(" ");
+        if ( hasSelectTop ) {
+            buff.append( sqlSelectTop ); 
+        } 
+        //
+        // ------------------------------------------
+        //
+        buff.append(" ROW_NUMBER() OVER (ORDER BY ("); 
+        if ( hasOrderBy ) {
+            buff.append( sqlOrderBy ); 
+        } else {
+            buff.append("SELECT NULL");
         }
-        buff.append( columnBuilder );
+        buff.append(")) AS _rownum_, "); 
+        //
+        // ------------------------------------------
+        //
+        buff.append(" ");
+        if ( hasSelectTop ) {
+            buff.append( sqlSelectCols ); 
+        } else {
+            buff.append( columnBuilder ); 
+        }
+        
+        buff.append(" ");
         buff.append( fromBuilder ); 
         buff.append( whereBuilder ); 
         buff.append( groupBuilder ); 
         buff.append( havingBuilder ); 
-        buff.append( orderBuilder ); 
-        buff.append("\n )xx "); 
 
         StringBuilder sb = new StringBuilder();
-        sb.append(" SELECT TOP ");
+        sb.append(" SELECT ");
         if ( limit > 0 ) {
-            sb.append("" + limit); 
-        } else {
-            sb.append("100 PERCENT "); 
-        }
+            sb.append(" TOP " + limit); 
+        } 
         sb.append(" * "); 
         sb.append(" FROM ( ").append( buff ).append(" )xx "); 
         if ( start >= 0 ) { 
             sb.append(" WHERE _rownum_ > "+ start ); 
         } 
-        sb.append(" ORDER BY _rownum_ "); 
         return sb.toString();        
     }
 
