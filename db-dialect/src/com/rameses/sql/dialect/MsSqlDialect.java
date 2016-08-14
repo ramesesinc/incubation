@@ -192,13 +192,13 @@ public class MsSqlDialect extends AbstractSqlDialect  {
         //
         // ------------------------------------------
         //
-        buff.append(" ROW_NUMBER() OVER (ORDER BY ("); 
+        buff.append(" ROW_NUMBER() OVER (ORDER BY "); 
         if ( hasOrderBy ) {
             buff.append( sqlOrderBy ); 
         } else {
-            buff.append("SELECT NULL");
+            buff.append("(SELECT NULL)");
         }
-        buff.append(")) AS _rownum_, "); 
+        buff.append(" ) AS _rownum_, "); 
         //
         // ------------------------------------------
         //
