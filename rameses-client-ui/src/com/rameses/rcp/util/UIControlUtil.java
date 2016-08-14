@@ -134,6 +134,10 @@ public class UIControlUtil
         if ( panel == null ) 
         {
             Container parent = comp.getParent();
+            if ( parent==null ) {
+                parent=(Container) comp.getClientProperty("Component.parent");
+            } 
+            
             while( parent != null ) {
                 if ( parent instanceof NavigatablePanel ) {
                     panel = (NavigatablePanel) parent;
