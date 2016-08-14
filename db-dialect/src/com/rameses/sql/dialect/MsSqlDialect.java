@@ -189,6 +189,9 @@ public class MsSqlDialect extends AbstractSqlDialect  {
         if ( hasSelectTop ) {
             buff.append( sqlSelectTop ); 
         } 
+        else{
+            buff.append( " TOP 100 PERCENT ");
+        }
         //
         // ------------------------------------------
         //
