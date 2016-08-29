@@ -14,6 +14,7 @@ import com.rameses.rcp.ui.ControlProperty;
 import com.rameses.rcp.ui.UIControl;
 import com.rameses.rcp.ui.UISubControl;
 import com.rameses.util.ValueUtil;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -61,6 +62,7 @@ public class ItemPanel extends JPanel implements FormItemProperty {
             container.setViewportView(editor);
         }
         initComponents(parent, editor, container);
+        //setBorder( BorderFactory.createLineBorder(Color.BLUE)); 
     }
     
     public ItemPanel(XFormPanel parent, Component editor, Component container) {
@@ -230,7 +232,7 @@ public class ItemPanel extends JPanel implements FormItemProperty {
     public int getStretchHeight() {
         return uimodel.getStretchHeight(); 
     }    
-    
+        
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" ControlPropetyListener ">
@@ -337,19 +339,18 @@ public class ItemPanel extends JPanel implements FormItemProperty {
             int sw = 0;
             if (editor == null) {
                 //do nothing 
-            } else if ( uicontrol != null ) { 
-                sw = (uicontrol == null? 0: uicontrol.getStretchWidth()); 
-                if (sw > 100) { sw = 100; } 
-            } else if (editor.getPreferredSize().width == 0) {
-                sw = 100; 
             } else {
                 sw = (uicontrol == null? 0: uicontrol.getStretchWidth()); 
                 if (sw > 100) { sw = 100; } 
             }
             
-            if (sw == 0 && (editor instanceof UISubControl)) { 
-                sw = 100; 
-            } 
+            if ( sw == 0 ) {
+                if ( editor instanceof UISubControl ) {
+                    sw = 100; 
+                } else if ( editor != null && editor.getPreferredSize().width == 0 ) {
+                    sw = 100; 
+                } 
+            }
             return sw; 
         } 
         int getStretchHeight() {
@@ -544,22 +545,22 @@ public class ItemPanel extends JPanel implements FormItemProperty {
                 }
 
                 cw = Math.max(parent.getWidth()-x-margin.right, 0); 
-                int pw = editor.getPreferredSize().width; 
-                int sw = uimodel.getStretchWidth(); 
-                if ( sw > 0 ) {
-                    double d0 = (double) cw; 
-                    if (cw < pw) { 
-                        d0 = (double) pw; 
-                    } 
-                    double d1 = sw / 100.0; 
-                    double d2 = d0 * d1; 
-                    int dw = new BigDecimal(d2).setScale(0, RoundingMode.HALF_UP).intValue(); 
-                    if (dw < pw) { dw = pw; }
-                    
-                    cw = dw; 
-                } else if ( pw > 0 ) {
-                    cw = pw; 
-                } 
+//                int pw = editor.getPreferredSize().width; 
+//                int sw = uimodel.getStretchWidth(); 
+//                if ( sw > 0 ) {
+//                    double d0 = (double) cw; 
+//                    if (cw < pw) { 
+//                        d0 = (double) pw; 
+//                    } 
+//                    double d1 = sw / 100.0; 
+//                    double d2 = d0 * d1; 
+//                    int dw = new BigDecimal(d2).setScale(0, RoundingMode.HALF_UP).intValue(); 
+//                    if (dw < pw) { dw = pw; }
+//                    
+//                    cw = dw; 
+//                } else if ( pw > 0 ) {
+//                    cw = pw; 
+//                } 
                 
                 //if (dw > 0 && cw < dw) { cw = dw; }
                 
