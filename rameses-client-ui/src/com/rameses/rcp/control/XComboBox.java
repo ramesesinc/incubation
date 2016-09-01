@@ -540,6 +540,7 @@ public class XComboBox extends JComboBox implements UIInput, Validatable, Active
             }
                         
             if ( dynamic ) {
+                String sname = getName();
                 EventQueue.invokeLater(new Runnable(){
                     public void run() {
                         try {
