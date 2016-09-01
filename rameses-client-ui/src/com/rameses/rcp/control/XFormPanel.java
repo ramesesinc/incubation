@@ -1079,25 +1079,25 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
                     if (isShowCategory()) { y += 10; } 
                 } 
 
-//                int dw = dim.width; 
-//                int sw = fip.getStretchWidth(); 
-//                if ( isShowCategory() && sw==0 ) {
-//                    sw = 100; 
-//                }
-//                
-//                if (sw > 0) { 
-//                    double d0 = (double) w; 
-//                    if (w < preferredMaxWidth) { 
-//                        d0 = (double) preferredMaxWidth; 
-//                    } 
-//                    double d1 = sw / 100.0; 
-//                    double d2 = d0 * d1; 
-//                    dw = new BigDecimal(d2).setScale(0, RoundingMode.HALF_UP).intValue(); 
-//                    if (dw < dim.width) { dw = dim.width; } 
-//                } 
+                int dw = dim.width; 
+                int sw = fip.getStretchWidth(); 
+                if ( isShowCategory() && sw==0 ) {
+                    sw = 100; 
+                }
+                
+                if (sw > 0) { 
+                    double d0 = (double) w; 
+                    if (w < preferredMaxWidth) { 
+                        d0 = (double) preferredMaxWidth; 
+                    } 
+                    double d1 = sw / 100.0; 
+                    double d2 = d0 * d1; 
+                    dw = new BigDecimal(d2).setScale(0, RoundingMode.HALF_UP).intValue(); 
+                    if (dw < dim.width) { dw = dim.width; } 
+                } 
                 
                 y += cellpadding.top;
-                c.setBounds(x, y, w, dim.height);
+                c.setBounds(x, y, dw, dim.height);
                 y += dim.height + cellpadding.bottom;
             }
         }

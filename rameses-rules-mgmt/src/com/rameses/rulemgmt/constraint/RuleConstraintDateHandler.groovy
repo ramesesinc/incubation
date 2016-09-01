@@ -7,7 +7,6 @@ import com.rameses.osiris2.common.*
 
 public class RuleConstraintDateHandler extends RuleConstraintHandler {
 
-
     @Service("RuleMgmtService")
     def service;
 

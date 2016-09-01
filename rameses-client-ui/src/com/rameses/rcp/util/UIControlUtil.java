@@ -24,8 +24,9 @@ import java.util.List;
 import javax.swing.JComponent;
 
 
-public class UIControlUtil 
-{
+public class UIControlUtil {
+    
+    public static final String COMPONENT_PARENT_KEY = "Component.parent"; 
 
     public static void setBeanValue(Binding binding, String name, Object value) {
         setBeanValue(binding.getBean(), name, value); 
@@ -131,9 +132,12 @@ public class UIControlUtil
     public static NavigatablePanel getParentPanel(JComponent comp, String target) 
     {
         NavigatablePanel panel = null;
-        if ( panel == null ) 
-        {
+        if ( panel == null ) {
             Container parent = comp.getParent();
+            if ( parent==null ) {
+                parent = (Container)comp.getClientProperty( COMPONENT_PARENT_KEY ); 
+            }
+            
             while( parent != null ) {
                 if ( parent instanceof NavigatablePanel ) {
                     panel = (NavigatablePanel) parent;
