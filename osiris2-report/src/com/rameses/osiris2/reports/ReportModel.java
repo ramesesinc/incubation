@@ -270,7 +270,10 @@ public abstract class ReportModel {
                 this.basepath = "/"; 
             } 
         }
-        public URL getResource(String name) {
+        public URL getResource(String name) { 
+            URL url = ReportUtil.getResource( this.basepath +  name ); 
+            if ( url != null ) return url; 
+            
             return getClass().getClassLoader().getResource( this.basepath +  name );
         }
     } 

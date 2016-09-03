@@ -7,28 +7,39 @@ import com.rameses.osiris2.common.*
 
 public class RuleConstraintDateHandler extends RuleConstraintHandler {
 
-
     @Service("RuleMgmtService")
     def service;
 
-    def varList;
+    def _varList;
 
-    void init() {
+    void init() { 
+        println '** constraint ' 
+        constraint.each{
+            println '>> '+ it 
+        }
         if(constraint.usevar == 1 ) buildVarList();
     }
-
-    void buildVarList() {
-        varList = service.findAllVarsByType( [ruleid:condition.parentid, datatype:field.vardatatype, pos: condition.pos ] ).collect{  
+    
+    def getVarList() {
+        println '** varList '
+        println this._varList; 
+        return this._varList; 
+    }
+    
+    void buildVarList() { 
+        println 'buildVarList..'
+        this._varList = service.findAllVarsByType( [ruleid:condition.parentid, datatype:field.vardatatype, pos: condition.pos ] ).collect{  
             [objid: it.objid, name: it.name]
         };
     }
 
     @PropertyChangeListener
     def listener = [
-        "constraint.usevar": { o->
+        "constraint.usevar": { o-> 
+            println 'uservar-> ' + o;
             if( o == 1) {
                 constraint.datevalue = null;
-                buildVarList();
+                buildVarList();                
             }
             else {
                 constraint.var = null;

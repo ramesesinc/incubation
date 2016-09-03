@@ -29,6 +29,7 @@ public class LookupPage extends javax.swing.JPanel {
         xButton2 = new com.rameses.rcp.control.XButton();
         jPanel4 = new javax.swing.JPanel();
         xActionBar1 = new com.rameses.rcp.control.XActionBar();
+        xActionBar2 = new com.rameses.rcp.control.XActionBar();
 
         setLayout(new java.awt.BorderLayout());
 
@@ -83,9 +84,16 @@ public class LookupPage extends javax.swing.JPanel {
         jPanel4.setLayout(new com.rameses.rcp.control.layout.XLayout());
 
         xActionBar1.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        xActionBar1.setFormName("entityName");
+        xActionBar1.setDepends(new String[] {"selectedEntity"});
+        xActionBar1.setName("formActions"); // NOI18N
         xActionBar1.setUseToolBar(false);
         jPanel4.add(xActionBar1);
+
+        xActionBar2.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        xActionBar2.setDepends(new String[] {"selectedEntity"});
+        xActionBar2.setFormName("entityName");
+        xActionBar2.setUseToolBar(false);
+        jPanel4.add(xActionBar2);
 
         jPanel1.add(jPanel4, java.awt.BorderLayout.CENTER);
 
@@ -99,6 +107,7 @@ public class LookupPage extends javax.swing.JPanel {
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
     private com.rameses.rcp.control.XActionBar xActionBar1;
+    private com.rameses.rcp.control.XActionBar xActionBar2;
     private com.rameses.rcp.control.XButton xButton1;
     private com.rameses.rcp.control.XButton xButton2;
     private com.rameses.rcp.control.XDataTable xDataTable1;
