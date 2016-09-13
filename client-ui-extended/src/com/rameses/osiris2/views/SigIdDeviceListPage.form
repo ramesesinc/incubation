@@ -53,6 +53,18 @@
             <Property name="name" type="java.lang.String" value="setAsDefault" noResource="true"/>
           </Properties>
         </Component>
+        <Component class="com.rameses.rcp.control.XButton" name="xButton2">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Test Device"/>
+            <Property name="depends" type="[Ljava.lang.String;" editor="org.netbeans.beaninfo.editors.StringArrayEditor">
+              <StringArray count="1">
+                <StringItem index="0" value="selectedItem"/>
+              </StringArray>
+            </Property>
+            <Property name="disableWhen" type="java.lang.String" value="#{selectedItem == null}"/>
+            <Property name="name" type="java.lang.String" value="testDevice" noResource="true"/>
+          </Properties>
+        </Component>
       </SubComponents>
       <LayoutCode>
         <CodeStatement>
@@ -88,6 +100,22 @@
               <ExpressionOrigin>
                 <ExpressionProvider type="ComponentRef">
                   <ComponentRef name="xButton1"/>
+                </ExpressionProvider>
+              </ExpressionOrigin>
+            </CodeExpression>
+          </Parameters>
+        </CodeStatement>
+        <CodeStatement>
+          <CodeExpression id="1_xPanel1"/>
+          <StatementProvider type="CodeMethod">
+            <CodeMethod name="add" class="java.awt.Container" parameterTypes="java.awt.Component"/>
+          </StatementProvider>
+          <Parameters>
+            <CodeExpression id="4_xButton2">
+              <CodeVariable name="xButton2" type="8194" declaredType="com.rameses.rcp.control.XButton"/>
+              <ExpressionOrigin>
+                <ExpressionProvider type="ComponentRef">
+                  <ComponentRef name="xButton2"/>
                 </ExpressionProvider>
               </ExpressionOrigin>
             </CodeExpression>

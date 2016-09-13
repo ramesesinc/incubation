@@ -56,4 +56,14 @@ class SigIdDeviceListModel {
         }
     ] as BasicListModel;
     
+    def sigModel = [
+        onselect: { o-> 
+            
+        }
+    ] as SigIdModel; 
+    
+    void testDevice() {
+        SigIdViewer.open( sigModel ); 
+    }
+    
 }
