@@ -188,20 +188,10 @@ public class MsSqlDialect extends AbstractSqlDialect  {
         buff.append(" ");
         if ( hasSelectTop ) {
             buff.append( sqlSelectTop ); 
-        } 
-        //
-        // ------------------------------------------
-        //
-        buff.append(" ROW_NUMBER() OVER (ORDER BY "); 
-        if ( hasOrderBy ) {
-            buff.append( sqlOrderBy ); 
         } else {
-            buff.append("(SELECT NULL)");
+            buff.append(" TOP 100 PERCENT "); 
         }
-        buff.append(" ) AS _rownum_, "); 
-        //
-        // ------------------------------------------
-        //
+        
         buff.append(" ");
         if ( hasSelectTop ) {
             buff.append( sqlSelectCols ); 
@@ -221,7 +211,9 @@ public class MsSqlDialect extends AbstractSqlDialect  {
             sb.append(" TOP " + limit); 
         } 
         sb.append(" * "); 
-        sb.append(" FROM ( ").append( buff ).append(" )xx "); 
+        sb.append(" FROM ( ");
+        sb.append(" SELECT xx.*, ROW_NUMBER() OVER (ORDER BY (SELECT NULL)) AS _rownum_ FROM ( ").append( buff ).append(" )xx "); 
+        sb.append(" )xx "); 
         if ( start >= 0 ) { 
             sb.append(" WHERE _rownum_ > "+ start ); 
         } 
@@ -254,7 +246,7 @@ public class MsSqlDialect extends AbstractSqlDialect  {
             sb.append(" SELECT TOP "+ model.getLimit() +" * ");
             sb.append(" FROM ( ").append( buff ).append(" )xx ");  
             sb.append(" WHERE _rownum_ > $P{_start} ");
-            sb.append(" ORDER BY _rownum_ ");
+            //sb.append(" ORDER BY _rownum_ ");
             return sb.toString();
             
         } else {
@@ -278,7 +270,7 @@ public class MsSqlDialect extends AbstractSqlDialect  {
         buildJoinTablesForUpdate(model, list);
         buildFinderStatement(model, list, true);
         buildSingleWhereStatement(model, list, true);
-        sb.append( concatFilterStatement(list));        
+        sb.append( concatFilterStatement(list));     
         return sb.toString();
     }
 
