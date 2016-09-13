@@ -267,7 +267,6 @@ public class XActionBar extends JPanel implements UIComposite, ActiveControl, Mo
                 btn.putClientProperty("Action.role", action.getRole());                
                 btn.putClientProperty("Action.permission", action.getPermission());
                 btn.putClientProperty( UIControlUtil.COMPONENT_PARENT_KEY, this ); 
-                
                 if (!buttonTpl.isContentAreaFilled()) {
                     btn.setBorder(null);
                     btn.setOpaque(false);

@@ -69,7 +69,15 @@ public final class FormControlUtil  {
             i.type = "lookup";
             i.handler = fld.ref + ":lookup";
             i.expression = fld.expression;
-        } 
+        };
+        
+        //copy other properties make sure not to override them. 
+        fld.each {k,v->
+            if(!i.containsKey(k)) {
+                i.put(k, v);
+            }
+        }
+        
         return i;
     }
     
