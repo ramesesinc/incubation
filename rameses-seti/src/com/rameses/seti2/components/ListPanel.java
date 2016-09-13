@@ -90,12 +90,12 @@ public class ListPanel extends javax.swing.JPanel {
         jPanel5.setPreferredSize(new java.awt.Dimension(100, 20));
         jPanel5.setLayout(new com.rameses.rcp.control.layout.XLayout());
 
-        lblRecordCount.setDepends(new String[] {"selectedEntity"});
+        lblRecordCount.setDepends(new String[] {"selectedItem"});
         lblRecordCount.setExpression("#{recordCountInfo}");
         lblRecordCount.setUseHtml(true);
         jPanel5.add(lblRecordCount);
 
-        lblPageCount.setDepends(new String[] {"selectedEntity"});
+        lblPageCount.setDepends(new String[] {"selectedItem"});
         lblPageCount.setExpression("#{pageCountInfo}");
         lblPageCount.setUseHtml(true);
         jPanel5.add(lblPageCount);

@@ -132,9 +132,14 @@ public class CrudListModel extends AbstractCrudModel {
         return (searchables);
     }
     
+    void beforeInit(){}
+    void afterInit(){}
+    
     boolean _inited_ = false;
     void init() {
         if(_inited_ ) return;
+        
+        beforeInit();
         //load role and domain if any.
         if( pageExists("queryForm")) {
             queryForm = new Opener(outcome:'queryForm')
@@ -164,7 +169,9 @@ public class CrudListModel extends AbstractCrudModel {
 
         searchables = schema.fields.findAll{ it.searchable == "true" }*.name;
         _inited_ = true;
-    }
+        
+        afterInit();
+    } 
         
     public def buildSelectQuery(Map o) {
         def m = [debug:debug];
@@ -274,7 +281,7 @@ public class CrudListModel extends AbstractCrudModel {
             } 
         }
     ] as PageListModel;
-    
+        
     void search() {
         orWhereList.clear();
         if( searchText ) {
