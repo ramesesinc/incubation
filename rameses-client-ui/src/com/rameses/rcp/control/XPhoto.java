@@ -359,21 +359,27 @@ public class XPhoto extends JLabel implements UIControl, ActiveControl, MouseEve
         return new Rectangle(nx, ny, nw, nh);
     }
     
-    private BufferedImage getIconImage() {
-        if (iiconImage == null) {
-            ImageIcon icon = iicon;
-            int iw = icon.getIconWidth();
-            int ih = icon.getIconHeight();  
-            //System.out.println("iw=" + iw + ", ih="+ih);
-            BufferedImage bi = new BufferedImage(iw, ih, BufferedImage.TYPE_INT_ARGB); 
-            Graphics2D gbi = bi.createGraphics();
-            gbi.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-            gbi.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);        
-            gbi.drawImage(icon.getImage(), 0, 0, null); 
-            gbi.dispose(); 
-            iiconImage = bi; 
-        } 
-        return iiconImage;
+    private BufferedImage getIconImage() { 
+        try { 
+            if (iiconImage == null) {
+                ImageIcon icon = iicon;
+                int iw = icon.getIconWidth();
+                int ih = icon.getIconHeight();  
+                //System.out.println("iw=" + iw + ", ih="+ih);
+                BufferedImage bi = new BufferedImage(iw, ih, BufferedImage.TYPE_INT_ARGB); 
+                Graphics2D gbi = bi.createGraphics();
+                gbi.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+                gbi.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);        
+                gbi.drawImage(icon.getImage(), 0, 0, null); 
+                gbi.dispose(); 
+                iiconImage = bi; 
+            } 
+            return iiconImage; 
+        } catch(Throwable t) { 
+            if ( ClientContext.getCurrentContext().isDebugMode() ) t.printStackTrace(); 
+            
+            return null; 
+        }
     }
         
     // </editor-fold>
@@ -479,10 +485,12 @@ public class XPhoto extends JLabel implements UIControl, ActiveControl, MouseEve
             if (isScaled()) rect = getScaleRect(iicon, width, height); 
 
             BufferedImage bi = getIconImage();
-            Image scaledImage = bi.getScaledInstance(rect.width, rect.height, Image.SCALE_SMOOTH);
-            Graphics2D g2 = (Graphics2D) g.create(); 
-            g2.drawImage(scaledImage, rect.x, rect.y, rect.width, rect.height, null); 
-            g2.dispose();
+            if ( bi != null ) {
+                Image scaledImage = bi.getScaledInstance(rect.width, rect.height, Image.SCALE_SMOOTH);
+                Graphics2D g2 = (Graphics2D) g.create(); 
+                g2.drawImage(scaledImage, rect.x, rect.y, rect.width, rect.height, null); 
+                g2.dispose();                
+            }
         }
         
         private BufferedImage createCompatibleImage(int width, int height) {
