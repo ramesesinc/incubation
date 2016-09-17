@@ -320,11 +320,13 @@ public abstract class AbstractSqlDialect implements SqlDialect {
     protected String buildOrderStatement(SqlDialectModel model) {
         return buildOrderStatement( model, null ); 
     }
-    
     protected String buildOrderStatement(SqlDialectModel model, String alias ) { 
+        return buildOrderStatement( model, alias, true );
+    }
+    protected String buildOrderStatement( SqlDialectModel model, String alias, boolean withOrderByCommand  ) { 
         StringBuilder sb = new StringBuilder(); 
-        if( model.getOrderFields()!=null &&  model.getOrderFields().size()>0 ) {
-            sb.append( " ORDER BY "); 
+        if( model.getOrderFields()!=null &&  model.getOrderFields().size()>0 ) { 
+            if ( withOrderByCommand ) sb.append( " ORDER BY "); 
             
             int i = 0;
             for( Field f: model.getOrderFields() ) {

@@ -19,6 +19,7 @@ import com.rameses.osiris3.sql.MapToField;
 import com.rameses.osiris3.sql.SqlContext;
 import com.rameses.osiris3.sql.SqlExecutor;
 import com.rameses.osiris3.sql.SqlQuery;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -682,9 +683,16 @@ public class EntityManager {
         try {
             Map m = first();
             if( m == null || m.size() == 0 ) return null;
-            return m.values().iterator().next();
-        }
-        catch(Exception e) {
+            
+            Iterator keys = m.keySet().iterator(); 
+            while (keys.hasNext()) {
+                Object o = keys.next();
+                if ( o == null || o.toString().matches("_.*?_")) continue; 
+
+                return m.get( o ); 
+            } 
+            return null; 
+        } catch(Exception e) {
             throw new RuntimeException("Error in val. "+e.getMessage());
         }
     } 
