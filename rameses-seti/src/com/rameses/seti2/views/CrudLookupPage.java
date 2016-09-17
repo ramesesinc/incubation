@@ -305,6 +305,7 @@ public class CrudLookupPage extends javax.swing.JPanel {
             jPanel8.add(jToolBar1, java.awt.BorderLayout.WEST);
 
             jPanel7.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 5));
+            jPanel7.setOpaque(false);
             jPanel7.setLayout(new java.awt.BorderLayout());
 
             xSubFormPanel1.setHandler("queryForm");
@@ -323,6 +324,7 @@ public class CrudLookupPage extends javax.swing.JPanel {
             jPanel7.add(xSubFormPanel1, java.awt.BorderLayout.CENTER);
 
             xActionTextField1.setActionName("search");
+            xActionTextField1.setFocusKeyStroke("F3");
             xActionTextField1.setMaxLength(50);
             xActionTextField1.setName("searchText"); // NOI18N
             xActionTextField1.setPreferredSize(new java.awt.Dimension(180, 20));

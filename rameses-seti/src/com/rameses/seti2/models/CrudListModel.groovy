@@ -127,6 +127,12 @@ public class CrudListModel extends AbstractCrudModel {
         if( s ) return s;
         return workunit.info.workunit_properties.orderBy;
     }
+    
+    boolean isSurroundSearch() {
+        String s = invoker?.properties?.surroundSearch;
+        if ( !s ) s = workunit?.info?.workunit_properties?.surroundSearch;
+        return (s.toString().equals("false")? false: true); 
+    }
            
     boolean isAllowSearch() {
         return (searchables);
@@ -285,8 +291,11 @@ public class CrudListModel extends AbstractCrudModel {
     void search() {
         orWhereList.clear();
         if( searchText ) {
-            searchables.each {
-                orWhereList << [ it + " like :searchtext", ["searchtext": "%"+searchText+"%"]  ]
+            searchables.each { 
+                def st = searchText+"%";
+                if ( isSurroundSearch() ) st = "%"+st; 
+                
+                orWhereList << [ it + " like :searchtext", [searchtext: st] ]
             }
         }
         listHandler.doSearch();
