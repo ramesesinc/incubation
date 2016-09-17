@@ -224,30 +224,35 @@ public class MsSqlDialect extends AbstractSqlDialect  {
     public String getSelectStatement( SqlDialectModel model )  {
         if ( model.getStart() > 0 || model.getLimit()>0 ) { 
             boolean hasOrderBy = true; 
-            String orderBy = super.buildOrderStatement(model, "xx");  
+            String orderBy = super.buildOrderStatement( model, "t1", false );  
             if ( orderBy == null || orderBy.trim().length()==0 ) {
                 hasOrderBy = false; 
             }
             
             StringBuilder buff = new StringBuilder();
-            buff.append(" SELECT "); 
+            buff.append(" SELECT TOP 100 PERCENT t1.*, "); 
+            buff.append(" ROW_NUMBER() OVER (ORDER BY ");
             if ( hasOrderBy ) {
-                buff.append(" TOP 100 PERCENT "); 
+                buff.append( orderBy ); 
+            } else { 
+                buff.append("(SELECT NULL)"); 
             } 
-            buff.append(" ROW_NUMBER() OVER (ORDER BY (SELECT NULL)) AS _rownum_, xx.* "); 
+            buff.append(") AS _rownum_ "); 
+            
             buff.append(" FROM ( ");
             buff.append( super.getSelectStatement(model, false) );
-            buff.append(" )xx "); 
-            if ( hasOrderBy ) { 
-                buff.append( orderBy ); 
-            } 
+            buff.append(" )t1 "); 
             
             StringBuilder sb = new StringBuilder();
-            sb.append(" SELECT TOP "+ model.getLimit() +" * ");
-            sb.append(" FROM ( ").append( buff ).append(" )xx ");  
-            sb.append(" WHERE _rownum_ > $P{_start} ");
-            //sb.append(" ORDER BY _rownum_ ");
-            return sb.toString();
+            sb.append(" SELECT "); 
+            if ( model.getLimit() > 0 ) {
+                sb.append(" TOP " + model.getLimit() );
+            }
+            sb.append(" * FROM ( ").append( buff ).append(" )t2  "); 
+            if ( model.getStart() > 0 ) { 
+                sb.append(" WHERE _rownum_ > $P{_start} "); 
+            } 
+            return sb.toString(); 
             
         } else {
              return super.getSelectStatement(model, true);
