@@ -168,31 +168,25 @@ public abstract class AbstractListDataProvider
         if (selectedItem == null) setSelectedItem(0);
     } 
     
-    private void fetchImpl() 
-    {
-        try
-        {
+    private void fetchImpl() {
+        try { 
             propertySupport.firePropertyChange("loading", true);
             processing = true;
             boolean forceLoad = (fetchMode==FETCH_MODE_LOAD || fetchMode==FETCH_MODE_RELOAD || fetchMode==FETCH_MODE_RELOAD_ALL); 
             fetch(forceLoad); 
-            if (fetchMode == FETCH_MODE_RELOAD_ALL) 
+            if (fetchMode == FETCH_MODE_RELOAD_ALL) { 
                 tableModelSupport.fireTableDataProviderChanged(); 
-            else 
+            } else { 
                 tableModelSupport.fireTableDataChanged(); 
-            
+            } 
             int index = (selectedItem == null? 0: selectedItem.getIndex());
             tableModelSupport.fireTableRowSelected(index, false);            
             tableModelSupport.fireTableRowsUpdated(index, index); 
-        }
-        catch(RuntimeException re) {
+        } catch(RuntimeException re) {
             throw re;
-        }
-        catch(Exception e) {
+        } catch(Exception e) {
             throw new RuntimeException(e.getMessage(), e); 
-        } 
-        finally 
-        {
+        } finally {
             processing = false;
             propertySupport.firePropertyChange("loading", false);        
         }
@@ -399,15 +393,17 @@ public abstract class AbstractListDataProvider
         refreshImpl(forceLoad? FETCH_MODE_RELOAD: FETCH_MODE_REFRESH); 
     } 
     
-    private void refreshImpl(int fetchMode) 
-    {
+    private void refreshImpl(int fetchMode) {
         this.fetchMode = fetchMode;
         fetchImpl(); 
         fireDataChanged();
     } 
     
-    public final int getDataIndexByRownum(int rownum) 
-    {
+    public void fireStuctureChanged() { 
+        tableModelSupport.fireTableStructureChanged(); 
+    } 
+    
+    public final int getDataIndexByRownum(int rownum) {
         ListItem li = getListItemByRownum(rownum); 
         if (li == null || li.getItem() == null) return -1;
         
@@ -500,6 +496,9 @@ public abstract class AbstractListDataProvider
         propertySupport.firePropertyChange("focusSelectedItem", selectedItem); 
     } 
     
+    public boolean hasSelections() { 
+        return getSelectionSupport().hasSelections(); 
+    } 
     
     protected void beforeSelectItem( Object fact ) {}
     protected void beforeSelectItem(Object item, boolean selected, int rowIndex) {
@@ -958,6 +957,10 @@ public abstract class AbstractListDataProvider
             } else {
                 return values.get(0); 
             }
+        }
+        
+        public boolean hasSelections() {
+            return (checkedItems.isEmpty() ? false : true); 
         }
     }
     

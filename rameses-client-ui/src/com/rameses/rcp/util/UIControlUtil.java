@@ -133,8 +133,8 @@ public class UIControlUtil {
     {
         NavigatablePanel panel = null;
         if ( panel == null ) {
-            Container parent = comp.getParent();
-            if ( parent==null ) {
+            Container parent = (comp==null? null: comp.getParent());
+            if ( comp != null && parent==null ) {
                 parent = (Container)comp.getClientProperty( COMPONENT_PARENT_KEY ); 
             }
             
@@ -147,7 +147,7 @@ public class UIControlUtil {
                 }
                 parent = parent.getParent();
             }
-            if ( panel != null ) {
+            if ( panel != null && comp != null ) {
                 comp.putClientProperty(NavigatablePanel.class, panel);
             }
         }

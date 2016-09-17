@@ -499,8 +499,7 @@ public class DataTableComponent extends JTable implements TableControl
         }
     }
     
-    public void setTableHeader(JTableHeader tableHeader) 
-    {
+    public void setTableHeader(JTableHeader tableHeader) {
         super.setTableHeader(tableHeader);
         
         tableHeader = getTableHeader(); 
@@ -509,8 +508,7 @@ public class DataTableComponent extends JTable implements TableControl
         //tableHeader.setDefaultRenderer(TableUtil.getHeaderRenderer());
         tableHeader.setDefaultRenderer(new CellRenderers.HeaderRenderer());
         tableHeader.addMouseMotionListener(new MouseMotionAdapter() {
-            public void mouseDragged(MouseEvent me) 
-            {
+            public void mouseDragged(MouseEvent me) {
                 if (currentEditor == null) return;
                 
                 Point p = new Point(me.getX(), me.getY());
@@ -518,14 +516,12 @@ public class DataTableComponent extends JTable implements TableControl
                 if (colIndex < 0) return;
                 
                 Point colPoint = (Point) currentEditor.getClientProperty(COLUMN_POINT); 
-                if (colPoint.x-1 == colIndex || colPoint.x == colIndex || colPoint.x+1 == colIndex) 
-                {
+                if (colPoint.x-1 == colIndex || colPoint.x == colIndex || colPoint.x+1 == colIndex) {
                     Rectangle bounds = getCellRect(colPoint.y, colPoint.x, false);
                     currentEditor.setBounds(bounds); 
                     currentEditor.requestFocus(); 
                     currentEditor.grabFocus(); 
-                } 
-                else { 
+                } else { 
                     hideEditor(false);
                 } 
             }
