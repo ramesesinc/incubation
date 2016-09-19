@@ -293,6 +293,7 @@ public class CrudListPage extends javax.swing.JPanel {
         jToolBar2.setRollover(true);
 
         xActionTextField1.setActionName("search");
+        xActionTextField1.setFocusKeyStroke("F3");
         xActionTextField1.setMaxLength(50);
         xActionTextField1.setName("searchText"); // NOI18N
         xActionTextField1.setPreferredSize(new java.awt.Dimension(180, 20));
