@@ -249,7 +249,7 @@ public class MsSqlDialect extends AbstractSqlDialect  {
                 sb.append(" TOP " + model.getLimit() );
             }
             sb.append(" * FROM ( ").append( buff ).append(" )t2  "); 
-            if ( model.getStart() > 0 ) { 
+            if ( model.getStart() >= 0 ) { 
                 sb.append(" WHERE _rownum_ > $P{_start} "); 
             } 
             return sb.toString(); 
