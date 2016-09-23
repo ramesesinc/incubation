@@ -1,0 +1,9 @@
+<workunit>
+    <invokers>
+        <invoker type="dynamic:prompt" action="init" target="popup" caption="Enter Data"/>
+    </invokers>
+    <code class="com.rameses.seti2.models.DynamicInputForm"/>  
+    <pages>
+        <page template="com.rameses.seti2.views.DynamicInputPage"/>
+    </pages>    
+</workunit> 
