@@ -204,6 +204,7 @@ public class MsSqlDialect extends AbstractSqlDialect  {
         buff.append( whereBuilder ); 
         buff.append( groupBuilder ); 
         buff.append( havingBuilder ); 
+        buff.append( orderBuilder );
 
         StringBuilder sb = new StringBuilder();
         sb.append(" SELECT ");
@@ -212,8 +213,8 @@ public class MsSqlDialect extends AbstractSqlDialect  {
         } 
         sb.append(" * "); 
         sb.append(" FROM ( ");
-        sb.append(" SELECT xx.*, ROW_NUMBER() OVER (ORDER BY (SELECT NULL)) AS _rownum_ FROM ( ").append( buff ).append(" )xx "); 
-        sb.append(" )xx "); 
+        sb.append(" SELECT t1.*, ROW_NUMBER() OVER (ORDER BY (SELECT NULL)) AS _rownum_ FROM ( ").append( buff ).append(" )t1 "); 
+        sb.append(" )t2 "); 
         if ( start >= 0 ) { 
             sb.append(" WHERE _rownum_ > "+ start ); 
         } 
@@ -223,25 +224,42 @@ public class MsSqlDialect extends AbstractSqlDialect  {
    
     public String getSelectStatement( SqlDialectModel model )  {
         if ( model.getStart() > 0 || model.getLimit()>0 ) { 
-            boolean hasOrderBy = true; 
-            String orderBy = super.buildOrderStatement( model, "t1", false );  
-            if ( orderBy == null || orderBy.trim().length()==0 ) {
-                hasOrderBy = false; 
-            }
+            String sqlstring = super.getSelectStatement(model, true).trim();
+            String sqltext = sqlstring; 
+            String sqlSelectTop = null;      
+            boolean hasSelectTop = false; 
+            Pattern p = Pattern.compile("(TOP[\\s]{1,}[0-9]{1,}[\\s]{1,}PERCENT).*?", Pattern.CASE_INSENSITIVE|Pattern.UNICODE_CASE); 
+            Matcher m = p.matcher( sqlstring );
+            if ( m.find() ) {
+                sqlSelectTop = m.group();
+                sqltext = sqlstring.substring(m.end()); 
+                hasSelectTop = true; 
+
+            } else {
+                p = Pattern.compile("(TOP[\\s]{1,}[0-9]{1,}[\\s]{1,}).*?", Pattern.CASE_INSENSITIVE|Pattern.UNICODE_CASE); 
+                m = p.matcher( sqlstring );
+                if ( m.find() ) {
+                    sqlSelectTop = m.group();
+                    sqltext = sqlstring.substring(m.end()); 
+                    hasSelectTop = true; 
+                } else {
+                    int idx = sqlstring.toUpperCase().indexOf("SELECT"); 
+                    sqltext = sqlstring.substring(idx + 6);
+                } 
+            } 
+            
+            StringBuilder sqlbuff = new StringBuilder("SELECT "); 
+            if ( hasSelectTop ) {
+                sqlbuff.append( sqlSelectTop ); 
+            } else {
+                sqlbuff.append(" TOP 100 PERCENT "); 
+            } 
+            sqlbuff.append( sqltext ); 
             
             StringBuilder buff = new StringBuilder();
-            buff.append(" SELECT TOP 100 PERCENT t1.*, "); 
-            buff.append(" ROW_NUMBER() OVER (ORDER BY ");
-            if ( hasOrderBy ) {
-                buff.append( orderBy ); 
-            } else { 
-                buff.append("(SELECT NULL)"); 
-            } 
-            buff.append(") AS _rownum_ "); 
-            
-            buff.append(" FROM ( ");
-            buff.append( super.getSelectStatement(model, false) );
-            buff.append(" )t1 "); 
+            buff.append(" SELECT t1.*, "); 
+            buff.append(" ROW_NUMBER() OVER (ORDER BY (SELECT NULL)) AS _rownum_ ");
+            buff.append(" FROM ( ").append( sqlbuff ).append(" )t1 "); 
             
             StringBuilder sb = new StringBuilder();
             sb.append(" SELECT "); 
