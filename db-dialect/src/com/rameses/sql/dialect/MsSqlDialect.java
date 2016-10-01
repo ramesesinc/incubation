@@ -232,11 +232,10 @@ public class MsSqlDialect extends AbstractSqlDialect  {
             } else { 
                 buff.append("TOP 1000 "); 
             } 
-            buff.append("ROW_NUMBER() OVER (ORDER BY (SELECT 1)) AS _rownum_, ")
-                .append( buildSelectFields( model )); 
+            buff.append("ROW_NUMBER() OVER (ORDER BY (SELECT 1)) AS _rownum_, ");
                         
             if ( model.getOrWhereList() == null || model.getOrWhereList().isEmpty()) {
-                buff.append(" FROM ")
+                buff.append( buildSelectFields( model )).append(" FROM ")
                     .append( buildTablesForSelect( model ))
                     .append( buildWhereForSelect( model, null))
                     .append( buildGroupByStatement( model ))
@@ -255,9 +254,7 @@ public class MsSqlDialect extends AbstractSqlDialect  {
                          .append( buildWhereForSelect( model, wf))
                          .append( buildGroupByStatement( model ));
                 } 
-                buff.append(" FROM ( ")
-                    .append( union )
-                    .append(" )t1 ")
+                buff.append(" * FROM ( ").append( union ).append(" )t1 ")
                     .append( buildOrderStatement( model, "" ));
             } 
             
