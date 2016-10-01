@@ -82,7 +82,6 @@ public class MsSqlDialect extends AbstractSqlDialect  {
         StringBuilder groupBuilder = new StringBuilder();
         StringBuilder havingBuilder = new StringBuilder();
         StringBuilder orderBuilder = new StringBuilder();
-        
 
         StringBuilder currentBuilder = null;
         Stack stack = new Stack();
@@ -224,26 +223,43 @@ public class MsSqlDialect extends AbstractSqlDialect  {
 
    
     public String getSelectStatement( SqlDialectModel model )  {
-        if ( model.getStart() > 0 || model.getLimit()>0 ) { 
-            boolean hasOrderBy = true; 
-            String orderBy = super.buildOrderStatement( model, "t1", false );  
-            if ( orderBy == null || orderBy.trim().length()==0 ) {
-                hasOrderBy = false; 
-            }
+        if ( model.getStart()>0 || model.getLimit()>0 ) { 
             
             StringBuilder buff = new StringBuilder();
-            buff.append(" SELECT TOP 100 PERCENT t1.*, "); 
-            buff.append(" ROW_NUMBER() OVER (ORDER BY ");
-            if ( hasOrderBy ) {
-                buff.append( orderBy ); 
+            buff.append(" SELECT ");      
+            if ( model.getLimit() > 0) { 
+                buff.append("TOP ($P{_limit}+$P{_start}+1) "); 
             } else { 
-                buff.append("(SELECT NULL)"); 
+                buff.append("TOP 1000 "); 
             } 
-            buff.append(") AS _rownum_ "); 
-            
-            buff.append(" FROM ( ");
-            buff.append( super.getSelectStatement(model, false) );
-            buff.append(" )t1 "); 
+            buff.append("ROW_NUMBER() OVER (ORDER BY (SELECT 1)) AS _rownum_, ")
+                .append( buildSelectFields( model )); 
+                        
+            if ( model.getOrWhereList() == null || model.getOrWhereList().isEmpty()) {
+                buff.append(" FROM ")
+                    .append( buildTablesForSelect( model ))
+                    .append( buildWhereForSelect( model, null))
+                    .append( buildGroupByStatement( model ))
+                    .append( buildOrderStatement( model ));
+
+            } else {
+                int i = 0;
+                StringBuilder union = new StringBuilder();                 
+                for( SqlDialectModel.WhereFilter wf : model.getOrWhereList() ) {
+                    if (i++ > 0) union.append( " UNION ");
+
+                    union.append(" SELECT ")
+                         .append( buildSelectFields( model ))
+                         .append(" FROM ")
+                         .append( buildTablesForSelect( model ))
+                         .append( buildWhereForSelect( model, wf))
+                         .append( buildGroupByStatement( model ));
+                } 
+                buff.append(" FROM ( ")
+                    .append( union )
+                    .append(" )t1 ")
+                    .append( buildOrderStatement( model, "" ));
+            } 
             
             StringBuilder sb = new StringBuilder();
             sb.append(" SELECT "); 
@@ -251,9 +267,7 @@ public class MsSqlDialect extends AbstractSqlDialect  {
                 sb.append(" TOP " + model.getLimit() );
             }
             sb.append(" * FROM ( ").append( buff ).append(" )t2  "); 
-            if ( model.getStart() >= 0 ) { 
-                sb.append(" WHERE _rownum_ > $P{_start} "); 
-            } 
+            sb.append(" WHERE _rownum_ > $P{_start} "); 
             return sb.toString(); 
             
         } else {
@@ -293,4 +307,43 @@ public class MsSqlDialect extends AbstractSqlDialect  {
         
         return sb.toString();
     }
+    
+    private List<SqlDialectModel.Field> getPKFields( SqlDialectModel model ) {
+        List<SqlDialectModel.Field> targets = new ArrayList();
+        List<SqlDialectModel.Field> sources = model.getFields(); 
+        for ( SqlDialectModel.Field f : sources ) {
+            if ( f.isPrimary() ) {
+                targets.add( f ); 
+            }
+        }
+        return targets; 
+    }
+    private String buildSelectPKFields( SqlDialectModel model, List<SqlDialectModel.Field> fields ) { 
+        StringBuilder sb = new StringBuilder(); 
+        if ( fields != null && fields.size()>0 ) { 
+            for ( int i=0; i<fields.size(); i++ ) { 
+                SqlDialectModel.Field f = fields.get(i); 
+                if ( i > 0 ) sb.append(", "); 
+                
+                sb.append( getDelimiters()[0]+f.getTablealias()+getDelimiters()[1]+"." );
+                sb.append( getDelimiters()[0]+f.getFieldname()+getDelimiters()[1] );
+                sb.append(" AS pk"+ (i+1)); 
+            } 
+        }
+        return sb.toString(); 
+    }
+    private String buildJoinMatches( List<SqlDialectModel.Field> fields, String sourceAlias, String targetAlias ) { 
+        StringBuilder sb = new StringBuilder(); 
+        if ( fields != null && fields.size()>0 ) { 
+            for ( int i=0; i<fields.size(); i++ ) { 
+                SqlDialectModel.Field f = fields.get(i); 
+                if ( i > 0 ) sb.append(" AND "); 
+                
+                sb.append( sourceAlias ).append(".");
+                sb.append( getDelimiters()[0]+f.getFieldname()+getDelimiters()[1] );
+                sb.append( " = " ).append( targetAlias ).append(".pk"+ (i+1)); 
+            } 
+        }
+        return sb.toString(); 
+    }    
 }
