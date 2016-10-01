@@ -211,12 +211,18 @@ public abstract class AbstractSqlDialect implements SqlDialect {
             }
         }
     }
-
-    protected String buildTablesForSelect(SqlDialectModel model) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getDelimiters()[0] + model.getTablename() + getDelimiters()[1]);
-        if (!model.getTablename().equals(model.getTablealias())) {
-            sb.append(" " + getDelimiters()[0] +model.getTablealias() + getDelimiters()[1] + " ");
+    
+    protected String buildTablesForSelect( SqlDialectModel model ) { 
+        return buildTablesForSelect( model, false );  
+    }
+    
+    protected String buildTablesForSelect( SqlDialectModel model, boolean joinTablesOnly ) {
+        StringBuilder sb = new StringBuilder(); 
+        if ( !joinTablesOnly ) { 
+            sb.append(getDelimiters()[0] + model.getTablename() + getDelimiters()[1]);
+            if (!model.getTablename().equals(model.getTablealias())) {
+                sb.append(" " + getDelimiters()[0] +model.getTablealias() + getDelimiters()[1] + " ");
+            }
         }
         if (model.getJoinedViews() != null) {
             int i = 0;
@@ -334,12 +340,12 @@ public abstract class AbstractSqlDialect implements SqlDialect {
                 
                 if(i++>0) sb.append(",");
                 if( ValueUtil.isEmpty(f.getExpr()) ) { 
-                    String preferredAlias = alias; 
-                    if ( preferredAlias==null || preferredAlias.trim().length()==0 ) {
-                        preferredAlias = f.getTablealias();
-                    }
+                    String preferredAlias = f.getTablealias(); 
+                    if ( alias != null ) preferredAlias = alias.trim(); 
 
-                    sb.append( getDelimiters()[0]+preferredAlias+getDelimiters()[1]+"." );
+                    if ( preferredAlias != null && preferredAlias.length()>0 ) {
+                        sb.append( getDelimiters()[0]+preferredAlias+getDelimiters()[1]+"." );
+                    } 
                     sb.append( getDelimiters()[0]+f.getFieldname()+getDelimiters()[1] );
                 } else {
                     sb.append( fixStatement(model, f.getExpr(), true) );
@@ -370,27 +376,42 @@ public abstract class AbstractSqlDialect implements SqlDialect {
      */ 
     public String getSelectStatement(SqlDialectModel model, boolean includeOrderBy) {
         StringBuilder sb = new StringBuilder();
-        if( model.getOrWhereList()!=null && model.getOrWhereList().size()>0 ) {
-            int i=0;
+        if( model.getOrWhereList() != null && model.getOrWhereList().size()>1 ) {
+            int i = 0;
             StringBuilder buff = new StringBuilder();
+            List<Field> pkFields = getPKFields( model ); 
+            String pkSelectField = buildSelectPKFields( model, pkFields );  
+            
             for( WhereFilter wf: model.getOrWhereList() ) {
                 if (i++ > 0) {
                     buff.append( " UNION ");
                 }
-                buff.append(" SELECT ");
-                buff.append( buildSelectFields(model) );
-                buff.append(" FROM ");
+                
+                buff.append(" SELECT ").append( pkSelectField ).append(" FROM ");
                 buff.append( buildTablesForSelect(model) );
                 buff.append( buildWhereForSelect(model, wf) );
-                buff.append( buildGroupByStatement(model) );
             } 
-            if ( includeOrderBy ) { 
-                sb.append(" SELECT * FROM ( ").append( buff ).append(" )xx ");
-                sb.append( buildOrderStatement(model, "xx") ); 
             
-            } else { 
-                return buff.toString(); 
-            } 
+            String baseTableName = (getDelimiters()[0] + model.getTablename() + getDelimiters()[1]); 
+            String baseTableAlias = model.getTablealias(); 
+            if ( baseTableAlias != null && baseTableAlias.trim().length() > 0 ) {
+                baseTableAlias = (getDelimiters()[0] + baseTableAlias + getDelimiters()[1]); 
+            } else {
+                baseTableAlias = baseTableName; 
+            }
+            
+            sb.append(" SELECT ").append( buildSelectFields(model) );
+            sb.append(" FROM ( ").append( buff ).append(" )t1 "); 
+            sb.append(" INNER JOIN ").append( baseTableName ).append( baseTableAlias ); 
+            sb.append(" ON ( ").append( buildJoinMatches(pkFields, baseTableAlias, "t1") ).append(" ) ");
+            sb.append( buildTablesForSelect(model) );
+            
+            for( WhereFilter wf: model.getOrWhereList() ) {
+                sb.append( buildWhereForSelect(model, wf) );
+            }
+            sb.append( "{PAGING_SUBQUERY}" );
+            sb.append( buildGroupByStatement(model) );
+            sb.append( buildOrderStatement(model) ); 
         } else { 
             sb.append(" SELECT ");
             sb.append( buildSelectFields(model) );
@@ -407,5 +428,44 @@ public abstract class AbstractSqlDialect implements SqlDialect {
     
     public String getReadStatement(SqlDialectModel model) throws Exception {
         return getSelectStatement(model);
+    }
+    
+    private List<Field> getPKFields( SqlDialectModel model ) {
+        List<Field> targets = new ArrayList();
+        List<Field> sources = model.getFields(); 
+        for ( Field f : sources ) {
+            if ( f.isPrimary() ) {
+                targets.add( f ); 
+            }
+        }
+        return targets; 
+    }
+    private String buildSelectPKFields( SqlDialectModel model, List<Field> fields ) { 
+        StringBuilder sb = new StringBuilder(); 
+        if ( fields != null && fields.size()>0 ) { 
+            for ( int i=0; i<fields.size(); i++ ) { 
+                Field f = fields.get(i); 
+                if ( i > 0 ) sb.append(", "); 
+                
+                sb.append( getDelimiters()[0]+f.getTablealias()+getDelimiters()[1]+"." );
+                sb.append( getDelimiters()[0]+f.getFieldname()+getDelimiters()[1] );
+                sb.append(" AS pk"+ (i+1)); 
+            } 
+        }
+        return sb.toString(); 
+    }
+    private String buildJoinMatches( List<Field> fields, String sourceAlias, String targetAlias ) { 
+        StringBuilder sb = new StringBuilder(); 
+        if ( fields != null && fields.size()>0 ) { 
+            for ( int i=0; i<fields.size(); i++ ) { 
+                Field f = fields.get(i); 
+                if ( i > 0 ) sb.append(" AND "); 
+                
+                sb.append( sourceAlias ).append(".");
+                sb.append( getDelimiters()[0]+f.getFieldname()+getDelimiters()[1] );
+                sb.append( " = " ).append( targetAlias ).append(".pk"+ (i+1)); 
+            } 
+        }
+        return sb.toString(); 
     }
 }
