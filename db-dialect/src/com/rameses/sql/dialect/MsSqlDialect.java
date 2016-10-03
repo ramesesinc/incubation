@@ -149,17 +149,6 @@ public class MsSqlDialect extends AbstractSqlDialect  {
                 currentBuilder.append( " " + s );
             }
         } 
-
-        boolean hasOrderBy = false;
-        String sqlOrderBy = null; 
-        if ( orderBuilder.length() > 0 ) { 
-            Pattern p = Pattern.compile("(ORDER BY[\\s]{1,}).*?", Pattern.CASE_INSENSITIVE|Pattern.UNICODE_CASE); 
-            Matcher m = p.matcher( orderBuilder );
-            if ( m.find()) {
-                sqlOrderBy = orderBuilder.substring(m.end()); 
-                hasOrderBy = true; 
-            }
-        }
         
         StringBuilder buff = new StringBuilder();
         buff.append( selectBuilder );
@@ -185,15 +174,15 @@ public class MsSqlDialect extends AbstractSqlDialect  {
         } 
         
         buff.append(" ");
-        if ( hasSelectTop ) {
+        if ( hasSelectTop ) { 
             buff.append( sqlSelectTop ); 
-        } else {
-            buff.append(" TOP 100 PERCENT "); 
-        }
+        } else if ( limit > 0 ) { 
+            buff.append(" TOP "+ (limit + start)); 
+        } else { 
+            buff.append(" TOP 1000 "); 
+        } 
         
-        buff.append(" ROW_NUMBER() OVER ( ");
-        buff.append(( hasOrderBy? orderBuilder : "ORDER BY (SELECT 1)")); 
-        buff.append(" ) AS _rownum_, ");
+        buff.append(" ROW_NUMBER() OVER (ORDER BY (SELECT 1)) AS _rownum_, ");
         
         if ( hasSelectTop ) {
             buff.append( sqlSelectCols ); 
@@ -213,8 +202,7 @@ public class MsSqlDialect extends AbstractSqlDialect  {
         if ( limit > 0 ) {
             sb.append(" TOP " + limit); 
         } 
-        sb.append(" * "); 
-        sb.append(" FROM ( ").append( buff ).append(" )t1 "); 
+        sb.append(" * FROM ( ").append( buff ).append(" )xx1 "); 
         if ( start >= 0 ) { 
             sb.append(" WHERE _rownum_ > "+ start ); 
         } 
