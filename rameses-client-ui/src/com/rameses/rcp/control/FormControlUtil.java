@@ -72,6 +72,10 @@ public class FormControlUtil {
         } catch(Exception e) {;}
     }
     
+    public Properties getControlsIndex() {
+        return controlsIndex; 
+    }
+    
     public UIControl getControl(FormControl fc) {
         String className = (String) controlsIndex.get(fc.getType());
         if ( className == null ) {
