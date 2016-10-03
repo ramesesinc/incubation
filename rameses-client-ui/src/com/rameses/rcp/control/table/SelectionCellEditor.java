@@ -33,7 +33,8 @@ public class SelectionCellEditor extends JCheckBox implements UIInput, Immediate
     private Binding binding;
     
     private int stretchWidth;
-    private int stretchHeight;     
+    private int stretchHeight;   
+    private String visibleWhen;
     
     public SelectionCellEditor() 
     {
@@ -113,6 +114,12 @@ public class SelectionCellEditor extends JCheckBox implements UIInput, Immediate
     public void setStretchHeight(int stretchHeight) {
         this.stretchHeight = stretchHeight;
     }     
+    
+    public String getVisibleWhen() { return visibleWhen; } 
+    public void setVisibleWhen( String visibleWhen ) {
+        this.visibleWhen = visibleWhen;
+    }
+    
     
     DataTableBinding getTableBinding() { 
         return (DataTableBinding) getBinding();

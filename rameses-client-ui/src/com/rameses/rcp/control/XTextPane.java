@@ -43,6 +43,7 @@ public class XTextPane extends JTextPane
     
     private int stretchWidth;
     private int stretchHeight;     
+    private String visibleWhen; 
     
     public XTextPane() {
         initComponent();
@@ -86,6 +87,18 @@ public class XTextPane extends JTextPane
         try {
             setValue(UIControlUtil.getBeanValue(getBinding(), getName())); 
         } catch(Throwable t){;} 
+        
+        Object bean = (getBinding() == null? null : getBinding().getBean()); 
+        String whenExpr = getVisibleWhen();
+        if (whenExpr != null && whenExpr.length() > 0 && bean != null) {
+            boolean result = false; 
+            try { 
+                result = UIControlUtil.evaluateExprBoolean(bean, whenExpr);
+            } catch(Throwable t) {
+                t.printStackTrace();
+            }
+            setVisible( result ); 
+        }        
     }
     
     public void setPropertyInfo(PropertySupport.PropertyInfo info) {
@@ -104,6 +117,12 @@ public class XTextPane extends JTextPane
     public void setStretchHeight(int stretchHeight) {
         this.stretchHeight = stretchHeight;
     }    
+    
+    public String getVisibleWhen() { return visibleWhen; } 
+    public void setVisibleWhen( String visibleWhen ) {
+        this.visibleWhen = visibleWhen;
+    }
+    
 
     // </editor-fold>
     

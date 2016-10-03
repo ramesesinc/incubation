@@ -47,7 +47,8 @@ public class XImageCanvasBeanInfo extends ComponentBeanInfo.Support
             new PropertyDescriptor("noImageBackground", getBeanClass()),
             new PropertyDescriptor("noImageForeground", getBeanClass()),
             new PropertyDescriptor("stretchWidth", getBeanClass()),
-            new PropertyDescriptor("stretchHeight", getBeanClass())
+            new PropertyDescriptor("stretchHeight", getBeanClass()),
+            new PropertyDescriptor("visibleWhen", getBeanClass())
         };        
     }
 }

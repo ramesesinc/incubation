@@ -105,6 +105,7 @@ public class XTextArea extends JTextArea implements UIInput, Validatable,
     private int stretchWidth;
     private int stretchHeight;     
     private boolean exitOnTabKey;
+    private String visibleWhen;
     
     public XTextArea() {
         super();
@@ -255,7 +256,7 @@ public class XTextArea extends JTextArea implements UIInput, Validatable,
             } 
             setValue(value);
             
-        } catch(Exception e) {
+        } catch(Throwable e) {
             setText("");
             
             if (ClientContext.getCurrentContext().isDebugMode()) 
@@ -264,12 +265,24 @@ public class XTextArea extends JTextArea implements UIInput, Validatable,
         
         try {
             setCaretPosition(oldCaretPos); 
-        } catch(Exception ign){;} 
+        } catch(Throwable ign){;} 
         
         
         if (textWriterObject != null) {
             setEditable(false); 
         } 
+        
+        Object bean = (getBinding() == null? null : getBinding().getBean()); 
+        String whenExpr = getVisibleWhen();
+        if (whenExpr != null && whenExpr.length() > 0 && bean != null) {
+            boolean result = false; 
+            try { 
+                result = UIControlUtil.evaluateExprBoolean(bean, whenExpr);
+            } catch(Throwable t) {
+                t.printStackTrace();
+            }
+            setVisible( result ); 
+        }        
     }
     
     public void load() {
@@ -342,6 +355,12 @@ public class XTextArea extends JTextArea implements UIInput, Validatable,
     public void setStretchHeight(int stretchHeight) {
         this.stretchHeight = stretchHeight;
     }    
+    
+    public String getVisibleWhen() { return visibleWhen; } 
+    public void setVisibleWhen( String visibleWhen ) {
+        this.visibleWhen = visibleWhen;
+    }
+    
         
     // <editor-fold defaultstate="collapsed" desc="  Getters/Setters  "> 
 

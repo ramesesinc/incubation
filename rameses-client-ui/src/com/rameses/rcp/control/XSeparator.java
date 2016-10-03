@@ -38,6 +38,7 @@ public class XSeparator extends JComponent implements UIControl, ActiveControl, 
     
     private int stretchWidth;
     private int stretchHeight;     
+    private String visibleWhen;
     
     public XSeparator() {
         setLayout(null);
@@ -116,6 +117,11 @@ public class XSeparator extends JComponent implements UIControl, ActiveControl, 
     public void setStretchHeight(int stretchHeight) {
         this.stretchHeight = stretchHeight;
     }    
+    
+    public String getVisibleWhen() { return visibleWhen; } 
+    public void setVisibleWhen( String visibleWhen ) {
+        this.visibleWhen = visibleWhen;
+    }
     
     // <editor-fold defaultstate="collapsed" desc="  Getters/Setters  ">
     

@@ -50,6 +50,7 @@ public class XIconPanel extends JPanel implements UIControl
     
     private int stretchWidth;
     private int stretchHeight;    
+    private String visibleWhen;
     
     public XIconPanel() {
         //setBorder(BorderFactory.createEtchedBorder());
@@ -60,7 +61,18 @@ public class XIconPanel extends JPanel implements UIControl
         init();
     }
     
-    public void refresh() {}
+    public void refresh() {
+        String whenExpr = getVisibleWhen();
+        if (whenExpr != null && whenExpr.length() > 0) {
+            boolean result = false; 
+            try { 
+                result = UIControlUtil.evaluateExprBoolean(binding.getBean(), whenExpr);
+            } catch(Throwable t) {
+                t.printStackTrace();
+            }
+            setVisible( result ); 
+        }    
+    }
     
     public void load() {
         List<Action> actions = new ArrayList();
@@ -227,6 +239,11 @@ public class XIconPanel extends JPanel implements UIControl
     public int getStretchHeight() { return stretchHeight; } 
     public void setStretchHeight(int stretchHeight) {
         this.stretchHeight = stretchHeight;
+    }    
+    
+    public String getVisibleWhen() { return visibleWhen; } 
+    public void setVisibleWhen( String visibleWhen ) {
+        this.visibleWhen = visibleWhen;
     }    
     
     // </editor-fold>

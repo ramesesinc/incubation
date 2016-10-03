@@ -59,7 +59,8 @@ public class XCameraBeanInfo extends ComponentBeanInfo.Support
             
             new PropertyDescriptor("handler", getBeanClass()),
             new PropertyDescriptor("stretchWidth", getBeanClass()),
-            new PropertyDescriptor("stretchHeight", getBeanClass())
+            new PropertyDescriptor("stretchHeight", getBeanClass()),
+            new PropertyDescriptor("visibleWhen", getBeanClass())
         };        
     }
 }

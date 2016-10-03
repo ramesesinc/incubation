@@ -60,6 +60,7 @@ public class XCamera extends JButton implements MouseEventSupport.ComponentInfo,
     
     private int stretchWidth;
     private int stretchHeight;        
+    private String visibleWhen;
     
     public XCamera() {
         mouseSupport = new MouseEventSupport(this);
@@ -211,11 +212,22 @@ public class XCamera extends JButton implements MouseEventSupport.ComponentInfo,
 
     public void refresh() {
         String expression = getExpression();
-        Object bean = getBinding().getBean();
-        if (expression != null && expression.length() > 0) { 
+        Object bean = (getBinding() == null? null : getBinding().getBean()); 
+        if (expression != null && expression.length() > 0 && bean != null) { 
             Object result = UIControlUtil.evaluateExpr(bean, expression); 
             setText((result == null? "": result.toString())); 
         } 
+        
+        String whenExpr = getVisibleWhen();
+        if (whenExpr != null && whenExpr.length() > 0 && bean != null) {
+            boolean result = false; 
+            try { 
+                result = UIControlUtil.evaluateExprBoolean(bean, whenExpr);
+            } catch(Throwable t) {
+                t.printStackTrace();
+            }
+            setVisible( result ); 
+        }        
     }
         
     public void setPropertyInfo(PropertySupport.PropertyInfo info) {
@@ -233,7 +245,12 @@ public class XCamera extends JButton implements MouseEventSupport.ComponentInfo,
     public int getStretchHeight() { return stretchHeight; } 
     public void setStretchHeight(int stretchHeight) {
         this.stretchHeight = stretchHeight;
-    }      
+    }    
+    
+    public String getVisibleWhen() { return visibleWhen; } 
+    public void setVisibleWhen( String visibleWhen ) {
+        this.visibleWhen = visibleWhen;
+    }    
     
     // </editor-fold>
     

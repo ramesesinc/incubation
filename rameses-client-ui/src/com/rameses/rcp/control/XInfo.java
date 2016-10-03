@@ -4,6 +4,7 @@ import com.rameses.rcp.common.MsgBox;
 import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.ui.UIControl;
+import com.rameses.rcp.util.UIControlUtil;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JButton;
@@ -18,6 +19,7 @@ public class XInfo extends JButton implements UIControl, ActionListener
     
     private int stretchWidth;
     private int stretchHeight;     
+    private String visibleWhen;
     
     public XInfo() {
         setOpaque(false);
@@ -25,7 +27,18 @@ public class XInfo extends JButton implements UIControl, ActionListener
         addActionListener(this); 
     }
     
-    public void refresh() {}
+    public void refresh() { 
+        String whenExpr = getVisibleWhen();
+        if (whenExpr != null && whenExpr.length() > 0) {
+            boolean result = false; 
+            try { 
+                result = UIControlUtil.evaluateExprBoolean(binding.getBean(), whenExpr);
+            } catch(Throwable t) {
+                t.printStackTrace();
+            }
+            setVisible( result ); 
+        }
+    }
     
     public void load() {}
     
@@ -65,5 +78,10 @@ public class XInfo extends JButton implements UIControl, ActionListener
     public int getStretchHeight() { return stretchHeight; } 
     public void setStretchHeight(int stretchHeight) {
         this.stretchHeight = stretchHeight;
+    }    
+    
+    public String getVisibleWhen() { return visibleWhen; } 
+    public void setVisibleWhen( String visibleWhen ) {
+        this.visibleWhen = visibleWhen;
     }    
 }

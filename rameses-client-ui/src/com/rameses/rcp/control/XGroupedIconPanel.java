@@ -49,7 +49,8 @@ public class XGroupedIconPanel extends JPanel implements UIControl
     private int index;
 
     private int stretchWidth;
-    private int stretchHeight;    
+    private int stretchHeight;   
+    private String visibleWhen;
     
     public XGroupedIconPanel() {
         setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
@@ -85,9 +86,25 @@ public class XGroupedIconPanel extends JPanel implements UIControl
         this.stretchHeight = stretchHeight;
     }    
     
+    public String getVisibleWhen() { return visibleWhen; } 
+    public void setVisibleWhen( String visibleWhen ) {
+        this.visibleWhen = visibleWhen;
+    }    
+    
     // </editor-fold>
     
-    public void refresh() {}
+    public void refresh() {
+        String whenExpr = getVisibleWhen();
+        if (whenExpr != null && whenExpr.length() > 0) {
+            boolean result = false; 
+            try { 
+                result = UIControlUtil.evaluateExprBoolean(binding.getBean(), whenExpr);
+            } catch(Throwable t) {
+                t.printStackTrace();
+            }
+            setVisible( result ); 
+        }    
+    }
     
     public void load() {
         Map mapOfActions = new HashMap();

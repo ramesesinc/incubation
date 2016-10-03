@@ -41,6 +41,7 @@ public class XPasswordField extends DefaultPasswordField implements UIInput,
     
     private int stretchWidth;
     private int stretchHeight;     
+    private String visibleWhen;
             
     protected void initDefaults() {
         super.setFont(Font.decode("Monospaced--"));
@@ -122,11 +123,23 @@ public class XPasswordField extends DefaultPasswordField implements UIInput,
             Object value = UIControlUtil.getBeanValue(this);
             setValue(value);
         } 
-        catch(Exception e) {
+        catch(Throwable e) {
             //just block the input when the name is null
             setValue(null); 
             
             if (ClientContext.getCurrentContext().isDebugMode()) e.printStackTrace(); 
+        }        
+        
+        Object bean = (getBinding() == null? null : getBinding().getBean()); 
+        String whenExpr = getVisibleWhen();
+        if (whenExpr != null && whenExpr.length() > 0 && bean != null) {
+            boolean result = false; 
+            try { 
+                result = UIControlUtil.evaluateExprBoolean(bean, whenExpr);
+            } catch(Throwable t) {
+                t.printStackTrace();
+            }
+            setVisible( result ); 
         }         
     }  
     
@@ -147,6 +160,12 @@ public class XPasswordField extends DefaultPasswordField implements UIInput,
     public void setStretchHeight(int stretchHeight) {
         this.stretchHeight = stretchHeight;
     }    
+    
+    public String getVisibleWhen() { return visibleWhen; } 
+    public void setVisibleWhen( String visibleWhen ) {
+        this.visibleWhen = visibleWhen;
+    }
+    
     
     // </editor-fold>
 

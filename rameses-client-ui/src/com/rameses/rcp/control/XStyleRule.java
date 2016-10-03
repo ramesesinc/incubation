@@ -38,6 +38,7 @@ public class XStyleRule extends JPanel implements UIControl
     
     private int stretchWidth;
     private int stretchHeight;     
+    private String visibleWhen; 
     
     public XStyleRule() {
         if(Beans.isDesignTime()) {
@@ -165,5 +166,9 @@ public class XStyleRule extends JPanel implements UIControl
     public void setStretchHeight(int stretchHeight) {
         this.stretchHeight = stretchHeight;
     }    
-    
+ 
+    public String getVisibleWhen() { return visibleWhen; } 
+    public void setVisibleWhen( String visibleWhen ) {
+        this.visibleWhen = visibleWhen;
+    }    
 }

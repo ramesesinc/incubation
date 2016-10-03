@@ -72,6 +72,7 @@ public class XPhoto extends JLabel implements UIControl, ActiveControl, MouseEve
     
     private int stretchWidth;
     private int stretchHeight;     
+    private String visibleWhen;
     
     public XPhoto() { 
         initComponent();
@@ -202,6 +203,17 @@ public class XPhoto extends JLabel implements UIControl, ActiveControl, MouseEve
         removeAll();
         revalidate(); 
         repaint(); 
+        
+        String whenExpr = getVisibleWhen();
+        if (whenExpr != null && whenExpr.length() > 0) {
+            boolean result = false; 
+            try { 
+                result = UIControlUtil.evaluateExprBoolean(binding.getBean(), whenExpr);
+            } catch(Throwable t) {
+                t.printStackTrace();
+            }
+            setVisible( result ); 
+        } 
     }
 
     public void setPropertyInfo(PropertySupport.PropertyInfo info) {
@@ -219,6 +231,11 @@ public class XPhoto extends JLabel implements UIControl, ActiveControl, MouseEve
     public int getStretchHeight() { return stretchHeight; } 
     public void setStretchHeight(int stretchHeight) {
         this.stretchHeight = stretchHeight;
+    }    
+    
+    public String getVisibleWhen() { return visibleWhen; } 
+    public void setVisibleWhen( String visibleWhen ) {
+        this.visibleWhen = visibleWhen;
     }    
     
     // </editor-fold>    

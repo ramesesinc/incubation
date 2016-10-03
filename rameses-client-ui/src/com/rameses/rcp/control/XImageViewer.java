@@ -62,6 +62,7 @@ public class XImageViewer extends JPanel implements UIControl, ActiveControl, Mo
     
     private int stretchWidth;
     private int stretchHeight;     
+    private String visibleWhen;
     
     public XImageViewer() {
         if( !Beans.isDesignTime() ) {
@@ -114,6 +115,17 @@ public class XImageViewer extends JPanel implements UIControl, ActiveControl, Mo
                 }
             });
         }
+        
+        String whenExpr = getVisibleWhen();
+        if (whenExpr != null && whenExpr.length() > 0) {
+            boolean result = false; 
+            try { 
+                result = UIControlUtil.evaluateExprBoolean(binding.getBean(), whenExpr);
+            } catch(Throwable t) {
+                t.printStackTrace();
+            }
+            setVisible( result ); 
+        }        
     }
     
     public void load() {
@@ -142,6 +154,11 @@ public class XImageViewer extends JPanel implements UIControl, ActiveControl, Mo
     public int getStretchHeight() { return stretchHeight; } 
     public void setStretchHeight(int stretchHeight) {
         this.stretchHeight = stretchHeight;
+    }    
+    
+    public String getVisibleWhen() { return visibleWhen; } 
+    public void setVisibleWhen( String visibleWhen ) {
+        this.visibleWhen = visibleWhen;
     }    
     
     //<editor-fold defaultstate="collapsed" desc="  helper method(s)  ">

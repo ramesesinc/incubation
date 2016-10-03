@@ -39,6 +39,7 @@ public class XImageCanvas extends ImageViewPanel implements UIControl, ActiveCon
     
     private int stretchWidth;
     private int stretchHeight; 
+    private String visibleWhen;
 
     public XImageCanvas() {
     }
@@ -49,6 +50,11 @@ public class XImageCanvas extends ImageViewPanel implements UIControl, ActiveCon
     public void setDynamic(boolean dynamic) {
         this.dynamic = dynamic;  
     }
+    
+    public String getVisibleWhen() { return visibleWhen; } 
+    public void setVisibleWhen( String visibleWhen ) {
+        this.visibleWhen = visibleWhen;
+    }    
         
     // </editor-fold>
     
@@ -97,8 +103,7 @@ public class XImageCanvas extends ImageViewPanel implements UIControl, ActiveCon
             } else { 
                 imgobj = null; 
             }             
-        } 
-        catch(Throwable e) { 
+        } catch(Throwable e) { 
             imgobj = null; 
             
             if (ClientContext.getCurrentContext().isDebugMode()) e.printStackTrace();
@@ -106,6 +111,17 @@ public class XImageCanvas extends ImageViewPanel implements UIControl, ActiveCon
         
         setValue(imgobj); 
         refreshCanvas(); 
+        
+        String whenExpr = getVisibleWhen();
+        if (whenExpr != null && whenExpr.length() > 0) {
+            boolean result = false; 
+            try { 
+                result = UIControlUtil.evaluateExprBoolean(binding.getBean(), whenExpr);
+            } catch(Throwable t) {
+                t.printStackTrace();
+            } 
+            setVisible( result ); 
+        } 
     }
 
     public void setPropertyInfo(PropertySupport.PropertyInfo info) {
