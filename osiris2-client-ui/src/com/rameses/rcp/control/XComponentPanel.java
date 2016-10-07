@@ -527,7 +527,7 @@ public abstract class XComponentPanel extends JPanel
         
         Object compValue = null; 
         try { 
-            compValue = PropertyResolver.getInstance().getProperty(compBean, getName()); 
+            compValue = PropertyResolver.getInstance().getProperty(compBean, name.split("\\.")[0]); 
         } catch(Throwable t){;}
         
         if ( compValue == null && value != null ) {
