@@ -46,6 +46,7 @@ public class XImagePanel extends JPanel implements UIControl, ActiveControl, Mou
     
     private int stretchWidth;
     private int stretchHeight;     
+    private String visibleWhen;
     
     public XImagePanel() {
         dynamic = true; 
@@ -126,6 +127,11 @@ public class XImagePanel extends JPanel implements UIControl, ActiveControl, Mou
     public void setPropertyInfo(PropertySupport.PropertyInfo info) {
     }
     
+    public String getVisibleWhen() { return visibleWhen; } 
+    public void setVisibleWhen( String visibleWhen ) {
+        this.visibleWhen = visibleWhen;
+    }    
+    
     // </editor-fold>
     
     private URL getImageResource(String path) 
@@ -138,46 +144,53 @@ public class XImagePanel extends JPanel implements UIControl, ActiveControl, Mou
         
     public void refresh() 
     {
-        if (!isDynamic()) return;
+        if (isDynamic()) { 
+            Object value = UIControlUtil.getBeanValue(this);
+            try {
+                imageIcon = null;
+
+                if (value instanceof URL) {
+                    imageIcon = new ImageIcon((URL) value); 
+                } else if(value instanceof String) {
+                    URL url = getImageResource(value.toString());
+                    if (url != null) imageIcon = new ImageIcon(url);
+
+                    if(ValueUtil.isEmpty(imageIcon))
+                        imageIcon = new ImageIcon(new URL(value.toString()));
+                } 
+                else if (value instanceof byte[]) {
+                    imageIcon = new ImageIcon((byte[])value);
+                } 
+                else if (value instanceof ImageIcon) {
+                    imageIcon = (ImageIcon) value;
+                } 
+                else if (value instanceof File) 
+                {
+                    File file = (File) value; 
+                    imageIcon = new ImageIcon(file.toURL());
+                }
+                else if (value instanceof Image)
+                {
+                    imageIcon = new ImageIcon((Image) value);
+                }
+
+                int iw = imageIcon.getIconWidth();
+                int ih = imageIcon.getIconHeight();
+                setPreferredSize(new Dimension(iw, ih)); 
+                setMinimumSize(new Dimension(iw, ih));
+            } catch(Throwable ex) {;}
+        }
         
-        Object value = UIControlUtil.getBeanValue(this);
-        try 
-        {
-            imageIcon = null;
-            
-            if (value instanceof URL) {
-                imageIcon = new ImageIcon((URL) value); 
+        String whenExpr = getVisibleWhen();
+        if (whenExpr != null && whenExpr.length() > 0) {
+            boolean result = false; 
+            try { 
+                result = UIControlUtil.evaluateExprBoolean(binding.getBean(), whenExpr);
+            } catch(Throwable t) {
+                t.printStackTrace();
             }
-            else if(value instanceof String) 
-            {
-                URL url = getImageResource(value.toString());
-                if (url != null) imageIcon = new ImageIcon(url);
-                
-                if(ValueUtil.isEmpty(imageIcon))
-                    imageIcon = new ImageIcon(new URL(value.toString()));
-            } 
-            else if (value instanceof byte[]) {
-                imageIcon = new ImageIcon((byte[])value);
-            } 
-            else if (value instanceof ImageIcon) {
-                imageIcon = (ImageIcon) value;
-            } 
-            else if (value instanceof File) 
-            {
-                File file = (File) value; 
-                imageIcon = new ImageIcon(file.toURL());
-            }
-            else if (value instanceof Image)
-            {
-                imageIcon = new ImageIcon((Image) value);
-            }
-            
-            int iw = imageIcon.getIconWidth();
-            int ih = imageIcon.getIconHeight();
-            setPreferredSize(new Dimension(iw, ih)); 
-            setMinimumSize(new Dimension(iw, ih));
-        } 
-        catch(Exception ex) {;}
+            setVisible( result ); 
+        }
     }
     
     public void load() {

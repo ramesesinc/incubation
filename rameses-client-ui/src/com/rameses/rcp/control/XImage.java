@@ -59,6 +59,7 @@ public class XImage extends JLabel implements UIControl, ActiveControl, MouseEve
     private int stretchWidth;
     private int stretchHeight;     
     private boolean shrinkToFit; 
+    private String visibleWhen;
          
     public XImage() 
     {
@@ -150,6 +151,11 @@ public class XImage extends JLabel implements UIControl, ActiveControl, MouseEve
         setIcon(iicon);
         repaint();
     }
+    
+    public String getVisibleWhen() { return visibleWhen; } 
+    public void setVisibleWhen( String visibleWhen ) {
+        this.visibleWhen = visibleWhen;
+    }    
             
     // </editor-fold>
     
@@ -190,13 +196,24 @@ public class XImage extends JLabel implements UIControl, ActiveControl, MouseEve
             this.imageIcon = null; 
         } 
         
+        String whenExpr = getVisibleWhen();
+        if (whenExpr != null && whenExpr.length() > 0) {
+            boolean result = false; 
+            try { 
+                result = UIControlUtil.evaluateExprBoolean(binding.getBean(), whenExpr);
+            } catch(Throwable t) {
+                t.printStackTrace();
+            }
+            setVisible( result ); 
+        }        
+        
         if (isHideWhenNoIcon() && getIcon() == null) { 
             setVisible(false); 
         } else { 
             setVisible(true); 
         } 
-        
-        repaint();
+                
+        repaint();        
     }
 
     public void setPropertyInfo(PropertySupport.PropertyInfo info) {

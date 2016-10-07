@@ -37,7 +37,7 @@ public class XSubControlBeanInfo extends ComponentBeanInfo.Support
             new PropertyDescriptor("handlerAutoLookup", getBeanClass(), "isHandlerAutoLookup", "setHandlerAutoLookup"),
             
             new PropertyDescriptor("readonly", getBeanClass(), "isReadonly", "setReadonly"),
-            new PropertyDescriptor("required", getBeanClass(), "isRequired", "setRequired") 
+            new PropertyDescriptor("required", getBeanClass(), "isRequired", "setRequired")
         }; 
     }
 

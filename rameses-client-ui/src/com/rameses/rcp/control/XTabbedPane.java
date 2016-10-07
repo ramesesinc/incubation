@@ -63,6 +63,7 @@ public class XTabbedPane extends JTabbedPane implements UIControl, ActiveControl
    
     private int stretchWidth;
     private int stretchHeight;     
+    private String visibleWhen;
     
     public XTabbedPane() {
         super();
@@ -140,11 +141,12 @@ public class XTabbedPane extends JTabbedPane implements UIControl, ActiveControl
             System.out.println("[WARN] error loading tabs caused by " + t.getMessage()); 
         } 
 
+        Object bean = (getBinding() == null? null : getBinding().getBean());         
         ExpressionResolver er = ExpressionResolver.getInstance();
         String expr = getDisableWhen();
-        if (expr != null && expr.length() > 0) {
+        if (expr != null && expr.length() > 0 && bean != null) {
             try {
-                boolean b = er.evalBoolean(expr, getBinding().getBean()); 
+                boolean b = er.evalBoolean(expr, bean); 
                 setEnabled(!b); 
             } catch(Throwable t){;} 
         } 
@@ -168,10 +170,21 @@ public class XTabbedPane extends JTabbedPane implements UIControl, ActiveControl
             if (disableWhen == null || disableWhen.length() == 0) continue;
             
             try {
-                boolean b = er.evalBoolean(disableWhen, getBinding().getBean()); 
+                boolean b = er.evalBoolean(disableWhen, bean); 
                 setEnabledAt(i, !b); 
             } catch(Throwable t){;} 
         }
+        
+        String whenExpr = getVisibleWhen();
+        if (whenExpr != null && whenExpr.length() > 0 && bean != null) {
+            boolean result = false; 
+            try { 
+                result = UIControlUtil.evaluateExprBoolean(bean, whenExpr);
+            } catch(Throwable t) {
+                t.printStackTrace();
+            }
+            setVisible( result ); 
+        }        
     }
     
     public void setPropertyInfo(PropertySupport.PropertyInfo info) {
@@ -197,6 +210,12 @@ public class XTabbedPane extends JTabbedPane implements UIControl, ActiveControl
     public void setStretchHeight(int stretchHeight) {
         this.stretchHeight = stretchHeight;
     } 
+    
+    public String getVisibleWhen() { return visibleWhen; } 
+    public void setVisibleWhen( String visibleWhen ) {
+        this.visibleWhen = visibleWhen;
+    }
+    
     
     // </editor-fold>
     

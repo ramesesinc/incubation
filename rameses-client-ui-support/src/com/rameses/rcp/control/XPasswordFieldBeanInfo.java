@@ -48,6 +48,7 @@ public class XPasswordFieldBeanInfo extends ComponentBeanInfo.Support
             
             new PropertyDescriptor("stretchWidth", getBeanClass()),
             new PropertyDescriptor("stretchHeight", getBeanClass()),
+            new PropertyDescriptor("visibleWhen", getBeanClass()),
             
             new PropertyDescriptor("depends", getBeanClass()),
             new PropertyDescriptor("echoChar", getBeanClass()),

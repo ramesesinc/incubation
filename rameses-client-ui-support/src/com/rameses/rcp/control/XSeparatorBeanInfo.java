@@ -49,6 +49,7 @@ public class XSeparatorBeanInfo extends ComponentBeanInfo.Support
             
             new PropertyDescriptor("stretchWidth", getBeanClass()),
             new PropertyDescriptor("stretchHeight", getBeanClass()),
+            new PropertyDescriptor("visibleWhen", getBeanClass()),
             
             new PropertyDescriptor("padding", getBeanClass()) 
         }; 

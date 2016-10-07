@@ -54,4 +54,7 @@ public interface UIControl extends Comparable
     
     int getStretchHeight();
     void setStretchHeight(int stretchHeight); 
+    
+    String getVisibleWhen();
+    void setVisibleWhen( String visibleWhen ); 
 }

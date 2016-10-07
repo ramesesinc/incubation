@@ -84,7 +84,8 @@ public class XTree extends JTree implements UIControl, ActiveControl, MouseEvent
     private TreeNodeModel nodeModel;
     
     private int stretchWidth;
-    private int stretchHeight;     
+    private int stretchHeight;    
+    private String visibleWhen;
             
     public XTree() { 
         initComponents(); 
@@ -178,7 +179,19 @@ public class XTree extends JTree implements UIControl, ActiveControl, MouseEvent
     
     public void setPropertyInfo(PropertySupport.PropertyInfo info) {}
     
-    public void refresh() {}
+    public void refresh() {
+        Object bean = (getBinding() == null? null : getBinding().getBean()); 
+        String whenExpr = getVisibleWhen();
+        if (whenExpr != null && whenExpr.length() > 0 && bean != null) {
+            boolean result = false; 
+            try { 
+                result = UIControlUtil.evaluateExprBoolean(bean, whenExpr);
+            } catch(Throwable t) {
+                t.printStackTrace();
+            }
+            setVisible( result ); 
+        }    
+    }
     
     public void load() 
     {
@@ -247,6 +260,12 @@ public class XTree extends JTree implements UIControl, ActiveControl, MouseEvent
     public void setStretchHeight(int stretchHeight) {
         this.stretchHeight = stretchHeight;
     }    
+    
+    public String getVisibleWhen() { return visibleWhen; } 
+    public void setVisibleWhen( String visibleWhen ) {
+        this.visibleWhen = visibleWhen;
+    }
+    
     
     // </editor-fold>
     

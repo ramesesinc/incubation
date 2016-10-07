@@ -50,7 +50,8 @@ public class XTreeTableBeanInfo extends ComponentBeanInfo.Support
             new PropertyDescriptor("index", getBeanClass()),
             new PropertyDescriptor("multiselect", getBeanClass(), "isMultiselect", "setMultiselect"),
             new PropertyDescriptor("oddBackground", getBeanClass()),
-            new PropertyDescriptor("oddForeground", getBeanClass()) 
+            new PropertyDescriptor("oddForeground", getBeanClass()),
+            new PropertyDescriptor("visibleWhen", getBeanClass())
         }; 
     }
 }

@@ -50,6 +50,7 @@ public class XTabbedPaneBeanInfo extends ComponentBeanInfo.Support
             new PropertyDescriptor("nameAutoLookupAsOpener", getBeanClass(), "isNameAutoLookupAsOpener", "setNameAutoLookupAsOpener"),
             new PropertyDescriptor("stretchWidth", getBeanClass()),
             new PropertyDescriptor("stretchHeight", getBeanClass()), 
+            new PropertyDescriptor("visibleWhen", getBeanClass()),
             
             installEditor(new PropertyDescriptor("tabLayoutPolicy", getBeanClass()), TabLayoutPolicyEditor.class),  
             installEditor(new PropertyDescriptor("tabPlacement", getBeanClass()), TabPlacementEditor.class) 

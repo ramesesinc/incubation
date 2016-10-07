@@ -48,6 +48,7 @@ public class XContextMenu extends JPanel implements UIControl, EventListener
     
     private int stretchWidth;
     private int stretchHeight;    
+    private String visibleWhen;
     
     public XContextMenu() {
         if ( Beans.isDesignTime() ) {
@@ -61,7 +62,16 @@ public class XContextMenu extends JPanel implements UIControl, EventListener
     }
     
     public void refresh() {
-        
+        String whenExpr = getVisibleWhen();
+        if (whenExpr != null && whenExpr.length() > 0) {
+            boolean result = false; 
+            try { 
+                result = UIControlUtil.evaluateExprBoolean(binding.getBean(), whenExpr);
+            } catch(Throwable t) {
+                t.printStackTrace();
+            }
+            setVisible( result ); 
+        }        
     }
     
     public void load() {
@@ -187,6 +197,11 @@ public class XContextMenu extends JPanel implements UIControl, EventListener
     public void setStretchHeight(int stretchHeight) {
             this.stretchHeight = stretchHeight;
     }     
+    
+    public String getVisibleWhen() { return visibleWhen; } 
+    public void setVisibleWhen( String visibleWhen ) {
+        this.visibleWhen = visibleWhen;
+    }    
     
     // </editor-fold>
 

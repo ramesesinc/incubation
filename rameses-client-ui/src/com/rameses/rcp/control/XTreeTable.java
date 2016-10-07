@@ -53,7 +53,8 @@ public class XTreeTable extends JPanel implements UIOutput, ActiveControl, TreeT
     
     private boolean loaded;
     private int stretchWidth;
-    private int stretchHeight;     
+    private int stretchHeight;    
+    private String visibleWhen; 
     
     public XTreeTable() {
         init();
@@ -170,6 +171,18 @@ public class XTreeTable extends JPanel implements UIOutput, ActiveControl, TreeT
         }
         
         loaded = true;
+        
+        Object bean = (getBinding() == null? null : getBinding().getBean()); 
+        String whenExpr = getVisibleWhen();
+        if (whenExpr != null && whenExpr.length() > 0 && bean != null) {
+            boolean result = false; 
+            try { 
+                result = UIControlUtil.evaluateExprBoolean(bean, whenExpr);
+            } catch(Throwable t) {
+                t.printStackTrace();
+            }
+            setVisible( result ); 
+        }         
     }
     
     public void load() {
@@ -212,6 +225,12 @@ public class XTreeTable extends JPanel implements UIOutput, ActiveControl, TreeT
     public void setStretchHeight(int stretchHeight) {
         this.stretchHeight = stretchHeight;
     }    
+    
+    public String getVisibleWhen() { return visibleWhen; } 
+    public void setVisibleWhen( String visibleWhen ) {
+        this.visibleWhen = visibleWhen;
+    }
+    
     
     //</editor-fold>
     

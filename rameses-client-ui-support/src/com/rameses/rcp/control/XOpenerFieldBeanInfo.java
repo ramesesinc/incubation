@@ -62,7 +62,8 @@ public class XOpenerFieldBeanInfo extends ComponentBeanInfo.Support
             new PropertyDescriptor("index", getBeanClass()),
             new PropertyDescriptor("nullWhenEmpty", getBeanClass(), "isNullWhenEmpty", "setNullWhenEmpty"),
             new PropertyDescriptor("readonly", getBeanClass(), "isReadonly", "setReadonly"),
-            new PropertyDescriptor("required", getBeanClass(), "isRequired", "setRequired")            
+            new PropertyDescriptor("required", getBeanClass(), "isRequired", "setRequired"), 
+            new PropertyDescriptor("visibleWhen", getBeanClass())
         }; 
     }
 }

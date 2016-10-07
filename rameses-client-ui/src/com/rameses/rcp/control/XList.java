@@ -85,7 +85,8 @@ public class XList extends JList implements UIControl, ActiveControl, MouseEvent
     
     private int stretchWidth;
     private int stretchHeight;     
-        
+    private String visibleWhen;
+    
     public XList() 
     {
         super.addListSelectionListener(getSelectionSupport()); 
@@ -254,6 +255,17 @@ public class XList extends JList implements UIControl, ActiveControl, MouseEvent
     
     public void refresh() { 
         refresh(dynamic);  
+        
+        String whenExpr = getVisibleWhen();
+        if (whenExpr != null && whenExpr.length() > 0) {
+            boolean result = false; 
+            try { 
+                result = UIControlUtil.evaluateExprBoolean(binding.getBean(), whenExpr);
+            } catch(Throwable t) {
+                t.printStackTrace();
+            }
+            setVisible( result ); 
+        }
     } 
         
     private void refresh(boolean reload) {
@@ -290,6 +302,11 @@ public class XList extends JList implements UIControl, ActiveControl, MouseEvent
     public int getStretchHeight() { return stretchHeight; } 
     public void setStretchHeight(int stretchHeight) {
         this.stretchHeight = stretchHeight;
+    }    
+    
+    public String getVisibleWhen() { return visibleWhen; } 
+    public void setVisibleWhen( String visibleWhen ) {
+        this.visibleWhen = visibleWhen;
     }    
     
     // </editor-fold>

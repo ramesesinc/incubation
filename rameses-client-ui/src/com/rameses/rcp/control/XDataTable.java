@@ -70,6 +70,7 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
 
     private int stretchWidth;
     private int stretchHeight;
+    private String visibleWhen; 
     
     private Color borderColor; 
     private String multiSelectFieldName; 
@@ -306,6 +307,18 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
             } 
         } 
         refreshed = true;
+        
+        Object bean = (getBinding() == null? null : getBinding().getBean()); 
+        String whenExpr = getVisibleWhen();
+        if (whenExpr != null && whenExpr.length() > 0 && bean != null) {
+            boolean result = false; 
+            try { 
+                result = UIControlUtil.evaluateExprBoolean(bean, whenExpr);
+            } catch(Throwable t) {
+                t.printStackTrace();
+            }
+            setVisible( result ); 
+        }         
     }
     
     public void load() {
@@ -398,6 +411,12 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
     public void setStretchHeight(int stretchHeight) {
         this.stretchHeight = stretchHeight; 
     }    
+    
+    public String getVisibleWhen() { return visibleWhen; } 
+    public void setVisibleWhen( String visibleWhen ) {
+        this.visibleWhen = visibleWhen;
+    }
+    
     
     private void applyExpressions() {
         String expr = getReadonlyWhen();

@@ -36,6 +36,7 @@ public class XMenu extends JPanel implements UIControl
     
     private int stretchWidth;
     private int stretchHeight;     
+    private String visibleWhen;
     
     public XMenu() {
         super.setLayout(new BorderLayout());
@@ -76,8 +77,18 @@ public class XMenu extends JPanel implements UIControl
     }
     
     public void refresh() {
-        if ( dynamic )
-            buildPlainMenu( null );
+        if ( dynamic ) buildPlainMenu( null ); 
+        
+        String whenExpr = getVisibleWhen();
+        if (whenExpr != null && whenExpr.length() > 0) {
+            boolean result = false; 
+            try { 
+                result = UIControlUtil.evaluateExprBoolean(binding.getBean(), whenExpr);
+            } catch(Throwable t) {
+                t.printStackTrace();
+            }
+            setVisible( result ); 
+        }
     }
     
     public void load() {
@@ -134,5 +145,10 @@ public class XMenu extends JPanel implements UIControl
     public int getStretchHeight() { return stretchHeight; } 
     public void setStretchHeight(int stretchHeight) {
         this.stretchHeight = stretchHeight;
+    }    
+    
+    public String getVisibleWhen() { return visibleWhen; } 
+    public void setVisibleWhen( String visibleWhen ) {
+        this.visibleWhen = visibleWhen;
     }    
 }

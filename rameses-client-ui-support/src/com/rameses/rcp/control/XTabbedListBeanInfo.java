@@ -44,7 +44,8 @@ public class XTabbedListBeanInfo extends ComponentBeanInfo.Support
             new PropertyDescriptor("dynamic", getBeanClass(), "isDynamic", "setDynamic"),
             new PropertyDescriptor("index", getBeanClass()),
             new PropertyDescriptor("stretchWidth", getBeanClass()),
-            new PropertyDescriptor("stretchHeight", getBeanClass())
+            new PropertyDescriptor("stretchHeight", getBeanClass()),
+            new PropertyDescriptor("visibleWhen", getBeanClass())
             
         }; 
     }
