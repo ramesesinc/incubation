@@ -383,13 +383,14 @@ public abstract class AbstractSqlDialect implements SqlDialect {
             String pkSelectField = buildSelectPKFields( model, pkFields );  
             
             for( WhereFilter wf: model.getOrWhereList() ) {
-                if (i++ > 0) {
-                    buff.append( " UNION ");
-                }
-                
-                buff.append(" SELECT ").append( pkSelectField ).append(" FROM ");
-                buff.append( buildTablesForSelect(model) );
-                buff.append( buildWhereForSelect(model, wf) );
+                if (i++ > 0) buff.append( " UNION ");
+
+                buff.append(" SELECT ")
+                    .append( buildSelectFields( model ))
+                    .append(" FROM ")
+                    .append( buildTablesForSelect( model ))
+                    .append( buildWhereForSelect( model, wf))
+                    .append( buildGroupByStatement( model ));
             } 
             
             String baseTableName = (getDelimiters()[0] + model.getTablename() + getDelimiters()[1]); 
@@ -400,18 +401,11 @@ public abstract class AbstractSqlDialect implements SqlDialect {
                 baseTableAlias = baseTableName; 
             }
             
-            sb.append(" SELECT ").append( buildSelectFields(model) );
-            sb.append(" FROM ( ").append( buff ).append(" )t1 "); 
-            sb.append(" INNER JOIN ").append( baseTableName ).append( baseTableAlias ); 
-            sb.append(" ON ( ").append( buildJoinMatches(pkFields, baseTableAlias, "t1") ).append(" ) ");
-            sb.append( buildTablesForSelect(model) );
+            sb.append(" SELECT * FROM ( ").append( buff ).append(" )t1 ");
+            if ( includeOrderBy ) { 
+              sb.append( buildOrderStatement( model, "" )); 
+            } 
             
-            for( WhereFilter wf: model.getOrWhereList() ) {
-                sb.append( buildWhereForSelect(model, wf) );
-            }
-            sb.append( "{PAGING_SUBQUERY}" );
-            sb.append( buildGroupByStatement(model) );
-            sb.append( buildOrderStatement(model) ); 
         } else { 
             sb.append(" SELECT ");
             sb.append( buildSelectFields(model) );
