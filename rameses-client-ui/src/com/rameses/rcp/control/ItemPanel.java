@@ -28,6 +28,7 @@ import java.beans.PropertyChangeListener;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import javax.swing.BorderFactory;
+import javax.swing.JComponent;
 import javax.swing.JEditorPane;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -545,25 +546,33 @@ public class ItemPanel extends JPanel implements FormItemProperty {
                 }
 
                 cw = Math.max(parent.getWidth()-x-margin.right, 0); 
-//                int pw = editor.getPreferredSize().width; 
-//                int sw = uimodel.getStretchWidth(); 
-//                if ( sw > 0 ) {
-//                    double d0 = (double) cw; 
-//                    if (cw < pw) { 
-//                        d0 = (double) pw; 
-//                    } 
-//                    double d1 = sw / 100.0; 
-//                    double d2 = d0 * d1; 
-//                    int dw = new BigDecimal(d2).setScale(0, RoundingMode.HALF_UP).intValue(); 
-//                    if (dw < pw) { dw = pw; }
-//                    
-//                    cw = dw; 
-//                } else if ( pw > 0 ) {
-//                    cw = pw; 
-//                } 
                 
-                //if (dw > 0 && cw < dw) { cw = dw; }
+                Object userObject = null; 
+                if ( editor instanceof JComponent ) {
+                    userObject = ((JComponent) editor).getClientProperty("UIControl.userObject"); 
+                }
                 
+                Dimension dim = editor.getPreferredSize(); 
+                int sw = uimodel.getStretchWidth(); 
+                int pw = dim.width; 
+                if ( sw <= 0 && pw==0 ) { 
+                    //do nothing 
+                } else if ( sw > 0 && userObject == null ) {
+                    //do nothing 
+                } else if ( sw > 0 ) {
+                    double d0 = (double) cw; 
+                    if ( pw == 0 ) { pw = 1; } 
+                    if ( cw < pw ) { d0 = (double)pw; }
+                    
+                    double d1 = sw / 100.0;
+                    double d2 = d0 * d1; 
+                    int dw = new BigDecimal(d2).setScale(0, RoundingMode.HALF_UP).intValue(); 
+                    if (dw < pw) { dw = pw; }
+                    
+                    cw = dw; 
+                } else if ( pw > 0 ) {
+                    cw = pw; 
+                }
                 editor.setBounds(x, y, cw, h); 
             } 
         }
