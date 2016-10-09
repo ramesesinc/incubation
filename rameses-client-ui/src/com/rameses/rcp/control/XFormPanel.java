@@ -662,7 +662,7 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
         value = formModel.getFormControls();
         if (value == null) value = formModel.getControlList();
         
-        List list = new ArrayList();        
+        List list = new ArrayList();    
         if (value == null) {
             //do nothing
         } else if (value.getClass().isArray()) {
@@ -1375,13 +1375,14 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
             }
             
             boolean forceUpdate = (jcomp==null? false: jcomp.getClientProperty("UIControl.forceUpdate")==Boolean.TRUE); 
+            boolean noBeanUpdate = (jcomp==null? false: jcomp.getClientProperty("UIControl.noBeanUpdate")==Boolean.TRUE); 
             
             UIControl uic = null;
             if ( forceUpdate && (jcomp instanceof UIControl)) {
                 uic = (UIControl)jcomp;
             } else if (jcomp instanceof UIInput) { 
                 uic = (UIControl)jcomp;
-            } else if (jcomp instanceof UILookup) {
+            } else if (jcomp instanceof UILookup) { 
                 uic = (UIControl)jcomp; 
             } else { 
                 System.out.println("[WARN] EditorInputSupport does not support this type of component"); 
@@ -1390,9 +1391,14 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
             
             Binding binding = uic.getBinding();
             Object userObj = uic.getClientProperty("UIControl.userObject"); 
-            try { propertyResolver.setProperty(userObj, "name", name); } catch(Throwable t){;} 
-            try { propertyResolver.setProperty(userObj, "value", value); } catch(Throwable t){;} 
-            try { root.model.updateBean(name, value, userObj); } catch(Throwable t){;} 
+            if ( !noBeanUpdate ) { 
+                try { propertyResolver.setProperty(userObj, "name", name); } catch(Throwable t){;} 
+                try { propertyResolver.setProperty(userObj, "value", value); } catch(Throwable t){;} 
+            }
+
+            try { 
+                root.model.updateBean(name, value, userObj); 
+            } catch(Throwable t){;} 
             
             //fire onchange handle on the item if available 
             try { 

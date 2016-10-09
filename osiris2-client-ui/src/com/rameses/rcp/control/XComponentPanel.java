@@ -522,8 +522,19 @@ public abstract class XComponentPanel extends JPanel
         if ( o == null ) return; 
         
         putClientProperty("UIControl.forceUpdate", Boolean.TRUE); 
+        putClientProperty("UIControl.noBeanUpdate", Boolean.TRUE); 
         UIInputUtil.Support sup = (UIInputUtil.Support)o; 
-        sup.setValue( getName(), value, this );  
+        
+        Object compValue = null; 
+        try { 
+            compValue = PropertyResolver.getInstance().getProperty(compBean, name.split("\\.")[0]); 
+        } catch(Throwable t){;}
+        
+        if ( compValue == null && value != null ) {
+            compValue = value; 
+        }
+        
+        sup.setValue( getName(), compValue, this );  
     }
     
     // </editor-fold>
