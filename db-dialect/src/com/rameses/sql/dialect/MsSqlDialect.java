@@ -291,44 +291,5 @@ public class MsSqlDialect extends AbstractSqlDialect  {
         sb.append( concatFilterStatement(list));        
         
         return sb.toString();
-    }
-    
-    private List<SqlDialectModel.Field> getPKFields( SqlDialectModel model ) {
-        List<SqlDialectModel.Field> targets = new ArrayList();
-        List<SqlDialectModel.Field> sources = model.getFields(); 
-        for ( SqlDialectModel.Field f : sources ) {
-            if ( f.isPrimary() ) {
-                targets.add( f ); 
-            }
-        }
-        return targets; 
-    }
-    private String buildSelectPKFields( SqlDialectModel model, List<SqlDialectModel.Field> fields ) { 
-        StringBuilder sb = new StringBuilder(); 
-        if ( fields != null && fields.size()>0 ) { 
-            for ( int i=0; i<fields.size(); i++ ) { 
-                SqlDialectModel.Field f = fields.get(i); 
-                if ( i > 0 ) sb.append(", "); 
-                
-                sb.append( getDelimiters()[0]+f.getTablealias()+getDelimiters()[1]+"." );
-                sb.append( getDelimiters()[0]+f.getFieldname()+getDelimiters()[1] );
-                sb.append(" AS pk"+ (i+1)); 
-            } 
-        }
-        return sb.toString(); 
-    }
-    private String buildJoinMatches( List<SqlDialectModel.Field> fields, String sourceAlias, String targetAlias ) { 
-        StringBuilder sb = new StringBuilder(); 
-        if ( fields != null && fields.size()>0 ) { 
-            for ( int i=0; i<fields.size(); i++ ) { 
-                SqlDialectModel.Field f = fields.get(i); 
-                if ( i > 0 ) sb.append(" AND "); 
-                
-                sb.append( sourceAlias ).append(".");
-                sb.append( getDelimiters()[0]+f.getFieldname()+getDelimiters()[1] );
-                sb.append( " = " ).append( targetAlias ).append(".pk"+ (i+1)); 
-            } 
-        }
-        return sb.toString(); 
     }    
 }
