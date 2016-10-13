@@ -9,6 +9,11 @@
 
 package com.rameses.rcp.common;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  *
  * @author wflores
@@ -66,5 +71,65 @@ public class DateColumnHandler extends Column.TypeHandler implements PropertySup
     
     public void setValueFormat(String valueFormat) { 
         this.valueFormat = valueFormat;
+    }
+
+    public Object get(Object key) {  
+        if ( key == null ) { return null; } 
+        
+        Object val = super.get(key);
+        if ( val != null ) { return val; } 
+        
+        if ( "format".equals( key.toString()) ) {
+            return getOutputFormat(); 
+        } else if ( "outputFormat".equals( key.toString()) ) {
+            return getOutputFormat(); 
+        } else if ( "inputFormat".equals( key.toString()) ) {
+            return getInputFormat(); 
+        } else if ( "valueFormat".equals( key.toString()) ) {
+            return getValueFormat(); 
+        } 
+        return null; 
+    } 
+    
+    private Map<String,SimpleDateFormat> formatters = new HashMap(); 
+    
+    private SimpleDateFormat getFormatter( String pattern ) {
+        SimpleDateFormat sdf = formatters.get( pattern ); 
+        if ( sdf == null ) {
+            sdf = new SimpleDateFormat( pattern ); 
+            formatters.put( pattern, sdf ); 
+        }
+        return sdf; 
+    }
+    
+    public String format( Object value ) {
+        return format( value, getOutputFormat() ); 
+    }
+    public String format( Object value, String pattern ) {
+        if ( value == null ) { return null; }
+        
+        Date dtvalue = convertDate( value ); 
+        if ( dtvalue == null ) { return null; } 
+
+        if ( pattern==null || pattern.trim().length()==0 ) {
+            return dtvalue.toString(); 
+        } 
+        return getFormatter( pattern ).format( dtvalue ); 
+    }
+    
+    private Date convertDate( Object value ) {
+        if ( value instanceof Date ) {
+            return (Date) value; 
+        }
+        
+        try {
+            return java.sql.Timestamp.valueOf( value.toString() ); 
+        } catch(Throwable t){;} 
+        
+        try { 
+            return java.sql.Date.valueOf( value.toString() ); 
+        } catch(Throwable t){
+            return null; 
+        } 
     }
 }

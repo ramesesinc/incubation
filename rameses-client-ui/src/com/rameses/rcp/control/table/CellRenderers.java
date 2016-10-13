@@ -659,19 +659,32 @@ public class CellRenderers {
         protected Object resolveValue(CellRenderers.Context ctx) {
             String format = null;
             Column oColumn = ctx.getColumn();
-            if (oColumn.getTypeHandler() instanceof DateColumnHandler)
-                format = ((DateColumnHandler) oColumn.getTypeHandler()).getOutputFormat();
-            else
+            DateColumnHandler dateHandler = null; 
+            if (oColumn.getTypeHandler() instanceof DateColumnHandler) { 
+                dateHandler = (DateColumnHandler) oColumn.getTypeHandler();
+                format = dateHandler.getOutputFormat();
+            } else { 
                 format = oColumn.getFormat();
+            } 
             
             Object cellValue = ctx.getValue();
-            if (format != null && cellValue instanceof Date) {
+            if ( format == null || format.trim().length()==0 ) { 
+                return cellValue; 
+            }
+            
+            if ( dateHandler != null ) { 
+                try { 
+                    return dateHandler.format( cellValue, format ); 
+                } catch(Throwable ex) {;}
+            } 
+            
+            if ( format != null && cellValue instanceof Date) {
                 try {
-                    if (outputFormatter == null)
+                    if (outputFormatter == null) {
                         outputFormatter = new SimpleDateFormat(format);
-                    
+                    } 
                     cellValue = outputFormatter.format((Date) cellValue);
-                } catch(Exception ex) {;}
+                } catch(Throwable ex) {;}
             }
             return cellValue;
         }
