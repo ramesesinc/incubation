@@ -53,6 +53,7 @@ public class XReportPanel extends JPanel implements UIControl {
     
     private int stretchWidth;
     private int stretchHeight;
+    private String visibleWhen;
         
     private ReportModel model; 
     
@@ -89,8 +90,19 @@ public class XReportPanel extends JPanel implements UIControl {
     public void load() {
     }
     
-    public void refresh() {
+    public void refresh() { 
         render(); 
+        
+        String whenExpr = getVisibleWhen();
+        if (whenExpr != null && whenExpr.length() > 0) {
+            boolean result = false; 
+            try { 
+                result = UIControlUtil.evaluateExprBoolean(getBinding().getBean(), whenExpr);
+            } catch(Throwable t) {
+                t.printStackTrace();
+            }
+            setVisible( result ); 
+        } 
     } 
     
     public int getStretchWidth() { return stretchWidth; }
@@ -101,6 +113,11 @@ public class XReportPanel extends JPanel implements UIControl {
     public int getStretchHeight() { return stretchHeight; }
     public void setStretchHeight(int stretchHeight) {
         this.stretchHeight = stretchHeight; 
+    }    
+    
+    public String getVisibleWhen() { return visibleWhen; } 
+    public void setVisibleWhen(String visibleWhen) {
+        this.visibleWhen = visibleWhen;
     }    
     
     private void render() {
