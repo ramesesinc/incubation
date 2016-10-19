@@ -5,14 +5,12 @@
 package com.rameses.sql.dialect.functions.mssql;
 
 import com.rameses.osiris3.sql.SqlDialectFunction;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  *
  * @author Elmo Nazareno
  */
-class DATE implements SqlDialectFunction {
+public class DATE implements SqlDialectFunction {
     
     public String getName() {
         return "DATE";

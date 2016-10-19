@@ -4,11 +4,13 @@
  */
 package com.rameses.sql.dialect.functions.mysql;
 
+import com.rameses.osiris3.sql.SqlDialectFunction;
+
 /**
  *
  * @author Elmo Nazareno
  */
-public class DATE {
+public class DATE implements SqlDialectFunction {
     
     public String getName() {
         return "DATE";
