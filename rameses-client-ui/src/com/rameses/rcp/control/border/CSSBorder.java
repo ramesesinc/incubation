@@ -60,7 +60,7 @@ public class CSSBorder extends AbstractBorder
     
     public void paintBorder(Component c, Graphics g, int x, int y, int w, int h) 
     {
-        System.out.println(painterMargin);
+        //System.out.println(painterMargin);
         for (Painter painter : painters) {
             painter.paintBorder(c, g, x, y, w, h, painterMargin);
         }

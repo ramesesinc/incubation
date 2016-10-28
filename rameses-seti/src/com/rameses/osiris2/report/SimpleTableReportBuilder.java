@@ -98,7 +98,7 @@ public class SimpleTableReportBuilder {
         sb.append( buildDetail(report) );
         sb.append("</jasperReport>");
         
-        System.out.println(sb.toString());
+        //System.out.println(sb.toString());
         return sb.toString();
     }
     

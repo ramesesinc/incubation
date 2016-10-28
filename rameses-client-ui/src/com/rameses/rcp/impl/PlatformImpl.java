@@ -176,7 +176,7 @@ public class PlatformImpl implements Platform
     }
     
     private void showInfo(ActionEvent e) {
-        System.out.println(e.getSource());
+        //System.out.println(e.getSource());
     }     
     
     private void setProperties(Object bean, Map properties) {
