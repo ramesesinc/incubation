@@ -1,0 +1,5 @@
+<workunit extends="com/rameses/seti2/templates/CrudLookup.xml" schemaName="sys_rule_fact">
+    <invokers>
+        <invoker type="sys_rule_fact:lookup" caption="Lookup Fact" action="init" cols="name,title,factclass"/>
+    </invokers>
+</workunit>
