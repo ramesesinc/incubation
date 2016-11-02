@@ -183,7 +183,7 @@ public class RulesetPage extends javax.swing.JPanel {
 
         xDataTable2.setColumns(new com.rameses.rcp.common.Column[]{
             new com.rameses.rcp.common.Column(new Object[]{
-                new Object[]{"name", "name"}
+                new Object[]{"name", "fact.name"}
                 , new Object[]{"caption", "Name"}
                 , new Object[]{"width", 100}
                 , new Object[]{"minWidth", 0}
@@ -198,7 +198,7 @@ public class RulesetPage extends javax.swing.JPanel {
                 , new Object[]{"typeHandler", new com.rameses.rcp.common.TextColumnHandler()}
             }),
             new com.rameses.rcp.common.Column(new Object[]{
-                new Object[]{"name", "title"}
+                new Object[]{"name", "fact.title"}
                 , new Object[]{"caption", "Title"}
                 , new Object[]{"width", 100}
                 , new Object[]{"minWidth", 0}
@@ -213,7 +213,7 @@ public class RulesetPage extends javax.swing.JPanel {
                 , new Object[]{"typeHandler", new com.rameses.rcp.common.TextColumnHandler()}
             }),
             new com.rameses.rcp.common.Column(new Object[]{
-                new Object[]{"name", "factclass"}
+                new Object[]{"name", "fact.factclass"}
                 , new Object[]{"caption", "Fact Class"}
                 , new Object[]{"width", 100}
                 , new Object[]{"minWidth", 0}
@@ -270,7 +270,7 @@ public class RulesetPage extends javax.swing.JPanel {
 
         xDataTable3.setColumns(new com.rameses.rcp.common.Column[]{
             new com.rameses.rcp.common.Column(new Object[]{
-                new Object[]{"name", "name"}
+                new Object[]{"name", "action.name"}
                 , new Object[]{"caption", "Name"}
                 , new Object[]{"width", 100}
                 , new Object[]{"minWidth", 0}
@@ -285,7 +285,7 @@ public class RulesetPage extends javax.swing.JPanel {
                 , new Object[]{"typeHandler", new com.rameses.rcp.common.TextColumnHandler()}
             }),
             new com.rameses.rcp.common.Column(new Object[]{
-                new Object[]{"name", "title"}
+                new Object[]{"name", "action.title"}
                 , new Object[]{"caption", "Title"}
                 , new Object[]{"width", 100}
                 , new Object[]{"minWidth", 0}
@@ -300,7 +300,7 @@ public class RulesetPage extends javax.swing.JPanel {
                 , new Object[]{"typeHandler", new com.rameses.rcp.common.TextColumnHandler()}
             }),
             new com.rameses.rcp.common.Column(new Object[]{
-                new Object[]{"name", "actionclass"}
+                new Object[]{"name", "action.actionclass"}
                 , new Object[]{"caption", "Action Class"}
                 , new Object[]{"width", 100}
                 , new Object[]{"minWidth", 0}

@@ -14,16 +14,16 @@ class RulesetModel extends CrudFormModel {
     
     def factListModel = [
         fetchList: {o->
-            def m = [_schemaname: 'sys_rule_fact' ];
-            m.where = [ 'ruleset.ruleset=:r', [r:entity.name]];
+            def m = [_schemaname: 'sys_ruleset_fact' ];
+            m.where = [ 'ruleset=:r', [r:entity.name]];
             return queryService.getList( m );
         }
     ] as BasicListModel;        
 
     def actionListModel = [
         fetchList: { o->
-            def m = [_schemaname: 'sys_rule_actiondef' ];
-            m.where = [ 'ruleset.ruleset=:r',[r: entity.name]];
+            def m = [_schemaname: 'sys_ruleset_actiondef' ];
+            m.where = [ 'ruleset=:r',[r: entity.name]];
             return queryService.getList( m );
         }
     ] as BasicListModel;        
@@ -43,7 +43,7 @@ class RulesetModel extends CrudFormModel {
         if(!selectedFact) throw new Exception("Please select a fact");
         def m = [_schemaname: 'sys_ruleset_fact'];
         m.ruleset = entity.name;
-        m.rulefact = selectedFact.objid;
+        m.rulefact = selectedFact.rulefact;
         persistenceService.removeEntity( m );
         factListModel.reload();
     }
@@ -52,7 +52,7 @@ class RulesetModel extends CrudFormModel {
         def h = { o->
             def m = [_schemaname: 'sys_ruleset_actiondef'];
             m.ruleset = entity.name;
-            m.rulefact = o.objid;
+            m.actiondef = o.objid;
             persistenceService.create( m );
             actionListModel.reload();
         }
@@ -63,7 +63,7 @@ class RulesetModel extends CrudFormModel {
         if(!selectedAction) throw new Exception("Please select an action");
         def m = [_schemaname: 'sys_ruleset_actiondef'];
         m.ruleset = entity.name;
-        m.rulefact = selectedAction.objid;
+        m.actiondef =  selectedAction.actiondef;
         persistenceService.removeEntity( m );
         actionListModel.reload();
     }
