@@ -14,7 +14,6 @@ class ActionDefModel extends CrudFormModel {
     @Service("RuleActionDefService")
     def devService;
     
-    def param;
     def varStatus;
     def selectedParam;
     
@@ -30,7 +29,7 @@ class ActionDefModel extends CrudFormModel {
     }
     
     public def fetchEntityData() {
-        entity = devService.find(entity); 
+        return devService.find(entity); 
     }
 
     /*
