@@ -33,15 +33,14 @@ public class FactPage extends javax.swing.JPanel {
         xTabbedPane1 = new com.rameses.rcp.control.XTabbedPane();
         jPanel2 = new javax.swing.JPanel();
         xFormPanel2 = new com.rameses.rcp.control.XFormPanel();
-        xTextField3 = new com.rameses.rcp.control.XTextField();
-        xIntegerField1 = new com.rameses.rcp.control.XIntegerField();
-        xTextField4 = new com.rameses.rcp.control.XTextField();
-        xTextField5 = new com.rameses.rcp.control.XTextField();
         xFormPanel1 = new com.rameses.rcp.control.XFormPanel();
-        xTextField1 = new com.rameses.rcp.control.XTextField();
+        xTextField3 = new com.rameses.rcp.control.XTextField();
         xTextField2 = new com.rameses.rcp.control.XTextField();
         xTextField11 = new com.rameses.rcp.control.XTextField();
         xTextField12 = new com.rameses.rcp.control.XTextField();
+        xIntegerField1 = new com.rameses.rcp.control.XIntegerField();
+        xTextField4 = new com.rameses.rcp.control.XTextField();
+        xTextField5 = new com.rameses.rcp.control.XTextField();
         xFormPanel3 = new com.rameses.rcp.control.XFormPanel();
         xCheckBox1 = new com.rameses.rcp.control.XCheckBox();
         xTextField6 = new com.rameses.rcp.control.XTextField();
@@ -63,41 +62,15 @@ public class FactPage extends javax.swing.JPanel {
 
         xFormPanel2.setCaptionWidth(120);
 
+        xFormPanel1.setCaptionWidth(120);
+
         xTextField3.setCaption("Fact Class");
         xTextField3.setName("entity.factclass"); // NOI18N
         xTextField3.setPreferredSize(new java.awt.Dimension(0, 20));
         xTextField3.setRequired(true);
         xTextField3.setSpaceChar('_');
         xTextField3.setTextCase(com.rameses.rcp.constant.TextCase.NONE);
-        xFormPanel2.add(xTextField3);
-
-        xIntegerField1.setCaption("Sort Order");
-        xIntegerField1.setName("entity.sortorder"); // NOI18N
-        xFormPanel2.add(xIntegerField1);
-
-        xTextField4.setCaption("Handler");
-        xTextField4.setName("entity.handler"); // NOI18N
-        xTextField4.setPreferredSize(new java.awt.Dimension(150, 20));
-        xTextField4.setSpaceChar('_');
-        xTextField4.setTextCase(com.rameses.rcp.constant.TextCase.NONE);
-        xFormPanel2.add(xTextField4);
-
-        xTextField5.setCaption("Default Var.Name");
-        xTextField5.setName("entity.defaultvarname"); // NOI18N
-        xTextField5.setPreferredSize(new java.awt.Dimension(150, 20));
-        xTextField5.setSpaceChar('_');
-        xTextField5.setTextCase(com.rameses.rcp.constant.TextCase.NONE);
-        xFormPanel2.add(xTextField5);
-
-        xFormPanel1.setCaptionWidth(120);
-
-        xTextField1.setCaption("Name");
-        xTextField1.setName("entity.name"); // NOI18N
-        xTextField1.setPreferredSize(new java.awt.Dimension(150, 20));
-        xTextField1.setRequired(true);
-        xTextField1.setSpaceChar('_');
-        xTextField1.setTextCase(com.rameses.rcp.constant.TextCase.NONE);
-        xFormPanel1.add(xTextField1);
+        xFormPanel1.add(xTextField3);
 
         xTextField2.setCaption("Title");
         xTextField2.setName("entity.title"); // NOI18N
@@ -117,8 +90,25 @@ public class FactPage extends javax.swing.JPanel {
         xTextField12.setPreferredSize(new java.awt.Dimension(150, 20));
         xTextField12.setRequired(true);
         xTextField12.setSpaceChar('_');
-        xTextField12.setTextCase(com.rameses.rcp.constant.TextCase.LOWER);
         xFormPanel1.add(xTextField12);
+
+        xIntegerField1.setCaption("Sort Order");
+        xIntegerField1.setName("entity.sortorder"); // NOI18N
+        xFormPanel1.add(xIntegerField1);
+
+        xTextField4.setCaption("Handler");
+        xTextField4.setName("entity.handler"); // NOI18N
+        xTextField4.setPreferredSize(new java.awt.Dimension(150, 20));
+        xTextField4.setSpaceChar('_');
+        xTextField4.setTextCase(com.rameses.rcp.constant.TextCase.NONE);
+        xFormPanel1.add(xTextField4);
+
+        xTextField5.setCaption("Default Var.Name");
+        xTextField5.setName("entity.defaultvarname"); // NOI18N
+        xTextField5.setPreferredSize(new java.awt.Dimension(150, 20));
+        xTextField5.setSpaceChar('_');
+        xTextField5.setTextCase(com.rameses.rcp.constant.TextCase.NONE);
+        xFormPanel1.add(xTextField5);
 
         xFormPanel3.setCaptionWidth(120);
 
@@ -136,6 +126,7 @@ public class FactPage extends javax.swing.JPanel {
         xTextField6.setPreferredSize(new java.awt.Dimension(150, 20));
         xTextField6.setSpaceChar('_');
         xTextField6.setTextCase(com.rameses.rcp.constant.TextCase.NONE);
+        xTextField6.setVisibleWhen("#{ entity.dynamic == 1 }");
         xFormPanel3.add(xTextField6);
 
         xTextField7.setCaption("Lookup Key");
@@ -144,6 +135,7 @@ public class FactPage extends javax.swing.JPanel {
         xTextField7.setPreferredSize(new java.awt.Dimension(150, 20));
         xTextField7.setSpaceChar('_');
         xTextField7.setTextCase(com.rameses.rcp.constant.TextCase.NONE);
+        xTextField7.setVisibleWhen("#{ entity.dynamic == 1 }");
         xFormPanel3.add(xTextField7);
 
         xTextField8.setCaption("Lookup Value");
@@ -152,6 +144,7 @@ public class FactPage extends javax.swing.JPanel {
         xTextField8.setPreferredSize(new java.awt.Dimension(150, 20));
         xTextField8.setSpaceChar('_');
         xTextField8.setTextCase(com.rameses.rcp.constant.TextCase.NONE);
+        xTextField8.setVisibleWhen("#{ entity.dynamic == 1 }");
         xFormPanel3.add(xTextField8);
 
         xTextField9.setCaption("Lookup Data Type");
@@ -160,6 +153,7 @@ public class FactPage extends javax.swing.JPanel {
         xTextField9.setPreferredSize(new java.awt.Dimension(150, 20));
         xTextField9.setSpaceChar('_');
         xTextField9.setTextCase(com.rameses.rcp.constant.TextCase.NONE);
+        xTextField9.setVisibleWhen("#{ entity.dynamic == 1 }");
         xFormPanel3.add(xTextField9);
 
         xTextField10.setCaption("Dynamic Field name");
@@ -168,6 +162,7 @@ public class FactPage extends javax.swing.JPanel {
         xTextField10.setPreferredSize(new java.awt.Dimension(150, 20));
         xTextField10.setSpaceChar('_');
         xTextField10.setTextCase(com.rameses.rcp.constant.TextCase.NONE);
+        xTextField10.setVisibleWhen("#{ entity.dynamic == 1 }");
         xFormPanel3.add(xTextField10);
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
@@ -179,9 +174,9 @@ public class FactPage extends javax.swing.JPanel {
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(xFormPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(xFormPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 425, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(xFormPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, 409, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(xFormPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 425, Short.MAX_VALUE)
+                            .addComponent(xFormPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addGap(0, 298, Short.MAX_VALUE)))
                 .addContainerGap())
         );
@@ -189,12 +184,12 @@ public class FactPage extends javax.swing.JPanel {
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(xFormPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(xFormPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(xFormPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, 108, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(xFormPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(xFormPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, 128, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(36, 36, 36))
+                .addContainerGap())
         );
 
         xTabbedPane1.addTab("General Info", jPanel2);
@@ -316,7 +311,7 @@ public class FactPage extends javax.swing.JPanel {
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap(352, Short.MAX_VALUE)
+                .addContainerGap(374, Short.MAX_VALUE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(xButton2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(xButton3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -327,7 +322,7 @@ public class FactPage extends javax.swing.JPanel {
             .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(jPanel1Layout.createSequentialGroup()
                     .addContainerGap()
-                    .addComponent(xDataTable1, javax.swing.GroupLayout.DEFAULT_SIZE, 330, Short.MAX_VALUE)
+                    .addComponent(xDataTable1, javax.swing.GroupLayout.DEFAULT_SIZE, 352, Short.MAX_VALUE)
                     .addGap(45, 45, 45)))
         );
 
@@ -335,7 +330,7 @@ public class FactPage extends javax.swing.JPanel {
 
         xList1.setDynamic(true);
         xList1.setExpression("#{item.ruleset}");
-        xList1.setItems("rulesets");
+        xList1.setItems("entity.rulesets");
         xList1.setName("selectedRuleset"); // NOI18N
         jScrollPane1.setViewportView(xList1);
 
@@ -358,7 +353,7 @@ public class FactPage extends javax.swing.JPanel {
                 .addComponent(jLabel1)
                 .addGap(7, 7, 7)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 151, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(214, Short.MAX_VALUE))
+                .addContainerGap(236, Short.MAX_VALUE))
         );
 
         xTabbedPane1.addTab("Rulesets", xPanel1);
@@ -374,9 +369,9 @@ public class FactPage extends javax.swing.JPanel {
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(xTabbedPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 414, Short.MAX_VALUE)
+                .addComponent(xTabbedPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 436, Short.MAX_VALUE)
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -399,7 +394,6 @@ public class FactPage extends javax.swing.JPanel {
     private com.rameses.rcp.control.XList xList1;
     private com.rameses.rcp.control.XPanel xPanel1;
     private com.rameses.rcp.control.XTabbedPane xTabbedPane1;
-    private com.rameses.rcp.control.XTextField xTextField1;
     private com.rameses.rcp.control.XTextField xTextField10;
     private com.rameses.rcp.control.XTextField xTextField11;
     private com.rameses.rcp.control.XTextField xTextField12;

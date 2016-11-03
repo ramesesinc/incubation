@@ -38,7 +38,6 @@ public class ActionDefParamLOV extends javax.swing.JPanel {
         xTextField3.setName("entity.lovname"); // NOI18N
         xTextField3.setPreferredSize(new java.awt.Dimension(0, 20));
         xTextField3.setSpaceChar('_');
-        xTextField3.setTextCase(com.rameses.rcp.constant.TextCase.NONE);
         xFormPanel1.add(xTextField3);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);

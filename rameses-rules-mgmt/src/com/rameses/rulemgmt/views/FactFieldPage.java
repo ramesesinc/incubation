@@ -47,7 +47,7 @@ public class FactFieldPage extends javax.swing.JPanel {
         xTextField1.setPreferredSize(new java.awt.Dimension(150, 20));
         xTextField1.setRequired(true);
         xTextField1.setSpaceChar('_');
-        xTextField1.setTextCase(com.rameses.rcp.constant.TextCase.NONE);
+        xTextField1.setTextCase(com.rameses.rcp.constant.TextCase.LOWER);
         xFormPanel2.add(xTextField1);
 
         xTextField2.setCaption("Title");

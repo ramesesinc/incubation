@@ -3,5 +3,10 @@
     <invokers>
         <invoker folderid="/explorer/developer/rulemgmt" caption="Rulesets" 
                  action="init" index="0" target="window" role="MASTER"/> 
+        
+        <!-- actions -->
+        <invoker type="listActions" caption="Export" action="exportDef" />
+        <invoker type="listActions" caption="Import" action="importDef" />
     </invokers>
+    <code class="com.rameses.rulemgmt.models.RulesetListModel" />
 </workunit>

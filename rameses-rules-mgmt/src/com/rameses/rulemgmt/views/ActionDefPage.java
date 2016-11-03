@@ -83,7 +83,6 @@ public class ActionDefPage extends javax.swing.JPanel {
         xTextField12.setPreferredSize(new java.awt.Dimension(150, 20));
         xTextField12.setRequired(true);
         xTextField12.setSpaceChar('_');
-        xTextField12.setTextCase(com.rameses.rcp.constant.TextCase.LOWER);
         xFormPanel1.add(xTextField12);
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
@@ -296,7 +295,7 @@ public class ActionDefPage extends javax.swing.JPanel {
 
         xList1.setDynamic(true);
         xList1.setExpression("#{item.ruleset}");
-        xList1.setItems("rulesets");
+        xList1.setItems("entity.rulesets");
         xList1.setName("selectedRuleset"); // NOI18N
         jScrollPane1.setViewportView(xList1);
 
