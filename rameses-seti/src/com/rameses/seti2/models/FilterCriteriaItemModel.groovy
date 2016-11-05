@@ -30,7 +30,7 @@ class FilterCriteriaItemModel {
             operatorList = caller.numberOperators;
         }
         else if( datatype == "date" || datatype=="timestamp") {
-            println "date operators";
+            //println "date operators";
             operatorList = caller.dateOperators;
         }
         else if( datatype == "boolean" ) {

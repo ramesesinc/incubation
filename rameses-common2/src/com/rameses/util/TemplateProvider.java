@@ -93,7 +93,7 @@ public abstract class TemplateProvider implements Serializable {
                         tp.clear(null); 
                     }
                     catch(Exception ign){
-                        System.out.println(ign.getMessage());
+                        System.out.println("[WARN]"+ ign.getMessage());
                     }
                 }
             } else {

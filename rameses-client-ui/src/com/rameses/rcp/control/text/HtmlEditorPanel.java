@@ -679,12 +679,12 @@ public class HtmlEditorPanel extends JPanel
         } 
         
         public void actionPerformed(ActionEvent e) {
-            System.out.println(editor.getText());
+            //System.out.println(editor.getText());
             Document doc = editor.getDocument();
             String text = "";
             try {
                 text = doc.getText(0, doc.getLength());
-                System.out.println(text);
+                //System.out.println(text);
             } catch (BadLocationException ex) {
                 ex.printStackTrace();
             }
