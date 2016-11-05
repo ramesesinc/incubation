@@ -20,6 +20,13 @@ import java.util.Map;
  */
 public abstract class AbstractSqlDialect implements SqlDialect {
     
+    private int version; 
+    
+    public int getVersion() { return version; } 
+    public void setVersion( int version ) {
+        this.version = version; 
+    } 
+    
     public SqlDialectFunction getFunction(String funcName) {
         return SqlFunctionProvider.getFunction(funcName, this.getName());
     }
