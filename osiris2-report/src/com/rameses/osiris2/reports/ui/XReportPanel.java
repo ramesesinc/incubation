@@ -16,6 +16,7 @@ import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.ui.UIControl;
 import com.rameses.rcp.util.UIControlUtil;
+import com.rameses.util.BreakException;
 import com.rameses.util.ValueUtil;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -29,7 +30,10 @@ import java.awt.event.ActionListener;
 import java.beans.Beans;
 import java.io.File;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.ImageIcon;
@@ -288,23 +292,24 @@ public class XReportPanel extends JPanel implements UIControl {
         return btnSync; 
     }
     
-    private class Customizer 
-    {
+    private class Customizer { 
+        
         private JRViewer jviewer;
+        private ReportModel model; 
         private boolean allowSave = false; 
         private boolean allowPrint = true;
         private boolean allowEdit = false; 
         private boolean allowBack = false; 
 
         Customizer(JRViewer jviewer, Object value) { 
-            this.jviewer = jviewer; 
-            if (value instanceof ReportModel) {
-                ReportModel rm = (ReportModel)value;
-                this.allowSave = rm.isAllowSave();
-                this.allowPrint = rm.isAllowPrint(); 
-                this.allowEdit = rm.isAllowEdit(); 
-                this.allowBack = rm.isAllowBack(); 
-            }
+            this.jviewer = jviewer;             
+            if ( value instanceof ReportModel ) {
+                this.model = (ReportModel)value;
+                this.allowPrint = this.model.isAllowPrint(); 
+                this.allowSave = this.model.isAllowSave();
+                this.allowEdit = this.model.isAllowEdit(); 
+                this.allowBack = this.model.isAllowBack(); 
+            } 
         } 
         
         void customize() {
@@ -339,6 +344,7 @@ public class XReportPanel extends JPanel implements UIControl {
                     CustomLayout clayout = new CustomLayout(); 
                     clayout.allowSave = allowSave;
                     clayout.allowPrint = allowPrint; 
+                    clayout.printHandler = new PrintActionHandler( model ); 
                     clayout.setSystemComponents( new Component[]{sysbtnback, sysbtnedit, sysbtnsync, spacer} );
                     clayout.setComponents( con.getComponents() );
                     con.add( sysbtnback ); 
@@ -362,7 +368,9 @@ public class XReportPanel extends JPanel implements UIControl {
     {
         private Component[] systemComponents; 
         private Component[] components; 
-
+        
+        private PrintActionHandler printHandler;
+        
         private boolean allowSave = false;
         private boolean allowPrint = true;
         
@@ -379,6 +387,11 @@ public class XReportPanel extends JPanel implements UIControl {
                     c1.setVisible(allowPrint);
                     c1.setEnabled(allowPrint); 
                     setMnemonic(c1, 'p');
+                    
+                    if ( c1 instanceof AbstractButton && printHandler != null ) { 
+                        AbstractButton btn = (AbstractButton) c1; 
+                        printHandler.install( btn );  
+                    } 
                 }
             }
         }
@@ -471,4 +484,67 @@ public class XReportPanel extends JPanel implements UIControl {
     }
     
     // </editor-fold>    
+    
+    // <editor-fold defaultstate="collapsed" desc=" PrintActionHandler "> 
+    
+    private class PrintActionHandler implements ActionListener {
+
+        private ReportModel model;
+        private AbstractButton button; 
+        private List<ActionListener> actions = new ArrayList();
+        
+        PrintActionHandler( ReportModel model ) {
+            this.model = model; 
+        }
+        
+        void install( AbstractButton button ) {
+            this.button = button; 
+            this.actions = new ArrayList(); 
+            
+            if ( button != null ) {
+                ActionListener[] values = button.getActionListeners(); 
+                for ( ActionListener al : values ) { 
+                    if ( al == null ) { continue; }                     
+                    if ( al instanceof PrintActionHandler ) {
+                        button.removeActionListener( al ); 
+                    } else {
+                        button.removeActionListener( al ); 
+                        actions.add( al ); 
+                    }
+                }
+                
+                button.addActionListener( this ); 
+            } 
+        }
+        
+        boolean beforeExecute() { 
+            return ( model == null? true: model.beforePrint()); 
+        }
+        void afterExecute() { 
+            if ( model != null ) {
+                model.afterPrint(); 
+            } 
+        }
+        
+        public final void actionPerformed(ActionEvent e) { 
+            try {
+                if ( !beforeExecute() ) { return; }
+            } catch( BreakException be ) {
+                return; 
+            }
+            
+            for ( ActionListener al : this.actions ) {
+                al.actionPerformed( e ); 
+            } 
+            
+            try { 
+                afterExecute();  
+            } catch( BreakException be ) {
+                //do nothing 
+            }
+        } 
+    }
+    
+    // </editor-fold>    
+    
 }

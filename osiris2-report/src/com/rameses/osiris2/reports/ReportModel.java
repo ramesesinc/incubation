@@ -87,6 +87,14 @@ public abstract class ReportModel {
         //do nothing 
     }
     
+    public boolean beforePrint() { 
+        return true; 
+    } 
+    public void afterPrint() { 
+        //do nothing 
+    }
+    
+    
     private JasperPrint reportOutput;
     private JReportInfo reportInfo;
     private JasperReport mainReport;
