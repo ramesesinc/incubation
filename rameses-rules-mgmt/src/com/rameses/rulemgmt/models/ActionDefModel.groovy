@@ -84,8 +84,13 @@ class ActionDefModel extends CrudFormModel {
     }
           
     public def save() {
-        entity.name = entity.actionname;
-        devService.save( entity );
+        def e = entity;
+        if( mode == 'edit' ) {
+            e = entity.data(); 
+        }
+        e.name = entity.actionname;
+        devService.save( e );
+        entity = e;
         MsgBox.alert("Record saved");
         mode = 'read';
         return null;

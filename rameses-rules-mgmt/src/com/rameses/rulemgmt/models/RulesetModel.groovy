@@ -47,6 +47,11 @@ class RulesetModel extends CrudFormModel {
         persistenceService.removeEntity( m );
         factListModel.reload();
     }
+    
+    def openFact() {
+        if(!selectedFact) throw new Exception("Please select a fact");
+        return Inv.lookupOpener("sys_rule_fact:open", [entity: [objid: selectedFact.rulefact] ]);
+    }
 
     void addAction() {
         def h = { o->
@@ -68,5 +73,9 @@ class RulesetModel extends CrudFormModel {
         actionListModel.reload();
     }
 
+    def openAction() {
+        if(!selectedAction) throw new Exception("Please select an actiondef");
+        return Inv.lookupOpener("sys_rule_actiondef:open", [entity: [objid: selectedAction.actiondef] ]);
+    }
 
 }

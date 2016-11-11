@@ -1,4 +1,4 @@
-<workunit>
+<workunit  schemaName="sys_rule_fact">
     <invokers>
         <invoker type="sys_rule_fact:create" caption="Create Fact" action="create" target="popup"/>
         <invoker type="sys_rule_fact:open" caption="Edit Fact" action="open" target="popup"/>

@@ -1,5 +1,8 @@
 <folders>
     <folder id="explorer">
         <folder id="setting" caption="Settings"/>
+        <folder id="developer" caption="Developer" index="120">
+            <folder id="workflow" caption="Workflow"/>
+        </folder> 
     </folder>
 </folders>

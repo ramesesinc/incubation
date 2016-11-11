@@ -84,8 +84,13 @@ class FactModel extends CrudFormModel {
     }
           
     public def save() {
-        entity.name = entity.factclass;
-        devService.save( entity );
+        def e = entity;
+        if( mode == 'edit' ) {
+            e = entity.data(); 
+        }
+        e.name = entity.factclass;
+        devService.save( e );
+        entity = e;
         MsgBox.alert("Record saved");
         mode = 'read';
         return null;
