@@ -56,6 +56,7 @@ public class SqlDialectModel {
     //marked as true if the link type is inverse. applicable to subqueries 
     private boolean inverseJoin = false;
     
+    private String pagingKeys;
     
     /*
      * The id should be unique per call because it will cache the sql units.
@@ -594,4 +595,8 @@ public class SqlDialectModel {
         return list;
     }
     
+    public String getPagingKeys() { return pagingKeys; } 
+    public void setPagingKeys( String pagingKeys ) { 
+        this.pagingKeys = pagingKeys; 
+    } 
 }

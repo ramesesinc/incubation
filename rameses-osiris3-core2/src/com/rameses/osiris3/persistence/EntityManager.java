@@ -99,6 +99,8 @@ public class EntityManager {
             processor.create(getModel(), (Map)data);
             clearModel();
             return data;
+        } catch (RuntimeException re) {
+            throw re;
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
         }
@@ -125,6 +127,8 @@ public class EntityManager {
             processor.create(getModel(), mdata);
             clearModel();
             return mdata;
+        } catch (RuntimeException re) {
+            throw re;
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
         }
@@ -137,8 +141,9 @@ public class EntityManager {
             List list = processor.fetchList(getModel());
             clearModel();
             return list;
-        }
-        catch(Exception e) {
+        } catch (RuntimeException re) {
+            throw re;
+        } catch(Exception e) {
             throw new RuntimeException(e.getMessage(), e);
         }
     }
@@ -149,10 +154,11 @@ public class EntityManager {
             List list = processor.fetchList(getModel());
             clearModel();
             return list;
-        }
-        catch(Exception e) {
-            throw new RuntimeException(e.getMessage(), e);
-        }
+        } catch (RuntimeException re) {
+            throw re;
+        } catch(Exception e) { 
+            throw new RuntimeException(e.getMessage(), e); 
+        } 
     }
     
     public EntityManager vars( String name, String expr ) {
@@ -171,6 +177,8 @@ public class EntityManager {
             Map m = processor.fetchFirst(getModel(), 0);
             clearModel();
             return m;
+        } catch (RuntimeException re) {
+            throw re;
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
         }
@@ -186,16 +194,20 @@ public class EntityManager {
             Map m = processor.fetchFirst(getModel(), level);
             clearModel();
             return m;
+        } catch (RuntimeException re) {
+            throw re;
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
         }
     }
     
     public Object merge(Map data) {
-         try {
+        try {
             Map m =  processor.merge(getModel(), data);
             clearModel();
             return m;
+        } catch (RuntimeException re) {
+            throw re;
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
         }
@@ -227,8 +239,9 @@ public class EntityManager {
             Object d = processor.fetchFirst(getModel(), 1);
             clearModel();
             return d;
-        } 
-        catch (Exception e) {
+        } catch (RuntimeException re) {
+            throw re;
+        } catch (Exception e) {
             System.out.println("error in read ->" + e.getMessage());
             throw new RuntimeException(e.getMessage(), e.getCause());
         }
@@ -271,8 +284,9 @@ public class EntityManager {
             Object p = processor.update(getModel(), (Map)data);
             clearModel();
             return p;
-        }
-        catch(Exception e) {
+        } catch (RuntimeException re) {
+            throw re;
+        } catch(Exception e) {
             throw new RuntimeException(e.getMessage(), e.getCause());
         }
     }
@@ -314,8 +328,9 @@ public class EntityManager {
             Object p = processor.update(getModel(), mdata);
             clearModel();
             return p;
-        } 
-        catch (Exception e) {
+        } catch (RuntimeException re) {
+            throw re;
+        } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e.getCause());
         }
     }
@@ -332,8 +347,9 @@ public class EntityManager {
             }
             processor.delete(getModel());
             clearModel();
-        }
-        catch(Exception e) {
+        } catch (RuntimeException re) {
+            throw re;
+        } catch(Exception e) {
             throw new RuntimeException(e.getMessage());
         }
     }
@@ -354,6 +370,8 @@ public class EntityManager {
             }
             processor.delete(getModel());
             clearModel();
+        } catch (RuntimeException re) {
+            throw re;
         } catch (Exception ex) {
             throw new RuntimeException(ex.getMessage(), ex);
         }
@@ -401,6 +419,8 @@ public class EntityManager {
             if (vr.hasErrors()) {
                 throw new Exception(vr.toString());
             }
+        } catch (RuntimeException re) {
+            throw re;
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
         }
@@ -456,7 +476,7 @@ public class EntityManager {
             }
             exists = exists();
         }
-        catch(Exception ign) {;}
+        catch(Throwable ign) {;}
         
         if (create == true && update == true) {
             if (!exists) {
@@ -697,4 +717,8 @@ public class EntityManager {
         }
     } 
 
+    public EntityManager pagingKeys( String pagingKeys ) {
+        getModel().setPagingKeys( pagingKeys ); 
+        return this; 
+    }
 }

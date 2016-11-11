@@ -17,6 +17,7 @@ import com.rameses.osiris3.persistence.EntityManager;
 import com.rameses.osiris3.schema.SchemaConf;
 import com.rameses.osiris3.schema.SchemaManager;
 import com.rameses.osiris3.schema.SchemaResourceProvider;
+import com.rameses.osiris3.sql.AbstractSqlDialect;
 import com.rameses.osiris3.sql.SqlConf;
 import com.rameses.osiris3.sql.SqlContext;
 import com.rameses.osiris3.sql.SqlDialect;
@@ -84,20 +85,21 @@ public class DataService extends ContextService {
         if(name.startsWith("java:")) name = name.substring(5);
         DataAdapter da = context.getResource( DataAdapter.class, name );
         TransactionContext txn = TransactionContext.getCurrentContext();
-        if(txn==null)
-            throw new RuntimeException("There is no current transaction context active");
-        ConnectionTransactionManager tc = txn.getManager( ConnectionTransactionManager.class );
+        if ( txn == null ) throw new RuntimeException("There is no current transaction context active");
         
+        ConnectionTransactionManager tc = txn.getManager( ConnectionTransactionManager.class );
         DsServerResource dsr = server.getResource( DsServerResource.class );
         AbstractDataSource ds = (AbstractDataSource) dsr.getDataSource( da.getDsName() );
         
-        
         Connection conn = tc.getConnection(  da.getDsName(), ds );
         SqlContext sqc = sqlManager.createContext( conn );
-        sqc.setCatalog(da.getCatalog() );
-        SqlDialect d = dialects.get(ds.getDialect());
-        sqc.setDialect( d );
+        sqc.setCatalog( da.getCatalog() );
         
+        SqlDialect d = dialects.get( ds.getDialect());
+        if ( d instanceof AbstractSqlDialect ) {
+            ((AbstractSqlDialect) d).setVersion( ds.getVer()); 
+        }
+        sqc.setDialect( d );
         return sqc;
     }
     
@@ -106,23 +108,23 @@ public class DataService extends ContextService {
         
         DataAdapter da = context.getResource( DataAdapter.class, name );
         TransactionContext txn = TransactionContext.getCurrentContext();
-        if(txn==null)
-            throw new RuntimeException("There is no current transaction context active");
+        if ( txn == null ) throw new RuntimeException("There is no current transaction context active");
+        
         ConnectionTransactionManager tc = txn.getManager( ConnectionTransactionManager.class );
         DsServerResource dsr = server.getResource( DsServerResource.class );
         AbstractDataSource ds = (AbstractDataSource) dsr.getDataSource( da.getDsName() );
         
         Connection conn = tc.getConnection(  da.getDsName(), ds );
         SqlContext sqc = sqlManager.createContext( conn );
-        sqc.setCatalog(da.getCatalog() );
+        sqc.setCatalog( da.getCatalog() );
         
-        SqlDialect d = dialects.get(ds.getDialect() );
-        sqc.setDialect( d );
-        
-        return new EntityManager(schemaManager,sqc);
+        SqlDialect d = dialects.get( ds.getDialect() );
+        if ( d instanceof AbstractSqlDialect ) {
+            ((AbstractSqlDialect) d).setVersion( ds.getVer()); 
+        }        
+        sqc.setDialect( d );         
+        return new EntityManager(schemaManager, sqc);
     }
-    
-    
     
     private class CustomSqlResourceProvider implements SqlUnitResourceProvider {
         public InputStream getResource(String name) {

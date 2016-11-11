@@ -40,6 +40,7 @@ public class EntityManagerModel implements ISelectModel {
     
     private int start;
     private int limit;
+    private String pagingKeys;
     
     public EntityManagerModel( SchemaElement elem ) {
         element = elem;
@@ -202,5 +203,10 @@ public class EntityManagerModel implements ISelectModel {
     
     public List<JoinLink> getJoinLinks() {
         return joinLinks;
+    }
+    
+    public String getPagingKeys() { return pagingKeys; } 
+    public void setPagingKeys( String pagingKeys ) {
+        this.pagingKeys = pagingKeys; 
     }
 }

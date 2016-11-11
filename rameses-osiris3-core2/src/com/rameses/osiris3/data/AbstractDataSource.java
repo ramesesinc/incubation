@@ -31,22 +31,24 @@ public abstract class AbstractDataSource implements DataSource,  ConnectionWrapp
     private int maxPoolSize = 50;
     private String dialect;
     private Map extInfo;
-    /**
-     * Creates a new instance of AbstractDataSource
-     */
+
+    private int ver; 
     
     public void init(Map map) {
+        dialect = (String)map.remove("dialect");
         driverClass = (String)map.remove("driverClass");
         url = (String)map.remove("url");
         user = (String)map.remove("user");
         pwd = (String)map.remove("pwd");
-        if(map.containsKey("minPoolSize")) {
+        if (map.containsKey("minPoolSize")) {
             minPoolSize = Integer.parseInt((String)map.remove("minPoolSize"));
         }
-        if(map.containsKey("maxPoolSize")) {
+        if (map.containsKey("maxPoolSize")) {
             maxPoolSize = Integer.parseInt((String)map.remove("maxPoolSize"));
         }
-        dialect = (String)map.remove("dialect");
+        if (map.containsKey("ver")) {
+            ver = Integer.parseInt(map.remove("ver").toString());
+        }
         this.extInfo = map;
     }
     
@@ -124,7 +126,12 @@ public abstract class AbstractDataSource implements DataSource,  ConnectionWrapp
         return dialect;
     }
     
+    public int getVer() {
+        return ver; 
+    }
     
-    
-    
+    public String getProperty( String name ) {
+        Object value = (extInfo == null ? null: extInfo.get(name)); 
+        return (value == null? null: value.toString()); 
+    }
 }
