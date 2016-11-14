@@ -35,6 +35,7 @@ public class FactPage extends javax.swing.JPanel {
         xFormPanel2 = new com.rameses.rcp.control.XFormPanel();
         xFormPanel1 = new com.rameses.rcp.control.XFormPanel();
         xTextField3 = new com.rameses.rcp.control.XTextField();
+        xTextField13 = new com.rameses.rcp.control.XTextField();
         xTextField2 = new com.rameses.rcp.control.XTextField();
         xTextField11 = new com.rameses.rcp.control.XTextField();
         xTextField12 = new com.rameses.rcp.control.XTextField();
@@ -71,6 +72,13 @@ public class FactPage extends javax.swing.JPanel {
         xTextField3.setSpaceChar('_');
         xTextField3.setTextCase(com.rameses.rcp.constant.TextCase.NONE);
         xFormPanel1.add(xTextField3);
+
+        xTextField13.setCaption("Fact Super Class");
+        xTextField13.setName("entity.factsuperclass"); // NOI18N
+        xTextField13.setPreferredSize(new java.awt.Dimension(0, 20));
+        xTextField13.setSpaceChar('_');
+        xTextField13.setTextCase(com.rameses.rcp.constant.TextCase.NONE);
+        xFormPanel1.add(xTextField13);
 
         xTextField2.setCaption("Title");
         xTextField2.setName("entity.title"); // NOI18N
@@ -397,6 +405,7 @@ public class FactPage extends javax.swing.JPanel {
     private com.rameses.rcp.control.XTextField xTextField10;
     private com.rameses.rcp.control.XTextField xTextField11;
     private com.rameses.rcp.control.XTextField xTextField12;
+    private com.rameses.rcp.control.XTextField xTextField13;
     private com.rameses.rcp.control.XTextField xTextField2;
     private com.rameses.rcp.control.XTextField xTextField3;
     private com.rameses.rcp.control.XTextField xTextField4;
