@@ -6,6 +6,7 @@
         
         <invoker type="extActions" caption="View Rule" action="viewRule" visibleWhen="#{mode=='read'}" />
         <invoker type="extActions" caption="Copy" action="copyRule" visibleWhen="#{mode=='read'}" />
+        <invoker type="extActions" caption="Transfer Ruleset" action="transferRuleset" visibleWhen="#{entity.state!='DEPLOYED' &amp;&amp; mode=='read'}" />
     </invokers>
     
     <code>
@@ -206,6 +207,15 @@
                 def params = [rulegroups: rulegroups, ruleinfo: entity]; 
                 return Inv.lookupOpener('sysrule:copy', params);
             } 
+            
+            def transferRuleset() {
+                def h = { o->
+                    o.objid = entity.objid;
+                    service.transferRuleset( o );
+                    caller.reload();
+                };
+                return Inv.lookupOpener("sys_rulegroup:lookup", [domain: entity.domain, handler: h] );
+            }
         }
     ]]>
     </code>
