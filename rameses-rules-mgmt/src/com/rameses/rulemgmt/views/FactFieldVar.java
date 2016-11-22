@@ -36,7 +36,7 @@ public class FactFieldVar extends javax.swing.JPanel {
 
         xTextField3.setCaption("Use Variable Data Type");
         xTextField3.setCaptionWidth(150);
-        xTextField3.setName("field.vardatatype"); // NOI18N
+        xTextField3.setName("entity.vardatatype"); // NOI18N
         xTextField3.setPreferredSize(new java.awt.Dimension(0, 20));
         xTextField3.setSpaceChar('_');
         xTextField3.setTextCase(com.rameses.rcp.constant.TextCase.NONE);
