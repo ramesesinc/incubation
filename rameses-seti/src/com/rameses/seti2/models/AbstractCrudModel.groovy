@@ -49,8 +49,20 @@ public abstract class AbstractCrudModel  {
     def schema;
     
     
-    
-    boolean debug = false;
+    public boolean getDebug() {
+        def g = workunit.info.workunit_properties.debug;
+        if( g ) {
+            try {
+                return (g+"").toBoolean();
+            }
+            catch(e){
+                return false;
+            }
+        }
+        else {
+            return false;
+        }
+    }
     
     private String _schemaName_ ;
     
