@@ -22,6 +22,7 @@ import com.rameses.rcp.framework.UIControllerPanel;
 import com.rameses.common.ExpressionResolver;
 import com.rameses.rcp.common.Action;
 import com.rameses.rcp.common.Opener;
+import com.rameses.util.BreakException;
 import com.rameses.util.ExceptionManager;
 import com.rameses.util.ValueUtil;
 import java.awt.EventQueue;
@@ -127,11 +128,14 @@ class InvokerUtilImpl
                 winParams.put("id", windowId);
                 winParams.put("title", uic.getTitle());
                 
-                if ( "_popup".equals(target) || "popup".equals(target) ) 
+                if ( "_popup".equals(target) || "popup".equals(target) ) { 
                     platform.showPopup(null, panel, winParams);
-                else 
-                    platform.showWindow(null, panel, winParams);
+                } else { 
+                    platform.showWindow(null, panel, winParams); 
+                } 
             }
+        } catch(BreakException be) {
+            //do nothing 
         } catch(Exception ex) {
             Exception e = ExceptionManager.getOriginal(ex);            
             if ( !ExceptionManager.getInstance().handleError(e) ) 
