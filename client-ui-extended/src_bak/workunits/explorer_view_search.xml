@@ -1,5 +1,0 @@
-<workunit extends="wtemplates/ExplorerViewController.xml">
-    <invokers>
-        <invoker type="explorer-search:open"/> 
-    </invokers>
-</workunit>

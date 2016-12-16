@@ -83,6 +83,8 @@ public class WorkflowInfoPage extends javax.swing.JPanel {
                 , new Object[]{"resizable", true}
                 , new Object[]{"nullWhenEmpty", true}
                 , new Object[]{"editable", false}
+                , new Object[]{"visible", true}
+                , new Object[]{"visibleWhen", null}
                 , new Object[]{"textCase", com.rameses.rcp.constant.TextCase.NONE}
                 , new Object[]{"typeHandler", new com.rameses.rcp.common.TextColumnHandler()}
             }),
@@ -96,6 +98,8 @@ public class WorkflowInfoPage extends javax.swing.JPanel {
                 , new Object[]{"resizable", true}
                 , new Object[]{"nullWhenEmpty", true}
                 , new Object[]{"editable", false}
+                , new Object[]{"visible", true}
+                , new Object[]{"visibleWhen", null}
                 , new Object[]{"textCase", com.rameses.rcp.constant.TextCase.NONE}
                 , new Object[]{"typeHandler", new com.rameses.rcp.common.TextColumnHandler()}
             }),
@@ -104,39 +108,45 @@ public class WorkflowInfoPage extends javax.swing.JPanel {
                 , new Object[]{"caption", "Date Created"}
                 , new Object[]{"width", 120}
                 , new Object[]{"minWidth", 120}
-                , new Object[]{"maxWidth", 120}
+                , new Object[]{"maxWidth", 180}
                 , new Object[]{"required", false}
                 , new Object[]{"resizable", true}
                 , new Object[]{"nullWhenEmpty", true}
                 , new Object[]{"editable", false}
+                , new Object[]{"visible", true}
+                , new Object[]{"visibleWhen", null}
                 , new Object[]{"textCase", com.rameses.rcp.constant.TextCase.NONE}
-                , new Object[]{"typeHandler", new com.rameses.rcp.common.DateColumnHandler(null, "MMMM dd yyyy hh:mm", null)}
+                , new Object[]{"typeHandler", new com.rameses.rcp.common.DateColumnHandler(null, "MMM dd yyyy hh:mm", null)}
             }),
             new com.rameses.rcp.common.Column(new Object[]{
                 new Object[]{"name", "startdate"}
                 , new Object[]{"caption", "Start "}
                 , new Object[]{"width", 120}
                 , new Object[]{"minWidth", 120}
-                , new Object[]{"maxWidth", 120}
+                , new Object[]{"maxWidth", 180}
                 , new Object[]{"required", false}
                 , new Object[]{"resizable", true}
                 , new Object[]{"nullWhenEmpty", true}
                 , new Object[]{"editable", false}
+                , new Object[]{"visible", true}
+                , new Object[]{"visibleWhen", null}
                 , new Object[]{"textCase", com.rameses.rcp.constant.TextCase.NONE}
-                , new Object[]{"typeHandler", new com.rameses.rcp.common.DateColumnHandler(null, "MMMM dd yyyy hh:mm", null)}
+                , new Object[]{"typeHandler", new com.rameses.rcp.common.DateColumnHandler(null, "MMM dd yyyy hh:mm", null)}
             }),
             new com.rameses.rcp.common.Column(new Object[]{
                 new Object[]{"name", "enddate"}
                 , new Object[]{"caption", "End"}
                 , new Object[]{"width", 120}
                 , new Object[]{"minWidth", 120}
-                , new Object[]{"maxWidth", 120}
+                , new Object[]{"maxWidth", 180}
                 , new Object[]{"required", false}
                 , new Object[]{"resizable", true}
                 , new Object[]{"nullWhenEmpty", true}
                 , new Object[]{"editable", false}
+                , new Object[]{"visible", true}
+                , new Object[]{"visibleWhen", null}
                 , new Object[]{"textCase", com.rameses.rcp.constant.TextCase.NONE}
-                , new Object[]{"typeHandler", new com.rameses.rcp.common.DateColumnHandler(null, "MMMM dd yyyy hh:mm", null)}
+                , new Object[]{"typeHandler", new com.rameses.rcp.common.DateColumnHandler(null, "MMM dd yyyy hh:mm", null)}
             }),
             new com.rameses.rcp.common.Column(new Object[]{
                 new Object[]{"name", "diff"}
@@ -148,6 +158,8 @@ public class WorkflowInfoPage extends javax.swing.JPanel {
                 , new Object[]{"resizable", true}
                 , new Object[]{"nullWhenEmpty", true}
                 , new Object[]{"editable", false}
+                , new Object[]{"visible", true}
+                , new Object[]{"visibleWhen", null}
                 , new Object[]{"textCase", com.rameses.rcp.constant.TextCase.NONE}
                 , new Object[]{"typeHandler", new com.rameses.rcp.common.TextColumnHandler()}
             }),
@@ -161,6 +173,8 @@ public class WorkflowInfoPage extends javax.swing.JPanel {
                 , new Object[]{"resizable", true}
                 , new Object[]{"nullWhenEmpty", true}
                 , new Object[]{"editable", false}
+                , new Object[]{"visible", true}
+                , new Object[]{"visibleWhen", null}
                 , new Object[]{"textCase", com.rameses.rcp.constant.TextCase.NONE}
                 , new Object[]{"typeHandler", new com.rameses.rcp.common.TextColumnHandler()}
             })

@@ -26,6 +26,7 @@ public class CrudReportModel extends ReportModel {
     @Controller
     def workunit;
     
+    def data;
     def entity;
     
     public String getTitle() {
@@ -39,7 +40,12 @@ public class CrudReportModel extends ReportModel {
     }
     
     public Object getReportData() {
-        return entity;
+        if(data!=null) {
+            return data;
+        } 
+        else {
+            return entity;
+        }
     }
     
     public String getReportName() {

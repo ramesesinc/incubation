@@ -1,0 +1,62 @@
+<!-- pass a domain and filter the rulesets -->
+<workunit>
+    <invokers>
+	<invoker type="sys_rulegroup:lookup" caption="Lookup Rule Group" action="init" target="popup"/>
+    </invokers>	
+    <code>
+        <![CDATA[
+        
+        import com.rameses.rcp.common.*;
+        import com.rameses.rcp.annotations.*;
+        import com.rameses.osiris2.client.*;
+        import com.rameses.osiris2.common.*
+        import com.rameses.rulemgmt.*;
+        import com.rameses.util.*;
+        
+        class RuleGroupLookup {
+        
+            @Service("QueryService")
+            def querySvc;
+            
+            def domain;
+            def handler;
+        
+            def entity = [:];
+            
+            def getRulesets() {
+                def m = [_schemaname: 'sys_ruleset'];
+                m.select = 'name,title';
+                m.findBy = [ domain: domain ];
+                return querySvc.getList( m );
+            }
+            
+            def getRulegroups() {
+                def m = [_schemaname: 'sys_rulegroup'];
+                m.select = "name,title";
+                m.findBy = [ruleset: entity.ruleset];
+                m.orderBy = 'sortorder';
+                return querySvc.getList( m );
+            }
+
+            void init() {
+                if(!domain) throw new Exception("Please indicate domain");
+            }
+
+            def doOk() {
+                if(!handler) throw new Exception("Handler is required");
+                handler(entity);
+                return "_close";
+            }
+            
+            def doCancel() {
+                return "_close";
+            }
+                        
+        }
+        
+        ]]>
+    </code>
+    <pages>
+	<page template="com.rameses.rulemgmt.views.RulegroupLookupPage"/>
+    </pages>		
+</workunit>

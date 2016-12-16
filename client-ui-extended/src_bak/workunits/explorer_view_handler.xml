@@ -1,5 +1,0 @@
-<workunit extends="wtemplates/ExplorerViewListController.xml">
-    <invokers>
-        <invoker type="explorer-view-handler"/> 
-    </invokers>
-</workunit>

@@ -85,7 +85,7 @@
                   </Group>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
-              <Component id="xDataTable1" pref="113" max="32767" attributes="0"/>
+              <Component id="xDataTable1" pref="156" max="32767" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="xButton2" alignment="3" min="-2" max="-2" attributes="0"/>

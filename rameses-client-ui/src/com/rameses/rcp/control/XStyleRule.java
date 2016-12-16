@@ -128,7 +128,7 @@ public class XStyleRule extends JPanel implements UIControl
             sp.parse(is, handler);
             
             for ( Object o: handler.getList() ) {
-                System.out.println( o );
+                //System.out.println( o );
             }
             
             return handler.getList();

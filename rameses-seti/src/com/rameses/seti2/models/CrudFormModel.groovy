@@ -218,6 +218,10 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
         //initialize also the entity bec. there is no entity in this instance
     }
     
+    public def fetchEntityData() {
+         return getPersistenceService().read( entity );
+    }
+    
     def open() {
         mode = "read";
         init();
@@ -232,8 +236,7 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
         entity._schemaname = schemaName;
         if( debug ) entity.debug = debug;
         beforeOpen();
-        entity = getPersistenceService().read( entity );
-        
+        entity = fetchEntityData();
         
         //we need to reset this so it can be used again.
         findBy = null;  
@@ -354,7 +357,7 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
     
     void loadData() {
         entity._schemaname = schemaName;
-        entity = getPersistenceService().read( entity );
+        entity = fetchEntityData();
         itemHandlers.values().each {
             it.reload();
         }

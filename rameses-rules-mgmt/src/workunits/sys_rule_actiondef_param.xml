@@ -1,0 +1,22 @@
+<workunit>
+    
+    <invokers>
+        <invoker type="sys_rule_actiondef_param:create" caption="Create Action Def" target="popup"/>
+        <invoker type="sys_rule_actiondef_param:open" caption="Action Def" target="popup"/>
+    </invokers>
+    <code class="com.rameses.rulemgmt.models.ActionDefParamModel" />
+    <pages>
+        <page template="com.rameses.rulemgmt.views.ActionDefParamPage" />
+        
+        <!-- handler pages -->
+        <page name="lookup" template="com.rameses.rulemgmt.views.ActionDefParamLookup"/>
+        <page name="decimal" template="com.rameses.rulemgmt.views.ActionDefParamDefault"/>
+        <page name="integer" template="com.rameses.rulemgmt.views.ActionDefParamDefault"/>
+        <page name="expression" template="com.rameses.rulemgmt.views.ActionDefParamDefault"/>
+        <page name="var" template="com.rameses.rulemgmt.views.ActionDefParamVar"/>
+        <page name="lov" template="com.rameses.rulemgmt.views.ActionDefParamLOV"/>
+        <page name="message" template="com.rameses.rulemgmt.views.ActionDefParamDefault"/>
+        <page name="string" template="com.rameses.rulemgmt.views.ActionDefParamDefault"/>
+        <page name="boolean" template="com.rameses.rulemgmt.views.ActionDefParamDefault"/>
+    </pages>
+</workunit>
