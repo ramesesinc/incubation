@@ -15,10 +15,12 @@ public class CrudLookupModel extends CrudListModel implements SimpleLookupDataSo
     boolean isOpenAllowed() {
         return false;
     }
-    
+
+    /*
     boolean isCreateAllowed() {
         return false;
     }
+    */
     
     boolean isDeleteAllowed() {
         return false;
