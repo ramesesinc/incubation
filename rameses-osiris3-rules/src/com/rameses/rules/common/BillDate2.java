@@ -15,14 +15,14 @@ import java.util.Date;
  *
  * @author Elmo
  */
-public class BillDate extends DateFact{
+public class BillDate2 extends DateFact{
     
     /** Creates a new instance of BillDate */
-    public BillDate() {
+    public BillDate2() {
         super();
     }
     
-    public BillDate(Date d) {
+    public BillDate2(Date d) {
         super(d);
     }
 
