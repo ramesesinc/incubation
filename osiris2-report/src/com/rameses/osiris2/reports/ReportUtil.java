@@ -82,9 +82,26 @@ public final class ReportUtil {
     public static void view( JasperPrint p ) {
         JasperViewer.viewReport( p );
     }
-    
+
+    public static boolean print( JasperPrint jp ) throws Exception {
+        return print( jp, true ); 
+    }
     public static boolean print( JasperPrint jp, boolean withPrintDialog ) throws Exception {
         return JasperPrintManager.printReport(jp, withPrintDialog );
+    }
+    
+    public static boolean print( String reportName, Object reportData ) throws Exception {
+        return print( reportName, reportData, true ); 
+    }
+    public static boolean print( String reportName, Object reportData, boolean withPrintDialog ) throws Exception {
+        if ( reportName==null || reportName.trim().length()==0 ) 
+            throw new RuntimeException("reportName parameter is required");
+        if ( reportData==null ) 
+            throw new RuntimeException("reportData must not be null");
+        
+        ReportModelImpl rmi = new ReportModelImpl( reportName, reportData ); 
+        rmi.viewReport(); 
+        return print( rmi.getReport(), withPrintDialog ); 
     }
     
     //this gets the jasper report
@@ -248,4 +265,27 @@ public final class ReportUtil {
     
     // </editor-fold>
     
+    // <editor-fold defaultstate="collapsed" desc=" ReportModelImpl ">  
+    
+    private static class ReportModelImpl extends ReportModel {
+
+        private String name;
+        private Object data; 
+        
+        ReportModelImpl( String name, Object data ) {
+            this.name = name; 
+            this.data = data; 
+        }
+        
+        public Object getReportData() { 
+            return data; 
+        }
+
+        public String getReportName() {
+            return name; 
+        }
+        
+    }
+    
+    // </editor-fold>
 }
