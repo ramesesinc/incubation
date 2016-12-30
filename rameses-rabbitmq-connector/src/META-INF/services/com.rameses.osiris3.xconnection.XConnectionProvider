@@ -1,1 +1,2 @@
 com.rameses.rabbitmq.connector.RabbitMQConnectionProvider
+com.rameses.rabbitmq.connector.RemoteServiceConnectionProvider
