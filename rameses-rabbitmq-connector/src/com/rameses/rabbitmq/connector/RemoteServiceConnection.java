@@ -18,14 +18,12 @@ public class RemoteServiceConnection extends MessageConnection {
     private String name;
     private Map conf; 
     
-    private RemoteServiceConnectionProvider.Sender sender; 
     private boolean enabled;
     
-    public RemoteServiceConnection(String name, AbstractContext context, Map conf, RemoteServiceConnectionProvider.Sender sender ) {
+    public RemoteServiceConnection(String name, AbstractContext context, Map conf ) {
         this.context = context;
         this.name = name;
         this.conf = conf; 
-        this.sender = sender; 
         
         if ("false".equals( getProperty("enabled")+"")) { 
             enabled = false; 
@@ -51,11 +49,14 @@ public class RemoteServiceConnection extends MessageConnection {
         return ( o == null ? null: o.toString()); 
     }
 
-    public void send( Object data ) { 
-        sender.send( data ); 
+    @Override
+    public void send(Object data) {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public void sendText( String data ) {
-        sender.send( data ); 
+    @Override
+    public void sendText(String data) {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
+
 }
