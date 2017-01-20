@@ -1,0 +1,12 @@
+<workunit schemaName="sys_file">
+    <invokers>
+        <invoker type="sys_file:open" caption="File" 
+                 index="10" srole="MASTER" action="open"/>
+        <invoker type="formActions" caption="Close" action="_close" />
+        <invoker type="formActions" caption="Attach" action="attachFile" icon="images/clip.png" />
+    </invokers>
+    <code class="com.rameses.filemgmt.models.FileViewModel" />
+    <pages>
+        <page template="com.rameses.filemgmt.views.FileViewerPage" />
+    </pages>
+</workunit>
