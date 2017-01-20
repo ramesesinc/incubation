@@ -23,6 +23,8 @@ public class FileChunker {
     private int chunkSize = 32000; 
     private Parser parser = null; 
     
+    private int pos;
+    
     public FileChunker( File file ) { 
         parser = new FileParser( file ); 
     }
@@ -30,6 +32,10 @@ public class FileChunker {
     public FileChunker( byte[] bytes, String name, String type ) { 
         parser = new ByteParser( bytes, null, null ); 
     } 
+    
+    public void setPos( int pos ) {
+        this.pos = pos; 
+    }
     
     public int getChunkSize() { return chunkSize; } 
     public void setChunkSize(int chunkSize) {
@@ -60,7 +66,7 @@ public class FileChunker {
         return handler.results; 
     }
     
-    public void parse( ChunkHandler handler ) {
+    public void parse( ChunkHandler handler ) { 
         parser.parse( handler ); 
     } 
     
@@ -89,12 +95,13 @@ public class FileChunker {
     }
     
     private class FileParser implements Parser {
+        
         File file; 
         
         FileParser( File file ) {
             this.file = file; 
         }
-
+ 
         public String getName() {
             return file.getName(); 
         }
@@ -129,6 +136,9 @@ public class FileChunker {
         } 
         
         public void parse( ChunkHandler handler ) { 
+            int startPos = FileChunker.this.pos; 
+            if ( startPos <= 0 ) startPos = 1; 
+
             FileInputStream fis = null;
             FileChannel fc = null; 
             try {
@@ -142,18 +152,23 @@ public class FileChunker {
                 while ((bytesRead=fc.read(buffer)) != -1) {
                     buffer.flip();
                     if (buffer.hasRemaining()) {
-                        byte[] chunks = buffer.array(); 
-                        if (bytesRead < chunks.length) {
-                            byte[] dest = new byte[bytesRead];
-                            System.arraycopy(chunks, 0, dest, 0, bytesRead); 
-                            handler.handle( counter, dest ); 
+                        if ( counter < startPos ) {
+                            //do nothing 
                         } else {
-                            handler.handle( counter, chunks ); 
+                            byte[] chunks = buffer.array(); 
+                            if (bytesRead < chunks.length) {
+                                byte[] dest = new byte[bytesRead];
+                                System.arraycopy(chunks, 0, dest, 0, bytesRead); 
+                                handler.handle( counter, dest ); 
+                            } else {
+                                handler.handle( counter, chunks ); 
+                            }                            
                         }
                         counter += 1;
                     }
                     buffer.clear(); 
                 }
+                
                 handler.end(); 
             } catch(RuntimeException re) {
                 throw re; 
