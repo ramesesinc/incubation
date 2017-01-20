@@ -9,14 +9,15 @@ import java.util.concurrent.Callable;
 
 public class FileUploadLoader extends ScheduledTask { 
         
-    @Service('DateService') 
+    @Service('FileUploadService') 
     def svc; 
     
     def uploadMgr = new FileUploadManager();
     
     def handler = { fileinfo, bytes-> 
         println 'fileinfo-> ' + fileinfo;
-    }    
+        svc.process( fileinfo, bytes ); 
+    } 
 
     
     public long getInterval() {
