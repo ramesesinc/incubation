@@ -91,6 +91,7 @@ public class TaskManager {
             task.execute();
             //after executing, do we need to send this back to the pool? check if ended
             if(!task.isEnded()) {
+                removeTask(task); 
                 addTask(task);
             }
             else {

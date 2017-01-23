@@ -167,7 +167,7 @@ class OSScreenLock extends JDialog implements SubWindow, WindowListener
     public void windowDeactivated(WindowEvent e) {}
     
     public void windowClosing(WindowEvent e) {
-        closeWindow();
+        //closeWindow();
     }
     
     public void windowOpened(WindowEvent e) { 
