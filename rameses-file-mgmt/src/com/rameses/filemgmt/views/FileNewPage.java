@@ -31,10 +31,19 @@ public class FileNewPage extends javax.swing.JPanel {
     private void initComponents() {
 
         xFormPanel1 = new com.rameses.rcp.control.XFormPanel();
-        xTextField1 = new com.rameses.rcp.control.XTextField();
         xComboBox1 = new com.rameses.rcp.control.XComboBox();
+        xTextField1 = new com.rameses.rcp.control.XTextField();
         jScrollPane1 = new javax.swing.JScrollPane();
         xTextArea1 = new com.rameses.rcp.control.XTextArea();
+
+        xComboBox1.setCaption("Type");
+        xComboBox1.setExpression("#{item.title}");
+        xComboBox1.setItemKey("objid");
+        xComboBox1.setItems("fileTypes");
+        xComboBox1.setName("entity.filetype"); // NOI18N
+        xComboBox1.setPreferredSize(new java.awt.Dimension(0, 20));
+        xComboBox1.setRequired(true);
+        xFormPanel1.add(xComboBox1);
 
         xTextField1.setCaption("Title");
         xTextField1.setName("entity.title"); // NOI18N
@@ -42,13 +51,6 @@ public class FileNewPage extends javax.swing.JPanel {
         xTextField1.setRequired(true);
         xTextField1.setTextCase(com.rameses.rcp.constant.TextCase.NONE);
         xFormPanel1.add(xTextField1);
-
-        xComboBox1.setCaption("File Type");
-        xComboBox1.setItems("fileTypes");
-        xComboBox1.setName("entity.filetype"); // NOI18N
-        xComboBox1.setPreferredSize(new java.awt.Dimension(100, 20));
-        xComboBox1.setRequired(true);
-        xFormPanel1.add(xComboBox1);
 
         jScrollPane1.setPreferredSize(new java.awt.Dimension(0, 63));
 
@@ -65,15 +67,15 @@ public class FileNewPage extends javax.swing.JPanel {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(xFormPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 380, Short.MAX_VALUE)
+                .addComponent(xFormPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 505, Short.MAX_VALUE)
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(xFormPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 129, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(65, Short.MAX_VALUE))
+                .addComponent(xFormPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(105, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables

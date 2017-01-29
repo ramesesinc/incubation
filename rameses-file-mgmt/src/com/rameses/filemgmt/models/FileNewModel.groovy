@@ -13,7 +13,13 @@ public class FileNewModel  {
     
     def handler;
     def entity = [_schemaname:'sys_file'];    
-    def fileTypes = ["jpg","png","doc","pdf","docx"];
+    def fileTypes = [ 
+        [ objid: "jpg",  title: "JPEG image (*.jpg)" ],
+        [ objid: "doc",  title: "Word Document (*.doc)" ],
+        [ objid: "docx", title: "Word Document (*.docx)" ],
+        [ objid: "pdf",  title: "PDF Document (*.pdf)" ],
+        [ objid: "png",  title: "PNG image (*.png)" ]
+    ];
     
     def doOk() {
         if(!handler) throw new Exception("handler must be set");
@@ -24,7 +30,5 @@ public class FileNewModel  {
 
     def doCancel() {
         return "_close";
-    }
-    
-    
+    }    
 }

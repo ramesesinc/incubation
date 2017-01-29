@@ -6,112 +6,215 @@
  */
 package com.rameses.rcp.framework;
 
+import com.rameses.rcp.common.ScheduledTask;
 import com.rameses.rcp.common.Task;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class TaskManager {
     
-    private boolean started;
-    
-    private List<Task> taskPool = Collections.synchronizedList( new ArrayList<Task>());
-    private MainThread mainThread;
-    private List<TaskThread> activeThreads = Collections.synchronizedList(new ArrayList<TaskThread>());
+    private final static Object CACHE_LOCKED = new Object(); 
+    private Map<Object, RunProc> cache = new HashMap(); 
+    private ScheduledExecutorService scheduler; 
     
     public TaskManager() {
     }
 
-    public void start() {
-        if(started) return;
-        started = true;
-        mainThread = new MainThread();
-        mainThread.start();
-    }
-    
-    public void stop() {
-        if ( !started ) return;
-        
-        mainThread.cancel();
-        synchronized(activeThreads) {
-            for(TaskThread tt: activeThreads) {
-                tt.cancel();
-            }        
-        }
-        activeThreads.clear(); 
-        mainThread = null;
-        started = false;
-    }
-
-        
-    public class MainThread extends Thread {
-        
-        private boolean cancelled;
-        
-        public void run() {
-            while(!cancelled) {
-                synchronized(taskPool) {
-                    List<Task> tasksForRemoval = new ArrayList<Task>();
-                    for(Task t: taskPool) {
-                        if(t.accept()) {
-                            tasksForRemoval.add(t);
-                            TaskThread tt = new TaskThread(t);
-                            activeThreads.add(tt);
-                            tt.start();
-                        }
-                    }
-                    taskPool.removeAll(tasksForRemoval);
-                }
-                if(cancelled) break;
-                try {
-                    sleep(1000);
-                } 
-                catch (InterruptedException ex) {
-                    ex.printStackTrace();
-                }
-            }
-        }
-        
-        public void cancel() {
-            cancelled = true;
-        }
-    }
-    
-
-    private class TaskThread extends Thread {
-        private Task task;
-        public void cancel() {
-            task.setCancelled(true);
-        }
-        public TaskThread(Task task) {
-            this.task = task;
-        }
-        public void run() {
-            task.start();
-            task.execute();
-            //after executing, do we need to send this back to the pool? check if ended
-            if(!task.isEnded()) {
-                removeTask(task); 
-                addTask(task);
-            }
-            else {
-                task.end();
-            }
-        }
-    }
-
-    public void addTask(Task t) {
-        if (t != null && !taskPool.contains(t)) {
-            taskPool.add(t);
-        }
-    }
-    
-    public void removeTask(Task t) {
-        if (t != null) taskPool.remove(t);
-    }
-
     public boolean isStarted() {
-        return started;
+        return (scheduler != null);
+    }
+
+    public void start() { 
+        if ( scheduler == null ) {
+            scheduler = Executors.newScheduledThreadPool(100); 
+        } 
     }
     
+    public void stop() { 
+        synchronized (CACHE_LOCKED) { 
+            try { 
+                scheduler.shutdown();
+            } catch(Throwable t){
+                // do nothing 
+            } finally {
+                scheduler = null; 
+            } 
+            
+            Object[] values = cache.values().toArray(); 
+            if ( values == null ) values = new Object[0]; 
+            
+            for ( Object o : values ) { 
+                RunProc proc = (RunProc) o; 
+                try { 
+                    proc.cancel(); 
+                } catch(Throwable t){;} 
+            } 
+            
+            cache.clear(); 
+        }
+    } 
+
+    public void addTask( Runnable o ) {
+        synchronized (CACHE_LOCKED) { 
+            if ( o == null ) return; 
+            
+            RunProc proc = new RunProc( o ); 
+            proc.future = scheduler.schedule(proc, 100, TimeUnit.MILLISECONDS ); 
+        }
+    }
+    public void addTask( Callable o ) {
+        synchronized (CACHE_LOCKED) { 
+            if ( o == null ) return; 
+            
+            CallProc proc = new CallProc( o ); 
+            proc.future = scheduler.schedule(proc, 100, TimeUnit.MILLISECONDS ); 
+        }
+    }
+    public void addTask( Task task ) { 
+        synchronized (CACHE_LOCKED) { 
+            if ( task == null ) return; 
+
+            long delay = 0;
+            long interval = 0;
+            TaskProc proc = new TaskProc( task ); 
+            if ( task instanceof ScheduledTask ) { 
+                ScheduledTask st = (ScheduledTask) task; 
+                interval = st.getInterval(); 
+                delay = ( st.isImmediate() ? 0 : interval ); 
+            } 
+
+            if ( interval > 0 ) { 
+                delay = ( delay > 0 ? delay : 100 ); 
+                interval = ( interval > 0 ? interval : 100 ); 
+                proc.future = scheduler.scheduleAtFixedRate(proc, delay, interval, TimeUnit.MILLISECONDS ); 
+                cache.put( task, proc );  
+                
+            } else { 
+                proc.future = scheduler.schedule(proc, 100, TimeUnit.MILLISECONDS ); 
+            }             
+        } 
+    } 
+    
+    public void removeTask( Object task ) { 
+        synchronized (CACHE_LOCKED) { 
+            if ( task == null ) return; 
+            
+            RunProc proc = cache.remove( task ); 
+            if ( proc != null ) proc.cancel(); 
+        } 
+    }
+
+    private class RunProc implements Runnable {
+
+        TaskManager root = TaskManager.this; 
+
+        Future future; 
+        
+        private Runnable task; 
+        private boolean cancelled; 
+        
+        RunProc(){ 
+        } 
+        
+        RunProc( Runnable task ) {
+            this.task = task; 
+        }
+        
+        public boolean isCancelled() {
+            return this.cancelled; 
+        }
+        public void cancel() { 
+            this.cancelled = true; 
+        } 
+        
+        public void run() { 
+            try {
+                if ( task != null && !isCancelled()) {
+                    task.run(); 
+                }
+            } catch(Throwable t) { 
+                t.printStackTrace(); 
+            } finally {
+                remove(); 
+            }
+        } 
+        
+        void remove() {
+            try {
+                root.removeTask( task ); 
+            } catch(Throwable t){;} 
+        }
+    }
+
+    private class CallProc extends RunProc {
+
+        private Callable task; 
+        
+        CallProc( Callable task ) {
+            this.task = task; 
+        }
+        
+        public void run() { 
+            try {
+                if ( task != null && !isCancelled()) {
+                    task.call(); 
+                } 
+            } catch(Throwable t) { 
+                t.printStackTrace(); 
+            } finally {
+                remove(); 
+            }
+        }        
+    }
+    
+    private class TaskProc extends RunProc {
+
+        private Task task; 
+        private Future future; 
+        
+        TaskProc( Task task ) {
+            this.task = task; 
+        }
+        
+        public void cancel() { 
+            super.cancel(); 
+            
+            if ( task != null ) {
+                try {
+                    task.setCancelled( isCancelled()); 
+                } catch(Throwable t){;} 
+            }
+        } 
+        
+        public void run() { 
+            try {
+                if ( isCancelled() ) {
+                    try { 
+                        future.cancel( true ); 
+                    } catch(Throwable t) {;} 
+
+                    try { 
+                        task.setCancelled( true ); 
+                    } catch(Throwable t) {;} 
+                    
+                    task = null; 
+                    remove(); 
+
+                } else {
+                    task.start(); 
+                    task.execute();
+                    if ( task.isEnded() ) { 
+                        task.end();
+                    } 
+                } 
+            } catch(Throwable t) {
+                t.printStackTrace(); 
+            }
+        } 
+    }     
 }

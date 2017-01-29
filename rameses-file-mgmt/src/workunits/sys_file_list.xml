@@ -1,6 +1,6 @@
 <workunit extends="com/rameses/seti2/templates/CrudList.xml" 
           schemaName="sys_file" allowCreate="true" allowOpen="true" allowDelete="true"
-          cols="title,dtcreated,createdby.name">
+          cols="title,filetype,dtcreated,createdby.name">
     <invokers>
         <invoker folderid="/explorer/master/filemgmt" caption="File List" 
                  index="10" srole="MASTER" action="init"/>

@@ -5,28 +5,46 @@ import com.rameses.rcp.common.*;
 import com.rameses.osiris2.client.*;
 import com.rameses.osiris2.common.*;
 import com.rameses.filemgmt.*;
-import java.util.concurrent.Callable;
 
 public class FileUploadLoader extends ScheduledTask { 
+    
+    @Service('QueryService') 
+    def qrySvc; 
+
+    @Service('PersistenceService') 
+    def persistSvc; 
+    
+    def uploadMgr = new FileUploadManager(); 
+    
+    def streamHandler = [ 
+        ontransfer: { info, bytesTransferred -> 
+            boolean processing = ( bytesTransferred < info.filesize ); 
+            persistSvc.update([ 
+               _schemaname : 'sys_fileitem', 
+               findBy : [ objid: info.fileid ], 
+               bytestransferred : bytesTransferred, 
+               state  : (processing ? 'PROCESSING' : 'COMPLETED')  
+            ]); 
+        }, 
         
-    @Service('FileUploadService') 
-    def svc; 
-    
-    def uploadMgr = new FileUploadManager();
-    
-    def handler = { fileinfo, bytes-> 
-        println 'fileinfo-> ' + fileinfo;
-        svc.process( fileinfo, bytes ); 
-    } 
+        oncomplete: { info-> 
+            persistSvc.update([ 
+               _schemaname : 'sys_fileitem', 
+               findBy : [ objid: info.fileid ], 
+               state  : 'COMPLETED' 
+            ]); 
+        }
+    ] as DefaultFileStreamHandler 
+
 
     
-    public long getInterval() {
+    public long getInterval() { 
         return 5000; 
     }
 
     public void execute() { 
-        println 'reading tempdir '+ uploadMgr.getTempDir(); 
-        uploadMgr.start( handler ); 
+        loadLocations(); 
+        uploadMgr.start(); 
     } 
     
     public void setCancelled( boolean cancelled ) {
@@ -35,10 +53,35 @@ public class FileUploadLoader extends ScheduledTask {
     }
     
     void doStart() { 
-        
+        def stmpdir = com.rameses.rcp.framework.ClientContext.currentContext.getAppEnv().get("filemgmt.tmpdir"); 
+        if ( stmpdir ) uploadMgr.setTempDir( new java.io.File( stmpdir ));  
+
+        FileUploadManager.removeHandlers(); 
+        FileUploadManager.addHandler( streamHandler ); 
         com.rameses.rcp.framework.ClientContext.currentContext.taskManager.addTask( this ); 
-    }
-    void doStop() {
+    } 
+    void doStop() { 
         uploadMgr.stop();    
-    }
-}
+    } 
+    
+    private void loadLocations() { 
+        def params = [ _schemaname: 'sys_fileloc', where:[' 1=1 ']]; 
+        qrySvc.getList( params ).each{ o-> 
+            try { 
+                def conf = FileConf.add( o.objid, "1".equals(o.defaultloc.toString())); 
+                conf.type = o.loctype; 
+                conf.readPath = o.url; 
+                conf.writePath = o.filepath;
+                conf.user = o.user?.name;
+                conf.password = o.user?.pwd; 
+                
+                if ( "ftp".equalsIgnoreCase( o.loctype.toString())) {
+                    conf = com.rameses.ftp.FtpLocationConf.add( o.objid ); 
+                    conf.host = o.url; 
+                    conf.user = o.user?.name; 
+                    conf.password = o.user?.pwd; 
+                } 
+            } catch(Throwable t) {;} 
+        } 
+    } 
+} 

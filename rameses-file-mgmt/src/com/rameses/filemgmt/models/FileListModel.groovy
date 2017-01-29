@@ -12,7 +12,6 @@ public class FileListModel extends CrudListModel {
         def h = { o->
             def k = Inv.lookupOpener("sys_file:open", [entity: o] );
             binding.fireNavigation(k);
-            binding.refresh();
         };
         return Inv.lookupOpener("sys_file:new", [handler:  h] );
     }
