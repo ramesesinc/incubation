@@ -171,15 +171,12 @@ public class WorkflowTaskModel extends CrudFormModel implements WorkflowTaskList
         return null;
     }
     
-    def _sections;
     def getSections() {
-        //for items with sections....
-        if(_sections != null ) return _sections;
         try {
-            _sections = Inv.lookupOpeners(getSchemaName() + ":section",[:],sectionFilter);
-            return _sections;
+            return Inv.lookupOpeners(getSchemaName() + ":section",[:],sectionFilter);
         } 
         catch(Exception ex){;}
     }
+
 }
 
