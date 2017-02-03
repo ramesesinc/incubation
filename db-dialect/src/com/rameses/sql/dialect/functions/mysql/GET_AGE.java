@@ -30,7 +30,7 @@ public class GET_AGE implements SqlDialectFunction {
             throw new RuntimeException("GET_AGE error. There must be one parameter passed, the date");
         String p = params.get(0);
         StringBuilder sb = new StringBuilder(); 
-        sb.append( "SELECT TIMESTAMPDIFF(YEAR,"+ p + ", CURDATE())" );
+        sb.append( "SELECT TIMESTAMPDIFF(YEAR,"+ p + ", NOW())" );
         return sb.toString();
     }
 }
