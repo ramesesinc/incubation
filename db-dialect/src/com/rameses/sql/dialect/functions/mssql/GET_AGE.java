@@ -30,7 +30,7 @@ public class GET_AGE implements SqlDialectFunction {
             throw new RuntimeException("GET_AGE error. There must be one parameter passed, the date");
         String p = params.get(0);
         StringBuilder sb = new StringBuilder(); 
-        sb.append( "SELECT DATEDIFF(yy, " +p + ", GETDATE()) - ");
+        sb.append( "DATEDIFF(yy, " +p + ", GETDATE()) - ");
         sb.append( "CASE WHEN (MONTH(" +p+  ") > MONTH(GETDATE())) ");
         sb.append( "OR (MONTH(" + p + ") = MONTH(GETDATE()) AND ");
         sb.append( "DAY("+ p +") > DAY(GETDATE())) THEN 1 ELSE 0 END");
