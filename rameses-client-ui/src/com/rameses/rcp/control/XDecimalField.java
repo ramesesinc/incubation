@@ -41,6 +41,7 @@ public class XDecimalField extends AbstractNumberField implements UIInput, Valid
     private Binding binding;    
     
     private DecimalDocument model = new DecimalDocument(); 
+    private Meta meta = new Meta();
     private boolean nullWhenEmpty;
     private String[] depends; 
     private int index;
@@ -91,28 +92,23 @@ public class XDecimalField extends AbstractNumberField implements UIInput, Valid
     
     // <editor-fold defaultstate="collapsed" desc="  Getters/Setters  ">
     
-    public void setName(String name) 
-    {
+    public void setName(String name) {
         super.setName(name);
         
         if (Beans.isDesignTime()) super.setText(name);
     }
     
-    public Object getValue() 
-    {
+    public Object getValue() {
         Number num = getModel().getValue(); 
         if (num == null) {
             return (isUsePrimitiveValue()? 0.0: null); 
-        }
-        else {
+        } else {
             return (isUsePrimitiveValue()? num.doubleValue(): num); 
         }
     }
     
-    public void setValue(Object value) 
-    {
-        if (value instanceof KeyEvent) 
-        {
+    public void setValue(Object value) {
+        if (value instanceof KeyEvent) {
             KeyEvent e = (KeyEvent) value; 
             char c = e.getKeyChar(); 
             if (Character.isDigit(c) || c == '.' || c == '-') 
@@ -156,29 +152,36 @@ public class XDecimalField extends AbstractNumberField implements UIInput, Valid
     
     // <editor-fold defaultstate="collapsed" desc="  DecimalDocument (Class)  "> 
     
-    private class DecimalDocument extends AbstractNumberDocument
-    {
+    private class DecimalDocument extends AbstractNumberDocument {
         XDecimalField root = XDecimalField.this; 
         
-        public Number decode(String value) 
-        {
+        public Number decode(String value) {
             try { 
                 return new BigDecimal(value); 
-            } catch(Exception ex) {
+            } catch(Throwable t) {
                 return null; 
             } 
         } 
 
-        public Number convertValue(Number value) 
-        {
-            BigDecimal bd = null; 
-            if (value instanceof BigDecimal) 
-                bd = (BigDecimal) value;
-            else 
-                bd = new BigDecimal(value.doubleValue());  
+        public Number convertValue(Number value) { 
+            BigDecimal num = null; 
+            if (value instanceof BigDecimal) { 
+                num = (BigDecimal) value; 
+            } else { 
+                num = new BigDecimal(value.doubleValue());  
+            } 
+
+            int scale = root.getScale();
+            if ( scale < 1 ) return num;
             
-            return bd.setScale(root.getScale(), RoundingMode.HALF_UP); 
-        }
+            StringBuilder sb = new StringBuilder("0."); 
+            for (int i=0; i<scale; i++) { 
+                sb.append("0"); 
+            } 
+            
+            String sval = new DecimalFormat(sb.toString()).format( num ); 
+            return new BigDecimal( sval ); 
+        } 
         
         protected Number getPrimitiveValue(Number value) {
             return value; 
@@ -204,6 +207,16 @@ public class XDecimalField extends AbstractNumberField implements UIInput, Valid
             }
             return root.formatter;
         }
+    }
+    
+    private class Meta {
+        
+        Number source; 
+        
+        public Number getSource() { return source; } 
+        void setSource( Number source ) { 
+            this.source = source; 
+        } 
     }
     
     // </editor-fold>
@@ -294,23 +307,20 @@ public class XDecimalField extends AbstractNumberField implements UIInput, Valid
             Number number = null;
             if (value == null) {
                 //do nothing 
-            }
-            else if (value instanceof BigDecimal) { 
+            } else if (value instanceof BigDecimal) { 
                 number = (BigDecimal) value; 
-            } 
-            else 
-            {
+            } else {
                 try {
                      number = getModel().decode(value.toString()); 
-                } catch(Exception e) {;} 
+                } catch(Throwable t) {;} 
             }
 
-            getModel().setValue(number); 
+            meta.setSource( number ); 
+            getModel().setValue( meta.getSource() ); 
             getModel().showFormattedText(true); 
-            getModel().refresh();
-        } 
-        catch(Exception e) 
-        {
+            getModel().refresh(); 
+            
+        } catch(Exception e) {
             setText("");
             
             if (ClientContext.getCurrentContext().isDebugMode()) e.printStackTrace();
