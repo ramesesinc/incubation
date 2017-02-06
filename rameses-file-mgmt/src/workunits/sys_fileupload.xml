@@ -1,0 +1,38 @@
+<workunit>
+    <invokers>
+        <invoker type="sys_doc_file:upload" caption="Upload File" 
+                 index="10" role="MASTER" action="init" target="popup"/>
+    </invokers>
+    <code>
+        import com.rameses.seti2.models.*;
+        import com.rameses.rcp.annotations.*;
+        import com.rameses.rcp.common.*;
+        import com.rameses.osiris2.client.*;
+        import com.rameses.osiris2.common.*;
+        
+        class DoFileUpload extends CrudFormModel {
+            
+            def entity;
+            def file;
+            def onselect;
+                
+            void init() {
+                entity = [:];
+            }
+        
+            def doOk() {
+                if(!onselect)throw new Exception("Please provide onselect handler");
+                onselect(entity);
+                return "_close";
+            }
+        
+            def doCancel() {
+                return "_close";
+            }
+        
+        }
+    </code>
+    <pages>
+        <page template="com.rameses.filemgmt.views.FileUploadPage" />
+    </pages>
+</workunit>

@@ -7,98 +7,150 @@
 
 package com.rameses.rcp.control;
 
+import com.rameses.rcp.control.table.ExprBeanSupport;
 import com.rameses.rcp.framework.ClientContext;
 import com.rameses.rcp.util.UIControlUtil;
 import com.rameses.rcp.util.UIInputUtil;
-import com.rameses.util.ValueUtil;
 import java.io.File;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
 
 
-public class XFileBrowser extends AbstractIconedTextField 
-{    
+public class XFileBrowser extends AbstractIconedTextField {
+    
     private JFileChooser fchooser;
-    private FileFilter filter;
-    private String customFilter;
+    
+    private boolean listFiles;
     private boolean multiSelect;
-    private boolean listFiles = true;
-    private boolean selectFilesOnly = true;
-    private String fileNamePattern = ".*";
-    private String dialogType = "open";
+    private boolean selectFilesOnly;
     
-    
+    private String dialogType;
+    private String customFilter;
+    private String fileNamePattern;    
+    private String expression;
+    private String varName; 
     
     public XFileBrowser() {
         initComponents();
     }
     
-    //<editor-fold defaultstate="collapsed" desc="  initComponents  ">
+    // <editor-fold defaultstate="collapsed" desc=" initComponents "> 
+    
     private void initComponents() {
+        dialogType = "open";
         fchooser = new JFileChooser();
-        fchooser.setFileFilter( filter = new XFileBrowserFiler() );
         
-        setMultiSelect(false);
-        setSelectFilesOnly(true);
+        setListFiles( true ); 
+        setMultiSelect( false ); 
+        setSelectFilesOnly( true ); 
         setIcon("com/rameses/rcp/icons/folder_open.png");
         setOrientation( super.ICON_ON_RIGHT );
         setHint("Browse File");
         super.setEditable(false);
-    }
-    //</editor-fold>
+        setVarName("item"); 
+    } 
     
-    public void actionPerformed() {
-        if ( !isFocusable() || !isEnabled() ) {
-            return;
-        }
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" Getters/Setters ">
+    
+    public void setEditable(boolean b) {;}
+    public void setValue(Object value) {;}
+    public boolean isNullWhenEmpty() { return true; }
+    public boolean isImmediate() { return true; }
+    
+    public Object getValue() {
+        return (isMultiSelect() ? fchooser.getSelectedFiles() : fchooser.getSelectedFile());
+    }
         
-        int resp = 0;
-        if ( "open".equals(dialogType) ) {
-            resp = fchooser.showOpenDialog(null);
-        } else {
-            resp = fchooser.showSaveDialog(null);
-        }
-        
-        if ( resp == JFileChooser.APPROVE_OPTION ) {
-            UIInputUtil.updateBeanValue(this);
-        }
-        refresh();
+    public String getCustomFilter() { return customFilter; }
+    public void setCustomFilter(String customFilter) {
+        this.customFilter = customFilter;
+    }
+    
+    public boolean isListFiles() { return listFiles; }
+    public void setListFiles(boolean listFiles) {
+        this.listFiles = listFiles;
+    }
+    
+    public String getFileNamePattern() { return fileNamePattern; }
+    public void setFileNamePattern(String fileNamePattern) {
+        this.fileNamePattern = fileNamePattern;
+    } 
+    
+    public boolean isMultiSelect() { return multiSelect; }
+    public void setMultiSelect(boolean multiSelect) {
+        this.multiSelect = multiSelect;
+    }
+    
+    public boolean isSelectFilesOnly() { return selectFilesOnly; }
+    public void setSelectFilesOnly(boolean selectFilesOnly) {
+        this.selectFilesOnly = selectFilesOnly;
+    }
+    
+    public String getDialogType() { return dialogType; }
+    public void setDialogType(String dialogType) {
+        this.dialogType = dialogType;
+    }
+    
+    public String getExpression() { return expression; } 
+    public void setExpression(String expression) {
+        this.expression = expression;
+    }
+    
+    public String getVarName() { return varName; } 
+    public void setVarName( String varName ) {
+        this.varName = varName; 
     }
     
     public int compareTo(Object o) {
         return UIControlUtil.compare(this, o);
-    }       
+    }     
     
-    //<editor-fold defaultstate="collapsed" desc="  refresh/load  ">
+    // </editor-fold> 
+
+    // <editor-fold defaultstate="collapsed" desc=" refresh/load ">
+    
     public void refresh() {
         try {
             if( !isReadonly() && !isFocusable() ) setFocusable(true);
             
-            Object value = UIControlUtil.getBeanValue(this);
-            if ( value != null ) {
-                if ( value.getClass().isArray() ) {
-                    Object[] arr = (Object[]) value;
-                    StringBuffer sb = new StringBuffer();
-                    for ( int i = 0; i < arr.length; ++i ) {
-                        if ( i > 0 ) sb.append(", ");
-                        sb.append(arr[i]+"");
-                        setText( sb.toString() );
-                    }
-                    fchooser.setSelectedFiles( (File[]) arr);
-                } else {
-                    setText( value+"" );
-                    fchooser.setSelectedFile( (File) value);
-                }
-                
+            Object[] arr = null; 
+            Object value = UIControlUtil.getBeanValue( this ); 
+            if ( value == null ) {
+                arr = new Object[0];
+            } else if ( value.getClass().isArray() ) {
+                arr = (Object[]) value; 
             } else {
+                arr = new Object[]{ value }; 
+            } 
+                        
+            if ( arr.length==0 ) {
                 setText("");
                 if ( multiSelect ) {
                     fchooser.setSelectedFiles(null);
                 } else {
                     fchooser.setSelectedFile(null);
                 }
-            }
-        } catch(Exception e) {
+            } else {
+                String exprStr = getExpression(); 
+                StringBuilder sb = new StringBuilder(); 
+                ExprBeanSupport beanSupport = new ExprBeanSupport(getBinding().getBean());                
+                boolean hasExpr = (exprStr != null && exprStr.length() > 0); 
+                for ( int i=0; i < arr.length; ++i ) {
+                    if ( sb.length() > 0 ) sb.append(", ");
+                    if ( arr[i] == null ) { 
+                        sb.append("null");
+                    } else if ( hasExpr ) {
+                        beanSupport.setItem(getVarName(), arr[i]);
+                        sb.append(UIControlUtil.evaluateExpr(beanSupport.createProxy(), exprStr)+"");
+                    } else {
+                        sb.append(arr[i].toString()); 
+                    }
+                }                
+                setText( sb.toString() ); 
+            } 
+        } catch(Throwable e) {
             //block the input if name is null
             setText("");
             setFocusable(false);
@@ -110,101 +162,85 @@ public class XFileBrowser extends AbstractIconedTextField
     }
     
     public void load() {
-        if ( !ValueUtil.isEmpty(customFilter) ) {
-            FileFilter ff = (FileFilter) UIControlUtil.getBeanValue(this, customFilter);
-            fchooser.setFileFilter(ff);
-        }
-    }
-    //</editor-fold>
+
+    } 
     
-    //<editor-fold defaultstate="collapsed" desc="  Getters/Setters  ">
-    public void setEditable(boolean b) {;}
+    // </editor-fold>
     
-    public Object getValue() {
-        return multiSelect? fchooser.getSelectedFiles() : fchooser.getSelectedFile();
-    }
-    
-    public void setValue(Object value) {}
-    public boolean isNullWhenEmpty() { return true; }
-    
-    public String getCustomFilter() {
-        return customFilter;
-    }
-    
-    public void setCustomFilter(String customFilter) {
-        this.customFilter = customFilter;
-    }
-    
-    public boolean isListFiles() {
-        return listFiles;
-    }
-    
-    public void setListFiles(boolean listFiles) {
-        this.listFiles = listFiles;
-    }
-    
-    public String getFileNamePattern() {
-        return fileNamePattern;
-    }
-    
-    public void setFileNamePattern(String fileNamePattern) {
-        this.fileNamePattern = fileNamePattern;
-    }
-    
-    public boolean isMultiSelect() {
-        return multiSelect;
-    }
-    
-    public void setMultiSelect(boolean multiSelect) {
-        this.multiSelect = multiSelect;
-        fchooser.setMultiSelectionEnabled( multiSelect );
-    }
-    
-    public boolean isSelectFilesOnly() {
-        return selectFilesOnly;
-    }
-    
-    public void setSelectFilesOnly(boolean selectFilesOnly) {
-        this.selectFilesOnly = selectFilesOnly;
-        if ( selectFilesOnly ) {
+    public void actionPerformed() {
+        if ( !isFocusable() || !isEnabled() ) { return; }
+
+        FileFilterImpl filter = new FileFilterImpl(); 
+        filter.init(); 
+        
+        if ( isSelectFilesOnly() ) {
             fchooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
         } else {
             fchooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
         }
-    }
-    
-    public String getDialogType() {
-        return dialogType;
-    }
-    
-    public void setDialogType(String dialogType) {
-        this.dialogType = dialogType;
-    }
-    
-    public boolean isImmediate() {
-        return true;
-    }
-    //</editor-fold>    
-    
-    //<editor-fold defaultstate="collapsed" desc="  XFileBrowserFiler (class)  ">
-    private class XFileBrowserFiler extends FileFilter {
+
+        fchooser.setMultiSelectionEnabled( isMultiSelect() );
+        fchooser.setFileFilter( filter );
+        fchooser.setSelectedFile(null); 
+        fchooser.setSelectedFiles(null);  
+
+        int resp = 0;
+        if ( "open".equals(dialogType) ) {
+            resp = fchooser.showOpenDialog(null);
+        } else {
+            resp = fchooser.showSaveDialog(null);
+        }
         
-        public boolean accept(File f) {
-            if ( f.isDirectory() ) return true;
-            if ( !listFiles ) return false;
+        if ( resp == JFileChooser.APPROVE_OPTION ) {
             
-            if ( fileNamePattern.equals(".*") || ValueUtil.isEmpty(fileNamePattern) ) {
-                return true;
+            UIInputUtil.updateBeanValue(this);
+        }
+        refresh();
+    }    
+    
+    // <editor-fold defaultstate="collapsed" desc=" FileFilterImpl ">
+    
+    private class FileFilterImpl extends FileFilter {
+        
+        private String _OldPattern;
+        private String _NewPattern; 
+        private boolean _IsListFiles;
+        
+        private void init() { 
+            String str = getFileNamePattern(); 
+            if ( str != null && str.trim().length() > 0 ) {
+                Object value = null; 
+                try { 
+                    value = UIControlUtil.getBeanValue(getBinding(), str.trim());
+                    str = value.toString(); 
+                } catch( Throwable t ){;} 
             }
             
-            return f.getName().matches(fileNamePattern);
-        }
+            if ( str == null ) str = "*"; 
+            
+            _OldPattern = str; 
+            _NewPattern = str.replaceAll("[\\s]{1,}","")
+                             .replaceAll("\\*",".*")
+                             .replaceAll(",","|")
+                             .toLowerCase();
+            _IsListFiles = isListFiles(); 
+        } 
         
-        public String getDescription() {
-            return "";
-        }
+        public boolean accept ( File f ) { 
+            if ( f.isDirectory() ) return true;
+            if ( !_IsListFiles ) return false;
+            
+            return f.getName().toLowerCase().matches( _NewPattern ); 
+        } 
         
-    }
-    //</editor-fold>
+        public String getDescription() { 
+            if ( _NewPattern.equals(".*") ) {
+                return "All Files"; 
+            } else { 
+                return _OldPattern; 
+            } 
+        } 
+    } 
+    // </editor-fold>
     
 }

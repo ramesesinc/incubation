@@ -32,6 +32,7 @@ public class FileObject
     private File file; 
     private Map info;  
     private int chunkSize;
+    private int pos;
     
     public FileObject(File file) { 
         this( file, CHUNK_SIZE ); 
@@ -47,6 +48,10 @@ public class FileObject
     public int getChunkSize() { return chunkSize; } 
     public void setChunkSize(int chunkSize) {
         this.chunkSize = chunkSize; 
+    }
+    
+    public void setPos( int pos ) {
+        this.pos = pos; 
     }
         
     public void read( ChunkHandler handler ) {
@@ -112,6 +117,7 @@ public class FileObject
             
             byte[] bytes = null; 
             int read = 0, indexno = 0; 
+            int startPos = (this.pos > 0 ? this.pos : 1);
             while ((read=channel.read(buf)) > 0) { 
                 buf.flip();
                 bytes = new byte[read]; 
@@ -123,7 +129,9 @@ public class FileObject
                     meta.chunkCount = indexno; 
                     meta.fileSize += read; 
                 } 
-                handler.handle( indexno, bytes ); 
+                if ( indexno >= startPos ) {
+                    handler.handle( indexno, bytes );                     
+                }
                 if ( handler.isCancelled() ) { break; }
             } 
         } catch(RuntimeException re) {

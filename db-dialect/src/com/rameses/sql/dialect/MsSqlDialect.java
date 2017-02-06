@@ -198,6 +198,9 @@ public class MsSqlDialect extends AbstractSqlDialect  {
             topbuff.append("TOP 1000 "); 
         } 
         topbuff.append( buff ); 
+        if ( model.getLimit()==1 && model.getStart()==0 ) { 
+            return topbuff.toString(); 
+        } 
         
         StringBuilder childbuff = new StringBuilder(); 
         childbuff.append(" SELECT TOP ($P{_start}) "); 
