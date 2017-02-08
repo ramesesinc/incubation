@@ -447,7 +447,7 @@ public class MsSqlDialect extends AbstractSqlDialect  {
                     currentBuilder.append( " " + s );
                 }
                 else if(s.equals(")") || s.trim().startsWith(")") || s.trim().endsWith(")")) {
-                    if( currentState != STATE_WHERE && !FN_PATTERN.matcher(s).matches() ) {
+                    if( currentState != STATE_WHERE && !FN_PATTERN.matcher(s).matches()  && !stack.isEmpty()) {
                         stack.pop();
                     }
                     currentBuilder.append( " " + s );
