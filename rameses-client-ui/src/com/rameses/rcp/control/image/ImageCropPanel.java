@@ -176,7 +176,6 @@ public class ImageCropPanel extends JPanel {
                 }
                 
                 c = root.imageToolbar; 
-                System.out.println( c );
                 if ( c != null && c.isVisible() ) {
                     Dimension dim = c.getPreferredSize(); 
                     y = Math.max(ph - margin.bottom - dim.height, margin.top);  

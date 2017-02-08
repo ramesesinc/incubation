@@ -262,7 +262,6 @@ class ImageCropItem extends JPanel {
         private Dimension layoutSize(Container parent) {
             synchronized (parent.getTreeLock()) {
                 Dimension dim = new Dimension(root.getBoxWidth(), root.getBoxHeight());
-                System.out.println("layout size "+ dim);
                 return new Dimension(dim.width, dim.height); 
             }
         }
