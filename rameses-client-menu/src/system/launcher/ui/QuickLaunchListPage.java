@@ -13,8 +13,9 @@ public class QuickLaunchListPage extends javax.swing.JPanel {
         initComponents();
     }
     
-    // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+
         jSeparator1 = new javax.swing.JSeparator();
         xButton1 = new com.rameses.rcp.control.XButton();
         xDataTable1 = new com.rameses.rcp.control.XDataTable();
@@ -22,40 +23,38 @@ public class QuickLaunchListPage extends javax.swing.JPanel {
         xButton2 = new com.rameses.rcp.control.XButton();
 
         xButton1.setMnemonic('c');
-        xButton1.setName("_close");
+        xButton1.setName("_close"); // NOI18N
         xButton1.setText("Close");
 
         xDataTable1.setHandler("listHandler");
         xDataTable1.setImmediate(true);
-        xDataTable1.setName("selectedItem");
+        xDataTable1.setName("selectedItem"); // NOI18N
 
         xActionTextField1.setActionName("listHandler.load");
         xActionTextField1.setHint("Type your search keyword here");
-        xActionTextField1.setName("searchtext");
+        xActionTextField1.setName("searchtext"); // NOI18N
 
         xButton2.setMnemonic('l');
-        xButton2.setDisableWhen("#{selectedItem == null}");
-        xButton2.setName("launch");
         xButton2.setText("Launch");
+        xButton2.setDepends(new String[] {"selectedItem"});
+        xButton2.setDisableWhen("#{selectedItem == null}");
+        xButton2.setName("launch"); // NOI18N
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(275, Short.MAX_VALUE)
-                .add(xButton2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(xButton1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
             .add(org.jdesktop.layout.GroupLayout.TRAILING, jSeparator1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 417, Short.MAX_VALUE)
             .add(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(xActionTextField1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 397, Short.MAX_VALUE)
-                .addContainerGap())
-            .add(layout.createSequentialGroup()
-                .addContainerGap()
-                .add(xDataTable1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 397, Short.MAX_VALUE)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                        .add(0, 265, Short.MAX_VALUE)
+                        .add(xButton2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(xButton1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(xActionTextField1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 397, Short.MAX_VALUE)
+                    .add(xDataTable1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 397, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
