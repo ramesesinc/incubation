@@ -283,12 +283,12 @@ public class CellRenderers {
         public void firePropertyChange(String propertyName, boolean oldValue, boolean newValue) {}            
     } 
     
-    private static class HeaderBorder extends AbstractBorder {
+    public static class HeaderBorder extends AbstractBorder {
 
         private final Color BORDER_COLOR = new Color(204, 204, 204);
         
-        boolean showLeft = true;
-        boolean showRight = false;
+        public boolean showLeft = true;
+        public boolean showRight = false;
                 
         public Insets getBorderInsets(Component c) {
             return getBorderInsets(c, new Insets(0,0,0,0)); 

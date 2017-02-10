@@ -12,18 +12,17 @@ package com.rameses.rcp.control.table;
 import com.rameses.rcp.support.ColorUtil;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Insets;
-import java.awt.Rectangle;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.border.AbstractBorder;
 import javax.swing.table.JTableHeader;
-import javax.swing.table.TableColumnModel;
 
 /**
  *
@@ -31,48 +30,24 @@ import javax.swing.table.TableColumnModel;
  */
 public class DataTableHeader extends JTableHeader 
 {
-    private Color control = java.awt.SystemColor.control;
     private JTable table;
+    private AbstractBorder border; 
+    private Color control = java.awt.SystemColor.control;
     
-    public DataTableHeader(JTable table) 
-    {
+    public DataTableHeader(JTable table) {
         super(table.getColumnModel()); 
         this.table = table; 
+        this.border = new CellRenderers.HeaderBorder();
     }
     
-    public void xpaint(Graphics g) 
-    {
-        Rectangle clip = g.getClipBounds();
-        super.paint(g);
-        
-        Rectangle compClip = new Rectangle();
-        TableColumnModel tcm = getColumnModel();
-        for (int i=0; i<tcm.getColumnCount(); i++) 
-        {
-            Rectangle rect = getHeaderRect(i);
-            compClip.x = rect.x + rect.width;
-            compClip.y = rect.y;
-            compClip.width = rect.x + rect.width;
-            compClip.height = Math.max(compClip.height, rect.height);
-        }
-        
-        int nWidth = clip.width - compClip.width;
-        if (nWidth <= 0) return;
-        
-        Color oldColor = g.getColor();
-        Color shadow = control.darker();
-        Color bg = ColorUtil.brighter(shadow, 30);
-        Graphics2D g2 = (Graphics2D) g.create();
-        GradientPaint gp = new GradientPaint(0, 0, bg, 0, clip.height/2, ColorUtil.brighter(shadow,25));
-        g2.setPaint(gp);
-        g2.fillRect(compClip.x, 0, nWidth, clip.height-2);        
-        g2.setPaint(null);
-        g2.setColor(ColorUtil.brighter(shadow,22));
-        g2.fillRoundRect(compClip.x, clip.height/2, nWidth, (clip.height/2)-1, 5, 0);
-        g2.setColor(control.brighter());
-        g2.drawLine(compClip.x, 2, compClip.x, compClip.height-5);        
-        g2.dispose();
-    }     
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g); 
+
+        Graphics2D g2 = (Graphics2D) g.create(); 
+        border.paintBorder(this, g2, 0, 0, getWidth(), getHeight()); 
+        g2.dispose(); 
+    } 
+    
     
     // <editor-fold defaultstate="collapsed" desc=" Painter (class) ">    
 
@@ -128,7 +103,7 @@ public class DataTableHeader extends JTableHeader
         } 
     }
 
-    // </editor-fold>    
+    // </editor-fold> 
     
     // <editor-fold defaultstate="collapsed" desc=" CornerBorder (class) ">    
 
@@ -184,6 +159,6 @@ public class DataTableHeader extends JTableHeader
         } 
     }
 
-    // </editor-fold>        
+    // </editor-fold> 
     
 }
