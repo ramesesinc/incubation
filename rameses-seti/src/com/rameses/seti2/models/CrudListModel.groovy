@@ -235,8 +235,17 @@ public class CrudListModel extends AbstractCrudModel {
         this._multiSelect = b; 
     } 
     
+    public boolean isAutoResize() { 
+        return true; 
+    }
+    
+    final def _self = this; 
+    
     def listHandler = [ 
-        isMultiSelect: {
+        isAutoResize  : {
+            return _self.isAutoResize(); 
+        }, 
+        isMultiSelect : {
             return _multiSelect; 
         }, 
         getRows : {
@@ -269,7 +278,7 @@ public class CrudListModel extends AbstractCrudModel {
                 }
             }
             zcols = zcols.sort{ it.colindex };
-            zcols << [caption:''];
+            //zcols << [caption:''];
             return zcols;
         },
         fetchList: { o->
@@ -287,7 +296,8 @@ public class CrudListModel extends AbstractCrudModel {
             } 
         }
     ] as PageListModel;
-        
+   
+    
     void search() {
         orWhereList.clear();
         if( searchText ) {

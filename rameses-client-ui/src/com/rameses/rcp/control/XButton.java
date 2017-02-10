@@ -263,7 +263,7 @@ public class XButton extends JButton implements UICommand, ActionListener,
             try { 
                 result = UIControlUtil.evaluateExprBoolean(binding.getBean(), disableWhen);
             } catch(Throwable t) {
-                t.printStackTrace();
+                //t.printStackTrace();
             } 
             
             if (!result) {
