@@ -257,6 +257,12 @@ public class DataTableComponent extends JTable implements TableControl
                 editorSupport.setTableEditorProvider(new TableEditorProviderImpl()); 
             } 
             install(dataProvider);
+            
+            if (  isAutoResize() && dataProvider.isAutoResize() ) {
+                setAutoResizeMode( AUTO_RESIZE_SUBSEQUENT_COLUMNS ); 
+            } else { 
+                setAutoResizeMode( AUTO_RESIZE_OFF ); 
+            } 
         } 
         
         itemBinding.setRoot(getBinding()); 
@@ -326,9 +332,9 @@ public class DataTableComponent extends JTable implements TableControl
     
     public void setAutoResize(boolean autoResize) {
         if ( autoResize ) {
-            setAutoResizeMode(super.AUTO_RESIZE_LAST_COLUMN);
+            setAutoResizeMode( AUTO_RESIZE_SUBSEQUENT_COLUMNS );
         } else {
-            setAutoResizeMode(super.AUTO_RESIZE_OFF);
+            setAutoResizeMode( AUTO_RESIZE_OFF);
         }
     }
     
@@ -361,8 +367,6 @@ public class DataTableComponent extends JTable implements TableControl
     public int getRowHeaderHeight() { return rowHeaderHeight; } 
     public void setRowHeaderHeight(int rowHeaderHeight) {
         this.rowHeaderHeight = rowHeaderHeight;
-        getTableHeader().setPreferredSize(new Dimension(Short.MAX_VALUE, rowHeaderHeight)); 
-        getTableHeader().repaint(); 
     }
     
     public boolean hasRowHeader() {
@@ -464,8 +468,7 @@ public class DataTableComponent extends JTable implements TableControl
         if ( c.getMaxWidth() > 0 ) tc.setMaxWidth( c.getMaxWidth() );
         if ( c.getMinWidth() > 0 ) tc.setMinWidth( c.getMinWidth() );
         
-        if ( c.getWidth() > 0 ) 
-        {
+        if ( c.getWidth() > 0 ) {
             tc.setWidth( c.getWidth() );
             tc.setPreferredWidth( c.getWidth() );
         }        

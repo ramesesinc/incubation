@@ -8,10 +8,10 @@ import java.util.Map;
 
 /**
  *
- * @author rameses1
+ * @author wflores 
  */
-public interface FileUploadHandler {
+public interface FileStreamHandler {
     
-    void upload( Map info );
-    
+    void ontransfer( Map data, long bytesTransferred ); 
+    void oncomplete( Map data ); 
 }

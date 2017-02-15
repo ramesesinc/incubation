@@ -4,10 +4,12 @@
  */
 package com.rameses.io;
 
+import com.rameses.util.BreakException;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.RandomAccessFile;
 import java.net.URLConnection;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
@@ -66,10 +68,29 @@ public class FileChunker {
         return handler.results; 
     }
     
+    public void parse() {
+        parse( new SelfChunkHandler());
+    }
     public void parse( ChunkHandler handler ) { 
         parser.parse( handler ); 
     } 
     
+    
+    protected void onstart() {}
+    protected void onend() {}
+    protected void onhandle( int indexno, byte[] bytes) {}
+    protected void onerror( Throwable error ) {
+        error.printStackTrace(); 
+    }
+    
+    private class SelfChunkHandler extends AbstractChunkHandler {
+        public void start() {
+        }
+        public void end() {
+        }
+        public void handle(int indexno, byte[] bytes) {
+        }
+    }
     private class ChunkHandlerImpl extends AbstractChunkHandler {
         
         List<byte[]> results = new ArrayList(); 
@@ -78,8 +99,7 @@ public class FileChunker {
             results.clear(); 
         }
 
-        public void end() {
-        }
+        public void end() {}
 
         public void handle(int indexno, byte[] bytes) {
             results.add( bytes ); 
@@ -118,12 +138,12 @@ public class FileChunker {
         }
 
         public long getLength() {
-            FileInputStream fis = null;
+            RandomAccessFile raf = null; 
             FileChannel fc = null; 
             byte[] bytes = null;
             try {
-                fis = new FileInputStream( file ); 
-                fc = fis.getChannel();
+                raf = new RandomAccessFile(file, "r"); 
+                fc = raf.getChannel(); 
                 return fc.size(); 
             } catch(RuntimeException re) {
                 throw re; 
@@ -131,52 +151,60 @@ public class FileChunker {
                 throw new RuntimeException(e.getMessage(), e); 
             } finally {
                 try { fc.close(); } catch(Throwable t) {;} 
-                try { fis.close(); } catch(Throwable t) {;} 
+                try { raf.close(); } catch(Throwable t) {;} 
             }
         } 
         
         public void parse( ChunkHandler handler ) { 
-            int startPos = FileChunker.this.pos; 
-            if ( startPos <= 0 ) startPos = 1; 
+            FileChunker root = FileChunker.this;
+            int chunkPos = root.pos; 
+            if ( chunkPos <= 0 ) chunkPos = 1; 
 
-            FileInputStream fis = null;
+            boolean started = false;
+            Throwable error = null; 
+            RandomAccessFile raf = null; 
             FileChannel fc = null; 
             try {
-                fis = new FileInputStream( file ); 
-                fc = fis.getChannel(); 
+                raf = new RandomAccessFile(file, "r"); 
+                raf.seek((chunkPos-1) * getChunkSize()); 
+                fc = raf.getChannel(); 
 
+                root.onstart(); 
                 handler.start(); 
+                started = true; 
 
-                int counter=1, bytesRead=-1;    
+                int counter=chunkPos, bytesRead=-1;
                 ByteBuffer buffer = ByteBuffer.allocate( getChunkSize() ); 
                 while ((bytesRead=fc.read(buffer)) != -1) {
                     buffer.flip();
                     if (buffer.hasRemaining()) {
-                        if ( counter < startPos ) {
-                            //do nothing 
+                        byte[] chunks = buffer.array(); 
+                        if (bytesRead < chunks.length) {
+                            byte[] dest = new byte[bytesRead];
+                            System.arraycopy(chunks, 0, dest, 0, bytesRead); 
+                            handler.handle( counter, dest ); 
+                            root.onhandle( counter, dest);
                         } else {
-                            byte[] chunks = buffer.array(); 
-                            if (bytesRead < chunks.length) {
-                                byte[] dest = new byte[bytesRead];
-                                System.arraycopy(chunks, 0, dest, 0, bytesRead); 
-                                handler.handle( counter, dest ); 
-                            } else {
-                                handler.handle( counter, chunks ); 
-                            }                            
-                        }
+                            handler.handle( counter, chunks ); 
+                            root.onhandle( counter, chunks);
+                        } 
                         counter += 1;
                     }
                     buffer.clear(); 
-                }
-                
-                handler.end(); 
-            } catch(RuntimeException re) {
-                throw re; 
-            } catch(Exception e) {
-                throw new RuntimeException(e.getMessage(), e); 
-            } finally {
+                } 
+            } catch(Throwable t) {
+                error = t; 
+            } finally { 
                 try { fc.close(); } catch(Throwable ign){;}
-                try { fis.close(); } catch(Throwable ign){;}
+                try { raf.close(); } catch(Throwable ign){;}
+            } 
+            
+            if ( error != null ) { 
+                root.onerror( error ); 
+                
+            } else if ( started ) { 
+                handler.end(); 
+                root.onend(); 
             } 
         } 
     }
@@ -197,13 +225,18 @@ public class FileChunker {
         public long getLength() { return bytes.length; }
         
         public void parse( ChunkHandler handler ) { 
+            boolean started = false;
+            Throwable error = null;             
+            FileChunker root = FileChunker.this;
             ByteArrayInputStream bais = null; 
             BufferedInputStream bis = null;
             try {
                 bais = new ByteArrayInputStream( bytes ); 
                 bis = new BufferedInputStream( bais ); 
                 
+                root.onstart();                 
                 handler.start(); 
+                started = true; 
 
                 int counter=1, read=-1;             
                 byte[] chunks = new byte[ getChunkSize() ]; 
@@ -212,20 +245,27 @@ public class FileChunker {
                         byte[] dest = new byte[read];
                         System.arraycopy(chunks, 0, dest, 0, read); 
                         handler.handle( counter, dest ); 
+                        root.onhandle( counter, dest);
                     } else { 
                         handler.handle( counter, chunks ); 
+                        root.onhandle( counter, chunks);
                     } 
                     chunks = new byte[ getChunkSize() ]; 
                     counter += 1;
-                }
-                handler.end(); 
-            } catch(RuntimeException re) {
-                throw re; 
-            } catch(Exception e) {
-                throw new RuntimeException(e.getMessage(), e); 
+                }                
+            } catch(Throwable t) {
+                error = t; 
             } finally {
                 try { bis.close(); } catch(Throwable ign){;}
                 try { bais.close(); } catch(Throwable ign){;}
+            } 
+            
+            if ( error != null ) { 
+                root.onerror( error ); 
+                
+            } else if ( started ) { 
+                handler.end(); 
+                root.onend(); 
             } 
         }
     }

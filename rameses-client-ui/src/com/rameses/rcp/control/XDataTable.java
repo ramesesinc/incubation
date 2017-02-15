@@ -296,7 +296,7 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
         
         applyExpressions();
         
-        if ( dataProvider != null ) {
+        if ( dataProvider != null ) { 
             boolean empty = (dataProvider.getDataListSize() == 0); 
             if ( !refreshed && !empty ) {
                 EventQueue.invokeLater(loader.refresh());  
@@ -1113,15 +1113,15 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
     
     // <editor-fold defaultstate="collapsed" desc="  ViewPortImpl (class)  ">    
     
-    private class ViewportImpl extends JViewport
-    {
+    private class ViewportImpl extends JViewport {
+        
         XDataTable root = XDataTable.this;      
+        
         private Color defaultBgcolor = java.awt.SystemColor.control; 
         private Color bgcolor = Color.WHITE;
         private Rectangle oldBounds = new Rectangle(); 
         
-        ViewportImpl(Component view) 
-        { 
+        ViewportImpl(Component view) { 
             super.setBackground(bgcolor); 
             super.setOpaque(true); 
             super.setView(view); 
@@ -1131,8 +1131,7 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
                 public void componentMoved(ComponentEvent e) {}
                 public void componentShown(ComponentEvent e) {}
                 
-                public void componentResized(ComponentEvent e) 
-                {
+                public void componentResized(ComponentEvent e) {
                     Rectangle rect = getBounds(); 
                     if (rect.height == oldBounds.height) return;
                     
@@ -1149,8 +1148,7 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
 
         public void setBackground(Color bg) {}
         
-        public void paint(Graphics g) 
-        {
+        public void paint(Graphics g) {
             super.paint(g); 
             
             Color newColor = ColorUtil.brighter(defaultBgcolor.darker(), 20);
@@ -1159,6 +1157,37 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
             g2.drawLine(0, 0, 0, getHeight()); 
             g2.dispose(); 
         }
+        
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            
+            Insets margin = getInsets();             
+            if ( margin == null ) margin = new Insets(0,0,0,0);
+            
+            int pw = getWidth(); 
+            int ph = getHeight(); 
+            int x = margin.left;
+            int y = margin.top;
+            int w = pw - (margin.left + margin.right);
+            int h = ph - (margin.top + margin.bottom);
+            int maxy = ph - margin.bottom; 
+            int rowh = root.table.getRowHeight();
+
+            Graphics2D g2 = (Graphics2D) g.create(); 
+            int rownum = 0;
+            while ( y < maxy ) {
+                int test = rownum % 2; 
+                if ( test == 0 ) {
+                    g2.setColor( root.getOddBackground()); 
+                } else {
+                    g2.setColor( root.getEvenBackground()); 
+                } 
+                g2.fillRect(x, y, w, rowh); 
+                rownum += 1; 
+                y += rowh; 
+            }
+            g2.dispose(); 
+        }        
     }
     
     // </editor-fold>             

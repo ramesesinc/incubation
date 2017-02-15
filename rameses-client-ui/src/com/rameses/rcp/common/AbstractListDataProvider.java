@@ -48,7 +48,8 @@ public abstract class AbstractListDataProvider
     private int fetchedRows;
     private int totalRows; 
     private boolean processing;
-        
+    
+    private boolean autoResize = true; 
     private boolean multiSelect;
     private Object multiSelectHandler; 
     private String multiSelectFieldName; 
@@ -95,6 +96,11 @@ public abstract class AbstractListDataProvider
     public Object callContextMenu(Object item, Object menuItem) {
         return null; 
     } 
+    
+    public boolean isAutoResize() { return autoResize; } 
+    public void setAutoResize( boolean autoResize ) {
+        this.autoResize = autoResize; 
+    }
     
     public MultiSelectionSupport getMultiSelectionSupport() {
         if (multiSelectionSupport == null) {

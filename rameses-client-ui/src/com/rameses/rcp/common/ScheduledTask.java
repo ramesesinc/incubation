@@ -26,12 +26,12 @@ public abstract class ScheduledTask extends Task
         }
     }
     
+    public abstract long getInterval();
+    
     public boolean accept() {
         return System.currentTimeMillis() >= expiryTime;
     }
     
-    public abstract long getInterval();
-
     public boolean isEnded() {
         restart();
         return false;

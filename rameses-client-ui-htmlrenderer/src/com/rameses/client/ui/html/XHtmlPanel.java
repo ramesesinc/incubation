@@ -59,6 +59,8 @@ public class XHtmlPanel extends JPanel implements UIControl, ActiveControl
     private XHTMLPanel viewer; 
     private FSScrollPane scroller;
     
+    private String visibleWhen; 
+    
     public XHtmlPanel() {
         super.setLayout(new BorderLayout()); 
         super.setPreferredSize(new Dimension(200,50)); 
@@ -85,6 +87,11 @@ public class XHtmlPanel extends JPanel implements UIControl, ActiveControl
             setText((name == null? "": name)); 
         }
     }
+    
+    public String getVisibleWhen() { return visibleWhen; } 
+    public void setVisibleWhen(String visibleWhen) {
+        this.visibleWhen = visibleWhen;
+    }        
     
     // </editor-fold>    
     

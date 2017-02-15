@@ -7,52 +7,88 @@
     
     <code>
     <![CDATA[        
-        import com.rameses.rcp.common.*;
-        import com.rameses.rcp.annotations.*;
-        import com.rameses.util.*;
-        import com.rameses.osiris2.client.*;
-        import system.launcher.*;
+import com.rameses.rcp.common.*;
+import com.rameses.rcp.annotations.*;
+import com.rameses.util.*;
+import com.rameses.osiris2.client.*;
+import system.launcher.*;
+
+public class QuickLaunchListController
+{
+    def searchtext;
+    def list;
+    def selectedItem;
+    
+    @FormTitle
+    def title = 'Quick Launcher'; 
+    
+    void init() {
+        list = QuickLaunchHelper.instance.allLaunchers;         
+        if ( list == null ) list = [];  
+
+        list.sort { it.code } 
+        list.each{ 
+            def buffer = new StringBuilder(); 
+            if ( it.code ) buffer.append( it.code.toString()); 
+            if ( it.desc ) buffer.append( it.desc.toString()); 
+          
+            it.searchkey = buffer.toString().toUpperCase(); 
+        } 
+    }
+    
+    def launch() {
+        if( !selectedItem ) 
+            throw new Exception('No quick launch key selected.');
+        if( selectedItem.allowed == "NO" ) 
+            throw new Exception("You don't have permission to launch this key.");
         
-        public class QuickLaunchListController
-        {
-            def searchtext;
-            def list;
-            def selectedItem;
-            
-            @FormTitle
-            def title = 'Quick Launcher';
-            
-            void init() {
-                list = QuickLaunchHelper.instance.allLaunchers;
-                if( list ) list.sort { it.code }
-            }
-            
-            def launch() {
-                if( !selectedItem ) 
-                    throw new Exception('No quick launch key selected.');
-                if( selectedItem.allowed == "NO" ) 
-                    throw new Exception("You don't have permission to launch this key.");
-                
-                QuickLaunchHelper.instance.launch( selectedItem.code );
-                return '_close';
-            }
-            
-            def listHandler = [
-                getColumns: {
-                    return [
-                        new Column(name:'code', caption:'Code'),
-                        new Column(name:'desc', caption:'Description'),
-                        new Column(name:'allowed', caption:'Allowed'),
-                    ]
-                },
-                fetchList: {
-                    if( searchtext ) {
-                        return list.findAll{ it.code.startsWith(searchtext) };
-                    }
-                    return list 
-                }
-            ] as ScrollListModel;
+        QuickLaunchHelper.instance.launch( selectedItem.code );
+        return '_close';
+    }
+    
+    def listHandler = [
+        getColumns: {
+            return [
+                new Column(name:'code', caption:'Code'),
+                new Column(name:'desc', caption:'Description'),
+                new Column(name:'allowed', caption:'Allowed'),
+            ]
+        },
+        fetchList: { o-> 
+            return createSubList( list, o, searchtext );
         }
+    ] as ScrollListModel;
+
+
+    private def cache = [:]; 
+    private def createSubList( _list, _params, _searchtext ) {
+        if ( !_list ) return []; 
+
+        def skey = ( _searchtext ? _searchtext.toUpperCase(): null ); 
+        def sourcelist = cache.get( skey); 
+        if ( sourcelist ) return sourcelist; 
+
+        cache.clear(); 
+        if ( skey ) { 
+            sourcelist = _list.findAll{( it.searchkey.toString().indexOf( skey) >= 0 )} 
+            cache.put( skey, sourcelist ); 
+        } else {
+            sourcelist = _list; 
+        } 
+
+        def results = []; 
+        int start = (_params._start ? _params._start : 0);
+        int limit = (_params._limit ? _params._limit : 25); 
+        int sourcesize = sourcelist.size(); 
+        int endindex = start + limit; 
+        for (int i=start; i<endindex; i++) {
+            if ( i >= 0 && i < sourcesize ) {
+                results << sourcelist.get( i ); 
+            } 
+        } 
+        return results; 
+    } 
+}
     ]]>
     </code>
     

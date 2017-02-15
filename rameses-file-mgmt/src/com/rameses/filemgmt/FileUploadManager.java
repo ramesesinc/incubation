@@ -4,141 +4,230 @@
  */
 package com.rameses.filemgmt;
 
-import com.rameses.rcp.common.CallbackHandlerProxy;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.RandomAccessFile;
+import java.io.FileFilter;
+import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
  *
- * @author rameses1
+ * @author wflores 
  */
 public class FileUploadManager {
     
-    private Map<String, FileUploadItem> cache = new Hashtable();
+    private Map<String, FileUploadItemProc> cache = new Hashtable();
     private ExecutorService scheduler = Executors.newFixedThreadPool(100);
 
-    public File getTempDir() {
-        File basedir = new File(System.getProperty("java.io.tmpdir")); 
-        File tempdir = new File( basedir, "rameses/fileupload"); 
-        if ( !tempdir.exists()) {
-            try {
-                tempdir.mkdirs(); 
-            } catch (RuntimeException re) {
-                throw re; 
-            } catch (Throwable t) { 
-                throw new RuntimeException( t.getMessage(), t ); 
+    private File customTempDir;
+    
+    public void setTempDir( File tempdir ) {
+        this.customTempDir = tempdir; 
+    }
+    public File getTempDir() { 
+        File tempdir = customTempDir; 
+        if ( tempdir == null ) { 
+            tempdir = new File(System.getProperty("java.io.tmpdir"));
+        }         
+        File basedir = new File( tempdir, "rameses/fileupload");         
+        try {
+            if ( !basedir.exists()) { 
+                basedir.mkdir(); 
             } 
+            return basedir; 
+            
+        } catch (RuntimeException re) {
+            throw re; 
+        } catch (Exception e) { 
+            throw new RuntimeException( e.getMessage(), e ); 
         } 
-        return tempdir; 
     }
     
-    public void start( Object handler ) {
+    public void start() { 
         File tempdir = getTempDir(); 
-        File[] files = tempdir.listFiles(); 
-        for ( File file : files ) {
-            if ( !file.isDirectory() ) continue; 
-            if ( file.getName().endsWith("~completed~")) {
-                try { 
-                    removeFile( file ); 
-                } catch(Throwable t){
-                    //do nothing 
-                } finally {
-                    continue; 
-                }
+        File[] files = tempdir.listFiles( new ValidFileFilter());  
+        for ( File file : files ) { 
+            FileUploadItem item = new FileUploadItem( file ); 
+            item.setHandler( new ItemHandler( cache)); 
+            item.open(); 
+            
+            FileUploadItemProc proc = item.createProcessHandler(); 
+            if ( proc != null && !cache.containsKey( item.getName())) {
+                cache.put( item.getName(), proc ); 
+                scheduler.submit( proc ); 
+                
+            } else if ( item.isModeCompleted() ) { 
+                item.remove(); 
             }
-            
-            if ( file.getName().endsWith("~")) continue; 
-            if ( cache.containsKey(file.getName())) continue; 
-            
-            File statusFile = new File( file, ".status");
-            if ( !statusFile.exists() || statusFile.isDirectory() ) {
-                try { 
-                    removeFile( file ); 
-                } catch(Throwable t){
-                    //do nothing 
-                } finally {
-                    continue; 
-                }
-            } 
-                        
-            FileInputStream fis = null; 
-            Properties props = new Properties();             
-            try { 
-                fis = new FileInputStream( statusFile );
-                props.load( fis ); 
-            } catch(Throwable t) {
-                t.printStackTrace(); 
-                continue; 
-            } finally {
-                try { fis.close(); }catch(Throwable t){;} 
-            }
-            
-            FileUploadItem fui = new FileUploadItem( file, props ); 
-            fui.setContentFile( new File( file, "content")); 
-            fui.setStatusFile( statusFile );
-                        
-            FileItemHandler filehandler = new FileItemHandler();
-            filehandler.uploadHandler = new CallbackHandlerProxy( handler );  
-            fui.setHandler( filehandler ); 
-            cache.put(file.getName(), fui); 
-            scheduler.submit( fui );  
         } 
-    }
-
-    public void stop() { 
-        for ( FileUploadItem fui : cache.values()) {
-            fui.cancel(); 
-        } 
-        cache.clear(); 
     } 
 
-    private void removeFile( File file ) { 
-        if ( file==null || !file.exists()) return; 
-
-        
-        if ( file.isDirectory()) {
-            File[] files = file.listFiles(); 
-            for ( File child : files ) {
-                removeFile( child ); 
-            }
+    public void stop() { 
+        for ( FileUploadItemProc proc : cache.values()) { 
+            try { 
+                proc.cancel(); 
+            } catch(Throwable t) {
+                t.printStackTrace(); 
+            } 
         } 
-
-        try { 
-            file.delete(); 
-        } catch(Throwable t) { 
-            t.printStackTrace(); 
-        }
-    }    
+        cache.clear(); 
+        scheduler.shutdown(); 
+    } 
     
-    private class FileItemHandler implements FileUploadItem.Handler {
+    private class ValidFileFilter implements FileFilter { 
         
-        CallbackHandlerProxy uploadHandler; 
+        FileUploadManager root = FileUploadManager.this; 
         
-        public void onupload( FileUploadItem item, int pos, byte[] bytes ) { 
-            if ( uploadHandler == null ) return; 
+        public boolean accept(File file) { 
+            if ( !file.isDirectory() ) return false; 
+            if ( file.getName().endsWith("~")) return false; 
+            if ( root.cache.containsKey(file.getName())) return false; 
+
+            File child = new File( file, ".immediate");
+            if ( child.exists()) return false; 
+
+            child = new File( file, ".conf"); 
+            if ( !child.exists()) return false; 
             
-            uploadHandler.call(new Object[]{ item.getConf(), bytes });  
+            child = new File( file, "content.index");
+            return child.exists(); 
+        } 
+    } 
+    
+    private static class ItemHandler implements FileUploadItem.Handler {
+
+        private Map cache; 
+        
+        ItemHandler( Map cache ) {
+            this.cache = cache; 
+        }
+        
+        public void oncompleted( FileUploadItem item ) { 
+            if ( item == null ) return; 
+            
+            if ( cache != null ) { 
+                String skey = item.getName(); 
+                cache.remove( skey );
+            } 
+
+            Map data = item.getConfigFile().copyData(); 
+            item.removeTempFile( ".immediate" ); 
+            stream_handler.oncomplete( data ); 
         } 
 
-        public void onend( FileUploadItem item ) { 
-            File oldfile = item.getFile(); 
-            File newfile = new File( oldfile.getParentFile(), oldfile.getName()+"~completed~"); 
-            oldfile.renameTo( newfile ); 
-            removeFile( newfile ); 
-            cache.remove( oldfile.getName() ); 
-        } 
-        
-        public void oncorrupted( FileUploadItem item ) {
-            File file = item.getFile(); 
-            File cfile = new File( file.getParentFile(), file.getName()+"~corrupted~"); 
-            file.renameTo( cfile );  
-            cache.remove( file.getName() ); 
+        public void ontransfer(FileUploadItem item, long filesize, long bytesprocessed) {
+            Map data = item.getConfigFile().copyData(); 
+            stream_handler.ontransfer( data, bytesprocessed ); 
         } 
     }
+        
+    private final static StreamHandlerProxy stream_handler = new StreamHandlerProxy();  
+    private final static ExecutorService thread_pool = Executors.newSingleThreadExecutor(); 
+    
+    public static synchronized void schedule( FileUploadItem item ) { 
+        item.setHandler( new ItemHandler( null )); 
+        item.open(); 
+        
+        FileUploadItemProc proc = item.createProcessHandler(); 
+        if ( proc != null ) { 
+            thread_pool.submit( proc ); 
+            
+        } else if ( item.isModeCompleted() ) {
+            item.remove(); 
+        } 
+    } 
+
+    public static void removeHandlers() {
+        synchronized( stream_handler ) {
+            stream_handler.clear(); 
+        }
+    }
+    public static void removeHandler( FileStreamHandler handler ) {
+        synchronized( stream_handler ) {
+            stream_handler.remove( handler ); 
+        }
+    }
+    public static void addHandler( FileStreamHandler handler ) {
+        synchronized( stream_handler ) {
+            stream_handler.add( handler ); 
+        }
+    } 
+    
+    private static class StreamHandlerProxy implements FileStreamHandler { 
+        
+        private List<FileStreamHandler> list = new ArrayList(); 
+        
+        void clear() { 
+            list.clear(); 
+        } 
+        void remove( FileStreamHandler handler ) {
+            if ( handler != null ) list.remove( handler );
+        }
+        void add( FileStreamHandler handler ) {
+            if ( handler == null ) return; 
+            
+            if ( !list.contains( handler )) {
+                list.add( handler );
+            }
+        }
+        
+        public void ontransfer( Map data, long bytesTransferred ) { 
+            FileStreamHandler[] items = list.toArray(new FileStreamHandler[]{}); 
+            thread_pool.submit( new StreamHandlerOnTransferProc( items, data, bytesTransferred)); 
+        }
+
+        public void oncomplete(Map data) { 
+            FileStreamHandler[] items = list.toArray(new FileStreamHandler[]{}); 
+            thread_pool.submit( new StreamHandlerOnCompleteProc( items, data)); 
+        }
+    } 
+    private static class StreamHandlerOnTransferProc implements Runnable {
+
+        private FileStreamHandler[] items; 
+        private long bytesTransferred; 
+        private Map data; 
+        
+        StreamHandlerOnTransferProc( FileStreamHandler[] items, Map data, long bytesTransferred ) {
+            this.bytesTransferred = bytesTransferred; 
+            this.items = items;
+            this.data = data; 
+        }
+        
+        public void run() {
+            if ( items == null || items.length==0 ) return; 
+
+            for ( FileStreamHandler item : items ) { 
+                try { 
+                    item.ontransfer( data, bytesTransferred ); 
+                } catch(Throwable t) {
+                    t.printStackTrace(); 
+                }
+            }
+        } 
+    }
+    private static class StreamHandlerOnCompleteProc implements Runnable {
+
+        private FileStreamHandler[] items; 
+        private Map data; 
+        
+        StreamHandlerOnCompleteProc( FileStreamHandler[] items, Map data ) {
+            this.items = items; 
+            this.data = data; 
+        }
+        
+        public void run() {
+            if ( items == null || items.length==0 ) return; 
+
+            for ( FileStreamHandler item : items ) { 
+                try { 
+                    item.oncomplete( data ); 
+                } catch(Throwable t) {
+                    t.printStackTrace(); 
+                }
+            } 
+        }     
+    }    
 }
