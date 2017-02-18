@@ -30,6 +30,49 @@ public final class DateFunc {
         return m2 - m1;
     }
     
+    /**************************************************************************
+     * base line refers to the day comparison within the month.
+     * if 0 then end of month
+     * if 1 then begin of month
+     * if any number that will be the day in a month. 
+     * For example:  Feb 28, 2017 - Mar 31, 2017. 
+     * If base line is 0 then correct to feb 28 - mar 31. 
+     * If base line is 1 then correct to feb 1 - mar 31. diff :  1 month 
+     * If base line is any day say 15, then feb 15 - mar 31. 
+    ***************************************************************************/
+    public static long monthsDiff( Date startMonth, Date endMonth, int baseLine ) {
+        Calendar cal1 = Calendar.getInstance();
+        cal1.setTime(startMonth);
+        Calendar cal2 = Calendar.getInstance();
+        cal2.setTime(endMonth);
+        int m1 = (cal1.get(Calendar.YEAR) * 12) + cal1.get(Calendar.MONTH);
+        int m2 = (cal2.get(Calendar.YEAR) * 12) + cal2.get(Calendar.MONTH);
+        long diff = m2 - m1;
+        if( diff <= 0 ) return 0;
+
+        int d1 = cal1.get(Calendar.DAY_OF_MONTH);
+        int d2 = cal2.get(Calendar.DAY_OF_MONTH);
+
+        //compare month ends
+        if( baseLine == 0 ) {
+            int daysInMonth2 = cal2.getActualMaximum(Calendar.DAY_OF_MONTH);
+            if( d2 < daysInMonth2 ) diff = diff - 1;
+        }   
+        else if (baseLine == 1 ) {
+            if( d1 > 1 ) diff = diff - 1;
+        }
+        else {
+            if( d1 > baseLine ){
+                diff = diff - 1;
+            }
+            else if( d2 < baseLine ) {
+                diff = diff - 1;
+            }
+        }
+        if(diff <0) diff = 0;
+        return diff;
+    }
+    
     public static long yearsDiff( Date startDate, Date endDate) {
         if (startDate == null || endDate == null ) 
             return 0;

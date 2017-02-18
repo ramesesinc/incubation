@@ -30,7 +30,7 @@ public class DateTest extends TestCase {
     }
     
     // TODO add test methods here. The name must begin with 'test'. For example:
-    public void testFindNextWorkday() {
+    public void xtestFindNextWorkday() {
         Date d1 = java.sql.Date.valueOf("2016-12-31");
         List<Date> list = new ArrayList();
         list.add( java.sql.Date.valueOf("2017-03-05"));
@@ -48,6 +48,12 @@ public class DateTest extends TestCase {
         
         Date d2 = DateFunc.getFindNextWorkDay(d1, list);
         System.out.println("New date is " + d2);
+    }
+    
+    public void testMonthDiff() {
+        Date d1 = java.sql.Date.valueOf("2017-03-31");
+        Date d2 = java.sql.Date.valueOf("2017-05-01");
+        System.out.println( "month diff " +  DateFunc.monthsDiff(d1, d2, 15));
     }
 
 }
