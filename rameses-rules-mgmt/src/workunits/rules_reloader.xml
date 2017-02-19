@@ -1,6 +1,10 @@
 <workunit extends="wtemplates/RuleMgmtController.xml" serviceName="RuleMgmtService">
     <invokers>
        <invoker type="rulemgmt:tools" action="reload" caption="Reload" target="process" index="10"/>
+       
+       <!-- -->
+       <invoker type="rulemgmt:tools" caption="Undeploy for Upgrade" action="undeployForUpgrade" index="11" target="process"/>
+       <invoker type="rulemgmt:tools" caption="Redeploy Upgrade" action="redeployUpgrade" index="12"  target="process"/>
     </invokers>
     <code>
         <![CDATA[
@@ -19,6 +23,9 @@
                 @Service("RuleMgmtService")
                 def service;
                 
+                @Service("RuleUpdaterService")
+                def upgradeSvc;
+                
                 def ruleset;
             
                 def reload() {
@@ -26,6 +33,18 @@
                         service.reload(ruleset);
                         MsgBox.alert("Reload successful");
                     }
+                }
+                
+                def undeployForUpgrade() {
+                    if(!MsgBox.confirm("You are about to undeploy for upgrading definition. Continue?")) return;
+                    upgradeSvc.undeployForUpgrade([ruleset: ruleset ]);
+                    MsgBox.alert('Undeploy upgrade completed');
+                }
+
+                def redeployUpgrade() {
+                    if(!MsgBox.confirm("You are about to redeploy the items that were undeployed. Continue?")) return;
+                    upgradeSvc.redeployUpgrade([ruleset: ruleset ]);
+                    MsgBox.alert('Redeploy upgrade and reload completed');
                 }
                 
             }

@@ -135,7 +135,7 @@ public abstract class XComponentPanel extends JPanel
         
         afterLoad(); 
     } 
-
+    
     public final void refresh() {  
         String expr = getVisibleWhen(); 
         if (expr != null && expr.trim().length() > 0) {
