@@ -372,6 +372,7 @@ public class XActionBar extends JPanel implements UIComposite, ActiveControl, Mo
         btn.setBinding(binding);
         
         Map props = new HashMap(action.getProperties());
+        btn.putClientProperty("disableWhen", props.get("disableWhen"));        
         Object depends = props.get("depends");
         if (depends != null && !(depends instanceof Object[]))
             props.put("depends", new String[]{depends.toString()});
@@ -438,6 +439,8 @@ public class XActionBar extends JPanel implements UIComposite, ActiveControl, Mo
             boolean allowed = ControlSupport.isPermitted(domain, role, permission);
             if (!allowed) continue;
             
+            //try { btn.refresh(); } catch(Throwable t){;} 
+            
             String expression = (String) btn.getClientProperty("visibleWhen");
             if (expression != null && expression.trim().length() > 0) { 
                 try { 
@@ -445,7 +448,7 @@ public class XActionBar extends JPanel implements UIComposite, ActiveControl, Mo
                     btn.setVisible(result); 
                 } catch(Throwable t) { 
                     btn.setVisible(false); 
-                    t.printStackTrace();
+                    //t.printStackTrace();
                 }
                 
             } else { 

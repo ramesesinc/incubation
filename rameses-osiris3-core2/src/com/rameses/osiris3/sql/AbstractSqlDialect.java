@@ -414,11 +414,16 @@ public abstract class AbstractSqlDialect implements SqlDialect {
             } 
             
         } else { 
+            WhereFilter wf = null; 
+            if( model.getOrWhereList() != null && model.getOrWhereList().size()==1 ) {
+                wf = model.getOrWhereList().get(0); 
+            }
+                
             sb.append(" SELECT ");
             sb.append( buildSelectFields(model) );
             sb.append(" FROM ");
             sb.append( buildTablesForSelect(model) );
-            sb.append( buildWhereForSelect(model, null) );
+            sb.append( buildWhereForSelect(model, wf) );
             sb.append( buildGroupByStatement(model) );
             if ( includeOrderBy ) {
                 sb.append( buildOrderStatement(model));
