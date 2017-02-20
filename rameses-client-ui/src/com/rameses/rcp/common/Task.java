@@ -19,7 +19,11 @@ public abstract class Task {
     }
 
     public boolean equals(Object obj) {
-        return obj != null && obj instanceof Task && ValueUtil.isEqual(id, ((Task)obj).id);
+        if (!(obj instanceof Task)) return false; 
+        
+        String id1 = getId(); 
+        String id2 = ((Task) obj).getId(); 
+        return (id1 != null && id2 != null && id1.equals(id2)); 
     }
 
     public int hashCode() {
