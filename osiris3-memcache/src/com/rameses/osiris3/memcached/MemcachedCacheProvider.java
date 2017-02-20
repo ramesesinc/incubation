@@ -19,12 +19,13 @@ import java.util.Map;
  */
 public class MemcachedCacheProvider extends XConnectionProvider {
     
+    private final static String KEY_NAME = "memcached"; 
+    
     public String getProviderName() {
-        return "memcached";
+        return KEY_NAME; 
     }
 
     public XConnection createConnection(String name, Map conf) {
-        return new MemcacheCached(name, conf);
-    }
-    
+        return new MemcachedCache(name, conf);
+    }    
 }

@@ -238,17 +238,19 @@ public class XButton extends JButton implements UICommand, ActionListener,
     // <editor-fold defaultstate="collapsed" desc=" UICommand implementation ">
     
     public void refresh() { 
-        if (!ValueUtil.isEmpty(expression)) {
+        String exprstr = getExpression();
+        if (!ValueUtil.isEmpty(exprstr)) {
             Object result = UIControlUtil.evaluateExpr(binding.getBean(), expression);
             setText((result==null? "": result.toString()));
         }
         
-        if (!ValueUtil.isEmpty(visibleWhen)) {
+        exprstr = getVisibleWhen(); 
+        if (!ValueUtil.isEmpty(exprstr)) {
             boolean result = false; 
             try { 
                 result = UIControlUtil.evaluateExprBoolean(binding.getBean(), visibleWhen);
             } catch(Throwable t) {
-                t.printStackTrace();
+                //t.printStackTrace();
             }
             
             if (!result) {
@@ -258,7 +260,8 @@ public class XButton extends JButton implements UICommand, ActionListener,
             }
         }
         
-        if (!ValueUtil.isEmpty(disableWhen)) {
+        exprstr = getDisableWhen(); 
+        if (!ValueUtil.isEmpty(exprstr)) {
             boolean result = false; 
             try { 
                 result = UIControlUtil.evaluateExprBoolean(binding.getBean(), disableWhen);

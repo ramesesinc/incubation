@@ -80,7 +80,7 @@ public final class Base64Cipher
         if (value == null) return null; 
         if (isEncoded(value)) return value; 
         
-        return encode(value.getBytes()); 
+        return encode((Object) value); 
     } 
     
     public String encode(byte[] bytes) {

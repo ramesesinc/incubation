@@ -1,5 +1,5 @@
 /*
- * ReportData.java
+ * ReportModel.java
  *
  * Created on November 25, 2009, 2:25 PM
  *
@@ -151,7 +151,7 @@ public abstract class ReportModel {
                     System.out.println("Error on parameter [" + pname  + "] caused by " + t.getMessage());
                 }
             }
-        }       
+        } 
         
         conf.put("REPORT_UTIL", new ReportDataUtil());
         conf.put("REPORTHELPER", new ReportDataSourceHelper()); 
