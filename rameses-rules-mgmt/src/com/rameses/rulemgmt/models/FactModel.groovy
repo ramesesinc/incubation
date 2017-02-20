@@ -96,5 +96,30 @@ class FactModel extends CrudFormModel {
         return null;
     }
     
+    public def copyFact() {
+        def e = [fields:[]];
+        entity.each { k,v->
+            if( !k.matches("objid|fields") ) {
+                e.put(k,v);
+            } 
+        }
+        entity.fields.each { f->
+            def fld = [:];
+            f.each { k,v->
+                if(!k.matches("objid|parentid")) {
+                    fld.put(k,v);
+                }
+            }
+            e.fields << fld;
+        }
+        e.name = null;
+        e.factclass = null;
+        e.title = null;
+        e.rulesets = [];
+        def z = create();
+        entity = e;
+        return z;
+    }
+    
     
 }
