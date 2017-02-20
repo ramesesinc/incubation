@@ -13,12 +13,13 @@ import java.util.Date;
 
 public abstract class CountDownTimer extends ScheduledTask {
     
-    private long secondsLeft = -1;
-    private Calendar timerCal = Calendar.getInstance();
-    private SimpleDateFormat formatter;
-    private boolean executed;
-    private boolean paused;
+    private final Object LOCKED = new Object();
     
+    private SimpleDateFormat formatter;
+    private Calendar timerCal = Calendar.getInstance();
+    private long secondsLeft = -1;
+    private boolean executed;
+    private boolean paused;     
     
     public CountDownTimer() {
         formatter = new SimpleDateFormat(getTimeFormat());
@@ -37,14 +38,18 @@ public abstract class CountDownTimer extends ScheduledTask {
     }
     
     public final void execute() {
-        if (!executed) { 
-            executed = true;
-            secondsLeft = getMaxSeconds();
+        synchronized (LOCKED) {
+            if (!executed) { 
+                executed = true;
+                secondsLeft = getMaxSeconds();
+            } 
+
+            secondsLeft--; 
+            onProgress();
+            if (isEnded()) { 
+                onTimeout();
+            }
         }
-        
-        secondsLeft--;
-        onProgress();
-        if (isEnded()) onTimeout();
     }
     
     public final boolean accept() {
@@ -83,16 +88,16 @@ public abstract class CountDownTimer extends ScheduledTask {
         return formatter.format(getTimeLeft());
     }
     
-    public void pause() {
-        paused = true;
-    }
-    
-    public void resume() {
-        paused = false;
-    }
-    
     public void reset() {
-        secondsLeft = -1;
         executed = false;
+        secondsLeft = -1; 
     }
+    
+    public void pause() {
+        this.paused = true; 
+    }
+    
+    public void resume() { 
+        this.paused = false; 
+    }     
 }

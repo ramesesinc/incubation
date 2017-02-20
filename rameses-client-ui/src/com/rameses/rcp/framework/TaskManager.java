@@ -193,7 +193,15 @@ public class TaskManager {
         
         public void run() { 
             try {
-                if ( isCancelled() ) {
+                if ( task.isCancelled() ) {
+                    try { 
+                        future.cancel( true ); 
+                    } catch(Throwable t) {;} 
+                
+                    task = null; 
+                    remove(); 
+                    
+                } else if ( isCancelled()) {
                     try { 
                         future.cancel( true ); 
                     } catch(Throwable t) {;} 
@@ -207,14 +215,16 @@ public class TaskManager {
 
                 } else {
                     task.start(); 
-                    task.execute();
+                    if ( task.accept() ) { 
+                        task.execute(); 
+                    } 
                     if ( task.isEnded() ) { 
                         task.end();
                     } 
                 } 
-            } catch(Throwable t) {
+            } catch(Throwable t) { 
                 t.printStackTrace(); 
-            }
+            } 
         } 
     }     
 }
