@@ -239,8 +239,17 @@ public class CrudListModel extends AbstractCrudModel {
         return true; 
     }
     
+    Number convertNumber( Object value ) {
+        try { 
+            if ( value instanceof Number ) return value; 
+ 
+            return new Long( value.toString());
+        } catch(Throwable t) {
+            return null; 
+        } 
+    }
+
     final def _self = this; 
-    
     def listHandler = [ 
         isAutoResize  : {
             return _self.isAutoResize(); 
@@ -265,6 +274,16 @@ public class CrudListModel extends AbstractCrudModel {
                     cc.type = c.datatype;
                 }
                 cc.colindex = maxSz;
+
+                def num = convertNumber( cc.width ); 
+                if ( num != null ) cc.width = num.intValue();
+                
+                num = convertNumber( cc.minWidth ); 
+                if ( num != null ) cc.minWidth = num.intValue();
+ 
+                num = convertNumber( cc.maxWidth ); 
+                if ( num != null ) cc.maxWidth = num.intValue();
+
                 initColumn( cc );
                 zcols << cc;
             }
