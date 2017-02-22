@@ -114,21 +114,21 @@ public class NavigationHandlerImpl implements NavigationHandler {
             //-- process String outcome
             else {
                 String out = outcome+"";
-                if ( out.startsWith("_close") ) {
-                    if ( !conStack.isEmpty() ) {
-                        if ( conStack.size() > 1 ) {
-                            conStack.pop();
-                            
-                            if( out.contains(":") ) {
-                                out = out.substring(out.indexOf(":")+1);
-                                navigate(panel, source, out);
-                                return;
-                            }
-                            
-                        } else {
-                            String conId = curController.getId();
-                            platform.closeWindow(conId);
+                if ( out.startsWith("_close") ) { 
+                    if ( conStack.size() > 1 ) {
+                        conStack.pop(); 
+                        
+                        if( out.contains(":") ) {
+                            out = out.substring(out.indexOf(":")+1);
+                            navigate(panel, source, out);
+                            return;
                         }
+                    } else {
+                        String conId = curController.getId();
+                        if ( conId != null ) platform.closeWindow( conId );  
+                        
+                        conId = (String) panel.getClientProperty( NavigatablePanel.PROPERTY_ID ); 
+                        if ( conId != null ) platform.closeWindow( conId ); 
                     }
                     
                 } else if ( out.startsWith("_exit")) {
