@@ -203,16 +203,24 @@ public class Column implements Serializable
     } 
     
     public int getWidth() { return width; }    
-    public void setWidth(int width) { this.width = width; }
-    
+    public void setWidth(int width) { 
+        this.width = width; 
+    }
+        
     public int getMinWidth() { return minWidth; }    
-    public void setMinWidth(int minwidth) { this.minWidth = minwidth; }
+    public void setMinWidth(int minwidth) { 
+        this.minWidth = minwidth; 
+    }
     
     public int getMaxWidth() { return maxWidth; }    
-    public void setMaxWidth(int maxwidth) { this.maxWidth = maxwidth; }
+    public void setMaxWidth(int maxwidth) { 
+        this.maxWidth = maxwidth; 
+    }
     
     public boolean isRequired() { return required; }    
-    public void setRequired(boolean required) { this.required = required; }
+    public void setRequired(boolean required) { 
+        this.required = required; 
+    }
     
     public boolean isResizable() { return resizable; }    
     public void setResizable(boolean resizable) { 
