@@ -161,7 +161,12 @@ public class NavigationHandlerImpl implements NavigationHandler {
             
             //refresh new view
             panel.renderView();
-        }
+            
+            if ( panel.getControllers().size() <= 0 ) { 
+                String pid = (String) panel.getClientProperty( NavigatablePanel.PROPERTY_ID ); 
+                if ( pid != null ) platform.closeWindow( pid ); 
+            } 
+        } 
     }
     
 }
