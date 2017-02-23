@@ -44,4 +44,4 @@ public abstract class ScheduledTask extends Task
     public void restart() {
         expiryTime = System.currentTimeMillis() + getInterval();
     }
-}
+} 
