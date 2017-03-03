@@ -11,13 +11,11 @@ import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.DefaultConsumer;
 import com.rabbitmq.client.Envelope;
 import com.rameses.osiris3.xconnection.MessageConnection;
+import com.rameses.osiris3.xconnection.MessageHandler;
 import com.rameses.osiris3.xconnection.XConnection;
 import com.rameses.osiris3.xconnection.XConnectionProvider;
 import com.rameses.util.Base64Cipher;
-import com.rameses.util.SealedMessage;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.util.Map;
 
 /**
@@ -40,11 +38,16 @@ public class RabbitMQConnectionProvider extends XConnectionProvider {
         return PROVIDER_NAME; 
     }
 
-    public XConnection createConnection(String name, Map conf) { 
+    public XConnection createConnection(String name, Map params ) { 
         try { 
-            Channel channel = getChannel( conf ); 
+            Config conf = new Config( params ); 
+            Channel channel = getChannel( conf );             
             RabbitMQConnection mqc = new RabbitMQConnection(name, context, conf, sender ); 
-            channel.basicConsume( queue, true, new Receiver(channel, mqc));  
+
+            if ( conf.isAllowReceive() ) {
+                String routingkey = conf.getRoutingKey();
+                channel.basicConsume( routingkey, true, new Receiver(channel, mqc));  
+            }
             return mqc; 
         } catch(RuntimeException re) { 
             throw re; 
@@ -53,20 +56,14 @@ public class RabbitMQConnectionProvider extends XConnectionProvider {
         } 
     }
     
-    Channel getChannel( Map conf ) { 
+    Channel getChannel( Config conf ) { 
         try { 
             if ( factory == null ) { 
                 factory = new ConnectionFactory(); 
-                factory.setHost( (String) conf.get("host") ); 
-                factory.setUsername( (String) conf.get("user") ); 
-                factory.setPassword( (String) conf.get("pwd") ); 
-
-                int heartbeat = 60; 
-                try { 
-                    heartbeat = Integer.parseInt(conf.get("heartbeat").toString()); 
-                } catch(Throwable t) {;} 
-
-                factory.setRequestedHeartbeat( heartbeat ); 
+                factory.setHost( conf.getHost() ); 
+                factory.setUsername( conf.getUserName() ); 
+                factory.setPassword( conf.getPassword() ); 
+                factory.setRequestedHeartbeat( conf.getHearbeat() ); 
             }  
             
             if ( connection == null ) { 
@@ -76,18 +73,19 @@ public class RabbitMQConnectionProvider extends XConnectionProvider {
             if ( channel == null ) { 
                 channel = connection.createChannel(); 
                 
-                queue = (String) conf.get("queue"); 
+                queue = conf.getQueueName(); 
                 if ( queue != null ) {
                     channel.queueDeclarePassive( queue ); 
                 }
                 
-                String channelgroup = (String) conf.get("channelgroup"); 
-                String exchange = (String) conf.get("exchange");
-                if ( exchange != null ) {
-                    channel.exchangeDeclare( exchange, "direct", true );
-                    channel.queueBind( queue, exchange, channelgroup);
+                String routingkey = conf.getRoutingKey();
+                String exchange = conf.getExchangeName();
+                if ( exchange != null && exchange.trim().length() > 0 ) {
+                    String type = conf.getType();
+                    channel.exchangeDeclare( exchange, type, true );
+                    //channel.queueBind( queue, exchange, channelgroup);
                 } 
-                sender = new Sender( queue, exchange, channelgroup );                 
+                sender = new Sender( queue, exchange, routingkey );                 
             } 
             return channel; 
         } catch (RuntimeException re) { 
@@ -134,14 +132,14 @@ public class RabbitMQConnectionProvider extends XConnectionProvider {
         
         private String queue; 
         private String exchange;
-        private String channelgroup;
+        private String routingkey;
         
         private Base64Cipher base64; 
         
-        Sender( String queue, String exchange, String channelgroup ) {
+        Sender( String queue, String exchange, String routingkey ) {
             this.queue = queue;
             this.exchange = exchange;
-            this.channelgroup = channelgroup;
+            this.routingkey = routingkey;
             this.base64 = new Base64Cipher(); 
         }
         
@@ -162,13 +160,41 @@ public class RabbitMQConnectionProvider extends XConnectionProvider {
                 if ( exchange == null) { 
                     channel.basicPublish("", queue, null, message); 
                 } else { 
-                    channel.basicPublish( exchange, channelgroup, null, message);
+                    channel.basicPublish( exchange, routingkey, null, message);
                 } 
             } catch (RuntimeException re) { 
                 throw re; 
             } catch (Exception e) { 
                 throw new RuntimeException( e.getMessage(), e ); 
-            }                
+            } 
+        }
+    }
+    
+    // </editor-fold> 
+
+    // <editor-fold defaultstate="collapsed" desc=" DisabledMode ">
+
+    private class DisabledMode extends MessageConnection {
+
+        private Map conf; 
+        
+        DisabledMode( Map conf ) {
+            this.conf = conf; 
+        }
+        
+        public void send(Object data) {
+        }
+        public void sendText(String data) {
+        }
+        public void start() {
+        }
+        public Map getConf() { 
+            return conf; 
+        }
+
+        public synchronized void addHandler(MessageHandler mh) {
+        }
+        public synchronized void notifyHandlers(Object data) {
         }
     }
     
