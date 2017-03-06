@@ -27,7 +27,7 @@ class Config {
     }
     private Boolean getBool( Object key ) {
         try { 
-            return new Boolean( getString(key)); 
+            return new Boolean( getString(key).toString() ); 
         } catch(Throwable t) {
             return null; 
         }

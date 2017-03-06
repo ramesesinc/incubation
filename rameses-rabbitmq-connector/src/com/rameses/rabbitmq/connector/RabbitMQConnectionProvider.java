@@ -41,14 +41,15 @@ public class RabbitMQConnectionProvider extends XConnectionProvider {
     public XConnection createConnection(String name, Map params ) { 
         try { 
             Config conf = new Config( params ); 
-            Channel channel = getChannel( conf );             
-            RabbitMQConnection mqc = new RabbitMQConnection(name, context, conf, sender ); 
-
-            if ( conf.isAllowReceive() ) {
-                String routingkey = conf.getRoutingKey();
-                channel.basicConsume( routingkey, true, new Receiver(channel, mqc));  
-            }
-            return mqc; 
+            return new RabbitMQClient( name, context, conf );
+//            Channel channel = getChannel( conf );             
+//            RabbitMQConnection mqc = new RabbitMQConnection(name, context, conf, sender ); 
+//
+//            if ( conf.isAllowReceive() ) {
+//                String routingkey = conf.getRoutingKey();
+//                channel.basicConsume( routingkey, true, new Receiver(channel, mqc));  
+//            }
+//            return mqc; 
         } catch(RuntimeException re) { 
             throw re; 
         } catch(Exception e) { 
