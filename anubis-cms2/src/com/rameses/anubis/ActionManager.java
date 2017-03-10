@@ -130,8 +130,8 @@ public class ActionManager {
             sc.setProperty("PARAMS", ctx.getParams() );
             sc.setProperty("PROJECT", project );
             sc.setProperty("SERVICE", project.getServiceManager() );
-            sc.setProperty( "REQUEST", ctx.getRequest() );
-            sc.setProperty( "RESPONSE", ctx.getResponse() );
+            sc.setProperty("REQUEST", ctx.getRequest() );
+            sc.setProperty("RESPONSE", ctx.getResponse() );
             sc.setProperty("SESSION", ctx.getSession() );
             return sc.run();
         }

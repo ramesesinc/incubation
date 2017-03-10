@@ -5,10 +5,13 @@ import com.rameses.anubis.File;
 import com.rameses.anubis.PermalinkManager;
 import com.rameses.anubis.Project;
 import com.rameses.anubis.SessionContext;
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.net.URLEncoder;
+import java.util.HashMap;
 import java.util.Map;
 import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -67,7 +70,7 @@ public class AnubisMainServlet extends AbstractAnubisServlet {
             actx.setAttribute( "ajaxRequest", true );
         }
         
-        if(!ajaxRequest) {
+        if(!ajaxRequest) { 
             try {
                 //check if filename matches permalinks. if secured,
                 //use secured permalinks instead
@@ -75,14 +78,30 @@ public class AnubisMainServlet extends AbstractAnubisServlet {
                 String resolvedName = permalink.resolveName( fullPath, params  );
                 if(resolvedName!=null) filename = resolvedName;
                 file = project.getFileManager().getFile( filename );
-            } catch(com.rameses.anubis.FileNotFoundException fe) {
-                hres.setStatus(HttpServletResponse.SC_NOT_FOUND);
-                file = project.getFileManager().getFile( "/404.pg" );
-                InputStream is = project.getContentManager().getContent( file, params );
-                ResponseUtil.write( hreq, hres, mimeType, is);
-            } catch(Exception e) {
-                throw e;
+            } catch(com.rameses.anubis.FileNotFoundException fe) { 
+                hres.setStatus( HttpServletResponse.SC_NOT_FOUND ); 
+                File f = getErrorFile( HttpServletResponse.SC_NOT_FOUND ); 
+                if ( f != null ) { 
+                    handleError(hreq, hres, mimeType, f, fe); 
+                    return; 
+                }       
+                throw new ServletException( fe.getMessage(), fe ); 
+                
+            } catch(Throwable e) {  
+                hres.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR); 
+                File f = getErrorFile( HttpServletResponse.SC_INTERNAL_SERVER_ERROR ); 
+                if ( f != null ) {
+                    handleError(hreq, hres, mimeType, f, e); 
+                    return; 
+                }
+                
+                if ( e instanceof RuntimeException ) {
+                    throw (RuntimeException) e; 
+                } else {
+                    throw new ServletException(e.getMessage(), e); 
+                }
             }
+            
         } else {
             file = project.getFileManager().getFile( filename );
         }
@@ -139,16 +158,77 @@ public class AnubisMainServlet extends AbstractAnubisServlet {
             //if no permission, redirect to a non-authorized page
             if ( !authorized ) {
                 hres.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                file = project.getFileManager().getFile( "/403.pg" );
-                InputStream is = project.getContentManager().getContent(file, params);
-                ResponseUtil.write(hreq, hres, mimeType, is);
+                File f = getErrorFile( HttpServletResponse.SC_FORBIDDEN ); 
+                if ( f != null ) {
+                    handleError(hreq, hres, mimeType, f, new Exception("Forbidden")); 
+                }                 
                 return;
-            }
+            } 
             
-            hres.setStatus(HttpServletResponse.SC_OK);
-            InputStream is = project.getContentManager().getContent(file,params);
-            ResponseUtil.write( hreq, hres, mimeType, is);
+            try { 
+                hres.setStatus(HttpServletResponse.SC_OK);
+                InputStream inp = project.getContentManager().getContent(file,params);
+                ResponseUtil.write( hreq, hres, mimeType, inp);
+            } 
+            catch(Throwable e) { 
+                hres.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR); 
+                File f = getErrorFile( HttpServletResponse.SC_INTERNAL_SERVER_ERROR ); 
+                if ( f != null ) {
+                    handleError(hreq, hres, mimeType, f, e); 
+                    return; 
+                }
+                
+                if ( e instanceof RuntimeException ) {
+                    throw (RuntimeException) e; 
+                } else {
+                    throw new ServletException(e.getMessage(), e); 
+                }                
+            } 
         }
     }
+    
+    private File getErrorFile( int status ) {
+        AnubisContext actx = AnubisContext.getCurrentContext();
+        Project project = actx.getProject();
+        
+        File file = null; 
+        if ( status == HttpServletResponse.SC_FORBIDDEN ) { 
+            file = findFile( project, "/403.pg" ); 
+        } 
+        else if ( status == HttpServletResponse.SC_NOT_FOUND ) {
+            file = findFile( project, "/404.pg" );
+        }
+        else if ( status == HttpServletResponse.SC_INTERNAL_SERVER_ERROR ) {
+            file = findFile( project, "/500.pg" );
+        }
+        
+        if ( file == null ) {
+            file = findFile( project, "/error.pg" );
+        } 
+        return file; 
+    }
+    private File findFile( Project project, String filepath ) { 
+        try {
+            return project.getFileManager().getFile( filepath );
+        } catch (Exception e) {
+            return null; 
+        }
+    }
+    private void handleError( HttpServletRequest hreq, HttpServletResponse hres, String mimeType, File targetFile, Throwable error ) throws Exception { 
+        AnubisContext actx = AnubisContext.getCurrentContext();
+        Project project = actx.getProject();
+        Map params = actx.getParams();
+        Map map = new HashMap(); 
+        if ( params != null ) { 
+            map.putAll( params );
+        } 
+        map.put("ERROR", error); 
+
+        InputStream inp = project.getContentManager().getContent( targetFile, map );
+        if ( inp == null ) { 
+            inp = new ByteArrayInputStream("".getBytes()); 
+        } 
+        ResponseUtil.write( hreq, hres, mimeType, inp );
+    } 
 }
 
