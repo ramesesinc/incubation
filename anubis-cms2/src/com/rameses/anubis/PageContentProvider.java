@@ -34,8 +34,9 @@ public class PageContentProvider extends ContentProvider {
         Page page = new Page(file);
         ctx.setCurrentPage( page );
         ContentMap pmap = new ContentMap();
-        String result  = "";
+        if ( params != null ) pmap.putAll( params ); 
         
+        String result  = "";        
         try {
             ContentTemplate ct = project.getTemplateCache().getTemplate( file.getPath(), contentSource );
             result = ct.render( pmap  );
