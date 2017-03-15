@@ -83,6 +83,7 @@
 		<field name="obj_value" />
 		<complex name="listvalue" type="list" required="false" serializer="default" />
 		<field name="lov" />
+		<field name="rangeoption" defaultValue="0" type="integer"/>
 	</element>	
 
 	<element name="ruleset" tablename="sys_ruleset">

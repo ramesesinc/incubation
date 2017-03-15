@@ -2,11 +2,20 @@
     <tr>
         <td colspan="3">Use Variable: ${entity.var.name}</td>
     </tr>
-    <tr>
-        <th>Greater than or equal to</th>
-        <th>Less than</th>
-        <th>Formula</th>
-    </tr>
+    <%if( rangeoption == 1 ) { %>
+        <tr>
+            <th>Greater than</th>
+            <th>Less than or equal to</th>
+            <th>Formula</th>
+        </tr>
+    <% }%>
+    <% if( rangeoption != 1 ) {%>
+        <tr>
+            <th>Greater than or equal to</th>
+            <th>Less than</th>
+            <th>Formula</th>
+        </tr>
+    <%}%>
     <% entity.entries.each { o-> %>
         <tr>
             <td>${(!o.from || o.from == 'null') ?'': o.from}</td>

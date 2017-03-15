@@ -9,6 +9,7 @@
 
 package com.rameses.osiris2.common;
 
+import com.rameses.rcp.common.EditorListModel;
 import com.rameses.rcp.common.Opener;
 import java.util.List;
 
@@ -25,5 +26,22 @@ public abstract class ValueRangeModel {
     public abstract Opener getExpressionEditor(Object val);
     public abstract List getValue();
     public abstract void setValue(List list);
+    
+    
+    
+    //0 = greater than or equal to -> less than 
+    //1 = greater than -> less than or equal to
+    int rangeoption = 0;
+    
+    public int getRangeoption() {
+        return rangeoption;
+    }
+    
+    public void setRangeoption(int o) {
+        rangeoption = o;
+    }
+    
+    
+    
     
 }

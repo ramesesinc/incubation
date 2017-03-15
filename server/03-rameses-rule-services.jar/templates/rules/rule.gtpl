@@ -137,13 +137,13 @@ rule "${action.actiondef.name}_${i}_${j}"
 	no-loop
 	when
 		<%if( entry.from && entry.to ){%>
-		rv: RangeEntry( id=="${rule.name}", ${dtype}value >= ${entry.from}, ${dtype}value < ${entry.to} )
+		rv: RangeEntry( id=="${rule.name}", ${dtype}value ${param.rangeoption==0?'>=':'>'} ${entry.from}, ${dtype}value ${param.rangeoption==0?'<':'<='} ${entry.to} )
 		<%}%>
 		<%if( entry.from && !entry.to ){%>
-		rv: RangeEntry( id=="${rule.name}", ${dtype}value >= ${entry.from} )
+		rv: RangeEntry( id=="${rule.name}", ${dtype}value ${param.rangeoption==0?'>=':'>'} ${entry.from} )
 		<%}%>
 		<%if( !entry.from && entry.to ){%>
-		rv: RangeEntry( id=="${rule.name}", ${dtype}value < ${entry.to} )
+		rv: RangeEntry( id=="${rule.name}", ${dtype}value ${param.rangeoption==0?'<':'<='} ${entry.to} )
 		<%}%>
 	then
 		Map bindings = rv.getBindings();

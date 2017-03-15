@@ -1,0 +1,1 @@
+ALTER TABLE sys_rule_action_param ADD COLUMN rangeoption1 INT;
