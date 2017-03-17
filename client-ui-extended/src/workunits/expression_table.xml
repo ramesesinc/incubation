@@ -26,10 +26,23 @@
             def entries;
             def var;
             def vars;
+            def rangeoption = 0;
+            
+            def rangeOptions = [
+                [key:0, value:'greater than or equal to but less than'],
+                [key:1, value:'greater but less than or equal to'],
+            ];
+            
+            @PropertyChangeListener listener = [
+                "rangeoption" : { o->
+                    listModel.reloadAll();
+                }
+            ];
             
             void init() {
                 vars = model.getVars(); 
                 var = model.getVar();
+                rangeoption = model.getRangeoption();
                 def vals = model.getValue();
                 entries = [];
                 if(vals) {
@@ -68,11 +81,20 @@
                     fromValue = o.to;
                 },
                 getColumns: {
-                    return [
-                        new Column(name:"from", width:100, maxWidth:100, editable:false, caption:"Greater than or equal to",typeHandler: new DecimalColumnHandler()),
-                        new Column(name:"to", width:100, maxWidth:100, editable:true, caption:"Less than", typeHandler: new DecimalColumnHandler()),
-                        new Column(name:"value", editable:true, caption:"Value Expression", typeHandler: new OpenerColumnHandler( handler: "formulaOpener" ) )
-                    ] as Column[]
+                    if( rangeoption != 0 ) {
+                        return [
+                            new Column(name:"from", width:100, maxWidth:200, editable:false, caption:"Greater than",typeHandler: new DecimalColumnHandler()),
+                            new Column(name:"to", width:150, maxWidth:200, editable:true, caption:"Less than or equal to", typeHandler: new DecimalColumnHandler()),
+                            new Column(name:"value", editable:true, caption:"Value Expression", typeHandler: new OpenerColumnHandler( handler: "formulaOpener" ) )
+                        ] as Column[]
+                    }
+                    else {
+                        return [
+                            new Column(name:"from", width:150, maxWidth:200, editable:false, caption:"Greater than or equal to",typeHandler: new DecimalColumnHandler()),
+                            new Column(name:"to", width:100, maxWidth:200, editable:true, caption:"Less than", typeHandler: new DecimalColumnHandler()),
+                            new Column(name:"value", editable:true, caption:"Value Expression", typeHandler: new OpenerColumnHandler( handler: "formulaOpener" ) )
+                        ] as Column[]
+                    }
                 },
                 onColumnUpdate: {item, colName->
                     if( colName == 'value' ) {
@@ -108,7 +130,8 @@
                     throw new Exception("Please indicate at least one entry");
                 model.setVar( var );
                 model.setValue( entries );
-                if(updateHandler) updateHandler( [var:var, entries: entries] );
+                model.setRangeoption( rangeoption );
+                if(updateHandler) updateHandler( [var:var, entries: entries, rangeoption: rangeoption] );
                 return "_close";
             }
         }

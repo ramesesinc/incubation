@@ -24,6 +24,7 @@
             def _expr;
             def _var;
             def _listvalue;
+            def _rangeoption;
             
             def editExpression() {
                 _expr = actionParam.expr;
@@ -66,6 +67,8 @@
                 //set temp values
                 _var = actionParam.var;
                 _listvalue = actionParam.listvalue;
+                _rangeoption = actionParam.rangeoption;
+                if(!_rangeoption) _rangeoption = 0;
                 
                 def vars = service.findAllVarsByType( [ruleid: action.parentid, datatype: 'number' ] );
                 def model = [
@@ -83,6 +86,12 @@
                     },
                     setValue: { o->
                         _listvalue = o;
+                    },
+                    getRangeoption: { 
+                        return _rangeoption;
+                    },
+                    setRangeoption: { o->
+                        _rangeoption = o;
                     },
                     getVars: {
                         return vars;
@@ -106,9 +115,10 @@
                 ] as ValueRangeModel;
                 def  handler = {o->
                     actionParam.var = _var;
+                    actionParam.rangeoption = _rangeoption; 
                     actionParam.listvalue = _listvalue;
                     actionParam.exprtype = "range";
-                    actionParam.expr = template.render( "html/range_value", [entity: o] );
+                    actionParam.expr = template.render( "html/range_value", [entity: o, rangeoption: _rangeoption] );
                     binding.refresh("actionParam.expr");
                 }
                 return InvokerUtil.lookupOpener("valuerange:editor", [model:model, updateHandler: handler] );

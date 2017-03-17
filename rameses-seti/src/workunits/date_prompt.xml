@@ -5,7 +5,7 @@
     <code>
         class DatePrompt {
             String title;
-            def date;
+            def date = new Date();
             def handler;
         
             def doCancel() {

@@ -96,5 +96,31 @@ class ActionDefModel extends CrudFormModel {
         return null;
     }
     
+     public def copyAction() {
+        def e = [params:[]];
+        entity.each { k,v->
+            if( !k.matches("objid|params") ) {
+                e.put(k,v);
+            } 
+        }
+        entity.params.each { f->
+            def fld = [:];
+            f.each { k,v->
+                if(!k.matches("objid|parentid")) {
+                    fld.put(k,v);
+                }
+            }
+            e.params << fld;
+        }
+        e.name = null;
+        e.actionname = null;
+        e.actionclass = null;
+        e.rulesets = [];
+        e.title = null;
+        def z = create();
+        entity = e;
+        return z;
+    }
+    
     
 }

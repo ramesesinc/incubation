@@ -31,6 +31,9 @@ public class CrudPageFlowModel extends PageFlowController {
     @Script("ListTypes")
     def listTypes;
     
+    @Script("Lov")
+    def lov;
+    
     public void afterCreate(){;}
     public void  afterCreateData( _schemaname, map ){;}
     
