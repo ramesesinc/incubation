@@ -1,0 +1,7 @@
+<workunit>
+    <code class="com.rameses.seti2.models.CrudSubListModel"/>    
+    <pages>
+        <page template="com.rameses.seti2.views.CrudListPage"/>
+    </pages>
+    
+</workunit> 
