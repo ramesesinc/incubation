@@ -10,16 +10,26 @@ import com.rameses.util.*;
 /**
 * used for lists under sections
 **/
-public abstract class CrudSubListModel extends CrudListModel {
+public class CrudSubListModel extends CrudListModel {
         
     def getMasterEntity() {
         return caller.entity;
     }
 
     void beforeQuery( def qry ) {
-        qry.findBy = getListFilter();
+        def listFilter = getListFilter();
+        if(listFilter) {
+            qry.findBy = getListFilter();
+        }
     }
     
-    public abstract def getListFilter();
+    public def getListFilter() {
+        String parentid = invoker?.properties?.parentid;
+        if(parentid) {
+            def m = [(parentid): getMasterEntity().objid];
+            return m;
+        }
+        return null;
+    }
     
 }
