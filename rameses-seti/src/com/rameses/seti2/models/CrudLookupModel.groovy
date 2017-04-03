@@ -35,7 +35,7 @@ public class CrudLookupModel extends CrudListModel implements SimpleLookupDataSo
         }
     }
     
-    void setSelector(LookupSelector s) {
+    void setSelector(LookupSelector s) { 
         this.selector = s;
     }
     
@@ -43,8 +43,8 @@ public class CrudLookupModel extends CrudListModel implements SimpleLookupDataSo
         def selobj = listHandler.getSelectedValue(); 
         if ( !selobj ) throw new Exception("Please select an item"); 
         
-        if ( onselect ) onselect( selobj );
-        else if ( selector ) selector.select( selobj );
+        if ( selector ) selector.select( selobj );
+        else if ( onselect ) onselect( selobj );
         return "_close"; 
     } 
     
