@@ -235,6 +235,17 @@ public class CrudListModel extends AbstractCrudModel {
         this._multiSelect = b; 
     } 
     
+    public boolean getMultiSelect() {
+        def g = workunit.info.workunit_properties.multiSelect;
+        if(g) {
+            try {
+                return Boolean.parseBoolean( g );
+            }
+            catch(Exception ign){;}
+        }
+        return this._multiSelect;
+    }
+    
     public boolean isAutoResize() { 
         return true; 
     }
@@ -255,7 +266,7 @@ public class CrudListModel extends AbstractCrudModel {
             return _self.isAutoResize(); 
         }, 
         isMultiSelect : {
-            return _multiSelect; 
+            return getMultiSelect(); 
         }, 
         getRows : {
             return getRows();
