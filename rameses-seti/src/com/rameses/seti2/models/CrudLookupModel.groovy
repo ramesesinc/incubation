@@ -44,7 +44,12 @@ public class CrudLookupModel extends CrudListModel implements SimpleLookupDataSo
         if ( !selobj ) throw new Exception("Please select an item"); 
         
         if ( selector ) selector.select( selobj );
-        else if ( onselect ) onselect( selobj );
+        else if ( onselect ) {
+            def retval = onselect( selobj );
+            if(retval!=null) {
+                binding.fireNavigation( retval );
+            }
+        }
         return "_close"; 
     } 
     
