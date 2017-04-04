@@ -35,6 +35,7 @@ public class CrudListModel extends AbstractCrudModel {
     List orWhereList = [];
 
     String strCols;
+    String hiddenCols;
     
     String _entitySchemaName_;   //used in case the view schema is not the same as entity schema
     
@@ -105,7 +106,11 @@ public class CrudListModel extends AbstractCrudModel {
         if(!strCols) {
             strCols = workunit.info.workunit_properties.cols;    
         }
-        
+        //this is for hidden columns
+        hiddenCols = invoker.properties.hiddenCols;
+        if(!hiddenCols) {
+            hiddenCols = workunit.info.workunit_properties.hiddenCols;    
+        }
         if(!schemaName) 
             throw new Exception("Please specify a schema name in the workunit");
         
@@ -114,7 +119,10 @@ public class CrudListModel extends AbstractCrudModel {
         }
         
         def map = [name:schemaName, adapter: adapter]; 
-        if ( strCols ) map.colnames = strCols;
+        if ( strCols ) {
+            map.colnames = strCols;
+            if(hiddenCols) map.colnames + ","+hiddenCols;
+        }
         _schema = getPersistenceService().getSchema( map );
         _schema.name = schemaName;
         if(adapter) _schema.adapter = adapter;
@@ -276,7 +284,9 @@ public class CrudListModel extends AbstractCrudModel {
                 throw new Exception("schema is null. Please call init method")
             def zcols = [];
             //always add the primary keys
-            def selCols = cols.findAll{it.selected == true};
+            String matcher = ".*";
+            if(strCols) matcher = strCols.replace(",","|");
+            def selCols = cols.findAll{it.selected == true && it.name.matches(matcher)};
             int maxSz = selCols.size();
             for( c in selCols ) {
                 def cc = [:];
