@@ -86,7 +86,6 @@ global RuleAction action;
 rule "${rule.name}"
 	agenda-group "${rule.rulegroup}"
 	salience ${rule.salience}
-	
 	when
 		<%prn_date(rule)%>
 		<%rule.conditions.each { cond-> %>
