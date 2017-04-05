@@ -59,7 +59,13 @@ public class RowHeaderView extends JPanel implements TableModelListener
         if ( currentRow != row ) {
             clearEditing();
         }
-        RowView rh = (RowView) getComponent(row);
+        RowView rh = null; 
+        try { 
+            rh = (RowView) getComponent(row);
+        } catch(Throwable t) {
+            return; 
+        } 
+        
         rh.edit(true);
         currentRow = row;
     }
