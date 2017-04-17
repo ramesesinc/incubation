@@ -67,6 +67,10 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
     boolean isCancelEditAllowed() {
         return ( mode == 'edit');
     }
+    
+    boolean isConfirmSave(){
+        return true;
+    }
 
     public void afterInit(){;}
     public void afterCreate(){;}
@@ -274,7 +278,7 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
     def save() {
         if(!_inited_) throw new Exception("This workunit is not inited. Please call open or create action");
        
-        if(!MsgBox.confirm('You are about to save this record. Proceed?')) return null;
+        if( isConfirmSave() && !MsgBox.confirm('You are about to save this record. Proceed?')) return null;
         
         if( mode == 'create' ) {
             entity._schemaname = schemaName;
@@ -402,12 +406,45 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
         def cols = [];
         for( i in subSchema.fields ) {
             if( i.visible == 'false' ) continue;
-            def c = [name: i.name, caption: i.caption];
-            c.type = 'text';
-            c.editable = true;
+            def c = [name:i.name, caption:i.caption]
+            convertType(c, i)
+            c.editable = toBoolean(i.editable, true)
             cols << c;
         }
         return cols;
+    }
+    
+    private boolean toBoolean(val, defvalue){
+        if (val == null) return defvalue;
+        if (val instanceof Boolean) return val;
+        return val.toString().toLowerCase().matches('1|t|true|yes');
+    }
+    
+    private def getFieldTypeUiMapping(){
+        return [
+            text    : 'text',
+            integer : 'integer',
+            date    : 'date',
+            decimal : 'decimal',
+            'long'  : 'integer',
+            'integer' : 'integer',
+            'boolean' : 'checkbox'
+        ]
+    }
+
+    private void convertType(col, fld){
+        if (fld.ui){
+            col.putAll(fld)
+            col.type = fld.ui;
+        }
+        else if (!fld.type)
+            col.type = 'text'
+        else {
+            col.type = fieldTypeUiMapping[fld.type]
+            if (col.type == null){
+                col.type = 'text'
+            }
+        }
     }
     
     public Map createItem(String name, Map subSchema ) {

@@ -28,6 +28,7 @@ public class CrudListModel extends AbstractCrudModel {
     def criteriaList = [];
     def queryForm;
     def whereStatement;
+    def searchCriteria;
     String searchText;
     def cols = [];
     
@@ -236,6 +237,9 @@ public class CrudListModel extends AbstractCrudModel {
     } 
     
     public boolean isAutoResize() { 
+        def val = workunit.info.workunit_properties.autoResize 
+        if (val && val.trim().matches('0|n|no|f|false'))
+            return false;
         return true; 
     }
     
@@ -336,8 +340,12 @@ public class CrudListModel extends AbstractCrudModel {
         def params = [:]
         int i = 0;
         for( c in criteriaList*.entry ) {
+            if (!c.field) continue;
             if(i++>0) buff.append( " AND ");
-            buff.append( c.field.name + ' ' + c.operator.key + ' :' +c.field.extname );
+            if (c.field.type == 'boolean')
+                buff.append( c.field.name + ' ' + c.operator.key );
+            else
+                buff.append( c.field.name + ' ' + c.operator.key + ' :' +c.field.extname );
             params.put( c.field.extname, c.value );
             if( c.operator.key?.toUpperCase() == 'BETWEEN') {
                 buff.append( " AND :"+c.field.extname+"2" );
@@ -347,17 +355,32 @@ public class CrudListModel extends AbstractCrudModel {
         return [buff.toString(), params];
     }
     
+    def buildSearchCriteria() {
+        if (!whereStatement || whereStatement[0].trim().length() == 0) 
+            return null;
+        def str = whereStatement[0]
+        def params = whereStatement[1]
+        params.each{k,v ->
+            if (v)
+                str = str.replace(':'+k, v)
+        }
+        return 'Criteria: ' + str 
+    }
+    
+    
     def showFilter() {
         def h = { o->
             criteriaList.clear();
             criteriaList.addAll( o );     
             if( criteriaList.size() > 0 ) {
                 whereStatement = buildWhereStatement(); 
+                searchCriteria = buildSearchCriteria()
             }
             else {
                 whereStatement = null;       
+                searchCriteria = null;
             }
-            //we call doSearch to set the start at 0
+            binding.refresh('searchCriteria')
             listHandler.doSearch(); 
         }
         return Inv.lookupOpener( "crud:showcriteria", [cols: cols, handler:h, criteriaList: criteriaList] );
@@ -411,8 +434,8 @@ public class CrudListModel extends AbstractCrudModel {
         def m = [:];
         def ename = (!entitySchemaName)? schemaName : entitySchemaName;
         m._schemaname = ename;
-        //show only primary key of the main element.
-        schema.fields.findAll{it.primary && it.source==ename}.each {
+        //show only primary key of the main element.]
+        schema.fields.findAll{it.primary && it.source==schemaName}.each {
             m.put( it.name, selectedItem.get(it.name));
         }
         getPersistenceService().removeEntity( m );
