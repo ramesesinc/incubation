@@ -68,6 +68,8 @@ public class OsirisAppLoader implements AppLoader {
                 ctx.setDebugMode("true".equals(env.get("app.debugMode").toString()));
             }
             
+            ctx.getTaskManager().start();
+            
             //load all loaders
             String loaderType = "loader";
             if( env.get("LOADER_TYPE") != null )
@@ -88,7 +90,7 @@ public class OsirisAppLoader implements AppLoader {
                 platform.showStartupWindow(null, uip, winProps);
             }
             startupApp.load();
-            ctx.getTaskManager().start();
+            
             
             //attach Osiris2MainWindowListener
             platform.getMainWindow().setListener(OsirisContext.getMainWindowListener());
