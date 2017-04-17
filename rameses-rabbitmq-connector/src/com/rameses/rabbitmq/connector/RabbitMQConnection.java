@@ -17,38 +17,30 @@ public class RabbitMQConnection extends MessageConnection {
     
     private AbstractContext context;     
     private String name;
-    private Map conf; 
+    private Config conf; 
     
     private Sender sender; 
     private boolean enabled;
     
-    public RabbitMQConnection(String name, AbstractContext context, Map conf, Sender sender ) {
+    public RabbitMQConnection(String name, AbstractContext context, Config conf, Sender sender ) {
         this.context = context;
         this.name = name;
         this.conf = conf; 
         this.sender = sender; 
-        
-        if ("false".equals( getProperty("enabled")+"")) { 
-            enabled = false; 
-        } else {
-            enabled = true; 
-        }
+        this.enabled = (conf == null ? true: conf.isEnabled()); 
     }
 
     public Map getConf() { 
-        return conf; 
+        return ( conf == null ? null: conf.getSource()); 
     }
 
     public void start() { 
+        System.out.println("start rabbitmqconnection " + hashCode());
     } 
 
     public void stop() {
+        System.out.println("stop rabbitmqconnection " + hashCode());
         super.stop();
-    }
-    
-    private String getProperty( String name ) {
-        Object o = (conf == null? null: conf.get(name)); 
-        return ( o == null ? null: o.toString()); 
     }
 
     public void send( Object data ) { 

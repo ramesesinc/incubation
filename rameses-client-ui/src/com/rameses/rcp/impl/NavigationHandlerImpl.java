@@ -114,21 +114,21 @@ public class NavigationHandlerImpl implements NavigationHandler {
             //-- process String outcome
             else {
                 String out = outcome+"";
-                if ( out.startsWith("_close") ) {
-                    if ( !conStack.isEmpty() ) {
-                        if ( conStack.size() > 1 ) {
-                            conStack.pop();
-                            
-                            if( out.contains(":") ) {
-                                out = out.substring(out.indexOf(":")+1);
-                                navigate(panel, source, out);
-                                return;
-                            }
-                            
-                        } else {
-                            String conId = curController.getId();
-                            platform.closeWindow(conId);
+                if ( out.startsWith("_close") ) { 
+                    if ( conStack.size() > 1 ) {
+                        conStack.pop(); 
+                        
+                        if( out.contains(":") ) {
+                            out = out.substring(out.indexOf(":")+1);
+                            navigate(panel, source, out);
+                            return;
                         }
+                    } else {
+                        String conId = (curController==null? null : curController.getId());
+                        if ( conId != null ) platform.closeWindow( conId );  
+                        
+                        conId = (String) panel.getClientProperty( NavigatablePanel.PROPERTY_ID ); 
+                        if ( conId != null ) platform.closeWindow( conId ); 
                     }
                     
                 } else if ( out.startsWith("_exit")) {
@@ -161,7 +161,12 @@ public class NavigationHandlerImpl implements NavigationHandler {
             
             //refresh new view
             panel.renderView();
-        }
+            
+            if ( panel.getControllers().size() <= 0 ) { 
+                String pid = (String) panel.getClientProperty( NavigatablePanel.PROPERTY_ID ); 
+                if ( pid != null ) platform.closeWindow( pid ); 
+            } 
+        } 
     }
     
 }

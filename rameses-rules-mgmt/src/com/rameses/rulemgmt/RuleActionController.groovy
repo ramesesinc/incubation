@@ -70,8 +70,31 @@ class RuleActionController  {
         if(savehandler) savehandler(rule);
         return "_exit";
     }
+    
     def doCancel() {
         return "_exit";
     }
 
+    void upgrade() {
+        def list = [];
+        def newActionDef = service.findActionDef(entity.actiondef);
+        paramControls.clear();
+        newActionDef.params.each { pp->
+            def z = entity.params.find{ it.actiondefparam.objid == pp.objid };
+            if( z ) {
+                list << z;
+                addParamControl(z);
+            }
+            else {
+                def actionParam = [:];
+                actionParam.objid = "RULACT"+ new UID();
+                actionParam.param = pp;
+                actionParam.actiondefparam = pp;
+                list << actionParam;
+                addParamControl(actionParam);
+            }
+        }
+        entity.params = list;
+    }
+    
 }

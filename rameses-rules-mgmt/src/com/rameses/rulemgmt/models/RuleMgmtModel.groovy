@@ -51,7 +51,7 @@ class RuleMgmtModel extends DefaultListController {
        }
        query.ruleset = ruleset;
        rulegroups = service.getRulegroups([ruleset:query.ruleset]);
-       rulestates = [ "DRAFT", "DEPLOYED", "APPROVED"];
+       rulestates = [ "DRAFT", "DEPLOYED", "APPROVED", "UPGRADE"];
        if( rulegroups.size() > 0 ) {
             query.rulegroup = rulegroups[0].name;
        }

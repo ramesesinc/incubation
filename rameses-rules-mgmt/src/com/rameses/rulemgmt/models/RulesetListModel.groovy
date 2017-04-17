@@ -15,7 +15,7 @@ class RulesetListModel extends CrudListModel {
     
     @Service("RuleMigrationService")
     def service;
-
+    
     void exportDef() {
         if(!selectedItem) throw new Exception("Please select an item");
         def chooser = new JFileChooser();
@@ -36,5 +36,6 @@ class RulesetListModel extends CrudListModel {
             MsgBox.alert("completed!");
         }
     }
+    
     
 }

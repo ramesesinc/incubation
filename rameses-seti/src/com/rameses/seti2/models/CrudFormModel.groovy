@@ -68,10 +68,6 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
         return ( mode == 'edit');
     }
     
-    boolean isConfirmSave(){
-        return true;
-    }
-
     public void afterInit(){;}
     public void afterCreate(){;}
     public void beforeOpen(){;}
@@ -275,10 +271,15 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
         return 'default';
     }
     
+    //there might be cases where you dont want to display option
+    protected boolean isShowConfirm() { return true; }
+    
     def save() {
         if(!_inited_) throw new Exception("This workunit is not inited. Please call open or create action");
        
-        if( isConfirmSave() && !MsgBox.confirm('You are about to save this record. Proceed?')) return null;
+        if( isShowConfirm() ) {
+            if(!MsgBox.confirm('You are about to save this record. Proceed?')) return null;
+        }
         
         if( mode == 'create' ) {
             entity._schemaname = schemaName;

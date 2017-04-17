@@ -21,6 +21,11 @@ import java.util.Map;
 
 public class OsirisAppLoader implements AppLoader {
     
+    public final static String KEY_LOADER_TYPE = "LOADER_TYPE";
+    public final static String KEY_PROPERTIES  = "PROPERTIES";
+    public final static String KEY_CLIENT_ENV  = "CLIENT_ENV";
+    public final static String KEY_CLIENT_PERMISSIONS  = "CLIENT_PERMISSIONS";
+    
     public OsirisAppLoader() {
     }
     

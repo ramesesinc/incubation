@@ -166,7 +166,17 @@ public class WorkflowTaskModel extends CrudFormModel implements WorkflowTaskList
     def showTaskInfo() {
         return Inv.lookupOpener("workflowtask:showinfo");
     }
+
+    public InvokerFilter getSectionFilter() {
+        return null;
+    }
     
-    
+    def getSections() {
+        try {
+            return Inv.lookupOpeners(getSchemaName() + ":section",[:],sectionFilter);
+        } 
+        catch(Exception ex){;}
+    }
+
 }
 

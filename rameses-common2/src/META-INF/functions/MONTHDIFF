@@ -1,8 +1,8 @@
 {
   caption: 'MONTHDIFF',
-  description: 'returns the number of months difference between two dates',
+  description: 'returns the number of months difference between two dates. The optional baseline date refers to the day in a month used to compare the dates. 1-begin of month 0-end of month or any number between 1-28',
   code: 'com.rameses.functions.DateFunc.monthsDiff',
-  title: '@MONTHDIFF( startdate, enddate )', 
+  title: '@MONTHDIFF( startdate, enddate, baseLinedate )', 
   signature: '@MONTHDIFF( |, )', 
   group: 'date' 
 }
