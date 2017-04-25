@@ -31,14 +31,6 @@ public class WorkflowTaskListModel extends com.rameses.seti2.models.CrudListMode
     public String getProcessName() {
         return workunit.info.workunit_properties.processName;
     }
-    
-    public String getEntitySchemaName() {
-        return getProcessName();
-    }
-    
-    public String getSchemaName() {
-        return getEntitySchemaName() + "_task";
-    }
 
     @Close
     void onclose() { 
@@ -65,7 +57,6 @@ public class WorkflowTaskListModel extends com.rameses.seti2.models.CrudListMode
     public beforeFetchNodes( def m ) {
         m.processname = getProcessName();
     }
-
     
     def nodeListHandler = [
         fetchList: { 

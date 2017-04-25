@@ -121,7 +121,7 @@ public class CrudListModel extends AbstractCrudModel {
         def map = [name:schemaName, adapter: adapter]; 
         if ( strCols ) {
             map.colnames = strCols;
-            if(hiddenCols) map.colnames + ","+hiddenCols;
+            if(hiddenCols) map.colnames = strCols + ","+hiddenCols;
         }
         _schema = getPersistenceService().getSchema( map );
         _schema.name = schemaName;
@@ -286,7 +286,7 @@ public class CrudListModel extends AbstractCrudModel {
             //always add the primary keys
             String matcher = ".*";
             if(strCols) matcher = strCols.replace(",","|");
-            def selCols = cols.findAll{it.selected == true && it.name.matches(matcher)};
+            def selCols = cols.findAll{it.selected == true &&  it.name.matches(matcher)};
             int maxSz = selCols.size();
             for( c in selCols ) {
                 def cc = [:];

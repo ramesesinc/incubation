@@ -2,7 +2,7 @@
   caption: 'ROUND',
   description: 'returns the number of rounded to nearest hundreth value.',
   code: 'com.rameses.functions.NumberFunc.round',
-  title: '@ROUND( value )', 
+  title: '@ROUND( value, [scale] )', 
   signature: '@ROUND(.*)',
   group: 'number'  
 }

@@ -1,6 +1,7 @@
 import com.rameses.annotations.*;
 import com.rameses.util.*;
-
+import com.rameses.common.*;
+import com.rameses.util.*;
 
 class WorkflowTaskService  {		
 
@@ -49,6 +50,7 @@ class WorkflowTaskService  {
 
 		//check first if there is already the same refid at start 
 		def em = db.lookup( r.processname +"_task" );
+        //em.debug = true;
         def prevState = createStartTaskInstance( r );		
 
 		r.prevstate = 'start';
@@ -104,7 +106,9 @@ class WorkflowTaskService  {
         if( t.assignee?.objid ) {
             t.startdate = currDate;
         }
-        
+        else if( r.startdate ) {
+            t.startdate = r.startdate;
+        }
     	t.actor = null;
 
         //try to check if there are handlers before creating the task.
@@ -129,9 +133,29 @@ class WorkflowTaskService  {
 
     private def findNextTransition( def r ) {
     	def transitions = wfTransitions.find( [processname: r.processname, parentid: r.prevstate ]).list();
-    	if(transitions.size() == 1 ) return transitions[0];
+    	if(transitions.size() == 1 ) {
+            //check if there's eval
+            def _tran = transitions[0];
+            if( _tran.eval ) {
+                if(!r.info) 
+                    throw new Exception("Please pass an info parameter in findNextTransition bec. there is an eval statement in the transition")
+                boolean b = ExpressionResolver.instance.evalBoolean( _tran.eval, [info: r.info] );
+                if(!b) throw new BreakException();
+            }
+            return _tran;
+        }    
     	for(t in transitions ) {
-    		if( r.action &&  (r.action!=t.action) ) continue;
+            if( r.eval  ) {
+                if(!r.info) {
+                    throw new Exception("Please pass an info parameter in findNextTransition bec. there is an eval statement in the transition")
+                }
+                boolean b = ExpressionResolver.instance.evalBoolean( t.eval, [info: r.info] );
+                if(!b) continue;
+                return t;
+            }
+    		else if( r.action &&  (r.action!=t.action) ) {
+                continue;
+            }    
     		return t;
     	}
     	throw new Exception("Next transition not found!");
@@ -155,8 +179,9 @@ class WorkflowTaskService  {
         ti.transitions.each {
             if(it.properties) it.properties = em.serializer.read( it.properties );
             def action = it.action;
-            if(action?.startsWith("return")) {
+            if(action?.startsWith("return") || action?.startsWith("revert")) {
                 int idx = action.indexOf("_");
+                if(idx <=0) idx = action.indexOf("-");
                 String returnState = null;
                 if( idx > 0 ) returnState = action.substring(idx+1);
                 it.assignee = findReturnSender( em, returnState, ti.prevtaskid );       
@@ -191,18 +216,22 @@ class WorkflowTaskService  {
         if(!t.processname) throw new Exception("processname is required for signal");
 
         def em = db.lookup( t.processname +"_task" );
- 		if(!t.taskid && t.refid) {
+        if( t.taskid ) {
+            //check first if the current taskid matches
+            def tt = em.select("taskid").find( [taskid: t.taskid] ).where( "NOT(state IN ('start','end')) AND enddate IS NULL").first();
+            if(!tt) throw new Exception("Error in signalling " + t.processname + ". taskid is already closed. You may need to refresh the form");
+        }
+ 		else if(t.refid) {
             //find the first open taskid based on refid
             def pp = [refid: t.refid];
             if( t.state ) pp.state = t.state;
             //em.debug = true;
-            def tt = em.select("taskid").find( pp ).where( "NOT(state IN ('start','end')) AND enddate IS NULL").first();
+            def tt = em.select("taskid").find( [refid: t.refid] ).where( "NOT(state IN ('start','end')) AND enddate IS NULL").first();
             if(!tt) throw new Exception("Error in signalling " + t.processname + ". refid does not exist");
             t.taskid = tt.taskid;
         }    
         if(!t.taskid)
             throw new Exception("taskid is required for signal");
- 		if(!t.action && !t.to) throw new Exception("Action or to state is required in signal");
 
  		def tsk = em.select("enddate,state,refid").find( [taskid: t.taskid] ).first(); 
  		if( tsk.enddate ) throw new Exception("This task has already ended");
@@ -211,7 +240,7 @@ class WorkflowTaskService  {
  		closeTaskInstance( [processname:t.processname, taskid: t.taskid, transition: t ] );
 
         //find next transition:
-        def m = [processname: t.processname, prevstate: tsk.state, action:t.action, to:t.to, refid: tsk.refid];
+        def m = [processname: t.processname, prevstate: tsk.state, action:t.action, to:t.to, refid: tsk.refid, info: t.info];
         def trans = findNextTransition( m );
         m.state = trans.to;        
         m.assignee = t.assignee;

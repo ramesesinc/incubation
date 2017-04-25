@@ -1,7 +1,6 @@
 import com.rameses.annotations.*;
 import com.rameses.util.*;
 
-
 class WorkflowTaskListService  {		
 
 	@Service("QueryService")
@@ -27,10 +26,6 @@ class WorkflowTaskListService  {
 
     @ProxyMethod
     public def getList( def o ) {
-        def cols = "taskid,refid,startdate,dtcreated,assignee.name,message";
-        if(o.select) cols += "," + o.select;
-        o.select = cols;
-
         if(o.node?.name) {
             def s = null;
             def p = [:];
@@ -39,16 +34,16 @@ class WorkflowTaskListService  {
                     break;
 
                 case 'end':
-                    s = "state='end'";
+                    s = "taskid IS NULL";
                     break;
 
                 case 'mytask': 
-                    s = "state NOT IN ('start','end') AND enddate IS NULL AND assignee.objid=:assignee";
+                    s = "task.state NOT IN ('start','end') AND task.enddate IS NULL AND task.assignee.objid=:assignee";
                     p.assignee = env.USERID;
                     break;    
 
                 default:
-                    s = "state=:state AND enddate IS NULL ";
+                    s = "task.state=:state AND task.enddate IS NULL ";
                     p.state = o.node.name;
                     
             }

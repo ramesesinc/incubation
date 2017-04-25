@@ -60,32 +60,40 @@ public class WorkflowTaskModel extends CrudFormModel implements WorkflowTaskList
         }
     }
     
-    public void beforeOpen() {
-        entity._wf = true;
+    public String getProcessName() {
+        return workunit.info.workunit_properties.processName;
     }
-    
+
     public def open() {
-        if( entity?.refid ) {
-            refid = entity.refid;
+        //we need to do this so it will not affect the original entity from the list.
+        def tsk = null;
+        def n = entity;
+        entity = [:];
+        n.each { k,v->
+            if(k=="task") {
+                tsk = v;
+            }
+            else {
+                entity.put(k,v);
+            }
         }
+        
         def v = super.open();
-        task = entity.remove("task");
-        if(!task) 
-            throw new Exception("There is no task attached to this entity. Please check read interceptor");
-        buildTransitionActions(task);  
-        buildMessage();
-        if( pageExists(task.state)) {
-            return task.state;
-        }
-        else {
-            return v;
-        }
+	if( tsk ) { 
+            task = workflowTaskService.findTask( [processname: getProcessName(), taskid: tsk.taskid ] );
+            buildTransitionActions(task);  
+            buildMessage();
+            if( pageExists(task.state)) {
+                return task.state;
+            }
+        } 
+        return v;
     }
     
     public def signal( def transition ) {
-        transition.processname = getSchemaName();
+        transition.processname = getProcessName();
         transition.taskid = task.taskid;
-        transition.refid = refid;
+        transition.refid = task.refid;
         def newTask = workflowTaskService.signal( transition );
         if( newTask?.taskid ) {
             task = newTask;
@@ -112,7 +120,7 @@ public class WorkflowTaskModel extends CrudFormModel implements WorkflowTaskList
          if( !tsk.assignee?.objid ) {
             def h = {
                 def m = [:];
-                m.processname = getSchemaName();
+                m.processname = getProcessName();
                 m.taskid = task.taskid;
                 def res = workflowTaskService.assignToMe(m);
                 task.assignee = res.assignee;

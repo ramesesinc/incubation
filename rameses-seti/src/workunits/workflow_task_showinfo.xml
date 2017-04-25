@@ -31,7 +31,7 @@
             
             def listHandler = [
                 fetchList: { o->
-                    return workflowSvc.getTransactionHistory( [refid: task.refid, processname: caller.getSchemaName() ] );
+                    return workflowSvc.getTransactionHistory( [refid: task.refid, processname: caller.getProcessName() ] );
                 }
             ] as BasicListModel;
             
