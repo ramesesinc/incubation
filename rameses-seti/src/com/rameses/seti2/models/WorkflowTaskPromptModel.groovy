@@ -13,7 +13,8 @@ public class WorkflowTaskPromptModel {
     def assigneeList;
     def handler;
     def info;
-
+    def param;
+    
     boolean showAssigneeList = false;
 
     public def getLookupAssignees() {
@@ -33,6 +34,14 @@ public class WorkflowTaskPromptModel {
     }
 
     def doOk() {
+        if(info.assignee) {
+            param.assignee = info.remove("assignee");
+        }
+        param.message = info.remove("message");
+        if( info.size()>0 ) {
+            if(!param.info) param.info = [:]
+            param.info.putAll( info );
+        }        
         if(handler) handler(info);
         return "_close";
     }

@@ -26,29 +26,16 @@ public class WorkflowTaskModel extends CrudFormModel implements WorkflowTaskList
         return workflowTaskSvc;
     }
     
-    public void afterSignal() {;}
+    /*** 
+     * default behavior is it will reload the entity after signal.
+     * If you do not want this behavior you must override afterSignal. 
+     ****/
+    public void afterSignal( def transition, def result ) {
+        reload();
+    }
     
-    //the default behavior is it displays the workflow prompt.
+    //do some overrides here if you want something to do in the client before clicking signal
     public boolean beforeSignal( def param  ) {
-        /*
-        def addInfo = 
-        if( addInfo ) param.info = addInfo;
-        */
-       boolean pass = false;
-        def h = { info->
-            if(info.assignee) {
-                param.assignee = info.remove("assignee");
-            }
-            param.message = info.remove("message");
-            if( info.size()>0 ) {
-                if(!param.info) param.info = [:]
-                param.info.putAll( info );
-            }
-            pass = true;
-        }
-        //transition role here is for the next role. Not the current one.
-        Modal.show( "workflow_prompt:view", [role:param.role, domain:param.domain, handler: h] );
-        if( !pass ) return false; 
         return true;
     }
     
@@ -111,7 +98,7 @@ public class WorkflowTaskModel extends CrudFormModel implements WorkflowTaskList
         }
         binding.refresh();
         buildMessage();
-        afterSignal();
+        afterSignal(transition, newTask);
         return null;
     }
     
