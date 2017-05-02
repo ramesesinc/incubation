@@ -252,7 +252,7 @@ public class MsSqlDialect extends AbstractSqlDialect  {
             buff.append(" TOP 1000 "); 
         } 
         
-        buff.append(" ROW_NUMBER() OVER (ORDER BY (SELECT 1)) AS _rownum_, ");
+        //buff.append(" ROW_NUMBER() OVER (ORDER BY (SELECT 1)) AS _rownum_, ");
         
         if ( so.hasSelectTop ) {
             buff.append( so.sqlSelectCols ); 
@@ -267,17 +267,22 @@ public class MsSqlDialect extends AbstractSqlDialect  {
         buff.append( so.havingBuilder ); 
         buff.append( so.orderBuilder ); 
 
-        StringBuilder sb = new StringBuilder();
-        sb.append(" SELECT ");
+        StringBuilder tmpa = new StringBuilder();
+        tmpa.append(" SELECT ");
+        tmpa.append("    ROW_NUMBER() OVER (ORDER BY (SELECT 1)) AS _rownum_, tmpa.* ");
+        tmpa.append(" FROM ( ").append( buff ).append(" )tmpa "); 
+        
+        StringBuilder tmpb = new StringBuilder();
+        tmpb.append(" SELECT ");
         if ( so.limit > 0 ) {
-            sb.append(" TOP " + so.limit); 
+            tmpb.append(" TOP " + so.limit); 
         } 
-        sb.append(" * FROM ( ").append( buff ).append(" )xxx "); 
+        tmpb.append(" * FROM ( ").append( tmpa ).append(" )tmpb "); 
         if ( so.start >= 0 ) { 
-            sb.append(" WHERE _rownum_ > "+ so.start ); 
+            tmpb.append(" WHERE _rownum_ > "+ so.start ); 
             //sb.append(" ORDER BY _rownum_ "); 
         } 
-        return sb.toString();           
+        return tmpb.toString();  
     } 
     
     private String getPagingStatementVer2000( SQLObject so ) { 

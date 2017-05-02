@@ -75,7 +75,8 @@ public class TomcatCpDsProvider implements DsProvider
                     } 
                 } 
                 p.setValidationInterval(validationInterval); 
-                                
+                p.setTimeBetweenEvictionRunsMillis(validationInterval); 
+
                 if (map.containsKey("timeBetweenEvictionRunsMillis")) {
                     Object ov = map.get("timeBetweenEvictionRunsMillis");
                     if (ov != null) {
@@ -153,6 +154,16 @@ public class TomcatCpDsProvider implements DsProvider
                     } 
                 }                 
                 
+                String isolationLevel = (""+map.get("isolationLevel")).replaceAll("[\\s]{1,}","").toUpperCase();
+                if ("READ_UNCOMMITTED".equals( isolationLevel )) {
+                    p.setDefaultTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED); 
+                } else if ("READ_COMMITTED".equals( isolationLevel )) {
+                    p.setDefaultTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED); 
+                } else if ("REPEATABLE_READ".equals( isolationLevel )) {
+                    p.setDefaultTransactionIsolation(Connection.TRANSACTION_REPEATABLE_READ); 
+                } else if ("SERIALIZABLE".equals( isolationLevel )) {
+                    p.setDefaultTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE); 
+                }
                 
                 //
                 //
@@ -163,17 +174,31 @@ public class TomcatCpDsProvider implements DsProvider
                 System.out.println("#######################################");
                 System.out.println("# TomcatCPDataSource datasource config:");
                 System.out.println("#######################################");
-                System.out.println(" validationQuery="+p.getValidationQuery());
-                System.out.println(" validationInterval="+p.getValidationInterval());
-                System.out.println(" timeBetweenEvictionRunsMillis="+p.getTimeBetweenEvictionRunsMillis());
-                System.out.println(" minEvictableIdleTimeMillis="+p.getMinEvictableIdleTimeMillis());                
+                System.out.println(" driverClassName="+p.getDriverClassName());
+                System.out.println(" poolName="+p.getPoolName());
+                System.out.println(" defaultCatalog="+p.getDefaultCatalog());
+                System.out.println(" initSQL="+p.getInitSQL());
+                System.out.println(" abandonWhenPercentageFull="+p.getAbandonWhenPercentageFull());
+                System.out.println(" defaultTransactionIsolation="+p.getDefaultTransactionIsolation());
                 System.out.println(" initialSize="+p.getInitialSize());
-                System.out.println(" minIdle="+p.getMinIdle());
                 System.out.println(" maxActive="+p.getMaxActive());
+                System.out.println(" minIdle="+p.getMinIdle());
                 System.out.println(" maxIdle="+p.getMaxIdle());
                 System.out.println(" maxWait="+p.getMaxWait());
-                System.out.println(" suspectTimeout="+p.getSuspectTimeout());
+                System.out.println(" maxAge="+p.getMaxAge());
+                System.out.println(" minEvictableIdleTimeMillis="+p.getMinEvictableIdleTimeMillis());                
                 System.out.println(" removeAbandonedTimeout="+p.getRemoveAbandonedTimeout());
+                System.out.println(" suspectTimeout="+p.getSuspectTimeout());
+                System.out.println(" testOnBorrow="+p.isTestOnBorrow());
+                System.out.println(" testOnConnect="+p.isTestOnConnect());
+                System.out.println(" testOnReturn="+p.isTestOnReturn());
+                System.out.println(" testWhileIdle="+p.isTestWhileIdle());
+                System.out.println(" timeBetweenEvictionRunsMillis="+p.getTimeBetweenEvictionRunsMillis());
+                System.out.println(" useDisposableConnectionFacade="+p.getUseDisposableConnectionFacade());
+                System.out.println(" useLock="+p.getUseLock());
+                System.out.println(" useEquals="+p.isUseEquals());
+                System.out.println(" validationQuery="+p.getValidationQuery());
+                System.out.println(" validationInterval="+p.getValidationInterval());
                 System.out.println(" ");
             } catch(RuntimeException re) {
                 throw re;

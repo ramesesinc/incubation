@@ -26,14 +26,18 @@ public class GET_AGE implements SqlDialectFunction {
     }
 
     public String toString() { 
-        if(params.size() != 1) 
+        if ( params.size() != 1 ) {  
             throw new RuntimeException("GET_AGE error. There must be one parameter passed, the date");
+        } 
+        
         String p = params.get(0);
         StringBuilder sb = new StringBuilder(); 
         sb.append( "DATEDIFF(yy, " +p + ", GETDATE()) - ");
         sb.append( "CASE WHEN (MONTH(" +p+  ") > MONTH(GETDATE())) ");
         sb.append( "OR (MONTH(" + p + ") = MONTH(GETDATE()) AND ");
         sb.append( "DAY("+ p +") > DAY(GETDATE())) THEN 1 ELSE 0 END");
+        
+//        sb.append(" ((((YEAR(GETDATE())*365)+(MONTH(GETDATE())*12)+DAY(GETDATE()))-((YEAR("+p+")*365)+(MONTH("+p+")*12)+DAY("+p+")))/365) "); 
         return sb.toString();
     }
 }

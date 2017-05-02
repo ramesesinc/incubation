@@ -41,6 +41,7 @@ public class FormItemPanel extends JPanel implements FormItemProperty
         lblCaption.setFont(lblCaption.getFont().deriveFont(Font.BOLD)); 
         formPropertySupport = new FormPanelPropertySupport(null); 
         //setBorder( BorderFactory.createLineBorder(Color.RED));
+        super.setOpaque(false); 
     }
 
     public final LayoutManager getLayout() { return layout; }

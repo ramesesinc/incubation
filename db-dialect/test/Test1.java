@@ -1,4 +1,6 @@
-import com.rameses.sql.dialect.functions.mssql.MONTH_DIFF;
+import com.rameses.sql.dialect.MsSqlDialect;
+import java.io.InputStream;
+import java.io.StringWriter;
 import junit.framework.*;
 /*
  * Test1.java
@@ -23,9 +25,7 @@ public class Test1 extends TestCase {
     protected void tearDown() throws Exception {
     }
     
-    
     // TODO add test methods here. The name must begin with 'test'. For example:
-    /*
     public void testHello() 
     {
         String sql = getSql("query5.sql");
@@ -54,13 +54,5 @@ public class Test1 extends TestCase {
         }
         return w.toString();
     }
-    */
-    
-    
-    public void testFunction() {
-        MONTH_DIFF g = new MONTH_DIFF();
-        g.addParam("B1");
-        g.addParam("B2");
-        System.out.println(g.toString());
-    }
+
 }

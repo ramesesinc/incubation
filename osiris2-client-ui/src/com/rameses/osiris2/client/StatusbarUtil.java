@@ -26,7 +26,10 @@ public final class StatusbarUtil
     public static JComponent getStatusbar() 
     {
         SessionContext app = OsirisContext.getSession();
-        List<Invoker> invokers = app.getInvokers("statusbar");
+        Object obj = OsirisContext.getEnv().get("statusbar.type"); 
+        if ( obj == null ) obj = "statusbar";
+        
+        List<Invoker> invokers = app.getInvokers( obj.toString());
         StatusPanel panel = new StatusPanel(); 
         
         for (Invoker inv : invokers) 

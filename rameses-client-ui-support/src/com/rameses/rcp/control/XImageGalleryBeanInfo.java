@@ -46,7 +46,6 @@ public class XImageGalleryBeanInfo extends ComponentBeanInfo.Support
             new PropertyDescriptor("cellBorder", getBeanClass()),             
             new PropertyDescriptor("cellSpacing", getBeanClass()), 
             new PropertyDescriptor("cellSize", getBeanClass()), 
-            new PropertyDescriptor("cols", getBeanClass()), 
             new PropertyDescriptor("depends", getBeanClass()), 
             new PropertyDescriptor("enabledWhen", getBeanClass()),  
             new PropertyDescriptor("index", getBeanClass()), 
@@ -55,10 +54,10 @@ public class XImageGalleryBeanInfo extends ComponentBeanInfo.Support
             new PropertyDescriptor("visibleWhen", getBeanClass()), 
             
             new PropertyDescriptor("stretchWidth", getBeanClass()),
-            new PropertyDescriptor("stretchHeight", getBeanClass()),
-            
-            installEditor(new PropertyDescriptor("scrollbarHPolicy", getBeanClass()), ScrollbarHPolicyPropertyEditor.class), 
-            installEditor(new PropertyDescriptor("scrollbarVPolicy", getBeanClass()), ScrollbarVPolicyPropertyEditor.class) 
+            new PropertyDescriptor("stretchHeight", getBeanClass()),            
+            new PropertyDescriptor("singleColumnOnly", getBeanClass()),            
+            new PropertyDescriptor("singleRowOnly", getBeanClass()),            
+            new PropertyDescriptor("rowCount", getBeanClass())           
         }; 
     }
 }

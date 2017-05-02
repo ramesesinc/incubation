@@ -12,6 +12,7 @@ package com.rameses.rcp.control;
 import com.rameses.beaninfo.ComponentBeanInfo;
 import com.rameses.beaninfo.editor.SwingConstantsHAlignment;
 import com.rameses.beaninfo.editor.SwingConstantsVAlignment;
+import com.rameses.beaninfo.editor.XListLayoutOrientationEditor;
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
 
@@ -64,7 +65,10 @@ public class XListBeanInfo extends ComponentBeanInfo.Support
             new PropertyDescriptor("padding", getBeanClass()), 
             new PropertyDescriptor("varName", getBeanClass()),  
             new PropertyDescriptor("varStatus", getBeanClass()),
-            new PropertyDescriptor("visibleWhen", getBeanClass())
+            new PropertyDescriptor("visibleWhen", getBeanClass()),
+            new PropertyDescriptor("visibleRowCount", getBeanClass()), 
+            
+            installEditor(new PropertyDescriptor("layoutOrientation", getBeanClass()), XListLayoutOrientationEditor.class) 
         }; 
     }
 }

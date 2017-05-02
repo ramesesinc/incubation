@@ -17,10 +17,12 @@ import com.rameses.rcp.ui.ControlProperty;
 import com.rameses.rcp.ui.UIControl;
 import com.rameses.rcp.util.UIControlUtil;
 import java.awt.CardLayout;
+import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.Insets;
 import java.awt.LayoutManager;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
 /**
  *
@@ -61,14 +63,16 @@ public class XPanel extends JPanel implements UIControl, ControlContainer, Activ
     }
 
     public void refresh() {
-        try {
-            Object value = UIControlUtil.getBeanValue(getBinding(), getName());
-            LayoutManager lm = getLayout();
-            if (lm instanceof CardLayout) { 
-                CardLayout cardlayout = (CardLayout)lm; 
-                cardlayout.show(this, value+""); 
-            } 
-        } catch(Throwable t){;}
+        LayoutManager lm = getLayout();
+        if (lm instanceof CardLayout) { 
+            Object value = null; 
+            try {
+                value = UIControlUtil.getBeanValue(getBinding(), getName());
+            } catch(Throwable t){;}
+
+            CardLayout cardlayout = (CardLayout)lm; 
+            cardlayout.show(this, value+"");  
+        } 
         
         try { 
             String visibleWhen = getVisibleWhen(); 
@@ -83,10 +87,10 @@ public class XPanel extends JPanel implements UIControl, ControlContainer, Activ
                 setVisible(b); 
             } 
         } catch(Throwable t) {;} 
-                
-        revalidate();
-        repaint();        
-    }
+        
+        invalidate(); 
+        repaint();
+    } 
 
     public void setPropertyInfo(PropertySupport.PropertyInfo info) {
     }

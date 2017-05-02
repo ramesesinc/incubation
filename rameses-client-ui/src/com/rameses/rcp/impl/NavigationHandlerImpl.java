@@ -124,7 +124,7 @@ public class NavigationHandlerImpl implements NavigationHandler {
                             return;
                         }
                     } else {
-                        String conId = curController.getId();
+                        String conId = (curController==null? null : curController.getId());
                         if ( conId != null ) platform.closeWindow( conId );  
                         
                         conId = (String) panel.getClientProperty( NavigatablePanel.PROPERTY_ID ); 

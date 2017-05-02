@@ -55,15 +55,20 @@ public class ImageGalleryModel
         if (provider != null) provider.movePrevious();
     }
     
+    public void remove( int index ) {
+        if ( provider != null ) provider.remove(index); 
+    }
+    
     // <editor-fold defaultstate="collapsed" desc=" Provider interface ">
     
-    public static interface Provider 
-    {
+    public static interface Provider {
+        
         Object getBinding();
         void reload(); 
         void refresh();
         void moveNext();
         void movePrevious();
+        void remove( int index);         
     } 
     
     

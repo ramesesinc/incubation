@@ -543,7 +543,8 @@ public class XSubFormPanel extends JPanel implements UISubControl, ActiveControl
         }
     }
 
-    // </editor-fold>     
+    // </editor-fold> 
+    
     // <editor-fold defaultstate="collapsed" desc=" DefaultSubFormPanelModel ">
     private class DefaultSubFormPanelModel extends SubFormPanelModel {
 
@@ -559,6 +560,7 @@ public class XSubFormPanel extends JPanel implements UISubControl, ActiveControl
     }
 
     // </editor-fold>
+    
     // <editor-fold defaultstate="collapsed" desc=" DefaultProviderImpl ">
     private class DefaultProviderImpl implements SubFormPanelModel.Provider {
 

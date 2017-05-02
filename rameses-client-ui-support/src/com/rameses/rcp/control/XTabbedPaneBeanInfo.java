@@ -12,6 +12,7 @@ package com.rameses.rcp.control;
 import com.rameses.beaninfo.ComponentBeanInfo;
 import com.rameses.beaninfo.editor.TabLayoutPolicyEditor;
 import com.rameses.beaninfo.editor.TabPlacementEditor;
+import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
 
@@ -56,5 +57,11 @@ public class XTabbedPaneBeanInfo extends ComponentBeanInfo.Support
             installEditor(new PropertyDescriptor("tabPlacement", getBeanClass()), TabPlacementEditor.class) 
         }; 
     }
+    
+    public BeanInfo[] getAdditionalBeanInfo() {
+        return new BeanInfo[] {
+            new ComponentBeanInfo() 
+        }; 
+    }    
     
 }

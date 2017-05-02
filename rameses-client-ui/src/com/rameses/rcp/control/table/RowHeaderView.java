@@ -49,8 +49,8 @@ public class RowHeaderView extends JPanel implements TableModelListener
     
     public void clearEditing() {
         if ( currentRow != -1 ) {
-            RowView rh = (RowView) getComponent(currentRow);
-            rh.edit(false);
+            RowView rh = getRowView(currentRow);
+            if ( rh != null ) rh.edit(false);
         }
         currentRow = -1;
     }
@@ -59,14 +59,9 @@ public class RowHeaderView extends JPanel implements TableModelListener
         if ( currentRow != row ) {
             clearEditing();
         }
-        RowView rh = null; 
-        try { 
-            rh = (RowView) getComponent(row);
-        } catch(Throwable t) {
-            return; 
-        } 
+        RowView rh = getRowView( row ); 
+        if ( rh != null ) rh.edit(true);
         
-        rh.edit(true);
         currentRow = row;
     }
 
@@ -76,6 +71,14 @@ public class RowHeaderView extends JPanel implements TableModelListener
     }
     
     // <editor-fold defaultstate="collapsed" desc="  RowView (class)  ">
+    
+    private RowView getRowView( int index ) {
+        try { 
+            return (RowView) getComponent(index);
+        } catch(Throwable t) {
+            return null; 
+        } 
+    }
     
     private class RowView extends JLabel { 
         

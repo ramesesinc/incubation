@@ -8,6 +8,7 @@
 package test;
 
 import com.rameses.rcp.common.FingerPrintModel;
+import com.rameses.rcp.fingerprint.FingerPrintResultInfo;
 import com.rameses.rcp.fingerprint.FingerPrintViewer;
 import junit.framework.*;
 
@@ -29,8 +30,12 @@ public class FingerPrintTester extends TestCase {
     
     public void testMain() throws Exception {
         FingerPrintModel model = new FingerPrintModel(){
-            public void onselect(Object info) {
+            public void onselect(Object info) { 
                 System.out.println("onselect-> " + info);
+                
+                FingerPrintResultInfo result = (FingerPrintResultInfo) info; 
+                System.out.println("getLeftThumbData-> " + result.getLeftThumbData());
+                System.out.println("getRightThumbData-> " + result.getRightThumbData());
             }
 
             public void onclose() {

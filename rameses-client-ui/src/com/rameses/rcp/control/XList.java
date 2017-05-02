@@ -38,6 +38,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
 import javax.swing.DefaultListSelectionModel;
@@ -50,12 +52,13 @@ import javax.swing.ListCellRenderer;
 import javax.swing.ListModel;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-public class XList extends JList implements UIControl, ActiveControl, MouseEventSupport.ComponentInfo  
-{
+public class XList extends JList implements UIControl, ActiveControl, MouseEventSupport.ComponentInfo {
+    
     private ListSelectionSupport selectionSupport;    
     
     private Binding binding;
@@ -87,6 +90,8 @@ public class XList extends JList implements UIControl, ActiveControl, MouseEvent
     private int stretchHeight;     
     private String visibleWhen;
     
+    private RefreshTask refreshTask;
+    
     public XList() 
     {
         super.addListSelectionListener(getSelectionSupport()); 
@@ -100,7 +105,7 @@ public class XList extends JList implements UIControl, ActiveControl, MouseEvent
             setPreferredSize(new Dimension(80, 100));
             super.setModel(new javax.swing.AbstractListModel() 
             {
-                String[] strings = { "Item 1", "Item 2" };
+                String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
                 public int getSize() { return strings.length; }
                 public Object getElementAt(int i) { return strings[i]; }
             });
@@ -231,7 +236,6 @@ public class XList extends JList implements UIControl, ActiveControl, MouseEvent
         super.setFont(font); 
     }     
     
-    
     // </editor-fold>    
     
     // <editor-fold defaultstate="collapsed" desc=" UIControl implementation ">
@@ -245,16 +249,15 @@ public class XList extends JList implements UIControl, ActiveControl, MouseEvent
     public Binding getBinding() { return binding; }    
     public void setBinding(Binding binding) { this.binding = binding; }  
     
-    public void load() 
-    {
+    public void load() {
         model = new DefaultListModel();
         super.setModel(model);
         
-        if (!dynamic) buildList();
+        if (!isDynamic()) buildList();
     }
     
     public void refresh() { 
-        refresh(dynamic);  
+        refresh(isDynamic());  
         
         String whenExpr = getVisibleWhen();
         if (whenExpr != null && whenExpr.length() > 0) {
@@ -266,6 +269,9 @@ public class XList extends JList implements UIControl, ActiveControl, MouseEvent
             }
             setVisible( result ); 
         }
+        
+        long intervalrate = (listPaneModel==null? 0 : listPaneModel.getRefreshInterval()); 
+        if ( intervalrate > 0 ) executeRefreshTask( intervalrate );
     } 
         
     private void refresh(boolean reload) {
@@ -445,8 +451,7 @@ public class XList extends JList implements UIControl, ActiveControl, MouseEvent
         } 
     }    
     
-    private void buildList() 
-    {
+    private void buildList() {
         String strHandler = getHandler();
         String strItems = getItems();        
         boolean hasHandler = (strHandler != null && strHandler.length() > 0);
@@ -488,15 +493,6 @@ public class XList extends JList implements UIControl, ActiveControl, MouseEvent
         model.clear(); 
         int i = 0; 
         for (Object o: list) { 
-//            if (o instanceof Map) {
-//                Map map = (Map) o;
-//                String domain = getProperty(map, "domain");
-//                String role = getProperty(map, "role");
-//                String permission = getProperty(map, "permission");
-//                boolean allowed = ControlSupport.isPermitted(domain, role, permission); 
-//                if (!allowed) continue; 
-//            } 
-            
             model.add(i++, o); 
         } 
         
@@ -508,8 +504,7 @@ public class XList extends JList implements UIControl, ActiveControl, MouseEvent
         newModel.afterFetchList();
     } 
         
-    private void selectSelectedItems() 
-    {
+    private void selectSelectedItems() {
         Object value = null;
         String name = getName();
         if (name != null && name.length() > 0) {
@@ -845,4 +840,28 @@ public class XList extends JList implements UIControl, ActiveControl, MouseEvent
             
     
     // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" RefreshTask ">
+    
+    private Timer timer;
+    
+    private void executeRefreshTask( long interval ) {
+        if ( timer == null ) {
+            timer = new Timer(); 
+            timer.schedule(new RefreshTask(), interval, interval );
+        }
+    }
+    
+    private class RefreshTask extends TimerTask {
+
+        XList root = XList.this; 
+        
+        public void run() { 
+            if ( SwingUtilities.getRoot( root ) != null ) {
+                root.refresh(true); 
+            } 
+        }
+    }
+    
+    // </editor-fold> 
 }

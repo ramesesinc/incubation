@@ -1,96 +1,121 @@
 /*
- * ThumbnailPanel.java
- *
- * Created on April 21, 2014, 11:29 AM
- *
- * To change this template, choose Tools | Template Manager
+ * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package com.rameses.rcp.control.image;
 
-import java.awt.AlphaComposite;
+import com.rameses.rcp.control.layout.XLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.EventQueue;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Insets;
 import java.awt.LayoutManager;
 import java.awt.RenderingHints;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
 import java.beans.Beans;
-import java.util.ArrayList;
+import java.net.URL;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
+import javax.swing.JScrollPane;
+import javax.swing.ListCellRenderer;
+import javax.swing.ListSelectionModel;
 import javax.swing.border.Border;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 /**
  *
- * @author wflores
+ * @author wflores 
  */
-public class ThumbnailPanel extends JPanel 
-{
+public class ThumbnailPanel extends JPanel {
+    
     private Dimension cellSize;
     private int cellSpacing;
-    private int columnCount;
+    private int rowCount;
+    
+    private boolean singleRowOnly;
+    private boolean singleColumnOnly;
+    
+    private JList jlist; 
+    private JScrollPane jscroll;
+    private Border cellBorder;    
     private Color selectionBorderColor;
-    private Border cellBorder;
+    
+    private ThumbnailListModel model; 
+    private boolean updating_model;
     
     public ThumbnailPanel() {
-        super.setLayout(new DefaultLayout()); 
-        setBackground(Color.decode("#808080"));
-        setBorder(BorderFactory.createEmptyBorder(5,5,5,5)); 
-        selectionBorderColor = Color.decode("#505050"); 
-        cellSize = getDefaultCellSize(); 
+        initComponent();
+    }    
+    
+    // <editor-fold defaultstate="collapsed" desc=" init component ">
+    
+    private void initComponent() {
         cellSpacing = 5; 
-        columnCount = 5; 
+        selectionBorderColor = Color.decode("#505050"); 
+        
+        jlist = new JList();
+        jlist.setSelectionMode(ListSelectionModel.SINGLE_SELECTION); 
+        jlist.setCellRenderer(new ListCellRendererImpl());
+        jlist.addListSelectionListener(new ListSelectionHandlerImpl());
+        setCellSize( getDefaultCellSize() ); 
+        setRowCount(-1); 
+        
+        jscroll = new JScrollPane(jlist); 
+        super.setLayout(new DefaultLayout()); 
+        add( jscroll ); 
         
         if (Beans.isDesignTime()) {
-            add(createDesignTimeImage("IMG-1"));
-            add(createDesignTimeImage("IMG-2"));
-            add(createDesignTimeImage("IMG-3"));
+            jlist.setModel(new DesignTimeListModel()); 
         }
     }
     
+    // </editor-fold>
+    
     // <editor-fold defaultstate="collapsed" desc=" Getters/Setters ">
         
-    private ImageThumbnail createDesignTimeImage(String text) {
-        ImageIcon icon = new ImageIcon(new byte[0]);
-        ImageThumbnail img = new ImageThumbnail(new HashMap(), icon); 
-        img.setBorder(BorderFactory.createLineBorder(Color.decode("#808080")));
-        img.setText(text);
-        return img; 
-    }
-    
     public void setLayout(LayoutManager layout) {}
     
-    public int getCellSpacing() { return cellSpacing; } 
-    public void setCellSpacing(int cellSpacing) {
-        this.cellSpacing = cellSpacing;
+    public ThumbnailListModel getModel() { return model; } 
+    public void setModel( ThumbnailListModel model ) {
+        this.model = (model == null ? new ThumbnailListModel() : model); 
+        
+        try { 
+            updating_model = true;
+            this.model.setSource( jlist );
+            jlist.setModel( this.model ); 
+        } finally {
+            updating_model = false; 
+        }
     }
     
-    public int getColumnCount() { return columnCount; } 
-    public void setColumnCount(int columnCount) {
-        this.columnCount = columnCount; 
-    }
-
     protected Dimension getDefaultCellSize() {
-        return new Dimension(35, 35);
+        return new Dimension(60, 60);
     }
     
     public Dimension getCellSize() { return cellSize; } 
     public void setCellSize(Dimension cellSize) {
-        this.cellSize = cellSize; 
+        this.cellSize = cellSize;         
+        adjustListComponent();
+    }
+
+    public int getCellSpacing() { return cellSpacing; } 
+    public void setCellSpacing(int cellSpacing) {
+        this.cellSpacing = cellSpacing;
+        adjustListComponent();
+    }
+    
+    public int getRowCount() { return rowCount; } 
+    public void setRowCount(int rowCount) {
+        this.rowCount = ( rowCount < 0 ? -1 : rowCount); 
+        adjustListComponent();
     }
     
     public Color getSelectionBorderColor() { return selectionBorderColor; } 
@@ -103,210 +128,86 @@ public class ThumbnailPanel extends JPanel
         this.cellBorder = cellBorder; 
     }
     
+    public boolean isSingleRowOnly() { return singleRowOnly; }
+    public void setSingleRowOnly( boolean singleRowOnly ) {
+        this.singleRowOnly = singleRowOnly; 
+        adjustListComponent();
+    }
+    
+    public boolean isSingleColumnOnly() { return singleColumnOnly; } 
+    public void setSingleColumnOnly( boolean singleColumnOnly ) {
+        this.singleColumnOnly = singleColumnOnly; 
+        adjustListComponent();
+    }
+    
+    public ThumbnailItem getSelectedItem() { 
+        Object o = jlist.getSelectedValue(); 
+        if ( o instanceof ThumbnailItem ) {
+            return (ThumbnailItem) o;
+        } else {
+            return null; 
+        }
+    }
+    public void selectFirstItem() { 
+        try { 
+            jlist.setSelectedIndex(0); 
+        } catch(Throwable t){;} 
+    } 
+    
+    public void refresh() {
+        jlist.revalidate();
+        jlist.repaint();
+    }
+    public void moveNext() {
+        int selindex = jlist.getSelectedIndex()+1; 
+        if ( selindex >= 0 && selindex < jlist.getModel().getSize()) {
+            jlist.setSelectedIndex( selindex );
+        }
+    }
+    public void movePrevious() {
+        int selindex = jlist.getSelectedIndex()-1; 
+        if ( selindex >= 0 && selindex < jlist.getModel().getSize()) { 
+            jlist.setSelectedIndex( selindex ); 
+        } 
+    }
+    
     private Dimension getPreferredCellSize() {
         Dimension size = getCellSize();
         if (size == null) size = getDefaultCellSize();
         
         return new Dimension(size.width, size.height); 
     }
-    
-    // </editor-fold>
-    
-    // <editor-fold defaultstate="collapsed" desc=" helper methods ">
-    
-    protected void onselect(Object item) {
-    }
-    
-    protected void onopen(Object item) {
-    }
-    
-    protected void onrefresh() {
-    }
-
-    public Component moveNext() {
-        if (!isEnabled()) return null;
+    private void adjustListComponent() {
+        int spacing = getCellSpacing();
+        if ( spacing <= 0 ) spacing=0;
         
-        Component[] comps = getThumbnails();
-        if (comps.length == 0) return null;
-        
-        int selIndex = getSelectedIndex();
-        if (selIndex < 0) {
-            ImageThumbnail imt = (ImageThumbnail)comps[0]; 
-            setSelectedComponent(imt); 
-            return imt;
-            
-        } else if (selIndex+1 >= 0 && selIndex+1 < comps.length){
-            ImageThumbnail imt = (ImageThumbnail)comps[selIndex+1]; 
-            setSelectedComponent(imt); 
-            return imt;
-            
-        } else {
-            return null; 
-        }
-    }
-    
-    public Component movePrevious() {
-        if (!isEnabled()) return null;
-        
-        Component[] comps = getThumbnails();
-        if (comps.length == 0) return null;
-        
-        int selIndex = getSelectedIndex();
-        if (selIndex < 0) {
-            ImageThumbnail imt = (ImageThumbnail)comps[0]; 
-            setSelectedComponent(imt); 
-            return imt;
-            
-        } else if (selIndex-1 >= 0 && selIndex-1 < comps.length){
-            ImageThumbnail imt = (ImageThumbnail)comps[selIndex-1]; 
-            setSelectedComponent(imt); 
-            return imt;
-            
-        } else {
-            return null; 
-        }
-    }
-    
-    public void refresh() {
-        Component c = getSelectedComponent(); 
-        if (!(c instanceof ImageThumbnail)) return;
-        
-        ImageThumbnail imt = (ImageThumbnail)c; 
-        Map map = imt.getData();
-        Object ocaption = map.get("caption");
-        Object oimage = map.get("image");
-        if (!(oimage instanceof byte[])) {
-            oimage = new byte[0];
+        Dimension dim = getPreferredCellSize();         
+        jlist.setFixedCellWidth( dim.width + spacing );
+        jlist.setFixedCellHeight( dim.height + spacing ); 
+                
+        int rowcount = getRowCount();
+        if ( isSingleColumnOnly()) {
+            jlist.setLayoutOrientation(JList.VERTICAL); 
+        } else if ( isSingleRowOnly()) { 
+            jlist.setVisibleRowCount(1); 
+            jlist.setLayoutOrientation(JList.HORIZONTAL_WRAP); 
+        } else if ( rowcount <= 0 ) {
+            jlist.setVisibleRowCount(-1);
+            jlist.setLayoutOrientation(JList.HORIZONTAL_WRAP);  
         } 
-        imt.icon = new ImageIcon((byte[]) oimage); 
-        imt.setToolTipText(ocaption == null? null: ocaption.toString()); 
-        imt.repaint(); 
-        onrefresh(); 
     }
     
-    public void add(Map map) {
-        if (map == null) return;
-        
-        Object ocaption = map.get("caption");
-        Object oimage = map.get("image");
-        if (!(oimage instanceof byte[])) {
-            oimage = new byte[0];
-        }
-        
-        ImageIcon icon = new ImageIcon((byte[]) oimage); 
-        ImageThumbnail img = new ImageThumbnail(map, icon); 
-        if (ocaption != null) img.setToolTipText(ocaption.toString()); 
-        
-        add(img); 
-    } 
-        
-    public Component[] getThumbnails() {
-        List<Component> list = new ArrayList(); 
-        Component[] comps = getComponents();
-        for (int i=0; i<comps.length; i++) {
-            Component c = comps[i];
-            if (!c.isVisible()) continue;
-            if (c instanceof ImageThumbnail) {
-                list.add(c); 
-            }
-        } 
-        return (Component[]) list.toArray(new Component[]{}); 
+    protected void selectionChanged(){         
     }
-    
-    public int getSelectedIndex() {
-        Component[] comps = getThumbnails();
-        for (int i=0; i<comps.length; i++) {
-            Component c = comps[i];
-            ImageThumbnail im = (ImageThumbnail)c;
-            if (im.isSelected()) return i;
-        } 
-        return -1;
-    } 
-    
-    public Component getSelectedComponent() {
-        int idx = getSelectedIndex();
-        if (idx < 0) return null;
         
-        return getComponent(idx); 
-    }    
-    
-    public Object getSelectedItem() {
-        int idx = getSelectedIndex();
-        if (idx < 0) return null;
-        
-        ImageThumbnail im = (ImageThumbnail) getComponent(idx); 
-        return im.getData();
-    }
-    
-    public void selectFirstItem() {
-        ImageThumbnail firstItem = null;
-        Component[] comps = getComponents();
-        for (int i=0; i<comps.length; i++) {
-            Component c = comps[i];
-            if (!c.isVisible()) continue;
-            if (!(c instanceof ImageThumbnail)) continue;
-            
-            ImageThumbnail im = (ImageThumbnail)c;
-            if(firstItem == null) firstItem = im;
-            
-            im.setSelected(false); 
-            im.repaint(); 
-        } 
-        if (firstItem != null) {
-            firstItem.setSelected(true);
-            firstItem.repaint();
-            fireOnSelect(firstItem.getData()); 
-        }
-    }    
-    
-    private void setSelectedComponent(ImageThumbnail image) {
-        if (image != null) {
-            image.setSelected(true);
-            image.repaint();
-        }
-        
-        ImageThumbnail firstItem = null;        
-        Component[] comps = getComponents();
-        for (int i=0; i<comps.length; i++) {
-            Component c = comps[i];
-            if (!c.isVisible()) continue;
-            if (!(c instanceof ImageThumbnail)) continue;
-            
-            ImageThumbnail im = (ImageThumbnail)c;
-            if (firstItem == null) {
-                firstItem = im;
-                if (image == null) {
-                    firstItem.setSelected(true);
-                    firstItem.repaint();
-                }
-            }
-
-            if (image != null && image.equals(im)) {
-                //do nothing 
-            } else { 
-                im.setSelected(false); 
-                im.repaint();
-            }
-        }
-
-        final ImageThumbnail sel = (image == null? firstItem: image);
-        if (sel != null) fireOnSelect(sel.getData());
-    } 
-    
-    private void fireOnSelect(final Object data) {
-        EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                onselect(data); 
-            }
-        });
-    }
-    
-    // </editor-fold>
+    // </editor-fold>    
     
     // <editor-fold defaultstate="collapsed" desc=" DefaultLayout "> 
     
-    private class DefaultLayout implements LayoutManager
-    {
+    private class DefaultLayout implements LayoutManager {
+        
+        ThumbnailPanel root = ThumbnailPanel.this; 
+        
         public void addLayoutComponent(String name, Component comp) {}
         public void removeLayoutComponent(Component comp) {}
 
@@ -318,43 +219,14 @@ public class ThumbnailPanel extends JPanel
             return getLayoutSize(parent);
         }
         
-        private Component[] getVisibleComponents(Container parent) {
-            List<Component> list = new ArrayList();
-            Component[] comps = parent.getComponents(); 
-            for (int i=0; i<comps.length; i++) {
-                Component c = comps[i];
-                if (c.isVisible()) list.add(c);
-            }
-            return (Component[]) list.toArray(new Component[]{}); 
-        }
-        
         private Dimension getLayoutSize(Container parent) {
             synchronized (parent.getTreeLock()) {
-                Component[] comps = getVisibleComponents(parent); 
-                int columnCount = getColumnCount();
-                if (columnCount < 0) columnCount = comps.length; 
+                Insets margin = parent.getInsets();
+                int w = margin.left + margin.right;
+                int h = margin.top + margin.bottom;
                 
-                int cols = 0, rows = 0;
-                if (comps.length <= columnCount) {
-                    cols = comps.length;
-                    rows = 1;
-                } else {
-                    cols = columnCount;
-                    rows = comps.length / columnCount;
-                    if (comps.length % columnCount > 0) rows += 1;
-                } 
-
-                Dimension cellSize = getPreferredCellSize();                 
-                int w = cols * cellSize.width;
-                w += Math.max(cols-1,0) * getCellSpacing();
-                
-                int h = rows * cellSize.height;
-                h += Math.max(rows-1, 0) * getCellSpacing(); 
-                
-                Insets margin = parent.getInsets(); 
-                w += margin.left + margin.right;
-                h += margin.top + margin.bottom;
-                return new Dimension(w, h); 
+                Dimension dim = root.getPreferredCellSize();
+                return new Dimension(w + 100, h + 50); 
             }
         }
         
@@ -366,197 +238,147 @@ public class ThumbnailPanel extends JPanel
                 int x = margin.left;
                 int y = margin.top;
                 int w = pw - (margin.left + margin.right);
-                int h = ph - (margin.top + margin.bottom);
-                
-                Component[] comps = getVisibleComponents(parent); 
-                int columnCount = getColumnCount();
-                if (columnCount < 0) columnCount = comps.length; 
-                
-                int cols = 0, rows = 0;
-                if (comps.length <= columnCount) {
-                    cols = comps.length;
-                    rows = 1;
-                } else {
-                    cols = columnCount;
-                    rows = comps.length / columnCount;
-                    if (comps.length % columnCount > 0) rows += 1;
-                }                 
-
-                boolean has_components = false;                
-                for (int r=0; r < rows; r++) {
-                    if (r > 0) {
-                        x = margin.left;
-                        y += getCellSpacing();
-                    }
-                    
-                    for (int i=0; i < cols; i++) {
-                        int idx = (r*cols) + i;
-                        if (idx >= comps.length) break; 
-                        if (i > 0) x += getCellSpacing();
-                        
-                        Component c = comps[idx];
-                        c.setBounds(x, y, cellSize.width, cellSize.height);
-                        x += cellSize.width; 
-                    }
-                    y += cellSize.height;
-                }
+                int h = ph - (margin.top + margin.bottom);                 
+                root.jscroll.setBounds(x, y, w, h); 
             }
         }
     }
     
-    // </editor-fold>
+    // </editor-fold>    
     
-    // <editor-fold defaultstate="collapsed" desc=" ImageThumbnail "> 
-       
-    private class ImageThumbnail extends JLabel 
-    {
+    // <editor-fold defaultstate="collapsed" desc=" ListModel implementations ">
+        
+    private class DesignTimeListModel extends ThumbnailListModel { 
+        DesignTimeListModel() {
+            add( new HashMap());
+            add( new HashMap());
+            add( new HashMap());
+        }
+    }
+    
+    private class ListSelectionHandlerImpl implements ListSelectionListener { 
+        
         ThumbnailPanel root = ThumbnailPanel.this;
         
-        private Map data;
-        private ImageIcon icon;
-        private boolean selected;
-        private boolean hover;
-        
-        ImageThumbnail(Map data, ImageIcon icon) {
-            this.data = data;
-            this.icon = icon;
-            setPreferredSize(getPreferredCellSize()); 
-            addMouseListener(new MouseAdapter() {
-                public void mouseClicked(MouseEvent e) {
-                    if (!root.isEnabled()) return;
-                    if (!SwingUtilities.isLeftMouseButton(e)) return;
-                    if (e.getClickCount() == 2) {
-                        fireOnOpen();
-                    }
-                }
-
-                public void mousePressed(MouseEvent e) {
-                    if (!root.isEnabled()) return;
-                    if (!SwingUtilities.isLeftMouseButton(e)) return;
-                    if (e.getClickCount() == 1) {
-                        setSelectedComponent(ImageThumbnail.this); 
-                    } 
-                }
-
-                public void mouseExited(MouseEvent e) {
-                    hover = false;
-                    ImageThumbnail.this.repaint();
-                }
-
-                public void mouseEntered(MouseEvent e) {
-                    hover = true;
-                    ImageThumbnail.this.repaint();
-                }
-            }); 
-        }
-        
-        public Border getBorder() {
-            if (getCellBorder() == null) {
-                return super.getBorder(); 
-            } else {
-                return null; 
-            }
-        }
-        
-        public ImageIcon getOriginalIcon() { return icon; }
-        public Map getData() { return data; } 
-        
-        public boolean isSelected() { return selected; } 
-        public void setSelected(boolean selected) {
-            this.selected = selected; 
-            setFocusable(selected); 
-        }
-        
-        private void fireOnOpen() {
-            EventQueue.invokeLater(new Runnable() {
-                public void run() {
-                   onopen(getData());  
-                }
-            });
-        }
-        
-        protected void paintComponent(Graphics g) {
-            super.paintComponent(g);
-            if (icon == null) return;
-
-            int width = getWidth();
-            int height = getHeight();            
-            Dimension newsize = getScaledSize(icon, new Dimension(width, height));    
-            int nx = (width - newsize.width) / 2;
-            int ny = (height - newsize.height) / 2;
-            Graphics2D g2 = (Graphics2D)g.create();            
-            g2.drawImage(icon.getImage(), nx, ny, newsize.width, newsize.height, null);
-            g2.dispose();
-
-            Border cellBorder = getCellBorder();
-            if (cellBorder != null) {
-                g2 = (Graphics2D)g.create(); 
-                cellBorder.paintBorder(this, g2, 0, 0, width, height); 
-                g2.dispose(); 
-            } 
-            
-            if (root.isEnabled()) {
-                if (hover) {
-                    g2 = (Graphics2D)g.create(); 
-                    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                    g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.20f)); 
-                    g2.setColor(Color.BLUE); 
-                    for (int i=0; i<3; i++) {
-                        g2.drawRect(i, i, width-1-(i*2), height-1-(i*2));
-                    }
-                    g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
-                    g2.drawRect(1, 1, width-2, height-2);                     
-                    g2.dispose(); 
-                }                
-            } else {
-                g2 = (Graphics2D)g.create(); 
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.70f)); 
-                g2.setColor(Color.decode("#d5d5d5"));
-                g2.fillRect(nx, ny, newsize.width, newsize.height);      
-                g2.dispose(); 
-            }
-            
-            if (isSelected()) {
-                Color borderColor = getSelectionBorderColor();
-                if (borderColor == null) borderColor = Color.GRAY;
-                
-                g2 = (Graphics2D)g.create(); 
-                g2.setColor(borderColor);
-                g2.drawRect(0, 0, width-1, height-1); 
-                g2.dispose();
-                return; 
-            }
-            
-//            g2 = (Graphics2D)g.create(); 
-//            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-//            Color oldColor = g2.getColor();
-//            Composite oldComposite = g2.getComposite(); 
-//            Composite newComposite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.45f);
-//            g2.setComposite(newComposite); 
-//            g2.setColor(Color.BLACK);
-//            g2.fillRect(nx, ny, newsize.width, newsize.height);      
-//            g2.dispose(); 
+        public void valueChanged(ListSelectionEvent e) { 
+            if ( root.updating_model ) return;
+            if ( e.getValueIsAdjusting() ) return; 
+            root.selectionChanged(); 
         }        
-    } 
+    }
     
-    private Dimension getScaledSize(ImageIcon icon, Dimension size) {
-        if (icon == null) return null; 
+    // </editor-fold> 
+    
+    // <editor-fold defaultstate="collapsed" desc=" ListCellRendererImpl ">
+    
+    private class ListCellRendererImpl implements ListCellRenderer {
+
+        ThumbnailPanel root = ThumbnailPanel.this;
         
-        int iw = icon.getIconWidth(); 
-        int ih = icon.getIconHeight(); 
-        if (iw < size.width && ih < size.height) {
-            return new Dimension(iw, ih); 
+        private JPanel panel;
+        private ItemLabel label;
+        private ImageIcon unknownIcon; 
+        
+        ListCellRendererImpl() {
+            label = new ItemLabel();
+            panel = new JPanel();
+            panel.setLayout(new XLayout()); 
+            panel.setOpaque( false );
+            panel.add( label ); 
+            
+            URL url = getClass().getResource("unknown.png"); 
+            if ( url != null ) unknownIcon = new ImageIcon( url ); 
+        }
+
+        public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) { 
+            ThumbnailItem item = null; 
+            if ( value instanceof ThumbnailItem ) {
+                item = (ThumbnailItem) value; 
+            } else {
+                item = new ThumbnailItem();
+            }
+            
+            int spacing = root.getCellSpacing(); 
+            if ( spacing < 0 ) spacing = 0; 
+            
+            panel.setBorder( BorderFactory.createEmptyBorder(spacing, spacing, 0, 0 )); 
+            
+            ImageIcon icon = item.getIcon(); 
+            if ( icon == null ) icon = unknownIcon; 
+            
+            label.setOpaque( false ); 
+            label.setPreferredSize( root.getPreferredCellSize()); 
+            label.selected = isSelected;            
+            label.setImage( icon ); 
+            return panel; 
+        }
+    }
+    
+    private class ItemLabel extends JLabel {
+
+        ThumbnailPanel root = ThumbnailPanel.this;
+        
+        private ImageIcon icon; 
+        private boolean selected; 
+        
+        private Border defaultBorder; 
+        private Border selectedBorder; 
+        
+        ItemLabel() {
+            defaultBorder = BorderFactory.createEmptyBorder(1,1,1,1); 
+            selectedBorder = BorderFactory.createLineBorder(root.jlist.getSelectionBackground(), 1); 
         }
         
-        double scaleX = (double)size.width  / (double)iw;
-        double scaleY = (double)size.height / (double)ih;
-        double scale  = (scaleY > scaleX)? scaleX: scaleY;
-        int nw = (int) (iw * scale);
-        int nh = (int) (ih * scale);
-        return new Dimension(nw, nh); 
-    }    
+        void setImage( ImageIcon icon ) {
+            this.icon = (icon == null? createEmptyImage() : icon); 
+            
+        }      
+        
+        private ImageIcon createEmptyImage() { 
+            Dimension dim = root.getPreferredCellSize();
+            BufferedImage bi = new BufferedImage(dim.width, dim.height, BufferedImage.TYPE_INT_ARGB); 
+            Graphics2D g = bi.createGraphics(); 
+            g.setColor( Color.decode("#a0a0a0") );  
+            g.fillRect(0, 0, dim.width, dim.height);
+            g.dispose();
+            return new ImageIcon(bi); 
+        } 
+
+        protected void paintComponent(Graphics g) {
+            paintIconImpl(g); 
+            paintBorderImpl(g);
+        }
+        
+        private void paintIconImpl(Graphics g) { 
+            if ( icon != null ) {
+                Dimension resizedim = new Dimension( getWidth(), getHeight() );
+                Dimension origdim = new Dimension(icon.getIconWidth(), icon.getIconHeight());
+                double scaleX = resizedim.getWidth() / origdim.getWidth();
+                double scaleY = resizedim.getHeight() / origdim.getHeight();
+                double scale = (scaleY > scaleX) ? scaleX : scaleY;
+                int nw = (int) (origdim.width * scale);
+                int nh = (int) (origdim.height * scale);
+                int nx = (resizedim.width - nw) / 2;
+                int ny = (resizedim.height - nh) / 2;
+                Graphics2D g2 = (Graphics2D) g.create(); 
+                g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.drawImage( icon.getImage(), nx, ny, nw, nh, null);
+                g2.dispose();
+            } 
+        } 
+        private void paintBorderImpl(Graphics g) { 
+            Graphics2D g2 = (Graphics2D) g.create(); 
+            if ( selected ) {
+                selectedBorder.paintBorder(this, g2, 0, 0, getWidth(), getHeight());
+            } else {
+                defaultBorder.paintBorder(this, g2, 0, 0, getWidth(), getHeight());
+            }
+            g2.dispose(); 
+        } 
+                
+    }
     
-    // </editor-fold>
-    
+    // </editor-fold>     
+        
 }
