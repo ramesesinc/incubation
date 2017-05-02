@@ -21,9 +21,9 @@ class SequenceService  {
 		def seq = em.findCurrentSeries([ objid: objid ]); 
 		if ( seq ) {
 			return seq.currentSeries; 
-		} else {
-			seq = create( objid ); 
-			return seq.nextSeries; 
+		} else { 
+			em.create([ objid: objid, nextSeries: 1 ]); 
+			return 1; 
 		} 
 	}
 	
@@ -39,13 +39,15 @@ class SequenceService  {
 	}
 	
 	@ProxyMethod(local=true)
-	public def getNextSeries( objid ) {
+	public def getNextSeries( objid ) { 
+		em.incrementNextSeries([ objid: objid ]); 
 		def seq = em.read([ objid: objid ]); 
-		if ( !seq ) seq = create( objid );
-
-		em.incrementNextSeries([ objid: seq.objid ]); 
-		seq = em.read([ objid: objid ])
-		return seq.nextSeries - 1;
+		if ( seq ) {
+			return seq.nextSeries-1; 
+		} else { 
+			em.create([ objid: objid, nextSeries: 2 ]); 
+			return 1; 
+		} 
 	} 
 
 	@ProxyMethod(local=true)

@@ -5,7 +5,7 @@
 		<field name="state" caption="State"/>
 		<field name="dtcreated" />
 		<field name="createdby" />
-		<field name="username" caption="UserName" required="true"/>
+		<field name="username" caption="UserName" required="true" searchable="true"/>
 		<field name="pwd" />
 		<field name="lastname" caption="LastName" required="true" searchable="true" indexed="true"/>		
 		<field name="firstname" caption="FirstName" required="true" searchable="true" indexed="true"/>
