@@ -23,7 +23,7 @@ FROM sys_usergroup_member ugm
 WHERE ugm.user_objid=$P{objid}  
  
 [findByUsername]
-SELECT * FROM sys_user WHERE username=$P{username} AND state IS NULL OR state='ACTIVE'
+SELECT * FROM sys_user WHERE username=$P{username} AND (state IS NULL OR state='ACTIVE')
 
 [incrementLoginCount]
 UPDATE sys_user SET 
