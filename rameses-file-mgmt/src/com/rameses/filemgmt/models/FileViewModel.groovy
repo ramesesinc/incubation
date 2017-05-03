@@ -66,8 +66,8 @@ public class FileViewModel extends CrudFormModel {
 
         def m = [ _schemaname: 'sys_fileitem' ];
         m.filesize = getFileSize( file ); 
-        m.filetype = entity.filetype;
-        m.parentid = entity.objid;
+        m.filetype = entity.filetype; 
+        m.parentid = entity.objid; 
         m.caption = file.getName();
         m.filelocid = 'default';
         m.state = 'PENDING';

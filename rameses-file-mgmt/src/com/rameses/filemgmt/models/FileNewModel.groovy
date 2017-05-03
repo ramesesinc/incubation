@@ -16,7 +16,7 @@ public class FileNewModel  {
     
     def handler;    
     def base64 = new Base64Cipher();
-    def entity = [ _schemaname:'sys_file', objid:'FILE'+ new java.rmi.server.UID() ]; 
+    def _entity = [ _schemaname:'sys_file', objid:'FILE'+ new java.rmi.server.UID() ]; 
     
     def fileTypes = [ 
         [ objid: "jpg",  title: "JPEG Images (*.jpg)", multiselect: true ],
@@ -26,26 +26,49 @@ public class FileNewModel  {
         [ objid: "png",  title: "PNG Images (*.png)", multiselect: true ]
     ];
     
+    def getEntity() { 
+        return _entity; 
+    }
+    
     def doOk() {
+        def helper = com.rameses.filemgmt.FileUploadManager.Helper; 
+        def fileitems = [];
+        
         entity.items = []; 
         attachments.each{
             def skey = entity.objid +'-'+ new java.rmi.server.UID();
             def encstr = com.rameses.util.Encoder.MD5.encode( skey ); 
 
             def m = [ _schemaname: 'sys_fileitem' ];
-            m.filesize = getFileSize( it.file ); 
+            m.filesize = helper.getFileSize( it.file ); 
             m.filetype = entity.filetype;
             m.parentid = entity.objid;
-            m.caption = it.file.getName();
             m.filelocid = 'default';
+            m.caption = it.file.getName();
             m.state = 'PENDING';
             m.bytestransferred = 0;
             m.objid = encstr; 
             m.thumbnail = base64.encode( it.image); 
             entity.items << m; 
+            
+            fileitems << [
+                source    : it.file.absolutePath, 
+                filelocid : m.filelocid,
+                filetype  : m.filetype, 
+                filesize  : m.filesize,
+                fileid    : m.objid 
+            ]
         } 
         
-        entity = persistenceSvc.create( entity ); 
+        _entity = persistenceSvc.create( entity ); 
+        
+        def tempdir = helper.getTempDir(); 
+        fileitems.each{
+            def folder = new java.io.File( tempdir, it.fileid ); 
+            def fui = new com.rameses.filemgmt.FileUploadItem( folder ); 
+            fui.create( it, true ); 
+            com.rameses.filemgmt.FileUploadManager.schedule( fui ); 
+        } 
         
         try { 
             if ( handler ) handler( entity ); 

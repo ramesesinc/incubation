@@ -6,6 +6,8 @@ package com.rameses.filemgmt;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.RandomAccessFile;
+import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
@@ -19,35 +21,13 @@ import java.util.concurrent.Executors;
  */
 public class FileUploadManager {
     
+    public final static HelperImpl Helper = new HelperImpl();
+    
     private Map<String, FileUploadItemProc> cache = new Hashtable();
     private ExecutorService scheduler = Executors.newFixedThreadPool(100);
-
-    private File customTempDir;
-    
-    public void setTempDir( File tempdir ) {
-        this.customTempDir = tempdir; 
-    }
-    public File getTempDir() { 
-        File tempdir = customTempDir; 
-        if ( tempdir == null ) { 
-            tempdir = new File(System.getProperty("java.io.tmpdir"));
-        }         
-        File basedir = new File( tempdir, "rameses/fileupload");         
-        try {
-            if ( !basedir.exists()) { 
-                basedir.mkdir(); 
-            } 
-            return basedir; 
-            
-        } catch (RuntimeException re) {
-            throw re; 
-        } catch (Exception e) { 
-            throw new RuntimeException( e.getMessage(), e ); 
-        } 
-    }
     
     public void start() { 
-        File tempdir = getTempDir(); 
+        File tempdir = Helper.getTempDir(); 
         File[] files = tempdir.listFiles( new ValidFileFilter());  
         for ( File file : files ) { 
             FileUploadItem item = new FileUploadItem( file ); 
@@ -230,4 +210,45 @@ public class FileUploadManager {
             } 
         }     
     }    
+    
+    private final static Object HELPER_LOCKED = new Object();    
+    public static class HelperImpl {
+        
+        private File customTempDir;
+
+        public void setTempDir( File tempdir ) {
+            this.customTempDir = tempdir; 
+        }
+        public File getTempDir() { 
+            File tempdir = customTempDir; 
+            if ( tempdir == null ) { 
+                tempdir = new File(System.getProperty("java.io.tmpdir"));
+            }         
+            File basedir = new File( tempdir, "rameses/fileupload");         
+            try {
+                if ( !basedir.exists()) { 
+                    basedir.mkdir(); 
+                } 
+                return basedir; 
+
+            } catch (RuntimeException re) {
+                throw re; 
+            } catch (Exception e) { 
+                throw new RuntimeException( e.getMessage(), e ); 
+            } 
+        } 
+        
+        public long getFileSize( File file ) throws Exception { 
+            RandomAccessFile raf = null; 
+            FileChannel fc = null; 
+            try { 
+                raf = new RandomAccessFile( file, "r" );
+                fc = raf.getChannel(); 
+                return fc.size(); 
+            } finally {
+                try { fc.close(); }catch(Throwable t){;}
+                try { raf.close(); }catch(Throwable t){;}
+            }
+        } 
+    }
 }

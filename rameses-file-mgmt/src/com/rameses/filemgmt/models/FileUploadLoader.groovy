@@ -44,7 +44,7 @@ public class FileUploadLoader extends ScheduledTask {
 
     public void execute() { 
         loadLocations(); 
-        uploadMgr.start(); 
+        //uploadMgr.start(); 
     } 
     
     public void setCancelled( boolean cancelled ) {
@@ -54,11 +54,11 @@ public class FileUploadLoader extends ScheduledTask {
     
     void doStart() { 
         def stmpdir = com.rameses.rcp.framework.ClientContext.currentContext.getAppEnv().get("filemgmt.tmpdir"); 
-        if ( stmpdir ) uploadMgr.setTempDir( new java.io.File( stmpdir ));  
+        if ( stmpdir ) uploadMgr.Helper.setTempDir( new java.io.File( stmpdir ));  
 
         FileUploadManager.removeHandlers(); 
         FileUploadManager.addHandler( streamHandler ); 
-        com.rameses.rcp.framework.ClientContext.currentContext.taskManager.addTask( this ); 
+        //com.rameses.rcp.framework.ClientContext.currentContext.taskManager.addTask( this ); 
     } 
     void doStop() { 
         uploadMgr.stop();    
