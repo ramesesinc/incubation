@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -27,19 +28,23 @@ public class FileUploadItem {
     public final static String MODE_UPLOAD    = "UPLOAD";
     public final static String MODE_COMPLETED = "COMPLETED";
     
-    public final static String CONF_FILE_LOC_ID = "filelocid";
-    public final static String CONF_FILE_SOURCE = "source";
-    public final static String CONF_FILE_SIZE = "filesize";
-    public final static String CONF_FILE_TYPE = "filetype";
-    public final static String CONF_FILE_ID   = "fileid";
+    public final static String CONF_FILE_LOC_ID   = "filelocid";
+    public final static String CONF_FILE_SOURCE   = "source";
+    public final static String CONF_FILE_SIZE     = "filesize";
+    public final static String CONF_FILE_TYPE     = "filetype";
+    public final static String CONF_FILE_ID       = "fileid";
+    public final static String CONF_FILE_GROUP_ID = "filegroupid";
     
     private File folder; 
     private ConfigFile confFile;  
     private ContentFile contentFile;
+    
     private Handler handler; 
+    private ArrayList<FileStreamHandler> streamHandlers; 
     
     public FileUploadItem( File file ) {
         this.folder = file; 
+        this.streamHandlers = new ArrayList();
     }
     
     public String getName() { 
@@ -83,7 +88,22 @@ public class FileUploadItem {
         this.handler = handler; 
     }
     
-    public boolean isModelTempCopy() {
+    public void removeHandler( FileStreamHandler handler ) {
+        if ( handler != null ) {
+            streamHandlers.remove( handler ); 
+        }
+    }
+    public void addHandler( FileStreamHandler handler ) {
+        if ( handler != null && !streamHandlers.contains(handler) ) {
+            streamHandlers.add( handler ); 
+        }
+    }
+    
+    public String getMode() {
+        return getContentFile().getStatusFile().getMode(); 
+    }
+    
+    public boolean isModeTempCopy() {
         return getContentFile().isModeTempCopy(); 
     }
     public boolean isModeCompleted() { 
@@ -147,7 +167,7 @@ public class FileUploadItem {
     
     public FileUploadItemProc createProcessHandler() {
         if ( getContentFile().isModeTempCopy()) {
-             return new ModeTempCopyProcess();  
+            return new ModeTempCopyProcess();  
         } else if ( getContentFile().isModeUpload()) {
             return new ModeUploadProcess(); 
         }
@@ -158,6 +178,20 @@ public class FileUploadItem {
         void ontransfer( FileUploadItem item, long filesize, long bytesprocessed );
         void oncompleted( FileUploadItem item );
     } 
+
+    public void notifyEventOnTransfer( long bytesprocessed ) {
+        Number num = getConfigFile().getPropertyAsNumber( CONF_FILE_SIZE );
+        FileStreamHandler[] arr = streamHandlers.toArray(new FileStreamHandler[]{}); 
+        for (int i=0; i<arr.length; i++) {
+            //arr[i].ontransfer( this, num.longValue(), bytesprocessed ); 
+        }
+    } 
+    public void notifyEventOnCompleted( final Map data ) { 
+        FileStreamHandler[] arr = streamHandlers.toArray(new FileStreamHandler[]{}); 
+        for (int i=0; i<arr.length; i++) {
+            arr[i].oncomplete( data );
+        }
+    }
     
     public class ConfigFile { 
         private File folder;
@@ -483,13 +517,25 @@ public class FileUploadItem {
                 } catch(InterruptedException ie) {
                     break; 
                 } catch(Throwable t) { 
-                    t.printStackTrace(); 
+                    Throwable c = getNonRuntimeException(t); 
+                    c.printStackTrace(); 
                 } 
             }
             
             Handler handler = root.getHandler(); 
             if ( handler != null ) {
                 handler.oncompleted( root ); 
+            } 
+        }
+        
+        private Throwable getNonRuntimeException( Throwable t ) {
+            if ( t instanceof RuntimeException ) {
+                Throwable c = t.getCause(); 
+                if ( c == null ) return t; 
+                
+                return getNonRuntimeException(c); 
+            } else {
+                return t; 
             } 
         }
         

@@ -9,7 +9,6 @@ import java.awt.Image;
 import java.util.ArrayList;
 import java.util.Map;
 import javax.swing.AbstractListModel;
-import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 
 /**
@@ -20,15 +19,10 @@ public class ThumbnailListModel extends AbstractListModel {
 
     private final Object LOCKED = new Object();
     
-    private Object source; 
     private ArrayList<ThumbnailItem> list;
     
     public ThumbnailListModel() {
         list = new ArrayList(); 
-    }
-    
-    void setSource( Object source ) {
-        this.source = source;
     }
     
     public int getSize() { 
@@ -45,7 +39,11 @@ public class ThumbnailListModel extends AbstractListModel {
     
     public void clear() { 
         synchronized( LOCKED ) {
+            int lastIndex = list.size()-1;
             list.clear(); 
+            if ( lastIndex >= 0 ) {
+                fireIntervalRemoved(this, 0, lastIndex);
+            }
         }
     }
     
@@ -54,13 +52,16 @@ public class ThumbnailListModel extends AbstractListModel {
             if ( data == null ) return;
 
             Object caption = data.get("caption");
-            Object image = data.get("image");         
-
+            Object image = data.get("image"); 
+            
             ThumbnailItem item = new ThumbnailItem();
             item.setCaption( caption == null? "": caption.toString()); 
             item.setIcon( resolveImage( image )); 
             item.setData( data ); 
+            
+            int index = list.size();
             list.add( item ); 
+            fireIntervalAdded(this, index, index);
         } 
     } 
     
@@ -68,16 +69,16 @@ public class ThumbnailListModel extends AbstractListModel {
         synchronized (LOCKED) { 
             try { 
                 list.remove( index ); 
-                fireIntervalRemoved( source, index, index);
+                fireIntervalRemoved(this, index, index);
             } catch(Throwable t) {;} 
         } 
     }
     
-    public void fireRemoveItemEvent( Object source, int index0, int index1 ) {
-        fireIntervalRemoved(source, index0, index1);
+    public void fireRemoveItemEvent( int index0, int index1 ) {
+        fireIntervalRemoved(this, index0, index1);
     }
-    public void fireAddItemEvent( Object source, int index0, int index1 ) {
-        fireIntervalAdded(source, index0, index1);
+    public void fireAddItemEvent( int index0, int index1 ) {
+        fireIntervalAdded(this, index0, index1);
     }
     
     private Base64Cipher base64;

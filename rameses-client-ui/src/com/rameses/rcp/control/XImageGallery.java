@@ -326,6 +326,11 @@ public class XImageGallery extends ThumbnailPanel implements UIControl, ActiveCo
             if ( count <= 0 ) return;
             
             root.getModel().remove( index ); 
+            count = root.getModel().getSize(); 
+            if ( index >= count ) index -= 1; 
+            if ( index >= 0 && index < root.getModel().getSize()) {
+                root.setSelectedIndex( index );
+            }
         }
     }
     

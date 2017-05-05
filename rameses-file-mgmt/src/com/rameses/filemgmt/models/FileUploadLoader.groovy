@@ -44,7 +44,7 @@ public class FileUploadLoader extends ScheduledTask {
 
     public void execute() { 
         loadLocations(); 
-        //uploadMgr.start(); 
+        uploadMgr.start(); 
     } 
     
     public void setCancelled( boolean cancelled ) {
@@ -58,7 +58,7 @@ public class FileUploadLoader extends ScheduledTask {
 
         FileUploadManager.removeHandlers(); 
         FileUploadManager.addHandler( streamHandler ); 
-        //com.rameses.rcp.framework.ClientContext.currentContext.taskManager.addTask( this ); 
+        com.rameses.rcp.framework.ClientContext.currentContext.taskManager.addTask( this ); 
     } 
     void doStop() { 
         uploadMgr.stop();    

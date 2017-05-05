@@ -43,7 +43,7 @@ public class ThumbnailPanel extends JPanel {
     private boolean singleRowOnly;
     private boolean singleColumnOnly;
     
-    private JList jlist; 
+    private JListImpl jlist; 
     private JScrollPane jscroll;
     private Border cellBorder;    
     private Color selectionBorderColor;
@@ -61,7 +61,7 @@ public class ThumbnailPanel extends JPanel {
         cellSpacing = 5; 
         selectionBorderColor = Color.decode("#505050"); 
         
-        jlist = new JList();
+        jlist = new JListImpl();
         jlist.setSelectionMode(ListSelectionModel.SINGLE_SELECTION); 
         jlist.setCellRenderer(new ListCellRendererImpl());
         jlist.addListSelectionListener(new ListSelectionHandlerImpl());
@@ -89,7 +89,6 @@ public class ThumbnailPanel extends JPanel {
         
         try { 
             updating_model = true;
-            this.model.setSource( jlist );
             jlist.setModel( this.model ); 
         } finally {
             updating_model = false; 
@@ -138,6 +137,15 @@ public class ThumbnailPanel extends JPanel {
     public void setSingleColumnOnly( boolean singleColumnOnly ) {
         this.singleColumnOnly = singleColumnOnly; 
         adjustListComponent();
+    }
+
+    public int getSelectedIndex() {
+        return jlist.getSelectedIndex(); 
+    }
+    public void setSelectedIndex( int index ) {
+        try { 
+            jlist.setSelectedIndex( index ); 
+        } catch(Throwable t){;} 
     }
     
     public ThumbnailItem getSelectedItem() { 
@@ -380,5 +388,12 @@ public class ThumbnailPanel extends JPanel {
     }
     
     // </editor-fold>     
+    
+    // <editor-fold defaultstate="collapsed" desc=" JListImpl ">
+
+    private class JListImpl extends JList {
         
+    }
+    
+    // </editor-fold> 
 }

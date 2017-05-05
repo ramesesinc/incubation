@@ -95,8 +95,8 @@ public class FileNewPage extends javax.swing.JPanel {
         xButton1.setText("Attach");
         jPanel1.add(xButton1);
 
-        xButton2.setDepends(new String[] {"entity.filetype"});
-        xButton2.setDisableWhen("#{entity.filetype == null}");
+        xButton2.setDepends(new String[] {"entity.filetype", "selectedAttachment"});
+        xButton2.setDisableWhen("#{entity.filetype == null || selectedAttachment == null}");
         xButton2.setIconResource("images/toolbars/trash.png");
         xButton2.setImmediate(true);
         xButton2.setMargin(new java.awt.Insets(2, 2, 2, 2));

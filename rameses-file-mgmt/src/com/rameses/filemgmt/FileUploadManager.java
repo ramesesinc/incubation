@@ -95,7 +95,9 @@ public class FileUploadManager {
 
             Map data = item.getConfigFile().copyData(); 
             item.removeTempFile( ".immediate" ); 
-            stream_handler.oncomplete( data ); 
+            if ( item.isModeCompleted() ) {
+                stream_handler.oncomplete( data ); 
+            }
         } 
 
         public void ontransfer(FileUploadItem item, long filesize, long bytesprocessed) {

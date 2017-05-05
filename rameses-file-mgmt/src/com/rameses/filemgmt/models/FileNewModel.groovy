@@ -38,6 +38,7 @@ public class FileNewModel  {
         attachments.each{
             def skey = entity.objid +'-'+ new java.rmi.server.UID();
             def encstr = com.rameses.util.Encoder.MD5.encode( skey ); 
+            def encparentid = com.rameses.util.Encoder.MD5.encode( entity.objid ); 
 
             def m = [ _schemaname: 'sys_fileitem' ];
             m.filesize = helper.getFileSize( it.file ); 
@@ -100,7 +101,7 @@ public class FileNewModel  {
     def fileChooser; 
     def selectedAttachment;
     
-    void attachFile() {        
+    void attachFile() { 
         def filetype = fileTypes.find{ it.objid==entity.filetype }
         if ( !filetype ) throw new Exception('file type not supported');
 
@@ -133,17 +134,19 @@ public class FileNewModel  {
                 item.image = scaler.getBytes( image ); 
                 newlist << item; 
             }
-            attachments.clear(); 
-            attachments = newlist; 
+            attachments.addAll( newlist); 
             listHandler.reload();
         } 
     }
     
     void removeAttachment() {
         if ( !selectedAttachment ) return; 
-            
-        attachments.remove( selectedAttachment ); 
-        listHandler.reload(); 
+        
+        int idx = attachments.indexOf( selectedAttachment ); 
+        if ( idx >= 0 ) { 
+            attachments.remove( idx ); 
+            listHandler.remove( idx ); 
+        } 
     }
     
     long getFileSize( def file ) { 
