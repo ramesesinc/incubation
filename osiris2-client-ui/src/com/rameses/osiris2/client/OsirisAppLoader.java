@@ -21,6 +21,11 @@ import java.util.Map;
 
 public class OsirisAppLoader implements AppLoader {
     
+    public final static String KEY_LOADER_TYPE = "LOADER_TYPE";
+    public final static String KEY_PROPERTIES  = "PROPERTIES";
+    public final static String KEY_CLIENT_ENV  = "CLIENT_ENV";
+    public final static String KEY_CLIENT_PERMISSIONS  = "CLIENT_PERMISSIONS";
+    
     public OsirisAppLoader() {
     }
     
@@ -49,6 +54,8 @@ public class OsirisAppLoader implements AppLoader {
             ctx.setAppEnv(env);
             
             OsirisContext.setSession(startupApp);
+            afterSetSession(); 
+            
             /*
             if( env.get("CLIENT_PERMISSIONS") != null ) {
                 List permissions = (List) env.remove("CLIENT_PERMISSIONS");
@@ -70,8 +77,11 @@ public class OsirisAppLoader implements AppLoader {
             
             //load all loaders
             String loaderType = "loader";
-            if( env.get("LOADER_TYPE") != null )
+            if( env.get("LOADER_TYPE") != null ) {
                 loaderType = (String) env.remove("LOADER_TYPE");
+            } 
+            
+            
             
             List loaders = startupApp.getInvokers(loaderType, false);
             if( loaders.size() > 0 ) {
@@ -105,4 +115,7 @@ public class OsirisAppLoader implements AppLoader {
     public void restore() {
     }
     
+    protected void afterSetSession() {
+        //do nothing 
+    }
 }

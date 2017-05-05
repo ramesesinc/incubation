@@ -46,8 +46,11 @@ public final class ToolbarUtil
         JToolBar toolbar = new JToolBar();
         toolbar.setLayout(new ToolBarLayout());
         
+        Object obj = OsirisContext.getEnv().get("toolbar.type"); 
+        if ( obj == null ) obj = "toolbar";
+        
         ButtonHelper buttonHelper = new ButtonHelper();
-        List<Invoker> invokers = app.getInvokers("toolbar");
+        List<Invoker> invokers = app.getInvokers( obj.toString());
         for (Invoker inv : invokers) {
             boolean isButton = true;            
             MapHelper helper = new MapHelper(inv.getProperties()); 

@@ -134,7 +134,7 @@ public abstract class ReportModel {
         Iterator keys = appenv.keySet().iterator(); 
         while ( keys.hasNext() ) { 
             Object key = keys.next(); 
-            conf.put("ENV."+ key.toString().toUpperCase(), appenv.get(key)); 
+            conf.put("ENV_"+ key.toString().toUpperCase().replace('.','_'), appenv.get(key)); 
         } 
         
         JRParameter[] jrparams = mainReport.getParameters(); 

@@ -28,6 +28,8 @@ public class FileViewModel extends CrudFormModel {
     void attachFile() {
         // check temporary folder for privileges 
         def tempdir = getTempDir(); 
+        println 'tempdir-> ' + tempdir;
+        
         // select files...  
         def filter = new FileNameExtensionFilter(entity.filetype, entity.filetype);
         fileChooser.setFileSelectionMode(fileChooser.FILES_ONLY); 
@@ -64,8 +66,8 @@ public class FileViewModel extends CrudFormModel {
 
         def m = [ _schemaname: 'sys_fileitem' ];
         m.filesize = getFileSize( file ); 
-        m.filetype = entity.filetype;
-        m.parentid = entity.objid;
+        m.filetype = entity.filetype; 
+        m.parentid = entity.objid; 
         m.caption = file.getName();
         m.filelocid = 'default';
         m.state = 'PENDING';
@@ -74,16 +76,16 @@ public class FileViewModel extends CrudFormModel {
         
         def folder = new java.io.File( tempdir, encstr ); 
         def fui = new com.rameses.filemgmt.FileUploadItem( folder ); 
-//        fui.create([ 
-//            source    : file.absolutePath, 
-//            filelocid : m.filelocid,
-//            filetype  : m.filetype, 
-//            filesize  : m.filesize,
-//            fileid    : m.objid 
-//        ], true ); 
+        fui.create([ 
+            source    : file.absolutePath, 
+            filelocid : m.filelocid,
+            filetype  : m.filetype, 
+            filesize  : m.filesize,
+            fileid    : m.objid 
+        ], true ); 
         
         persistenceService.create( m ); 
-//        com.rameses.filemgmt.FileUploadManager.schedule( fui );  
+        com.rameses.filemgmt.FileUploadManager.schedule( fui );  
     } 
     
     def getTempDir() {

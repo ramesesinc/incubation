@@ -15,6 +15,7 @@ import com.rameses.anubis.AnubisContext;
 import com.rameses.anubis.Project;
 import com.rameses.common.MediaFile;
 import com.rameses.io.IOStream;
+import com.rameses.util.Base64Cipher;
 import java.io.InputStream;
 import java.math.BigInteger;
 import java.security.MessageDigest;
@@ -55,6 +56,13 @@ public class AnubisMediaServlet extends AbstractAnubisServlet
             ActionManager manager = project.getActionManager();
             ActionCommand command = manager.getActionCommand( path );
             Object result = command.execute( params );
+            if ( result instanceof String ) { 
+                Base64Cipher base64 = new Base64Cipher(); 
+                if ( base64.isEncoded( result.toString() )) {
+                    result = base64.decode( result ); 
+                }
+            } 
+            
             MediaFile mf = null;
             if (result instanceof MediaFile) {
                 mf = (MediaFile)result; 

@@ -26,7 +26,7 @@ public class UIControllerPanel extends JPanel implements NavigatablePanel, ViewC
     private boolean defaultBtnAdded;
     
     private SubWindow parent;
-    
+    private String id;
     
     public UIControllerPanel() {
         initComponent();

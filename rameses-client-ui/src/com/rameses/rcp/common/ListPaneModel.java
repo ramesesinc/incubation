@@ -12,13 +12,14 @@ package com.rameses.rcp.common;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 /**
  *
  * @author wflores
  */
-public class ListPaneModel 
-{
+public class ListPaneModel {
     
     public ListPaneModel() {
     }
@@ -47,6 +48,10 @@ public class ListPaneModel
     public void afterFetchList() {
         afterLoadItems(); 
     }    
+    
+    public long getRefreshInterval() {
+        return 0; 
+    }
     
     public void removeItem( Object value ) {
     }
