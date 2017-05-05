@@ -401,7 +401,7 @@ public class CrudListModel extends AbstractCrudModel {
             d = Inv.lookupOpener( ename + ":create", p );
         }
         catch(e) {
-            d = Inv.lookupOpener( "crudform:create", p );
+            //d = Inv.lookupOpener( "crudform:create", p );
         }
         if(!d) throw new Exception("No handler found for . " + ename + ".create. Please check permission");
         if( !d.target ) d.target = 'window';
@@ -419,7 +419,7 @@ public class CrudListModel extends AbstractCrudModel {
             d = Inv.lookupOpener( ename + ":open", p );
         }
         catch(e) {
-            d = Inv.lookupOpener( "crudform:open", p );
+            //d = Inv.lookupOpener( "crudform:open", p );
         }
         if(!d) throw new Exception("No handler found for . " + ename + ".open. Please check permission");
         if( !d.target ) d.target = 'window';
