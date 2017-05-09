@@ -30,9 +30,10 @@ public class FileViewModel extends CrudFormModel {
         thumbnails.clear();
         entity.items.each{
             thumbnails << [ 
-                objid   : it.objid,
-                caption : it.caption, 
-                image   : decodeImage( it.thumbnail) 
+                objid     : it.objid,
+                caption   : it.caption, 
+                filelocid : it.filelocid, 
+                image     : decodeImage( it.thumbnail) 
             ]; 
         }
     }
@@ -46,6 +47,7 @@ public class FileViewModel extends CrudFormModel {
         return o; 
     }
     
+    def uploadHelper = com.rameses.filemgmt.FileUploadManager.Helper; 
     
     def selectedItem;
     def itemHandler = [
@@ -53,7 +55,25 @@ public class FileViewModel extends CrudFormModel {
             return thumbnails; 
         }, 
         onselect: { o-> 
-            
+            def stat = uploadHelper.getDownloadStatus( o.objid ); 
+            if ( stat == null ) {
+                o.message = 'downloading in progress...'; 
+                uploadHelper.download( o.filelocid, o.objid, entity.filetype ); 
+            } else if ( stat == 'processing' ) {
+                o.message = 'downloading in progress...'; 
+            } else if ( stat == 'completed' ) {
+                o.message = null; 
+                o.actualimage = uploadHelper.getDownloadImage( o.objid ); 
+                binding.refresh('selectedItem.actualimage'); 
+            }
         }
     ] as ImageGalleryModel;
+    
+    def getCardname() {
+        if ( selectedItem.actualimage ) {
+            return 'image'; 
+        } else {
+            return 'noimage'; 
+        }
+    }
 }

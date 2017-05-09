@@ -101,9 +101,17 @@ public class FtpSession {
             login(); 
             applySettings(); 
             
+            targetFile.getParentFile().mkdirs(); 
+            
             DownloadStreamProxy dsp = new DownloadStreamProxy(targetFile); 
             ftp.setRestartOffset( dsp.getLength()); 
             ftp.retrieveFile(remoteName, dsp);
+            
+            int respcode = ftp.getReplyCode(); 
+            System.out.println("reply string " + ftp.getReplyString());
+            if ( !FTPReply.isPositiveCompletion(respcode)) {
+                throw new RuntimeException("[ftp_error] "+ respcode ); 
+            }
         } catch(IOException ioe) { 
             throw new RuntimeException(ioe); 
         } finally {

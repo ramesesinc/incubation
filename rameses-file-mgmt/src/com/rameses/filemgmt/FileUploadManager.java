@@ -4,8 +4,14 @@
  */
 package com.rameses.filemgmt;
 
+import com.rameses.io.FileLocType;
+import com.rameses.io.FileLocTypeProvider;
+import com.rameses.io.FileTransferSession;
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
@@ -14,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import javax.swing.ImageIcon;
 
 /**
  *
@@ -257,8 +264,105 @@ public class FileUploadManager {
             }
         }
         
-//        public boolean isDownloaded( String name ) {
-//            
-//        }
+        public File download( final String filelocid, final String remoteName, String filetype  ) {
+            File file = getDownloadFile( remoteName ); 
+            String status = getDownloadStatus( remoteName ); 
+            if ( "completed".equals(status)) return file;
+            
+            FileConf fileloc = FileConf.get( filelocid ); 
+            FileLocTypeProvider provider = FileLocType.getProvider( fileloc.getType()); 
+            FileTransferSession sess = provider.createDownloadSession();
+            sess.setLocationConfigId( filelocid ); 
+            sess.setTargetName( remoteName+"."+filetype ); 
+            sess.setFile( file ); 
+            sess.setHandler(new FileTransferSession.Handler() {
+                public void ontransfer(long filesize, long bytesprocessed) {
+                }
+                public void oncomplete() { 
+                    try {
+                        removeDownloadStatus( remoteName, "processing" ); 
+                        createDownloadStatus( remoteName, "completed" ); 
+                    } catch (Throwable t) { 
+                        t.printStackTrace();  
+                    } 
+                }
+            });
+            sess.run(); 
+            return null; 
+        }
+        
+        public String getDownloadStatus( String name ) {
+            File file = new File(getTempDir("filedownload"), name); 
+            if ( !file.exists()) return null; 
+            
+            if ( new File(file, ".processing").exists()) {
+                return "processing"; 
+            } else if ( new File(file, ".completed").exists()) {
+                return "completed"; 
+            } else { 
+                return null; 
+            } 
+        }
+        public File createDownloadStatus( String name, String status ) throws Exception {
+            File file = new File(getTempDir("filedownload"), name+"/."+status); 
+            if ( !file.exists()) {
+                file.getParentFile().mkdirs();
+                file.createNewFile(); 
+            } 
+            return file; 
+        }
+        public void removeDownloadStatus( String name, String status ) throws Exception {
+            File file = new File(getTempDir("filedownload"), name+"/."+status); 
+            if ( file.exists()) file.delete(); 
+        }
+        public File createDownloadFile( String name ) throws Exception { 
+            createDownloadStatus( name, "processing" ); 
+            File file = new File(getTempDir("filedownload"), name+"/content"); 
+            if ( !file.exists()) {
+                file.getParentFile().mkdirs();
+                file.createNewFile(); 
+            } 
+            return file; 
+        }
+        public File getDownloadFile( String name ) {
+            return new File(getTempDir("filedownload"), name+"/content");             
+        }
+        
+        void write( File file, String data ) {
+            OutputStream out = null; 
+            try {
+                out = new FileOutputStream( file );   
+                out.write( data.getBytes()  );  
+                out.flush(); 
+            } catch(RuntimeException re) {
+                throw re; 
+            } catch(Exception e) {
+                throw new RuntimeException(e.getMessage(), e); 
+            } finally { 
+                try { out.close(); }catch(Throwable t){;} 
+            } 
+        } 
+        String read( File file ) {
+            FileInputStream inp = null; 
+            try {
+                inp = new FileInputStream( file ); 
+                StringBuilder sb = new StringBuilder(); 
+                byte[] bytes = new byte[1024]; 
+                int read = -1;
+                while ((read=inp.read(bytes)) != -1) {
+                    sb.append(new String(bytes, 0, read)); 
+                }
+                return sb.toString(); 
+            } catch(Throwable t) {
+                return null; 
+            } finally { 
+                try { inp.close(); }catch(Throwable t){;} 
+            } 
+        } 
+        
+        public ImageIcon getDownloadImage( String name ) throws Exception { 
+            File file = getDownloadFile( name ); 
+            return new javax.swing.ImageIcon( file.toURI().toURL() );
+        }
     }
 }

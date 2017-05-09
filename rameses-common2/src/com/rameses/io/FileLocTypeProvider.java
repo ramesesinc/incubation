@@ -13,4 +13,6 @@ public interface FileLocTypeProvider {
     String getName(); 
     
     FileTransferSession createUploadSession(); 
+    FileTransferSession createDownloadSession(); 
+    
 }

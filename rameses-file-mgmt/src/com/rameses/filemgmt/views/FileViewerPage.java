@@ -36,8 +36,10 @@ public class FileViewerPage extends javax.swing.JPanel {
         xTextField2 = new com.rameses.rcp.control.XTextField();
         xTextField3 = new com.rameses.rcp.control.XTextField();
         xPanel2 = new com.rameses.rcp.control.XPanel();
-        xImageCanvas1 = new com.rameses.rcp.control.XImageCanvas();
         xImageGallery1 = new com.rameses.rcp.control.XImageGallery();
+        xPanel3 = new com.rameses.rcp.control.XPanel();
+        xImageCanvas1 = new com.rameses.rcp.control.XImageCanvas();
+        xLabel1 = new com.rameses.rcp.control.XLabel();
 
         com.rameses.rcp.control.border.XTitledBorder xTitledBorder1 = new com.rameses.rcp.control.border.XTitledBorder();
         xTitledBorder1.setTitle("  File Information   ");
@@ -71,7 +73,7 @@ public class FileViewerPage extends javax.swing.JPanel {
             xPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(xPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(xFormPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 495, Short.MAX_VALUE)
+                .addComponent(xFormPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addContainerGap())
         );
         xPanel1Layout.setVerticalGroup(
@@ -83,19 +85,34 @@ public class FileViewerPage extends javax.swing.JPanel {
 
         xPanel2.setLayout(new java.awt.BorderLayout());
 
+        xImageGallery1.setCellSize(new java.awt.Dimension(70, 70));
+        xImageGallery1.setHandler("itemHandler");
+        xImageGallery1.setName("selectedItem"); // NOI18N
+        xPanel2.add(xImageGallery1, java.awt.BorderLayout.LINE_START);
+
+        xPanel3.setDepends(new String[] {"selectedItem"});
+        xPanel3.setName("cardname"); // NOI18N
+        xPanel3.setLayout(new java.awt.CardLayout());
+
         com.rameses.rcp.control.border.XLineBorder xLineBorder1 = new com.rameses.rcp.control.border.XLineBorder();
         xLineBorder1.setHideLeft(true);
         xLineBorder1.setLineColor(new java.awt.Color(150, 150, 150));
         xImageCanvas1.setBorder(xLineBorder1);
         xImageCanvas1.setDepends(new String[] {"selectedItem"});
-        xImageCanvas1.setName("selectedItem.image"); // NOI18N
+        xImageCanvas1.setName("selectedItem.actualimage"); // NOI18N
         xImageCanvas1.setNoImageBackground(new java.awt.Color(255, 255, 255));
-        xPanel2.add(xImageCanvas1, java.awt.BorderLayout.CENTER);
+        xPanel3.add(xImageCanvas1, "image");
 
-        xImageGallery1.setCellSize(new java.awt.Dimension(70, 70));
-        xImageGallery1.setHandler("itemHandler");
-        xImageGallery1.setName("selectedItem"); // NOI18N
-        xPanel2.add(xImageGallery1, java.awt.BorderLayout.LINE_START);
+        xLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        com.rameses.rcp.control.border.XLineBorder xLineBorder2 = new com.rameses.rcp.control.border.XLineBorder();
+        xLineBorder2.setHideLeft(true);
+        xLineBorder2.setLineColor(new java.awt.Color(150, 150, 150));
+        xLabel1.setBorder(xLineBorder2);
+        xLabel1.setDepends(new String[] {"selectedItem"});
+        xLabel1.setIconResource("com/rameses/rcp/icons/loading32.gif");
+        xPanel3.add(xLabel1, "noimage");
+
+        xPanel2.add(xPanel3, java.awt.BorderLayout.CENTER);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -105,7 +122,7 @@ public class FileViewerPage extends javax.swing.JPanel {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(xPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(xPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(xPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, 519, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -122,8 +139,10 @@ public class FileViewerPage extends javax.swing.JPanel {
     private com.rameses.rcp.control.XFormPanel xFormPanel1;
     private com.rameses.rcp.control.XImageCanvas xImageCanvas1;
     private com.rameses.rcp.control.XImageGallery xImageGallery1;
+    private com.rameses.rcp.control.XLabel xLabel1;
     private com.rameses.rcp.control.XPanel xPanel1;
     private com.rameses.rcp.control.XPanel xPanel2;
+    private com.rameses.rcp.control.XPanel xPanel3;
     private com.rameses.rcp.control.XTextField xTextField1;
     private com.rameses.rcp.control.XTextField xTextField2;
     private com.rameses.rcp.control.XTextField xTextField3;

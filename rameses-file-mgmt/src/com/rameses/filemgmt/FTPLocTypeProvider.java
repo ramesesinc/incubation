@@ -24,7 +24,54 @@ public class FTPLocTypeProvider implements FileLocTypeProvider {
     public FileTransferSession createUploadSession() { 
         return new UploadSession(); 
     }
+    public FileTransferSession createDownloadSession() { 
+        return new DownloadSession(); 
+    }    
 
+    
+    private class DownloadSession extends FileTransferSession implements FtpSession.Handler {
+        private FtpSession sess; 
+
+        public void cancel() {
+            super.cancel(); 
+            if ( isCancelled() ) {
+                disconnect(); 
+            } 
+        } 
+        
+        public void run() { 
+            if ( isCancelled()) {
+                disconnect(); 
+                return; 
+            }
+            
+            sess = FtpManager.createSession( getLocationConfigId() ); 
+            sess.setBufferSize( 100 * 1024 ); 
+            sess.setHandler(this);
+            sess.download( getTargetName(), getFile() ); 
+            disconnect(); 
+        } 
+        
+        private void disconnect() {
+            try {
+                sess.disconnect(); 
+            } catch(Throwable t){
+                // do nothing 
+            } finally {
+                sess = null; 
+            }
+        } 
+        
+        public void onupload( long filesize, long bytesprocessed ) { 
+        } 
+
+        public void oncompleted() { 
+            Handler handler = getHandler(); 
+            if ( handler == null ) return; 
+
+            handler.oncomplete(); 
+        } 
+    }
     
     private class UploadSession extends FileTransferSession implements FtpSession.Handler {
         
