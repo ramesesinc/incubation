@@ -180,6 +180,8 @@ public final class EntityUtil {
                     z = new HashMap();
                     odata.put(arr[i], z);
                 }
+                if(!(z instanceof Map)) 
+                    throw new Exception("Cannot cast to map ->"+name);
                 odata = (Map)z;
             }
             return odata.put(arr[arr.length-1], value);
