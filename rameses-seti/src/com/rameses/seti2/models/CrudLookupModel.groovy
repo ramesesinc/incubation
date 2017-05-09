@@ -39,9 +39,14 @@ public class CrudLookupModel extends CrudListModel implements SimpleLookupDataSo
         this.selector = s;
     }
     
+    def lookupSelectedValue( def obj ) {
+        return obj;
+    }
+    
     def doOk() { 
         def selobj = listHandler.getSelectedValue(); 
         if ( !selobj ) throw new Exception("Please select an item"); 
+        selobj = lookupSelectedValue( selobj );
         
         if ( selector ) selector.select( selobj );
         else if ( onselect ) {
