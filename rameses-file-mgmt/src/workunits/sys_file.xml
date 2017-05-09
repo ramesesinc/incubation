@@ -1,9 +1,6 @@
-<workunit schemaName="sys_file">
+<workunit schemaName="sys_file" allowCreate="false">
     <invokers>
-        <invoker type="sys_file:open" caption="File" 
-                 index="10" srole="MASTER" action="open"/>
-        <invoker type="formActions" caption="Close" action="_close" />
-        <invoker type="formActions" caption="Attach" action="attachFile" icon="images/clip.png" />
+        <invoker type="sys_file:open" caption="File" action="open" srole="MASTER" index="10" /> 
     </invokers>
     <code class="com.rameses.filemgmt.models.FileViewModel" />
     <pages>

@@ -5,8 +5,11 @@
 package com.rameses.ftp;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 import org.apache.commons.net.ftp.FTP;
@@ -90,6 +93,29 @@ public class FtpSession {
         } finally {
             ftp = null; 
         }
+    }
+    
+    public void download( String remoteName, File targetFile ) {
+        InputStreamProxy inp = null; 
+        try { 
+            login(); 
+            applySettings(); 
+            
+            DownloadStreamProxy dsp = new DownloadStreamProxy(targetFile); 
+            ftp.setRestartOffset( dsp.getLength()); 
+            ftp.retrieveFile(remoteName, dsp);
+        } catch(IOException ioe) { 
+            throw new RuntimeException(ioe); 
+        } finally {
+            try { inp.close(); }catch(Throwable t){;} 
+            
+            logout(); 
+        } 
+        
+        Handler handler = getHandler(); 
+        if ( handler != null ) { 
+            handler.oncompleted(); 
+        }         
     }
 
     public void upload( String remoteName, File file ) {
@@ -251,4 +277,59 @@ public class FtpSession {
             handler.onupload( filesize, procbytes ); 
         }  
     } 
+    
+    private class DownloadStreamProxy extends OutputStream {
+
+        private File targetFile; 
+        private FileOutputStream fos;
+        
+        DownloadStreamProxy( File targetFile ) {
+            this.targetFile = targetFile; 
+            
+            try { 
+                this.fos = new FileOutputStream( targetFile );
+            } catch (FileNotFoundException fnfe ) { 
+                throw new RuntimeException( fnfe );
+            } 
+        }
+        
+        public long getLength() { 
+            if ( !targetFile.exists()) return 0;
+            
+            RandomAccessFile raf = null; 
+            FileChannel fc = null; 
+            try { 
+                raf = new RandomAccessFile( targetFile, "r" );
+                fc = raf.getChannel(); 
+                return fc.size(); 
+            } catch(FileNotFoundException fnfe) {
+                throw new RuntimeException(fnfe); 
+            } catch(IOException ioe) {
+                throw new RuntimeException(ioe); 
+            } finally {
+                try { fc.close(); }catch(Throwable t){;}
+                try { raf.close(); }catch(Throwable t){;}
+            }
+        } 
+        
+        public void write(int b) throws IOException {
+            fos.write( b ); 
+        } 
+
+        public void close() throws IOException { 
+            super.close(); 
+            
+            try { 
+                fos.close(); 
+            }catch(Throwable ign){;} 
+        }
+
+        public void flush() throws IOException {
+            super.flush();
+            
+            try { 
+                fos.flush(); 
+            }catch(Throwable ign){;} 
+        }
+    }
 }
