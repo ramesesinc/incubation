@@ -52,10 +52,17 @@ public class RabbitMQConnection extends MessageConnection {
     }
 
     public void send( Object data ) { 
-        sender.send( data ); 
+        send( data, null ); 
     }
 
-    public void sendText( String data ) {
-        sender.send( data ); 
+    public void send( Object data, String channelgroup ) { 
+        sender.send( data, channelgroup ); 
     }
+    
+    public void sendText( String data ) {
+        sendText( data, null ); 
+    }
+    public void sendText( String data, String channelgroup ) {
+        sender.send( data, channelgroup ); 
+    }    
 }

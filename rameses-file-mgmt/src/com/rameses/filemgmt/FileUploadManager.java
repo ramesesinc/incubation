@@ -218,15 +218,19 @@ public class FileUploadManager {
         
         private File customTempDir;
 
-        public void setTempDir( File tempdir ) {
+        public void setTempDir( File tempdir ) { 
             this.customTempDir = tempdir; 
-        }
+        } 
         public File getTempDir() { 
+            return getTempDir( "fileupload" ); 
+        } 
+        
+        File getTempDir( String group ) {
             File tempdir = customTempDir; 
             if ( tempdir == null ) { 
                 tempdir = new File(System.getProperty("java.io.tmpdir"));
             }         
-            File basedir = new File( tempdir, "rameses/fileupload");         
+            File basedir = new File( tempdir, "rameses/"+ group );         
             try {
                 if ( !basedir.exists()) { 
                     basedir.mkdir(); 
@@ -238,7 +242,7 @@ public class FileUploadManager {
             } catch (Exception e) { 
                 throw new RuntimeException( e.getMessage(), e ); 
             } 
-        } 
+        }
         
         public long getFileSize( File file ) throws Exception { 
             RandomAccessFile raf = null; 
@@ -251,6 +255,10 @@ public class FileUploadManager {
                 try { fc.close(); }catch(Throwable t){;}
                 try { raf.close(); }catch(Throwable t){;}
             }
-        } 
+        }
+        
+//        public boolean isDownloaded( String name ) {
+//            
+//        }
     }
 }

@@ -14,17 +14,16 @@ public class FileNewModel  {
     @Service("PersistenceService")
     def persistenceSvc;
     
+    @Script('FileType') 
+    def fileType;
+    
     def handler;    
     def base64 = new Base64Cipher();
     def _entity = [ _schemaname:'sys_file', objid:'FILE'+ new java.rmi.server.UID() ]; 
     
-    def fileTypes = [ 
-        [ objid: "jpg",  title: "JPEG Images (*.jpg)", multiselect: true ],
-        [ objid: "doc",  title: "Word Document (*.doc)", multiselect: false ],
-        [ objid: "docx", title: "Word Document (*.docx)", multiselect: false ],
-        [ objid: "pdf",  title: "PDF Document (*.pdf)", multiselect: false ],
-        [ objid: "png",  title: "PNG Images (*.png)", multiselect: true ]
-    ];
+    def getFileTypes() {
+        return fileType.getTypes(); 
+    } 
     
     def getEntity() { 
         return _entity; 
@@ -49,7 +48,7 @@ public class FileNewModel  {
             m.state = 'PENDING';
             m.bytestransferred = 0;
             m.objid = encstr; 
-            m.thumbnail = base64.encode( it.image); 
+            m.thumbnail = base64.encode((Object) it.image); 
             entity.items << m; 
             
             fileitems << [

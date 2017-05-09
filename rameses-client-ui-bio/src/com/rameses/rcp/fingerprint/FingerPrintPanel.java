@@ -140,7 +140,9 @@ class FingerPrintPanel extends JPanel
     
     // <editor-fold defaultstate="collapsed" desc=" Getters/Setters ">
     
-    public void setFingerType(int type) {
+    public void setFingerType(int type) { 
+        removeAll(); 
+        
         if ((type & FingerPrintModel.LEFT_THUMB) == FingerPrintModel.LEFT_THUMB) {
             add(new FingerPrintImage("Left Thumb", FingerPrintModel.LEFT_THUMB));
         }

@@ -103,7 +103,8 @@ public final class FingerPrintViewer
         }
         
         final FingerPrintPanel panel = new FingerPrintPanel(); 
-
+        panel.setFingerType( model.getFingerType() ); 
+        
         String title = model.getTitle();
         if (title == null) title = "FingerPrint Capture";
         

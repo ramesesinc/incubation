@@ -44,6 +44,11 @@ public class RabbitMQConnectionProvider extends XConnectionProvider {
         try { 
             Channel channel = getChannel( conf ); 
             RabbitMQConnection mqc = new RabbitMQConnection(name, context, conf, sender ); 
+            
+            if ( "false".equals(conf.get("allowreceive"))) {
+                return mqc; 
+            } 
+            
             channel.basicConsume( queue, true, new Receiver(channel, mqc));  
             return mqc; 
         } catch(RuntimeException re) { 
@@ -75,16 +80,21 @@ public class RabbitMQConnectionProvider extends XConnectionProvider {
             
             if ( channel == null ) { 
                 channel = connection.createChannel(); 
-                
+
+                String channelgroup = (String) conf.get("channelgroup"); 
                 queue = (String) conf.get("queue"); 
                 if ( queue != null ) {
                     channel.queueDeclarePassive( queue ); 
+                } else {
+                    queue = channelgroup; 
                 }
+
+                String type = (String) conf.get("type"); 
+                if ( type == null ) throw new Exception("type is required"); 
                 
-                String channelgroup = (String) conf.get("channelgroup"); 
-                String exchange = (String) conf.get("exchange");
+                String exchange = (String) conf.get("exchange");                                
                 if ( exchange != null ) {
-                    channel.exchangeDeclare( exchange, "direct", true );
+                    channel.exchangeDeclare( exchange, type, true );
                     channel.queueBind( queue, exchange, channelgroup);
                 } 
                 sender = new Sender( queue, exchange, channelgroup );                 
@@ -145,20 +155,24 @@ public class RabbitMQConnectionProvider extends XConnectionProvider {
             this.base64 = new Base64Cipher(); 
         }
         
-        public void send( Object message ) { 
-            send( base64.encode( message ).getBytes() );  
+        public void send( Object message, String channelgroup ) { 
+            send( base64.encode( message ).getBytes(), channelgroup );  
         } 
         
-        public void send( String message ) { 
+        public void send( String message, String channelgroup ) { 
             if ( base64.isEncoded( message )) {
-                send( message.getBytes() ); 
+                send( message.getBytes(), channelgroup ); 
             } else {
-                send( base64.encode( message ).getBytes() );
+                send( base64.encode( message ).getBytes(), channelgroup );
             }
         } 
         
-        public void send( byte[] message ) { 
+        public void send( byte[] message, String channelgroup ) { 
             try { 
+                if ( channelgroup == null ) {
+                    channelgroup = this.channelgroup; 
+                }
+                
                 if ( exchange == null) { 
                     channel.basicPublish("", queue, null, message); 
                 } else { 

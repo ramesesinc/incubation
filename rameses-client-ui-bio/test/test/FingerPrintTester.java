@@ -41,6 +41,10 @@ public class FingerPrintTester extends TestCase {
             public void onclose() {
                 System.out.println("onclose");
             }            
+
+            public int getFingerType() {
+                return FingerPrintModel.RIGHT_THUMB;
+            }
         };
         FingerPrintViewer.open(model); 
     }
