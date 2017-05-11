@@ -403,9 +403,11 @@ public class CrudListModel extends AbstractCrudModel {
             d = Inv.lookupOpener( ename + ":create", p );
         }
         catch(e) {
-            d = Inv.lookupOpener( "crudform:create", p );
+            // can create a record even if not allowed by permission
+            // d = Inv.lookupOpener( "crudform:create", p );
+            d = null;
         }
-        if(!d) throw new Exception("No handler found for . " + ename + ".create. Please check permission");
+        if(!d) throw new Exception("No handler found. You might not have permission for this action.");
         if( !d.target ) d.target = 'window';
         return d;
     }
