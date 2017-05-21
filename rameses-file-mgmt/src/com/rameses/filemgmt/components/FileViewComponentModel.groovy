@@ -27,10 +27,12 @@ class FileViewComponentModel extends ComponentBean implements IFileViewModel {
             return thumbnails; 
         }, 
         onselect: { o-> 
+            if ( !o ) return; 
+            
             def stat = uploadHelper.getDownloadStatus( o.objid ); 
             if ( stat == null ) {
                 o.message = 'downloading in progress...'; 
-                uploadHelper.download( o.filelocid, o.objid, entity.filetype ); 
+                uploadHelper.download( o.filelocid, o.objid, data.filetype ); 
             } else if ( stat == 'processing' ) {
                 o.message = 'downloading in progress...'; 
             } else if ( stat == 'completed' ) {
@@ -40,6 +42,14 @@ class FileViewComponentModel extends ComponentBean implements IFileViewModel {
             }
         }
     ] as ImageGalleryModel;
+    
+    def getCardname() {
+        if ( selectedItem?.actualimage ) {
+            return 'image'; 
+        } else {
+            return 'noimage'; 
+        }
+    }
     
     void loadFile( ) { 
         if ( fileid ) { 
