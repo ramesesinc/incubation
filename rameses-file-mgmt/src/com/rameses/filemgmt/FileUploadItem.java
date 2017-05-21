@@ -22,7 +22,7 @@ import java.util.Set;
  *
  * @author wflores 
  */
-public class FileUploadItem {
+public class FileUploadItem { 
         
     public final static String MODE_TEMP_COPY = "TEMP";
     public final static String MODE_UPLOAD    = "UPLOAD";

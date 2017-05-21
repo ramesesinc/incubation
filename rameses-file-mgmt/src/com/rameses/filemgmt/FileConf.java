@@ -12,7 +12,7 @@ import java.util.Map;
  *
  * @author wflores 
  */
-public final class FileConf {
+public final class FileConf { 
     
     private final static Config config = new Config(); 
     

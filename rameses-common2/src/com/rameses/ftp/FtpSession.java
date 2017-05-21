@@ -126,7 +126,7 @@ public class FtpSession {
         }         
     }
 
-    public void upload( String remoteName, File file ) {
+    public void upload( String remoteName, File file ) { 
         upload( remoteName, file, -1 ); 
     }
     

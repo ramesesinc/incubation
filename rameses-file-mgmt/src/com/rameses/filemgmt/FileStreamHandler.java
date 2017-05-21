@@ -10,7 +10,7 @@ import java.util.Map;
  *
  * @author wflores 
  */
-public interface FileStreamHandler {
+public interface FileStreamHandler { 
     
     void ontransfer( Map data, long bytesTransferred ); 
     void oncomplete( Map data ); 

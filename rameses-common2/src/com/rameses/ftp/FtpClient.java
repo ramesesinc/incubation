@@ -8,7 +8,7 @@ package com.rameses.ftp;
  *
  * @author wflores
  */
-public class FtpClient {
+public class FtpClient { 
     
     
     

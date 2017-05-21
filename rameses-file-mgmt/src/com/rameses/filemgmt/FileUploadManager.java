@@ -26,7 +26,7 @@ import javax.swing.ImageIcon;
  *
  * @author wflores 
  */
-public class FileUploadManager {
+public class FileUploadManager { 
     
     public final static HelperImpl Helper = new HelperImpl();
     

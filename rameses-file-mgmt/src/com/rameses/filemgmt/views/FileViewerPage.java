@@ -12,7 +12,7 @@ import com.rameses.seti2.views.CrudFormPage;
  * @author dell
  */
 @Template(CrudFormPage.class)
-public class FileViewerPage extends javax.swing.JPanel {
+public class FileViewerPage extends javax.swing.JPanel { 
 
     /**
      * Creates new form DocAlbum

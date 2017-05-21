@@ -6,7 +6,7 @@ import com.rameses.osiris2.client.*;
 import com.rameses.osiris2.common.*;
 import com.rameses.filemgmt.*;
 
-public class FileUploadLoader extends ScheduledTask { 
+public class FileUploadLoader extends ScheduledTask {  
     
     @Service('QueryService') 
     def qrySvc; 
@@ -76,7 +76,7 @@ public class FileUploadLoader extends ScheduledTask {
                 conf.password = o.user?.pwd; 
                 
                 if ( "ftp".equalsIgnoreCase( o.loctype.toString())) {
-                    conf = com.rameses.ftp.FtpLocationConf.add( o.objid ); 
+                    conf = com.rameses.ftp.FtpLocationConf.add( o.objid );  
                     conf.host = o.url; 
                     conf.user = o.user?.name; 
                     conf.password = o.user?.pwd; 

@@ -8,7 +8,7 @@ package com.rameses.filemgmt;
  *
  * @author wflores 
  */
-public interface FileUploadGroupProc extends Runnable {
+public interface FileUploadGroupProc extends Runnable { 
 
     public void cancel();
     

@@ -9,7 +9,7 @@ import com.rameses.seti2.models.*;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.*;
 
-public class FileViewModel extends CrudFormModel {
+public class FileViewModel extends CrudFormModel { 
     
     @Script('FileType') 
     def fileTypeUtil;

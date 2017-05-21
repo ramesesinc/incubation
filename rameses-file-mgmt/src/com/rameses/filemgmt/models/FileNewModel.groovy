@@ -9,7 +9,7 @@ import com.rameses.util.Base64Cipher;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-public class FileNewModel  {
+public class FileNewModel  { 
     
     @Service("PersistenceService")
     def persistenceSvc;

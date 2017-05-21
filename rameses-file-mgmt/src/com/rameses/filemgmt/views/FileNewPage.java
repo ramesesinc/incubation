@@ -12,7 +12,7 @@ import com.rameses.rcp.ui.annotations.Template;
  * @author dell
  */
 @Template(OKCancelPage.class)
-public class FileNewPage extends javax.swing.JPanel {
+public class FileNewPage extends javax.swing.JPanel { 
 
     /**
      * Creates new form AddDocFilePage

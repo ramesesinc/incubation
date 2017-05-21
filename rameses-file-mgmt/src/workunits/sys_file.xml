@@ -2,7 +2,7 @@
     <invokers>
         <invoker type="sys_file:open" caption="File" action="open" srole="MASTER" index="10" /> 
     </invokers>
-    <code class="com.rameses.filemgmt.models.FileViewModel" />
+    <code class="com.rameses.filemgmt.models.FileViewModel" /> 
     <pages>
         <page template="com.rameses.filemgmt.views.FileViewerPage" />
     </pages>

@@ -1,6 +1,6 @@
 <workunit>
     <invokers>
-        <invoker type="sys_doc_file:upload" caption="Upload File" 
+        <invoker type="sys_doc_file:upload" caption="Upload File"  
                  index="10" role="MASTER" action="init" target="popup"/>
     </invokers>
     <code>
