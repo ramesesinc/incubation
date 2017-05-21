@@ -156,14 +156,14 @@ public class Folder implements Serializable, Comparable {
         this.parent = parent;
     }
     
-    public int compareTo(Object o ) {
-        if( o == null || !(o instanceof Folder) ) return 0;
-        Folder i = (Folder)o;
-        
-        int index1 = getIndex() == null ? 0 : getIndex();
-        int index2 = i.getIndex() == null ? 0 : i.getIndex();
-        
-        return index1 - index2;
+    public int compareTo(Object o ) { 
+        if ( o instanceof Folder ) { 
+            Folder item2 = (Folder)o; 
+            String n1 = String.format("%10d", this.index )+"-"+(this.getCaption() == null ? "" : this.getCaption()).toLowerCase(); 
+            String n2 = String.format("%10d", item2.index )+"-"+(item2.getCaption() == null ? "" : item2.getCaption()).toLowerCase();
+            return n1.compareTo(n2); 
+        } 
+        return 999999999; 
     }
 
     public Integer getIndex() {
