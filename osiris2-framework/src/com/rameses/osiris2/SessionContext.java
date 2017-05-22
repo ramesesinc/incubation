@@ -11,6 +11,7 @@ package com.rameses.osiris2;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
@@ -133,8 +134,8 @@ public class SessionContext {
                     if (showIt) { list.add(inv); } 
                 }
             }
-                       
-            Collections.sort(list);            
+            
+            Collections.sort( list ); 
             invokers.put(type, list);
             return list;
         } else {
@@ -177,10 +178,9 @@ public class SessionContext {
     public List getFolders(String name, InvokerSource invokerSrc) {
         if( !name.startsWith("/")) name = "/" + name;
         Folder folder = (Folder)context.getFolderManager().getFolders().get(name);
-        if(folder==null)
-            return null;
-        else
-            return getFolders(folder, invokerSrc);
+        if ( folder == null ) return null;
+
+        return getFolders(folder, invokerSrc);
     }
     
     public List getFolders(Folder parent, InvokerSource invokerSrc) {
@@ -199,7 +199,7 @@ public class SessionContext {
                 invokers.addAll( invokerSrc.getInvokers("folder") );
             }
             
-            iter = invokers.iterator();
+            iter = invokers.iterator(); 
             while(iter.hasNext()) {
                 Invoker inv = (Invoker)iter.next();
                 String fid = (String)inv.getProperties().get("folderid");
@@ -217,8 +217,8 @@ public class SessionContext {
                     }
                 }
             }
-            
-            Collections.sort(list);
+
+            sortFolders( list ); 
             folderIndex.put(fullId, list);
         } else {
             list = (List)folderIndex.get(fullId);
@@ -234,4 +234,109 @@ public class SessionContext {
         return properties;
     }
     
+        
+    private void sortFolders( List list ) {
+        List<FolderGroup> groups = new ArrayList();
+        for (int i=0; i<list.size(); i++ ) {
+            Object o = list.get(i); 
+            if (!(o instanceof Folder )) continue; 
+            
+            Folder f = (Folder)o; 
+            int findex = (f.getIndex()==null ? 0 : f.getIndex()); 
+            FolderGroup g = findFolderGroup( groups, findex );
+            if ( g == null ) {
+                g = new FolderGroup( findex ); 
+                groups.add( g ); 
+            }
+            g.add( f ); 
+        } 
+        Collections.sort( groups ); 
+        
+        List target = new ArrayList();
+        for ( FolderGroup g : groups ) {
+            g.sortItems();
+            g.copyItemsTo( target ); 
+            g.clear();
+        } 
+        list.clear(); 
+        list.addAll( target ); 
+        target.clear(); 
+    } 
+    private FolderGroup findFolderGroup( List<FolderGroup> groups, int key ) {
+        for ( FolderGroup g : groups ) {
+            if ( g == null ) continue; 
+            if ( g.index == key ) return g; 
+        }
+        return null; 
+    }
+
+    private class FolderGroup implements Comparable {
+        
+        private int index; 
+        private List folders; 
+        
+        FolderGroup( int index ) {
+            this.index = index; 
+            this.folders = new ArrayList();
+        }
+
+        public boolean equals(Object obj) { 
+            if ( obj instanceof FolderGroup ) {
+                return (((FolderGroup)obj).index == this.index); 
+            } else if ( obj instanceof Number ) {
+                return (((Number)obj).intValue() == this.index ); 
+            }
+            return super.equals(obj);
+        }
+
+        public int compareTo(Object o) { 
+            if ( o instanceof FolderGroup ) {
+                FolderGroup g = (FolderGroup)o; 
+                if ( this.index < g.index ) return -1; 
+                else if ( this.index > g.index ) return 1; 
+                else return 0; 
+            }
+            return 999999999;
+        }
+
+        public String toString() { 
+            StringBuilder sb = new StringBuilder();
+            sb.append( super.toString() ).append(" ( "); 
+            sb.append("index=" + this.index ).append(", "); 
+            sb.append("size=" + folders.size()).append(" ) "); 
+            return sb.toString(); 
+        } 
+        
+        void add( Object o ) {
+            if ( !folders.contains(o)) { 
+                folders.add( o ); 
+            } 
+        }
+        void copyItemsTo( List target ) {
+            for ( Object o : this.folders ) { 
+                if ( o == null ) continue; 
+                if ( target.contains(o)) continue; 
+                
+                target.add( o );  
+            } 
+        }
+        void sortItems() {
+            Collections.sort(folders, new Comparator(){
+                public int compare(Object o1, Object o2) {
+                    Folder f1 = (Folder)o1; 
+                    Folder f2 = (Folder)o2; 
+                    Invoker inv1 = f1.getInvoker(); 
+                    Invoker inv2 = f2.getInvoker(); 
+                    String s1 = (inv1 == null ? f1.getCaption() : inv1.getCaption()); 
+                    String s2 = (inv2 == null ? f2.getCaption() : inv2.getCaption()); 
+                    if ( s1 == null ) s1 = "";
+                    if ( s2 == null ) s2 = "";
+                    return s1.toLowerCase().compareTo(s2.toLowerCase()); 
+                }
+            });
+        }
+        void clear() {
+            this.folders.clear(); 
+        }
+    }
 }

@@ -92,10 +92,22 @@ public class Folder implements Serializable, Comparable {
     }
     //</editor-fold>
 
-    public boolean equals(Object object) {
-        if( object == null || !(object instanceof Folder) )return false;
-        Folder f = (Folder)object;
-        return getFullId().equals( f.getFullId() );
+    public boolean equals( Object o ) { 
+        if ( o == null || !(o instanceof Folder)) return false;
+        if ( super.equals(o)) return true; 
+        
+        Folder f = (Folder) o;
+        if ( !getFullId().equals( f.getFullId())) return false; 
+        
+        Invoker inv1 = getInvoker(); 
+        Invoker inv2 = f.getInvoker(); 
+        if ( inv1 != null && inv2 != null && inv1.equals(inv2) ) {
+            return true; 
+        } else if ( inv1 == null && inv2 == null ) {
+            return true; 
+        } else {
+            return false; 
+        } 
     }
     
     public void removeSelf() {
@@ -159,9 +171,11 @@ public class Folder implements Serializable, Comparable {
     public int compareTo(Object o ) { 
         if ( o instanceof Folder ) { 
             Folder item2 = (Folder)o; 
-            String n1 = String.format("%10d", this.index )+"-"+(this.getCaption() == null ? "" : this.getCaption()).toLowerCase(); 
-            String n2 = String.format("%10d", item2.index )+"-"+(item2.getCaption() == null ? "" : item2.getCaption()).toLowerCase();
-            return n1.compareTo(n2); 
+            int idx1 = (getIndex() == null ? 0 : getIndex()); 
+            int idx2 = (item2.getIndex() == null ? 0 : item2.getIndex()); 
+            if ( idx1 < idx2 ) return -1; 
+            else if ( idx1 > idx2 ) return 1; 
+            else return 0; 
         } 
         return 999999999; 
     }
