@@ -5,5 +5,5 @@
         <invoker folderid="/explorer/master/filemgmt" caption="File List" 
                  index="10" srole="MASTER" action="init"/>
     </invokers>
-    <code class="com.rameses.filemgmt.models.FileListModel" />
+    <code class="com.rameses.filemgmt.models.FileListModel" /> 
 </workunit>

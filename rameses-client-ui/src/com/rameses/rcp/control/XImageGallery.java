@@ -237,10 +237,12 @@ public class XImageGallery extends ThumbnailPanel implements UIControl, ActiveCo
         
         ThumbnailListModel lm = new ThumbnailListModel();
         List list = model.fetchList( params ); 
-        for (Object item : list) { 
-            Map map = (Map) item; 
-            lm.add( map ); 
-        } 
+        if ( list != null ) {
+            for (Object item : list) { 
+                Map map = (Map) item; 
+                lm.add( map ); 
+            } 
+        }
         
         setModel( lm ); 
         

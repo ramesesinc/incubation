@@ -10,7 +10,7 @@ import java.util.Map;
  *
  * @author wflores 
  */
-public class DefaultFileStreamHandler implements FileStreamHandler {
+public class DefaultFileStreamHandler implements FileStreamHandler { 
 
     public void ontransfer(Map data, long bytesTransferred) {
     }

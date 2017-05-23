@@ -13,9 +13,9 @@ import com.rameses.io.FileTransferSession;
  *
  * @author wflores 
  */
-public class FTPLocTypeProvider implements FileLocTypeProvider {
+public class FTPLocTypeProvider implements FileLocTypeProvider { 
 
-    private final static String PROVIDER_NAME = "ftp"; 
+    private final static String PROVIDER_NAME = "ftp";  
     
     public String getName() { 
         return PROVIDER_NAME; 

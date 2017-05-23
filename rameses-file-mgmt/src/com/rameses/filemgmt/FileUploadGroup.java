@@ -16,7 +16,7 @@ import java.util.Map;
  *
  * @author wflores 
  */
-public class FileUploadGroup {
+public class FileUploadGroup { 
     
     private final static Object CONFIG_FILE_LOCKED = new Object();
     

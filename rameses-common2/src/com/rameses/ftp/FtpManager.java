@@ -8,7 +8,7 @@ package com.rameses.ftp;
  *
  * @author rameses1
  */
-public final class FtpManager {
+public final class FtpManager { 
     
     public static FtpSession createSession( String configName ) {
         FtpLocationConf conf = FtpLocationConf.get( configName ); 

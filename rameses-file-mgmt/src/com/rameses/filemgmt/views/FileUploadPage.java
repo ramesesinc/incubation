@@ -12,7 +12,7 @@ import com.rameses.rcp.ui.annotations.Template;
  * @author dell
  */
 @Template(OKCancelPage.class)
-public class FileUploadPage extends javax.swing.JPanel {
+public class FileUploadPage extends javax.swing.JPanel { 
 
     /**
      * Creates new form FileUploadPage

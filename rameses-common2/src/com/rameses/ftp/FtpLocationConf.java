@@ -12,7 +12,7 @@ import java.util.Map;
  *
  * @author wflores 
  */
-public final class FtpLocationConf {
+public final class FtpLocationConf { 
     
     private final static Config config = new Config(); 
     

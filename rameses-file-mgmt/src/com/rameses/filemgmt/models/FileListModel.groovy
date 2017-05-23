@@ -6,7 +6,7 @@ import com.rameses.rcp.common.*;
 import com.rameses.osiris2.client.*;
 import com.rameses.osiris2.common.*;
         
-public class FileListModel extends CrudListModel {
+public class FileListModel extends CrudListModel { 
     
     def create() {
         def h = { o->

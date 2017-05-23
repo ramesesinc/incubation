@@ -12,7 +12,7 @@ import com.rameses.rcp.ui.annotations.Template;
  * @author wflores 
  */
 @Template(FormPage.class)
-public class FileTransferPage extends javax.swing.JPanel {
+public class FileTransferPage extends javax.swing.JPanel { 
 
     public FileTransferPage() {
         initComponents();

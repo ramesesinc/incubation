@@ -44,6 +44,7 @@ public class TestProfile extends TestCase
         map.put("splash", splash);
         map.put("platform.type", "community");
         map.put("platform.title", "eTRACS 2.5");
+        map.put("builddate", new java.sql.Date(System.currentTimeMillis()).toString()); 
         writeToFile(".identity", map); 
     }
     

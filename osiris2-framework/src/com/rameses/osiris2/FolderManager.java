@@ -51,7 +51,7 @@ public class FolderManager implements Serializable {
             if(parent!=null) {
                 parent.getFolders().add( folder );
                 folder.setParent(parent);
-                Collections.sort(parent.getFolders());
+                Collections.sort( parent.getFolders() );
             }
             return folder;
         } else {
@@ -70,6 +70,4 @@ public class FolderManager implements Serializable {
     public AppContext getAppContext() {
         return appContext;
     }
-    
-    
 }
