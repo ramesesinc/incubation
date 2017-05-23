@@ -11,12 +11,14 @@ package com.rameses.anubis.web;
 
 import com.rameses.anubis.ActionCommand;
 import com.rameses.anubis.ActionManager;
+
 import com.rameses.anubis.AnubisContext;
 import com.rameses.anubis.Project;
 import java.util.Map;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 /**
  *
@@ -26,10 +28,12 @@ public class AnubisActionServlet extends AbstractAnubisServlet {
     
     protected void handle(HttpServletRequest hreq, HttpServletResponse hres) throws Exception {
         //check first if post method. If get, do not continue
+        /*
         if(hreq.getMethod().equalsIgnoreCase("get")) {
             ResponseUtil.writetErr( hreq, hres, new Exception("GET method is not supported for actions"), null );
             return;
         }
+        */ 
          
         AnubisContext ctx = AnubisContext.getCurrentContext();
         Map params = RequestUtil.buildRequestParams( hreq );
@@ -48,10 +52,16 @@ public class AnubisActionServlet extends AbstractAnubisServlet {
             ActionCommand command = manager.getActionCommand( path );
             
             Object o = command.execute( params );
-            if ( o != null ) {
-                //redirect to the page
-                hres.sendRedirect( o.toString() );
+            if(o==null) 
+                throw new Exception("An outcome must be specified in action " + path);
+            if ( !command.getResult().isEmpty() ) {
+                HttpSession sess = hreq.getSession();
+                sess.setAttribute("PARAMS", command.getResult() );
             }
+            String outcome = o.toString();
+            if(!outcome.startsWith("/")) outcome = "/"+outcome;
+            hres.sendRedirect( outcome );
+        
         } catch(Exception e) {
             ResponseUtil.writetErr( hreq, hres, e, null );
         }

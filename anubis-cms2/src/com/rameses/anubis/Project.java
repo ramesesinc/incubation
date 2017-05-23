@@ -27,25 +27,24 @@ public class Project extends HashMap  {
     //TRANSLATED GET TEXT
     private static String IGNORE_LANG_FIELDS = "name|url|defaultTheme";
     
-    private ContentTemplateCache templateCache = new ContentTemplateCache();
+    private ContentTemplateCache templateCache;
     
-    private TemplateManager templateManager = new TemplateManager();
-    private ContentManager contentManager = new ContentManager();
-    private BlockManager blockManager = new BlockManager();
-    private WidgetManager widgetManager = new WidgetManager();
-    private ServiceManager serviceManager = new ServiceManager();
-    private ActionManager actionManager = new ActionManager();
+    private TemplateManager templateManager;
+    private ContentManager contentManager;
+    private BlockManager blockManager;
+    private WidgetManager widgetManager;
+    private ServiceManager serviceManager;
+    private ActionManager actionManager;
     
-    private FileManager fileManager = new FileManager(this);
-    private FolderManager folderManager = new FolderManager(this);
+    private FileManager fileManager;
+    private FolderManager folderManager;
     
     //project specific files. This exists in a project only
-    private PermalinkManager permalinkManager = new PermalinkManager();
+    private PermalinkManager permalinkManager;
+    private MimeTypeManager mimetypeManager;
     
-    private MimeTypeManager mimetypeManager = new MimeTypeManager();
-    
-    private Map<String,Theme> themes = new LinkedHashMap();
-    private Map<String,Module> modules = new LinkedHashMap();
+    private Map<String,Theme> themes;
+    private Map<String,Module> modules;
     private Theme defaultTheme;
     private ConfigProperties conf;
     
@@ -54,12 +53,21 @@ public class Project extends HashMap  {
      **************************************************************************/
     private Map<String, LocaleSupport> locales = new Hashtable();
     
-    /** Creates a new instance of Project */
-    public Project(String id, String url) {
-        conf = ContentUtil.getConf( url + "/project.conf"  );
-        super.putAll(conf.getProperties());
-        super.put("name", id);
-        super.put("url", url);
+    public void init() {
+        this.templateCache = new ContentTemplateCache();
+        this.templateManager = new TemplateManager();
+        this.contentManager = new ContentManager();
+        this.blockManager = new BlockManager();
+        this.widgetManager = new WidgetManager();
+        this.serviceManager = new ServiceManager();
+        this.actionManager = new ActionManager();
+        this.fileManager = new FileManager(this);
+        this.folderManager = new FolderManager(this);
+        //project specific files. This exists in a project only
+        this.permalinkManager = new PermalinkManager();
+        this.mimetypeManager = new MimeTypeManager();
+        this.themes = new LinkedHashMap();
+        this.modules = new LinkedHashMap();        
         
         mimetypeManager.init( conf ); 
         permalinkManager.init( conf ); 
@@ -80,7 +88,15 @@ public class Project extends HashMap  {
         if(securedPages!=null) {
         }
          */
-        
+    }
+    
+    /** Creates a new instance of Project */
+    public Project(String id, String url) {
+        conf = ContentUtil.getConf( url + "/project.conf"  );
+        super.putAll(conf.getProperties());
+        super.put("name", id);
+        super.put("url", url);        
+        init();
     }
     
     private void loadThemes() {

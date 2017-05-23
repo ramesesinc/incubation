@@ -1,7 +1,7 @@
 <workunit extends="com/rameses/seti2/templates/CrudForm.xml" 
           schemaName="sys_file">
     <invokers>
-        <invoker type="sys_file:new" caption="File" srole="MASTER" target="popup" index="10"/>
+        <invoker type="sys_file:create" caption="File" target="popup" index="10"/>
     </invokers>
     <code class="com.rameses.filemgmt.models.FileNewModel" />
     <pages>

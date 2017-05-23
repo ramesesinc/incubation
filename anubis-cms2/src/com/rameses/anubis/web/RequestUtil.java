@@ -9,12 +9,14 @@
 
 package com.rameses.anubis.web;
 
+
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 /**
  *
@@ -44,6 +46,23 @@ public class RequestUtil {
             }
         }
         
+        //check also if there are attribute in request named params. extract that also
+        Map attrs = (Map)hreq.getAttribute("PARAMS");
+        if(attrs!=null) {
+            params.putAll( attrs );
+        }
+        
+        //we also include request attributes from the session if any.
+        //This is an additional method used by actions. To pass values
+        //during the redirect
+        HttpSession sess = hreq.getSession();
+        if(sess!=null) {
+            Map aparms = (Map)sess.getAttribute("PARAMS");
+            if(aparms !=null ) {
+                params.putAll(aparms);
+                sess.removeAttribute("PARAMS");
+            }
+        }
         return params;
     }
     

@@ -37,7 +37,12 @@ public class PermalinkManager {
         if(!pattern.startsWith("/")) pattern = "/" + pattern;
         page = page.trim();
         if(!page.startsWith("/")) page = "/" + page;
-        if(!page.endsWith(".pg") ) page = page + ".pg";
+        if( page.endsWith("/.*")) {
+            //do nothing
+        }
+        else if(!page.endsWith(".pg") ) {
+            page = page + ".pg";
+        }
         mappings.add( new PermalinkEntry(pattern, page) );
     }
     

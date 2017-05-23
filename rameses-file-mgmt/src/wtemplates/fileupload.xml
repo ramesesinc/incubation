@@ -1,0 +1,8 @@
+<workunit extends="com/rameses/seti2/templates/CrudForm.xml" schemaName="sys_file">
+
+    <code class="com.rameses.filemgmt.models.FileNewModel" />
+
+    <pages>
+        <page template="com.rameses.filemgmt.views.FileUploadTemplatePage" />
+    </pages>
+</workunit>
