@@ -1,6 +1,6 @@
 <folders>
     <folder id="explorer">
-        <folder id="developer" caption="Developer" index="100">
+        <folder id="developer" caption="Developer" index="-100">
             <folder id="rulemgmt" caption="Rule Management"/>
         </folder> 
     </folder>

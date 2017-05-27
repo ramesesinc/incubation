@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <folders>
     <folder id="menu">
-        <folder id="system" caption="System" index="-1"/>
-        <folder id="txn" caption="Transactions" index="5"/>
+        <folder id="system" caption="System" index="-9999"/>
+        <folder id="txn" caption="Transactions"/>
         <folder id="report" caption="Reports"/>
-        <folder id="help" caption="Help" index="9999"/>
+        <folder id="help" caption="Help" index="999999"/>
     </folder>
     
     <folder id="explorer" caption="Explorer">
-        <folder id="txn" caption="Transactions"/>
-        <folder id="master" caption="Master"/>
-        <folder id="report" caption="Reports"/>
-        <folder id="setting" caption="Settings" index="9999"/>
+        <folder id="txn" caption="Transactions" index="-99"/>
+        <folder id="master" caption="Master" index="-98"/>
+        <folder id="report" caption="Reports" index="-97"/>
+        <folder id="setting" caption="Settings" index="999999"/>
     </folder>    
     
 </folders>

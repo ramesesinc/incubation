@@ -9,9 +9,6 @@
 
 package com.rameses.anubis.web;
 
-import com.rameses.anubis.AnubisContext;
-import com.rameses.anubis.File;
-import com.rameses.anubis.Project;
 import com.rameses.io.StreamUtil;
 import com.rameses.util.ExceptionManager;
 import java.io.BufferedInputStream;
@@ -28,6 +25,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -152,17 +150,26 @@ public class ResponseUtil {
     }
     
     public static void writetErr(HttpServletRequest hreq, HttpServletResponse hres, Exception e, String errFile) {
-        
         try {
-            if(errFile==null) errFile = "error";
+            if(errFile==null) errFile = "/error";
+            if(!errFile.startsWith("/")) errFile = "/"+errFile;
             e = ExceptionManager.getOriginal(e);
+            
             Map m = new HashMap();
             m.put("message", e.getMessage());
             m.put("exception", e);
+            
+            hreq.setAttribute("PARAMS", m );
+            RequestDispatcher rd = hreq.getServletContext().getRequestDispatcher(errFile);
+            if( rd == null )
+                throw new Exception("request dispatcher not found");
+            rd.forward(hreq, hres);
+            /*
             Project project = AnubisContext.getCurrentContext().getProject();
             File file = project.getFileManager().getFile( "/"+errFile+".pg");
             InputStream is = project.getContentManager().getContent( file, m );
             ResponseUtil.write( hreq, hres, null, is);
+            */ 
         } catch(Exception ign) {
             throw new RuntimeException(ign);
         }

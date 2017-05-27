@@ -17,6 +17,7 @@ import java.util.Map;
  */
 public interface ActionCommand {
     
-    public abstract Object execute(Map params) throws Exception;
+    public Map getResult();
+    public Object execute(Map params) throws Exception;
     
 }
