@@ -243,7 +243,6 @@ public class SessionContext {
             if (!(o instanceof Folder )) continue; 
             
             Folder f = (Folder)o; 
-            System.out.println(">> "+ i + " : ("+ f.getIndex() +") "+ f.getCaption() );
             int findex = (f.getIndex()==null ? 0 : f.getIndex());             
             FolderGroup g = findFolderGroup( groups, findex );
             if ( g == null ) {
