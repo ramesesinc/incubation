@@ -9,17 +9,20 @@ import com.rameses.util.Base64Cipher;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-public class FileNewModel  { 
-    
-    @Service("PersistenceService")
-    def persistenceSvc;
+
+public class FileNewModel  {
+        
+    @Service('FileUploadService') 
+    def fileUploadSvc;
     
     @Script('FileType') 
     def fileType;
     
+    def info = [:];
+    
     def handler;    
     def base64 = new Base64Cipher();
-    def _entity = [ _schemaname:'sys_file', objid:'FILE'+ new java.rmi.server.UID() ]; 
+    def _entity = [ objid:'FILE'+ new java.rmi.server.UID(), info: [:]]; 
     
     def getFileTypes() {
         return fileType.getTypes(); 
@@ -39,7 +42,7 @@ public class FileNewModel  {
             def encstr = com.rameses.util.Encoder.MD5.encode( skey ); 
             def encparentid = com.rameses.util.Encoder.MD5.encode( entity.objid ); 
 
-            def m = [ _schemaname: 'sys_fileitem' ];
+            def m = [:];
             m.filesize = helper.getFileSize( it.file ); 
             m.filetype = entity.filetype;
             m.parentid = entity.objid;
@@ -59,8 +62,9 @@ public class FileNewModel  {
                 fileid    : m.objid 
             ]
         } 
+        entity.info = info;
         
-        _entity = persistenceSvc.create( entity ); 
+        _entity = fileUploadSvc.upload( entity ); 
         
         def tempdir = helper.getTempDir(); 
         fileitems.each{

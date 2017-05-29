@@ -103,10 +103,17 @@ public class ServiceInvokerServlet extends AbstractServlet {
             writeResponse( o, res );
             return;
         }
-        
-        ScriptRunnable tr = (ScriptRunnable) req.getAttribute( ScriptRunnable.class.getName() );
         RequestParser p = new RequestParser(req);
-        
+        if( p.getServiceName().indexOf(":") > 0 ) {
+            throw new ServletException( "Service "  + p.getServiceName() + " not found" );
+        }
+        else {
+            processBasicService( p, req, res );
+        }
+    }
+    
+    private void processBasicService(RequestParser p, final HttpServletRequest req, HttpServletResponse res)  throws ServletException, IOException{
+        ScriptRunnable tr = (ScriptRunnable) req.getAttribute( ScriptRunnable.class.getName() );
         if(tr==null) {
             ContinuationListener listener = new ContinuationListener(req);
             //replace the values
@@ -177,6 +184,7 @@ public class ServiceInvokerServlet extends AbstractServlet {
             writeResponse( response, res );
         }
     }
+    
     
     // <editor-fold defaultstate="collapsed" desc=" AsyncListener ">
     

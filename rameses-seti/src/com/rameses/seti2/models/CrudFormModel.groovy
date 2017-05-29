@@ -309,7 +309,8 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
     }
     
     void undo() {
-        def v = entity.undo();
+        if (!entity instanceof java.util.LinkedHashMap)
+            def v = entity.undo();
         //formPanel.reload();
     }
     

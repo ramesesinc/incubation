@@ -13,6 +13,7 @@ import com.rameses.anubis.AnubisContext;
 import com.rameses.anubis.ConnectionContext;
 import com.rameses.anubis.Module;
 import com.rameses.anubis.Project;
+import com.rameses.util.ExceptionManager;
 import java.io.ByteArrayInputStream;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -32,22 +33,22 @@ public class JsProxyServlet extends AbstractAnubisServlet {
     
     protected void handle(HttpServletRequest hreq, HttpServletResponse hres) throws Exception {
         AnubisContext actx = AnubisContext.getCurrentContext();
-        actx.setConnectionContext(new ConnectionContext("js-proxy"));
-        
         try {
+            actx.setConnectionContext(new ConnectionContext("js-proxy"));
             String pathInfo = hreq.getPathInfo();
             Project project = actx.getProject();
             
             String[] arr = pathInfo.substring(1).split("/");
+            
             String connection = (arr.length >= 3? arr[1]: arr[0]);
-            String service    = (arr.length >= 3? arr[2]: arr[1]);
-            service = service.substring(0, service.indexOf("."));
+            String serviceName    = (arr.length >= 3? arr[2]: arr[1]);
+            serviceName = serviceName.substring(0, serviceName.indexOf("."));
             Module module = actx.getModule();
             if(module!=null) {
                 actx.getConnectionContext().setModule( module );
             }
             
-            Map info = project.getServiceManager().getClassInfo( connection+"/"+service );
+            Map info = project.getServiceManager().getClassInfo( connection+"/"+serviceName );
             StringWriter w = new StringWriter();
             if ( info !=null ) writeJs( info, w );
 
@@ -56,10 +57,26 @@ public class JsProxyServlet extends AbstractAnubisServlet {
         } 
         catch(Exception ex) {
             System.out.println("[ERROR] " + ex.getMessage());
-            ex.printStackTrace();
+            ex = ExceptionManager.getOriginal(ex);
+            hres.setStatus(hres.SC_INTERNAL_SERVER_ERROR);
+            writeError(ex.getMessage(), hres);
+            //ex.printStackTrace();
         } 
         finally {
             actx.removeConnectionContext();
+        }
+    }
+    
+    
+    private void writeError(String result, HttpServletResponse hres) throws Exception {
+        Writer w = null;
+        try {
+            w = hres.getWriter();
+            w.write( result );
+        } catch(Exception e) {
+            throw e;
+        } finally {
+            try { w.close(); } catch(Exception e){;}
         }
     }
     

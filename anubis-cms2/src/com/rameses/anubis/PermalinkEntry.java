@@ -33,27 +33,24 @@ public class PermalinkEntry {
     private MessageFormat formatter;
     private String pattern;
     private List tokens;
-    private String path;
+    private String mappingPattern;
+    private String page;
     
     public PermalinkEntry(String mapping, String path) {
         init(mapping);
-        this.path = path;
-    }
-    
-    private String formatStr(String text) {
-        return "^"+text.replace(".", "\\.")+"$";
+        this.mappingPattern = mapping;
+        this.page = path;
     }
     
     private void init(String text) {
         tokens = new ArrayList();
-        text = formatStr(text);
         Matcher m = parser.matcher(text);
         StringBuilder sb = new StringBuilder();
         StringBuilder sf = new StringBuilder();
         int start = 0;
         int counter = 0;
         while(m.find()) {
-            sb.append( text.substring(start, m.start()) + "([\\w|-]+)?" );
+            sb.append( text.substring(start, m.start()) + "([\\w|-]{1,})?" );
             sf.append( text.substring(start, m.start()) + "{"+  (counter++) + "}" );
             String stext = text.substring(m.start(),m.end()).trim();
             tokens.add( stext.substring(1, stext.length()-1)  );
@@ -64,7 +61,10 @@ public class PermalinkEntry {
             sf.append( text.substring(start) );
         }
         pattern = sb.toString();
-        formatter = new MessageFormat(sf.toString());
+        
+        String fp = sf.toString();
+        if( fp.endsWith(".*")) fp = fp.substring(0, fp.lastIndexOf(".*"));
+        formatter = new MessageFormat(fp);
     }
     
     public String getPattern() {
@@ -85,19 +85,26 @@ public class PermalinkEntry {
     
     private Map getTokens(String path) {
         Map m = new LinkedHashMap();
-        Object[] objs = formatter.parse( formatStr(path), new ParsePosition(0));
-        for( int i=0; i<tokens.size(); i++) {
-            m.put( tokens.get(i), objs[i] );
+        try {
+            Object[] objs = formatter.parse( path, new ParsePosition(0));
+            for( int i=0; i<tokens.size(); i++) {
+                m.put( tokens.get(i), objs[i] );
+            }
+            return m;
         }
-        return m;
+        catch(Exception e) {
+            System.out.println("Error in PermalinkEntry.getTokens");
+            e.printStackTrace();
+            return m;
+        }
     }
     
-    private String getPath() {
-        return path;
+    private String getPage() {
+        return page;
     }
     
-    private String getResolvedTargetPath(Map tokens) {
-        String s = getPath();
+    private String replaceWithTokens(String spath, Map tokens) {
+        String s = spath;
         for(Object o : tokens.entrySet()) {
             Map.Entry me = (Map.Entry)o;
             s = s.replace( "["+me.getKey()+"]", me.getValue().toString() );
@@ -105,12 +112,14 @@ public class PermalinkEntry {
         return s;
     }
     
+    /*
     private String getResolvedTargetPath(String path) {
         return getResolvedTargetPath( getTokens(path));
     }
+    */ 
     
     public String toString() {
-        return this.pattern + " " + this.path;
+        return this.pattern + " " + this.page;
     }
     
     public static class MatchResult {
@@ -126,10 +135,25 @@ public class PermalinkEntry {
         }
     }
 
-    public MatchResult buildResult(String path) {
+    //spath is the path specified by the user.
+    private String getResolvedPathWildcard( String spath, Map tks ) {
+        //replace mapping pattern with the tokens
+        String s = mappingPattern.substring(0, mappingPattern.lastIndexOf("/.*"));
+        String prefix = replaceWithTokens(  s, tks );
+        String newSuffix = spath.substring(prefix.length());
+        String newPrefix = page.substring(0, page.lastIndexOf("/.*"));
+        return newPrefix + newSuffix +".pg";
+    }
+    
+    public MatchResult buildResult(String spath) {
         MatchResult mr = new MatchResult();
-        mr.tokens = getTokens(path);
-        mr.resolvedPath = getResolvedTargetPath(mr.tokens);
+        mr.tokens = getTokens(spath);
+        if( this.page.endsWith("/.*") ) {
+            mr.resolvedPath = getResolvedPathWildcard( spath, mr.tokens );
+        }
+        else {
+            mr.resolvedPath = replaceWithTokens(getPage(), mr.tokens);
+        }
         return mr;
     }
     

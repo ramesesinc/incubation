@@ -114,12 +114,17 @@ public class ActionManager {
     private class GroovyActionCommand implements ActionCommand {
         
         private Script script;
+        private Map result = new HashMap();
         
         public GroovyActionCommand(InputStream is) throws Exception {
             GroovyShell sh = new GroovyShell();
             script = sh.parse( StreamUtil.toString(is) );
         }
         
+        public Map getResult() {
+            return result;
+        }
+
         public Object execute(Map params) throws Exception {
             AnubisContext ctx = AnubisContext.getCurrentContext();
             Project project = ctx.getProject();
@@ -133,8 +138,10 @@ public class ActionManager {
             sc.setProperty("REQUEST", ctx.getRequest() );
             sc.setProperty("RESPONSE", ctx.getResponse() );
             sc.setProperty("SESSION", ctx.getSession() );
+            sc.setProperty("RESULT", result);
             return sc.run();
         }
+
     }
     
 }
