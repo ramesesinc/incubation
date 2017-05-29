@@ -101,7 +101,7 @@ public class Folder implements Serializable, Comparable {
         
         Invoker inv1 = getInvoker(); 
         Invoker inv2 = f.getInvoker(); 
-        if ( inv1 != null && inv2 != null && inv1.equals(inv2) ) {
+        if ( inv1 != null && inv2 != null && genKey(inv1).equals(genKey(inv2))) {
             return true; 
         } else if ( inv1 == null && inv2 == null ) {
             return true; 
@@ -109,6 +109,14 @@ public class Folder implements Serializable, Comparable {
             return false; 
         } 
     }
+    
+    private String genKey( Invoker inv ) { 
+        StringBuilder sb = new StringBuilder();
+        sb.append( inv.getType()).append("://").append( inv.getWorkunitid());
+        sb.append("/").append( inv.getName()).append("/").append( inv.getAction());
+        sb.append("/").append( inv.getCaption());         
+        return sb.toString().toLowerCase(); 
+    } 
     
     public void removeSelf() {
         this.getParent().getFolders().remove(this);

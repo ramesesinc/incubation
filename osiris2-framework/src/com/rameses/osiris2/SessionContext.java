@@ -218,6 +218,7 @@ public class SessionContext {
                 }
             }
 
+            System.out.println("** Sort Folders for " + fullId);
             sortFolders( list ); 
             folderIndex.put(fullId, list);
         } else {
@@ -235,14 +236,15 @@ public class SessionContext {
     }
     
         
-    private void sortFolders( List list ) {
+    private void sortFolders( List list ) { 
         List<FolderGroup> groups = new ArrayList();
-        for (int i=0; i<list.size(); i++ ) {
+        for (int i=0; i<list.size(); i++ ) { 
             Object o = list.get(i); 
             if (!(o instanceof Folder )) continue; 
             
             Folder f = (Folder)o; 
-            int findex = (f.getIndex()==null ? 0 : f.getIndex()); 
+            System.out.println(">> "+ i + " : ("+ f.getIndex() +") "+ f.getCaption() );
+            int findex = (f.getIndex()==null ? 0 : f.getIndex());             
             FolderGroup g = findFolderGroup( groups, findex );
             if ( g == null ) {
                 g = new FolderGroup( findex ); 
