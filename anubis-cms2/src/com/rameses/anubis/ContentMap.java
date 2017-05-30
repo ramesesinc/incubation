@@ -67,6 +67,9 @@ public class ContentMap extends HashMap {
         else if( skey.equals("REQUEST")) {
             return  ctx.getRequest();
         }    
+        else if( skey.equals("RESPONSE")) {
+            return ctx.getResponse();
+        }
         else if( skey.equals("SESSION")) {
             return ctx.getSession();
         } 

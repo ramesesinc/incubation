@@ -1,0 +1,22 @@
+import com.rameses.annotations.*;
+import com.rameses.osiris3.remote.*;
+
+/*********************************************************************************
+* 
+* 
+*********************************************************************************/
+class RemoteScriptRegistryService {
+
+    @Cache("remote-script-cache") 
+    def cache; 
+
+    @ProxyMethod 
+    public void register( String context, def infos ) {
+    	def m = [:];
+    	infos.each {
+    		m.put( it.name, it );
+    	}
+    	cache.put("remote-script:" + context, m, 99999999);
+    }
+
+}
