@@ -15,8 +15,6 @@ class RemoteScriptInvokerService {
 
     @ProxyMethod
     public def postResponse( def resp ) {
-    	println "accepting response "+resp.data + "="+resp.handlename;
-
         dataCache.put( resp.txnid, resp.data, 99999999 );
 
         //this should be in a format that is in a string format for stomp

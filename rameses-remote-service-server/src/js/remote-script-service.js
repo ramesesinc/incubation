@@ -16,6 +16,7 @@ function RabbitMQConnectionHandler(_conf) {
 
 		if(  isConnected == false) {
 			var callbackWrapper = function(o) {
+				console.log("firing receive from server");
 				var arr = o.body.split("::");
 				var hdl = handlers[arr[1]];
 				if(hdl!=null) hdl(arr[0]);
@@ -79,13 +80,24 @@ var RemoteScriptConnectionProvider = new function() {
 	}
 } 
 
-function RemoteScriptInvoker( _context, name ) {
+function RemoteScriptInvoker( _context, name, _connection, _module ) {
 	var context = _context;
 	var serviceName = name;
-	var svc = Service.lookup("RemoteScriptInvokerService");
+	var connection = _connection;
+	var module = _module;
+	var svc = Service.lookup("RemoteScriptInvokerService", connection, module );
 	this.invoke = function(methodName, args, callbackHandler) {
 		if(callbackHandler==null)
-			throw new Error("Please provide a callbackHandler in RemoteScriptInvoker");		
+			throw new Error("Please provide a callbackHandler in RemoteScriptInvoker");	
+
+		var callbackWrapper = function(z) {
+			if( typeof callbackHandler == "object" ) {
+				callbackHandler.handle(z);
+			}	
+			else {
+				callbackHandler(z);
+			}
+		}
 		var p = {}
 		p.serviceName = serviceName;
 		p.context = context;
@@ -96,10 +108,10 @@ function RemoteScriptInvoker( _context, name ) {
 		if(result.txnid == null ) {
 			var conf = result.conf;
 			var conn = RemoteScriptConnectionProvider.lookup( result.conf );
-			conn.register( conf.exchange, conf.key, conf.handlename, callbackHandler );
+			conn.register( conf.exchange, conf.key, conf.handlename, callbackWrapper );
 		}
 		else {
-			callbackHandler( result.txnid );	
+			callbackWrapper( result.txnid );	
 		}
 	}
 }
@@ -111,12 +123,35 @@ var RemoteScriptService = new function() {
 		var svc = Service.lookup( "RemoteScriptMetaService", connection, module );
 	    var info = svc.getScriptInfo( name );	 
 	    var func = RemoteScriptInterfaceBuilder.build(info);
-	    var invoker = new func( new RemoteScriptInvoker(info.context, info.name) );
+	    var invoker = new func( new RemoteScriptInvoker(info.context, info.name, connection, module ) );
 	    services[name] = invoker;
 	    return invoker;
 	}
 
 }
+
+/******************************
+*
+*******************************/
+function RemoteScriptLoadPageHandler(_page) {
+	var page = _page;
+	if(page==null) 
+		throw new Error("Please provide page in RemoteScriptLoadPageHandler");
+	this.handle = function(id) {
+		window.location.href = page + "?id=" + id;
+	}
+} 
+
+function RemoteScriptLoadDataHandler( _onload, _connection, _module ) {
+	var onload = _onload;
+	var connection = _connection;
+	var module = _module;
+	this.handle = function(id) {
+		var svc = Service.lookup( "RemoteScriptDataService", connection, module );
+		var o = svc.query(id);
+		onload(o);
+	}
+} 
 
 
 

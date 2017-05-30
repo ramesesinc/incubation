@@ -14,6 +14,24 @@ class RemoteScriptInvokerService {
     @XConnection("remote-script-mq")
     def remoteMq;
 
+    private def formatCommandRequest( def o ) {
+        def m = [:];
+        o.each { k,v->
+            if(k=="args") {
+                def objs = new Object[v.size()];
+                v.eachWithIndex { x,i->
+                    objs[i] = x;
+                }
+                m.put(k,objs);
+            }
+            else {
+                m.put(k, v);
+            }
+        }
+        return m;
+    } 
+
+
     @ProxyMethod
     public def invoke( def o ) {
 
@@ -25,12 +43,24 @@ class RemoteScriptInvokerService {
             return [ txnid: txnid ];
         }
 
-        def retval = [:];
+        //get configuration settings from the connection
         def conf = remoteMq.conf;
         def exchange = conf.exchange;
         def key = "RSU"+ new UID();
         def handlename = o.context+":"+o.serviceName+"."+o.methodName;
 
+        //package the message for sending to the server
+        def req = [
+            key : key,
+            exchange: exchange,
+            handlename: handlename,
+            txnid:txnid, 
+            data: formatCommandRequest( o )
+        ];
+        remoteMq.send( req, o.context );
+
+        //build return value to client for the queue listener
+        def retval = [:];
         retval.conf = [
             exchange: exchange,
             key: key,
@@ -42,15 +72,6 @@ class RemoteScriptInvokerService {
             handlename: handlename
         ];
 
-        //package the message for sending to the server
-        def req = [
-            key : key,
-            exchange: exchange,
-            handlename: handlename,
-            txnid:txnid, 
-            data: o
-        ];
-        remoteMq.send( req, o.context );
         return retval;
     }
 
