@@ -218,7 +218,6 @@ public class SessionContext {
                 }
             }
 
-            System.out.println("** Sort Folders for " + fullId);
             sortFolders( list ); 
             folderIndex.put(fullId, list);
         } else {

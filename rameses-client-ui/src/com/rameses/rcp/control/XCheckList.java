@@ -9,8 +9,8 @@
 
 package com.rameses.rcp.control;
 
+import com.rameses.rcp.common.CheckListModel;
 import com.rameses.rcp.common.MsgBox;
-import com.rameses.rcp.common.ObjectProxy;
 import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.control.table.ExprBeanSupport;
 import com.rameses.rcp.framework.Binding;
@@ -23,6 +23,7 @@ import com.rameses.rcp.ui.UIControl;
 import com.rameses.rcp.ui.Validatable;
 import com.rameses.rcp.util.ActionMessage;
 import com.rameses.rcp.util.UIControlUtil;
+import com.rameses.util.BreakException;
 import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.Insets;
@@ -36,8 +37,8 @@ import java.util.Map;
  *
  * @author wflores
  */
-public class XCheckList extends CheckListPanel implements UIControl, 
-    Validatable, ActiveControl, MouseEventSupport.ComponentInfo 
+public class XCheckList extends CheckListPanel 
+    implements UIControl, Validatable, ActiveControl, MouseEventSupport.ComponentInfo 
 {
     private ControlProperty property;    
     private Binding binding;
@@ -50,12 +51,12 @@ public class XCheckList extends CheckListPanel implements UIControl,
     private String disableWhen;
     private String visibleWhen;
     private String handler;
+    private String items; 
     private String itemKey;
     private String itemExpression;
     private String varName; 
     
-    private RadioListModel model;
-    private Object modelObject;
+    private CheckListModel model;
     
     private int stretchWidth;
     private int stretchHeight;
@@ -63,7 +64,7 @@ public class XCheckList extends CheckListPanel implements UIControl,
     public XCheckList() {
         super(); 
         varName = "item"; 
-        setItemCount(2); 
+        setItemCount(2);         
     }
     
     // <editor-fold defaultstate="collapsed" desc=" Getters / Setters "> 
@@ -92,6 +93,11 @@ public class XCheckList extends CheckListPanel implements UIControl,
     public boolean isDynamic() { return dynamic; } 
     public void setDynamic(boolean dynamic) {
         this.dynamic = dynamic; 
+    }
+    
+    public String getItems() { return items; } 
+    public void setItems( String items ) {
+        this.items = items; 
     }
     
     public String getItemKey() { return itemKey; } 
@@ -123,32 +129,26 @@ public class XCheckList extends CheckListPanel implements UIControl,
     public void setIndex(int index) { this.index = index; }
 
     public void load() { 
-        model = null; 
-        modelObject = null; 
-        
         Binding binding = getBinding(); 
         Object bean = (binding == null? null: binding.getBean()); 
+
+        this.model = null; 
         
         try { 
-            Object handlerObj = null; 
+            Object handlerObj = null;         
             String handler = getHandler();      
             if (handler != null && handler.length() > 0) {
                 handlerObj = UIControlUtil.getBeanValue(bean, handler);
             }
             
-            if (handlerObj != null) {
-                modelObject = handlerObj;
-                model = new ObjectProxy().create(modelObject, RadioListModel.class); 
+            if ( handlerObj instanceof CheckListModel ) { 
+                model = (CheckListModel) handlerObj; 
             } 
-        } catch(Throwable t) {;}
-        
-        if (modelObject == null) {
-            model = new EmptyRadioListModel();
-            modelObject = model; 
-        }
+        } catch(Throwable t) {;} 
     }
 
-    private boolean refreshed;
+    private boolean allowReload = true; 
+    
     public void refresh() { 
         String whenExpr = getVisibleWhen();
         if (whenExpr != null && whenExpr.length() > 0) {
@@ -172,7 +172,7 @@ public class XCheckList extends CheckListPanel implements UIControl,
             setEnabled( !disabled ); 
         }
         
-        boolean reload = (!refreshed || isDynamic()); 
+        boolean reload = (allowReload || isDynamic()); 
         try {
             if (reload) buildItems();
         } catch(Throwable t) { 
@@ -197,9 +197,8 @@ public class XCheckList extends CheckListPanel implements UIControl,
             }
             setSelectedValues(arrays); 
         }
-                
-        if (!refreshed) refreshed = true; 
-        
+
+        allowReload = false;         
         enableComponents(isEnabled()); 
         revalidate();
         repaint();
@@ -339,37 +338,42 @@ public class XCheckList extends CheckListPanel implements UIControl,
     
     // </editor-fold>    
     
-    // <editor-fold defaultstate="collapsed" desc=" RadioListModel "> 
-    
-    interface RadioListModel {
-        int getRows(); 
-        List fetchList( Map params );
-        void onselect( Object obj ); 
-    }
-    
-    private class EmptyRadioListModel implements RadioListModel 
-    {
-        public int getRows() { return -1; }
-        public List fetchList(Map params) { return null; }
-        public void onselect(Object obj) {}
+    // <editor-fold defaultstate="collapsed" desc=" CheckListModel "> 
+        
+    private class DefaultCheckListModel extends CheckListModel { 
+        
+        private List list;
+        
+        DefaultCheckListModel( List list ) {
+            this.list = list; 
+        }
+        
+        public int getRows() { 
+            return (list == null ? 0 : list.size()); 
+        }
+
+        public List fetchList(Map params) { 
+            return list; 
+        }
+
+        public void onselect(Object obj) {
+        }
     }
 
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" helper methods "> 
     
-    protected void onselect(Object obj) {
-        if (model == null) return;
-        
+    protected void onselect(Object value) {         
         try {
             Object[] arrays = {};            
             String skey = getItemKey(); 
-            if (obj == null) {
+            if (value == null) { 
                 //do nothing 
-            } else if (obj instanceof Object[]) {
-                arrays = (Object[])obj;
+            } else if (value instanceof Object[]) {
+                arrays = (Object[])value;
             } else {
-                arrays = new Object[]{ obj };
+                arrays = new Object[]{ value };
             }
             
             List resultlist = new ArrayList(); 
@@ -390,44 +394,73 @@ public class XCheckList extends CheckListPanel implements UIControl,
                 resultobj = resultlist.toArray(); 
             }
             resultlist.clear();
-            
-            if (getCallbackMethod(modelObject, "onselect") == null) {
-                Binding binding = getBinding();
-                Object bean = binding.getBean();
-                UIControlUtil.setBeanValue(bean, getName(), resultobj);
-                EventQueue.invokeLater(new NotifyDependsRunnable(binding, getName(), resultobj));
-            } else {
-                EventQueue.invokeLater(new OnSelectRunnable(resultobj));
+
+            if ( model != null ) { 
+                try { 
+                    model.beforeSelect( resultobj ); 
+                } catch(BreakException e) {
+                    return; 
+                }
             }
+            
+            Binding binding = getBinding();
+            String name = getName(); 
+            boolean hasFieldName = ( name != null && name.trim().length() > 0 );
+            if ( hasFieldName ) {
+                Object bean = (binding == null? null : binding.getBean()); 
+                UIControlUtil.setBeanValue(bean, name, resultobj);
+            }
+            
+            if ( model != null ) { 
+                model.onselect( resultobj ); 
+            } 
+            
+            if ( model != null ) { 
+                model.afterSelect( resultobj ); 
+            } 
+
+            if ( hasFieldName ) {            
+                EventQueue.invokeLater(new NotifyDependsRunnable(binding, name, resultobj)); 
+            } 
         } catch(Throwable t) {
             MsgBox.err(t); 
         }
     }
     
     private void buildItems() {
-        List list = null; 
-        if (model != null) { 
-            int rows = -1;
-            if (getGetterMethod(modelObject, "getRows") != null) {
-                rows = model.getRows(); 
-            }
-            
+        Object[] arrays = null; 
+        if ( model == null ) {
+            Binding binding = getBinding(); 
+            Object bean = (binding == null? null: binding.getBean()); 
+            Object value = UIControlUtil.getBeanValue(bean, getItems()); 
+            if (value instanceof Object[]) {
+                arrays = (Object[]) value; 
+            } else if (value instanceof List) {
+                arrays = ((List) value).toArray(); 
+            } else if ( value != null ) { 
+                arrays = new Object[]{ value }; 
+            } 
+        } else { 
+            int rows = model.getRows(); 
             Map params = new HashMap(); 
             params.put("_start", 0);
             params.put("_limit", (rows < 0? 100: rows)); 
-            list = model.fetchList(params); 
-        } 
-        
+            List list = model.fetchList( params ); 
+            arrays = (list == null ? null : list.toArray()); 
+        }
+                
         removeAll();
-        if (list != null) {
-            String expr = getItemExpression();
-            for (Object o : list) { 
-                if (expr == null || expr.length() == 0) { 
-                    addItem(o==null? "null": o.toString(), o); 
-                } else {
+        if ( arrays != null ) { 
+            String expr = getItemExpression(); 
+            boolean hasItemExpr = (expr != null && expr.trim().length() > 0); 
+            for (int i=0; i<arrays.length; i++) {
+                Object o = arrays[i]; 
+                if ( hasItemExpr ) { 
                     Object exprBean = createExpressionBean(o); 
                     Object result = UIControlUtil.evaluateExpr(exprBean, expr);
-                    addItem(result==null? "null": result.toString(), o); 
+                    addItem(result==null? "null": result.toString(), o);                     
+                } else {
+                    addItem(o==null? "null": o.toString(), o); 
                 }
             }
         }
