@@ -11,6 +11,7 @@ package com.rameses.anubis.service;
 
 
 import com.rameses.anubis.JsonUtil;
+import com.rameses.anubis.ServiceAdapter;
 import com.rameses.anubis.ServiceInvoker;
 import com.rameses.http.HttpClient;
 import java.util.Map;
@@ -19,18 +20,18 @@ import java.util.Map;
  *
  * @author Elmo
  */
-public class JsonServiceHandler extends AbstractServiceHandler {
+public class JsonServiceHandler implements ServiceAdapter  {
     
     public String getName() {
         return "json";
     }
     
-    protected ServiceInvoker getServiceInvoker(String name, Map conf) {
-        return new MyHttpInvoker(name, conf);
-    }
-
     public Map getClassInfo(String name, Map conf) {
         return null;
+    }
+
+    public Object create(String name, Map conf) {
+        return new MyHttpInvoker(name, conf);
     }
     
     private class MyHttpInvoker implements ServiceInvoker {

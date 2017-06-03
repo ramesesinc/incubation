@@ -1,0 +1,32 @@
+import com.rameses.annotations.*;
+
+/*********************************************************************************
+* This handles the remote script caching 
+*********************************************************************************/
+class RemoteScriptExecutor {
+
+    @Service(value='RemoteScriptResponseService', connection="remote-script-service") 
+    def remoteResponseSvc; 
+
+    @Service(dynamic=true)
+    def dynSvc;
+
+    @OnMessage( 'remote-script-mq' ) 
+    public void onreceive( def req ) {
+        def msg = req.data;
+
+        def svc = dynSvc.lookup( "remote/"+msg.serviceName );
+        def r = svc.invokeMethod( msg.methodName, msg.args );
+
+        def resp = [
+            key : req.key,
+            exchange: req.exchange,
+            handlename: req.handlename,
+            txnid: req.txnid, 
+            data: r
+        ];
+        remoteResponseSvc.postResponse( resp );
+    } 
+
+
+}

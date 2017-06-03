@@ -1,0 +1,22 @@
+def t = new TestProxy( 
+   "app.context" : "filipizen",
+   "app.host" : "localhost:8170",
+   "app.cluster": "osiris3"    
+);
+
+def svc = t.create( "RemoteScriptMetaService" );
+def info = svc.getScriptInfo("163:TestService");
+
+def sb = new StringBuilder();
+
+sb.append( "(function ${info.name}(p) { \n" );
+sb.append( "     this.proxy = p; \n" );
+info.methods.each { m->
+   int i = 0;
+   def vparms = m.parameters.collect{ "p"+(i++) }.join(",");
+   sb.append( "     this.${m.name} = function( ${vparms}, handler ) { \n"); 
+   sb.append( "          this.proxy.invoke( \"${m.name}\", [${vparms}], handler );\n" );    
+   sb.append( "     } \n");            
+}
+sb.append( "})");
+println sb.toString();

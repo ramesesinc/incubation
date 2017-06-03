@@ -1,0 +1,9 @@
+What is needed in client:
+
+1. XConnection settings that contains:
+   a) id and name of server plus credential 
+   b) connection to server script services
+   c) connection to rabbit-mq 
+2. ScriptLoader during load to register to the server and listen for changes
+3. messaging - to listen to tasks and fetch the service
+4. Dynamic script invoker 

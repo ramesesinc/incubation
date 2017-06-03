@@ -1,0 +1,28 @@
+import com.rameses.annotations.*;
+
+/*********************************************************************************
+* 
+* 
+*********************************************************************************/
+class RemoteScriptMetaService {
+
+    @Cache("remote-script-cache") 
+    def cache; 
+
+    @ProxyMethod
+    public def getScriptInfo(def svcName) {
+        def arr = svcName.split(":");
+        def scriptCache = cache.get( "remote-script:" + arr[0] );
+        if(!scriptCache)
+            throw new Exception("Script cache " + arr[0] + " not found. Client may not have connected");
+        def scriptInfo = scriptCache.get( arr[1] );
+        if(!scriptInfo)
+            throw new Exception("Service name "+arr[1] + " not found for " + arr[0] );
+        def retval = [:];
+        retval.putAll( scriptInfo );
+        retval.context = arr[0];
+        return retval;    
+    }
+
+    
+}

@@ -93,7 +93,6 @@ public class ServiceManager {
     
     public Object lookup(String serviceName, String connName, String moduleName) {
         if (connName == null) connName = "default";
-        
         Map conf = findAdapterInfo(connName, moduleName);
         ServiceAdapter svcHandler = findServiceAdapter(conf);
         return svcHandler.create( serviceName, conf );
@@ -101,7 +100,6 @@ public class ServiceManager {
     
     public Map getClassInfo(String name) {
         if(infoCache.containsKey(name) ) return infoCache.get(name);
-        
         String confName = name.substring(0, name.indexOf("/"));
         String svcName = name.substring( name.indexOf("/") + 1);
         Map conf = findAdapterInfo(confName);
