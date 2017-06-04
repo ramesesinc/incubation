@@ -14,6 +14,7 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Insets;
 import java.awt.LayoutManager;
+import java.awt.LayoutManager2;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.Beans;
@@ -40,7 +41,6 @@ public class CheckListPanel extends JPanel
     private CheckButton selectedButton; 
     
     public CheckListPanel() {
-        super();
         initComponent();
     }
     
@@ -51,15 +51,14 @@ public class CheckListPanel extends JPanel
         itemCount = 2; 
         orientation = SwingConstants.HORIZONTAL; 
         selectionMode = SelectionMode.SINGLE; 
-        setPreferredSize(new Dimension(100, 50)); 
         super.setLayout(new ContainerLayout()); 
         setOpaque(false); 
         buttonGroup = new ButtonGroup(); 
-
+        
         if (Beans.isDesignTime()) {
             addItem("Option 1", "Option 1"); 
             addItem("Option 2", "Option 2"); 
-        }
+        }        
     }
 
     public void setLayout(LayoutManager mgr) {;}
@@ -314,14 +313,13 @@ public class CheckListPanel extends JPanel
     
     // <editor-fold defaultstate="collapsed" desc=" ContainerLayout ">
     
-    private class ContainerLayout implements LayoutManager 
-    {
+    private class ContainerLayout implements LayoutManager, LayoutManager2 {
         CheckListPanel root = CheckListPanel.this;
         
         public void addLayoutComponent(String name, Component comp) {}
         public void removeLayoutComponent(Component comp) {}
         
-        private List<CheckButton> getRadioItems(Container parent) {
+        private List<CheckButton> getItems(Container parent) {
             List<CheckButton> items = new ArrayList();
             Component[] comps = parent.getComponents();
             for (int i=0; i<comps.length; i++) {
@@ -333,95 +331,109 @@ public class CheckListPanel extends JPanel
             return items;
         }
         
-        private Dimension computePageSize(List<CheckButton> items, int pageindex) {
-            Dimension dim = new Dimension(0, 0);
-            int itemcount = items.size();
-            if (itemcount == 0) return dim;
-            
-            int cellpad   = root.getPreferredCellPadding(); 
-            int cellcount = root.getItemCount();
-            if (cellcount <= 0) cellcount = itemcount; 
-            
-            int pagecount = (int) (itemcount / cellcount); 
-            if (itemcount % cellcount > 0) pagecount += 1; 
+        private Dimension getLayoutSizeV( Container parent, List<CheckButton> items ) { 
+            int itemcount = items.size(); 
+            if (itemcount > 0) {
+                int rows=0, cols=0;
+                int cellpad = root.getPreferredCellPadding();                
+                int itemVisibleCount = root.getItemCount();
+                if ( itemVisibleCount <= 0 ) {
+                    rows = itemcount; 
+                    cols = 1; 
+                } else {
+                    rows = itemVisibleCount; 
+                    cols = (int) (itemcount / itemVisibleCount); 
+                    if (itemcount % itemVisibleCount > 0) cols += 1; 
+                } 
+                
+                int itemindex = 0; 
+                CellInfo[][] cells = new CellInfo[rows][cols];
+                for (int c=0; c<cols; c++ ) {
+                    for (int r=0; r<rows; r++ ) { 
+                        if ( itemindex >= items.size()) break; 
 
-            boolean has_visible_components = false;
-            if (root.getOrientation() == SwingConstants.VERTICAL) {
-                for (int cellindex=0; cellindex<cellcount; cellindex++) {
-                    int index = (pageindex*cellcount)+cellindex; 
-                    if (index >= itemcount) break; 
-                    
-                    CheckButton ri = items.get(index); 
-                    int cwidth = ri.getPreferredSize().width;
-                    int cheight = ri.getPreferredSize().height;
-                    int ii = cellindex + cellcount; 
-                    while (ii < itemcount) {
-                        CheckButton o = items.get(ii); 
-                        Dimension odim = o.getPreferredSize();
-                        cheight = Math.max(cheight, odim.height); 
-                        ii += cellcount; 
+                        Dimension cdim = items.get( itemindex ).getPreferredSize(); 
+                        CellInfo ci = new CellInfo();
+                        ci.index = itemindex; 
+                        ci.width = cdim.width;
+                        ci.height = cdim.height; 
+                        cells[r][c] = ci; 
+                        itemindex += 1;
                     }
-                    
-                    dim.width = Math.max(dim.width, cwidth);
-                    dim.height += cheight; 
-                    if (has_visible_components) {
-                        dim.height += cellpad; 
-                    } 
-                    has_visible_components = true; 
+                } 
+                
+                Dimension newdim = new Dimension(0, 0);
+                for ( int c=0; c<cols; c++ ) {
+                    Dimension coldim = computeColSize(cells, c); 
+                    newdim.width += coldim.width;
+                    newdim.height = Math.max(newdim.height, coldim.height); 
                 }
+                if ( cols > 1 ) newdim.width += ((cols-1)*cellpad);
+                if ( rows > 1 ) newdim.height += ((rows-1)*cellpad);
+
+                return newdim;  
             } else {
-                for (int cellindex=0; cellindex<cellcount; cellindex++) {
-                    int index = (pageindex*cellcount)+cellindex; 
-                    if (index >= itemcount) break; 
-                    
-                    CheckButton ri = items.get(index); 
-                    int cwidth = ri.getPreferredSize().width;
-                    int cheight = ri.getPreferredSize().height;
-                    int ii = cellindex + cellcount; 
-                    while (ii < itemcount) {
-                        CheckButton o = items.get(ii); 
-                        Dimension odim = o.getPreferredSize();
-                        cwidth = Math.max(cwidth, odim.width); 
-                        ii += cellcount; 
-                    }
-                    
-                    dim.width += cwidth;
-                    dim.height = Math.max(dim.height, cheight); 
-                    if (has_visible_components) {
-                        dim.width += cellpad; 
-                    } 
-                    has_visible_components = true; 
-                }
+                return new Dimension(0, 0); 
             }
-            return dim; 
+        }
+        
+        private Dimension getLayoutSizeH( Container parent, List<CheckButton> items ) { 
+            int itemcount = items.size(); 
+            if (itemcount > 0) {
+                int cellpad = root.getPreferredCellPadding();                
+                int cellcount = root.getItemCount();
+                if ( cellcount <= 0 ) cellcount = itemcount;
+
+                int rows = (int) (itemcount / cellcount); 
+                if (itemcount % cellcount > 0) rows += 1; 
+
+                int itemindex = 0; 
+                CellInfo[][] cells = new CellInfo[rows][cellcount];
+                for (int r=0; r<cells.length; r++ ) {
+                    for (int c=0; c<cells[r].length; c++ ) { 
+                        if ( itemindex >= items.size()) break; 
+
+                        Dimension cdim = items.get( itemindex ).getPreferredSize(); 
+                        CellInfo ci = new CellInfo();
+                        ci.index = itemindex; 
+                        ci.width = cdim.width;
+                        ci.height = cdim.height; 
+                        cells[r][c] = ci; 
+                        itemindex += 1;
+                    }
+                } 
+
+                Dimension newdim = new Dimension(0, 0);
+                for ( int c=0; c<cellcount; c++ ) {
+                    Dimension coldim = computeColSize(cells, c); 
+                    newdim.width += coldim.width;
+                    newdim.height = Math.max(newdim.height, coldim.height); 
+                }
+                if ( cellcount > 1 ) newdim.width += ((cellcount-1)*cellpad);
+                if ( rows > 1 ) newdim.height += ((rows-1)*cellpad);
+
+                return newdim; 
+            } else {
+                return new Dimension(0, 0); 
+            }
         }
         
         public Dimension getLayoutSize(Container parent) {
             synchronized (parent.getTreeLock()) {
                 Dimension newdim = new Dimension(0, 0);                
-                List<CheckButton> items = getRadioItems(parent); 
-                int itemcount = items.size(); 
-                if (itemcount > 0) {
-                    int cellpad = root.getPreferredCellPadding();                
-                    int cellcount = root.getItemCount();
-                    if (cellcount <= 0) cellcount = itemcount; 
-
-                    int pagecount = (int) (itemcount / cellcount); 
-                    if (itemcount % cellcount > 0) pagecount += 1; 
-
-                    for (int pageindex=0; pageindex<pagecount; pageindex++) {
-                        Dimension pagedim = computePageSize(items, pageindex); 
-                        newdim.width += pagedim.width;
-                        newdim.height += pagedim.height; 
-                    }
+                List<CheckButton> items = getItems(parent); 
+                if (root.getOrientation() == SwingConstants.VERTICAL) {
+                    newdim = getLayoutSizeV( parent, items ); 
+                } else {
+                    newdim = getLayoutSizeH( parent, items ); 
                 }
-
+                
                 Insets margin = parent.getInsets();
                 Insets pads = root.getPreferredPadding(); 
                 newdim.width += (margin.left + margin.right + pads.left + pads.right);
                 newdim.height += (margin.top + margin.bottom + pads.top + pads.bottom);
                 return newdim; 
-            }
+            } 
         }
         
         public Dimension preferredLayoutSize(Container parent) {
@@ -434,102 +446,180 @@ public class CheckListPanel extends JPanel
         
         public void layoutContainer(Container parent) {
             synchronized (parent.getTreeLock()) {
-                Insets pads = root.getPreferredPadding();
-                Insets margin = parent.getInsets();
-                int pw = parent.getWidth();
-                int ph = parent.getHeight(); 
-                int sx = margin.left + pads.left;
-                int sy = margin.top + pads.top;
-                int rb = pw - (margin.right + pads.right);
-                int w = pw - (margin.left + margin.right + pads.left + pads.right);
-                int h = ph - (margin.top + margin.bottom + pads.top + pads.bottom);
-                int x = sx, y = sy;
-                
-                List<CheckButton> items = getRadioItems(parent); 
+                List<CheckButton> items = getItems(parent); 
                 int itemcount = items.size(); 
                 if (itemcount == 0) return;
                 
-                int cellpad = root.getPreferredCellPadding();                
-                int cellcount = root.getItemCount();
-                if (cellcount <= 0) cellcount = itemcount;     
-                
-                int pagecount = (int) (itemcount / cellcount); 
-                if (itemcount % cellcount > 0) pagecount += 1; 
-                
-                for (int pageindex=0; pageindex<pagecount; pageindex++) {
-                    if (root.getOrientation() == SwingConstants.VERTICAL) {
-                        y = sy; 
-                        if (pageindex > 0) x += cellpad;
-                        
-                        int maxwidth = 0;
-                        for (int cellindex=0; cellindex<cellcount; cellindex++) {
-                            int index = (pageindex*cellcount)+cellindex; 
-                            if (index >= itemcount) break; 
-                            
-                            CheckButton ri = items.get(index); 
-                            Dimension rdim = ri.getPreferredSize(); 
-                            maxwidth = Math.max(maxwidth, rdim.width); 
-                        }
-                        
-                        for (int cellindex=0; cellindex<cellcount; cellindex++) {
-                            int index = (pageindex*cellcount)+cellindex; 
-                            if (index >= itemcount) break; 
-
-                            CheckButton ri = items.get(index); 
-                            Dimension rdim = ri.getPreferredSize(); 
-                            int maxheight = rdim.height;
-                            for (int pgidx=0; pgidx<pagecount; pgidx++) {
-                                int idx = (pgidx*cellcount)+cellindex; 
-                                if(idx >= itemcount) break; 
-                                
-                                CheckButton o = items.get(idx); 
-                                Dimension odim = o.getPreferredSize();
-                                maxheight = Math.max(maxheight, odim.height); 
-                            }
-                            
-                            ri.setBounds(x, y, maxwidth, rdim.height); 
-                            y += (maxheight + cellpad); 
-                        }
-                        x += maxwidth; 
-                        
-                    } else {
-                        x = sx; 
-                        if (pageindex > 0) y += cellpad;
-                        
-                        int maxheight=0;
-                        for (int cellindex=0; cellindex<cellcount; cellindex++) {
-                            int index = (pageindex*cellcount)+cellindex; 
-                            if (index >= itemcount) break; 
-                            
-                            CheckButton ri = items.get(index); 
-                            Dimension rdim = ri.getPreferredSize(); 
-                            maxheight = Math.max(maxheight, rdim.height); 
-                        } 
-                                                
-                        for (int cellindex=0; cellindex<cellcount; cellindex++) {
-                            int index = (pageindex*cellcount)+cellindex; 
-                            if (index >= itemcount) break; 
-
-                            CheckButton ri = items.get(index); 
-                            Dimension rdim = ri.getPreferredSize(); 
-                            int maxwidth = rdim.width;
-                            for (int pgidx=0; pgidx<pagecount; pgidx++) {
-                                int idx = (pgidx*cellcount)+cellindex; 
-                                if(idx >= itemcount) break; 
-                                
-                                CheckButton o = items.get(idx); 
-                                Dimension odim = o.getPreferredSize();
-                                maxwidth = Math.max(maxwidth, odim.width); 
-                            }
-                            
-                            ri.setBounds(x, y, maxwidth, rdim.height); 
-                            x += (maxwidth + cellpad); 
-                        } 
-                        y += maxheight; 
-                    }
-                }
+                if (root.getOrientation() == SwingConstants.VERTICAL) {
+                    layoutContainerV( parent, items ); 
+                } else {
+                    layoutContainerH( parent, items ); 
+                } 
             }
         }
+        
+        private void layoutContainerH( Container parent, List<CheckButton> items ) { 
+            Insets pads = root.getPreferredPadding();
+            Insets margin = parent.getInsets();
+            int pw = parent.getWidth();
+            int ph = parent.getHeight(); 
+            int px = margin.left + pads.left;
+            int py = margin.top + pads.top;
+            
+            int itemcount = items.size(); 
+            if (itemcount > 0) {
+                int cellpad = root.getPreferredCellPadding();                
+                int cellcount = root.getItemCount();
+                if ( cellcount <= 0 ) cellcount = itemcount; 
+                
+                int rows = (int) (itemcount / cellcount); 
+                if (itemcount % cellcount > 0) rows += 1; 
+                
+                int itemindex = 0; 
+                CellInfo[][] cells = new CellInfo[rows][cellcount];
+                for (int r=0; r<cells.length; r++ ) {
+                    for (int c=0; c<cellcount; c++ ) { 
+                        if ( itemindex >= items.size()) break; 
+
+                        Dimension cdim = items.get( itemindex ).getPreferredSize(); 
+                        CellInfo ci = new CellInfo();
+                        ci.index = itemindex; 
+                        ci.width = cdim.width;
+                        ci.height = cdim.height; 
+                        cells[r][c] = ci; 
+                        itemindex += 1;
+                    }
+                }      
+                    
+                int x=px, y=py;
+                for (int r=0; r<cells.length; r++ ) {
+                    if ( r > 0 ) y += cellpad; 
+
+                    Dimension rowdim = computeRowSize(cells[r]);
+                    for (int c=0; c<cellcount; c++) { 
+                        CellInfo ci = cells[r][c];
+                        if ( ci == null ) break; 
+                        if ( c > 0 ) x += cellpad; 
+
+                        Dimension coldim = computeColSize(cells, c); 
+                        Component comp = items.get( ci.index ); 
+                        comp.setBounds(x, y, coldim.width, rowdim.height); 
+                        x += coldim.width; 
+                    }
+                    x = px;  
+                    y += rowdim.height; 
+                } 
+            } 
+        }
+        
+        private void layoutContainerV( Container parent, List<CheckButton> items ) { 
+            Insets pads = root.getPreferredPadding();
+            Insets margin = parent.getInsets();
+            int pw = parent.getWidth();
+            int ph = parent.getHeight(); 
+            int px = margin.left + pads.left;
+            int py = margin.top + pads.top;
+            
+            int itemcount = items.size(); 
+            if (itemcount <= 0) return;
+            
+            int rows=0, cols=0;
+            int cellpad = root.getPreferredCellPadding();                
+            int itemVisibleCount = root.getItemCount();
+            if ( itemVisibleCount <= 0 ) {
+                rows = itemcount; 
+                cols = 1; 
+            } else {
+                rows = itemVisibleCount; 
+                cols = (int) (itemcount / itemVisibleCount); 
+                if (itemcount % itemVisibleCount > 0) cols += 1; 
+            } 
+            
+            int itemindex = 0; 
+            CellInfo[][] cells = new CellInfo[rows][cols];
+            for (int c=0; c<cols; c++ ) {
+                for (int r=0; r<rows; r++ ) { 
+                    if ( itemindex >= items.size()) break; 
+
+                    Dimension cdim = items.get( itemindex ).getPreferredSize(); 
+                    CellInfo ci = new CellInfo();
+                    ci.index = itemindex; 
+                    ci.width = cdim.width;
+                    ci.height = cdim.height; 
+                    cells[r][c] = ci; 
+                    itemindex += 1;
+                } 
+            } 
+            
+            int x=px, y=py;
+            for (int r=0; r<rows; r++ ) {
+                if ( r > 0 ) y += cellpad; 
+
+                Dimension rowdim = computeRowSize(cells[r]);
+                for (int c=0; c<cols; c++) { 
+                    CellInfo ci = cells[r][c];
+                    if ( ci == null ) break; 
+                    if ( c > 0 ) x += cellpad; 
+
+                    Dimension coldim = computeColSize(cells, c); 
+                    Component comp = items.get( ci.index ); 
+                    comp.setBounds(x, y, coldim.width, rowdim.height); 
+                    x += coldim.width; 
+                }
+                x = px;  
+                y += rowdim.height; 
+            } 
+        }
+        
+        private Dimension computeRowSize( CellInfo[] cells ) {
+            int cellpad = root.getPreferredCellPadding(); 
+            Dimension dim = new Dimension(0,0); 
+            for (int i=0; i<cells.length; i++) {
+                CellInfo ci = cells[i];
+                if ( ci == null ) break;
+
+                dim.width += (ci.width + (i>0 ? cellpad: 0)); 
+                dim.height = Math.max(dim.height, ci.height); 
+            }
+            return dim; 
+        }
+        private Dimension computeColSize( CellInfo[][] cells, int index ) {
+            int cellpad = root.getPreferredCellPadding(); 
+            Dimension dim = new Dimension(0,0); 
+            for (int r=0; r<cells.length; r++) {
+                CellInfo[] cols = cells[r];
+                if ( index >= 0 && index < cols.length ) {
+                    CellInfo ci = cols[index]; 
+                    if ( ci == null ) continue; 
+                    
+                    dim.width = Math.max(dim.width, ci.width); 
+                    dim.height += (ci.height + (r > 0 ? cellpad: 0)); 
+                } 
+            } 
+            return dim; 
+        }
+
+        public void addLayoutComponent(Component comp, Object constraints) {
+        }
+
+        public Dimension maximumLayoutSize(Container target) {
+            return new Dimension( Integer.MAX_VALUE, Integer.MAX_VALUE );
+        }
+
+        public float getLayoutAlignmentX(Container target) { return 0.5f; }
+        public float getLayoutAlignmentY(Container target) { return 0.5f; }
+
+        public void invalidateLayout(Container target) { 
+            synchronized ( target.getTreeLock() ){
+                
+            }
+        }
+    }
+    
+    private class CellInfo {
+        int index; 
+        int width;
+        int height;
     }
     
     //</editor-fold>        
