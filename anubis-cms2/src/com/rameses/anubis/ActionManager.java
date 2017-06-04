@@ -32,8 +32,17 @@ public class ActionManager {
     private List<MappingEntry> mappings = new ArrayList();
     private Map<String, List> cachedActions = new HashMap();
     
+    /**
+     * 
+     * @param conf 
+     * added action-mapping because action-mapping can be remembered better
+     */
     public void init(ConfigProperties conf) {
-        Map masters = conf.getProperties( "page-action-mapping" );
+        Map masters = new HashMap();
+        Map _map1 = conf.getProperties( "page-action-mapping" );
+        Map _map2 = conf.getProperties( "action-mapping" );
+        if( _map1!=null) masters.putAll(_map1);
+        if( _map2!=null) masters.putAll(_map2);
         if(masters!=null) {
             //load master template mapping
             for(Object o: masters.entrySet()) {
