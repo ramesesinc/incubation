@@ -43,8 +43,8 @@ public class ActionManager {
         Map _map2 = conf.getProperties( "action-mapping" );
         if( _map1!=null) masters.putAll(_map1);
         if( _map2!=null) masters.putAll(_map2);
-        if(masters!=null) {
-            //load master template mapping
+        if(masters.size()>0) {
+            //load action template mapping
             for(Object o: masters.entrySet()) {
                 Map.Entry me = (Map.Entry)o;
                 mappings.add( new MappingEntry(me.getKey()+"", me.getValue()+"" ));

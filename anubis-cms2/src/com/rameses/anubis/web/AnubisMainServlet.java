@@ -28,9 +28,6 @@ public class AnubisMainServlet extends AbstractAnubisServlet {
         Map params = RequestUtil.buildRequestParams( hreq );
         actx.setParams( params );
         
-        //fire all actions first if any.
-        project.getActionManager().fireActions( fullPath, params);
-        
         String mimeType = app.getMimeType( fullPath );
         String ext = CmsWebConstants.PAGE_FILE_EXT;
         if ( mimeType == null ) {
@@ -167,6 +164,10 @@ public class AnubisMainServlet extends AbstractAnubisServlet {
             
             try { 
                 hres.setStatus(HttpServletResponse.SC_OK);
+
+                //fire all actions first before rendering the page.
+                project.getActionManager().fireActions( fullPath, params);
+                
                 InputStream inp = project.getContentManager().getContent(file,params);
                 ResponseUtil.write( hreq, hres, mimeType, inp);
             } 
