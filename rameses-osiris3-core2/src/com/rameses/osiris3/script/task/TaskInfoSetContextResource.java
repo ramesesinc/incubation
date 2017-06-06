@@ -9,6 +9,7 @@
 
 package com.rameses.osiris3.script.task;
 
+import com.rameses.annotations.Shutdown;
 import com.rameses.annotations.Schedule;
 import com.rameses.osiris3.core.ContextResource;
 import com.rameses.osiris3.script.ScriptInfo;
@@ -63,9 +64,18 @@ public class TaskInfoSetContextResource extends ContextResource  {
                     tf.setTimeUnit( sked.timeUnit() );
                     tf.setImmediate( sked.immediate() );
                     tf.setId( sked.id() );
+                    tf.setIndex(sked.index());
                     taskInfoSet.addTaskInfo( tf );
                 }
+                //load also on stop tasks
+                for(Method bm: sinfo.getClassDef().findAnnotatedMethods( Shutdown.class )) {
+                    Shutdown sked = bm.getAnnotation( Shutdown.class );
+                    TaskInfo tf = new TaskInfo( serviceName, bm.getName(), null, new HashMap() );
+                    tf.setIndex(sked.index());
+                    taskInfoSet.addShutdownTask( tf );
+                }
             }
+            taskInfoSet.sort();
             return taskInfoSet;
             
         } catch(Exception e) {

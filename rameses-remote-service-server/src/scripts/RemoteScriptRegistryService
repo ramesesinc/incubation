@@ -20,4 +20,10 @@ class RemoteScriptRegistryService {
 	println "Registered " + context;
     }
 
+    @ProxyMethod 
+    public void unregister( String context ) {
+    	cache.remove("remote-script:" + context);
+	println "unegistered " + context;
+    }
+
 }

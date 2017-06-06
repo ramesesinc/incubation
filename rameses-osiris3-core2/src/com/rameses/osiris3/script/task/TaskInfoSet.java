@@ -19,6 +19,7 @@ import java.util.Set;
 public class TaskInfoSet {
     
     private Set<TaskInfo> taskInfos = new HashSet();
+    private Set<TaskInfo> shutdownTasks = new HashSet();
     
     public TaskInfoSet() {
     }
@@ -29,6 +30,18 @@ public class TaskInfoSet {
 
     public Set<TaskInfo> getTaskInfos() {
         return taskInfos;
+    }
+    
+    public void addShutdownTask(TaskInfo t) {
+        shutdownTasks.add( t );
+    }
+
+    public Set<TaskInfo> getShutdownTasks() {
+        return shutdownTasks;
+    }
+    
+    void sort() {
+        
     }
     
 }

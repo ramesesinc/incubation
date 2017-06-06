@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -72,7 +73,8 @@ public final class BootLoader
         }
         
         //load all servers
-        thread = Executors.newFixedThreadPool(servers.size());        
+        thread = Executors.newFixedThreadPool(servers.size());  
+        
         System.out.println("starting servers");        
         for(final ServerLoader loader: servers.values() ) {
             thread.submit( new Runnable(){
@@ -104,9 +106,18 @@ public final class BootLoader
     }
         
     private void onshutdown() {
-        try { 
-            thread.shutdownNow(); 
-        } catch(Throwable ign){;}  
+        for (ServerLoader svr : servers.values()) {
+            try {
+                System.out.println("Stopping Server: " + svr.getClass().getSimpleName() + "...");
+                svr.stop(); 
+            } catch(Throwable t) {
+                t.printStackTrace(); 
+            }
+        }
+        
+        //try { 
+        //    thread.shutdownNow(); 
+        //} catch(Throwable ign){;}  
         
         removeInstancePID(); 
         Shutdown.removePID(); 
@@ -231,6 +242,7 @@ public final class BootLoader
                 t.printStackTrace(); 
             }
             try { 
+                System.out.println("Stopping JVM...");
                 System.exit(1); 
             } catch(Throwable t) {
                 t.printStackTrace();

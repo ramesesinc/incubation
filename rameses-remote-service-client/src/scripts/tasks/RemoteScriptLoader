@@ -4,11 +4,11 @@ import com.rameses.util.*;
 
 class RemoteScriptLoader {
 
-	@Context
-	def appContext;
+    @Context
+    def appContext;
 
-	@Resource("ScriptService")	
-	def scriptSvc;
+    @Resource("ScriptService")	
+    def scriptSvc;
 
     @Service( value="RemoteScriptRegistryService", connection="remote-script-service")
     def remoteSvc;
@@ -16,7 +16,7 @@ class RemoteScriptLoader {
     @XConnection( "remote-script-mq")
     def remoteConn;
 
-	void registerScripts() {
+    private void registerScripts() {
         if( remoteConn == null ) {
             println "Register scripts not executed";
 	    return;
@@ -50,12 +50,19 @@ class RemoteScriptLoader {
         appContext.scanFiles( "scripts/remote", h, null);
         remoteSvc.register(id, list);
         println "finished register";
-	}
+    }
 
-	@Schedule
-	public def load( params ) {
+    @Schedule
+    public void load( params ) {
         println "Starting remote script loader";
     	registerScripts();
-	}
+    }
+
+    @Shutdown
+    public void shutdown( def evt ) {
+        String id = remoteConn.conf.queue;
+        remoteSvc.unregister(id);
+        println "unregistered to server";
+    }
 
 }

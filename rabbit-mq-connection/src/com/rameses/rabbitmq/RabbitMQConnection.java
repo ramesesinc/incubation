@@ -214,4 +214,31 @@ public class RabbitMQConnection extends MessageConnection {
         sendBytes(convertBytes(data,false) , queueName );
     }
 
+    public void addQueue(String queueName) throws Exception {
+        addQueue(queueName, null);
+    }
+    
+    public void addQueue(String queueName, String exchange) throws Exception {
+        Channel channel = channelSet.getChannel(queueName);
+        if(exchange==null) {
+            exchange = getProperty("exchange");
+        }
+        channel.queueDeclare( queueName, true, false, true, null );
+        channel.exchangeDeclare(exchange, "direct", true);
+        channel.queueBind( queueName, exchange, queueName);
+    }
+    
+    public void removeQueue(String queueName) throws Exception {
+         removeQueue(queueName, null);
+    }
+    
+    public void removeQueue(String queueName, String exchange) throws Exception {
+        Channel channel = channelSet.getChannel(queueName);
+        if(exchange==null) {
+            exchange = getProperty("exchange");
+        }
+        channel.exchangeDeclare(exchange, "direct", true);
+        channel.queueUnbind(queueName, exchange, queueName);
+        channel.queueDelete(queueName);
+    }
 }
