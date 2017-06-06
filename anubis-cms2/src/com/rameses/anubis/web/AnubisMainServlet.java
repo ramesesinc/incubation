@@ -169,8 +169,15 @@ public class AnubisMainServlet extends AbstractAnubisServlet {
                 project.getActionManager().fireActions( fullPath, params );
                 if( params.containsKey("redirect") ) {
                     String redirect = params.get("redirect").toString();
+                    String queryParams = null;
+                    int pidx = redirect.indexOf("?");
+                    if(  pidx > 0 ) {
+                        queryParams = redirect.substring(pidx+1);
+                        redirect = redirect.substring(0, pidx);
+                    }
                     //this is to avoid cyclic redirects...
                     if(!fullPath.equals(redirect) && !fullPath.endsWith(redirect)) {
+                        if(queryParams !=null) redirect += "?" + queryParams;
                         hres.sendRedirect(redirect);
                         return;
                     }
