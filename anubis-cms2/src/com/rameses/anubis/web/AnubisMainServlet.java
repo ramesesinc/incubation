@@ -166,8 +166,15 @@ public class AnubisMainServlet extends AbstractAnubisServlet {
                 hres.setStatus(HttpServletResponse.SC_OK);
 
                 //fire all actions first before rendering the page.
-                project.getActionManager().fireActions( fullPath, params);
-                
+                project.getActionManager().fireActions( fullPath, params );
+                if( params.containsKey("redirect") ) {
+                    String redirect = params.get("redirect").toString();
+                    //this is to avoid cyclic redirects...
+                    if(!fullPath.equals(redirect) && !fullPath.endsWith(redirect)) {
+                        hres.sendRedirect(redirect);
+                        return;
+                    }
+                }
                 InputStream inp = project.getContentManager().getContent(file,params);
                 ResponseUtil.write( hreq, hres, mimeType, inp);
             } 
