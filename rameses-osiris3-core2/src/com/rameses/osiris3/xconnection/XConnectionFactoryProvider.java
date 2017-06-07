@@ -21,4 +21,6 @@ public class XConnectionFactoryProvider extends XConnectionProvider {
     public XConnection createConnection(String name, Map conf) {
         return new XConnectionFactoryImpl(name, context, conf); 
     } 
+    
+    public void close(){;}
 }

@@ -91,4 +91,14 @@ public class XConnectionContextResource extends ContextResource {
             throw new RuntimeException(e.getMessage(), e);
         }
     } 
+    
+    @Override
+    public void close() {
+        for(XConnectionProvider cp: this.providers.values()) {
+            try {
+                cp.close();
+            }
+            catch(Exception e){;}
+        }
+    }
 } 

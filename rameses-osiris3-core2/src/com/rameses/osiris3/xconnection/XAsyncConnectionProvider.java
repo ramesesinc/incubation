@@ -31,4 +31,9 @@ public class XAsyncConnectionProvider extends XConnectionProvider {
             return new XAsyncRemoteConnection(name, conf); 
         } 
     } 
+
+    @Override
+    public void close() {
+        System.out.println("closing async connection");
+    }
 }

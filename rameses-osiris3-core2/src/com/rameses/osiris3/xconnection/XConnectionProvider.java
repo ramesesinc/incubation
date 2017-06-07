@@ -70,4 +70,9 @@ public abstract class XConnectionProvider {
 //            return value; 
 //        } 
 //    } 
+    
+    public void close() {
+        //System.out.println("closing " + this.getProviderName());
+    }
+    
 }

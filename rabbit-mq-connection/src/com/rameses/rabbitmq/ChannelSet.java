@@ -39,7 +39,7 @@ public class ChannelSet {
     public void close() {
         for(Channel c: channels.values()) {
             try {
-            c.close();
+                c.close();
             }
             catch(Exception ex){;}
         }

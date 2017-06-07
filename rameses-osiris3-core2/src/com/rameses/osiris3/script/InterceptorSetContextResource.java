@@ -165,5 +165,4 @@ public class InterceptorSetContextResource extends ContextResource {
     }
 
     
-    
 }

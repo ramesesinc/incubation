@@ -23,9 +23,13 @@ public class RabbitMQConnectionProvider extends XConnectionProvider {
 
     public XConnection createConnection(String name, Map conf) { 
         if(conn!=null) return conn;
-        System.out.println("starting rabbit connection");
         conn = new RabbitMQConnection(name, context, conf ); 
         return conn;
+    }
+
+    @Override
+    public void close() {
+        conn.stop();
     }
     
     

@@ -95,6 +95,9 @@ public class MainContext extends AbstractContext {
         catch(Exception e) {
             e.printStackTrace();
         }
+        
+        //call the abstract class to close resources
+        super.stop();
     }
     
     

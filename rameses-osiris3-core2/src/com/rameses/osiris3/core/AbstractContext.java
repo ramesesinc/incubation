@@ -34,7 +34,15 @@ public abstract class AbstractContext {
     }
     
     public abstract void start();
-    public abstract void stop();
+    
+    public void stop() {
+        for( ContextResource rs: resources.values() ) {
+            try {
+                rs.close();
+            }
+            catch(Exception ex){;}
+        }
+    }
     
     public final void setConf(Map c) {
         this.conf = c;

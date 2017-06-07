@@ -78,7 +78,7 @@ public class RabbitMQConnection extends MessageConnection {
                 defaultChannel = channelSet.getChannel(queueName);
                 defaultChannel.queueDeclarePassive( queueName );
                 String type = getProperty("type"); 
-                if ( type == null ) throw new Exception("type is required");  
+                if ( type == null ) type = "direct";  
                 String exchange = getProperty("exchange");                                
                 if ( exchange != null ) {
                     defaultChannel.exchangeDeclare( exchange, type, true );
@@ -111,9 +111,14 @@ public class RabbitMQConnection extends MessageConnection {
         } 
     }
     
-    
     public void stop() {
         channelSet.close();
+        try {
+            if(defaultChannel!=null) {
+                defaultChannel.close();
+            }
+        }
+        catch(Exception ex) {;}
         try {
             connection.close();
         }
@@ -122,9 +127,6 @@ public class RabbitMQConnection extends MessageConnection {
         System.out.println("Stopping RabbitMQ Connection" + name );
     }
 
-   
-   
-    
     private byte[] convertBytes( Object data, boolean encoded ) {
         if( encoded == true ) {
             String ret = null;
@@ -180,7 +182,7 @@ public class RabbitMQConnection extends MessageConnection {
                 if ( exchange == null) { 
                     channel.basicPublish("", queueName, null, bytes); 
                 } else { 
-                    channel.queueDeclare(exchange, true, true, true, null);
+                    channel.queueDeclare( exchange, true, true, true, null);
                     channel.basicPublish( exchange, queueName, null, bytes);
                 } 
             } catch (RuntimeException re) { 
@@ -223,7 +225,7 @@ public class RabbitMQConnection extends MessageConnection {
         if(exchange==null) {
             exchange = getProperty("exchange");
         }
-        channel.queueDeclare( queueName, true, false, true, null );
+        channel.queueDeclare( queueName, true, false, false, null );
         channel.exchangeDeclare(exchange, "direct", true);
         channel.queueBind( queueName, exchange, queueName);
     }
