@@ -16,6 +16,7 @@ import com.rameses.service.ScriptServiceContext;
 import com.rameses.service.ServiceProxy;
 import groovy.lang.GroovyClassLoader;
 import groovy.lang.GroovyObject;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -96,13 +97,20 @@ public class ScriptServiceHandler  implements ServiceAdapter {
         Map metaInfo();
     }
     
-    private Map getServiceClassInfo( String name, Map conf ) {
+     private Map getServiceClassInfo( String name, Map conf ) {
         ScriptServiceContext ctx = new ScriptServiceContext(conf);
         IScriptService svc = ctx.create(name, IScriptService.class );
         Map metainfo = svc.metaInfo();
-        Map methods = (Map) metainfo.get("methods"); 
+        Collection methods = null;
+        Object o = metainfo.get("methods");
+        if(o instanceof Map) {
+            methods = ((Map)o).values();
+        }
+        else {
+            methods = (Collection)o;
+        }
         Map results = new HashMap();
-        results.put("methods", methods.values()); 
+        results.put("methods", methods); 
         results.put("name", metainfo.get("serviceName")); 
         return results; 
     }

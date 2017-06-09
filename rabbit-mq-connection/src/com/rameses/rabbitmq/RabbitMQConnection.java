@@ -12,10 +12,12 @@ import com.rabbitmq.client.DefaultConsumer;
 import com.rabbitmq.client.Envelope;
 import com.rameses.osiris3.core.AbstractContext;
 import com.rameses.osiris3.xconnection.MessageConnection;
+import com.rameses.osiris3.xconnection.MessageHandler;
 import com.rameses.util.Base64Cipher;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -93,6 +95,7 @@ public class RabbitMQConnection extends MessageConnection {
             System.out.println("RabbitMQ Connection not started. "+ex.getMessage());
         }
     } 
+
 
     private class MessageConsumer extends DefaultConsumer {
         private Base64Cipher base64 = new Base64Cipher(); 
@@ -204,10 +207,6 @@ public class RabbitMQConnection extends MessageConnection {
         sendBytes(  convertBytes(data, true), queueName ); 
     }
      
-    public void send( Object data, String queueName, boolean encoded ) {
-        sendBytes(  convertBytes(data, encoded), queueName ); 
-    }
-
     public void sendText(String data) {
         sendBytes( convertBytes(data,false), null );
     }
@@ -230,17 +229,42 @@ public class RabbitMQConnection extends MessageConnection {
         channel.queueBind( queueName, exchange, queueName);
     }
     
-    public void removeQueue(String queueName) throws Exception {
+    public void removeQueue(String queueName){
          removeQueue(queueName, null);
     }
     
-    public void removeQueue(String queueName, String exchange) throws Exception {
-        Channel channel = channelSet.getChannel(queueName);
-        if(exchange==null) {
-            exchange = getProperty("exchange");
+    public void removeQueue(String queueName, String exchange)  {
+        try {
+            Channel channel = channelSet.getChannel(queueName);
+            if(exchange==null) {
+                exchange = getProperty("exchange");
+            }
+            channel.exchangeDeclare(exchange, "direct", true);
+            channel.queueUnbind(queueName, exchange, queueName);
+            channel.queueDelete(queueName);
         }
-        channel.exchangeDeclare(exchange, "direct", true);
-        channel.queueUnbind(queueName, exchange, queueName);
-        channel.queueDelete(queueName);
+        catch(Exception ex) {
+            ex.printStackTrace();
+        }
     }
+    
+    /**************************************************************************
+    * This is used for handling direct or P2P responses. The queue to create
+    * will be a temporary queue.
+    ***************************************************************************/ 
+    public void addResponseHandler(String tokenid, MessageHandler handler) throws Exception{
+        String exchange = getProperty("exchange"); 
+        Channel channel = connection.createChannel();
+        channel.exchangeDeclare(exchange, "direct", true );
+        channel.queueDeclare(tokenid, false, true, true, new HashMap());
+        channel.queueBind( tokenid, exchange, tokenid);
+        MessageConsumer mc = new MessageConsumer(channel);
+        channel.basicConsume( tokenid, true, mc);              
+        super.addHandler(handler);
+    }
+
+    public void send( Object data, String queueName, boolean encoded ) {
+        sendBytes(  convertBytes(data, encoded), queueName ); 
+    }
+    
 }

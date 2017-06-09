@@ -2,8 +2,8 @@ import com.rameses.annotations.*;
 import com.rameses.osiris3.remote.*;
 
 /*********************************************************************************
-* 
-* 
+* This is used in the Remote Scripting Service. We need this as a script
+* because we want the client to be able to hook interceptors
 *********************************************************************************/
 class RemoteScriptRegistryService {
 

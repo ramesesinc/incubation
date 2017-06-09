@@ -11,6 +11,7 @@ package com.rameses.osiris3.script.task;
 
 import com.rameses.osiris3.core.*;
 import com.rameses.osiris3.script.ScriptRunnable;
+import com.rameses.osiris3.script.ScriptRunnableListener;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -159,7 +160,7 @@ public class TaskService extends ContextService {
         }
     }
     
-    private class ScriptHandler extends ScriptRunnable.AbstractListener {
+    private class ScriptHandler extends ScriptRunnableListener {
         
         private ScriptRunnable script;
         private TaskInfo taskinfo; 

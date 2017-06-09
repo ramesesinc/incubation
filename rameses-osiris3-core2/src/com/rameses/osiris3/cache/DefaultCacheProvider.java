@@ -33,10 +33,6 @@ public class DefaultCacheProvider extends XConnectionProvider {
         return new SimpleCache(this, name,conf);
     }
 
-    @Override
-    public void close() {
-        System.out.println("closing cache");
-    }
 
     
     

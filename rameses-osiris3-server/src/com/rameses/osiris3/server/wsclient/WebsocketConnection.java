@@ -11,6 +11,7 @@ package com.rameses.osiris3.server.wsclient;
 
 import com.rameses.osiris3.core.AbstractContext;
 import com.rameses.osiris3.xconnection.MessageConnection;
+import com.rameses.osiris3.xconnection.MessageHandler;
 import com.rameses.util.Base64Cipher;
 import com.rameses.util.MessageObject;
 import java.net.ConnectException;
@@ -273,4 +274,14 @@ public class WebsocketConnection extends MessageConnection implements WebSocket.
             return value; 
         } 
     } 
+
+    @Override
+    public void send(Object data, String queueName) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void addResponseHandler(String tokenid, MessageHandler handler) throws Exception {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
 } 

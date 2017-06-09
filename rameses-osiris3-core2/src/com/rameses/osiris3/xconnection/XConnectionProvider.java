@@ -71,8 +71,6 @@ public abstract class XConnectionProvider {
 //        } 
 //    } 
     
-    public void close() {
-        //System.out.println("closing " + this.getProviderName());
-    }
+   
     
 }

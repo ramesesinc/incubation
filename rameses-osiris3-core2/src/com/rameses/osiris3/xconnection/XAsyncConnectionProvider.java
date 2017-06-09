@@ -32,8 +32,5 @@ public class XAsyncConnectionProvider extends XConnectionProvider {
         } 
     } 
 
-    @Override
-    public void close() {
-        System.out.println("closing async connection");
-    }
+   
 }

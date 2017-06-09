@@ -4,6 +4,7 @@ import java.rmi.server.*;
 
 /*********************************************************************************
 * This handles the remote script caching 
+* We need this as a script because we want the client to be able to intercept
 *********************************************************************************/
 class RemoteScriptInvokerService {
 
@@ -15,13 +16,8 @@ class RemoteScriptInvokerService {
 
     @ProxyMethod
     public def postResponse( def resp ) {
-        dataCache.put( resp.txnid, resp.data, 99999999 );
-
-        //this should be in a format that is in a string format for stomp
-        //example: KEYY1Y21Y2Y12Y::063:SampleService.test
-        def reply = resp.txnid + "::" + resp.handlename;
-        
-        remoteMq.sendText( reply, resp.key );
+        dataCache.put( resp.key, resp.data, 99999999 );
+        remoteMq.send( [key:resp.key, tokenid:resp.tokenid], resp.tokenid );
     }
 
 }

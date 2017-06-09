@@ -27,10 +27,6 @@ public class RabbitMQConnectionProvider extends XConnectionProvider {
         return conn;
     }
 
-    @Override
-    public void close() {
-        conn.stop();
-    }
     
     
 }

@@ -36,12 +36,7 @@ public abstract class AbstractContext {
     public abstract void start();
     
     public void stop() {
-        for( ContextResource rs: resources.values() ) {
-            try {
-                rs.close();
-            }
-            catch(Exception ex){;}
-        }
+        //do nothing
     }
     
     public final void setConf(Map c) {

@@ -21,16 +21,16 @@ import java.util.Map;
  */
 public class ScriptRunnable implements Runnable {
     
-    private MainContext context;
-    private String serviceName;
-    private String methodName;
-    private Object[] args;
-    private Map env;
+    protected MainContext context;
+    protected String serviceName;
+    protected String methodName;
+    protected Object[] args;
+    protected Map env;
     private boolean bypassAsync = false;
     
-    private Object result;
-    private Exception err;
-    private Listener listener;
+    protected Object result;
+    protected Exception err;
+    protected IScriptRunnableListener listener;
     private boolean cancelled = false;
     private AsyncRequest asyncRequest;
     
@@ -57,14 +57,22 @@ public class ScriptRunnable implements Runnable {
             txn = new TransactionContext(context.getServer(), context, env);
             if(listener!=null) listener.onBegin();
             //call the service here.
+            //if( getServiceName().contains(":") ) {
+            //    RemoteScriptTransactionManager rm = txn.getManager( RemoteScriptTransactionManager.class )
+            //    RemoteScriptExecutor rex = rm.create( getServiceName(), context );
+            //    result = rex.execute( getMethodName(), getArgs() );
+            //}
             ScriptTransactionManager t = txn.getManager( ScriptTransactionManager.class );
             ManagedScriptExecutor mse = t.create( getServiceName());
             result = mse.execute( getMethodName(), getArgs(), isBypassAsync());
+            
+            
             //if result is instanceof remote service. we are going to wait for a response from the subscribers
             if(result == null) {
                 result = "#NULL";
             }
             txn.commit();
+            
             if(listener!=null) listener.onComplete( result );
         } catch(Exception ex) {
             txn.rollback(); 
@@ -95,30 +103,15 @@ public class ScriptRunnable implements Runnable {
         return err;
     }
     
-    public Listener getListener() {
+    public IScriptRunnableListener getListener() {
         return listener;
     }
     
-    public void setListener(Listener listener) {
+    public void setListener(IScriptRunnableListener listener) {
         this.listener = listener;
     }
     
-    //the interface for listening on the transactions
-    public static interface Listener {
-        void onBegin();
-        void onComplete(Object result);
-        void onRollback(Exception e);
-        void onClose();
-        void onCancel();
-    }
     
-    public static abstract class AbstractListener implements Listener {
-        public void onBegin(){;}
-        public void onComplete(Object result){;}
-        public void onRollback(Exception e){;}
-        public void onClose(){;}
-        public void onCancel(){;}
-    }
     
     public MainContext getContext() {
         return context;

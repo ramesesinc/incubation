@@ -39,7 +39,7 @@ public class ScriptMessageHandler implements MessageHandler {
     }
     
     //this is overridable
-    public ScriptRunnable.Listener getScriptListener() {
+    public IScriptRunnableListener getScriptListener() {
         return null;
     }
     

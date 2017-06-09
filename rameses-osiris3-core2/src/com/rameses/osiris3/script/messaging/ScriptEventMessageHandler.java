@@ -10,14 +10,14 @@
 package com.rameses.osiris3.script.messaging;
 
 import com.rameses.osiris3.core.MainContext;
-import com.rameses.osiris3.script.ScriptRunnable;
+import com.rameses.osiris3.script.IScriptRunnableListener;
 
 /**
  *
  * @author Elmo
  * This is used by Messaging
  */
-public class ScriptEventMessageHandler extends ScriptMessageHandler implements ScriptRunnable.Listener {
+public class ScriptEventMessageHandler extends ScriptMessageHandler implements IScriptRunnableListener {
     
     private String pattern;
     
@@ -57,7 +57,7 @@ public class ScriptEventMessageHandler extends ScriptMessageHandler implements S
         return super.accept(data);
     }
     
-    public ScriptRunnable.Listener getScriptListener() {
+    public IScriptRunnableListener getScriptListener() {
         return this;
     }
 }

@@ -66,8 +66,5 @@ public abstract class ContextResource {
         this.context = context;
     }
     
-    //this should also close all resources
-    public void close() {
-        resources.clear();
-    }
+    
 }

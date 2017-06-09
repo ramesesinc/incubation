@@ -92,13 +92,5 @@ public class XConnectionContextResource extends ContextResource {
         }
     } 
     
-    @Override
-    public void close() {
-        for(XConnectionProvider cp: this.providers.values()) {
-            try {
-                cp.close();
-            }
-            catch(Exception e){;}
-        }
-    }
+    
 } 

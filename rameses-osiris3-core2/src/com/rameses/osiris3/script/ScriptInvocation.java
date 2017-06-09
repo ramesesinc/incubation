@@ -38,12 +38,7 @@ public class ScriptInvocation implements InvocationHandler {
             sr.setEnv( env );             
             sr.setArgs( args );
             sr.setBypassAsync( true );
-            sr.setListener(new ScriptRunnable.Listener() { 
-                public void onBegin() {}
-                public void onClose() {}
-                public void onCancel() {}
-                public void onComplete(Object result) {}
-
+            sr.setListener(new ScriptRunnableListener() { 
                 public void onRollback(Exception e) {
                     e.printStackTrace(); 
                 }
