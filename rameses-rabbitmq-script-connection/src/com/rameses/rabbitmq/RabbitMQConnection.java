@@ -18,6 +18,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -31,9 +33,9 @@ public class RabbitMQConnection extends MessageConnection {
     private Map conf; 
     private String name;
     private boolean enabled;
-    private ChannelSet channelSet;
     private Channel defaultChannel;
     private boolean started;
+    private List<Channel> channels = new LinkedList<Channel>();
     
     public RabbitMQConnection(String name, AbstractContext context, Map conf) {
         this.name = name;
@@ -72,12 +74,11 @@ public class RabbitMQConnection extends MessageConnection {
             catch(Throwable t) {;} 
             factory.setRequestedHeartbeat( heartbeat );
             connection = factory.newConnection(); 
-            channelSet = new ChannelSet(connection);
             
             //check if there is a channel specified. If there is, then you must listen.
             String queueName = getProperty("queue");
             if(queueName!=null) {
-                defaultChannel = channelSet.getChannel(queueName);
+                defaultChannel = connection.createChannel();
                 defaultChannel.queueDeclarePassive( queueName );
                 String type = getProperty("type"); 
                 if ( type == null ) type = "direct";  
@@ -95,7 +96,6 @@ public class RabbitMQConnection extends MessageConnection {
             System.out.println("RabbitMQ Connection not started. "+ex.getMessage());
         }
     } 
-
 
     private class MessageConsumer extends DefaultConsumer {
         private Base64Cipher base64 = new Base64Cipher(); 
@@ -115,7 +115,9 @@ public class RabbitMQConnection extends MessageConnection {
     }
     
     public void stop() {
-        channelSet.close();
+        for(Channel channel: channels) {
+            try {channel.close();}catch(Exception ign){;}
+        }
         try {
             if(defaultChannel!=null) {
                 defaultChannel.close();
@@ -175,11 +177,9 @@ public class RabbitMQConnection extends MessageConnection {
     }
     
      public void sendBytes( byte[] bytes, String queueName ) { 
+        Channel channel = null; 
         try {
-            Channel channel = defaultChannel;
-            if(queueName!=null) {
-                channel = channelSet.getChannel(queueName);
-            }
+            channel = connection.createChannel();
             try { 
                 String exchange = getProperty("exchange");
                 if ( exchange == null) { 
@@ -196,6 +196,9 @@ public class RabbitMQConnection extends MessageConnection {
         }
         catch(Exception ex) {
             throw new RuntimeException("Channel not created! " + queueName);
+        }
+        finally {
+            try { channel.close(); } catch(Exception ign){;}
         }
     }
      
@@ -220,13 +223,15 @@ public class RabbitMQConnection extends MessageConnection {
     }
     
     public void addQueue(String queueName, String exchange) throws Exception {
-        Channel channel = channelSet.getChannel(queueName);
+        Channel channel = connection.createChannel();
         if(exchange==null) {
             exchange = getProperty("exchange");
         }
         channel.queueDeclare( queueName, true, false, false, null );
         channel.exchangeDeclare(exchange, "direct", true);
         channel.queueBind( queueName, exchange, queueName);
+        //add in queue so we can close it properly
+        channels.add(channel);
     }
     
     public void removeQueue(String queueName){
@@ -234,8 +239,9 @@ public class RabbitMQConnection extends MessageConnection {
     }
     
     public void removeQueue(String queueName, String exchange)  {
+        Channel channel = null;
         try {
-            Channel channel = channelSet.getChannel(queueName);
+            channel = connection.createChannel();
             if(exchange==null) {
                 exchange = getProperty("exchange");
             }
@@ -245,6 +251,9 @@ public class RabbitMQConnection extends MessageConnection {
         }
         catch(Exception ex) {
             ex.printStackTrace();
+        }
+        finally {
+            try { channel.close(); } catch(Exception ign){;}
         }
     }
     
@@ -256,7 +265,7 @@ public class RabbitMQConnection extends MessageConnection {
         String exchange = getProperty("exchange"); 
         Channel channel = connection.createChannel();
         channel.exchangeDeclare(exchange, "direct", true );
-        channel.queueDeclare(tokenid, false, true, true, new HashMap());
+        channel.queueDeclare(tokenid, false, false, true, new HashMap());
         channel.queueBind( tokenid, exchange, tokenid);
         MessageConsumer mc = new MessageConsumer(channel);
         channel.basicConsume( tokenid, true, mc);              

@@ -58,7 +58,10 @@ public class RemoteScriptRunnable extends ScriptRunnable implements MessageHandl
         if(cache==null) {
             throw new Exception("remote-script-data-cache not properly defined in connections" );
         }
-        return cache.get(key);
+        Object obj = cache.get(key);
+        //do not store data in cache.
+        cache.remove(key);
+        return obj;
     }
     
     //listener on close will resume the process in the web
