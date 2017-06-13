@@ -87,7 +87,7 @@ public class RabbitMQConnection extends MessageConnection {
                     defaultChannel.exchangeDeclare( exchange, type, true );
                     defaultChannel.queueBind( queueName, exchange, queueName);
                 } 
-                MessageConsumer mc = new MessageConsumer(defaultChannel);
+                MessageConsumer mc = new MessageConsumer(defaultChannel, null);
                 defaultChannel.basicConsume( queueName, true, mc);  
             }
         }
@@ -98,18 +98,28 @@ public class RabbitMQConnection extends MessageConnection {
     } 
 
     private class MessageConsumer extends DefaultConsumer {
+        private MessageHandler handler;
         private Base64Cipher base64 = new Base64Cipher(); 
-        public MessageConsumer(Channel channel) {
+        
+        public MessageConsumer(Channel channel, MessageHandler handler) {
             super(channel);
+            this.handler = handler;
         }
         public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException { 
             if ( body == null || body.length==0 ) return; 
             String message = new String(body, "UTF-8");
             if ( base64.isEncoded( message ) ) {
                 Object o = base64.decode( message ); 
-                notifyHandlers( o ); 
+                if (handler == null)
+                    notifyHandlers(o);
+                else 
+                    handler.onMessage(o);
+                
             } else { 
-                notifyHandlers( message ); 
+                if (handler == null)
+                    notifyHandlers(message);
+                else 
+                    handler.onMessage(message);
             } 
         } 
     }
@@ -267,13 +277,14 @@ public class RabbitMQConnection extends MessageConnection {
         channel.exchangeDeclare(exchange, "direct", true );
         channel.queueDeclare(tokenid, false, false, true, new HashMap());
         channel.queueBind( tokenid, exchange, tokenid);
-        MessageConsumer mc = new MessageConsumer(channel);
+        MessageConsumer mc = new MessageConsumer(channel, handler);
         channel.basicConsume( tokenid, true, mc);              
-        super.addHandler(handler);
+        
     }
 
     public void send( Object data, String queueName, boolean encoded ) {
         sendBytes(  convertBytes(data, encoded), queueName ); 
     }
+    
     
 }

@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 
 
@@ -17,7 +16,7 @@ public class SimpleCache extends BlockingCache implements CacheConnection {
     
     private Map conf;
     private String name;
-    private ConcurrentHashMap<String,SimpleCacheUnit> map = new ConcurrentHashMap();
+    private HashMap<String,SimpleCacheUnit> map = new HashMap();
     
     public SimpleCache(DefaultCacheProvider defaultCacheProvider, String name, Map c) {
         this.defaultCacheProvider = defaultCacheProvider;
