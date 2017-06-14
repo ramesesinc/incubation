@@ -41,17 +41,6 @@ public class RemoteScriptRunnable extends ScriptRunnable implements MessageHandl
         return true;
     }
 
-    private String generateKey() {
-        StringBuilder sb = new StringBuilder();
-        sb.append( getHostName() +":" + getServiceName() +"." +getMethodName() );
-        if(args!=null) {
-            for(Object arg: args) {
-                sb.append( arg );
-            }
-        }
-        Base64Cipher base64 = new Base64Cipher();
-        return base64.encode( sb.toString() ); 
-    }
     
     public Object getCacheData( String key ) throws Exception {
         CacheConnection cache = (CacheConnection)context.getResource(XConnection.class, "remote-script-data-cache");
@@ -85,13 +74,6 @@ public class RemoteScriptRunnable extends ScriptRunnable implements MessageHandl
                 return;
             }
             else {
-                String key = generateKey();
-                //test first if data exists in cache
-                result = getCacheData(key);
-                if( result !=null ) {
-                    listener.onClose();
-                    return;
-                }
                 String tokenid = "TOKEN"+new UID();
                 MessageConnection xconn = (MessageConnection)context.getResource(XConnection.class, "remote-script-mq");
                 if(xconn==null) {
@@ -102,8 +84,6 @@ public class RemoteScriptRunnable extends ScriptRunnable implements MessageHandl
                 //send the header to the destination
                 Map map = new HashMap();
                 map.put("tokenid", tokenid);
-                map.put("txnid", tokenid);  //remove this after we test successfully.
-                map.put("key", key );
                 map.put("exchange", getHostName() );
                 
                 map.put("serviceName", getServiceName() );
@@ -123,13 +103,13 @@ public class RemoteScriptRunnable extends ScriptRunnable implements MessageHandl
 
     public void onMessage(Object data) {
         try {
-            Map map = (Map)data;
-            result = getCacheData(map.get("key").toString());
+            String key = data.toString();
+            result = getCacheData(key);
             MessageConnection xconn = (MessageConnection)context.getResource(XConnection.class, "remote-script-mq");
             if(xconn==null) {
                 throw new Exception("remote-script-mq not properly defined in connections" );
             } 
-            xconn.removeQueue(map.get("tokenid").toString());
+            xconn.removeQueue(key);
         }
         catch(Exception ex) {
             err = ex;

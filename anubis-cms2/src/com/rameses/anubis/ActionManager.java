@@ -58,11 +58,13 @@ public class ActionManager {
             list = new ArrayList();
             for( MappingEntry me: mappings ) {
                 if(me.matches(path)) {
+                    //System.out.println("macthed pattern " + me.getPattern());
                     String[] actions = me.getTemplates();
                     //reverse the actions because getTemplates is reusable
                     for (int i=actions.length-1; i>=0; i--) {
                         list.add(actions[i]); 
                     }
+                    break;
                 }
             }
             cachedActions.put(path, list);

@@ -16,8 +16,8 @@ class RemoteScriptInvokerService {
 
     @ProxyMethod
     public def postResponse( def resp ) {
-        dataCache.put( resp.key, resp.data, 99999999 );
-        remoteMq.send( [key:resp.key, tokenid:resp.tokenid], resp.tokenid );
+        dataCache.put( resp.tokenid, resp.data );
+        remoteMq.send( resp.tokenid, resp.tokenid );
     }
 
 }
