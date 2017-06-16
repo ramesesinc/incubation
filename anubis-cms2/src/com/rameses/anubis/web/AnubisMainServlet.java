@@ -171,6 +171,11 @@ public class AnubisMainServlet extends AbstractAnubisServlet {
                     String redirect = params.get("redirect").toString();
                     String queryParams = null;
                     int pidx = redirect.indexOf("?");
+                    if( params.containsKey("error")) {
+                        Map merr = new HashMap();
+                        merr.put("error", params.get("error"));
+                        hreq.getSession().setAttribute("PARAMS", merr);
+                    }
                     if(  pidx > 0 ) {
                         queryParams = redirect.substring(pidx+1);
                         redirect = redirect.substring(0, pidx);

@@ -4,7 +4,7 @@ import com.rameses.util.*;
 
 class CacheService {		
 	
-	private String DEFAULT_CONNECTION_NAME = "memcached"; 
+	private String DEFAULT_CONNECTION_NAME = "cache"; 
 
 	@Context 
 	def currentContext;

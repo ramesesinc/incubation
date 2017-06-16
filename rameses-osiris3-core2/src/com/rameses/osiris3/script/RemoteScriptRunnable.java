@@ -10,9 +10,11 @@ import com.rameses.osiris3.xconnection.MessageConnection;
 import com.rameses.osiris3.xconnection.MessageHandler;
 import com.rameses.osiris3.xconnection.XConnection;
 import com.rameses.util.Base64Cipher;
+import com.rameses.util.ExceptionManager;
 import java.rmi.server.UID;
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.commons.lang.exception.ExceptionUtils;
 
 /**
  *
@@ -105,6 +107,9 @@ public class RemoteScriptRunnable extends ScriptRunnable implements MessageHandl
         try {
             String key = data.toString();
             result = getCacheData(key);
+            if( result instanceof Exception ) {
+                throw ExceptionManager.getOriginal((Exception)result);
+            }
             MessageConnection xconn = (MessageConnection)context.getResource(XConnection.class, "remote-script-mq");
             if(xconn==null) {
                 throw new Exception("remote-script-mq not properly defined in connections" );
