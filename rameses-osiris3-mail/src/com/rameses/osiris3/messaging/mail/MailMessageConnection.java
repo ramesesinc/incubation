@@ -10,6 +10,7 @@
 package com.rameses.osiris3.messaging.mail;
 
 import com.rameses.osiris3.xconnection.MessageConnection;
+import com.rameses.osiris3.xconnection.MessageHandler;
 
 import java.util.Map;
 import java.util.Properties;
@@ -102,6 +103,16 @@ public class MailMessageConnection extends MessageConnection {
     
     public Map getConf() {
         return properties;
+    }
+
+    @Override
+    public void send(Object data, String queueName) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void addResponseHandler(String tokenid, MessageHandler handler) throws Exception {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
     
     

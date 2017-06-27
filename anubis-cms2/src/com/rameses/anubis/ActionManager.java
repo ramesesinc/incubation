@@ -57,14 +57,14 @@ public class ActionManager {
         if(list==null) {
             list = new ArrayList();
             for( MappingEntry me: mappings ) {
+                //System.out.println("match " + path + " " + me.getPattern());
                 if(me.matches(path)) {
-                    //System.out.println("macthed pattern " + me.getPattern());
+                    //System.out.println("----> matched pattern " + me.getPattern());
                     String[] actions = me.getTemplates();
                     //reverse the actions because getTemplates is reusable
                     for (int i=actions.length-1; i>=0; i--) {
                         list.add(actions[i]); 
                     }
-                    break;
                 }
             }
             cachedActions.put(path, list);
@@ -139,8 +139,13 @@ public class ActionManager {
         public Object execute(Map params) throws Exception {
             AnubisContext ctx = AnubisContext.getCurrentContext();
             Project project = ctx.getProject();
-            
             if( params == null ) params = new HashMap();
+            if(ctx.getParams()==null) {
+                ctx.setParams(params);
+            }
+            else {
+                ctx.getParams().putAll(params);
+            }
             Script sc = script.getClass().newInstance();
             sc.setProperty("ENV", ctx.getEnv());
             sc.setProperty("PARAMS", ctx.getParams() );

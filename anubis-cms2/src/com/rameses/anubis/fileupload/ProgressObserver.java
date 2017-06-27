@@ -1,5 +1,6 @@
 package com.rameses.anubis.fileupload;
 
+import com.rameses.anubis.ActionCommand;
 import com.rameses.anubis.AnubisContext;
 import com.rameses.anubis.Project;
 import com.rameses.anubis.web.CmsWebConstants;
@@ -41,7 +42,7 @@ public class ProgressObserver {
         status.setPercentCompleted( (long)Math.floor(((double)totalRead / (double)totalSize) * 100.0) );
         status.setUploadRate( uploadRate );
         status.setEstimatedRuntime( totalSize / (uploadRate + 0.00001) );
-        updateStatus( status );
+        //updateStatus( status );
     }
     
     private long getElapsedTimeInSeconds() {
@@ -51,11 +52,13 @@ public class ProgressObserver {
     private void updateStatus(ProgressStatus status) {
         try {
             Project p = AnubisContext.getCurrentContext().getProject();
-            
             Map param = new HashMap();
             param.put("requestid", this.fieldName);
             param.put("status", status.toMap());
-            p.getActionManager().getActionCommand(CmsWebConstants.FILE_UPLOAD_UPDATE_STATUS_CMD).execute(param);
+            ActionCommand cmd = p.getActionManager().getActionCommand(CmsWebConstants.FILE_UPLOAD_UPDATE_STATUS_CMD);
+            if(cmd!=null) {
+                cmd.execute(param);
+            }
         }
         catch(Exception e) {
             e.printStackTrace();

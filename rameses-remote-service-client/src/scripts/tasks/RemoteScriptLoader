@@ -5,10 +5,14 @@ class RemoteScriptLoader {
     @Service("RemoteScriptClientService")	
     def scriptSvc;
     
+    private boolean registered = false;	
+
     @Schedule
     public void load( params ) {
-        println "Starting remote script loader";
+	if( registered ) return;
     	scriptSvc.registerServices();
+ 	println "Starting remote script loader";
+	registered = true;
     }
 
     @Shutdown

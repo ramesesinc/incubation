@@ -9,88 +9,50 @@
 
 package com.rameses.anubis.web;
 
-import com.rameses.anubis.ActionCommand;
 import com.rameses.anubis.AnubisContext;
 import com.rameses.anubis.Project;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.apache.commons.fileupload.ProgressListener;
-import org.eclipse.jetty.continuation.Continuation;
-import org.eclipse.jetty.continuation.ContinuationSupport;
+import org.apache.commons.fileupload.FileItem;
 
 /**
- *
  * @author Elmo
  */
 public class AnubisUploadServlet extends AbstractAnubisServlet {
     
-    private final static ExecutorService thread = Executors.newCachedThreadPool();
-    
     protected void handle(HttpServletRequest hreq, HttpServletResponse hres) throws Exception {
-        
-        
         MultipartRequest mreq = (MultipartRequest)hreq;
-        
-        Uploader uploader = (Uploader)mreq.getAttribute( "_upload_" );
-        if(uploader==null) {
-            Continuation c = ContinuationSupport.getContinuation( mreq );
-            c.suspend();
-            Uploader uploder = new Uploader(mreq, c);
-            hreq.setAttribute( "_upload_", uploader );
-            thread.submit( uploader );
-        } else {
-            
-            
-        }
-        
-        
-        
-        //mreq.process(  )
-    }
-    
-    private class Uploader implements Runnable  {
-        
-        private MultipartRequest req;
-        private Continuation continuation;
-        
-        public Uploader(MultipartRequest req, Continuation continuation) {
-            this.req = req;
-            this.continuation = continuation;
-        }
-        
-        public void run() {
+        WebAnubisContext ctx = (WebAnubisContext) AnubisContext.getCurrentContext();
+        Project project = ctx.getProject();
+        String path = mreq.getPathInfo();
+        try {
+            //System.out.println("process file....");
+            //ProgressListener listener = new ProgressListener() {
+            //    public void update(long bytesRead, long pContentLength, int pItems) {
+            //        System.out.println("upload bytes read: "+ bytesRead + " length:" + pContentLength + " pItems:" + pItems);
+            //    }
+            //};
+            //mreq.setListener( listener );
+            mreq.process(); 
+            FileItem fi = null;
             try {
-                WebAnubisContext ctx = (WebAnubisContext) AnubisContext.getCurrentContext();
-                Project project = ctx.getProject();
-                String path = req.getPathInfo();
-                final ActionCommand cmd = project.getActionManager().getActionCommand( path );
-                if(cmd!=null) {
-                    ProgressListener listener = new ProgressListener() {
-                        public void update(long l, long l0, int i) {
-                            Map map = new HashMap();
-                            try {
-                                cmd.execute( map );
-                            } catch(Exception e){;}
-                        }
-                    };
-                    req.setListener( listener );
-                }
-                
-                ActionCommand action = project.getActionManager().getActionCommand( path );
-                ctx.setRequest( req );
-                action.execute( new HashMap() );
-            } catch(Exception e) {
-                e.printStackTrace();
-                
-            } finally {
-                continuation.resume();
+                fi = mreq.getFileParameterMap().values().iterator().next().iterator().next();
+            }
+            catch(Exception ign) {
+            }
+            if(fi!=null) {
+                Map m = new HashMap();
+                m.put("file", fi);
+                project.getActionManager().fireActions( path, m );
             }
         }
-        
+        catch(Exception ex) {
+            System.out.println("Error AnubisUploadServlet " + ex.getMessage());
+            throw ex;
+        }
     }
+    
     
 }
