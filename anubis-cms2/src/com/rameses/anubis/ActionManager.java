@@ -43,8 +43,8 @@ public class ActionManager {
         Map _map2 = conf.getProperties( "action-mapping" );
         if( _map1!=null) masters.putAll(_map1);
         if( _map2!=null) masters.putAll(_map2);
-        if(masters!=null) {
-            //load master template mapping
+        if(masters.size()>0) {
+            //load action template mapping
             for(Object o: masters.entrySet()) {
                 Map.Entry me = (Map.Entry)o;
                 mappings.add( new MappingEntry(me.getKey()+"", me.getValue()+"" ));
@@ -57,7 +57,9 @@ public class ActionManager {
         if(list==null) {
             list = new ArrayList();
             for( MappingEntry me: mappings ) {
+                //System.out.println("match " + path + " " + me.getPattern());
                 if(me.matches(path)) {
+                    //System.out.println("----> matched pattern " + me.getPattern());
                     String[] actions = me.getTemplates();
                     //reverse the actions because getTemplates is reusable
                     for (int i=actions.length-1; i>=0; i--) {
@@ -137,8 +139,13 @@ public class ActionManager {
         public Object execute(Map params) throws Exception {
             AnubisContext ctx = AnubisContext.getCurrentContext();
             Project project = ctx.getProject();
-            
             if( params == null ) params = new HashMap();
+            if(ctx.getParams()==null) {
+                ctx.setParams(params);
+            }
+            else {
+                ctx.getParams().putAll(params);
+            }
             Script sc = script.getClass().newInstance();
             sc.setProperty("ENV", ctx.getEnv());
             sc.setProperty("PARAMS", ctx.getParams() );

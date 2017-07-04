@@ -1,0 +1,23 @@
+import com.rameses.annotations.*;
+import com.rameses.osiris3.remote.*;
+import java.rmi.server.*;
+
+/*********************************************************************************
+* This handles the remote script caching 
+* We need this as a script because we want the client to be able to intercept
+*********************************************************************************/
+class RemoteScriptInvokerService {
+
+    @XConnection("remote-script-mq")
+    def remoteMq;
+
+    @XConnection("remote-script-data-cache")
+    def dataCache;
+
+    @ProxyMethod
+    public def postResponse( def resp ) {
+        dataCache.put( resp.tokenid, resp.data );
+        remoteMq.send( resp.tokenid, resp.tokenid );
+    }
+
+}

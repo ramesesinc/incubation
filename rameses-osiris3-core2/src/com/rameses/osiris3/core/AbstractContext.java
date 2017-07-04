@@ -34,7 +34,10 @@ public abstract class AbstractContext {
     }
     
     public abstract void start();
-    public abstract void stop();
+    
+    public void stop() {
+        //do nothing
+    }
     
     public final void setConf(Map c) {
         this.conf = c;

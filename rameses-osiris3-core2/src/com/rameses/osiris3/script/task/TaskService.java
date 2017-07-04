@@ -9,11 +9,12 @@
 
 package com.rameses.osiris3.script.task;
 
-import com.rameses.common.AsyncRequest;
 import com.rameses.osiris3.core.*;
 import com.rameses.osiris3.script.ScriptRunnable;
+import com.rameses.osiris3.script.ScriptRunnableListener;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -44,6 +45,10 @@ public class TaskService extends ContextService {
     private Set<TaskInfo> failedTasks = new CopyOnWriteArraySet();
     private ExecutorService asyncPool = Executors.newFixedThreadPool(100);
     
+    
+    //new addition. Particularly used for queues
+    private List<TaskInfo> shutdownTasks = new LinkedList();
+    
     public Class getProviderClass() {
         return TaskService.class;
     }
@@ -65,10 +70,12 @@ public class TaskService extends ContextService {
             if(sc!=null) {
                 TaskInfoSet ts = sc.getResource( TaskInfoSet.class, null );
                 set.addAll(ts.getTaskInfos());
+                shutdownTasks.addAll( ts.getShutdownTasks() );
             }
         }
         TaskInfoSet ts = context.getResource( TaskInfoSet.class, null );
         set.addAll( ts.getTaskInfos() );
+        shutdownTasks.addAll( ts.getShutdownTasks() );
         for(TaskInfo tf: set) {
             addTask(tf);
         }
@@ -76,7 +83,22 @@ public class TaskService extends ContextService {
     }
     
     public final void stop() throws Exception {
+        System.out.println("Executing Task Shutdown");
+        for(TaskInfo tf: shutdownTasks) {
+            try {
+                ScriptRunnable tr = new ScriptRunnable(context);
+                tr.setServiceName( tf.getServiceName() );
+                tr.setMethodName( tf.getMethodName() );
+                tr.setArgs( new Object[]{tf} );
+                tr.setEnv( tf.getEnv() );
+                tr.run();
+            }
+            catch(Exception e) {
+                System.out.println("Error shutdown. " + e.getMessage());
+            }
+        }
         taskScheduler.shutdownNow();
+        started = false;
     }
     
     /**************************************************************************/
@@ -138,7 +160,7 @@ public class TaskService extends ContextService {
         }
     }
     
-    private class ScriptHandler extends ScriptRunnable.AbstractListener {
+    private class ScriptHandler extends ScriptRunnableListener {
         
         private ScriptRunnable script;
         private TaskInfo taskinfo; 

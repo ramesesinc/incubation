@@ -22,6 +22,13 @@ public abstract class MessageConnection extends XConnection {
     
     public abstract void send(Object data);
     public abstract void sendText(String data);
+    public abstract void send(Object data, String queueName);
+    //this is used for handling direct responses
+    public abstract void addResponseHandler(String tokenid, MessageHandler handler) throws Exception;
+    
+    public void removeQueue(String name){
+        //do nothing...
+    }
     
     public void stop() {
         handlers.clear();

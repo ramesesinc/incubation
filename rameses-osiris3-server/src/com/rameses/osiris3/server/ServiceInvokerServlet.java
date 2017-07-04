@@ -16,7 +16,9 @@ import com.rameses.common.AsyncToken;
 import com.rameses.osiris3.core.AppContext;
 import com.rameses.osiris3.core.MainContext;
 import com.rameses.osiris3.core.OsirisServer;
+import com.rameses.osiris3.script.RemoteScriptRunnable;
 import com.rameses.osiris3.script.ScriptRunnable;
+import com.rameses.osiris3.script.ScriptRunnableListener;
 import com.rameses.osiris3.server.common.AbstractServlet;
 import com.rameses.osiris3.xconnection.MessageQueue;
 import com.rameses.osiris3.xconnection.XAsyncConnection;
@@ -59,7 +61,7 @@ public class ServiceInvokerServlet extends AbstractServlet {
         taskPool = Executors.newFixedThreadPool(getTaskPoolSize());
     }
     
-    private class ContinuationListener extends ScriptRunnable.AbstractListener {
+    private class ContinuationListener extends ScriptRunnableListener {
         private Continuation continuation;
         private Future future;
         private HttpServletRequest req;
@@ -104,12 +106,7 @@ public class ServiceInvokerServlet extends AbstractServlet {
             return;
         }
         RequestParser p = new RequestParser(req);
-        if( p.getServiceName().indexOf(":") > 0 ) {
-            throw new ServletException( "Service "  + p.getServiceName() + " not found" );
-        }
-        else {
-            processBasicService( p, req, res );
-        }
+        processBasicService( p, req, res );
     }
     
     private void processBasicService(RequestParser p, final HttpServletRequest req, HttpServletResponse res)  throws ServletException, IOException{
@@ -120,21 +117,30 @@ public class ServiceInvokerServlet extends AbstractServlet {
             Object[] params = readRequest(req);
             
             AppContext ct = OsirisServer.getInstance().getContext( AppContext.class, p.getContextName() );
-            tr = new ScriptRunnable( (MainContext)ct );
-            tr.setServiceName(p.getServiceName() );
+            
+            if(p.getServiceName().indexOf(":")<=0) {
+                //process normal scripts
+                tr = new ScriptRunnable( (MainContext)ct );
+                tr.setServiceName(p.getServiceName());
+            }
+            else {
+                //handle remote scripts separately
+                tr = new RemoteScriptRunnable( (MainContext)ct);
+                String[] arr = p.getServiceName().split(":");
+                ((RemoteScriptRunnable)tr).setHostName(arr[0]);
+                tr.setServiceName(arr[1]);
+            }
+            tr.setBypassAsync(false);
             tr.setMethodName(p.getMethodName());
             tr.setArgs((Object[])params[0] );
             tr.setEnv( (Map)params[1] );
             tr.setListener( listener );
-            tr.setBypassAsync(false);
-            
             try {
                 Integer rt = new Integer(tr.getEnv().get("@read_timeout").toString()); 
                 listener.read_timeout_var = rt.intValue(); 
             } catch(Throwable t){;} 
             
             listener.start();
-            
             req.setAttribute(  ScriptRunnable.class.getName(), tr );
             listener.future = taskPool.submit(tr);
             
@@ -188,7 +194,7 @@ public class ServiceInvokerServlet extends AbstractServlet {
     
     // <editor-fold defaultstate="collapsed" desc=" AsyncListener ">
     
-    private class AsyncListener implements ScriptRunnable.Listener {
+    private class AsyncListener extends ScriptRunnableListener {
         private ScriptRunnable sr;
         private XAsyncConnection conn;
         

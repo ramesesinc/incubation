@@ -12,11 +12,13 @@ package com.rameses.osiris3.core;
 import com.rameses.server.ServerPID;
 import com.rameses.util.Service;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Stack;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -68,18 +70,34 @@ public class MainContext extends AbstractContext {
                 System.out.println("error starting service " + super.getName()+":"+c.getName() +" " +e.getMessage());
             } 
         }
-        list.clear();
     }
     
     public void stop() {
-        for(ContextService c: services.values()) {
-            try {
-                c.stop();
-            } catch(Exception e) {
-                System.out.println("error stopping service " + super.getName()+":"+c.getName() +" " +e.getMessage());
+        try {
+            Collection<ContextService> list = services.values();
+            //we have to stop it in reverse order
+            Stack<ContextService> stack = new Stack();
+            for(ContextService c: list) {
+                stack.push(c);
             }
+            while( !stack.empty() )   {
+                ContextService c = null;
+                try {
+                    c = stack.pop();
+                    c.stop();
+                } catch(Exception e) {
+                    System.out.println("error stopping service " + super.getName()+":"+c.getName() +" " +e.getMessage());
+                }
+            }
+            asyncExecutor.shutdownNow();
+            //asyncExecutor.awaitTermination(1, TimeUnit.MINUTES);
         }
-        asyncExecutor.shutdownNow();
+        catch(Exception e) {
+            e.printStackTrace();
+        }
+        
+        //call the abstract class to close resources
+        super.stop();
     }
     
     

@@ -14,6 +14,9 @@ import com.rameses.anubis.ServiceAdapter;
 import com.rameses.anubis.ServiceInvoker;
 import com.rameses.service.ScriptServiceContext;
 import com.rameses.service.ServiceProxy;
+import groovy.lang.GroovyClassLoader;
+import groovy.lang.GroovyObject;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,12 +26,35 @@ import java.util.Map;
  */
 public class ScriptServiceHandler  implements ServiceAdapter {
     
+    private GroovyClassLoader classLoader =  new GroovyClassLoader(getClass().getClassLoader());
+    private Class metaClass;
+    
     public String getName() {
         return "script";
     }
-    
-    private boolean isRemoteService(String name) {
-        return ( name.indexOf(":") >0 ); 
+
+    private Class getMetaClass() throws Exception {
+        if( metaClass == null ) {
+            StringBuilder builder = new StringBuilder();
+            builder.append( "public class MyMetaClass  { \n" );
+            builder.append( "    def invoker; \n");
+            builder.append( "    public Object invokeMethod(String string, Object args) { \n");
+            builder.append( "        return invoker.invokeMethod(string, args); \n" );
+            builder.append( "    } \n");
+            builder.append(" } ");
+            metaClass = classLoader.parseClass( builder.toString() );
+        }
+        return metaClass;
+    }
+     
+    public Map getClassInfo(String name, Map conf) { 
+        if (conf.get("app.cluster") == null) 
+            throw new RuntimeException("cluster is not defined");        
+        if (conf.get("app.host") == null) 
+            throw new RuntimeException("app.host is not defined");        
+        if (conf.get("app.context") == null)
+            throw new RuntimeException("app.context is not defined");
+        return getServiceClassInfo( name, conf );
     }
     
     @Override
@@ -50,29 +76,18 @@ public class ScriptServiceHandler  implements ServiceAdapter {
         }
         AnubisContext actx = AnubisContext.getCurrentContext();
         env.putAll( actx.getEnv() );
-        
-        if( isRemoteService(name) ) {
-            return new RemoteScriptInvoker(name, conf, env);
-        }
-        else {
-            return new LocalScriptInvoker(name, conf, env);
-        }
+        try {
+            LocalScriptInvoker si = new LocalScriptInvoker(name, conf, env);
+            Object obj =  getMetaClass().newInstance();
+            ((GroovyObject)obj).setProperty( "invoker", si );
+            return obj;
+        } catch(Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException(e.getMessage(), e);
+        }        
     }
     
-    public Map getClassInfo(String name, Map conf) { 
-        if (conf.get("app.cluster") == null) 
-            throw new RuntimeException("cluster is not defined");        
-        if (conf.get("app.host") == null) 
-            throw new RuntimeException("app.host is not defined");        
-        if (conf.get("app.context") == null)
-            throw new RuntimeException("app.context is not defined");
-        if(isRemoteService(name)) {
-            return getRemoteServiceClassInfo(name, conf);
-        }
-        else {
-            return getLocalServiceClassInfo( name, conf );
-        }
-    }
+    
 
     /***************************************************************************
      * The following code is to get the class info for local and remote
@@ -82,27 +97,25 @@ public class ScriptServiceHandler  implements ServiceAdapter {
         Map metaInfo();
     }
     
-    private interface IRemoteScriptCacheService {
-         Map getInfo(String name);
-    }
-
-    private Map getLocalServiceClassInfo( String name, Map conf ) {
+     private Map getServiceClassInfo( String name, Map conf ) {
         ScriptServiceContext ctx = new ScriptServiceContext(conf);
         IScriptService svc = ctx.create(name, IScriptService.class );
         Map metainfo = svc.metaInfo();
-        Map methods = (Map) metainfo.get("methods"); 
+        Collection methods = null;
+        Object o = metainfo.get("methods");
+        if(o instanceof Map) {
+            methods = ((Map)o).values();
+        }
+        else {
+            methods = (Collection)o;
+        }
         Map results = new HashMap();
-        results.put("methods", methods.values()); 
+        results.put("methods", methods); 
         results.put("name", metainfo.get("serviceName")); 
         return results; 
     }
     
-    private Map getRemoteServiceClassInfo( String name, Map conf ) {
-        ScriptServiceContext ctx = new ScriptServiceContext(conf);
-        IRemoteScriptCacheService svc = ctx.create("RemoteScriptCacheService", IRemoteScriptCacheService.class );
-        return svc.getInfo(name);
-    }
-    
+   
     private class LocalScriptInvoker implements ServiceInvoker {
         
         private ServiceProxy serviceProxy;
@@ -121,33 +134,5 @@ public class ScriptServiceHandler  implements ServiceAdapter {
         }
     }
     
-    /***************************************************************************
-     * REMOTE SERVICE
-     **************************************************************************/ 
-    private class RemoteScriptInvoker implements ServiceInvoker {
-        
-        private String serviceName;
-        private ServiceProxy invokerProxy;
-        
-        public RemoteScriptInvoker(String name, Map conf, Map env) {
-            this.serviceName = name;
-            ScriptServiceContext ctx = new ScriptServiceContext(conf);
-            invokerProxy = ctx.create( "RemoteScriptInvokerService", env );
-        }
-
-        public Object invokeMethod(String methodName, Object[] args) {
-            System.out.println("Invoking remote method");
-            Map map = new HashMap();
-            map.put("serviceName", serviceName);
-            map.put("methodName", methodName);
-            map.put("args", args);
-            try {
-               return invokerProxy.invoke("invoke", new Object[]{map} );
-           } catch(Exception ex) {
-               throw new RuntimeException(ex.getMessage(), ex);
-               //return "<font color=red>error service:" + ex.getMessage()+"</font>";
-           }
-        }
-    }
     
 }

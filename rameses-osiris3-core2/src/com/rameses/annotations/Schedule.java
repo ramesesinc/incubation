@@ -13,4 +13,5 @@ public @interface Schedule {
     boolean fixedInterval() default false;
     boolean immediate() default false;
     String id() default "";
+    int index() default 0;
 }

@@ -30,6 +30,7 @@ public final class TaskInfo {
     private boolean immediate;
     private String id;
     private Map properties = new HashMap();
+    private int index;
     
     public TaskInfo(String serviceName, String methodName, Object[] args, Map env ) {
         this.serviceName = serviceName;
@@ -121,6 +122,14 @@ public final class TaskInfo {
 
     public boolean equals(Object obj) {
         return this.hashCode() == obj.hashCode();
+    }
+
+    public int getIndex() {
+        return index;
+    }
+
+    public void setIndex(int index) {
+        this.index = index;
     }
     
 

@@ -240,6 +240,26 @@ public class XHtmlPanel extends JPanel implements UIControl, ActiveControl
             viewer.setDocument(bais, ""); 
         } catch(Throwable e) {;} 
     } 
+
+    @Override
+    public int getStretchWidth() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void setStretchWidth(int i) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public int getStretchHeight() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void setStretchHeight(int i) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
     
     // </editor-fold>
     

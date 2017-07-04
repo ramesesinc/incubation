@@ -42,17 +42,13 @@ public class AsyncScriptInvocation implements InvocationHandler {
         ScriptRunnable script = new ScriptRunnable(ctx);
         if( h!=null ) {
             final AsyncHandler ah = h;
-            script.setListener( new ScriptRunnable.Listener() {
-                public void onBegin() {;}
+            script.setListener( new ScriptRunnableListener() {
                 public void onComplete(Object result) {
                     if(result!=null && result.toString().equalsIgnoreCase("#NULL")) {
                         result = null;
                     }
                     ah.call( result );
                 }
-                public void onRollback(Exception e) {;}
-                public void onClose() {;}
-                public void onCancel() {;}
             });
         }
         script.setServiceName( serviceName );

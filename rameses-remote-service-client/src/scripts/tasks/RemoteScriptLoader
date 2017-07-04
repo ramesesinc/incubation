@@ -1,61 +1,23 @@
 import com.rameses.annotations.*;
-import com.rameses.common.*;
-import com.rameses.util.*;
 
 class RemoteScriptLoader {
 
-	@Context
-	def appContext;
+    @Service("RemoteScriptClientService")	
+    def scriptSvc;
+    
+    private boolean registered = false;	
 
-	@Resource("ScriptService")	
-	def scriptSvc;
+    @Schedule
+    public void load( params ) {
+	if( registered ) return;
+    	scriptSvc.registerServices();
+ 	println "Starting remote script loader";
+	registered = true;
+    }
 
-    @Service( value="RemoteScriptRegistryService", connection="remote-script-service")
-    def remoteSvc;
-
-    @XConnection( "remote-script-mq")
-    def remoteConn;
-
-	void registerScripts() {
-        if( remoteConn == null ) {
-            println "Register scripts not executed";
-	    return;
-        }
-        String id = remoteConn.conf.queue;
-	if(id==null) {
-		println "Scripts not registered. Please specify a queue in remote-script-service settings";
-		return;
-	} 
-
-        println "Start registering script definition to the remote-script-service server";
-
-        def list = new HashSet();
-        def h = { m->
-        	def fileName = "remote/" + m.filename;
-            def info = scriptSvc.findScriptInfo(fileName);	
-            def metaInfo = info.getMetaInfo(  appContext );
-            def newInfo = [:]
-            newInfo.name = info.name.substring("remote/".length() );
-            newInfo.serviceName = newInfo.name;
-            newInfo.methods = [];
-            metaInfo.methods.each { k,v->
-            	def mt = [:];
-        		mt.name = v.name;
-        		mt.parameters = v.parameters;
-        		mt.returnValue = v.returnValue;
-            	newInfo.methods << mt;
-            }
-            list << newInfo;
-        } as ScanFileFilter;
-        appContext.scanFiles( "scripts/remote", h, null);
-        remoteSvc.register(id, list);
-        println "finished register";
-	}
-
-	@Schedule
-	public def load( params ) {
-        println "Starting remote script loader";
-    	registerScripts();
-	}
+    @Shutdown
+    public void shutdown( def evt ) {
+    	scriptSvc.shutdown();
+    }
 
 }

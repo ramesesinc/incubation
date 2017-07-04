@@ -28,9 +28,6 @@ public class AnubisMainServlet extends AbstractAnubisServlet {
         Map params = RequestUtil.buildRequestParams( hreq );
         actx.setParams( params );
         
-        //fire all actions first if any.
-        project.getActionManager().fireActions( fullPath, params);
-        
         String mimeType = app.getMimeType( fullPath );
         String ext = CmsWebConstants.PAGE_FILE_EXT;
         if ( mimeType == null ) {
@@ -167,6 +164,29 @@ public class AnubisMainServlet extends AbstractAnubisServlet {
             
             try { 
                 hres.setStatus(HttpServletResponse.SC_OK);
+
+                //fire all actions first before rendering the page.
+                project.getActionManager().fireActions( fullPath, params );
+                if( params.containsKey("redirect") ) {
+                    String redirect = params.get("redirect").toString();
+                    String queryParams = null;
+                    int pidx = redirect.indexOf("?");
+                    if( params.containsKey("error")) {
+                        Map merr = new HashMap();
+                        merr.put("error", params.get("error"));
+                        hreq.getSession().setAttribute("PARAMS", merr);
+                    }
+                    if(  pidx > 0 ) {
+                        queryParams = redirect.substring(pidx+1);
+                        redirect = redirect.substring(0, pidx);
+                    }
+                    //this is to avoid cyclic redirects...
+                    if(!fullPath.equals(redirect) && !fullPath.endsWith(redirect)) {
+                        if(queryParams !=null) redirect += "?" + queryParams;
+                        hres.sendRedirect(redirect);
+                        return;
+                    }
+                }
                 InputStream inp = project.getContentManager().getContent(file,params);
                 ResponseUtil.write( hreq, hres, mimeType, inp);
             } 

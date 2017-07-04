@@ -11,21 +11,31 @@ class RemoteScriptExecutor {
     @Service(dynamic=true)
     def dynSvc;
 
+    @Service("RemoteScriptClientService")
+    def clientSvc;
+
     @OnMessage( 'remote-script-mq' ) 
     public void onreceive( def req ) {
-        def msg = req.data;
-
-        def svc = dynSvc.lookup( "remote/"+msg.serviceName );
-        def r = svc.invokeMethod( msg.methodName, msg.args );
-
-        def resp = [
-            key : req.key,
-            exchange: req.exchange,
-            handlename: req.handlename,
-            txnid: req.txnid, 
-            data: r
-        ];
-        remoteResponseSvc.postResponse( resp );
+        if((req instanceof Map) && req.serviceName !=null) {
+            def svc = dynSvc.lookup( "remote/"+req.serviceName );
+            def r = null;
+            try {
+                r = svc.invokeMethod( req.methodName, req.args );
+            }
+            catch(e) {
+                r = e;
+            }
+            def resp = [
+                key : req.key,
+                exchange: req.exchange,
+                tokenid: req.tokenid,
+                data: r
+            ];
+            remoteResponseSvc.postResponse( resp );
+        }
+        else {
+            clientSvc.notifyStatus( req );
+        }
     } 
 
 

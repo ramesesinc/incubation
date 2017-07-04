@@ -46,6 +46,14 @@ public class DefaultXConnectionProvider extends XConnectionProvider {
         public Map getConf() {
             return conf;
         }
+
+        public void send(Object data, String queueName) {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+        public void addResponseHandler(String queueName, MessageHandler handler) throws Exception{
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
     }
     
 }

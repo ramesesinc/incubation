@@ -40,7 +40,6 @@ public abstract class AbstractAnubisServlet extends HttpServlet {
     
     protected final void process(HttpServletRequest hreq, HttpServletResponse hres) throws ServletException, IOException {
         ServletContext app = config.getServletContext();
-        
         boolean isMultipart = ServletFileUpload.isMultipartContent(hreq);
         if( isMultipart ) {
             hreq = new MultipartRequest(hreq,app);

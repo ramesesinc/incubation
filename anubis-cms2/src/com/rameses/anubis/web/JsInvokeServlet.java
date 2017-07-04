@@ -14,8 +14,8 @@ import com.rameses.anubis.ConnectionContext;
 import com.rameses.anubis.JsonUtil;
 import com.rameses.anubis.Module;
 import com.rameses.anubis.Project;
-import com.rameses.anubis.ServiceInvoker;
 import com.rameses.util.ExceptionManager;
+import groovy.lang.GroovyObject;
 import java.io.Writer;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -39,7 +39,8 @@ public class JsInvokeServlet extends AbstractAnubisServlet {
             String serviceName = (arr.length >= 3? arr[2]: arr[1]);
             
             if (connectionName == null || connectionName.length() == 0) {
-                throw new NullPointerException("Please specify a connection name");
+                connectionName = "default";
+                //throw new NullPointerException("Please specify a connection name");
             }
             if (serviceName == null || serviceName.length() == 0) {
                 throw new NullPointerException("Please specify a service name");
@@ -64,18 +65,14 @@ public class JsInvokeServlet extends AbstractAnubisServlet {
             }
             
             //updated since I dont see any reason why we should compile this to groovy
-            /*
+            
             GroovyObject gobj =(GroovyObject) project.getServiceManager().lookup(serviceName, connectionName);
             if (args == null) args = new Object[]{};
             Object result = gobj.invokeMethod( action, args  );
             writeResponse( JsonUtil.toString(result), hres );
-            */
             
-            ServiceInvoker invoker = (ServiceInvoker) project.getServiceManager().lookup(serviceName, connectionName);
-            if (args == null) args = new Object[]{};
-            Object result = invoker.invokeMethod( action, args  );
-            writeResponse( JsonUtil.toString(result), hres );
-        } catch(Exception e) {
+        } 
+        catch(Exception e) {
             e.printStackTrace();
             e = ExceptionManager.getOriginal(e);
             hres.setStatus(hres.SC_INTERNAL_SERVER_ERROR);

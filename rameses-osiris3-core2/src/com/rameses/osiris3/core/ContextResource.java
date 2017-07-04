@@ -65,4 +65,6 @@ public abstract class ContextResource {
     public void setContext(AbstractContext context) {
         this.context = context;
     }
+    
+    
 }
