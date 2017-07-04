@@ -367,6 +367,8 @@ public class DataTableModel extends AbstractTableModel implements TableControlMo
             
             for (int idx=0; idx < rowCount; idx++) {
                 Object rowdata = getItem( idx ); 
+                if ( rowdata == null ) continue; 
+                
                 root.getDataProvider().getSelectionSupport().setItemChecked(rowdata, true, idx); 
             }
             
