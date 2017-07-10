@@ -165,6 +165,11 @@ public class Project extends HashMap  {
     
     
     public boolean isCached() {
+        String webcached = (System.getProperty("web.cached")+"").toLowerCase();
+        if ( webcached.matches("true|false")) {
+            return new Boolean( webcached ); 
+        } 
+        
         if( super.containsKey("cached")) {
             return Boolean.valueOf( super.get("cached")+"" );
         }
