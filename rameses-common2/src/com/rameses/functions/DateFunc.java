@@ -247,4 +247,14 @@ public final class DateFunc {
         }
     }
     
+    public static String dateStringFormat(Date dt,String pattern) {
+        SimpleDateFormat df = new SimpleDateFormat(pattern);
+        try {
+            return df.format(dt);
+        }
+        catch(Exception e) {
+            System.out.println("error  " + e.getMessage());
+            return null;
+        }
+    }
 }

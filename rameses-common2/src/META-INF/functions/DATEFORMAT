@@ -1,7 +1,7 @@
 {
   caption: 'DATEFORMAT',
-  description: 'returns the date formatted to a simple date pattern. Example yyyy-MM-dd',
-  code: 'com.rameses.functions.DateFunc.formatDate',
+  description: 'returns the String result of a simple date pattern. See simple date format date patterns',
+  code: 'com.rameses.functions.DateFunc.dateStringFormat',
   title: '@DATEFORMAT( date, pattern )', 
   signature: '@DATEFORMAT( |, )', 
   group: 'date' 

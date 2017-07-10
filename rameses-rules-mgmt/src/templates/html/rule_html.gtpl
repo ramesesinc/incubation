@@ -12,6 +12,7 @@ def actpath = "templates/html/action_param_";
             }
         </style>
     </head>
+     
     <body>
         <h2>Conditions</h2>
         <%rule.conditions.eachWithIndex { cond,i->%>
@@ -129,7 +130,7 @@ def actpath = "templates/html/action_param_";
                                                     expr = "Not specified";
                                                 }
                                                 else if(param.exprtype == "expression") {
-                                                    expr = expr.replace('\n','<br>').replace('\t', '&nbsp;'.multiply(5)).replace('\\s', '&nbsp;' );
+                                                    expr = expr.replace('>', '&gt;').replace('<','&lt;').replace('\n','<br>').replace('\t', '&nbsp;'.multiply(5)).replace('\\s', '&nbsp;' );
                                                 }
                                                 out.print( expr );
                                                 break;
@@ -156,6 +157,8 @@ def actpath = "templates/html/action_param_";
                 </table>
              </div>  
         <%}%>
+        
     </body>
+    
 </html>
 

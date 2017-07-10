@@ -19,6 +19,7 @@
             def getLookupHandler() {
                 if( !actionParamDef.lookupkey || !actionParamDef.lookupvalue || !actionParamDef.lookuphandler )
                     throw new Exception( "Please specify a lookup key and lookup value in the definition" )
+                //println "ruleset is " + rule?.ruleset;    
                 return InvokerUtil.lookupOpener( actionParamDef.lookuphandler, [
                     onselect: { o->
                         actionParam.obj = [ key: o[actionParamDef.lookupkey], value: o[actionParamDef.lookupvalue] ] ;

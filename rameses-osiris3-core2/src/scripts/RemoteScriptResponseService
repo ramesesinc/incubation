@@ -1,6 +1,8 @@
 import com.rameses.annotations.*;
 import com.rameses.osiris3.remote.*;
 import java.rmi.server.*;
+import com.rameses.util.*;
+
 
 /*********************************************************************************
 * This handles the remote script caching 
@@ -11,13 +13,10 @@ class RemoteScriptInvokerService {
     @XConnection("remote-script-mq")
     def remoteMq;
 
-    @XConnection("remote-script-data-cache")
-    def dataCache;
-
     @ProxyMethod
     public def postResponse( def resp ) {
-        dataCache.put( resp.tokenid, resp.data );
-        remoteMq.send( resp.tokenid, resp.tokenid );
+        Base64Cipher encoder = new Base64Cipher();
+        remoteMq.send( encoder.encode(resp.data), resp.tokenid );
     }
 
 }

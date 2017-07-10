@@ -55,7 +55,8 @@ class RuleActionController  {
         m.properties.action = entity;
         m.properties.actionParam = actionParam;
         m.properties.actionParamDef = actionParamDef;
-
+        m.properties.rule = rule;
+        
         def h = actionParamDef.handler;
         if(!h) h = actionParamDef.datatype;
         m.handler = "ruleaction:handler:"+h;

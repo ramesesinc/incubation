@@ -14,7 +14,6 @@ import com.rameses.util.ExceptionManager;
 import java.rmi.server.UID;
 import java.util.HashMap;
 import java.util.Map;
-import org.apache.commons.lang.exception.ExceptionUtils;
 
 /**
  *
@@ -24,6 +23,7 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 public class RemoteScriptRunnable extends ScriptRunnable implements MessageHandler {
     
     private String hostName;
+    private String tokenid;
     
     public RemoteScriptRunnable(MainContext ctx) {
         super(ctx);
@@ -43,7 +43,7 @@ public class RemoteScriptRunnable extends ScriptRunnable implements MessageHandl
         return true;
     }
 
-    
+    /*
     public Object getCacheData( String key ) throws Exception {
         CacheConnection cache = (CacheConnection)context.getResource(XConnection.class, "remote-script-data-cache");
         if(cache==null) {
@@ -54,11 +54,15 @@ public class RemoteScriptRunnable extends ScriptRunnable implements MessageHandl
         cache.remove(key);
         return obj;
     }
+    */
     
     //listener on close will resume the process in the web
     @Override
     public void run() {
         try {
+            //assign the token before hand
+            tokenid = "TOKEN"+new UID();
+
             if( getMethodName().matches("stringInterface|metaInfo")) {
                 CacheConnection cache = (CacheConnection)context.getResource(XConnection.class, "remote-script-cache");
                 if(cache==null) {
@@ -76,7 +80,7 @@ public class RemoteScriptRunnable extends ScriptRunnable implements MessageHandl
                 return;
             }
             else {
-                String tokenid = "TOKEN"+new UID();
+                
                 MessageConnection xconn = (MessageConnection)context.getResource(XConnection.class, "remote-script-mq");
                 if(xconn==null) {
                     throw new Exception("remote-script-mq not properly defined in connections" );
@@ -105,8 +109,8 @@ public class RemoteScriptRunnable extends ScriptRunnable implements MessageHandl
 
     public void onMessage(Object data) {
         try {
-            String key = data.toString();
-            result = getCacheData(key);
+            Base64Cipher encoder = new Base64Cipher();
+            result = encoder.decode(data.toString());
             if( result instanceof Exception ) {
                 throw ExceptionManager.getOriginal((Exception)result);
             }
@@ -114,7 +118,7 @@ public class RemoteScriptRunnable extends ScriptRunnable implements MessageHandl
             if(xconn==null) {
                 throw new Exception("remote-script-mq not properly defined in connections" );
             } 
-            xconn.removeQueue(key);
+            xconn.removeQueue(tokenid);
         }
         catch(Exception ex) {
             err = ex;
@@ -123,5 +127,22 @@ public class RemoteScriptRunnable extends ScriptRunnable implements MessageHandl
             listener.onClose();
         }
     }
+
+    @Override
+    public void cancel() {
+        //remove the token
+        try {
+            MessageConnection xconn = (MessageConnection)context.getResource(XConnection.class, "remote-script-mq");
+            if(xconn==null) {
+                throw new Exception("remote-script-mq not properly defined in connections" );
+            } 
+            xconn.removeQueue(tokenid);
+        }
+        catch(Exception ign) {
+            System.out.println("Error in RemoteScriptRunnable.cancel." + ign.getMessage());
+        }
+        super.cancel();
+    }
+    
     
 }

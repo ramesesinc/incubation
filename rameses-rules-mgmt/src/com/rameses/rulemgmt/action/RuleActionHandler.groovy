@@ -10,6 +10,7 @@ public class RuleActionHandler  {
     @Binding
     def binding;
 
+    def rule;
     def action;
     def actionParam;
     def actionParamDef;
