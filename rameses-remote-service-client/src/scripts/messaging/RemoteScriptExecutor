@@ -1,12 +1,13 @@
 import com.rameses.annotations.*;
+import com.rameses.util.*;
 
 /*********************************************************************************
 * This handles the remote script caching 
 *********************************************************************************/
 class RemoteScriptExecutor {
 
-    @Service(value='RemoteScriptResponseService', connection="remote-script-service") 
-    def remoteResponseSvc; 
+    @XConnection('remote-script-mq') 
+    def mqconn;
 
     @Service(dynamic=true)
     def dynSvc;
@@ -25,15 +26,11 @@ class RemoteScriptExecutor {
             catch(e) {
                 r = e;
             }
-            def resp = [
-                key : req.key,
-                exchange: req.exchange,
-                tokenid: req.tokenid,
-                data: r
-            ];
-            remoteResponseSvc.postResponse( resp );
+
+            def encdata = new Base64Cipher().encode( r ); 
+            mqconn.send( encdata, req.tokenid ); 
         }
-        else {
+        else { 
             clientSvc.notifyStatus( req );
         }
     } 
