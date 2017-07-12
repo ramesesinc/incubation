@@ -17,7 +17,10 @@ def actpath = "templates/html/action_param_";
         <h2>Conditions</h2>
         <%rule.conditions.eachWithIndex { cond,i->%>
             <div class="block">
-                <b>${ (!cond.varname) ? '' : cond.varname + ': ' }</b>
+                <%if(cond.notexist == 1) {%>not exist <%}%>
+                <%if(cond.notexist != 1) {%>
+                    <b>${ (!cond.varname) ? '' : cond.varname + ': ' }</b>
+                <%}%>
                 <u>${cond.fact.title}</u>
 
                 <%if(editable==true && rule.state!='DEPLOYED') {%>
