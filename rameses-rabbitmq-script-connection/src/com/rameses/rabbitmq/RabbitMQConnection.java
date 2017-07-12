@@ -190,12 +190,12 @@ public class RabbitMQConnection extends MessageConnection {
         Channel channel = null; 
         try {
             channel = connection.createChannel();
-            try { 
+            try {                 
                 String exchange = getProperty("exchange");
                 if ( exchange == null) { 
                     channel.basicPublish("", queueName, null, bytes); 
-                } else { 
-                    channel.queueDeclare( exchange, true, true, true, null);
+                } else {
+                    channel.queueDeclare( exchange, true, false, true, null);
                     channel.basicPublish( exchange, queueName, null, bytes);
                 } 
             } catch (RuntimeException re) { 
@@ -204,7 +204,8 @@ public class RabbitMQConnection extends MessageConnection {
                 throw new RuntimeException( e.getMessage(), e ); 
             }             
         }
-        catch(Exception ex) {
+        catch(Exception ex) { 
+            ex.printStackTrace();
             throw new RuntimeException("Channel not created! " + queueName);
         }
         finally {
@@ -275,11 +276,13 @@ public class RabbitMQConnection extends MessageConnection {
         String exchange = getProperty("exchange"); 
         Channel channel = connection.createChannel();
         channel.exchangeDeclare(exchange, "direct", true );
-        channel.queueDeclare(tokenid, false, false, true, new HashMap());
+        
+        Map args = new HashMap();
+        args.put("x-expires", 60000); 
+        channel.queueDeclare(tokenid, false, false, false, args);
         channel.queueBind( tokenid, exchange, tokenid);
         MessageConsumer mc = new MessageConsumer(channel, handler);
         channel.basicConsume( tokenid, true, mc);              
-        
     }
 
     public void send( Object data, String queueName, boolean encoded ) {

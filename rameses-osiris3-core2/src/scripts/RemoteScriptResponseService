@@ -8,15 +8,15 @@ import com.rameses.util.*;
 * This handles the remote script caching 
 * We need this as a script because we want the client to be able to intercept
 *********************************************************************************/
-class RemoteScriptInvokerService {
+class RemoteScriptResponseService {
 
-    @XConnection("remote-script-mq")
-    def remoteMq;
+    //@XConnection("remote-script-mq")
+    //def remoteMq;
 
     @ProxyMethod
     public def postResponse( def resp ) {
-        Base64Cipher encoder = new Base64Cipher();
-        remoteMq.send( encoder.encode(resp.data), resp.tokenid );
+        //Base64Cipher encoder = new Base64Cipher();
+        //remoteMq.send( encoder.encode(resp.data), resp.tokenid );
     }
 
 }
