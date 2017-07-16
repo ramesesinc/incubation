@@ -68,10 +68,12 @@ public class WorkflowTaskModel extends CrudFormModel implements WorkflowTaskList
         def v = super.open();
 	if( tsk ) { 
             task = workflowTaskService.findTask( [processname: getProcessName(), taskid: tsk.taskid ] );
-            buildTransitionActions(task);  
-            buildMessage();
-            if( pageExists(task.state)) {
-                return task.state;
+            if ( task ) {
+                buildTransitionActions(task);  
+                buildMessage();
+                if( pageExists(task.state)) {
+                    return task.state;
+                }
             }
         } 
         return v;
@@ -103,7 +105,8 @@ public class WorkflowTaskModel extends CrudFormModel implements WorkflowTaskList
     }
     
     final void buildTransitionActions( def tsk ) {
-         if( tsk?.state == 'end' ) return;
+         if ( !tsk || tsk.state == 'end' ) return; 
+         
          if( !tsk.assignee?.objid ) {
             def h = {
                 def m = [:];
