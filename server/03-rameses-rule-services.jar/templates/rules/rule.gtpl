@@ -91,7 +91,7 @@ rule "${rule.name}"
 	when
 		<%prn_date(rule)%>
 		<%rule.conditions.each { cond-> %>
-		${ (cond.varname)?cond.varname + ':': '' } ${cond.fact.factclass} (  <%prn_cond(cond)%> )
+		${(cond.notexist==1)?'not (': ((cond.varname)?cond.varname + ':': '') } ${cond.fact.factclass} (  <%prn_cond(cond)%> ) ${(cond.notexist==1?')':'')}
 		<%}%>
 	then
 		Map bindings = new HashMap();

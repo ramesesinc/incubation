@@ -24,6 +24,7 @@
 		<field name="fact_name" required="true"/>
 		<field name="fact_objid" required="true"/>
 		<field name="varname" />
+		<field name="notexist" />
 		<field name="pos" required="true"/>
 		<field name="dynamic_datatype" />
 		<field name="dynamic_key" />

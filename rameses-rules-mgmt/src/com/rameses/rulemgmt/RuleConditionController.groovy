@@ -30,6 +30,7 @@ class RuleConditionController  {
         entity.rulename = rule.name;
         entity.objid = "RCOND" + new UID();
         entity.fact = fact;
+        entity.notexist = 0;
         entity.pos = rule.conditions.size();
         if( fact.defaultvarname ) entity.varname = fact.defaultvarname;
     }
@@ -102,6 +103,7 @@ class RuleConditionController  {
     }
 
     def doOk() {
+        if(entity.notexist==1) entity.varname = "";
         service.saveCondition(entity);
         if(mode=="create") {
             rule.conditions << entity;
