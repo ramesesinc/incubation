@@ -399,13 +399,13 @@ public class CellRenderers {
                 }
             }
             
-            if ( !table.isEnabled() ) {
-                Color c = comp.getBackground();
-                comp.setBackground(ColorUtil.brighter(c, 5));
-                
-                c = comp.getForeground();
-                comp.setForeground(ColorUtil.brighter(c, 5));
-            }
+//            if ( !table.isEnabled() ) {
+//                Color c = comp.getBackground();
+//                comp.setBackground(ColorUtil.brighter(c, 5));
+//                
+//                c = comp.getForeground();
+//                comp.setForeground(ColorUtil.brighter(c, 5));
+//            }
             
             //border support
             TableBorders.CellBorder cellborder = new TableBorders.CellBorder(table, rowIndex, columnIndex); 
@@ -448,12 +448,12 @@ public class CellRenderers {
                         boolean matched = res.evalBoolean(expr, exprBean); 
                         if (!matched) continue;
                         
-                        if (hasFocus) 
+                        if (hasFocus) { 
                             fontSupport.applyStyles(comp, r.getProperties()); 
-                        else 
+                        } else { 
                             ControlSupport.setStyles(r.getProperties(), comp);
-                    } 
-                    catch (Throwable ign){;}
+                        }
+                    } catch (Throwable ign){;}
                 }
             }
         }

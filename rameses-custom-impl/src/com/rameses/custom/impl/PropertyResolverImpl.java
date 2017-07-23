@@ -73,7 +73,7 @@ public class PropertyResolverImpl extends PropertyResolver  {
             
         } catch (InvocationTargetException ite) { 
             if ( ite.getTargetException() != null ) { 
-                System.out.println( ite.getTargetException().getMessage() ); 
+                System.out.println("[PropertyResolverImpl] "+ ite.getTargetException().getMessage() ); 
             }
             if (debug) { ite.printStackTrace(); } 
             
