@@ -50,10 +50,10 @@ public class CrudLookupModel extends CrudListModel implements SimpleLookupDataSo
         
         if ( selector ) selector.select( selobj );
         else if ( onselect ) {
-            def retval = onselect( selobj );
-            if(retval!=null) {
-                binding.fireNavigation( retval );
-            }
+            def retval = onselect( selobj ); 
+            if ( retval instanceof String || retval instanceof Opener ) { 
+                binding.fireNavigation( retval ); 
+            } 
         }
         return "_close"; 
     } 
