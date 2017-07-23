@@ -11,6 +11,7 @@ import java.util.List;
 /**
  *
  * @author dell
+ * IFNULL( expr, value )
  */
 public class IFNULL implements SqlDialectFunction {
     

@@ -4,13 +4,15 @@
  */
 package com.rameses.sql.dialect.functions.mysql;
 
-import com.rameses.sql.dialect.functions.mssql.*;
+
 import com.rameses.osiris3.sql.SqlDialectFunction;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * @author dell
+ * DATE_ADD(  date, 1, datepart )
+ * datepart sample: DAY, MONTH, YEAR
  */
 public class DATE_ADD implements SqlDialectFunction {
     
@@ -29,20 +31,15 @@ public class DATE_ADD implements SqlDialectFunction {
     public String toString() { 
         StringBuilder sb = new StringBuilder(); 
         sb.append("DATE_ADD( ");
-        if ( params.size() == 3 ) {
-            String arg0 = params.get(0); 
-            String arg1 = params.get(1); 
-            String arg2 = params.get(2); 
-            sb.append( arg2 == null? " " : arg2 ).append(", INTERVAL ");
-            sb.append( arg1 == null? " " : arg1 ).append(" ");
-            sb.append( arg0 == null? " " : arg0 );
-        } else {
-            for (int i=0; i<params.size(); i++) {
-                if ( i > 0 ) sb.append(","); 
-                
-                sb.append( params.get(i) ); 
-            }
-        } 
+        if( params.size() != 3 )
+            throw new RuntimeException("There must be 3 parametetrs in DATE_ADD. (date, interval, datepart)");
+        
+        String arg0 = params.get(0); 
+        String arg1 = params.get(1); 
+        String arg2 = params.get(2); 
+        sb.append( arg0 + "," );
+        sb.append( " INTERVAL " + arg1 + " " + arg2 );
+        
         sb.append(")"); 
         return sb.toString();
     }

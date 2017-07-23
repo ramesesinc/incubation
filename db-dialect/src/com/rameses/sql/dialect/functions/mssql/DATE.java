@@ -9,6 +9,7 @@ import com.rameses.osiris3.sql.SqlDialectFunction;
 /**
  *
  * @author Elmo Nazareno
+ * Current Date ex. DATE()
  */
 public class DATE implements SqlDialectFunction {
     

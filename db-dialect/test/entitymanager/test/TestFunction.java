@@ -4,7 +4,7 @@
  */
 package entitymanager.test;
 
-import com.rameses.sql.dialect.functions.mssql.DAY_DIFF;
+import com.rameses.sql.dialect.functions.mysql.DATE_ADD;
 import junit.framework.TestCase;
 
 /**
@@ -14,9 +14,10 @@ public class TestFunction extends TestCase {
 
      // TODO add test methods here. The name must begin with 'test'. For example:
     public void testCreate() throws Exception {
-        DAY_DIFF d = new DAY_DIFF();
-        d.addParam("'2016-01-01'");
+        DATE_ADD d = new DATE_ADD();
         d.addParam("NOW()");
+        d.addParam("-1");
+        d.addParam("DAY");
         System.out.println(d.toString());
     }
 

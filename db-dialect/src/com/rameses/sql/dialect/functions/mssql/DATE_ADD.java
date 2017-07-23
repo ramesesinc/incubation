@@ -10,6 +10,8 @@ import java.util.List;
 
 /**
  * @author dell
+ * DATE_ADD( date, 1, datepart )
+ * datepart sample: DAY, MONTH, YEAR
  */
 public class DATE_ADD implements SqlDialectFunction {
     
@@ -28,20 +30,18 @@ public class DATE_ADD implements SqlDialectFunction {
     public String toString() { 
         StringBuilder sb = new StringBuilder(); 
         sb.append("DATEADD( ");
-        if ( params.size() == 2 ) {
-            String arg0 = params.get(0); 
-            String arg1 = params.get(1); 
-            String[] arr = (arg1==null? "" : arg1).replaceAll("\\s{1,}", " ").trim().split(" ");
-            sb.append( arr.length>2 ? arr[2] : " ").append(",");
-            sb.append( arr.length>1 ? arr[1] : " ").append(",");
-            sb.append( arg0 == null? " " : arg0 ); 
-        } else {
-            for (int i=0; i<params.size(); i++) {
-                if ( i > 0 ) sb.append(","); 
-                
-                sb.append( params.get(i) ); 
-            }
-        } 
+        if( params.size() != 3 )
+            throw new RuntimeException("There must be 3 parametetrs in DATE_ADD. (date, interval, datepart)");
+        
+        String arg0 = params.get(0);    //datepart
+        String arg1 = params.get(1);    //interval
+        String arg2 = params.get(2);    //datepart
+        
+        sb.append( arg2 + ",");
+        sb.append( arg1 + ",");
+        sb.append( arg0 );
+            
+        
         sb.append(")"); 
         return sb.toString();
     }

@@ -11,6 +11,7 @@ import java.util.List;
 /**
  *
  * @author dell
+ * IIF( expr, true value, false value )
  */
 public class IIF implements SqlDialectFunction {
     

@@ -12,6 +12,7 @@ import java.util.List;
 /**
  * @author dell
  * from date to date.
+ * DAY_DIFF( startdate, enddate )
  */
 public class DAY_DIFF implements SqlDialectFunction {
     

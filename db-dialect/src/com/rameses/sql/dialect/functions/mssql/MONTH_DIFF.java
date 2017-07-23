@@ -11,6 +11,7 @@ import java.util.List;
 
 /**
  * @author dell
+ * MONTH_DIFF( startdate, enddate )
  */
 public class MONTH_DIFF implements SqlDialectFunction {
     

@@ -316,13 +316,18 @@ public abstract class AbstractCrudModel  {
     }
     
     def showMenu() {
+        def op = showDropdownMenu("menuActions");
+        op.add( new com.rameses.seti2.models.PopupAction(caption:'Close', name:'_close', obj:this, binding:binding) );
+        return op;
+    }
+    
+    def showDropdownMenu(String tag) {
         def op = new PopupMenuOpener();
         //op.add( new ListAction(caption:'New', name:'create', obj:this, binding: binding) );
         try {
-            op.addAll( Inv.lookupOpeners(schemaName+":" + getFormType() + ":menuActions", [entity:entityContext]) );
+            op.addAll( Inv.lookupOpeners(schemaName+":" + getFormType() + ":" + tag, [entity:entityContext]) );
         } catch(Throwable ign){;}
         
-        op.add( new com.rameses.seti2.models.PopupAction(caption:'Close', name:'_close', obj:this, binding:binding) );
         return op;
     }
     
