@@ -451,6 +451,7 @@ public class CellRenderers {
                         if (hasFocus) { 
                             fontSupport.applyStyles(comp, r.getProperties()); 
                         } else { 
+                            r.getProperties().remove("enabled");
                             ControlSupport.setStyles(r.getProperties(), comp);
                         }
                     } catch (Throwable ign){;}
