@@ -13,5 +13,5 @@ import com.rameses.rcp.common.SigIdModel;
 public interface SigIdDevice {
 
     public void open(); 
-    
+
 }

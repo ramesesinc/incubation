@@ -30,7 +30,7 @@ class STU430Device implements SigIdDevice {
         this.width = model.getWidth();
         this.height = model.getHeight();
     }
-    
+        
     public void open() {        
         SigCtl sigCtl = new SigCtl(); 
         DynamicCapture dc = new DynamicCapture();

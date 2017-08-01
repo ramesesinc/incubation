@@ -28,4 +28,11 @@ public class TopazDeviceProvider implements SigIdDeviceProvider {
         return new TopazDevice( model ); 
     } 
     
+    public boolean test() { 
+        try { 
+            return true; 
+        } catch(Throwable t) {
+            return false; 
+        }
+    }
 }

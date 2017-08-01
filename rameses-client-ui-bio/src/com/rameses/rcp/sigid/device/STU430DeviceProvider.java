@@ -4,6 +4,7 @@
  */
 package com.rameses.rcp.sigid.device;
 
+import com.florentis.signature.SigCtl;
 import com.rameses.rcp.common.SigIdModel;
 import com.rameses.rcp.sigid.SigIdDevice;
 import com.rameses.rcp.sigid.SigIdDeviceProvider;
@@ -28,4 +29,12 @@ public class STU430DeviceProvider implements SigIdDeviceProvider {
         return new STU430Device( model ); 
     } 
     
+    public boolean test() { 
+        try { 
+            new SigCtl(); 
+            return true; 
+        } catch(Throwable t) {
+            return false; 
+        }
+    }
 }
