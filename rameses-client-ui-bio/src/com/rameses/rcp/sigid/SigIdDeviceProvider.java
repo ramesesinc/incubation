@@ -16,4 +16,6 @@ public interface SigIdDeviceProvider {
     public String getDescription();
     
     public SigIdDevice create( SigIdModel model ); 
+    
+    public boolean test();
 }
