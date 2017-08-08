@@ -2,6 +2,7 @@
 package com.rameses.osiris2.reports;
 
 import com.rameses.common.PropertyResolver;
+import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -61,16 +62,24 @@ public class ReportDataSource implements JRRewindableDataSource {
         }
     }
     
+    //added in getFieldValue. If value is byte[] then we need to convert this to InputStream.
+    //This is very common in images.
     public Object getFieldValue(JRField jRField) throws JRException {
         Object field = null;
         String fieldName = null;
         try {
             fieldName = jRField.getName();
             field = propertyResolver.getProperty(currentObject, fieldName);
-            
-            if( jRField.getValueClass().isAssignableFrom( Collection.class) ) {
+            if(field==null) {
+                return null;
+            }
+            if( field.getClass() == byte[].class ) {
+                return field;
+            }
+            else if( jRField.getValueClass().isAssignableFrom( Collection.class) ) {
                 return new ReportDataSource( field );
-            } else { 
+            } 
+            else { 
                 return field;
             }
         } catch(Exception ex) {

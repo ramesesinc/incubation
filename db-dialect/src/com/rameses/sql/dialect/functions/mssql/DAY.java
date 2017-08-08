@@ -12,13 +12,13 @@ import java.util.List;
  * @author dell
  * DAY_DIFF( startdate, enddate )
  */
-public class DAY_DIFF implements SqlDialectFunction {
+public class DAY implements SqlDialectFunction {
     
     protected List<String> params = new ArrayList(); 
 
     @Override
     public String getName() {
-        return "DAY_DIFF";
+        return "DAY";
     }
 
     @Override
@@ -27,13 +27,11 @@ public class DAY_DIFF implements SqlDialectFunction {
     }
 
     public String toString() { 
-        if(params.size() != 2) 
-            throw new RuntimeException("DAY_DIFF error. There must be two parameters passed, startdate, enddate");
+        if(params.size() > 1) 
+            throw new RuntimeException("DAY error. There must be only 1 parameter passed - date");
         StringBuilder sb = new StringBuilder(); 
-        sb.append("DATEDIFF ( d, ");
+        sb.append("DATEPART( DAY, ");
         sb.append( params.get(0)); 
-        sb.append(",");
-        sb.append( params.get(1)); 
         sb.append(")"); 
         return sb.toString();
     }

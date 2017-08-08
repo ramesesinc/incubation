@@ -122,6 +122,9 @@ public abstract class AbstractCrudModel  {
     
     //this is used for getting the actions
     public String getFormName() {
+        if( workunit.info.workunit_properties.formName ) {
+            return workunit.info.workunit_properties.formName;
+        }
         return schemaName+":"+ getFormType();
     }
         

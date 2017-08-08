@@ -474,13 +474,18 @@ public class CrudListModel extends AbstractCrudModel {
     private _nodeList;
     private def _selectedNode;
     
+    //overridable source
+    public def fetchNodeList(def m) {
+        return queryService.getNodeList(m);
+    }
+    
     def getNodeList() {
         if(!_nodeList) {
             def m = [:];
             m._schemaname = schema.name;
             m.adapter = schema.adapter;   
             beforeFetchNodes( m );
-            _nodeList = queryService.getNodeList( m );
+            _nodeList = fetchNodeList( m );
         }
         return _nodeList;
     }
