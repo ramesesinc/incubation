@@ -10,6 +10,8 @@
 package com.rameses.rcp.control;
 
 import com.rameses.beaninfo.ComponentBeanInfo;
+import com.rameses.beaninfo.editor.SwingConstantsHTextPosition;
+import com.rameses.beaninfo.editor.SwingConstantsVTextPosition;
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
 
@@ -42,6 +44,9 @@ public class XButtonBeanInfo extends ComponentBeanInfo.Support
             new PropertyDescriptor("borderPainted", getBeanClass(), "isBorderPainted", "setBorderPainted"),
             new PropertyDescriptor("contentAreaFilled", getBeanClass(), "isContentAreaFilled", "setContentAreaFilled"),
             
+            installEditor(new PropertyDescriptor("horizontalTextPosition", getBeanClass()), SwingConstantsHTextPosition.class), 
+            installEditor(new PropertyDescriptor("verticalTextPosition", getBeanClass()), SwingConstantsVTextPosition.class), 
+            
             new PropertyDescriptor("caption", getBeanClass()),
             new PropertyDescriptor("captionFont", getBeanClass()),
             new PropertyDescriptor("captionFontStyle", getBeanClass()),
@@ -60,7 +65,7 @@ public class XButtonBeanInfo extends ComponentBeanInfo.Support
             new PropertyDescriptor("params", getBeanClass()), 
             new PropertyDescriptor("stretchWidth", getBeanClass()),
             new PropertyDescriptor("stretchHeight", getBeanClass()),
-            new PropertyDescriptor("visibleWhen", getBeanClass())            
+            new PropertyDescriptor("visibleWhen", getBeanClass()) 
         };        
     }
 }
