@@ -12,8 +12,8 @@ public class ReportColumn {
     
     private String name;
     private String caption;
-    private Class fieldType = String.class;
     private int width = 100;
+    private Class fieldType = String.class;
 
     public String getName() {
         return name;

@@ -1,12 +1,13 @@
 package com.rameses.osiris2.report;
  
-import com.rameses.rcp.common.*;
-import com.rameses.rcp.annotations.*;
-import com.rameses.osiris2.client.*;
-import com.rameses.osiris2.common.*;
 import com.rameses.common.*;
+import com.rameses.rcp.annotations.*;
+import com.rameses.rcp.common.*;
+import com.rameses.osiris2.common.*;
+import com.rameses.osiris2.client.*;
 import net.sf.jasperreports.engine.*;
 import com.rameses.osiris2.reports.ReportDataSource;
+import com.rameses.osiris2.reports.BasicReportModel
         
 public class DynamicReportFormModel {
     
@@ -15,14 +16,22 @@ public class DynamicReportFormModel {
     
     def reportModel;
     def reportData;
-    def report;
     
-    public JasperPrint getReport() {
-        title = reportModel.title;
-        if ( report == null ) {
-            buildReport();
-        }
-        return report;
+    def mainReport;
+    def reportHandler = [
+        getReportData: { return reportData; }, 
+        getMainReport: { return mainReport; },
+        isAllowSave: { return true; }, 
+        isAllowEdit: { return false; } 
+    ] as BasicReportModel;
+    
+    public def getReport() {
+        title = reportModel.title; 
+        if ( mainReport == null ) { 
+            buildReport(); 
+        } 
+        reportHandler.viewReport(); 
+        return reportHandler; 
     }
     
     public def preview() {
@@ -36,14 +45,11 @@ public class DynamicReportFormModel {
             reportModel.columns.each { o->
                 tbl.addColumn(o.caption, o.name, o.datatypeClass, 100 );
             }
-            JasperReport jr = SimpleTableReportBuilder.buildReport( tbl );
-            ReportDataSource ds = new ReportDataSource( reportData );
-            report = JasperFillManager.fillReport( jr, new HashMap(), ds );
-        } catch(Exception e) {
-            throw new RuntimeException(e);
-        }
+            mainReport = SimpleTableReportBuilder.buildReport( tbl );
+        } catch(RuntimeException re) {
+            throw re; 
+        } catch(Throwable e) { 
+            throw new RuntimeException(e.getMessage(), e); 
+        } 
     }
-    
-    
-        
-}
+}     

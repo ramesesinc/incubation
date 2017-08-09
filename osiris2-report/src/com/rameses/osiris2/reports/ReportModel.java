@@ -99,12 +99,20 @@ public abstract class ReportModel {
     private JReportInfo reportInfo;
     private JasperReport mainReport;
     
-    protected JasperReport loadMainReport() {
+    public JasperReport getMainReport() {
+        return null; 
+    }
+    
+    protected JasperReport loadMainReport() { 
         if (ReportUtil.isDeveloperMode()) { 
             mainReport = null; 
             updateWorkspaceDir(); 
         } 
-        if (mainReport == null || isDynamic()) { 
+        
+        JasperReport jrpt = getMainReport(); 
+        if ( jrpt != null ) { 
+            mainReport = jrpt;  
+        } else if (mainReport == null || isDynamic()) { 
             mainReport = ReportUtil.getJasperReport( getReportName() );
         } 
         return mainReport; 
@@ -158,7 +166,7 @@ public abstract class ReportModel {
         
         String reportPath = "";
         String rptName = getReportName();
-        if ( rptName.indexOf("/") > 0 ) { 
+        if ( rptName != null && rptName.indexOf("/") > 0 ) { 
             reportPath = rptName.substring(0, rptName.lastIndexOf("/"));
         } 
         conf.put(JRParameter.REPORT_CLASS_LOADER, new CustomReportClassLoader(reportPath));
@@ -365,7 +373,7 @@ public abstract class ReportModel {
             } catch (JRException ex) {
                 ex.printStackTrace(); 
                 throw new IllegalStateException(ex.getMessage(), ex); 
-            }
+            } 
         }
     }
     
