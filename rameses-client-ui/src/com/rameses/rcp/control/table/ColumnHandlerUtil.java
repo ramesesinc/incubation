@@ -9,6 +9,7 @@
 
 package com.rameses.rcp.control.table;
 
+import com.rameses.rcp.common.ButtonColumnHandler;
 import com.rameses.rcp.common.CheckBoxColumnHandler;
 import com.rameses.rcp.common.Column;
 import com.rameses.rcp.common.ComboBoxColumnHandler;
@@ -116,7 +117,13 @@ class ColumnHandlerUtil
             oColumn.setEditable(false);
             oColumn.setEditableWhen(null); 
             return oHandler;
-        }        
+        }   
+        else if ("button".equals(stype)) {
+            ButtonColumnHandler oHandler = new ButtonColumnHandler();
+            oColumn.setEditable(false);
+            oColumn.setEditableWhen(null); 
+            return oHandler;
+        }   
         else {
             TextColumnHandler oHandler = new TextColumnHandler(); 
             return oHandler; 
