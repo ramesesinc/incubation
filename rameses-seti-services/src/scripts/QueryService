@@ -47,7 +47,11 @@ class QueryService {
 		if( o.groupBy ) {
 			em.groupBy(o.groupBy);
 		}
-
+                if( o.vars ) {
+                    o.vars.each {k,v->
+                        em.vars(k,v);
+                    }
+                }
 		//additional customizations for the query.
 		if( o._queryHandler ) {
 			o._queryHandler( em );

@@ -484,4 +484,10 @@ public final class EntityManagerProcessor {
         }
     }
     */ 
+    
+    public String buildStatement(EntityManagerModel model) throws Exception {
+        SqlDialectModel sqlModel = SqlDialectModelBuilder.buildSelectSqlModel(model);
+        return buildStatement(sqlModel);
+    }
+    
 }

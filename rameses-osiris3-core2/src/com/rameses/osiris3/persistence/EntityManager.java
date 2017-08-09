@@ -721,4 +721,8 @@ public class EntityManager {
         getModel().setPagingKeys( pagingKeys ); 
         return this; 
     }
+    
+    public String getStatement() throws Exception {
+        return processor.buildStatement(getModel());
+    }
 }

@@ -268,6 +268,58 @@ public class CrudListModel extends AbstractCrudModel {
         } 
     }
 
+    //These are overridable methods
+    public def getColumnList() {
+        if( schema == null )
+            throw new Exception("schema is null. Please call init method")
+        def zcols = [];
+        //always add the primary keys
+        String matcher = ".*";
+        if(strCols) matcher = strCols.replace(",","|");
+        def selCols = cols.findAll{it.selected == true &&  it.name.matches(matcher)};
+        int maxSz = selCols.size();
+        for( c in selCols ) {
+            def cc = [:];
+            cc.putAll( c );
+            if(c.datatype) {
+                cc.type = c.datatype;
+            }
+            cc.colindex = maxSz;
+
+            def num = convertNumber( cc.width ); 
+            if ( num != null ) cc.width = num.intValue();
+
+            num = convertNumber( cc.minWidth ); 
+            if ( num != null ) cc.minWidth = num.intValue();
+
+            num = convertNumber( cc.maxWidth ); 
+            if ( num != null ) cc.maxWidth = num.intValue();
+
+            initColumn( cc );
+            zcols << cc;
+        }
+        //sort the columns based on the order in strCols
+        int i = 0;
+        if( strCols ) {
+            def arr = strCols.split(",");
+            for( ss in arr ) {
+                def g = zcols.find{ it.name == ss.trim() }
+                if( g ) g.colindex = (i++);
+            }
+        }
+        zcols = zcols.sort{ it.colindex };
+        //zcols << [caption:''];
+        return zcols;    
+    }
+    
+    public def fetchList(def o ) {
+        if( schema == null )
+            throw new Exception("schema is null. Please call invoke method")
+        if(!_inited_) throw new Exception("This workunit is not inited. Please call init action");
+        def m = buildSelectQuery(o);
+        return getQueryService().getList( m );     
+    }
+    
     final def _self = this; 
     def listHandler = [ 
         isAutoResize  : {
@@ -280,60 +332,18 @@ public class CrudListModel extends AbstractCrudModel {
             return getRows();
         },
         getColumnList: {
-            if( schema == null )
-                throw new Exception("schema is null. Please call init method")
-            def zcols = [];
-            //always add the primary keys
-            String matcher = ".*";
-            if(strCols) matcher = strCols.replace(",","|");
-            def selCols = cols.findAll{it.selected == true &&  it.name.matches(matcher)};
-            int maxSz = selCols.size();
-            for( c in selCols ) {
-                def cc = [:];
-                cc.putAll( c );
-                if(c.datatype) {
-                    cc.type = c.datatype;
-                }
-                cc.colindex = maxSz;
-
-                def num = convertNumber( cc.width ); 
-                if ( num != null ) cc.width = num.intValue();
-                
-                num = convertNumber( cc.minWidth ); 
-                if ( num != null ) cc.minWidth = num.intValue();
- 
-                num = convertNumber( cc.maxWidth ); 
-                if ( num != null ) cc.maxWidth = num.intValue();
-
-                initColumn( cc );
-                zcols << cc;
-            }
-            //sort the columns based on the order in strCols
-            int i = 0;
-            if( strCols ) {
-                def arr = strCols.split(",");
-                for( ss in arr ) {
-                    def g = zcols.find{ it.name == ss.trim() }
-                    if( g ) g.colindex = (i++);
-                }
-            }
-            zcols = zcols.sort{ it.colindex };
-            //zcols << [caption:''];
-            return zcols;
+            return getColumnList();
         },
         fetchList: { o->
-            if( schema == null )
-                throw new Exception("schema is null. Please call invoke method")
-            if(!_inited_) throw new Exception("This workunit is not inited. Please call init action");
-            def m = buildSelectQuery(o);
-            return getQueryService().getList( m );
+            return fetchList(o);
         },
         onOpenItem: { o, colName -> 
-            if ( isOpenAllowed() ) { 
-                return open(); 
-            } else {
-                return null;  
-            } 
+            try {
+                return open();  
+            }
+            catch(e) {
+                return null;
+            }
         }
     ] as PageListModel;
    
@@ -409,6 +419,8 @@ public class CrudListModel extends AbstractCrudModel {
     }
     
     def open() {
+        if ( !isOpenAllowed() )
+            throw new Exception("Open not allowed");
         if( !selectedItem ) 
             throw new Exception("Please select an item");
         def d = null;
