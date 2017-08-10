@@ -1,0 +1,9 @@
+<workunit extends="com/rameses/seti2/templates/CrudList.xml">
+    
+    <code class="com.rameses.seti2.models.CrudTreeListModel"/>    
+    
+    <pages>
+        <page template="com.rameses.osiris2.themes.TreeListPage"/>
+    </pages>
+    
+</workunit> 
