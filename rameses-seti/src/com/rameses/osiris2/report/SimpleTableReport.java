@@ -11,8 +11,9 @@ public class SimpleTableReport {
     
     private String name;
     private String title;
-    private List<ReportColumn> columns = new ArrayList();
     private int maxWidth;
+
+    private List<ReportColumn> columns = new ArrayList();
     
     public List<ReportColumn> getColumns() {
         return columns;
@@ -60,4 +61,15 @@ public class SimpleTableReport {
         return this.maxWidth;
     }
     
+    public final ReportColumn findColumn( String name ) { 
+        if ( name == null ) return null; 
+        
+        for (int i=0; i<columns.size(); i++) { 
+            ReportColumn rc = columns.get(i); 
+            if ( name.equals(rc.getName()) ) { 
+                return rc; 
+            } 
+        } 
+        return null; 
+    } 
 }
