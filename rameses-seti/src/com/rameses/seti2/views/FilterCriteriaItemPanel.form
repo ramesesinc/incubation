@@ -18,39 +18,10 @@
     <AuxValue name="FormSettings_listenerGenerationStyle" type="java.lang.Integer" value="0"/>
     <AuxValue name="FormSettings_variablesLocal" type="java.lang.Boolean" value="false"/>
     <AuxValue name="FormSettings_variablesModifier" type="java.lang.Integer" value="2"/>
+    <AuxValue name="designerSize" type="java.awt.Dimension" value="-84,-19,0,5,115,114,0,18,106,97,118,97,46,97,119,116,46,68,105,109,101,110,115,105,111,110,65,-114,-39,-41,-84,95,68,20,2,0,2,73,0,6,104,101,105,103,104,116,73,0,5,119,105,100,116,104,120,112,0,0,0,30,0,0,2,-67"/>
   </AuxValues>
 
-  <Layout>
-    <DimensionLayout dim="0">
-      <Group type="103" groupAlignment="0" attributes="0">
-          <Group type="102" alignment="1" attributes="0">
-              <Component id="xComboBox2" min="-2" pref="178" max="-2" attributes="0"/>
-              <EmptySpace max="-2" attributes="0"/>
-              <Component id="xComboBox1" min="-2" pref="150" max="-2" attributes="0"/>
-              <EmptySpace max="-2" attributes="0"/>
-              <Component id="xPanel3" min="-2" pref="214" max="-2" attributes="0"/>
-              <EmptySpace max="-2" attributes="0"/>
-              <Component id="xButton1" min="-2" pref="25" max="-2" attributes="0"/>
-              <EmptySpace max="-2" attributes="0"/>
-              <Component id="xButton2" min="-2" pref="25" max="-2" attributes="0"/>
-              <EmptySpace pref="27" max="32767" attributes="0"/>
-          </Group>
-      </Group>
-    </DimensionLayout>
-    <DimensionLayout dim="1">
-      <Group type="103" groupAlignment="0" attributes="0">
-          <Group type="103" groupAlignment="3" attributes="0">
-              <Component id="xComboBox2" alignment="3" min="-2" max="-2" attributes="0"/>
-              <Component id="xComboBox1" alignment="3" min="-2" max="-2" attributes="0"/>
-          </Group>
-          <Group type="103" alignment="0" groupAlignment="3" attributes="0">
-              <Component id="xButton1" alignment="3" min="-2" max="-2" attributes="0"/>
-              <Component id="xButton2" alignment="3" min="-2" max="-2" attributes="0"/>
-          </Group>
-          <Component id="xPanel3" min="-2" pref="34" max="-2" attributes="0"/>
-      </Group>
-    </DimensionLayout>
-  </Layout>
+  <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout"/>
   <SubComponents>
     <Component class="com.rameses.rcp.control.XComboBox" name="xComboBox2">
       <Properties>
@@ -59,19 +30,14 @@
         <Property name="name" type="java.lang.String" value="entry.field" noResource="true"/>
         <Property name="showCaption" type="boolean" value="false"/>
       </Properties>
-    </Component>
-    <Component class="com.rameses.rcp.control.XButton" name="xButton1">
-      <Properties>
-        <Property name="iconResource" type="java.lang.String" value="images/toolbars/trash.png"/>
-        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
-          <Insets value="[2, 2, 2, 2]"/>
-        </Property>
-        <Property name="name" type="java.lang.String" value="removeField" noResource="true"/>
-        <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-          <Dimension value="[25, 22]"/>
-        </Property>
-        <Property name="visibleWhen" type="java.lang.String" value="#{entry.index != 1 }"/>
-      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="xComboBox2ActionPerformed"/>
+      </Events>
+      <Constraints>
+        <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
+          <BorderConstraints direction="West"/>
+        </Constraint>
+      </Constraints>
     </Component>
     <Container class="com.rameses.rcp.control.XPanel" name="xPanel3">
       <Properties>
@@ -89,7 +55,13 @@
         <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
           <Dimension value="[214, 30]"/>
         </Property>
+        <Property name="visibleWhen" type="java.lang.String" value="#{datatype != null}"/>
       </Properties>
+      <Constraints>
+        <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
+          <BorderConstraints direction="Center"/>
+        </Constraint>
+      </Constraints>
 
       <Layout class="org.netbeans.modules.form.compat2.layouts.DesignCardLayout"/>
       <SubComponents>
@@ -102,34 +74,16 @@
               <CardConstraints cardName="date"/>
             </Constraint>
           </Constraints>
-
-          <Layout>
-            <DimensionLayout dim="0">
-              <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" alignment="0" attributes="0">
-                      <Component id="xDateField1" min="-2" pref="85" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="xLabel1" min="-2" pref="27" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="xDateField3" min="-2" pref="85" max="-2" attributes="0"/>
-                      <EmptySpace max="32767" attributes="0"/>
-                  </Group>
-              </Group>
-            </DimensionLayout>
-            <DimensionLayout dim="1">
-              <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" alignment="0" attributes="0">
-                      <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="xDateField1" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="xDateField3" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="xLabel1" alignment="3" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                      <EmptySpace min="0" pref="9" max="32767" attributes="0"/>
-                  </Group>
-              </Group>
-            </DimensionLayout>
-          </Layout>
           <SubComponents>
+            <Component class="com.rameses.rcp.control.XComboBox" name="xComboBox3">
+              <Properties>
+                <Property name="allowNull" type="boolean" value="false"/>
+                <Property name="expression" type="java.lang.String" value="#{item.caption}"/>
+                <Property name="immediate" type="boolean" value="true"/>
+                <Property name="items" type="java.lang.String" value="dateOperatorList"/>
+                <Property name="name" type="java.lang.String" value="entry.dateoperator" noResource="true"/>
+              </Properties>
+            </Component>
             <Component class="com.rameses.rcp.control.XDateField" name="xDateField1">
               <Properties>
                 <Property name="name" type="java.lang.String" value="entry.value" noResource="true"/>
@@ -139,25 +93,113 @@
               <Properties>
                 <Property name="depends" type="[Ljava.lang.String;" editor="org.netbeans.beaninfo.editors.StringArrayEditor">
                   <StringArray count="1">
-                    <StringItem index="0" value="entry.operator"/>
+                    <StringItem index="0" value="entry.dateoperator"/>
                   </StringArray>
                 </Property>
                 <Property name="text" type="java.lang.String" value="to"/>
-                <Property name="visibleWhen" type="java.lang.String" value="#{entry?.operator?.key == &apos;BETWEEN&apos; }"/>
+                <Property name="visibleWhen" type="java.lang.String" value="#{entry?.dateoperator?.key == &apos;BETWEEN&apos; }"/>
               </Properties>
             </Component>
             <Component class="com.rameses.rcp.control.XDateField" name="xDateField3">
               <Properties>
                 <Property name="depends" type="[Ljava.lang.String;" editor="org.netbeans.beaninfo.editors.StringArrayEditor">
                   <StringArray count="1">
-                    <StringItem index="0" value="entry.operator"/>
+                    <StringItem index="0" value="entry.dateoperator"/>
                   </StringArray>
                 </Property>
                 <Property name="name" type="java.lang.String" value="entry.value2" noResource="true"/>
-                <Property name="visibleWhen" type="java.lang.String" value="#{entry?.operator?.key == &apos;BETWEEN&apos; }"/>
+                <Property name="visibleWhen" type="java.lang.String" value="#{entry?.dateoperator?.key == &apos;BETWEEN&apos; }"/>
               </Properties>
             </Component>
           </SubComponents>
+          <LayoutCode>
+            <CodeStatement>
+              <CodeExpression id="1_datePanel">
+                <CodeVariable name="datePanel" type="8194" declaredType="javax.swing.JPanel"/>
+                <ExpressionOrigin>
+                  <ExpressionProvider type="ComponentRef">
+                    <ComponentRef name="datePanel"/>
+                  </ExpressionProvider>
+                </ExpressionOrigin>
+              </CodeExpression>
+              <StatementProvider type="CodeMethod">
+                <CodeMethod name="setLayout" class="java.awt.Container" parameterTypes="java.awt.LayoutManager"/>
+              </StatementProvider>
+              <Parameters>
+                <CodeExpression id="2">
+                  <ExpressionOrigin>
+                    <ExpressionProvider type="CodeConstructor">
+                      <CodeConstructor class="com.rameses.rcp.control.layout.XLayout" parameterTypes=""/>
+                    </ExpressionProvider>
+                  </ExpressionOrigin>
+                </CodeExpression>
+              </Parameters>
+            </CodeStatement>
+            <CodeStatement>
+              <CodeExpression id="1_datePanel"/>
+              <StatementProvider type="CodeMethod">
+                <CodeMethod name="add" class="java.awt.Container" parameterTypes="java.awt.Component"/>
+              </StatementProvider>
+              <Parameters>
+                <CodeExpression id="3_xComboBox3">
+                  <CodeVariable name="xComboBox3" type="8194" declaredType="com.rameses.rcp.control.XComboBox"/>
+                  <ExpressionOrigin>
+                    <ExpressionProvider type="ComponentRef">
+                      <ComponentRef name="xComboBox3"/>
+                    </ExpressionProvider>
+                  </ExpressionOrigin>
+                </CodeExpression>
+              </Parameters>
+            </CodeStatement>
+            <CodeStatement>
+              <CodeExpression id="1_datePanel"/>
+              <StatementProvider type="CodeMethod">
+                <CodeMethod name="add" class="java.awt.Container" parameterTypes="java.awt.Component"/>
+              </StatementProvider>
+              <Parameters>
+                <CodeExpression id="4_xDateField1">
+                  <CodeVariable name="xDateField1" type="8194" declaredType="com.rameses.rcp.control.XDateField"/>
+                  <ExpressionOrigin>
+                    <ExpressionProvider type="ComponentRef">
+                      <ComponentRef name="xDateField1"/>
+                    </ExpressionProvider>
+                  </ExpressionOrigin>
+                </CodeExpression>
+              </Parameters>
+            </CodeStatement>
+            <CodeStatement>
+              <CodeExpression id="1_datePanel"/>
+              <StatementProvider type="CodeMethod">
+                <CodeMethod name="add" class="java.awt.Container" parameterTypes="java.awt.Component"/>
+              </StatementProvider>
+              <Parameters>
+                <CodeExpression id="5_xLabel1">
+                  <CodeVariable name="xLabel1" type="8194" declaredType="com.rameses.rcp.control.XLabel"/>
+                  <ExpressionOrigin>
+                    <ExpressionProvider type="ComponentRef">
+                      <ComponentRef name="xLabel1"/>
+                    </ExpressionProvider>
+                  </ExpressionOrigin>
+                </CodeExpression>
+              </Parameters>
+            </CodeStatement>
+            <CodeStatement>
+              <CodeExpression id="1_datePanel"/>
+              <StatementProvider type="CodeMethod">
+                <CodeMethod name="add" class="java.awt.Container" parameterTypes="java.awt.Component"/>
+              </StatementProvider>
+              <Parameters>
+                <CodeExpression id="6_xDateField3">
+                  <CodeVariable name="xDateField3" type="8194" declaredType="com.rameses.rcp.control.XDateField"/>
+                  <ExpressionOrigin>
+                    <ExpressionProvider type="ComponentRef">
+                      <ComponentRef name="xDateField3"/>
+                    </ExpressionProvider>
+                  </ExpressionOrigin>
+                </CodeExpression>
+              </Parameters>
+            </CodeStatement>
+          </LayoutCode>
         </Container>
         <Container class="javax.swing.JPanel" name="booleanPanel">
           <Properties>
@@ -168,19 +210,57 @@
               <CardConstraints cardName="boolean"/>
             </Constraint>
           </Constraints>
-
-          <Layout>
-            <DimensionLayout dim="0">
-              <Group type="103" groupAlignment="0" attributes="0">
-                  <EmptySpace min="0" pref="209" max="32767" attributes="0"/>
-              </Group>
-            </DimensionLayout>
-            <DimensionLayout dim="1">
-              <Group type="103" groupAlignment="0" attributes="0">
-                  <EmptySpace min="0" pref="29" max="32767" attributes="0"/>
-              </Group>
-            </DimensionLayout>
-          </Layout>
+          <SubComponents>
+            <Component class="com.rameses.rcp.control.XComboBox" name="xComboBox4">
+              <Properties>
+                <Property name="allowNull" type="boolean" value="false"/>
+                <Property name="expression" type="java.lang.String" value="#{item.caption}"/>
+                <Property name="immediate" type="boolean" value="true"/>
+                <Property name="items" type="java.lang.String" value="booleanOperatorList"/>
+                <Property name="name" type="java.lang.String" value="entry.booleanoperator" noResource="true"/>
+              </Properties>
+            </Component>
+          </SubComponents>
+          <LayoutCode>
+            <CodeStatement>
+              <CodeExpression id="7_booleanPanel">
+                <CodeVariable name="booleanPanel" type="8194" declaredType="javax.swing.JPanel"/>
+                <ExpressionOrigin>
+                  <ExpressionProvider type="ComponentRef">
+                    <ComponentRef name="booleanPanel"/>
+                  </ExpressionProvider>
+                </ExpressionOrigin>
+              </CodeExpression>
+              <StatementProvider type="CodeMethod">
+                <CodeMethod name="setLayout" class="java.awt.Container" parameterTypes="java.awt.LayoutManager"/>
+              </StatementProvider>
+              <Parameters>
+                <CodeExpression id="8">
+                  <ExpressionOrigin>
+                    <ExpressionProvider type="CodeConstructor">
+                      <CodeConstructor class="com.rameses.rcp.control.layout.XLayout" parameterTypes=""/>
+                    </ExpressionProvider>
+                  </ExpressionOrigin>
+                </CodeExpression>
+              </Parameters>
+            </CodeStatement>
+            <CodeStatement>
+              <CodeExpression id="7_booleanPanel"/>
+              <StatementProvider type="CodeMethod">
+                <CodeMethod name="add" class="java.awt.Container" parameterTypes="java.awt.Component"/>
+              </StatementProvider>
+              <Parameters>
+                <CodeExpression id="9_xComboBox4">
+                  <CodeVariable name="xComboBox4" type="8194" declaredType="com.rameses.rcp.control.XComboBox"/>
+                  <ExpressionOrigin>
+                    <ExpressionProvider type="ComponentRef">
+                      <ComponentRef name="xComboBox4"/>
+                    </ExpressionProvider>
+                  </ExpressionOrigin>
+                </CodeExpression>
+              </Parameters>
+            </CodeStatement>
+          </LayoutCode>
         </Container>
         <Container class="javax.swing.JPanel" name="stringPanel">
           <Constraints>
@@ -188,23 +268,15 @@
               <CardConstraints cardName="string"/>
             </Constraint>
           </Constraints>
-
-          <Layout>
-            <DimensionLayout dim="0">
-              <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="xTextField2" alignment="0" pref="209" max="32767" attributes="0"/>
-              </Group>
-            </DimensionLayout>
-            <DimensionLayout dim="1">
-              <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" alignment="0" attributes="0">
-                      <Component id="xTextField2" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace min="0" pref="9" max="32767" attributes="0"/>
-                  </Group>
-              </Group>
-            </DimensionLayout>
-          </Layout>
           <SubComponents>
+            <Component class="com.rameses.rcp.control.XComboBox" name="xComboBox1">
+              <Properties>
+                <Property name="allowNull" type="boolean" value="false"/>
+                <Property name="expression" type="java.lang.String" value="#{item.caption}"/>
+                <Property name="items" type="java.lang.String" value="stringOperatorList"/>
+                <Property name="name" type="java.lang.String" value="entry.stringoperator" noResource="true"/>
+              </Properties>
+            </Component>
             <Component class="com.rameses.rcp.control.XTextField" name="xTextField2">
               <Properties>
                 <Property name="name" type="java.lang.String" value="entry.value" noResource="true"/>
@@ -214,6 +286,62 @@
               </Properties>
             </Component>
           </SubComponents>
+          <LayoutCode>
+            <CodeStatement>
+              <CodeExpression id="10_stringPanel">
+                <CodeVariable name="stringPanel" type="8194" declaredType="javax.swing.JPanel"/>
+                <ExpressionOrigin>
+                  <ExpressionProvider type="ComponentRef">
+                    <ComponentRef name="stringPanel"/>
+                  </ExpressionProvider>
+                </ExpressionOrigin>
+              </CodeExpression>
+              <StatementProvider type="CodeMethod">
+                <CodeMethod name="setLayout" class="java.awt.Container" parameterTypes="java.awt.LayoutManager"/>
+              </StatementProvider>
+              <Parameters>
+                <CodeExpression id="11">
+                  <ExpressionOrigin>
+                    <ExpressionProvider type="CodeConstructor">
+                      <CodeConstructor class="com.rameses.rcp.control.layout.XLayout" parameterTypes=""/>
+                    </ExpressionProvider>
+                  </ExpressionOrigin>
+                </CodeExpression>
+              </Parameters>
+            </CodeStatement>
+            <CodeStatement>
+              <CodeExpression id="10_stringPanel"/>
+              <StatementProvider type="CodeMethod">
+                <CodeMethod name="add" class="java.awt.Container" parameterTypes="java.awt.Component"/>
+              </StatementProvider>
+              <Parameters>
+                <CodeExpression id="12_xComboBox1">
+                  <CodeVariable name="xComboBox1" type="8194" declaredType="com.rameses.rcp.control.XComboBox"/>
+                  <ExpressionOrigin>
+                    <ExpressionProvider type="ComponentRef">
+                      <ComponentRef name="xComboBox1"/>
+                    </ExpressionProvider>
+                  </ExpressionOrigin>
+                </CodeExpression>
+              </Parameters>
+            </CodeStatement>
+            <CodeStatement>
+              <CodeExpression id="10_stringPanel"/>
+              <StatementProvider type="CodeMethod">
+                <CodeMethod name="add" class="java.awt.Container" parameterTypes="java.awt.Component"/>
+              </StatementProvider>
+              <Parameters>
+                <CodeExpression id="13_xTextField2">
+                  <CodeVariable name="xTextField2" type="8194" declaredType="com.rameses.rcp.control.XTextField"/>
+                  <ExpressionOrigin>
+                    <ExpressionProvider type="ComponentRef">
+                      <ComponentRef name="xTextField2"/>
+                    </ExpressionProvider>
+                  </ExpressionOrigin>
+                </CodeExpression>
+              </Parameters>
+            </CodeStatement>
+          </LayoutCode>
         </Container>
         <Container class="javax.swing.JPanel" name="decimalPanel">
           <Constraints>
@@ -221,43 +349,135 @@
               <CardConstraints cardName="decimal"/>
             </Constraint>
           </Constraints>
-
-          <Layout>
-            <DimensionLayout dim="0">
-              <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" alignment="0" attributes="0">
-                      <Component id="xDecimalField1" min="-2" pref="76" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="xDecimalField2" min="-2" pref="76" max="-2" attributes="0"/>
-                      <EmptySpace min="0" pref="51" max="32767" attributes="0"/>
-                  </Group>
-              </Group>
-            </DimensionLayout>
-            <DimensionLayout dim="1">
-              <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" alignment="0" attributes="0">
-                      <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="xDecimalField1" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="xDecimalField2" alignment="3" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                      <EmptySpace min="0" pref="9" max="32767" attributes="0"/>
-                  </Group>
-              </Group>
-            </DimensionLayout>
-          </Layout>
           <SubComponents>
+            <Component class="com.rameses.rcp.control.XComboBox" name="xComboBox6">
+              <Properties>
+                <Property name="allowNull" type="boolean" value="false"/>
+                <Property name="expression" type="java.lang.String" value="#{item.caption}"/>
+                <Property name="immediate" type="boolean" value="true"/>
+                <Property name="items" type="java.lang.String" value="numberOperatorList"/>
+                <Property name="name" type="java.lang.String" value="entry.decimaloperator" noResource="true"/>
+              </Properties>
+            </Component>
             <Component class="com.rameses.rcp.control.XDecimalField" name="xDecimalField1">
               <Properties>
                 <Property name="name" type="java.lang.String" value="entry.value" noResource="true"/>
               </Properties>
             </Component>
-            <Component class="com.rameses.rcp.control.XDecimalField" name="xDecimalField2">
+            <Component class="com.rameses.rcp.control.XLabel" name="xLabel2">
               <Properties>
-                <Property name="name" type="java.lang.String" value="entry.value2" noResource="true"/>
-                <Property name="visibleWhen" type="java.lang.String" value="#{entry?.operator?.key == &apos;BETWEEN&apos; }"/>
+                <Property name="depends" type="[Ljava.lang.String;" editor="org.netbeans.beaninfo.editors.StringArrayEditor">
+                  <StringArray count="1">
+                    <StringItem index="0" value="entry.decimaloperator"/>
+                  </StringArray>
+                </Property>
+                <Property name="text" type="java.lang.String" value="to"/>
+                <Property name="visibleWhen" type="java.lang.String" value="#{entry?.decimaloperator?.key == &apos;BETWEEN&apos; }"/>
               </Properties>
             </Component>
+            <Component class="com.rameses.rcp.control.XDecimalField" name="xDecimalField2">
+              <Properties>
+                <Property name="depends" type="[Ljava.lang.String;" editor="org.netbeans.beaninfo.editors.StringArrayEditor">
+                  <StringArray count="1">
+                    <StringItem index="0" value="entry.decimaloperator"/>
+                  </StringArray>
+                </Property>
+                <Property name="name" type="java.lang.String" value="entry.value2" noResource="true"/>
+                <Property name="visibleWhen" type="java.lang.String" value="#{entry?.decimaloperator?.key == &apos;BETWEEN&apos; }"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="xDecimalField2ActionPerformed"/>
+              </Events>
+            </Component>
           </SubComponents>
+          <LayoutCode>
+            <CodeStatement>
+              <CodeExpression id="14_decimalPanel">
+                <CodeVariable name="decimalPanel" type="8194" declaredType="javax.swing.JPanel"/>
+                <ExpressionOrigin>
+                  <ExpressionProvider type="ComponentRef">
+                    <ComponentRef name="decimalPanel"/>
+                  </ExpressionProvider>
+                </ExpressionOrigin>
+              </CodeExpression>
+              <StatementProvider type="CodeMethod">
+                <CodeMethod name="setLayout" class="java.awt.Container" parameterTypes="java.awt.LayoutManager"/>
+              </StatementProvider>
+              <Parameters>
+                <CodeExpression id="15">
+                  <ExpressionOrigin>
+                    <ExpressionProvider type="CodeConstructor">
+                      <CodeConstructor class="com.rameses.rcp.control.layout.XLayout" parameterTypes=""/>
+                    </ExpressionProvider>
+                  </ExpressionOrigin>
+                </CodeExpression>
+              </Parameters>
+            </CodeStatement>
+            <CodeStatement>
+              <CodeExpression id="14_decimalPanel"/>
+              <StatementProvider type="CodeMethod">
+                <CodeMethod name="add" class="java.awt.Container" parameterTypes="java.awt.Component"/>
+              </StatementProvider>
+              <Parameters>
+                <CodeExpression id="16_xComboBox6">
+                  <CodeVariable name="xComboBox6" type="8194" declaredType="com.rameses.rcp.control.XComboBox"/>
+                  <ExpressionOrigin>
+                    <ExpressionProvider type="ComponentRef">
+                      <ComponentRef name="xComboBox6"/>
+                    </ExpressionProvider>
+                  </ExpressionOrigin>
+                </CodeExpression>
+              </Parameters>
+            </CodeStatement>
+            <CodeStatement>
+              <CodeExpression id="14_decimalPanel"/>
+              <StatementProvider type="CodeMethod">
+                <CodeMethod name="add" class="java.awt.Container" parameterTypes="java.awt.Component"/>
+              </StatementProvider>
+              <Parameters>
+                <CodeExpression id="17_xDecimalField1">
+                  <CodeVariable name="xDecimalField1" type="8194" declaredType="com.rameses.rcp.control.XDecimalField"/>
+                  <ExpressionOrigin>
+                    <ExpressionProvider type="ComponentRef">
+                      <ComponentRef name="xDecimalField1"/>
+                    </ExpressionProvider>
+                  </ExpressionOrigin>
+                </CodeExpression>
+              </Parameters>
+            </CodeStatement>
+            <CodeStatement>
+              <CodeExpression id="14_decimalPanel"/>
+              <StatementProvider type="CodeMethod">
+                <CodeMethod name="add" class="java.awt.Container" parameterTypes="java.awt.Component"/>
+              </StatementProvider>
+              <Parameters>
+                <CodeExpression id="18_xLabel2">
+                  <CodeVariable name="xLabel2" type="8194" declaredType="com.rameses.rcp.control.XLabel"/>
+                  <ExpressionOrigin>
+                    <ExpressionProvider type="ComponentRef">
+                      <ComponentRef name="xLabel2"/>
+                    </ExpressionProvider>
+                  </ExpressionOrigin>
+                </CodeExpression>
+              </Parameters>
+            </CodeStatement>
+            <CodeStatement>
+              <CodeExpression id="14_decimalPanel"/>
+              <StatementProvider type="CodeMethod">
+                <CodeMethod name="add" class="java.awt.Container" parameterTypes="java.awt.Component"/>
+              </StatementProvider>
+              <Parameters>
+                <CodeExpression id="19_xDecimalField2">
+                  <CodeVariable name="xDecimalField2" type="8194" declaredType="com.rameses.rcp.control.XDecimalField"/>
+                  <ExpressionOrigin>
+                    <ExpressionProvider type="ComponentRef">
+                      <ComponentRef name="xDecimalField2"/>
+                    </ExpressionProvider>
+                  </ExpressionOrigin>
+                </CodeExpression>
+              </Parameters>
+            </CodeStatement>
+          </LayoutCode>
         </Container>
         <Container class="javax.swing.JPanel" name="integerPanel">
           <Constraints>
@@ -265,82 +485,258 @@
               <CardConstraints cardName="integer"/>
             </Constraint>
           </Constraints>
-
-          <Layout>
-            <DimensionLayout dim="0">
-              <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" attributes="0">
-                      <Component id="xIntegerField1" min="-2" pref="86" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="xIntegerField2" min="-2" pref="80" max="-2" attributes="0"/>
-                      <EmptySpace pref="37" max="32767" attributes="0"/>
-                  </Group>
-              </Group>
-            </DimensionLayout>
-            <DimensionLayout dim="1">
-              <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" alignment="0" attributes="0">
-                      <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="xIntegerField1" alignment="3" min="-2" pref="21" max="-2" attributes="0"/>
-                          <Component id="xIntegerField2" alignment="3" max="32767" attributes="0"/>
-                      </Group>
-                      <EmptySpace min="0" pref="8" max="32767" attributes="0"/>
-                  </Group>
-              </Group>
-            </DimensionLayout>
-          </Layout>
           <SubComponents>
+            <Component class="com.rameses.rcp.control.XComboBox" name="xComboBox7">
+              <Properties>
+                <Property name="allowNull" type="boolean" value="false"/>
+                <Property name="expression" type="java.lang.String" value="#{item.caption}"/>
+                <Property name="immediate" type="boolean" value="true"/>
+                <Property name="items" type="java.lang.String" value="numberOperatorList"/>
+                <Property name="name" type="java.lang.String" value="entry.integeroperator" noResource="true"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="xComboBox7ActionPerformed"/>
+              </Events>
+            </Component>
             <Component class="com.rameses.rcp.control.XIntegerField" name="xIntegerField1">
               <Properties>
                 <Property name="name" type="java.lang.String" value="entry.value" noResource="true"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="xIntegerField1ActionPerformed"/>
+              </Events>
+            </Component>
+            <Component class="com.rameses.rcp.control.XLabel" name="xLabel3">
+              <Properties>
+                <Property name="depends" type="[Ljava.lang.String;" editor="org.netbeans.beaninfo.editors.StringArrayEditor">
+                  <StringArray count="1">
+                    <StringItem index="0" value="entry.integeroperator"/>
+                  </StringArray>
+                </Property>
+                <Property name="text" type="java.lang.String" value="to"/>
+                <Property name="visibleWhen" type="java.lang.String" value="#{entry?.integeroperator?.key== &apos;BETWEEN&apos; }"/>
               </Properties>
             </Component>
             <Component class="com.rameses.rcp.control.XIntegerField" name="xIntegerField2">
               <Properties>
                 <Property name="depends" type="[Ljava.lang.String;" editor="org.netbeans.beaninfo.editors.StringArrayEditor">
                   <StringArray count="1">
-                    <StringItem index="0" value="entry.operator"/>
+                    <StringItem index="0" value="entry.integeroperator"/>
                   </StringArray>
                 </Property>
                 <Property name="name" type="java.lang.String" value="entry.value2" noResource="true"/>
-                <Property name="visibleWhen" type="java.lang.String" value="#{entry?.operator?.key== &apos;BETWEEN&apos; }"/>
+                <Property name="visibleWhen" type="java.lang.String" value="#{entry?.integeroperator?.key== &apos;BETWEEN&apos; }"/>
               </Properties>
             </Component>
           </SubComponents>
+          <LayoutCode>
+            <CodeStatement>
+              <CodeExpression id="20_integerPanel">
+                <CodeVariable name="integerPanel" type="8194" declaredType="javax.swing.JPanel"/>
+                <ExpressionOrigin>
+                  <ExpressionProvider type="ComponentRef">
+                    <ComponentRef name="integerPanel"/>
+                  </ExpressionProvider>
+                </ExpressionOrigin>
+              </CodeExpression>
+              <StatementProvider type="CodeMethod">
+                <CodeMethod name="setLayout" class="java.awt.Container" parameterTypes="java.awt.LayoutManager"/>
+              </StatementProvider>
+              <Parameters>
+                <CodeExpression id="21">
+                  <ExpressionOrigin>
+                    <ExpressionProvider type="CodeConstructor">
+                      <CodeConstructor class="com.rameses.rcp.control.layout.XLayout" parameterTypes=""/>
+                    </ExpressionProvider>
+                  </ExpressionOrigin>
+                </CodeExpression>
+              </Parameters>
+            </CodeStatement>
+            <CodeStatement>
+              <CodeExpression id="20_integerPanel"/>
+              <StatementProvider type="CodeMethod">
+                <CodeMethod name="add" class="java.awt.Container" parameterTypes="java.awt.Component"/>
+              </StatementProvider>
+              <Parameters>
+                <CodeExpression id="22_xComboBox7">
+                  <CodeVariable name="xComboBox7" type="8194" declaredType="com.rameses.rcp.control.XComboBox"/>
+                  <ExpressionOrigin>
+                    <ExpressionProvider type="ComponentRef">
+                      <ComponentRef name="xComboBox7"/>
+                    </ExpressionProvider>
+                  </ExpressionOrigin>
+                </CodeExpression>
+              </Parameters>
+            </CodeStatement>
+            <CodeStatement>
+              <CodeExpression id="20_integerPanel"/>
+              <StatementProvider type="CodeMethod">
+                <CodeMethod name="add" class="java.awt.Container" parameterTypes="java.awt.Component"/>
+              </StatementProvider>
+              <Parameters>
+                <CodeExpression id="23_xIntegerField1">
+                  <CodeVariable name="xIntegerField1" type="8194" declaredType="com.rameses.rcp.control.XIntegerField"/>
+                  <ExpressionOrigin>
+                    <ExpressionProvider type="ComponentRef">
+                      <ComponentRef name="xIntegerField1"/>
+                    </ExpressionProvider>
+                  </ExpressionOrigin>
+                </CodeExpression>
+              </Parameters>
+            </CodeStatement>
+            <CodeStatement>
+              <CodeExpression id="20_integerPanel"/>
+              <StatementProvider type="CodeMethod">
+                <CodeMethod name="add" class="java.awt.Container" parameterTypes="java.awt.Component"/>
+              </StatementProvider>
+              <Parameters>
+                <CodeExpression id="24_xLabel3">
+                  <CodeVariable name="xLabel3" type="8194" declaredType="com.rameses.rcp.control.XLabel"/>
+                  <ExpressionOrigin>
+                    <ExpressionProvider type="ComponentRef">
+                      <ComponentRef name="xLabel3"/>
+                    </ExpressionProvider>
+                  </ExpressionOrigin>
+                </CodeExpression>
+              </Parameters>
+            </CodeStatement>
+            <CodeStatement>
+              <CodeExpression id="20_integerPanel"/>
+              <StatementProvider type="CodeMethod">
+                <CodeMethod name="add" class="java.awt.Container" parameterTypes="java.awt.Component"/>
+              </StatementProvider>
+              <Parameters>
+                <CodeExpression id="25_xIntegerField2">
+                  <CodeVariable name="xIntegerField2" type="8194" declaredType="com.rameses.rcp.control.XIntegerField"/>
+                  <ExpressionOrigin>
+                    <ExpressionProvider type="ComponentRef">
+                      <ComponentRef name="xIntegerField2"/>
+                    </ExpressionProvider>
+                  </ExpressionOrigin>
+                </CodeExpression>
+              </Parameters>
+            </CodeStatement>
+          </LayoutCode>
+        </Container>
+        <Container class="javax.swing.JPanel" name="listPanel">
+          <Constraints>
+            <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignCardLayout" value="org.netbeans.modules.form.compat2.layouts.DesignCardLayout$CardConstraintsDescription">
+              <CardConstraints cardName="list"/>
+            </Constraint>
+          </Constraints>
+
+          <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout"/>
+          <SubComponents>
+            <Component class="com.rameses.rcp.control.XComboBox" name="xComboBox8">
+              <Properties>
+                <Property name="allowNull" type="boolean" value="false"/>
+                <Property name="expression" type="java.lang.String" value="#{item.caption}"/>
+                <Property name="immediate" type="boolean" value="true"/>
+                <Property name="items" type="java.lang.String" value="lookupOperatorList"/>
+                <Property name="name" type="java.lang.String" value="entry.listoperator" noResource="true"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="xComboBox8ActionPerformed"/>
+              </Events>
+              <Constraints>
+                <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
+                  <BorderConstraints direction="West"/>
+                </Constraint>
+              </Constraints>
+            </Component>
+            <Component class="com.rameses.rcp.control.XLabel" name="xLabel4">
+              <Properties>
+                <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+                  <Color blue="ff" green="ff" red="ff" type="rgb"/>
+                </Property>
+                <Property name="expression" type="java.lang.String" value="#{entry.displayvalue}"/>
+                <Property name="opaque" type="boolean" value="true"/>
+              </Properties>
+              <Constraints>
+                <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
+                  <BorderConstraints direction="Center"/>
+                </Constraint>
+              </Constraints>
+            </Component>
+            <Component class="com.rameses.rcp.control.XButton" name="xButton3">
+              <Properties>
+                <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+                  <Insets value="[2, 5, 2, 5]"/>
+                </Property>
+                <Property name="name" type="java.lang.String" value="lookupList" noResource="true"/>
+                <Property name="text" type="java.lang.String" value="..."/>
+              </Properties>
+              <Constraints>
+                <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
+                  <BorderConstraints direction="After"/>
+                </Constraint>
+              </Constraints>
+            </Component>
+          </SubComponents>
+        </Container>
+        <Container class="javax.swing.JPanel" name="lookupPanel">
+          <Constraints>
+            <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignCardLayout" value="org.netbeans.modules.form.compat2.layouts.DesignCardLayout$CardConstraintsDescription">
+              <CardConstraints cardName="lookup"/>
+            </Constraint>
+          </Constraints>
+
+          <Layout class="org.netbeans.modules.form.compat2.layouts.DesignFlowLayout"/>
         </Container>
       </SubComponents>
     </Container>
-    <Component class="com.rameses.rcp.control.XButton" name="xButton2">
-      <Properties>
-        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-          <Font name="Tahoma" size="11" style="1"/>
-        </Property>
-        <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-          <Color blue="ff" green="66" red="0" type="rgb"/>
-        </Property>
-        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
-          <Insets value="[2, 2, 2, 2]"/>
-        </Property>
-        <Property name="name" type="java.lang.String" value="addField" noResource="true"/>
-        <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-          <Dimension value="[25, 22]"/>
-        </Property>
-        <Property name="text" type="java.lang.String" value="+"/>
-        <Property name="visibleWhen" type="java.lang.String" value="#{entry.index == caller.fieldIndex}"/>
-      </Properties>
-    </Component>
-    <Component class="com.rameses.rcp.control.XComboBox" name="xComboBox1">
-      <Properties>
-        <Property name="depends" type="[Ljava.lang.String;" editor="org.netbeans.beaninfo.editors.StringArrayEditor">
-          <StringArray count="1">
-            <StringItem index="0" value="entry.field"/>
-          </StringArray>
-        </Property>
-        <Property name="dynamic" type="boolean" value="true"/>
-        <Property name="expression" type="java.lang.String" value="#{item.caption}"/>
-        <Property name="items" type="java.lang.String" value="operatorList"/>
-        <Property name="name" type="java.lang.String" value="entry.operator" noResource="true"/>
-      </Properties>
-    </Component>
+    <Container class="javax.swing.JPanel" name="jPanel1">
+      <Constraints>
+        <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
+          <BorderConstraints direction="East"/>
+        </Constraint>
+      </Constraints>
+
+      <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout"/>
+      <SubComponents>
+        <Component class="com.rameses.rcp.control.XButton" name="xButton1">
+          <Properties>
+            <Property name="iconResource" type="java.lang.String" value="images/toolbars/trash.png"/>
+            <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+              <Insets value="[2, 2, 2, 2]"/>
+            </Property>
+            <Property name="name" type="java.lang.String" value="removeField" noResource="true"/>
+            <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+              <Dimension value="[25, 22]"/>
+            </Property>
+            <Property name="visibleWhen" type="java.lang.String" value="#{entry.index != 1 }"/>
+          </Properties>
+          <Constraints>
+            <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
+              <BorderConstraints direction="West"/>
+            </Constraint>
+          </Constraints>
+        </Component>
+        <Component class="com.rameses.rcp.control.XButton" name="xButton2">
+          <Properties>
+            <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+              <Font name="Tahoma" size="11" style="1"/>
+            </Property>
+            <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+              <Color blue="ff" green="66" red="0" type="rgb"/>
+            </Property>
+            <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+              <Insets value="[2, 2, 2, 2]"/>
+            </Property>
+            <Property name="name" type="java.lang.String" value="addField" noResource="true"/>
+            <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+              <Dimension value="[25, 22]"/>
+            </Property>
+            <Property name="text" type="java.lang.String" value="+"/>
+            <Property name="visibleWhen" type="java.lang.String" value="#{entry.index == caller.fieldIndex}"/>
+          </Properties>
+          <Constraints>
+            <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
+              <BorderConstraints direction="East"/>
+            </Constraint>
+          </Constraints>
+        </Component>
+      </SubComponents>
+    </Container>
   </SubComponents>
 </Form>

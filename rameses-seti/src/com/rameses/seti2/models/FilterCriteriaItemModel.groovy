@@ -13,43 +13,51 @@ class FilterCriteriaItemModel {
     def fieldList;
 
     def entry = [:];
-    def operatorList;
-    def datatype;
     int fieldCount;
             
     void init() {
         fieldList = caller.fieldList;
-        setFieldData();
     }
+     
+           
+    def stringOperatorList = [
+        [caption: "like", key:"LIKE"],
+        [caption: "equals", key:"="]
+    ];
             
-    void setFieldData() {
-        if( !entry.field ) return;
-        datatype = entry.field.type;
-        if(datatype==null) datatype = "string";
-        if( datatype == "integer" || datatype == "decimal" ) {
-            operatorList = caller.numberOperators;
-        }
-        else if( datatype == "date" || datatype=="timestamp") {
-            //println "date operators";
-            operatorList = caller.dateOperators;
-        }
-        else if( datatype == "boolean" ) {
-            operatorList = caller.booleanOperators;
-        }
-        else {
-            operatorList = caller.stringOperators;
-        }
+    def numberOperatorList = [
+        [caption: "greater than", key:">"],
+        [caption: "less than", key:"<"],
+        [caption: "greater than or equal to", key:">=" ],
+        [caption: "less than or equal to", key:"<="],
+        [caption: "equal to", key:"="],
+        [caption: "between", key:"BETWEEN"],
+    ];
+            
+    def lookupOperatorList = [
+        [caption: "is any of the ff.", key: "IN"],
+        [caption: "not in any of the ff.", key:"NOT IN"],
+    ];
+            
+    def dateOperatorList = [
+        [caption: "equals", key: "="],
+        [caption: "on or before", key: "<="],
+        [caption: "before", key:"<"],
+        [caption: "on or after", key:">="],
+        [caption: "after", key:">"],
+        [caption: "between", key:"BETWEEN"],
+    ];
+            
+    def booleanOperatorList = [
+        [caption: "is true", key: "=true"],
+        [caption: "is false", key: "=false"],
+    ];
+    
+    def getDatatype() {
+        if( !entry.field ) return null;
+        if ( entry.field.type == null ) return "string"; 
+        return entry.field.type;
     }
-
-    @PropertyChangeListener
-    def l = [
-        "entry.field" : { o->  
-            entry.operator = null;
-            entry.value = null;
-            entry.value1 = null;
-            setFieldData(); 
-        }
-    ]
             
     void addField() { 
         caller.addField();
@@ -58,5 +66,35 @@ class FilterCriteriaItemModel {
     void removeField() {
         caller.removeField( this.entry );
     }
-                      
+         
+    
+    void lookupList() { 
+        def h = { o-> 
+            MsgBox.alert(o);
+            entry.value = o; 
+            entry.displayvalue = o*.value.join(', '); 
+        }
+        
+        if ( entry.field.list ) {
+            def listhandler = [
+                getColumnList: {
+                    return [
+                        [name: 'value', caption:'']
+                    ];
+                }, 
+                fetchList: {
+                    return entry.field.list; 
+                }, 
+                isMultiSelect: {
+                    return true; 
+                }
+            ] as BasicListModel; 
+            
+            Modal.show('simple_list_lookup', [listHandler: listhandler, onselect: h]); 
+        } else if ( entry.field.handler ) {
+            Modal.show( entry.field.handler, [onselect: h]);
+        } else if ( entry.field.schemaname ) { 
+            Modal.show('dynamic_schema_lookup', [schemaName: entry.field.schemaname, multiSelect: true]); 
+        }
+    }
 }

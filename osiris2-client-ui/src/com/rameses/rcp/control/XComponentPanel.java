@@ -135,8 +135,13 @@ public abstract class XComponentPanel extends JPanel
         
         afterLoad(); 
     } 
+    
+    protected void refreshItems() { 
+        Binding ib = getInnerBinding(); 
+        if ( ib != null ) ib.refresh(); 
+    } 
 
-    public final void refresh() {  
+    public void refresh() {  
         String expr = getVisibleWhen(); 
         if (expr != null && expr.trim().length() > 0) {
             boolean result = false; 
@@ -149,8 +154,7 @@ public abstract class XComponentPanel extends JPanel
         } 
         
         if ( isVisible() ) { 
-            Binding ib = getInnerBinding(); 
-            if ( ib != null ) ib.refresh(); 
+            refreshItems(); 
         } 
         
         expr = getDisableWhen(); 

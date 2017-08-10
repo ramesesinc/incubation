@@ -1,0 +1,40 @@
+<workunit>
+    <invokers>
+        <invoker type="simple_list_lookup" caption="Select" target="popup"/>
+    </invokers>
+    <code>
+        <![CDATA[
+        import com.rameses.rcp.common.*;
+        import com.rameses.rcp.annotations.*;
+        import com.rameses.osiris2.client.*;
+        import com.rameses.osiris2.common.*;
+        import com.rameses.rcp.framework.ClientContext;
+
+        public class SimpleListLookupModel {
+        
+            String title;
+            def selectedItem;
+            def listHandler;
+            def onselect;
+            
+            def doOk() {
+                if(!onselect) throw new Exception("Please specify onselect" );
+                if( !listHandler.isMultiSelect() ) {
+                    onselect( selectedItem );
+                }
+                else {
+                    onselect( listHandler.selectedValue );
+                }
+                return "_close";
+            }
+            
+            def doCancel() {
+                return "_close";
+            }
+        }
+        ]]>        
+    </code>
+    <pages>
+        <page template="com.rameses.seti2.views.SimpleLookupListPage"/>
+    </pages>
+</workunit> 

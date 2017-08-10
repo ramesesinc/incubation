@@ -367,10 +367,14 @@ public class CrudListModel extends AbstractCrudModel {
         def params = [:]
         int i = 0;
         for( c in criteriaList*.entry ) {
-            if(i++>0) buff.append( " AND ");
-            buff.append( c.field.name + ' ' + c.operator.key + ' :' +c.field.extname );
+            def dtype = c.field.type;
+            if ( dtype == null ) dtype = "string";
+            
+            def op = c[(dtype+'operator')];
+            if(i++>0) buff.appepend( " AND ");
+            buff.append( c.field.name + ' ' + op.key + ' :' +c.field.extname );
             params.put( c.field.extname, c.value );
-            if( c.operator.key?.toUpperCase() == 'BETWEEN') {
+            if( op.key?.toUpperCase() == 'BETWEEN') {
                 buff.append( " AND :"+c.field.extname+"2" );
                 params.put( c.field.extname+"2", c.value2 );
             }

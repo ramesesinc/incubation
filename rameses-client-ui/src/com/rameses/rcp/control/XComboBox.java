@@ -615,8 +615,9 @@ public class XComboBox extends JComboBox implements UIInput, Validatable, Active
     protected void onItemStateChanged(ItemEvent e) {
         if ( e.getStateChange() == ItemEvent.SELECTED && !updating ) {
             try {
+                //System.out.println("name=" + this.getName() + ", value="+ getValue() + " index="+ getSelectedIndex() + ", bean="+ getBinding().getBean());
                 UIInputUtil.updateBeanValue(this);
-            } catch(Throwable ex) {;}
+            } catch(Throwable ex) {;} 
         }
     }
 

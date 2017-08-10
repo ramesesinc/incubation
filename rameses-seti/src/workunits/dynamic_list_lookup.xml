@@ -1,0 +1,22 @@
+<workunit extends="com/rameses/seti2/templates/CrudLookup.xml">
+    <invokers>
+        <invoker type="dynamic_schema_lookup" caption="Select" target="popup" action="init"/>
+    </invokers>
+    <code>
+        <![CDATA[
+        import com.rameses.rcp.common.*;
+        import com.rameses.rcp.annotations.*;
+        import com.rameses.osiris2.client.*;
+        import com.rameses.osiris2.common.*;
+        import com.rameses.rcp.framework.ClientContext;
+
+        public class DynamicSchemaLookupModel extends com.rameses.seti2.models.CrudLookupModel {
+        
+           
+            String schemaName;
+            
+            
+        }
+        ]]>        
+    </code>
+</workunit> 

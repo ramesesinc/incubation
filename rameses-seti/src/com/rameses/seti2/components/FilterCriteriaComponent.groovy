@@ -1,34 +1,30 @@
-package com.rameses.seti2.models;
+package com.rameses.osiris2.report;
  
 import com.rameses.rcp.common.*;
 import com.rameses.rcp.annotations.*;
 import com.rameses.osiris2.client.*;
 import com.rameses.osiris2.common.*;
-        
-class FilterCriteriaModel {
-        
-    @Binding
-    def binding;
-        
-    def cols;
+
+
+public class FilterCriteriaComponent extends ComponentBean  {
+    
     def handler;
-            
+    def selectedField;
+    def fieldList; 
+    def criteriaList = []; 
     def controlList = [];
+    
     def formControls = [
         getControlList: {
             return controlList;
         }
     ] as FormPanelModel;
 
-    def selectedField;
-    def fieldList; 
-    def criteriaList = []; 
-                                                                                    
     void init() {
-        fieldList = cols.findAll{ it.indexed == 'true' };
-        if(!fieldList)
-        throw new Exception("Please define at least one indexed column in the schema");
-                
+        fieldList = handler.getFieldList();
+        if(!fieldList) {
+            throw new Exception("Please specify a fieldList")
+        }
         controlList.clear();
         if(criteriaList) {
             controlList.addAll( criteriaList );
@@ -38,28 +34,20 @@ class FilterCriteriaModel {
         }      
     }                
                
-    def doCancel() {
-        return "_close";
-    }                
-                
-    def doOk() {  
-        if(handler) handler(controlList);
-        return "_close";
-    }                      
-            
     def clearFilter() {
         controlList.clear();
-        if(handler) handler(controlList);
-        return "_close";
+        handler.clear();
     }
+     
             
     void addField() {
         String h = "criteria:item";
         def m = [type:'subform', handler:h, showCaption:false ];
         m.entry = [index:getFieldIndex()+1];
-        m.properties = [entry: m.entry];
+        m.properties = [entry: m.entry, caller : this];
         controlList << m;  
-        if(binding!=null) binding.refresh();                  
+        formControls.reload();
+        handler.add( m.entry );
     }
             
     int getFieldIndex() {
@@ -75,7 +63,10 @@ class FilterCriteriaModel {
             fldIndex++;
             o.entry.index = fldIndex;
         }
-        if(binding!=null) binding.refresh();    
+        handler.remove(z);
+        //if(binding!=null) binding.refresh();    
     }
-            
-}
+    
+    
+    
+}   

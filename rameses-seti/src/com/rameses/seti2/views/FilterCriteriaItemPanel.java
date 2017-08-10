@@ -28,164 +28,209 @@ public class FilterCriteriaItemPanel extends javax.swing.JPanel {
 
         xDateField2 = new com.rameses.rcp.control.XDateField();
         xComboBox2 = new com.rameses.rcp.control.XComboBox();
-        xButton1 = new com.rameses.rcp.control.XButton();
         xPanel3 = new com.rameses.rcp.control.XPanel();
         datePanel = new javax.swing.JPanel();
+        xComboBox3 = new com.rameses.rcp.control.XComboBox();
         xDateField1 = new com.rameses.rcp.control.XDateField();
         xLabel1 = new com.rameses.rcp.control.XLabel();
         xDateField3 = new com.rameses.rcp.control.XDateField();
         booleanPanel = new javax.swing.JPanel();
+        xComboBox4 = new com.rameses.rcp.control.XComboBox();
         stringPanel = new javax.swing.JPanel();
+        xComboBox1 = new com.rameses.rcp.control.XComboBox();
         xTextField2 = new com.rameses.rcp.control.XTextField();
         decimalPanel = new javax.swing.JPanel();
+        xComboBox6 = new com.rameses.rcp.control.XComboBox();
         xDecimalField1 = new com.rameses.rcp.control.XDecimalField();
+        xLabel2 = new com.rameses.rcp.control.XLabel();
         xDecimalField2 = new com.rameses.rcp.control.XDecimalField();
         integerPanel = new javax.swing.JPanel();
+        xComboBox7 = new com.rameses.rcp.control.XComboBox();
         xIntegerField1 = new com.rameses.rcp.control.XIntegerField();
+        xLabel3 = new com.rameses.rcp.control.XLabel();
         xIntegerField2 = new com.rameses.rcp.control.XIntegerField();
+        listPanel = new javax.swing.JPanel();
+        xComboBox8 = new com.rameses.rcp.control.XComboBox();
+        xLabel4 = new com.rameses.rcp.control.XLabel();
+        xButton3 = new com.rameses.rcp.control.XButton();
+        lookupPanel = new javax.swing.JPanel();
+        jPanel1 = new javax.swing.JPanel();
+        xButton1 = new com.rameses.rcp.control.XButton();
         xButton2 = new com.rameses.rcp.control.XButton();
-        xComboBox1 = new com.rameses.rcp.control.XComboBox();
 
         xDateField2.setText("xDateField1");
+
+        setLayout(new java.awt.BorderLayout());
 
         xComboBox2.setExpression("#{item.caption}");
         xComboBox2.setItems("fieldList");
         xComboBox2.setName("entry.field"); // NOI18N
         xComboBox2.setShowCaption(false);
+        xComboBox2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                xComboBox2ActionPerformed(evt);
+            }
+        });
+        add(xComboBox2, java.awt.BorderLayout.WEST);
+
+        xPanel3.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 5, 5));
+        xPanel3.setDepends(new String[] {"entry.field"});
+        xPanel3.setName("datatype"); // NOI18N
+        xPanel3.setPreferredSize(new java.awt.Dimension(214, 30));
+        xPanel3.setVisibleWhen("#{datatype != null}");
+        xPanel3.setLayout(new java.awt.CardLayout());
+
+        datePanel.setName("date"); // NOI18N
+        datePanel.setLayout(new com.rameses.rcp.control.layout.XLayout());
+
+        xComboBox3.setAllowNull(false);
+        xComboBox3.setExpression("#{item.caption}");
+        xComboBox3.setImmediate(true);
+        xComboBox3.setItems("dateOperatorList");
+        xComboBox3.setName("entry.dateoperator"); // NOI18N
+        datePanel.add(xComboBox3);
+
+        xDateField1.setName("entry.value"); // NOI18N
+        datePanel.add(xDateField1);
+
+        xLabel1.setDepends(new String[] {"entry.dateoperator"});
+        xLabel1.setText("to");
+        xLabel1.setVisibleWhen("#{entry?.dateoperator?.key == 'BETWEEN' }");
+        datePanel.add(xLabel1);
+
+        xDateField3.setDepends(new String[] {"entry.dateoperator"});
+        xDateField3.setName("entry.value2"); // NOI18N
+        xDateField3.setVisibleWhen("#{entry?.dateoperator?.key == 'BETWEEN' }");
+        datePanel.add(xDateField3);
+
+        xPanel3.add(datePanel, "date");
+
+        booleanPanel.setName("boolean"); // NOI18N
+        booleanPanel.setLayout(new com.rameses.rcp.control.layout.XLayout());
+
+        xComboBox4.setAllowNull(false);
+        xComboBox4.setExpression("#{item.caption}");
+        xComboBox4.setImmediate(true);
+        xComboBox4.setItems("booleanOperatorList");
+        xComboBox4.setName("entry.booleanoperator"); // NOI18N
+        booleanPanel.add(xComboBox4);
+
+        xPanel3.add(booleanPanel, "boolean");
+
+        stringPanel.setLayout(new com.rameses.rcp.control.layout.XLayout());
+
+        xComboBox1.setAllowNull(false);
+        xComboBox1.setExpression("#{item.caption}");
+        xComboBox1.setItems("stringOperatorList");
+        xComboBox1.setName("entry.stringoperator"); // NOI18N
+        stringPanel.add(xComboBox1);
+
+        xTextField2.setName("entry.value"); // NOI18N
+        xTextField2.setTextCase(com.rameses.rcp.constant.TextCase.NONE);
+        stringPanel.add(xTextField2);
+
+        xPanel3.add(stringPanel, "string");
+
+        decimalPanel.setLayout(new com.rameses.rcp.control.layout.XLayout());
+
+        xComboBox6.setAllowNull(false);
+        xComboBox6.setExpression("#{item.caption}");
+        xComboBox6.setImmediate(true);
+        xComboBox6.setItems("numberOperatorList");
+        xComboBox6.setName("entry.decimaloperator"); // NOI18N
+        decimalPanel.add(xComboBox6);
+
+        xDecimalField1.setName("entry.value"); // NOI18N
+        decimalPanel.add(xDecimalField1);
+
+        xLabel2.setDepends(new String[] {"entry.decimaloperator"});
+        xLabel2.setText("to");
+        xLabel2.setVisibleWhen("#{entry?.decimaloperator?.key == 'BETWEEN' }");
+        decimalPanel.add(xLabel2);
+
+        xDecimalField2.setDepends(new String[] {"entry.decimaloperator"});
+        xDecimalField2.setName("entry.value2"); // NOI18N
+        xDecimalField2.setVisibleWhen("#{entry?.decimaloperator?.key == 'BETWEEN' }");
+        xDecimalField2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                xDecimalField2ActionPerformed(evt);
+            }
+        });
+        decimalPanel.add(xDecimalField2);
+
+        xPanel3.add(decimalPanel, "decimal");
+
+        integerPanel.setLayout(new com.rameses.rcp.control.layout.XLayout());
+
+        xComboBox7.setAllowNull(false);
+        xComboBox7.setExpression("#{item.caption}");
+        xComboBox7.setImmediate(true);
+        xComboBox7.setItems("numberOperatorList");
+        xComboBox7.setName("entry.integeroperator"); // NOI18N
+        xComboBox7.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                xComboBox7ActionPerformed(evt);
+            }
+        });
+        integerPanel.add(xComboBox7);
+
+        xIntegerField1.setName("entry.value"); // NOI18N
+        xIntegerField1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                xIntegerField1ActionPerformed(evt);
+            }
+        });
+        integerPanel.add(xIntegerField1);
+
+        xLabel3.setDepends(new String[] {"entry.integeroperator"});
+        xLabel3.setText("to");
+        xLabel3.setVisibleWhen("#{entry?.integeroperator?.key== 'BETWEEN' }");
+        integerPanel.add(xLabel3);
+
+        xIntegerField2.setDepends(new String[] {"entry.integeroperator"});
+        xIntegerField2.setName("entry.value2"); // NOI18N
+        xIntegerField2.setVisibleWhen("#{entry?.integeroperator?.key== 'BETWEEN' }");
+        integerPanel.add(xIntegerField2);
+
+        xPanel3.add(integerPanel, "integer");
+
+        listPanel.setLayout(new java.awt.BorderLayout());
+
+        xComboBox8.setAllowNull(false);
+        xComboBox8.setExpression("#{item.caption}");
+        xComboBox8.setImmediate(true);
+        xComboBox8.setItems("lookupOperatorList");
+        xComboBox8.setName("entry.listoperator"); // NOI18N
+        xComboBox8.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                xComboBox8ActionPerformed(evt);
+            }
+        });
+        listPanel.add(xComboBox8, java.awt.BorderLayout.WEST);
+
+        xLabel4.setBackground(new java.awt.Color(255, 255, 255));
+        xLabel4.setExpression("#{entry.displayvalue}");
+        xLabel4.setOpaque(true);
+        listPanel.add(xLabel4, java.awt.BorderLayout.CENTER);
+
+        xButton3.setMargin(new java.awt.Insets(2, 5, 2, 5));
+        xButton3.setName("lookupList"); // NOI18N
+        xButton3.setText("...");
+        listPanel.add(xButton3, java.awt.BorderLayout.LINE_END);
+
+        xPanel3.add(listPanel, "list");
+        xPanel3.add(lookupPanel, "lookup");
+
+        add(xPanel3, java.awt.BorderLayout.CENTER);
+
+        jPanel1.setLayout(new java.awt.BorderLayout());
 
         xButton1.setIconResource("images/toolbars/trash.png");
         xButton1.setMargin(new java.awt.Insets(2, 2, 2, 2));
         xButton1.setName("removeField"); // NOI18N
         xButton1.setPreferredSize(new java.awt.Dimension(25, 22));
         xButton1.setVisibleWhen("#{entry.index != 1 }");
-
-        xPanel3.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 5, 5));
-        xPanel3.setDepends(new String[] {"entry.field"});
-        xPanel3.setName("datatype"); // NOI18N
-        xPanel3.setPreferredSize(new java.awt.Dimension(214, 30));
-        xPanel3.setLayout(new java.awt.CardLayout());
-
-        datePanel.setName("date"); // NOI18N
-
-        xDateField1.setName("entry.value"); // NOI18N
-
-        xLabel1.setDepends(new String[] {"entry.operator"});
-        xLabel1.setText("to");
-        xLabel1.setVisibleWhen("#{entry?.operator?.key == 'BETWEEN' }");
-
-        xDateField3.setDepends(new String[] {"entry.operator"});
-        xDateField3.setName("entry.value2"); // NOI18N
-        xDateField3.setVisibleWhen("#{entry?.operator?.key == 'BETWEEN' }");
-
-        javax.swing.GroupLayout datePanelLayout = new javax.swing.GroupLayout(datePanel);
-        datePanel.setLayout(datePanelLayout);
-        datePanelLayout.setHorizontalGroup(
-            datePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(datePanelLayout.createSequentialGroup()
-                .addComponent(xDateField1, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(xLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(xDateField3, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-        datePanelLayout.setVerticalGroup(
-            datePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(datePanelLayout.createSequentialGroup()
-                .addGroup(datePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(xDateField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(xDateField3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(xLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(0, 9, Short.MAX_VALUE))
-        );
-
-        xPanel3.add(datePanel, "date");
-
-        booleanPanel.setName("boolean"); // NOI18N
-
-        javax.swing.GroupLayout booleanPanelLayout = new javax.swing.GroupLayout(booleanPanel);
-        booleanPanel.setLayout(booleanPanelLayout);
-        booleanPanelLayout.setHorizontalGroup(
-            booleanPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 209, Short.MAX_VALUE)
-        );
-        booleanPanelLayout.setVerticalGroup(
-            booleanPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 29, Short.MAX_VALUE)
-        );
-
-        xPanel3.add(booleanPanel, "boolean");
-
-        xTextField2.setName("entry.value"); // NOI18N
-        xTextField2.setTextCase(com.rameses.rcp.constant.TextCase.NONE);
-
-        javax.swing.GroupLayout stringPanelLayout = new javax.swing.GroupLayout(stringPanel);
-        stringPanel.setLayout(stringPanelLayout);
-        stringPanelLayout.setHorizontalGroup(
-            stringPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(xTextField2, javax.swing.GroupLayout.DEFAULT_SIZE, 209, Short.MAX_VALUE)
-        );
-        stringPanelLayout.setVerticalGroup(
-            stringPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(stringPanelLayout.createSequentialGroup()
-                .addComponent(xTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 9, Short.MAX_VALUE))
-        );
-
-        xPanel3.add(stringPanel, "string");
-
-        xDecimalField1.setName("entry.value"); // NOI18N
-
-        xDecimalField2.setName("entry.value2"); // NOI18N
-        xDecimalField2.setVisibleWhen("#{entry?.operator?.key == 'BETWEEN' }");
-
-        javax.swing.GroupLayout decimalPanelLayout = new javax.swing.GroupLayout(decimalPanel);
-        decimalPanel.setLayout(decimalPanelLayout);
-        decimalPanelLayout.setHorizontalGroup(
-            decimalPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(decimalPanelLayout.createSequentialGroup()
-                .addComponent(xDecimalField1, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(xDecimalField2, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 51, Short.MAX_VALUE))
-        );
-        decimalPanelLayout.setVerticalGroup(
-            decimalPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(decimalPanelLayout.createSequentialGroup()
-                .addGroup(decimalPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(xDecimalField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(xDecimalField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(0, 9, Short.MAX_VALUE))
-        );
-
-        xPanel3.add(decimalPanel, "decimal");
-
-        xIntegerField1.setName("entry.value"); // NOI18N
-
-        xIntegerField2.setDepends(new String[] {"entry.operator"});
-        xIntegerField2.setName("entry.value2"); // NOI18N
-        xIntegerField2.setVisibleWhen("#{entry?.operator?.key== 'BETWEEN' }");
-
-        javax.swing.GroupLayout integerPanelLayout = new javax.swing.GroupLayout(integerPanel);
-        integerPanel.setLayout(integerPanelLayout);
-        integerPanelLayout.setHorizontalGroup(
-            integerPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(integerPanelLayout.createSequentialGroup()
-                .addComponent(xIntegerField1, javax.swing.GroupLayout.PREFERRED_SIZE, 86, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(xIntegerField2, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(37, Short.MAX_VALUE))
-        );
-        integerPanelLayout.setVerticalGroup(
-            integerPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(integerPanelLayout.createSequentialGroup()
-                .addGroup(integerPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(xIntegerField1, javax.swing.GroupLayout.PREFERRED_SIZE, 21, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(xIntegerField2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addGap(0, 8, Short.MAX_VALUE))
-        );
-
-        xPanel3.add(integerPanel, "integer");
+        jPanel1.add(xButton1, java.awt.BorderLayout.WEST);
 
         xButton2.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         xButton2.setForeground(new java.awt.Color(0, 102, 255));
@@ -194,50 +239,50 @@ public class FilterCriteriaItemPanel extends javax.swing.JPanel {
         xButton2.setPreferredSize(new java.awt.Dimension(25, 22));
         xButton2.setText("+");
         xButton2.setVisibleWhen("#{entry.index == caller.fieldIndex}");
+        jPanel1.add(xButton2, java.awt.BorderLayout.EAST);
 
-        xComboBox1.setDepends(new String[] {"entry.field"});
-        xComboBox1.setDynamic(true);
-        xComboBox1.setExpression("#{item.caption}");
-        xComboBox1.setItems("operatorList");
-        xComboBox1.setName("entry.operator"); // NOI18N
-
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
-        this.setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addComponent(xComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, 178, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(xComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(xPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, 214, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(xButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(xButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(27, Short.MAX_VALUE))
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                .addComponent(xComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addComponent(xComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                .addComponent(xButton1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addComponent(xButton2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-            .addComponent(xPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
-        );
+        add(jPanel1, java.awt.BorderLayout.EAST);
     }// </editor-fold>//GEN-END:initComponents
+
+    private void xDecimalField2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_xDecimalField2ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_xDecimalField2ActionPerformed
+
+    private void xIntegerField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_xIntegerField1ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_xIntegerField1ActionPerformed
+
+    private void xComboBox2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_xComboBox2ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_xComboBox2ActionPerformed
+
+    private void xComboBox7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_xComboBox7ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_xComboBox7ActionPerformed
+
+    private void xComboBox8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_xComboBox8ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_xComboBox8ActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel booleanPanel;
     private javax.swing.JPanel datePanel;
     private javax.swing.JPanel decimalPanel;
     private javax.swing.JPanel integerPanel;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel listPanel;
+    private javax.swing.JPanel lookupPanel;
     private javax.swing.JPanel stringPanel;
     private com.rameses.rcp.control.XButton xButton1;
     private com.rameses.rcp.control.XButton xButton2;
+    private com.rameses.rcp.control.XButton xButton3;
     private com.rameses.rcp.control.XComboBox xComboBox1;
     private com.rameses.rcp.control.XComboBox xComboBox2;
+    private com.rameses.rcp.control.XComboBox xComboBox3;
+    private com.rameses.rcp.control.XComboBox xComboBox4;
+    private com.rameses.rcp.control.XComboBox xComboBox6;
+    private com.rameses.rcp.control.XComboBox xComboBox7;
+    private com.rameses.rcp.control.XComboBox xComboBox8;
     private com.rameses.rcp.control.XDateField xDateField1;
     private com.rameses.rcp.control.XDateField xDateField2;
     private com.rameses.rcp.control.XDateField xDateField3;
@@ -246,6 +291,9 @@ public class FilterCriteriaItemPanel extends javax.swing.JPanel {
     private com.rameses.rcp.control.XIntegerField xIntegerField1;
     private com.rameses.rcp.control.XIntegerField xIntegerField2;
     private com.rameses.rcp.control.XLabel xLabel1;
+    private com.rameses.rcp.control.XLabel xLabel2;
+    private com.rameses.rcp.control.XLabel xLabel3;
+    private com.rameses.rcp.control.XLabel xLabel4;
     private com.rameses.rcp.control.XPanel xPanel3;
     private com.rameses.rcp.control.XTextField xTextField2;
     // End of variables declaration//GEN-END:variables
