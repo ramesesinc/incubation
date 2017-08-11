@@ -69,32 +69,51 @@ class FilterCriteriaItemModel {
          
     
     void lookupList() { 
-        def h = { o-> 
-            MsgBox.alert(o);
-            entry.value = o; 
-            entry.displayvalue = o*.value.join(', '); 
-        }
-        
         if ( entry.field.list ) {
-            def listhandler = [
-                getColumnList: {
-                    return [
-                        [name: 'value', caption:'']
-                    ];
-                }, 
-                fetchList: {
-                    return entry.field.list; 
-                }, 
-                isMultiSelect: {
-                    return true; 
-                }
-            ] as BasicListModel; 
-            
-            Modal.show('simple_list_lookup', [listHandler: listhandler, onselect: h]); 
-        } else if ( entry.field.handler ) {
+            showKeyValueList(entry.field.list, true, h );
+        } 
+        else if ( entry.field.handler ) {
             Modal.show( entry.field.handler, [onselect: h]);
-        } else if ( entry.field.schemaname ) { 
-            Modal.show('dynamic_schema_lookup', [schemaName: entry.field.schemaname, multiSelect: true]); 
+        } 
+        else if ( entry.field.schemaname ) { 
+            def cols = entry.field.cols;
+            def lkey = entry.field.lookupkey;
+            def lval = entry.field.lookupvalue;
+            if(lkey==null || lval == null ) throw new Exception("Provide a lookupkey and lookupvalue in "+ entry.field.name);
+            def m = [schemaName: entry.field.schemaname]; 
+            m.onselect = { o->
+                entry.value = [];
+                for(xx in o) {
+                    entry.value << [key: xx[(lkey)],  value: xx[(lval)] ];
+                }
+                entry.displayvalue = entry.value*.value.join(",");
+                return null;
+            }
+            m.multiSelect = true;
+            m.selectColNames = lkey+","+lval;
+            Modal.show('dynamic_schema_lookup', m ); 
         }
+    }
+    
+    def showKeyValueList( def list, boolean multiSelect, def onselect ) {
+        def listhandler = [
+            getColumnList: {
+                return [
+                    [name: 'value', caption:'']
+                ];
+            }, 
+            fetchList: {
+                return list; 
+            }, 
+            isMultiSelect: {
+                return multiSelect; 
+            }
+        ] as BasicListModel; 
+
+        Modal.show('simple_list_lookup', [listHandler: listhandler, onselect: onselect]); 
+    }
+    
+    void showInfo() {
+        showKeyValueList( entry.value, false, {o->;} );
     }
 }

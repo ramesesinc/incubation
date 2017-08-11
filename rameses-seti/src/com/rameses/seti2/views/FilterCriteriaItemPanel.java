@@ -52,19 +52,23 @@ public class FilterCriteriaItemPanel extends javax.swing.JPanel {
         listPanel = new javax.swing.JPanel();
         xComboBox8 = new com.rameses.rcp.control.XComboBox();
         xLabel4 = new com.rameses.rcp.control.XLabel();
+        jPanel2 = new javax.swing.JPanel();
         xButton3 = new com.rameses.rcp.control.XButton();
-        lookupPanel = new javax.swing.JPanel();
+        xButton4 = new com.rameses.rcp.control.XButton();
         jPanel1 = new javax.swing.JPanel();
         xButton1 = new com.rameses.rcp.control.XButton();
         xButton2 = new com.rameses.rcp.control.XButton();
 
         xDateField2.setText("xDateField1");
 
+        setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
         setLayout(new java.awt.BorderLayout());
 
+        xComboBox2.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 4));
         xComboBox2.setExpression("#{item.caption}");
         xComboBox2.setItems("fieldList");
         xComboBox2.setName("entry.field"); // NOI18N
+        xComboBox2.setPreferredSize(new java.awt.Dimension(180, 20));
         xComboBox2.setShowCaption(false);
         xComboBox2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -73,7 +77,8 @@ public class FilterCriteriaItemPanel extends javax.swing.JPanel {
         });
         add(xComboBox2, java.awt.BorderLayout.WEST);
 
-        xPanel3.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 5, 5));
+        xPanel3.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 4, 1, 4));
+        xPanel3.setCellPadding(new java.awt.Insets(0, 10, 0, 0));
         xPanel3.setDepends(new String[] {"entry.field"});
         xPanel3.setName("datatype"); // NOI18N
         xPanel3.setPreferredSize(new java.awt.Dimension(214, 30));
@@ -88,6 +93,7 @@ public class FilterCriteriaItemPanel extends javax.swing.JPanel {
         xComboBox3.setImmediate(true);
         xComboBox3.setItems("dateOperatorList");
         xComboBox3.setName("entry.dateoperator"); // NOI18N
+        xComboBox3.setPreferredSize(new java.awt.Dimension(150, 20));
         datePanel.add(xComboBox3);
 
         xDateField1.setName("entry.value"); // NOI18N
@@ -113,6 +119,7 @@ public class FilterCriteriaItemPanel extends javax.swing.JPanel {
         xComboBox4.setImmediate(true);
         xComboBox4.setItems("booleanOperatorList");
         xComboBox4.setName("entry.booleanoperator"); // NOI18N
+        xComboBox4.setPreferredSize(new java.awt.Dimension(150, 20));
         booleanPanel.add(xComboBox4);
 
         xPanel3.add(booleanPanel, "boolean");
@@ -123,9 +130,11 @@ public class FilterCriteriaItemPanel extends javax.swing.JPanel {
         xComboBox1.setExpression("#{item.caption}");
         xComboBox1.setItems("stringOperatorList");
         xComboBox1.setName("entry.stringoperator"); // NOI18N
+        xComboBox1.setPreferredSize(new java.awt.Dimension(150, 20));
         stringPanel.add(xComboBox1);
 
         xTextField2.setName("entry.value"); // NOI18N
+        xTextField2.setPreferredSize(new java.awt.Dimension(220, 20));
         xTextField2.setTextCase(com.rameses.rcp.constant.TextCase.NONE);
         stringPanel.add(xTextField2);
 
@@ -138,6 +147,7 @@ public class FilterCriteriaItemPanel extends javax.swing.JPanel {
         xComboBox6.setImmediate(true);
         xComboBox6.setItems("numberOperatorList");
         xComboBox6.setName("entry.decimaloperator"); // NOI18N
+        xComboBox6.setPreferredSize(new java.awt.Dimension(150, 20));
         decimalPanel.add(xComboBox6);
 
         xDecimalField1.setName("entry.value"); // NOI18N
@@ -167,6 +177,7 @@ public class FilterCriteriaItemPanel extends javax.swing.JPanel {
         xComboBox7.setImmediate(true);
         xComboBox7.setItems("numberOperatorList");
         xComboBox7.setName("entry.integeroperator"); // NOI18N
+        xComboBox7.setPreferredSize(new java.awt.Dimension(150, 20));
         xComboBox7.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 xComboBox7ActionPerformed(evt);
@@ -201,6 +212,7 @@ public class FilterCriteriaItemPanel extends javax.swing.JPanel {
         xComboBox8.setImmediate(true);
         xComboBox8.setItems("lookupOperatorList");
         xComboBox8.setName("entry.listoperator"); // NOI18N
+        xComboBox8.setPreferredSize(new java.awt.Dimension(150, 20));
         xComboBox8.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 xComboBox8ActionPerformed(evt);
@@ -211,33 +223,60 @@ public class FilterCriteriaItemPanel extends javax.swing.JPanel {
         xLabel4.setBackground(new java.awt.Color(255, 255, 255));
         xLabel4.setExpression("#{entry.displayvalue}");
         xLabel4.setOpaque(true);
+        xLabel4.setPreferredSize(new java.awt.Dimension(220, 16));
         listPanel.add(xLabel4, java.awt.BorderLayout.CENTER);
 
-        xButton3.setMargin(new java.awt.Insets(2, 5, 2, 5));
+        jPanel2.setLayout(new java.awt.BorderLayout());
+
+        xButton3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/buttons/search.png"))); // NOI18N
+        xButton3.setMargin(new java.awt.Insets(2, 2, 2, 2));
         xButton3.setName("lookupList"); // NOI18N
-        xButton3.setText("...");
-        listPanel.add(xButton3, java.awt.BorderLayout.LINE_END);
+        xButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                xButton3ActionPerformed(evt);
+            }
+        });
+        jPanel2.add(xButton3, java.awt.BorderLayout.WEST);
+
+        xButton4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/info.png"))); // NOI18N
+        xButton4.setMargin(new java.awt.Insets(2, 2, 2, 2));
+        xButton4.setName("showInfo"); // NOI18N
+        xButton4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                xButton4ActionPerformed(evt);
+            }
+        });
+        jPanel2.add(xButton4, java.awt.BorderLayout.EAST);
+
+        listPanel.add(jPanel2, java.awt.BorderLayout.EAST);
 
         xPanel3.add(listPanel, "list");
-        xPanel3.add(lookupPanel, "lookup");
 
         add(xPanel3, java.awt.BorderLayout.CENTER);
 
+        jPanel1.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
         jPanel1.setLayout(new java.awt.BorderLayout());
 
+        xButton1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/toolbars/trash.png"))); // NOI18N
+        xButton1.setBorderPainted(false);
+        xButton1.setContentAreaFilled(false);
         xButton1.setIconResource("images/toolbars/trash.png");
-        xButton1.setMargin(new java.awt.Insets(2, 2, 2, 2));
+        xButton1.setMargin(new java.awt.Insets(4, 4, 4, 4));
         xButton1.setName("removeField"); // NOI18N
         xButton1.setPreferredSize(new java.awt.Dimension(25, 22));
+        xButton1.setToolTipText("Remove criteria");
         xButton1.setVisibleWhen("#{entry.index != 1 }");
         jPanel1.add(xButton1, java.awt.BorderLayout.WEST);
 
+        xButton2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/toolbars/plus.png"))); // NOI18N
+        xButton2.setBorderPainted(false);
+        xButton2.setContentAreaFilled(false);
         xButton2.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         xButton2.setForeground(new java.awt.Color(0, 102, 255));
-        xButton2.setMargin(new java.awt.Insets(2, 2, 2, 2));
+        xButton2.setMargin(new java.awt.Insets(4, 4, 4, 4));
         xButton2.setName("addField"); // NOI18N
         xButton2.setPreferredSize(new java.awt.Dimension(25, 22));
-        xButton2.setText("+");
+        xButton2.setToolTipText("Add another criteria");
         xButton2.setVisibleWhen("#{entry.index == caller.fieldIndex}");
         jPanel1.add(xButton2, java.awt.BorderLayout.EAST);
 
@@ -264,18 +303,27 @@ public class FilterCriteriaItemPanel extends javax.swing.JPanel {
         // TODO add your handling code here:
     }//GEN-LAST:event_xComboBox8ActionPerformed
 
+    private void xButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_xButton3ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_xButton3ActionPerformed
+
+    private void xButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_xButton4ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_xButton4ActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel booleanPanel;
     private javax.swing.JPanel datePanel;
     private javax.swing.JPanel decimalPanel;
     private javax.swing.JPanel integerPanel;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel listPanel;
-    private javax.swing.JPanel lookupPanel;
     private javax.swing.JPanel stringPanel;
     private com.rameses.rcp.control.XButton xButton1;
     private com.rameses.rcp.control.XButton xButton2;
     private com.rameses.rcp.control.XButton xButton3;
+    private com.rameses.rcp.control.XButton xButton4;
     private com.rameses.rcp.control.XComboBox xComboBox1;
     private com.rameses.rcp.control.XComboBox xComboBox2;
     private com.rameses.rcp.control.XComboBox xComboBox3;

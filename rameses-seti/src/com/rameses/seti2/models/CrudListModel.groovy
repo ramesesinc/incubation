@@ -35,11 +35,13 @@ public class CrudListModel extends AbstractCrudModel {
     List orWhereList = [];
 
     String strCols;
-    String hiddenCols;
+    
     
     String _entitySchemaName_;   //used in case the view schema is not the same as entity schema
     
     private String _tag_;
+    private String _cols_;
+    private String _hiddenCols_;
     
     boolean _multiSelect; 
     
@@ -91,6 +93,8 @@ public class CrudListModel extends AbstractCrudModel {
     
     public def getTag() {
         if( _tag_ !=null) return _tag_;
+        def t = invoker.properties.tag;
+        if(t) return t;
         return workunit.info.workunit_properties.tag;
     }
     
@@ -98,19 +102,36 @@ public class CrudListModel extends AbstractCrudModel {
         _tag_ = s;
     }
     
+    public void setSelectColNames(def s) {
+        _cols_ = s;
+    }
+    
+    public def getSelectColNames() {
+        if(_cols_ !=null) return _cols_;
+        def t = invoker.properties.cols;
+        if(t) return t;
+        return workunit.info.workunit_properties.cols;    
+    }
+    
+    public void setHiddenCols(def s) {
+        _hiddenCols_ = s;
+    }
+    
+    public def getHiddenCols() {
+        if(_hiddenCols_!=null) return _hiddenCols_;
+        def t = invoker.properties.hiddenCols;
+        if(t) return t;
+        return workunit.info.workunit_properties.hiddenCols;    
+    }
+    
     private def _schema;
     public def getSchema() {
         if( _schema !=null ) return _schema;
         
-        strCols = invoker.properties.cols;
-        if(!strCols) {
-            strCols = workunit.info.workunit_properties.cols;    
-        }
+        strCols = getSelectColNames();
+        
         //this is for hidden columns
-        hiddenCols = invoker.properties.hiddenCols;
-        if(!hiddenCols) {
-            hiddenCols = workunit.info.workunit_properties.hiddenCols;    
-        }
+        
         if(!schemaName) 
             throw new Exception("Please specify a schema name in the workunit");
         
@@ -119,6 +140,7 @@ public class CrudListModel extends AbstractCrudModel {
         }
         
         def map = [name:schemaName, adapter: adapter]; 
+        map.debug = true;
         if ( strCols ) {
             map.colnames = strCols;
             if(hiddenCols) map.colnames = strCols + ","+hiddenCols;
@@ -369,9 +391,8 @@ public class CrudListModel extends AbstractCrudModel {
         for( c in criteriaList*.entry ) {
             def dtype = c.field.type;
             if ( dtype == null ) dtype = "string";
-            
             def op = c[(dtype+'operator')];
-            if(i++>0) buff.appepend( " AND ");
+            if(i++>0) buff.append( " AND ");
             buff.append( c.field.name + ' ' + op.key + ' :' +c.field.extname );
             params.put( c.field.extname, c.value );
             if( op.key?.toUpperCase() == 'BETWEEN') {

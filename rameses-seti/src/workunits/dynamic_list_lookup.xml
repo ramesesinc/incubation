@@ -12,7 +12,7 @@
 
         public class DynamicSchemaLookupModel extends com.rameses.seti2.models.CrudLookupModel {
         
-           
+            
             String schemaName;
             
             

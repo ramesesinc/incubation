@@ -6,6 +6,6 @@
     <code class="com.rameses.seti2.models.FilterCriteriaModel"/>
 
     <pages>
-        <page template="com.rameses.seti2.views.FilterCriteriaPanel"/>
+        <page template="com.rameses.seti2.views.FilterCriteriaPage"/>
     </pages>    
 </workunit> 
