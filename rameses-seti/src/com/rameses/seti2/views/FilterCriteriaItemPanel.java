@@ -77,11 +77,10 @@ public class FilterCriteriaItemPanel extends javax.swing.JPanel {
         });
         add(xComboBox2, java.awt.BorderLayout.WEST);
 
-        xPanel3.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 4, 1, 4));
+        xPanel3.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 4, 0, 4));
         xPanel3.setCellPadding(new java.awt.Insets(0, 10, 0, 0));
         xPanel3.setDepends(new String[] {"entry.field"});
         xPanel3.setName("datatype"); // NOI18N
-        xPanel3.setPreferredSize(new java.awt.Dimension(214, 30));
         xPanel3.setVisibleWhen("#{datatype != null}");
         xPanel3.setLayout(new java.awt.CardLayout());
 
@@ -255,13 +254,13 @@ public class FilterCriteriaItemPanel extends javax.swing.JPanel {
         add(xPanel3, java.awt.BorderLayout.CENTER);
 
         jPanel1.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
+        jPanel1.setPreferredSize(new java.awt.Dimension(50, 20));
         jPanel1.setLayout(new java.awt.BorderLayout());
 
-        xButton1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/toolbars/trash.png"))); // NOI18N
         xButton1.setBorderPainted(false);
         xButton1.setContentAreaFilled(false);
         xButton1.setIconResource("images/toolbars/trash.png");
-        xButton1.setMargin(new java.awt.Insets(4, 4, 4, 4));
+        xButton1.setMargin(new java.awt.Insets(2, 4, 2, 4));
         xButton1.setName("removeField"); // NOI18N
         xButton1.setPreferredSize(new java.awt.Dimension(25, 22));
         xButton1.setToolTipText("Remove criteria");
@@ -273,7 +272,7 @@ public class FilterCriteriaItemPanel extends javax.swing.JPanel {
         xButton2.setContentAreaFilled(false);
         xButton2.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         xButton2.setForeground(new java.awt.Color(0, 102, 255));
-        xButton2.setMargin(new java.awt.Insets(4, 4, 4, 4));
+        xButton2.setMargin(new java.awt.Insets(2, 4, 2, 4));
         xButton2.setName("addField"); // NOI18N
         xButton2.setPreferredSize(new java.awt.Dimension(25, 22));
         xButton2.setToolTipText("Add another criteria");
