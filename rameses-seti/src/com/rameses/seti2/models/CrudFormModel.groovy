@@ -274,11 +274,15 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
     //there might be cases where you dont want to display option
     protected boolean isShowConfirm() { return true; }
     
+    public String getConfirmMessage() {
+        return "You are about to save this record. Proceed?";
+    }
+    
     def save() {
         if(!_inited_) throw new Exception("This workunit is not inited. Please call open or create action");
        
         if( isShowConfirm() ) {
-            if(!MsgBox.confirm('You are about to save this record. Proceed?')) return null;
+            if(!MsgBox.confirm(getConfirmMessage())) return null;
         }
         
         if( mode == 'create' ) {

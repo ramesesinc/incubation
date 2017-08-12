@@ -8,6 +8,9 @@ import com.rameses.osiris2.common.*;
 
 public class FilterCriteriaComponent extends ComponentBean  {
     
+    @Binding
+    def binding;
+    
     def handler;
     def selectedField;
     def fieldList; 
@@ -48,6 +51,7 @@ public class FilterCriteriaComponent extends ComponentBean  {
         controlList << m;  
         formControls.reload();
         handler.add( m.entry );
+        if(binding!=null) binding.refresh(); 
     }
             
     int getFieldIndex() {
@@ -64,7 +68,7 @@ public class FilterCriteriaComponent extends ComponentBean  {
             o.entry.index = fldIndex;
         }
         handler.remove(z);
-        //if(binding!=null) binding.refresh();    
+        if(binding!=null) binding.refresh();    
     }
     
     
