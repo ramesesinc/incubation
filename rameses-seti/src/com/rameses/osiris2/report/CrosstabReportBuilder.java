@@ -4,6 +4,7 @@
  */
 package com.rameses.osiris2.report;
 
+import com.rameses.osiris2.report.CrosstabReport.FieldProperty;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.List;
@@ -43,14 +44,18 @@ public final class CrosstabReportBuilder {
     }
     
     private String parseReport(CrosstabReport report) throws Exception { 
-        ReportColumn rowField = report.getRowField();
-        if ( rowField == null ) throw new Exception(report.getRowGroup() + " row group field not found"); 
-        
-        ReportColumn colField = report.getColumnField();
-        if ( colField == null ) throw new Exception( report.getColumnGroup() + " column group field not found"); 
-
-        ReportColumn meField = report.getMeasureField();  
-        if ( meField == null ) throw new Exception( report.getMeasure() + " measure field not found"); 
+        for (FieldProperty fp : report.getRowGroups()) {
+            ReportColumn rc = report.findColumn( fp.getName() ); 
+            if ( rc == null ) throw new Exception("Unable to find report column "+ fp.getName());
+        }
+        for (FieldProperty fp : report.getColumnGroups()) {
+            ReportColumn rc = report.findColumn( fp.getName() ); 
+            if ( rc == null ) throw new Exception("Unable to find report column "+ fp.getName());
+        }
+        for (FieldProperty fp : report.getMeasures()) {
+            ReportColumn rc = report.findColumn( fp.getName() ); 
+            if ( rc == null ) throw new Exception("Unable to find report column "+ fp.getName());
+        }
         
         int pageWidth = 612; 
         int pageHeight = 792;
@@ -58,6 +63,10 @@ public final class CrosstabReportBuilder {
         int bottomMargin = 18; int rightMargin = 18; 
         int columnWidth = pageWidth - leftMargin - rightMargin; 
         String orientation = report.getPreferredOrientation(); 
+        if ( "Landscape".equals(orientation)) {
+            pageWidth = 792; pageHeight = 612; 
+            columnWidth = pageWidth - leftMargin - rightMargin; 
+        } 
         
         StringBuilder sb = new StringBuilder();        
         sb.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
@@ -84,21 +93,19 @@ public final class CrosstabReportBuilder {
         sb.append(" <band height=\"0\" isSplitAllowed=\"true\" >");
         sb.append("  <crosstab>");
         sb.append("   <reportElement x=\"0\" y=\"-20\" width=\""+columnWidth+"\" height=\"20\" key=\"crosstab-1\" />");
-        sb.append("   <crosstabHeaderCell>");
-        sb.append("    <cellContents mode=\"Transparent\">");
-        sb.append("     <box></box>");
-        sb.append("    </cellContents>");
-        sb.append("   </crosstabHeaderCell>");
-        sb.append( buildRowGroup( report, rowField ) );
-        sb.append( buildColGroup( report, colField ) );
-        sb.append( buildMeasure( report, rowField, colField, meField ) );
+
+        sb.append( buildRowGroupHeader( report ));
+        sb.append( buildRowGroup( report ) );
+        sb.append( buildColGroup( report ) );
+        sb.append( buildMeasure( report ) );
+        
         sb.append("  </crosstab>");
         sb.append(" </band>");
         sb.append(" </groupFooter>");
         sb.append("</group>");
                 
         sb.append("<background><band height=\"0\" isSplitAllowed=\"true\"></band></background>");
-        sb.append("<title><band height=\"20\" isSplitAllowed=\"true\"></band></title>");
+        sb.append( buildTitle( report, columnWidth ));
         sb.append("<pageHeader><band height=\"0\" isSplitAllowed=\"true\"></band></pageHeader>");
         sb.append("<columnHeader><band height=\"0\" isSplitAllowed=\"true\"></band></columnHeader>");
         sb.append("<detail><band height=\"0\" isSplitAllowed=\"true\"></band></detail>");
@@ -118,47 +125,134 @@ public final class CrosstabReportBuilder {
         return sb.toString();
     }
     
-    private String buildRowGroup( CrosstabReport report, ReportColumn rc ) {
+    private String buildTitle( CrosstabReport report, int pageWidth ) { 
+        String title = report.getTitle();
         StringBuilder sb = new StringBuilder(); 
-        sb.append("<rowGroup name=\""+rc.getName()+"\" width=\""+rc.getWidth()+"\" totalPosition=\"End\">");
-        sb.append(" <bucket>");
-        sb.append("  <bucketExpression class=\"java.lang.String\"><![CDATA[$F{"+rc.getName()+"}]]></bucketExpression>");
-        sb.append(" </bucket>");
+        if ( title == null || title.trim().length() == 0 ) {
+            sb.append("<title>");
+            sb.append(" <band height=\"20\" isSplitAllowed=\"true\"></band>");
+            sb.append("</title>");
+            return sb.toString(); 
+        }
         
-        sb.append(" <crosstabRowHeader>");
-        sb.append("  <cellContents mode=\"Transparent\">");
-        sb.append("   <box></box>");
-        sb.append("   <textField isStretchWithOverflow=\"false\" isBlankWhenNull=\"false\" evaluationTime=\"Now\" hyperlinkType=\"None\"  hyperlinkTarget=\"Self\" >");
-        sb.append("    <reportElement x=\"0\" y=\"0\" width=\"100\" height=\"14\" key=\"textField\"/>");
-        sb.append("    <box></box>");
-        sb.append("    <textElement textAlignment=\"Center\" verticalAlignment=\"Middle\">");
-        sb.append("     <font/>");
-        sb.append("    </textElement>");
-        sb.append("    <textFieldExpression class=\"java.lang.String\"><![CDATA[$V{"+rc.getName()+"}]]></textFieldExpression>");
-        sb.append("   </textField>");
-        sb.append("  </cellContents>");
-        sb.append(" </crosstabRowHeader>");
-        
-        sb.append(" <crosstabTotalRowHeader>");
-        sb.append("  <cellContents mode=\"Transparent\">");
-        sb.append("   <box></box>");
-        sb.append("   <textField isStretchWithOverflow=\"false\" isBlankWhenNull=\"false\" evaluationTime=\"Now\" hyperlinkType=\"None\"  hyperlinkTarget=\"Self\" >");
-        sb.append("    <reportElement x=\"0\" y=\"0\" width=\"100\" height=\"30\" key=\"textField\"/>");
-        sb.append("    <box></box>");
-        sb.append("    <textElement textAlignment=\"Center\" verticalAlignment=\"Middle\">");
-        sb.append("     <font/>");
-        sb.append("    </textElement>");
-        sb.append("    <textFieldExpression class=\"java.lang.String\"><![CDATA[\"TOTALS\"]]></textFieldExpression>");
-        sb.append("   </textField>");
-        sb.append("  </cellContents>");
-        sb.append(" </crosstabTotalRowHeader>");
-        
-        sb.append("</rowGroup>");
+        sb.append("<title>");
+        sb.append("<band height=\"70\" isSplitAllowed=\"true\">");
+        sb.append("<textField isStretchWithOverflow=\"false\" isBlankWhenNull=\"true\" evaluationTime=\"Now\" hyperlinkType=\"None\"  hyperlinkTarget=\"Self\" >");
+        sb.append(" <reportElement mode=\"Transparent\" x=\"0\" y=\"0\" width=\""+pageWidth+"\" height=\"14\" forecolor=\"#000000\" backcolor=\"#FFFFFF\" key=\"title-staticText-1\"/>");
+        sb.append(" <box></box>");
+        sb.append(" <textElement textAlignment=\"Center\" verticalAlignment=\"Middle\">");
+        sb.append("  <font fontName=\"SansSerif\" pdfFontName=\"Helvetica\" size=\"9\"/>");
+        sb.append(" </textElement>");
+        sb.append(" <textFieldExpression class=\"java.lang.String\"><![CDATA[\""+title+"\"]]></textFieldExpression>");
+        sb.append("</textField>");
+        sb.append("</band>");
+        sb.append("</title>");
         return sb.toString(); 
     }
     
-    private String buildColGroup( CrosstabReport report, ReportColumn rc ) {
-        CrosstabReport.FieldProperty fp = report.getFieldProperty(rc.getName()); 
+    private String buildRowGroupHeader( CrosstabReport report ) {
+        StringBuilder sb = new StringBuilder(); 
+        sb.append("   <crosstabHeaderCell>");
+        sb.append("    <cellContents mode=\"Transparent\">");
+        sb.append("     <box></box>");
+        
+        int idx=1; int x=0;
+        for (FieldProperty fp : report.getRowGroups()) {
+            ReportColumn rc = report.findColumn( fp.getName()); 
+            if ( rc == null ) continue; 
+            
+            int cw = rc.getWidth();
+            String caption = fp.getCaption();
+            if ( caption == null ) caption = rc.getCaption();
+            if ( caption == null ) caption = "";
+            
+            sb.append("<staticText>");
+            sb.append(" <reportElement x=\""+x+"\" y=\"0\" width=\""+cw+"\" height=\"20\" key=\"rowGroupHeader-staticText-"+idx+"\"/>");
+            sb.append(" <box></box>");
+            sb.append(" <textElement textAlignment=\"Center\" verticalAlignment=\"Middle\">");
+            sb.append("  <font/>");
+            sb.append(" </textElement>");
+            sb.append(" <text><![CDATA["+ caption +"]]></text>");
+            sb.append("</staticText>");
+            idx += 1;
+            x += cw; 
+        }
+        sb.append("    </cellContents>");
+        sb.append("   </crosstabHeaderCell>");        
+        return sb.toString(); 
+    }
+    
+    private String buildRowGroup( CrosstabReport report ) {
+        StringBuilder sb = new StringBuilder(); 
+
+        int totalColWidth = 0; 
+        for (FieldProperty fp : report.getRowGroups()) {
+            ReportColumn rc = report.findColumn( fp.getName()); 
+            totalColWidth += rc.getWidth(); 
+        }
+        
+        int idx = 1;
+        for (FieldProperty fp : report.getRowGroups()) {
+            ReportColumn rc = report.findColumn( fp.getName()); 
+            Class clazz = rc.getFieldType(); 
+            String pattern = fp.getPattern(); 
+            if ( pattern == null ) pattern = "";
+            
+            int width = rc.getWidth(); 
+            
+            sb.append("<rowGroup name=\""+rc.getName()+"\" width=\""+width+"\"");
+            if ( idx == 1 ) sb.append(" totalPosition=\"End\"");
+            
+            sb.append(">");
+            sb.append(" <bucket>");
+            sb.append("  <bucketExpression class=\""+clazz.getName()+"\"><![CDATA[$F{"+rc.getName()+"}]]></bucketExpression>");
+            sb.append(" </bucket>");
+
+            sb.append(" <crosstabRowHeader>");
+            sb.append("  <cellContents mode=\"Transparent\">");
+            sb.append("   <box></box>");
+            sb.append("   <textField pattern=\""+pattern+"\" isStretchWithOverflow=\"false\" isBlankWhenNull=\"false\" evaluationTime=\"Now\" hyperlinkType=\"None\"  hyperlinkTarget=\"Self\">");
+            sb.append("    <reportElement x=\"0\" y=\"0\" width=\"100\" height=\"14\" key=\"textField\"/>");
+            sb.append("    <box></box>");
+            sb.append("    <textElement textAlignment=\"Center\" verticalAlignment=\"Middle\">");
+            sb.append("     <font/>");
+            sb.append("    </textElement>");
+            sb.append("    <textFieldExpression class=\""+clazz.getName()+"\"><![CDATA[$V{"+rc.getName()+"}]]></textFieldExpression>");
+            sb.append("   </textField>");
+            sb.append("  </cellContents>");
+            sb.append(" </crosstabRowHeader>");
+
+            if ( idx == 1) {
+                sb.append(" <crosstabTotalRowHeader>");
+                sb.append("  <cellContents mode=\"Transparent\">");
+                sb.append("   <box></box>");
+                sb.append("   <textField isStretchWithOverflow=\"false\" isBlankWhenNull=\"false\" evaluationTime=\"Now\" hyperlinkType=\"None\"  hyperlinkTarget=\"Self\" >");
+                sb.append("    <reportElement x=\"0\" y=\"5\" width=\""+totalColWidth+"\" height=\"25\" key=\"trh-textField-"+idx+"\"/>");
+                sb.append("    <box leftPadding=\"10\"><topPen lineWidth=\"1.0\" lineStyle=\"Solid\"/></box>");
+                sb.append("    <textElement textAlignment=\"Left\" verticalAlignment=\"Middle\">");
+                sb.append("     <font/>");
+                sb.append("    </textElement>");
+                sb.append("    <textFieldExpression class=\"java.lang.String\"><![CDATA[\"TOTALS\"]]></textFieldExpression>");
+                sb.append("   </textField>");
+                sb.append("  </cellContents>");
+                sb.append(" </crosstabTotalRowHeader>");
+            }
+            
+            sb.append("</rowGroup>");
+            idx += 1; 
+        } 
+        return sb.toString(); 
+    }
+    
+    private String buildColGroup( CrosstabReport report ) {
+        FieldProperty fp = report.getColumnGroups().get(0);         
+        ReportColumn rc = report.findColumn( fp.getName()); 
+        
+        FieldProperty mfp = report.getMeasures().get(0);
+        String alignment = fp.getAlignment();
+        if ( alignment == null ) alignment = mfp.getAlignment();
+        if ( alignment == null ) alignment = "Center";
+        
         StringBuilder sb = new StringBuilder(); 
         sb.append("<columnGroup name=\""+rc.getName()+"\" height=\"20\" totalPosition=\"End\" headerPosition=\"Center\">");
         sb.append(" <bucket>");
@@ -171,7 +265,7 @@ public final class CrosstabReportBuilder {
         sb.append("   <textField isStretchWithOverflow=\"false\" isBlankWhenNull=\"false\" evaluationTime=\"Now\" hyperlinkType=\"None\"  hyperlinkTarget=\"Self\" >");
         sb.append("    <reportElement x=\"0\" y=\"0\" width=\"75\" height=\"20\" key=\"textField\"/>");
         sb.append("    <box></box>");
-        sb.append("     <textElement textAlignment=\"Center\" verticalAlignment=\"Middle\">");
+        sb.append("     <textElement textAlignment=\""+alignment+"\" verticalAlignment=\"Middle\">");
         sb.append("      <font/>");
         sb.append("     </textElement>");
         sb.append("     <textFieldExpression class=\"java.lang.String\"><![CDATA[$V{"+rc.getName()+"}]]></textFieldExpression>");
@@ -179,6 +273,7 @@ public final class CrosstabReportBuilder {
         sb.append("  </cellContents>");
         sb.append(" </crosstabColumnHeader>");
         
+        /*
         sb.append(" <crosstabTotalColumnHeader>");
         sb.append("  <cellContents mode=\"Transparent\">");
         sb.append("   <box></box>");
@@ -192,78 +287,102 @@ public final class CrosstabReportBuilder {
         sb.append("   </textField>");
         sb.append("  </cellContents>");
         sb.append(" </crosstabTotalColumnHeader>");
+        */
         
-        sb.append("</columnGroup>");
+        sb.append("</columnGroup>"); 
         return sb.toString(); 
     }
     
-    private String buildMeasure( CrosstabReport report, ReportColumn rf, ReportColumn cf, ReportColumn mf  ) {
-        CrosstabReport.FieldProperty mfp = report.getFieldProperty(mf.getName()); 
+    private String buildMeasure( CrosstabReport report ) {
+        FieldProperty mfp = report.getMeasures().get(0);
+                
         String alignment = mfp.getAlignment()+"";
         if ( alignment.equalsIgnoreCase("left") ) alignment = "Left";
         else if ( alignment.equalsIgnoreCase("right") ) alignment = "Right";
         else alignment = "Center";
+
+        FieldProperty cfp = report.getColumnGroups().get(0);         
+        ReportColumn cf = report.findColumn( cfp.getName());         
+        ReportColumn mf = report.findColumn( mfp.getName()); 
+        
+        String pattern = mfp.getPattern(); 
+        if ( pattern == null ) pattern="";
         
         StringBuilder sb = new StringBuilder(); 
-        sb.append("<measure name=\""+mf.getName()+"_Sum\" class=\"java.lang.Number\" calculation=\"Sum\">");
+        sb.append("<measure name=\""+mf.getName()+"_Sum\" class=\""+mf.getFieldType().getName()+"\" calculation=\"Sum\">");
         sb.append(" <measureExpression><![CDATA[$F{"+mf.getName()+"}]]></measureExpression>");
         sb.append("</measure>");
         
         sb.append("<crosstabCell width=\"75\" height=\"14\">"); 
         sb.append(" <cellContents mode=\"Transparent\">"); 
         sb.append("  <box></box>"); 
-        sb.append("  <textField isStretchWithOverflow=\"false\" isBlankWhenNull=\"false\" evaluationTime=\"Now\" hyperlinkType=\"None\"  hyperlinkTarget=\"Self\" >"); 
+        sb.append("  <textField pattern=\""+pattern+"\" isStretchWithOverflow=\"false\" isBlankWhenNull=\"false\" evaluationTime=\"Now\" hyperlinkType=\"None\"  hyperlinkTarget=\"Self\" >"); 
         sb.append("   <reportElement x=\"0\" y=\"0\" width=\"75\" height=\"14\" key=\"textField\"/>"); 
         sb.append("   <box></box>"); 
         sb.append("   <textElement textAlignment=\""+alignment+"\" verticalAlignment=\"Middle\">"); 
         sb.append("    <font/>"); 
         sb.append("   </textElement>"); 
-        sb.append("   <textFieldExpression class=\"java.lang.Number\"><![CDATA[$V{"+mf.getName()+"_Sum}]]></textFieldExpression>"); 
+        sb.append("   <textFieldExpression class=\""+mf.getFieldType().getName()+"\"><![CDATA[$V{"+mf.getName()+"_Sum}]]></textFieldExpression>"); 
         sb.append("  </textField>"); 
         sb.append(" </cellContents>"); 
         sb.append("</crosstabCell>"); 
         
-        sb.append("<crosstabCell width=\"75\" height=\"14\" columnTotalGroup=\""+cf.getName()+"\">"); 
+        sb.append("<crosstabCell width=\"0\" height=\"14\" columnTotalGroup=\""+cf.getName()+"\">"); 
         sb.append(" <cellContents mode=\"Transparent\">"); 
         sb.append("  <box></box>"); 
-        sb.append("  <textField isStretchWithOverflow=\"false\" isBlankWhenNull=\"false\" evaluationTime=\"Now\" hyperlinkType=\"None\"  hyperlinkTarget=\"Self\" >"); 
-        sb.append("   <reportElement x=\"0\" y=\"0\" width=\"75\" height=\"14\" key=\"textField\"/>"); 
-        sb.append("   <box></box>"); 
-        sb.append("   <textElement textAlignment=\""+alignment+"\" verticalAlignment=\"Middle\">"); 
-        sb.append("    <font/>"); 
-        sb.append("   </textElement>"); 
-        sb.append("   <textFieldExpression class=\"java.lang.Number\"><![CDATA[$V{"+mf.getName()+"_Sum}]]></textFieldExpression>"); 
-        sb.append("  </textField>"); 
         sb.append(" </cellContents>"); 
         sb.append("</crosstabCell>"); 
 
-        sb.append("<crosstabCell width=\"75\" height=\"30\" rowTotalGroup=\""+rf.getName()+"\">"); 
-        sb.append(" <cellContents mode=\"Transparent\">"); 
-        sb.append("  <box></box>"); 
-        sb.append("  <textField isStretchWithOverflow=\"false\" isBlankWhenNull=\"false\" evaluationTime=\"Now\" hyperlinkType=\"None\"  hyperlinkTarget=\"Self\" >"); 
-        sb.append("   <reportElement x=\"0\" y=\"0\" width=\"75\" height=\"30\" key=\"textField\"/>"); 
-        sb.append("   <box></box>"); 
-        sb.append("   <textElement textAlignment=\""+alignment+"\" verticalAlignment=\"Middle\">"); 
-        sb.append("    <font/>"); 
-        sb.append("   </textElement>"); 
-        sb.append("   <textFieldExpression class=\"java.lang.Number\"><![CDATA[$V{"+mf.getName()+"_Sum}]]></textFieldExpression>"); 
-        sb.append("  </textField>"); 
-        sb.append(" </cellContents>"); 
-        sb.append("</crosstabCell>"); 
+//        sb.append("<crosstabCell width=\"75\" height=\"14\" columnTotalGroup=\""+cf.getName()+"\">"); 
+//        sb.append(" <cellContents mode=\"Transparent\">"); 
+//        sb.append("  <box></box>"); 
+//        sb.append("  <textField isStretchWithOverflow=\"false\" isBlankWhenNull=\"false\" evaluationTime=\"Now\" hyperlinkType=\"None\"  hyperlinkTarget=\"Self\" >"); 
+//        sb.append("   <reportElement x=\"0\" y=\"0\" width=\"75\" height=\"14\" key=\"textField\"/>"); 
+//        sb.append("   <box></box>"); 
+//        sb.append("   <textElement textAlignment=\""+alignment+"\" verticalAlignment=\"Middle\">"); 
+//        sb.append("    <font/>"); 
+//        sb.append("   </textElement>"); 
+//        sb.append("   <textFieldExpression class=\"java.lang.Number\"><![CDATA[$V{"+mf.getName()+"_Sum}]]></textFieldExpression>"); 
+//        sb.append("  </textField>"); 
+//        sb.append(" </cellContents>"); 
+//        sb.append("</crosstabCell>"); 
 
-        sb.append("<crosstabCell width=\"75\" height=\"30\" rowTotalGroup=\""+rf.getName()+"\" columnTotalGroup=\""+cf.getName()+"\">"); 
-        sb.append(" <cellContents mode=\"Transparent\">"); 
-        sb.append("  <box></box>"); 
-        sb.append("  <textField isStretchWithOverflow=\"false\" isBlankWhenNull=\"false\" evaluationTime=\"Now\" hyperlinkType=\"None\"  hyperlinkTarget=\"Self\" >"); 
-        sb.append("   <reportElement x=\"0\" y=\"0\" width=\"75\" height=\"30\" key=\"textField\"/>"); 
-        sb.append("   <box></box>"); 
-        sb.append("   <textElement textAlignment=\""+alignment+"\" verticalAlignment=\"Middle\">"); 
-        sb.append("    <font/>"); 
-        sb.append("   </textElement>"); 
-        sb.append("   <textFieldExpression class=\"java.lang.Number\"><![CDATA[$V{"+mf.getName()+"_Sum}]]></textFieldExpression>"); 
-        sb.append("  </textField>"); 
-        sb.append(" </cellContents>"); 
-        sb.append("</crosstabCell>"); 
+        for ( FieldProperty fp : report.getRowGroups()) {
+            ReportColumn rf = report.findColumn( fp.getName());             
+            sb.append("<crosstabCell width=\"75\" height=\"30\" rowTotalGroup=\""+rf.getName()+"\">"); 
+            sb.append(" <cellContents mode=\"Transparent\">"); 
+            sb.append("  <box></box>"); 
+            sb.append("  <textField pattern=\""+pattern+"\" isStretchWithOverflow=\"false\" isBlankWhenNull=\"false\" evaluationTime=\"Now\" hyperlinkType=\"None\"  hyperlinkTarget=\"Self\" >"); 
+            sb.append("   <reportElement x=\"0\" y=\"5\" width=\"75\" height=\"25\" key=\"textField\"/>"); 
+            sb.append("   <box><topPen lineWidth=\"1.0\" lineStyle=\"Solid\"/></box>"); 
+            sb.append("   <textElement textAlignment=\""+alignment+"\" verticalAlignment=\"Middle\">"); 
+            sb.append("    <font/>"); 
+            sb.append("   </textElement>"); 
+            sb.append("   <textFieldExpression class=\"java.lang.Number\"><![CDATA[$V{"+mf.getName()+"_Sum}]]></textFieldExpression>"); 
+            sb.append("  </textField>"); 
+            sb.append(" </cellContents>"); 
+            sb.append("</crosstabCell>"); 
+
+            sb.append("<crosstabCell width=\"0\" height=\"30\" rowTotalGroup=\""+rf.getName()+"\" columnTotalGroup=\""+cf.getName()+"\">"); 
+            sb.append(" <cellContents mode=\"Transparent\">"); 
+            sb.append("  <box></box>"); 
+            sb.append(" </cellContents>"); 
+            sb.append("</crosstabCell>"); 
+                        
+            /*sb.append("<crosstabCell width=\"75\" height=\"30\" rowTotalGroup=\""+rf.getName()+"\" columnTotalGroup=\""+cf.getName()+"\">"); 
+            sb.append(" <cellContents mode=\"Transparent\">"); 
+            sb.append("  <box></box>"); 
+            sb.append("  <textField isStretchWithOverflow=\"false\" isBlankWhenNull=\"false\" evaluationTime=\"Now\" hyperlinkType=\"None\"  hyperlinkTarget=\"Self\" >"); 
+            sb.append("   <reportElement x=\"0\" y=\"0\" width=\"75\" height=\"30\" key=\"textField\"/>"); 
+            sb.append("   <box></box>"); 
+            sb.append("   <textElement textAlignment=\""+alignment+"\" verticalAlignment=\"Middle\">"); 
+            sb.append("    <font/>"); 
+            sb.append("   </textElement>"); 
+            sb.append("   <textFieldExpression class=\"java.lang.Number\"><![CDATA[$V{"+mf.getName()+"_Sum}]]></textFieldExpression>"); 
+            sb.append("  </textField>"); 
+            sb.append(" </cellContents>"); 
+            sb.append("</crosstabCell>"); */
+        }
         
         sb.append("<whenNoDataCell>");
         sb.append(" <cellContents mode=\"Transparent\">");

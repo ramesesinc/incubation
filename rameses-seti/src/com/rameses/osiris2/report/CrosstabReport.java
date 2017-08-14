@@ -4,6 +4,7 @@
  */
 package com.rameses.osiris2.report;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -16,38 +17,75 @@ public class CrosstabReport extends SimpleTableReport {
     private FieldProperty colGroup;
     private FieldProperty measure;
     private String orientation;
-        
-    public String getRowGroup() { 
-        return (rowGroup == null ? null : rowGroup.getName()); 
-    }
-    public void setRowGroup(String name) {
-        if ( name == null ) { 
-            this.rowGroup = null; 
-        } else { 
-            this.rowGroup = new FieldProperty(name); 
-        }
+    
+    private List<FieldProperty> rowGroups;
+    private List<FieldProperty> columnGroups;
+    private List<FieldProperty> measureGroups;
+
+    public CrosstabReport() {
+        rowGroups = new ArrayList();
+        columnGroups = new ArrayList();
+        measureGroups = new ArrayList();
     }
     
-    public String getColumnGroup() { 
-        return (colGroup == null ? null : colGroup.getName()); 
+    public List<FieldProperty> getRowGroups() { 
+        return rowGroups; 
     } 
-    public void setColumnGroup( String name ) {
-        if ( name == null ) { 
-            this.colGroup = null; 
-        } else { 
-            this.colGroup = new FieldProperty(name); 
-        }
+    public FieldProperty addRowGroup( String name ) {
+        return addRowGroup( name, null ); 
     }
+    public FieldProperty addRowGroup( String name, String caption ) {
+        FieldProperty fp = findFieldProperty( getRowGroups(), name ); 
+        if ( fp == null ) { 
+            fp = new FieldProperty( name );
+            getRowGroups().add( fp ); 
+        } 
+        fp.setCaption( caption ); 
+        return fp; 
+    } 
+    
+    public List<FieldProperty> getColumnGroups() { 
+        return columnGroups; 
+    } 
+    public FieldProperty addColumnGroup( String name ) {
+        return addColumnGroup( name, null ); 
+    }
+    public FieldProperty addColumnGroup( String name, String caption ) {
+        FieldProperty fp = findFieldProperty( getColumnGroups(), name ); 
+        if ( fp == null ) { 
+            fp = new FieldProperty( name );
+            getColumnGroups().add( fp ); 
+        } 
+        fp.setCaption( caption ); 
+        return fp; 
+    }        
 
-    public String getMeasure() { 
-        return (measure == null ? null : measure.getName()); 
+    public List<FieldProperty> getMeasures() { 
+        return measureGroups; 
     }
-    public void setMeasure( String name ) {
-        if ( name == null ) { 
-            this.measure = null; 
-        } else { 
-            this.measure = new FieldProperty(name); 
+    public FieldProperty addMeasure( String name ) {
+        return addMeasure( name, null ); 
+    }
+    public FieldProperty addMeasure( String name, String caption ) {
+        FieldProperty fp = findFieldProperty( getMeasures(), name ); 
+        if ( fp == null ) { 
+            fp = new FieldProperty( name );
+            getMeasures().add( fp ); 
+        } 
+        fp.setCaption( caption ); 
+        return fp; 
+    } 
+    
+    private FieldProperty findFieldProperty( List<FieldProperty> fields, String name ) { 
+        if ( name == null ) return null;
+        
+        for (int i=0; i<fields.size(); i++) { 
+            FieldProperty fp = fields.get(i);
+            if (name.equals( fp.getName())) {
+                return fp;
+            }
         }
+        return null; 
     }
     
     public String getOrientation() { return orientation; } 
@@ -61,24 +99,37 @@ public class CrosstabReport extends SimpleTableReport {
         else if ( s.equalsIgnoreCase("landscape")) return "Landscape"; 
         else return "Portrait"; 
     }        
-    
-    public final ReportColumn getRowField() {
-        return findColumn( getRowGroup() ); 
+
+    public FieldProperty getRowGroup( String name ) {
+        if ( name == null ) return null; 
+
+        for ( FieldProperty fp : getRowGroups() ) {
+            if ( name.equals(fp.getName())) {
+                return fp; 
+            }
+        }
+        return null;
     }
-    public final ReportColumn getColumnField() {
-        return findColumn( getColumnGroup() ); 
+    public FieldProperty getColumnGroup( String name ) {
+        if ( name == null ) return null; 
+
+        for ( FieldProperty fp : getColumnGroups() ) {
+            if ( name.equals(fp.getName())) {
+                return fp; 
+            }
+        }
+        return null;
     }  
-    public final ReportColumn getMeasureField() {
-        return findColumn( getMeasure() ); 
-    } 
-    
-    public FieldProperty getFieldProperty( String name ) {
-        if ( name == null ) return new FieldProperty( name );  
-        if ( name.equals( getRowGroup())) return rowGroup; 
-        else if ( name.equals( getColumnGroup())) return colGroup; 
-        else if ( name.equals( getMeasure())) return measure;
-        else return new FieldProperty( name ); 
-    }
+    public FieldProperty getMeasureGroup( String name ) {
+        if ( name == null ) return null; 
+
+        for ( FieldProperty fp : getMeasures() ) {
+            if ( name.equals(fp.getName())) {
+                return fp; 
+            }
+        }
+        return null;
+    }  
     
     public class FieldProperty {
         
@@ -86,6 +137,7 @@ public class CrosstabReport extends SimpleTableReport {
         private String caption;
         private String alignment;
         private String headerAlignment;
+        private String pattern;
         
         public FieldProperty( String name ) {
             this.name = name; 
@@ -106,6 +158,11 @@ public class CrosstabReport extends SimpleTableReport {
         public String getHeaderAlignment() { return headerAlignment; } 
         public void setHeaderAlignment( String headerAlignment ) {
             this.headerAlignment = headerAlignment; 
+        }
+        
+        public String getPattern() { return pattern; } 
+        public void setPattern( String pattern ) {
+            this.pattern = pattern; 
         }
     }
 }
