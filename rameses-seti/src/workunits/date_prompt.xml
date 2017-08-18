@@ -1,6 +1,6 @@
 <workunit>
     <invokers>
-        <invoker type="date:prompt" caption="Enter Date"/>
+        <invoker type="date:prompt" caption="Enter Date" target="popup"/>
     </invokers>
     <code>
         class DatePrompt {
