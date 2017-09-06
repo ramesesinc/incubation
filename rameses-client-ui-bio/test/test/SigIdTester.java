@@ -47,6 +47,7 @@ public class SigIdTester extends TestCase {
                 System.out.println("onclose");  
             }            
         };
+        
         SigIdViewer.open(model); 
         JOptionPane.showMessageDialog( null, "waiting..." );
     }
