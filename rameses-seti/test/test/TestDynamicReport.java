@@ -8,7 +8,6 @@ import com.rameses.osiris2.report.CrosstabReport;
 import com.rameses.osiris2.report.CrosstabReportBuilder;
 import com.rameses.osiris2.reports.ReportDataSource;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,6 +46,7 @@ public class TestDynamicReport extends TestCase {
         tbl.addRowGroup("receiptno");
         tbl.addColumnGroup("acctcode");
         //tbl.addMeasureGroup("amount");
+        tbl.addMeasure("amount");
         
         //tbl.getFieldProperty("amount").setAlignment("right"); 
         
