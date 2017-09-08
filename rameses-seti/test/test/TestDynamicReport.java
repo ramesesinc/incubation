@@ -46,7 +46,7 @@ public class TestDynamicReport extends TestCase {
         
         tbl.addRowGroup("receiptno");
         tbl.addColumnGroup("acctcode");
-        tbl.addMeasureGroup("amount");
+        //tbl.addMeasureGroup("amount");
         
         //tbl.getFieldProperty("amount").setAlignment("right"); 
         
