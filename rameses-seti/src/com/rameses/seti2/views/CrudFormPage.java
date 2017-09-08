@@ -88,6 +88,7 @@ public class CrudFormPage extends javax.swing.JPanel {
         btnUndo = new com.rameses.rcp.control.XButton();
         btnCancel = new com.rameses.rcp.control.XButton();
         btnPrint = new com.rameses.rcp.control.XButton();
+        btnPrint1 = new com.rameses.rcp.control.XButton();
         btnRefresh = new com.rameses.rcp.control.XButton();
         xActionBar1 = new com.rameses.rcp.control.XActionBar();
         xActionBar2 = new com.rameses.rcp.control.XActionBar();
@@ -201,12 +202,24 @@ public class CrudFormPage extends javax.swing.JPanel {
         btnPrint.setAccelerator("ctrl P");
         btnPrint.setCaption("");
         btnPrint.setFocusable(false);
-        btnPrint.setIconResource("images/toolbars/printer.png");
+        btnPrint.setIconResource("images/toolbars/preview.png");
         btnPrint.setImmediate(true);
         btnPrint.setMargin(new java.awt.Insets(1, 1, 1, 1));
-        btnPrint.setName("viewReport"); // NOI18N
+        btnPrint.setName("preview"); // NOI18N
         btnPrint.setVisibleWhen("#{viewReportAllowed==true}");
         jToolBar1.add(btnPrint);
+
+        btnPrint1.setAccelerator("ctrl P");
+        btnPrint1.setCaption("");
+        btnPrint1.setFocusable(false);
+        btnPrint1.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        btnPrint1.setIconResource("images/toolbars/report.png");
+        btnPrint1.setImmediate(true);
+        btnPrint1.setMargin(new java.awt.Insets(1, 1, 1, 1));
+        btnPrint1.setName("viewReport"); // NOI18N
+        btnPrint1.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        btnPrint1.setVisibleWhen("#{viewReportAllowed==true}");
+        jToolBar1.add(btnPrint1);
 
         btnRefresh.setCaption("");
         btnRefresh.setFocusable(false);
@@ -582,6 +595,7 @@ public class CrudFormPage extends javax.swing.JPanel {
     private com.rameses.rcp.control.XButton btnHelp;
     private com.rameses.rcp.control.XButton btnInfo;
     private com.rameses.rcp.control.XButton btnPrint;
+    private com.rameses.rcp.control.XButton btnPrint1;
     private com.rameses.rcp.control.XButton btnRefresh;
     private com.rameses.rcp.control.XButton btnSave;
     private com.rameses.rcp.control.XButton btnUndo;

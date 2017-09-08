@@ -368,7 +368,6 @@ public abstract class AbstractCrudModel  {
     //additional to get the current page
     public def getCurrentPage() {
         return workunit.workunit.currentPage.name;
-    }
-    
+    }    
 }
         

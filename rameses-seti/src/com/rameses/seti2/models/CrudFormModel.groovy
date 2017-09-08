@@ -25,6 +25,10 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
     def selectedSection;
     def sections;
     
+    String getPrintFormName() {
+        return super.getSchemaName(); 
+    }
+    
     String getFormType() {
         return 'form';
     }
@@ -456,6 +460,26 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
         entity.get(name).remove( item );
     }
 
+    def preview() { 
+        def sname = getClass().getName();
+        int idx = sname.lastIndexOf('.'); 
+        if ( idx > 0 ) sname = sname.substring(0, idx); 
+        if ( sname.endsWith(".models")) sname = sname.substring(0, sname.lastIndexOf(".models"));
+        
+        def reportName = sname.replace('.', '/') + "/printforms/" + getPrintFormName() +".jasper";
+        if ( !com.rameses.osiris2.reports.ReportUtil.hasReport( reportName )) 
+            throw new Exception( reportName + ' does not exist '); 
+            
+        def rh = [ 
+           getReportName : { 
+               return reportName; 
+           },
+           getData : {
+               return entity;
+           } 
+        ]; 
+        return Inv.lookupOpener("simple_form_report", [reportHandler:rh, title: getTitle()]);  
+   }      
 }
 
 
