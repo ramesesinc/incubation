@@ -266,7 +266,10 @@ public class CrudListModel extends AbstractCrudModel {
     } 
     
     public boolean getMultiSelect() {
-        def g = workunit.info.workunit_properties.multiSelect;
+        def g = invoker.properties.multiSelect;
+        if(!g) {
+            g = workunit.info.workunit_properties.multiSelect;
+        }
         if(g) {
             try {
                 return Boolean.parseBoolean( g );
