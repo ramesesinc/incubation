@@ -31,7 +31,7 @@ class PersistenceService  {
 		if ( !o._schemaname ) throw new Exception('Please provide a _schemaname');
 
 		o.dtcreated = dateSvc.getServerDate();
-		o.createdby = [objid:env.USERID, name:env.FULLNAME];
+		o.createdby = [objid:env.USERID, name:env.FULLNAME, title:env.JOBTITLE];
 
 		return db.lookup(o._schemaname).create( o );
 	}
