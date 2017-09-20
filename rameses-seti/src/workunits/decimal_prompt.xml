@@ -1,0 +1,27 @@
+<workunit>
+    <invokers>
+        <invoker type="decimal:prompt" caption="Enter Date" target="popup"/>
+    </invokers>
+    <code>
+        class DecimalPrompt {
+        
+            String title;
+            def value = 0;
+            def handler;
+        
+            def doCancel() {
+                return "_close";
+            }
+            def doOk() {
+                if(!handler) throw new Exception("Please specify handler in decimal:prompt");
+                if(handler) handler(value);
+                return "_close";
+            }
+        }
+    </code>    
+    
+    <pages>
+        <page template="com.rameses.seti2.views.DecimalPrompt"/>
+    </pages>    
+    
+</workunit>  

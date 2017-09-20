@@ -358,17 +358,18 @@ public abstract class AbstractCrudModel  {
     def viewReport() {
         def op = new PopupMenuOpener();
         try {
+            //def list1 = InvokerUtil.lookupOpeners( inv.properties.category, [entity:entity] );
+            //op.addAll( list1 );
             def list = Inv.lookupOpeners(schemaName+":" + getFormType() + ":reports", [entity:entityContext]);
-            if(!list) throw new Exception("No reports are defined for " + schemaName+":" + getFormType() );
             op.addAll( list );
         } catch(Throwable ign){;}
+        if(op.size()==0) throw new Exception("No reports defined in category ");
         return op;
     }
     
     //additional to get the current page
     public def getCurrentPage() {
         return workunit.workunit.currentPage.name;
-    }
-    
+    }    
 }
         

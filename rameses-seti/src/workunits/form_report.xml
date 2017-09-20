@@ -1,0 +1,14 @@
+<workunit>
+    <invokers>
+        <invoker type="simple_form_report" caption="Simple Report" action="view"/>
+        <!-- actions -->
+        <invoker type="formActions" caption="Close" action="_close" />
+    </invokers>
+    
+    <code class="com.rameses.seti2.models.SimpleFormReportModel"/>
+    
+    <pages>
+        <page template="com.rameses.seti2.views.ReportPreviewPage"/>
+    </pages>    
+    
+</workunit>  

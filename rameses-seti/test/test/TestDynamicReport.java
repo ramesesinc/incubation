@@ -6,9 +6,7 @@ package test;
 
 import com.rameses.osiris2.report.CrosstabReport;
 import com.rameses.osiris2.report.CrosstabReportBuilder;
-import com.rameses.osiris2.report.SimpleTableReport;
 import com.rameses.osiris2.reports.ReportDataSource;
-import com.rameses.service.ScriptServiceContext;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -34,20 +32,21 @@ public class TestDynamicReport extends TestCase {
     public void test0() throws Exception {
         //List datalist = getData(); 
         List datalist = new ArrayList();
-        datalist.add(createData(2017, "A1", 100));
-        datalist.add(createData(2017, "A2", 150));
-        datalist.add(createData(2016, "A3", 150));
-        datalist.add(createData(2016, "A2", 250));
-        datalist.add(createData(2017, "A4", 250));
+        datalist.add(createData("5100001", "2017-08-01", "A1", 100.0));
+        datalist.add(createData("5100001", "2017-08-01", "A2", 150.0));
+        datalist.add(createData("5100002", "2017-08-02", "A2", 250.0));
+        datalist.add(createData("5100002", "2017-08-02", "A3", 350.0));
         
         CrosstabReport tbl = new CrosstabReport();
-        tbl.addColumn("Year", "year", java.lang.Number.class); 
-        tbl.addColumn("AcctCode", "acctcode", java.lang.String.class); 
+        tbl.addColumn("Receipt No.", "receiptno", java.lang.String.class); 
+        tbl.addColumn("Receipt Date", "receiptdate", java.util.Date.class); 
         tbl.addColumn("Amount", "amount", java.lang.Number.class); 
+        tbl.addColumn("AcctCode", "acctcode", java.lang.String.class); 
         
-        tbl.setRowGroup("year"); 
-        tbl.setColumnGroup("acctcode"); 
-        tbl.setMeasure("amount"); 
+        tbl.addRowGroup("receiptno");
+        tbl.addColumnGroup("acctcode");
+        //tbl.addMeasureGroup("amount");
+        tbl.addMeasure("amount");
         
         //tbl.getFieldProperty("amount").setAlignment("right"); 
         
@@ -61,9 +60,10 @@ public class TestDynamicReport extends TestCase {
         new LinkedBlockingQueue().poll(2, TimeUnit.MINUTES); 
     }
     
-    private Map createData( int year, String acctcode, Number amount ) {
+    private Map createData( String receiptno, String receiptdate, String acctcode, Number amount ) {
         Map map = new HashMap(); 
-        map.put("year", year);
+        map.put("receiptno", receiptno);
+        map.put("receiptdate", java.sql.Date.valueOf(receiptdate));
         map.put("acctcode", acctcode); 
         map.put("amount", amount);
         return map;

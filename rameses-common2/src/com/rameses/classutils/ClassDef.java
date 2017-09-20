@@ -28,7 +28,9 @@ public final class ClassDef {
         scanMethods(clazz);
     }
     
-    private void scanFields( Class clazz ) {
+    private void scanFields( Class clazz ) { 
+        if ( clazz == null ) return; 
+        
         for(Field f: clazz.getDeclaredFields() ) {
             for(Annotation a: f.getAnnotations()) {
                 annotatedFields.add(new AnnotationField(f, a));
@@ -40,6 +42,8 @@ public final class ClassDef {
     }
     
     private void scanMethods( Class clazz ) {
+        if ( clazz == null ) return;
+        
         for( Method m : clazz.getDeclaredMethods()) {
             for(Annotation a: m.getAnnotations()) {
                 annotatedMethods.add(new AnnotationMethod( m, a));
