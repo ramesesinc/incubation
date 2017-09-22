@@ -138,6 +138,7 @@ public class FormPage extends javax.swing.JPanel {
 
         xabNavActions.setBorder(null);
         xabNavActions.setDepends(new String[] {"entity"});
+        xabNavActions.setFormName("formName");
         xabNavActions.setName("navActions"); // NOI18N
         xabNavActions.setShowCaptions(false);
         rightactionpanel.add(xabNavActions);
