@@ -131,6 +131,12 @@ public abstract class ClientContext
         currentContext.taskManager = new TaskManager();
         currentContext.services = new Services();   
         NotificationManager.reset(); 
+        
+        try { 
+            URL.setURLStreamHandlerFactory( new CustomURLStreamHandlerFactory()  ); 
+        } catch(Throwable t) { 
+            t.printStackTrace(); 
+        } 
     } 
     
     public final TaskManager getTaskManager() { return taskManager; }
@@ -225,4 +231,5 @@ public abstract class ClientContext
     } 
     
     // </editor-fold>
+    
 }
