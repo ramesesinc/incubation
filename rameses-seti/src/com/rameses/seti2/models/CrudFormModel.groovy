@@ -460,6 +460,10 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
         entity.get(name).remove( item );
     }
 
+    public def getPrintFormData() {
+        return entity; 
+    }
+    
     def preview() { 
         def sname = getClass().getName();
         int idx = sname.lastIndexOf('.'); 
@@ -474,8 +478,8 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
            getReportName : { 
                return reportName; 
            },
-           getData : {
-               return entity;
+           getData : { 
+               return getPrintFormData(); 
            } 
         ]; 
         return Inv.lookupOpener("simple_form_report", [reportHandler:rh, title: getTitle()]);  

@@ -117,19 +117,21 @@ public class ServiceInvokerServlet extends AbstractServlet {
             Object[] params = readRequest(req);
             
             AppContext ct = OsirisServer.getInstance().getContext( AppContext.class, p.getContextName() );
-            
-            if(p.getServiceName().indexOf(":")<=0) {
+            String serviceName = p.getServiceName();
+            int idx = ( serviceName == null ? 0 : serviceName.indexOf(':'));
+            if ( idx <= 0 ) {
                 //process normal scripts
                 tr = new ScriptRunnable( (MainContext)ct );
-                tr.setServiceName(p.getServiceName());
+                tr.setServiceName( serviceName );
             }
             else {
                 //handle remote scripts separately
-                tr = new RemoteScriptRunnable( (MainContext)ct);
-                String[] arr = p.getServiceName().split(":");
-                ((RemoteScriptRunnable)tr).setHostName(arr[0]);
-                tr.setServiceName(arr[1]);
+                RemoteScriptRunnable rem  =new RemoteScriptRunnable( (MainContext)ct);
+                rem.setHostName( serviceName.substring(0, idx)); 
+                rem.setServiceName( serviceName.substring(idx+1)); 
+                tr = rem;
             }
+            
             tr.setBypassAsync(false);
             tr.setMethodName(p.getMethodName());
             tr.setArgs((Object[])params[0] );

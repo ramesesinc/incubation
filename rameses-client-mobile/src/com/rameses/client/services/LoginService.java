@@ -44,5 +44,14 @@ public class LoginService extends AbstractService
                 sess.set(key, authOpts.get(key)); 
             } 
         } 
+        
+        Map report = (Map) result.remove("REPORT");
+        if (report != null) {
+            Iterator keys = report.keySet().iterator(); 
+            while (keys.hasNext()) { 
+                String key = keys.next().toString(); 
+                sess.set(key, report.get(key)); 
+            } 
+        } 
     } 
 }
