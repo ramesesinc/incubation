@@ -15,16 +15,13 @@ import java.util.Map;
 public class RabbitMQConnectionProvider extends XConnectionProvider {
 
     private final static String PROVIDER_NAME = "rabbitmq";
-    private RabbitMQConnection conn;
     
     public String getProviderName() {
         return PROVIDER_NAME; 
     }
 
     public XConnection createConnection(String name, Map conf) { 
-        if(conn!=null) return conn;
-        conn = new RabbitMQConnection(name, context, conf ); 
-        return conn;
+        return new RabbitMQConnection(name, context, conf ); 
     }
 
     

@@ -6,6 +6,7 @@
 
 package com.rameses.osiris2.themes;
 
+
 public class OKCancelPage extends javax.swing.JPanel {
     
     public OKCancelPage() {

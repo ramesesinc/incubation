@@ -266,7 +266,10 @@ public class CrudListModel extends AbstractCrudModel {
     } 
     
     public boolean getMultiSelect() {
-        def g = workunit.info.workunit_properties.multiSelect;
+        def g = invoker.properties.multiSelect;
+        if(!g) {
+            g = workunit.info.workunit_properties.multiSelect;
+        }
         if(g) {
             try {
                 return Boolean.parseBoolean( g );
@@ -485,6 +488,10 @@ public class CrudListModel extends AbstractCrudModel {
         listHandler.reload();
     }
     
+    void reloadNodes(){
+        nodeListHandler.reload();
+    }
+    
     def print() {
         //load first all data.
         def m = buildSelectQuery([:]);
@@ -508,8 +515,17 @@ public class CrudListModel extends AbstractCrudModel {
     }
     
     //if there are nodes
-    private _nodeList;
+    def _nodeList;
     private def _selectedNode;
+
+
+    final def nodeListHandler = [
+        fetchList : { 
+            _nodeList = null;
+            return getNodeList();
+        }
+    ] as ListPaneModel 
+
     
     //overridable source
     public def fetchNodeList(def m) {

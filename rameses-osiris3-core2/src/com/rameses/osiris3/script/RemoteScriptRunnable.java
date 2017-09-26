@@ -80,7 +80,6 @@ public class RemoteScriptRunnable extends ScriptRunnable implements MessageHandl
                 return;
             }
             else {
-                
                 MessageConnection xconn = (MessageConnection)context.getResource(XConnection.class, "remote-script-mq");
                 if(xconn==null) {
                     throw new Exception("remote-script-mq not properly defined in connections" );
@@ -110,7 +109,13 @@ public class RemoteScriptRunnable extends ScriptRunnable implements MessageHandl
     public void onMessage(Object data) {
         try {
             Base64Cipher encoder = new Base64Cipher();
-            result = encoder.decode(data.toString());
+            if (encoder.isEncoded(data.toString())){
+                result = encoder.decode(data.toString());
+            }
+            else{
+                result = data;
+            }
+
             if( result instanceof Exception ) {
                 throw ExceptionManager.getOriginal((Exception)result);
             }

@@ -41,7 +41,7 @@ public class NodeListPage extends javax.swing.JPanel {
         jScrollPane1.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
 
         xList1.setExpression("#{item.title}");
-        xList1.setItems("nodeList");
+        xList1.setHandler("nodeListHandler");
         xList1.setName("selectedNode"); // NOI18N
         jScrollPane1.setViewportView(xList1);
 
