@@ -6,6 +6,7 @@ package com.rameses.rabbitmq;
 
 import com.rameses.osiris3.xconnection.XConnection;
 import com.rameses.osiris3.xconnection.XConnectionProvider;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -21,9 +22,7 @@ public class RabbitMQConnectionProvider extends XConnectionProvider {
     }
 
     public XConnection createConnection(String name, Map conf) { 
-        return new RabbitMQConnection(name, context, conf ); 
+        return new RabbitMQConnectionPool(conf, context, name);
     }
 
-    
-    
 }

@@ -86,6 +86,8 @@ public class RemoteScriptRunnable extends ScriptRunnable implements MessageHandl
                 }
                 //attach immediate response handler
                 xconn.addResponseHandler( tokenid, this ); 
+                xconn.start();
+                
                 //send the header to the destination
                 Map map = new HashMap();
                 map.put("tokenid", tokenid);

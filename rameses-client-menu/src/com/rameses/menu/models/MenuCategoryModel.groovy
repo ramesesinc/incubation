@@ -25,12 +25,40 @@ class MenuCategoryModel  {
     def menuHtml;
     def invokers = [:];
 
-    String formName = "collection_menu";
-    String title = "Collection";
     def fontColor = "black";
     def fontFace = "times";
     int fontSize = 5;
-   
+    int cellwidth = 350;
+    int iconwidth = 80;
+    
+    String getTitle() {
+        if( invoker.properties.formTitle ) {
+            return ExpressionResolver.getInstance().evalString(invoker.properties.formTitle,this);
+        }
+        if( invoker.caption ) {
+            return invoker.caption;
+        }
+         if( invoker.properties.windowTitle ) {
+            return ExpressionResolver.getInstance().evalString(invoker.properties.windowTitle,this);
+        }
+        return "";
+    }
+    
+    @FormId
+    String getFormId() {
+        if( invoker.properties.formId ) {
+            return ExpressionResolver.getInstance().evalString(invoker.properties.formId,this);
+        }
+        return workunit.workunit.id + "_menu";
+    }
+    
+    //this is used for getting the actions
+    public String getFormName() {
+        if( workunit.info.workunit_properties.formName ) {
+            return workunit.info.workunit_properties.formName;
+        }
+        return getContext()+"_menu";
+    }
     
     public String getContext() {
         String context = invoker.properties.context;
@@ -65,9 +93,6 @@ class MenuCategoryModel  {
         }
     }
     
-    public String getFormName() {
-        return getContext();
-    }
     
     def buildModel() {
         def model = [];
@@ -117,22 +142,23 @@ class MenuCategoryModel  {
     }
     
     void render(def model) {
-        int width = 250*cols;
+        
+        int width = cellwidth*cols;
         def sb = new StringBuilder();
         sb.append( "<table width=${width}>" );
         model.each { row ->
             sb.append("<tr>");
             
-            int height = 100 + (row.rowsize * 10);
+            int height = 100 + (row.rowsize * 20);
             
             //display each category
             row.list.each { m->
-               sb.append("<td>");
+               sb.append("<td width=${cellwidth}>");
                
                     //value of one cell here
-                    sb.append("<table cellpadding=0 height=${height}>");
+                    sb.append("<table cellpadding=0 height=${height} width=${cellwidth}>");
                         sb.append("<tr>");
-                            sb.append("<td valign=top style=\"padding-left:20px;\" height=${height}>");
+                            sb.append("<td valign=top style=\"padding-left:20px;\" height=${height} width=${iconwidth}>");
                                 sb.append( "<image src=\"classpath://${m.icon}\" />");
                             sb.append("</td>");
                             sb.append("<td valign=top  style=\"padding-left:10px;;\" height=${height}>");
@@ -175,6 +201,10 @@ class MenuCategoryModel  {
         if(color) fontColor = color;
         init();
         binding.refresh();
+    }
+    
+    boolean isExist() {
+        return true;
     }
     
 } 
