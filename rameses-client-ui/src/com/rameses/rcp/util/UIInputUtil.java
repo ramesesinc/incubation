@@ -245,6 +245,6 @@ public class UIInputUtil {
             if ( uihandler != null ) { 
                 uihandler.valueChanged( new UIControlEvent( uic, value )); 
             } 
-        }
-    }     
+        } 
+    } 
 }

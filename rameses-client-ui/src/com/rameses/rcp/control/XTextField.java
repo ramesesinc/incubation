@@ -62,7 +62,7 @@ public class XTextField extends DefaultTextField implements UIInput, Validatable
     private TextDocument document = new TextDocument();
     private TrimSpaceOption trimSpaceOption = TrimSpaceOption.ALL;
     private ActionCommandInvoker actionCommandInvoker; 
-            
+
     private String securityPattern;
     private String securityChar;
     private String securedValue; //internal value

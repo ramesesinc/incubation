@@ -78,7 +78,7 @@ public class XIntegerField extends AbstractNumberField implements UIInput,
             refresh();
         } catch(Exception ex){;} 
     }
-        
+    
     
     // <editor-fold defaultstate="collapsed" desc="  Getters/Setters  ">
     
