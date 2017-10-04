@@ -319,8 +319,16 @@ public abstract class AbstractCrudModel  {
     }
     
     def showMenu() {
-        def op = showDropdownMenu("menuActions");
-        op.add( new com.rameses.seti2.models.PopupAction(caption:'Close', name:'_close', obj:this, binding:binding) );
+        showMenu( inv );
+    }
+    
+    def showMenu(inv) {
+        def menu = inv.properties.context;
+        if(menu==null) menu = "menuActions";
+        def op = showDropdownMenu(menu);
+        if(menu=="menuActions") {
+            op.add( new com.rameses.seti2.models.PopupAction(caption:'Close', name:'_close', obj:this, binding:binding) );
+        }
         return op;
     }
     
@@ -371,5 +379,6 @@ public abstract class AbstractCrudModel  {
     public def getCurrentPage() {
         return workunit.workunit.currentPage.name;
     }    
+    
 }
         
