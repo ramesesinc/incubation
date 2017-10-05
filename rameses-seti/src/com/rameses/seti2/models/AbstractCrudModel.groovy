@@ -319,8 +319,16 @@ public abstract class AbstractCrudModel  {
     }
     
     def showMenu() {
-        def op = showDropdownMenu("menuActions");
-        op.add( new com.rameses.seti2.models.PopupAction(caption:'Close', name:'_close', obj:this, binding:binding) );
+        showMenu( inv );
+    }
+    
+    def showMenu(inv) {
+        def menu = inv.properties.context;
+        if(menu==null) menu = "menuActions";
+        def op = showDropdownMenu(menu);
+        if(menu=="menuActions") {
+            op.add( new com.rameses.seti2.models.PopupAction(caption:'Close', name:'_close', obj:this, binding:binding) );
+        }
         return op;
     }
     
@@ -328,9 +336,19 @@ public abstract class AbstractCrudModel  {
         def op = new PopupMenuOpener();
         //op.add( new ListAction(caption:'New', name:'create', obj:this, binding: binding) );
         try {
-            op.addAll( Inv.lookupOpeners(schemaName+":" + getFormType() + ":" + tag, [entity:entityContext]) );
+            def invf = { inv->
+                def vWhen = inv.properties.visibleWhen;
+                if(!vWhen) return true;  
+                try {
+                    return ExpressionResolver.getInstance().evalBoolean(vWhen, [entity:getEntityContext(), context: this] );
+                }
+                catch(ign){
+                    println 'Expression Error: ' + vWhen;
+                    return false;
+                }
+            } as InvokerFilter;
+            op.addAll( Inv.lookupOpeners(schemaName+":" + getFormType() + ":" + tag, [entity:entityContext], invf) );
         } catch(Throwable ign){;}
-        
         return op;
     }
     
@@ -371,5 +389,6 @@ public abstract class AbstractCrudModel  {
     public def getCurrentPage() {
         return workunit.workunit.currentPage.name;
     }    
+    
 }
         
