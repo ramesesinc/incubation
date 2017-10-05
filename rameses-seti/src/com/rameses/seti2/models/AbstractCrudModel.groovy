@@ -336,9 +336,19 @@ public abstract class AbstractCrudModel  {
         def op = new PopupMenuOpener();
         //op.add( new ListAction(caption:'New', name:'create', obj:this, binding: binding) );
         try {
-            op.addAll( Inv.lookupOpeners(schemaName+":" + getFormType() + ":" + tag, [entity:entityContext]) );
+            def invf = { inv->
+                def vWhen = inv.properties.visibleWhen;
+                if(!vWhen) return true;  
+                try {
+                    return ExpressionResolver.getInstance().evalBoolean(vWhen, [entity:getEntityContext(), context: this] );
+                }
+                catch(ign){
+                    println 'Expression Error: ' + vWhen;
+                    return false;
+                }
+            } as InvokerFilter;
+            op.addAll( Inv.lookupOpeners(schemaName+":" + getFormType() + ":" + tag, [entity:entityContext], invf) );
         } catch(Throwable ign){;}
-        
         return op;
     }
     
