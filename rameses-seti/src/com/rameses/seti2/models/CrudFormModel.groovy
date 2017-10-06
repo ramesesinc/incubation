@@ -14,7 +14,7 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
         
     def adapter;
     def entity;
-    def mode;
+    
     def itemHandlers = [:];     //holder for all specific item handlers
     
     def barcodeid;              //include the barcodeid so it will be uniform to all.

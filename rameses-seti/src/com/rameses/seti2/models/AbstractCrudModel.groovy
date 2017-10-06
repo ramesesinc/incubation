@@ -47,6 +47,7 @@ public abstract class AbstractCrudModel  {
     String permission;
     List styleRules = [];
     def schema;
+    def mode;
     
     
     public boolean getDebug() {
@@ -340,7 +341,7 @@ public abstract class AbstractCrudModel  {
                 def vWhen = inv.properties.visibleWhen;
                 if(!vWhen) return true;  
                 try {
-                    return ExpressionResolver.getInstance().evalBoolean(vWhen, [entity:getEntityContext(), context: this] );
+                    return ExpressionResolver.getInstance().evalBoolean(vWhen, [entity:getEntityContext(), context: this, mode: mode] );
                 }
                 catch(ign){
                     println 'Expression Error: ' + vWhen;
