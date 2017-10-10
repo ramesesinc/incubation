@@ -41,10 +41,12 @@ public class RuleConstraintLookupHandler extends RuleConstraintListValueHandler 
     ]
 
     def showLookup() {
-        if( !field.lookupkey || !field.lookupvalue || !field.lookuphandler )
+         if( !field.lookupkey || !field.lookupvalue || !field.lookuphandler )
             throw new Exception( "Please specify a lookup key, value and handler in the definition" )
         def m = [:];
         
+        def rule = caller.rule;
+        m.domain = rule.domain?.toLowerCase();
         m.lookupHandler = field.lookuphandler;
         m.lookupKey = field.lookupkey;
         m.lookupValue = field.lookupvalue;
