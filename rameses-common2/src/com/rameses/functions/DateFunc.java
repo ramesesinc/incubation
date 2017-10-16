@@ -10,6 +10,7 @@
 package com.rameses.functions;
 
 import com.rameses.util.DateUtil;
+import com.rameses.util.HolidayProvider;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -221,6 +222,25 @@ public final class DateFunc {
                 //if new date is a saturday or sunday, evaluate again.
                 dow = getDayOfWeek( d );
                 if(dow == 1 || dow == 7 ) d = getFindNextWorkDay( d, consumedHolidays );
+            }
+            return d;
+        }
+        catch(Exception e) {
+            throw new RuntimeException("Error in getFindNextWorkday function " + e.getMessage());
+        }
+    }
+    
+    public static Date getFindNextWorkDay(Date dt, HolidayProvider holidayProvider) {
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            int dow = getDayOfWeek(dt);
+            int add_days = 0;
+            if( dow == 1 ) add_days = 1;
+            else if( dow == 7 ) add_days = 2;
+            Date d = getDayAdd(dt, add_days);
+            if(holidayProvider.exists(d)) {
+                Date hd = getDayAdd(d, 1);
+                d = getFindNextWorkDay( hd, holidayProvider );
             }
             return d;
         }
