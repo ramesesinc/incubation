@@ -13,7 +13,7 @@ import java.util.List;
  *
  * @author Elmo Nazareno
  */
-public class CachedHolidayProvider implements HolidayProvider {
+public class DefaultHolidayProvider implements HolidayProvider {
 
     private HolidayProvider holidayProvider;
     private List<Date> holidays = new LinkedList();
