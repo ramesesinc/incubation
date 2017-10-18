@@ -24,12 +24,16 @@
                     actionParam.obj = [ key: o[actionParamDef.lookupkey], value: o[actionParamDef.lookupvalue] ] ;
                     binding.refresh("selection");
                 }
+                def onempty = {
+                    actionParam.obj = null;
+                    binding.refresh("selection");
+                }
                 def op = null;
                 try {
-                    op = Inv.lookupOpener( rule?.domain?.toLowerCase() + "_" + actionParamDef.lookuphandler, [onselect: selector]);
+                    op = Inv.lookupOpener( rule?.domain?.toLowerCase() + "_" + actionParamDef.lookuphandler, [onselect: selector, onempty: onempty ]);
                     if(op!=null) return op;
                 }catch(ign){;}
-                return Inv.lookupOpener( actionParamDef.lookuphandler, [onselect: selector]);
+                return Inv.lookupOpener( actionParamDef.lookuphandler, [onselect: selector, onempty: onempty]);
             }
 
             String getSelection() {

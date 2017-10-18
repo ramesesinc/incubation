@@ -1,8 +1,8 @@
 {
   caption: 'FINDNEXTWORKDAY',
-  description: 'if date falls on sat, sun or holiday, move to next date',
+  description: 'if date falls on sat, sun or holiday, move to next date. direction 1 or -1. 1=forward -1 backward',
   code: 'com.rameses.functions.DateFunc.getFindNextWorkDay',
-  title: '@FINDNEXTWORKDAY( date, (list)holidays )', 
+  title: '@FINDNEXTWORKDAY( date, [holidayprovider], [direction] )', 
   signature: '@FINDNEXTWORKDAY( |, )', 
   group: 'date' 
 }

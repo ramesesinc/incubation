@@ -115,7 +115,6 @@ public class FactPage extends javax.swing.JPanel {
         xTextField5.setName("entity.defaultvarname"); // NOI18N
         xTextField5.setPreferredSize(new java.awt.Dimension(150, 20));
         xTextField5.setSpaceChar('_');
-        xTextField5.setTextCase(com.rameses.rcp.constant.TextCase.NONE);
         xFormPanel1.add(xTextField5);
 
         xFormPanel3.setCaptionWidth(120);

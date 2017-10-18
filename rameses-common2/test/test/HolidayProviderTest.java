@@ -33,8 +33,8 @@ public class HolidayProviderTest extends TestCase {
         HolidayProvider hp = new HolidayList();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
-        Date d = sdf.parse("2017-10-20");
-        d = DateFunc.getFindNextWorkDay(d, hp);
+        Date d = sdf.parse("2017-10-24");
+        d = DateFunc.getFindNextWorkDay(d,hp,-1);
         System.out.println("day is " + d);
 
     }
@@ -58,6 +58,7 @@ public class HolidayProviderTest extends TestCase {
             } catch (Exception e) {
                 return false;
             }
+             
         }
     }
 }
