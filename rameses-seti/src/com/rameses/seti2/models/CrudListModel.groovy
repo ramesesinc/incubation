@@ -29,6 +29,7 @@ public class CrudListModel extends AbstractCrudModel {
     def queryForm;
     def whereStatement;
     String searchText;
+    String filterText;
     def cols = [];
     
     List searchables;
@@ -412,15 +413,30 @@ public class CrudListModel extends AbstractCrudModel {
             criteriaList.addAll( o );     
             if( criteriaList.size() > 0 ) {
                 whereStatement = buildWhereStatement(); 
+                filterText = buildFilterText();
             }
             else {
                 whereStatement = null;       
+                filterText = null;
             }
             //we call doSearch to set the start at 0
             listHandler.doSearch(); 
+            binding.refresh('filterText')
         }
         return Inv.lookupOpener( "crud:showcriteria", [cols: cols, handler:h, criteriaList: criteriaList] );
     }
+
+    def buildFilterText() {
+        if (!whereStatement || whereStatement[0].trim().length() == 0) 
+            return null;
+        def str = whereStatement[0]
+        def params = whereStatement[1]
+        params.each{k,v ->
+            if (v)
+                str = str.replace(':'+k, v)
+        }
+        return 'Criteria: ' + str 
+    }    
             
     def selectColumns() {
         def h = {

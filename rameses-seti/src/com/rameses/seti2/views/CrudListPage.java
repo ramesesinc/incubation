@@ -142,6 +142,7 @@ public class CrudListPage extends javax.swing.JPanel {
         btnRefresh = new com.rameses.rcp.control.XButton();
         xActionBar1 = new com.rameses.rcp.control.XActionBar();
         jPanel7 = new javax.swing.JPanel();
+        xLabel2 = new com.rameses.rcp.control.XLabel();
         xSubFormPanel1 = new com.rameses.rcp.control.XSubFormPanel();
         jToolBar2 = new javax.swing.JToolBar();
         xActionTextField1 = new com.rameses.rcp.control.XActionTextField();
@@ -274,13 +275,21 @@ public class CrudListPage extends javax.swing.JPanel {
         jPanel7.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 5));
         jPanel7.setLayout(new java.awt.BorderLayout());
 
+        xLabel2.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        xLabel2.setCellPadding(new java.awt.Insets(5, 0, 0, 5));
+        xLabel2.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        xLabel2.setForeground(new java.awt.Color(204, 0, 0));
+        xLabel2.setName("filterText"); // NOI18N
+        xLabel2.setText("xLabel2");
+        jPanel7.add(xLabel2, java.awt.BorderLayout.WEST);
+
         xSubFormPanel1.setHandler("queryForm");
 
         javax.swing.GroupLayout xSubFormPanel1Layout = new javax.swing.GroupLayout(xSubFormPanel1);
         xSubFormPanel1.setLayout(xSubFormPanel1Layout);
         xSubFormPanel1Layout.setHorizontalGroup(
             xSubFormPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 235, Short.MAX_VALUE)
+            .addGap(0, 187, Short.MAX_VALUE)
         );
         xSubFormPanel1Layout.setVerticalGroup(
             xSubFormPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -374,6 +383,7 @@ public class CrudListPage extends javax.swing.JPanel {
     private com.rameses.rcp.control.XButton xButton1;
     private com.rameses.rcp.control.XButton xButton2;
     private com.rameses.rcp.control.XLabel xLabel1;
+    private com.rameses.rcp.control.XLabel xLabel2;
     private com.rameses.rcp.control.XSubFormPanel xSubFormPanel1;
     // End of variables declaration//GEN-END:variables
 }

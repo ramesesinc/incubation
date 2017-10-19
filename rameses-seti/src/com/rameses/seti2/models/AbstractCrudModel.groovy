@@ -363,7 +363,7 @@ public abstract class AbstractCrudModel  {
             def list = Inv.lookupOpeners(schemaName+":" + getFormType() + ":reports", [entity:entityContext]);
             op.addAll( list );
         } catch(Throwable ign){;}
-        if(op.size()==0) throw new Exception("No reports defined in category ");
+        if(op.items.size()==0) throw new Exception("No reports defined in category ");
         return op;
     }
     
