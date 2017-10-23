@@ -38,12 +38,23 @@
             def mode;
             def savehandler;
             
+            @Service("QueryService")
+            def querySvc;
+            
             def create() {
                 mode = "create";
                 entity = [salience:50000, conditions:[],actions:[]];
                 entity.objid = "RUL"+new UID();
                 entity.ruleset = caller.query.ruleset;
                 entity.rulegroup = caller.query.rulegroup;
+                
+                //temporary solution to retrieve the domain
+                def p = [_schemaname:'sys_ruleset'];
+                p.findBy = [ name: caller.query.ruleset ];
+                p.select = "domain";
+                def z = querySvc.findFirst( p );
+                entity.domain = z.domain;
+                
                 rulegroups = caller.rulegroups;
                 return super.start("new")
             }
