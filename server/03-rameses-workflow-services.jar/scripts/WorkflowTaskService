@@ -145,7 +145,7 @@ class WorkflowTaskService  {
             return _tran;
         }    
     	for(t in transitions ) {
-            if( r.eval  ) {
+            if( t.eval  ) {
                 if(!r.info) {
                     throw new Exception("Please pass an info parameter in findNextTransition bec. there is an eval statement in the transition")
                 }
