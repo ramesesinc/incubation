@@ -13,25 +13,21 @@ import java.net.URL;
  */
 public class ClasspathURLStreamHandler extends URLStreamHandler {
 
-    private URLStreamHandler handler; 
-    
-    private URLStreamHandler getHandler() {
-        if (handler == null) {
-            handler = new ReportURLStreamHandlerFactory().getHandler( getProtocol() ); 
-        } 
-        return handler; 
-    } 
+    private final static String KEY_NAME = "classpath";
     
     public String getProtocol() {
-        return "classpath";
+        return KEY_NAME; 
+    }
+
+    public int getIndex() {
+        return -1; 
     }
 
     public URL getResource(String spath) { 
-        URLStreamHandler h = getHandler(); 
-        if ( h == null ) {
+        if ( ReportUtil.isDeveloperMode()) { 
+            return ReportUtil.factory.getResource(spath);
+        } else { 
             return null; 
-        } else {
-            return h.getResource( spath ); 
-        }
+        } 
     }    
 }

@@ -17,9 +17,12 @@ import java.net.URLConnection;
 public abstract class URLStreamHandler extends java.net.URLStreamHandler {
 
     private ClassLoader classLoader; 
+    private int index;
     
     public abstract String getProtocol();
     public abstract URL getResource( String spath );
+    
+    public int getIndex() { return index; } 
     
     public ClassLoader getClassLoader() { return classLoader; } 
     public void setClassLoader(ClassLoader classLoader ) {

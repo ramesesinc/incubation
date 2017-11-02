@@ -24,17 +24,11 @@ import net.sf.jasperreports.view.JasperViewer;
 
 public final class ReportUtil {
         
-    private static ReportURLStreamHandlerFactory factory; 
+    public final static ReportURLStreamHandlerFactory factory = new ReportURLStreamHandlerFactory(); 
+    
     private static boolean developerMode;
     
-    static {
-        factory = new ReportURLStreamHandlerFactory(); 
-        try { 
-            URL.setURLStreamHandlerFactory( factory ); 
-        } catch(Throwable t) {
-            t.printStackTrace(); 
-        }
-        
+    static {        
         System.out.println("Starting cache resource cleaner..."); 
         new Thread( new CacheResourceCleaner() ).start(); 
         
@@ -44,11 +38,15 @@ public final class ReportUtil {
         } catch(Throwable t) {;}
         
         factory.setDeveloperMode( developerMode ); 
+        
+//        try { 
+//            URL.setURLStreamHandlerFactory( factory ); 
+//        } catch(Throwable t) {;}
     }
     
     public ReportUtil() {
     }
-    
+        
     public static JasperPrint generateJasper( Object data, Map conf ) throws Exception {
         JasperReport r = (JasperReport)conf.get("main");
         ReportDataSource md = new ReportDataSource(data);
