@@ -13,25 +13,17 @@ import java.net.URL;
  */
 public class WebResURLStreamHandler extends URLStreamHandler {
 
-    private URLStreamHandler handler; 
-    
-    private URLStreamHandler getHandler() {
-        if (handler == null) {
-            handler = new ReportURLStreamHandlerFactory().getHandler( getProtocol() ); 
-        } 
-        return handler; 
-    } 
+    private final static String KEY_NAME = "webresource";
     
     public String getProtocol() {
-        return "webresource";
+        return KEY_NAME; 
     }
 
     public URL getResource(String spath) {
-        URLStreamHandler h = getHandler(); 
-        if ( h == null ) {
+        if ( ReportUtil.isDeveloperMode()) { 
+            return ReportUtil.factory.getWebResource(spath); 
+        } else { 
             return null; 
-        } else {
-            return h.getResource( spath ); 
-        }
+        } 
     }    
 }
