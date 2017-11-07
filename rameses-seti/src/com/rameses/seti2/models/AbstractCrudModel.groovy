@@ -320,12 +320,12 @@ public abstract class AbstractCrudModel  {
     }
     
     def showMenu() {
-        showMenu( inv );
+        showMenu( null );
     }
     
-    def showMenu(inv) {
-        def menu = inv.properties.context;
-        if(menu==null) menu = "menuActions";
+    def showMenu( inv ) {
+        def menu = inv?.properties?.context;
+        if( menu==null ) menu = "menuActions";
         def op = showDropdownMenu(menu);
         if(menu=="menuActions") {
             op.add( new com.rameses.seti2.models.PopupAction(caption:'Close', name:'_close', obj:this, binding:binding) );
