@@ -537,6 +537,8 @@ public class CrudListModel extends AbstractCrudModel {
             def m = [:];
             m._schemaname = schema.name;
             m.adapter = schema.adapter;   
+            String _tag_ = getTag();
+            if( _tag_ ) m._tag = _tag_;
             beforeFetchNodes( m );
             _nodeList = fetchNodeList( m );
         }
