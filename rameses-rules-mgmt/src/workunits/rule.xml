@@ -47,6 +47,7 @@
                 entity.objid = "RUL"+new UID();
                 entity.ruleset = caller.query.ruleset;
                 entity.rulegroup = caller.query.rulegroup;
+                entity.noloop = 1;
                 
                 //temporary solution to retrieve the domain
                 def p = [_schemaname:'sys_ruleset'];
