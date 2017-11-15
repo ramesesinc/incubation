@@ -107,4 +107,8 @@ public class HomeGroupController
         } 
         return false; 
     }    
+    
+    public def getEnv() { 
+        return clientContext.headers; 
+    } 
 }
