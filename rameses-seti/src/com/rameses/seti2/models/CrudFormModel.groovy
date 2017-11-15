@@ -59,6 +59,11 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
         if( mode !='read') return false;
         return super.isEditAllowed();
     }
+    
+    boolean isViewReportAllowed() { 
+        if( mode.matches('create|edit')) return false;
+        return super.isViewReportAllowed();
+    }
 
     boolean isSaveAllowed() {
         return ( mode != 'read');
