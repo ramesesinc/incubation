@@ -19,7 +19,7 @@ public class ClasspathURLStreamHandler extends URLStreamHandler {
     }
 
     public URL getResource(String spath) {
-        ClassLoader[] loaders = new ClassLoader[]{ getClassLoader(), URLStreamHandler.class.getClassLoader() }; 
+        ClassLoader[] loaders = new ClassLoader[]{ getClass().getClassLoader(), getClassLoader() }; 
         for ( ClassLoader loader : loaders ) {
             URL result = (loader == null ? null : loader.getResource(spath)); 
             if ( result != null ) return result; 

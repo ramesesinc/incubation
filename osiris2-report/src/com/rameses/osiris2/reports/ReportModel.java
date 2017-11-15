@@ -17,6 +17,7 @@ import com.rameses.osiris2.client.InvokerUtil;
 import com.rameses.rcp.annotations.Invoker;
 import com.rameses.rcp.common.Action;
 import com.rameses.rcp.framework.ClientContext;
+import com.rameses.util.URLStreamHandlers;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.net.URL;
@@ -172,6 +173,7 @@ public abstract class ReportModel {
             reportPath = rptName.substring(0, rptName.lastIndexOf("/"));
         } 
         conf.put(JRParameter.REPORT_CLASS_LOADER, new CustomReportClassLoader(reportPath));
+        conf.put(JRParameter.REPORT_URL_HANDLER_FACTORY, URLStreamHandlers.getFactory()); 
     } 
     
     private JasperPrint createReport() {
