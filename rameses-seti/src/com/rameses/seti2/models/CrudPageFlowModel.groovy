@@ -159,7 +159,6 @@ public class CrudPageFlowModel extends PageFlowController {
     }
     
     public def start(String name) {
-        init();
         return super.start(name);
     }
 
