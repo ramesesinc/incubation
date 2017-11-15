@@ -64,13 +64,17 @@ public final class URLStreamHandlers {
     
     private void setClassLoaderImpl( ClassLoader cloader ) {
         this.cloader = cloader; 
-        if ( this.cloader == null ) { 
-            this.cloader = getClass().getClassLoader(); 
-        } 
     }
     
     private void loadImpl() { 
-        Iterator itr = Service.providers( URLStreamHandler.class, this.cloader ); 
+        loadImpl( getClass().getClassLoader() ); 
+        loadImpl( this.cloader );         
+    }
+    
+    private void loadImpl( ClassLoader loader ) {
+        if ( loader == null ) return; 
+        
+        Iterator itr = Service.providers( URLStreamHandler.class, loader ); 
         while (itr.hasNext()) { 
             URLStreamHandler handler = (URLStreamHandler) itr.next(); 
             String protocol = handler.getProtocol(); 

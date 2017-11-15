@@ -24,10 +24,11 @@ public class ClasspathURLStreamHandler extends URLStreamHandler {
     }
 
     public URL getResource(String spath) { 
-        if ( ReportUtil.isDeveloperMode()) { 
+        try { 
             return ReportUtil.factory.getResource(spath);
-        } else { 
-            return null; 
-        } 
+        } catch(Throwable t) {
+            System.out.println("[ClasspathURLStreamHandler] failed to get resource "+ spath);
+            return null;
+        }
     }    
 }

@@ -1,6 +1,7 @@
 package com.rameses.osiris2.reports;
 
 import com.rameses.osiris2.client.Inv;
+import com.rameses.util.URLStreamHandlers;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -24,7 +25,7 @@ import net.sf.jasperreports.view.JasperViewer;
 
 public final class ReportUtil {
         
-    public final static ReportURLStreamHandlerFactory factory = new ReportURLStreamHandlerFactory(); 
+    public final static ReportURLStreamHandlerFactory factory = new ReportURLStreamHandlerFactory();
     
     private static boolean developerMode;
     
@@ -39,9 +40,9 @@ public final class ReportUtil {
         
         factory.setDeveloperMode( developerMode ); 
         
-//        try { 
-//            URL.setURLStreamHandlerFactory( factory ); 
-//        } catch(Throwable t) {;}
+        try {
+            URL.setURLStreamHandlerFactory( URLStreamHandlers.getFactory()); 
+        } catch(Throwable t) {;} 
     }
     
     public ReportUtil() {
