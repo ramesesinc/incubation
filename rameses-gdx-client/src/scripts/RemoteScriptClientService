@@ -7,13 +7,13 @@ class RemoteScriptClientService {
     @Context
     def appContext;
 
-    @XConnection( "remote-script-mq")
+    @XConnection( "gdx")
     def remoteConn;
 
     @Resource("ScriptService")
     def scriptSvc;
 
-    @Service( value="RemoteScriptRegistryService", connection="remote-script-service")
+    @Service( value="RemoteScriptRegistryService", connection="gdx-service")
     def remoteSvc;
 
     @ProxyMethod
@@ -28,7 +28,7 @@ class RemoteScriptClientService {
 	    return;
 	} 
 
-        println "Start registering script definition to the remote-script-service server";
+        println "Start registering script definition to the gdx-service server";
 
         def list = new HashSet();
         def h = { m->
@@ -66,6 +66,11 @@ class RemoteScriptClientService {
         String id = remoteConn.conf.queue;
         remoteSvc.unregister(id);
         println "unregistered to server";
+    }
+
+    @ProxyMethod
+    public void onMessage( def o ) {
+        //
     }
 
 }

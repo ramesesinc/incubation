@@ -80,9 +80,12 @@ public class RemoteScriptRunnable extends ScriptRunnable implements MessageHandl
                 return;
             }
             else {
-                MessageConnection xconn = (MessageConnection)context.getResource(XConnection.class, "remote-script-mq");
+                String _connName = (String)super.getContext().getConf().get("remote-script-mq");
+                if( _connName == null ) _connName = "remote-script-mq";
+                System.out.println("Remote script connection is " + _connName );
+                MessageConnection xconn = (MessageConnection)context.getResource(XConnection.class, _connName);
                 if(xconn==null) {
-                    throw new Exception("remote-script-mq not properly defined in connections" );
+                    throw new Exception(_connName + " not found or peorperly defined in connections" );
                 }
                 //attach immediate response handler
                 xconn.addResponseHandler( tokenid, this ); 

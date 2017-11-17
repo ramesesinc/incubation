@@ -1,0 +1,16 @@
+import com.rameses.annotations.*;
+
+
+class RemoteMessagingService {
+
+    /********************************
+    * write interceptors for this
+    *********************************/
+
+    @ProxyMethod 
+    public void onMessage( def args ) {
+    	//do nothing
+    }
+
+
+}

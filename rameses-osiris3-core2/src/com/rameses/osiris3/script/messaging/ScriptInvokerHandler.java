@@ -2,16 +2,15 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.rameses.rabbitmq;
+package com.rameses.osiris3.script.messaging;
 
+import com.rameses.osiris3.xconnection.MessageConnection;
 import com.rameses.osiris3.xconnection.MessageHandler;
 import com.rameses.service.ScriptServiceContext;
 import com.rameses.service.ServiceProxy;
 import com.rameses.util.Base64Cipher;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.TimeUnit;
 
 /**
  *
@@ -19,9 +18,9 @@ import java.util.concurrent.TimeUnit;
  */
 public class ScriptInvokerHandler implements MessageHandler{
     private Map conf;
-    private RabbitMQConnection parentConn;
+    private MessageConnection parentConn;
     
-    public ScriptInvokerHandler(Map conf, RabbitMQConnection parentConn){
+    public ScriptInvokerHandler(Map conf, MessageConnection parentConn){
         this.conf = conf;
         this.parentConn = parentConn;
     }
@@ -35,10 +34,19 @@ public class ScriptInvokerHandler implements MessageHandler{
     public void onMessage(Object data) {
         if(data instanceof Map) {
             Map req = (Map)data;          
-            
             ServiceProxy svc = null;
             String serviceName = (String) req.get("serviceName");
-            if (serviceName == null) return;
+            if (serviceName == null) {
+                ScriptServiceContext ctx = new ScriptServiceContext(conf);
+                svc = (ServiceProxy)ctx.create( "RemoteMessagingService" );
+                try {
+                    svc.invoke( "onMessage", new Object[]{req} );
+                }
+                catch(Exception e) {
+                    e.printStackTrace();
+                }
+                return;
+            }
             
             int idx = serviceName.indexOf(":");
             if ( idx > 0){
