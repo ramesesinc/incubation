@@ -47,6 +47,7 @@ public abstract class AbstractCrudModel  {
     String permission;
     List styleRules = [];
     def schema;
+    def mode;
     
     
     public boolean getDebug() {
@@ -319,8 +320,16 @@ public abstract class AbstractCrudModel  {
     }
     
     def showMenu() {
-        def op = showDropdownMenu("menuActions");
-        op.add( new com.rameses.seti2.models.PopupAction(caption:'Close', name:'_close', obj:this, binding:binding) );
+        showMenu( null );
+    }
+    
+    def showMenu( inv ) {
+        def menu = inv?.properties?.context;
+        if( menu==null ) menu = "menuActions";
+        def op = showDropdownMenu(menu);
+        if(menu=="menuActions") {
+            op.add( new com.rameses.seti2.models.PopupAction(caption:'Close', name:'_close', obj:this, binding:binding) );
+        }
         return op;
     }
     
@@ -328,15 +337,19 @@ public abstract class AbstractCrudModel  {
         def op = new PopupMenuOpener();
         //op.add( new ListAction(caption:'New', name:'create', obj:this, binding: binding) );
         try {
-            def openers = Inv.lookupOpeners(schemaName+":" + getFormType() + ":" + tag, [entity:entityContext]).findAll{
-                            def vw = it.properties.visibleWhen;
-                            return  ((!vw)  ||  ExpressionResolver.getInstance().evalBoolean( vw, [entity:entityContext] ));
-                        }
-
-            op.addAll(openers);
-        } 
-        catch(Throwable ign){;}
-        
+            def invf = { inv->
+                def vWhen = inv.properties.visibleWhen;
+                if(!vWhen) return true;  
+                try {
+                    return ExpressionResolver.getInstance().evalBoolean(vWhen, [entity:getEntityContext(), context: this, mode: mode] );
+                }
+                catch(ign){
+                    println 'Expression Error: ' + vWhen;
+                    return false;
+                }
+            } as InvokerFilter;
+            op.addAll( Inv.lookupOpeners(schemaName+":" + getFormType() + ":" + tag, [entity:entityContext], invf) );
+        } catch(Throwable ign){;}
         return op;
     }
     
@@ -377,5 +390,6 @@ public abstract class AbstractCrudModel  {
     public def getCurrentPage() {
         return workunit.workunit.currentPage.name;
     }    
+    
 }
         

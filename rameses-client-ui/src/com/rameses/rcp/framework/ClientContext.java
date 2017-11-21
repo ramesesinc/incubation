@@ -17,6 +17,7 @@ import com.rameses.rcp.impl.NavigationHandlerImpl;
 import com.rameses.common.ValueResolver;
 import com.rameses.util.Service;
 import com.rameses.util.URLStreamHandlerFactory;
+import com.rameses.util.URLStreamHandlers;
 import java.lang.ref.WeakReference;
 import java.net.URL;
 import java.util.HashMap;
@@ -50,7 +51,6 @@ public abstract class ClientContext
     private List<WeakReference<ExecutorService>> executors = new Vector();
     
     private EventManager eventManager; 
-    
     
     //<editor-fold defaultstate="collapsed" desc="  abstract properties  ">
     public abstract ValueResolver getValueResolver();
@@ -131,9 +131,12 @@ public abstract class ClientContext
         currentContext.taskManager = new TaskManager();
         currentContext.services = new Services();   
         NotificationManager.reset(); 
+
+        URLStreamHandlers.setClassLoader( currentContext.getClassLoader()); 
+        URLStreamHandlers.load(); 
         
         try { 
-            URL.setURLStreamHandlerFactory( new CustomURLStreamHandlerFactory()  ); 
+            URL.setURLStreamHandlerFactory( URLStreamHandlers.getFactory()); 
         } catch(Throwable t) { 
             t.printStackTrace(); 
         } 

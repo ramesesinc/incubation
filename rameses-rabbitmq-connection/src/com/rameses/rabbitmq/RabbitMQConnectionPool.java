@@ -4,6 +4,7 @@
  */
 package com.rameses.rabbitmq;
 
+import com.rameses.osiris3.script.messaging.ScriptInvokerHandler;
 import com.rabbitmq.client.Channel;
 import com.rameses.osiris3.core.AbstractContext;
 import com.rameses.osiris3.xconnection.MessageConnection;
@@ -45,20 +46,22 @@ public class RabbitMQConnectionPool extends MessageConnection
         started = true;
         
         int poolSize = 1;
-        try{
+        try { 
             poolSize = Integer.parseInt(conf.get("poolSize").toString());
-        }
-        catch(Exception e){
-            //ignore 
-        }
-        for(int i = 0; i<poolSize; i++){
+        } catch(Throwable t) {;}  
+        
+        Object apphost = appConf.get("app.host");
+        for (int i = 0; i<poolSize; i++ ) { 
             String sname = (i == 0 ? name : name+i);
             RabbitMQConnection rabbit = new RabbitMQConnection(sname, context, conf ); 
             
-            if (appConf.get("app.host") != null){
+            if ( apphost == null ) {
+                rabbit.addHandler( new MessageHandlerProxy());
+            } else { 
                 ScriptInvokerHandler handler = new ScriptInvokerHandler(appConf, rabbit);
                 rabbit.addHandler(handler);
-            }
+            } 
+            
             rabbit.start();
             pool.add(rabbit);
         }
@@ -67,12 +70,9 @@ public class RabbitMQConnectionPool extends MessageConnection
     @Override
     public void stop() {
         for(RabbitMQConnection c : pool){
-            try{
+            try {
                 c.stop();
-            }
-            catch(Exception e){
-                //
-            }
+            } catch(Throwable e){;}
         }
     }
 
@@ -124,4 +124,14 @@ public class RabbitMQConnectionPool extends MessageConnection
         }
     }    
     
+    private class MessageHandlerProxy implements MessageHandler {
+
+        public boolean accept(Object data) { 
+            return true; 
+        } 
+
+        public void onMessage(Object data) { 
+            RabbitMQConnectionPool.this.notifyHandlers( data ); 
+        } 
+    } 
 }

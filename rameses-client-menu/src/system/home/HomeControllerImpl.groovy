@@ -14,7 +14,7 @@ public class HomeControllerImpl
     def model;
     def items;
     def icon;
-    
+    def self = this;
     
     void init() { 
         icon = 'classpath://images/logo.png'; 
@@ -29,7 +29,7 @@ public class HomeControllerImpl
         def folders = session?.getFolders('home');
         folders?.each {
             if (it.invoker == null) { 
-                def result = hasChildren(it); 
+                def result = hasItems(it); 
                 if (result) { 
                     def map = [:];
                     map.putAll( it.properties );
@@ -68,15 +68,29 @@ public class HomeControllerImpl
         ] as TileViewModel
     } 
     
-    private boolean hasChildren( folder ) {
+    private boolean hasItems( def folder ) {
         if (folder.invoker != null) return true; 
     
         def list = session.getFolders(folder.fullId); 
         if (list) {
             for (o in list) {
-                if (hasChildren(o)) return true;  
+                if (hasItems(o)) return true;  
             }
         } 
         return false; 
     }
-}
+    
+    public boolean hasChildren( String name ) { 
+        def folders = session?.getFolders( name ); 
+        if ( folders == null ) return;
+        
+        for ( o in folders ) {
+            if ( hasItems(o)) return true; 
+        }
+        return false; 
+    }
+    
+    public def getEnv() { 
+        return clientContext.headers; 
+    } 
+} 

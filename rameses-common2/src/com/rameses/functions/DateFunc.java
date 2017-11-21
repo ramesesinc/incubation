@@ -10,6 +10,7 @@
 package com.rameses.functions;
 
 import com.rameses.util.DateUtil;
+import com.rameses.util.HolidayProvider;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -153,6 +154,7 @@ public final class DateFunc {
     }
     
     public static Date getDate( int year, int month, int day ) {
+        
         Calendar cal = Calendar.getInstance();
         cal.set(Calendar.YEAR, year);
         cal.set(Calendar.MONTH, month-1);
@@ -181,46 +183,35 @@ public final class DateFunc {
     /*************************************************************************
      * holidays must be sorted in order. 
      *************************************************************************/
-    public static Date getFindNextWorkDay(Date dt, List holidays) {
+    public static Date getFindNextWorkDay(Date dt) {
+        return getFindNextWorkDay(dt, null, 1);
+    }
+    
+    public static Date getFindNextWorkDay(Date dt, HolidayProvider holidayProvider) {
+        return getFindNextWorkDay(dt, holidayProvider, 1 );
+    }
+    
+    public static Date getFindNextWorkDay(Date dt, HolidayProvider holidayProvider, int direction) {
         try {
+            int dir = (direction<0)? -1 : 1;
+            
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
             int dow = getDayOfWeek(dt);
             int add_days = 0;
-            if( dow == 1 ) add_days = 1;
-            else if( dow == 7 ) add_days = 2;
+            if(dir == 1 ) {
+                if( dow == 1 ) add_days = 1;
+                else if( dow == 7 ) add_days = 2;
+            }
+            else {
+                if( dow == 1 ) add_days = -2;
+                else if( dow == 7 ) add_days = -1;
+            }
             Date d = getDayAdd(dt, add_days);
-            if(holidays!=null && holidays.size()>0) {
-                //transfer to set to ensure the entries will be sorted.
-                Set holidaySet = new TreeSet();
-                holidaySet.addAll(holidays);
-                System.out.println("printing ---------------- DATE");
-                for(Object h: holidaySet) {
-                    System.out.println(h);
+            if( holidayProvider !=null ) {
+                if(holidayProvider.exists(d)) {
+                    Date hd = getDayAdd(d, 1*dir);
+                    d = getFindNextWorkDay( hd, holidayProvider, direction );
                 }
-                System.out.println("printing ---------------- END DATE");
-                
-                List consumedHolidays = new ArrayList();
-                consumedHolidays.addAll( holidays );
-                
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-                for( Object v: holidaySet ) {
-                    Date dt1 = sdf.parse(sdf.format(d));
-                    Date dt2 = null;
-                    if( v instanceof Date ) {
-                        dt2 = sdf.parse( sdf.format( v ) );
-                    }
-                    else if( v instanceof String ) {
-                        dt2 = sdf.parse( (String) v );
-                    }
-                    if(dt2 == null ) break;
-                    System.out.println("evaluating ->" + dt2 );
-                    if(dt1.before(dt2)) break;
-                    
-                    consumedHolidays.remove( v );
-                    if(dt1.equals(dt2)) d = getDayAdd(d, 1);
-                }
-                //if new date is a saturday or sunday, evaluate again.
-                dow = getDayOfWeek( d );
-                if(dow == 1 || dow == 7 ) d = getFindNextWorkDay( d, consumedHolidays );
             }
             return d;
         }

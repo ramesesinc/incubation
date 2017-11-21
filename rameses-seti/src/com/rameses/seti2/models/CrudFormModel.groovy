@@ -14,7 +14,7 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
         
     def adapter;
     def entity;
-    def mode;
+    
     def itemHandlers = [:];     //holder for all specific item handlers
     
     def barcodeid;              //include the barcodeid so it will be uniform to all.
@@ -26,6 +26,10 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
     def sections;
     
     String getPrintFormName() {
+        def pfn = invoker.properties.printFormName;
+        if(pfn) return pfn;
+        pfn = workunit?.info?.workunit_properties?.printFormName;
+        if ( pfn ) return pfn; 
         return super.getSchemaName(); 
     }
     
@@ -58,6 +62,11 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
     boolean isEditAllowed() { 
         if( mode !='read') return false;
         return super.isEditAllowed();
+    }
+    
+    boolean isViewReportAllowed() { 
+        if( mode.matches('create|edit')) return false;
+        return super.isViewReportAllowed();
     }
 
     boolean isSaveAllowed() {

@@ -8,6 +8,7 @@ import com.rameses.io.IOStream;
 import com.rameses.rcp.framework.ClientContext;
 import com.rameses.util.Base64Cipher;
 import com.rameses.util.Encoder;
+import com.rameses.util.URLStreamHandlers;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -28,8 +29,13 @@ import java.util.Map;
  */
 public class ReportURLStreamHandlerFactory implements URLStreamHandlerFactory {
         
+    private URLStreamHandlerFactory source;
     private File developerCustomFolder; 
     private boolean developerMode;
+    
+    public ReportURLStreamHandlerFactory() {
+        this.source = URLStreamHandlers.getFactory(); 
+    }
     
     public File getDeveloperCustomFolder() { return developerCustomFolder; } 
     public void setDeveloperCustomFolder( File developerCustomFolder ) {
@@ -96,7 +102,9 @@ public class ReportURLStreamHandlerFactory implements URLStreamHandlerFactory {
         } 
     }
     
-    public URL getResource( String name ) {
+    public URL getResource( String name ) { 
+        if ( name == null ) return null; 
+        
         try {
             return getResourceImpl( name ); 
         } catch( MalformedURLException mue ) { 

@@ -17,7 +17,9 @@ import com.rameses.osiris2.client.InvokerUtil;
 import com.rameses.rcp.annotations.Invoker;
 import com.rameses.rcp.common.Action;
 import com.rameses.rcp.framework.ClientContext;
+import com.rameses.util.URLStreamHandlers;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,6 +30,7 @@ import net.sf.jasperreports.engine.JRDataSource;
 import net.sf.jasperreports.engine.JREmptyDataSource;
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JRParameter;
+import net.sf.jasperreports.engine.JasperExportManager;
 import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.JasperReport;
@@ -170,6 +173,7 @@ public abstract class ReportModel {
             reportPath = rptName.substring(0, rptName.lastIndexOf("/"));
         } 
         conf.put(JRParameter.REPORT_CLASS_LOADER, new CustomReportClassLoader(reportPath));
+        conf.put(JRParameter.REPORT_URL_HANDLER_FACTORY, URLStreamHandlers.getFactory()); 
     } 
     
     private JasperPrint createReport() {
@@ -193,6 +197,17 @@ public abstract class ReportModel {
         reportOutput = createReport();
         return "report";
     }
+
+    public void exportToPDF( File file ) throws Exception { 
+        FileOutputStream fos = null; 
+        try { 
+            JasperPrint jprint = createReport(); 
+            fos = new FileOutputStream( file ); 
+            JasperExportManager.exportReportToPdfStream(jprint, fos); 
+        } finally { 
+            try { fos.close(); }catch(Throwable t){;} 
+        } 
+    } 
     
     public void reload() { 
         reportOutput = createReport(); 

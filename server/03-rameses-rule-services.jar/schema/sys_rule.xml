@@ -14,6 +14,7 @@
 		<field name="dtfiled" required="true"/>
 		<field name="user_objid" required="true"/>
 		<field name="user_name" required="true"/>
+		<field name="noloop" required="true" defaultValue="1"/>
 	</element>	
 
 

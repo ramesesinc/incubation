@@ -4,7 +4,7 @@
  */
 package entitymanager.test;
 
-import com.rameses.sql.dialect.functions.mysql.DATE_ADD;
+import com.rameses.sql.dialect.functions.mysql.FORMAT_SERIES;
 import junit.framework.TestCase;
 
 /**
@@ -14,10 +14,11 @@ public class TestFunction extends TestCase {
 
      // TODO add test methods here. The name must begin with 'test'. For example:
     public void testCreate() throws Exception {
-        DATE_ADD d = new DATE_ADD();
-        d.addParam("NOW()");
-        d.addParam("-1");
-        d.addParam("DAY");
+        FORMAT_SERIES d = new FORMAT_SERIES();
+        d.addParam("startseries");
+        d.addParam("af.serieslength");
+        d.addParam("prefix");
+        d.addParam("suffix");
         System.out.println(d.toString());
     }
 

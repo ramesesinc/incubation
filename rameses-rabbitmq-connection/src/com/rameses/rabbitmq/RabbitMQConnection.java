@@ -33,19 +33,21 @@ public class RabbitMQConnection extends MessageConnection {
     private Map conf; 
     private String name;
     private boolean enabled;
-    private Channel defaultChannel;
     private boolean started;
+    private Channel defaultChannel;
     private List<Channel> channels = new LinkedList<Channel>();
+    
+    private boolean allowSend; 
+    private boolean allowReceive; 
     
     public RabbitMQConnection(String name, AbstractContext context, Map conf) {
         this.name = name;
         this.context = context;
         this.conf = conf; 
-        if ("false".equals( getProperty("enabled")+"")) { 
-            enabled = false; 
-        } else {
-            enabled = true; 
-        }
+        
+        enabled = ("false".equals(getProperty("enabled")+"") ? false : true);
+        allowSend = ("false".equals(getProperty("allowSend")+"") ? false : true);
+        allowReceive = ("false".equals(getProperty("allowReceive")+"") ? false : true);
     }
 
     private String getProperty( String name ) {
@@ -53,13 +55,19 @@ public class RabbitMQConnection extends MessageConnection {
         return ( o == null ? null: o.toString()); 
     }
      
+    public final boolean isEnabled() {
+        return this.enabled; 
+    }
+    
     public Map getConf() { 
         return conf; 
     }
 
     public void start() { 
-        if(started) return;
+        if ( started ) return; 
+        
         started = true;
+        
         System.out.println("Starting RabbitMQConnection Version 2.0 " + name );
         try {
             ConnectionFactory factory = new ConnectionFactory(); 
@@ -87,13 +95,16 @@ public class RabbitMQConnection extends MessageConnection {
                     defaultChannel.exchangeDeclare( exchange, type, true );
                     defaultChannel.queueBind( queueName, exchange, queueName);
                 } 
-                MessageConsumer mc = new MessageConsumer(defaultChannel, null);
-                defaultChannel.basicConsume( queueName, true, mc);  
-            }
-        }
-        catch(Exception ex) {
-            ex.printStackTrace();
+                
+                if ( allowReceive ) { 
+                    MessageConsumer mc = new MessageConsumer(defaultChannel, null);
+                    defaultChannel.basicConsume( queueName, true, mc);  
+                } 
+            } 
+        } 
+        catch(Throwable ex) {
             System.out.println("RabbitMQ Connection not started. "+ex.getMessage());
+            ex.printStackTrace();            
         }
     } 
 
@@ -140,21 +151,23 @@ public class RabbitMQConnection extends MessageConnection {
     }
     
     public void stop() {
-        for(Channel channel: channels) {
-            try {channel.close();}catch(Exception ign){;}
-        }
-        try {
-            if(defaultChannel!=null) {
-                defaultChannel.close();
-            }
-        }
-        catch(Exception ex) {;}
-        try {
-            connection.close();
-        }
-        catch(Exception ign){;}
-        super.stop();
         System.out.println("Stopping RabbitMQ Connection" + name );
+        
+        for(Channel channel: channels) {
+            try {channel.close();}catch(Throwable ign){;}
+        }
+        
+        try {
+            if ( defaultChannel != null ) { 
+                defaultChannel.close();
+            } 
+        } catch(Throwable ex) {;} 
+        
+        try { 
+            connection.close();
+        } catch(Throwable ign){;}
+        
+        super.stop();
     }
 
     private byte[] convertBytes( Object data, boolean encoded ) {
@@ -201,7 +214,9 @@ public class RabbitMQConnection extends MessageConnection {
         }
     }
     
-     public void sendBytes( byte[] bytes, String queueName ) { 
+    public void sendBytes( byte[] bytes, String queueName ) { 
+        if ( !allowSend ) return; 
+         
         Channel channel = null; 
         try {
             channel = connection.createChannel();
@@ -224,7 +239,7 @@ public class RabbitMQConnection extends MessageConnection {
             throw new RuntimeException("Channel not created! " + queueName);
         }
         finally {
-            try { channel.close(); } catch(Exception ign){;}
+            try { channel.close(); } catch(Throwable ign){;}
         }
     }
      

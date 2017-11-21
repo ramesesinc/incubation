@@ -35,6 +35,9 @@ public class MenuCategoryPage extends javax.swing.JPanel {
 
         setLayout(new java.awt.BorderLayout());
 
+        jScrollPane1.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+
+        xHtmlView1.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         xHtmlView1.setName("menuHtml"); // NOI18N
         jScrollPane1.setViewportView(xHtmlView1);
 

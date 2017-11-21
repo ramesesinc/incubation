@@ -19,13 +19,21 @@
             def getLookupHandler() {
                 if( !actionParamDef.lookupkey || !actionParamDef.lookupvalue || !actionParamDef.lookuphandler )
                     throw new Exception( "Please specify a lookup key and lookup value in the definition" )
-                //println "ruleset is " + rule?.ruleset;    
-                return InvokerUtil.lookupOpener( actionParamDef.lookuphandler, [
-                    onselect: { o->
-                        actionParam.obj = [ key: o[actionParamDef.lookupkey], value: o[actionParamDef.lookupvalue] ] ;
-                        binding.refresh("selection");
-                    }
-                ]);
+                //println "ruleset is " + rule?.ruleset;  
+                def selector = { o->
+                    actionParam.obj = [ key: o[actionParamDef.lookupkey], value: o[actionParamDef.lookupvalue] ] ;
+                    binding.refresh("selection");
+                }
+                def onempty = {
+                    actionParam.obj = null;
+                    binding.refresh("selection");
+                }
+                def op = null;
+                try {
+                    op = Inv.lookupOpener( rule?.domain?.toLowerCase() + "_" + actionParamDef.lookuphandler, [onselect: selector, onempty: onempty ]);
+                    if(op!=null) return op;
+                }catch(ign){;}
+                return Inv.lookupOpener( actionParamDef.lookuphandler, [onselect: selector, onempty: onempty]);
             }
 
             String getSelection() {

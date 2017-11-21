@@ -3,6 +3,7 @@ SELECT
   u.objid,
   u.lastname,
   u.firstname,
+  u.username, 
   CONCAT(u.lastname, ', ', u.firstname) AS name,
   ug.role,
   ug.domain,

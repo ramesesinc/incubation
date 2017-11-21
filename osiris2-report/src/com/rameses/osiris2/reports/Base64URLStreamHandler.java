@@ -19,8 +19,10 @@ import java.util.Map;
  */
 public class Base64URLStreamHandler extends URLStreamHandler {
 
+    private final static String KEY_NAME = "base64";
+    
     public String getProtocol() {
-        return "base64"; 
+        return KEY_NAME;
     }
 
     public URL getResource(String spath) {

@@ -16,6 +16,7 @@
             @Binding
             def binding;
         
+            def domain;
             def lookupHandler;
             def lookupKey;
             def lookupValue;
@@ -23,12 +24,16 @@
             def handler;
             
             def getAddItem() {
-                return InvokerUtil.lookupOpener( lookupHandler, [
-                    onselect: { o->
-                        items << [ key: o[lookupKey], value: o[lookupValue] ] ;
-                        listModel.reload();
-                    }
-                ]);
+                def selector = { o->
+                    items << [ key: o[lookupKey], value: o[lookupValue] ] ;
+                    listModel.reload();
+                };
+                def op = null;
+                try {
+                    op = Inv.lookupOpener( domain + "_" + lookupHandler, [ onselect: selector ]);
+                    if(op!=null) return op;
+                }catch(ign) {;}
+                return Inv.lookupOpener( lookupHandler, [ onselect: selector ]);
             }
             
             def listModel = [

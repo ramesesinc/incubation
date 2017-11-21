@@ -126,17 +126,25 @@ public class CrudPageFlowModel extends PageFlowController {
         entity._schemaname = getSchemaName();
         entity = getPersistenceService().update( entity )
     }
-
+    
     def showMenu() {
+        showMenu( inv );
+    }
+    
+    def showMenu( inv ) {
+        def menu = inv.properties.context;
         def op = new PopupMenuOpener();
         //op.add( new ListAction(caption:'New', name:'create', obj:this, binding: binding) );
         try {
-            op.addAll( Inv.lookupOpeners(schemaName+":" + getFormType() + ":menuActions") );
+            op.addAll( Inv.lookupOpeners(schemaName+":" + getFormType() + ":" + menu) );
         } catch(Throwable ign){;}
-        
-        op.add( new com.rameses.seti2.models.PopupAction(caption:'Close', name:'_close', obj:this, binding:binding) );
+        if(menu=="menuActions") {
+            op.add( new com.rameses.seti2.models.PopupAction(caption:'Close', name:'_close', obj:this, binding:binding) );
+        }
         return op;
     }
+    
+    
     
     //information about the user
     public def getUser() {
@@ -151,7 +159,6 @@ public class CrudPageFlowModel extends PageFlowController {
     }
     
     public def start(String name) {
-        init();
         return super.start(name);
     }
 
