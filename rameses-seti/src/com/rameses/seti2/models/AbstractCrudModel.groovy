@@ -328,8 +328,14 @@ public abstract class AbstractCrudModel  {
         def op = new PopupMenuOpener();
         //op.add( new ListAction(caption:'New', name:'create', obj:this, binding: binding) );
         try {
-            op.addAll( Inv.lookupOpeners(schemaName+":" + getFormType() + ":" + tag, [entity:entityContext]) );
-        } catch(Throwable ign){;}
+            def openers = Inv.lookupOpeners(schemaName+":" + getFormType() + ":" + tag, [entity:entityContext]).findAll{
+                            def vw = it.properties.visibleWhen;
+                            return  ((!vw)  ||  ExpressionResolver.getInstance().evalBoolean( vw, [entity:entityContext] ));
+                        }
+
+            op.addAll(openers);
+        } 
+        catch(Throwable ign){;}
         
         return op;
     }
