@@ -111,11 +111,15 @@ public class RabbitMQConnection extends MessageConnection {
     private class MessageConsumer extends DefaultConsumer {
         private MessageHandler handler;
         private Base64Cipher base64 = new Base64Cipher(); 
+        private String exchange;
+        private String queueName;
+        private boolean autoDelete = false;
         
         public MessageConsumer(Channel channel, MessageHandler handler) {
             super(channel);
             this.handler = handler;
         }
+
         public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException { 
             if ( body == null || body.length==0 ) return; 
             String message = new String(body, "UTF-8");
@@ -132,7 +136,18 @@ public class RabbitMQConnection extends MessageConnection {
                 else 
                     handler.onMessage(message);
             } 
+            
+            if (autoDelete && exchange !=null && queueName != null){
+                getChannel().queueUnbind(queueName, exchange, queueName);
+                getChannel().queueDelete(queueName);
+            }
         } 
+        
+        public void setAutoDeleteQueue(String exchange, String queueName){
+            this.exchange = exchange;
+            this.queueName = queueName;
+            this.autoDelete = true;
+        }
     }
     
     public void stop() {
@@ -288,7 +303,7 @@ public class RabbitMQConnection extends MessageConnection {
     * will be a temporary queue.
     ***************************************************************************/ 
     public void addResponseHandler(String tokenid, MessageHandler handler) throws Exception{
-        String exchange = getProperty("exchange"); 
+       String exchange = getProperty("exchange"); 
         Channel channel = connection.createChannel();
         channel.exchangeDeclare(exchange, "direct", true );
         
@@ -297,6 +312,7 @@ public class RabbitMQConnection extends MessageConnection {
         channel.queueDeclare(tokenid, false, false, false, args);
         channel.queueBind( tokenid, exchange, tokenid);
         MessageConsumer mc = new MessageConsumer(channel, handler);
+        mc.setAutoDeleteQueue(exchange, tokenid);
         channel.basicConsume( tokenid, true, mc);              
     }
 
