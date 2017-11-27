@@ -9,7 +9,6 @@ import com.rameses.util.Base64Cipher;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-
 public class FileNewModel  {
         
     @Service('FileUploadService') 
@@ -64,7 +63,9 @@ public class FileNewModel  {
         } 
         entity.info = info;
         
-        _entity = fileUploadSvc.upload( entity ); 
+        def fup = com.rameses.filemgmt.FileUploadManager.provider; 
+        _entity = fup.save( entity ); 
+        //_entity = fileUploadSvc.upload( entity ); 
         
         def tempdir = helper.getTempDir(); 
         fileitems.each{
