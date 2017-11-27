@@ -131,7 +131,7 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
     protected void buildSections() {
         //for items with sections....
         try {
-            sections = Inv.lookupOpeners(getSchemaName() + ":section",[:]);
+            sections = Inv.lookupOpeners(getSchemaName() + ":section",[entity:entity]);
         } 
         catch(Exception ex){;}
     }
@@ -247,8 +247,7 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
         entity._schemaname = schemaName;
         if( debug ) entity.debug = debug;
         beforeOpen();
-        entity = fetchEntityData();
-        
+        entity.putAll(fetchEntityData());
         //we need to reset this so it can be used again.
         findBy = null;  
         //we need to reset the schema name for update.
