@@ -4,9 +4,8 @@
  */
 package com.rameses.rabbitmq;
 
-import com.rameses.osiris3.script.messaging.ScriptInvokerHandler;
-import com.rabbitmq.client.Channel;
 import com.rameses.osiris3.core.AbstractContext;
+import com.rameses.osiris3.script.messaging.ScriptInvokerHandler;
 import com.rameses.osiris3.xconnection.MessageConnection;
 import com.rameses.osiris3.xconnection.MessageHandler;
 import java.util.ArrayList;
