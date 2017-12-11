@@ -47,6 +47,7 @@ class RuleExporterService {
 	@ProxyMethod
 	public def upload( o ) { 
 		try { 
+			o.noloop = ( o.noloop == null ? 1 : o.noloop ); 
 			if ( o.buildver && o.buildver >= 2.0 ) {
 				uploadV2( o ); 
 
@@ -54,6 +55,7 @@ class RuleExporterService {
 				buildVars( o ); 
 				service.create( o ); 
 				o.conditions.each { 
+					it.notexist = ( it.notexist == null ? 0 : it.notexist ); 
 					service.saveCondition( it ); 
 				} 
 				o.actions.each { 
@@ -73,6 +75,7 @@ class RuleExporterService {
 
 		rule.save( o ); 
 		o.conditions.each{   
+			it.notexist = ( it.notexist == null ? 0 : it.notexist ); 
 			rule.save( it, "condition" ); 
 		} 
 		o.conditions.each{ c-> 
