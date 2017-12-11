@@ -136,8 +136,7 @@ public class RabbitMQConnection extends MessageConnection {
                 else 
                     handler.onMessage(message);
             } 
-            
-            if (autoDelete && exchange !=null && queueName != null){
+            if (autoDelete){
                 getChannel().queueUnbind(queueName, exchange, queueName);
                 getChannel().queueDelete(queueName);
             }
