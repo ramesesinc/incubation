@@ -5,6 +5,7 @@
 package com.rameses.rabbitmq;
 
 import com.rabbitmq.client.AMQP;
+
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
@@ -309,7 +310,7 @@ public class RabbitMQConnection extends MessageConnection {
         
         Map args = new HashMap();
         args.put("x-expires", 60000); 
-        channel.queueDeclare(tokenid, false, false, false, args);
+        channel.queueDeclare( tokenid, false, false, false, args);
         channel.queueBind( tokenid, exchange, tokenid);
         MessageConsumer mc = new MessageConsumer(channel, handler);
         mc.setAutoDeleteQueue(exchange, tokenid);
