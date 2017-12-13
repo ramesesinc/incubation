@@ -77,20 +77,27 @@ public final class Base64Cipher
     }
     
     public String encode(String value) {
+        return encodeString( value );
+    } 
+    
+    public String encodeString(String value) {
         if (value == null) return null; 
         if (isEncoded(value)) return value; 
         
-        return encode((Object) value); 
-    } 
-    
+        try {
+            return new org.apache.commons.net.util.Base64().encodeToString( value.getBytes()); 
+        } catch(RuntimeException re) {
+            throw re; 
+        } catch(Exception e) {
+            throw new RuntimeException(e.getMessage(), e); 
+        } 
+    }
+
     public String encode(byte[] bytes) {
         char[] chars = encode(bytes, 0, bytes.length); 
         return new String(chars); 
     }
     
-    public String encodeString(String s) {
-        return new String(encode(s.getBytes())); 
-    }    
     
     public String encodeLines(byte[] in) {
         return encodeLines(in, 0, in.length, 76, systemLineSeparator); 
@@ -127,20 +134,28 @@ public final class Base64Cipher
         }
     }
     
-    public Object decode(String value) {
+    public Object decode(String value) { 
         return decode( value, true ); 
     }
 
     public Object decode(String value, boolean readObject ) {
         if (value == null) return null; 
-        if (!isEncoded(value)) return value; 
+                    
+        if (isEncoded(value)) { 
+            try { 
+                char[] chars = value.toCharArray();
+                if ( readObject ) {
+                    return decode( chars ); 
+                } else {
+                    return decode(chars, 0, chars.length); 
+                } 
+            } catch(Throwable t ) {
+                ; 
+            }
+        }
         
-        char[] chars = value.toCharArray();
-        if ( readObject ) {
-            return decode( chars ); 
-        } else {
-            return decode(chars, 0, chars.length); 
-        } 
+        byte[] bytes = new org.apache.commons.net.util.Base64().decode( value ); 
+        return new String( bytes ); 
     }
     
     public Object decode(char[] chars) {

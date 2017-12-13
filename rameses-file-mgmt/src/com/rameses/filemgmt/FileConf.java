@@ -70,9 +70,11 @@ public final class FileConf {
     private String writePath;
     private String username;
     private String userpwd;
+    private Map properties; 
     
     public FileConf( String name ) {
         this.name = name; 
+        this.properties = new HashMap(); 
     }
 
     public String getName() { return name; } 
@@ -100,7 +102,16 @@ public final class FileConf {
     public void setPassword( String userpwd ) {
         this.userpwd = userpwd; 
     }
-        
+    
+    public Object getProperty( String name ) {
+        return properties.get( name ); 
+    }
+    public void setProperty( String name, Object value ) {
+        properties.put( name, value ); 
+    }
+
+    
+    
     private static class Config {
         Map <String, FileConf> confs = new HashMap(); 
         String defaultConfName; 

@@ -29,6 +29,7 @@ class RuleToolService {
 		if ( !params.user ) params.user = [objid: env.USERID, name: env.USER]; 
 		if ( !params.effectivefrom ) params.effectivefrom = ruleinfo.effectivefrom;
 		if ( !params.effectiveto ) params.effectiveto = ruleinfo.effectiveto;
+		if ( params.noloop == null ) params.noloop = 1;
 
 		params.dtfiled = dateSvc.serverDate;
 		params.state = 'DRAFT'; 
@@ -98,6 +99,7 @@ class RuleToolService {
 		} 
 
 		conditions.each{ 
+			it.notexist = ( it.notexist == null ? 0 : it.notexist ); 
 			em.create( it, 'condition' ) 
 		} 
 		vars.each{ 

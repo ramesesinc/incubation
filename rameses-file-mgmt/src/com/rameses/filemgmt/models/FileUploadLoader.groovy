@@ -14,6 +14,9 @@ public class FileUploadLoader extends ScheduledTask {
     @Service('PersistenceService') 
     def persistSvc; 
     
+    @Script('DefaultFileUploadProvider') 
+    def fuprovider; 
+    
     def uploadMgr = new FileUploadManager(); 
     
     def streamHandler = [ 
@@ -26,7 +29,6 @@ public class FileUploadLoader extends ScheduledTask {
                state  : (processing ? 'PROCESSING' : 'COMPLETED')  
             ]); 
         }, 
-        
         oncomplete: { info-> 
             persistSvc.update([ 
                _schemaname : 'sys_fileitem', 
@@ -53,7 +55,8 @@ public class FileUploadLoader extends ScheduledTask {
     }
     
     void doStart() { 
-        def stmpdir = com.rameses.rcp.framework.ClientContext.currentContext.getAppEnv().get("filemgmt.tmpdir"); 
+        def ctx = com.rameses.rcp.framework.ClientContext.currentContext; 
+        def stmpdir = ctx.getAppEnv().get("filemgmt.tmpdir"); 
         if ( stmpdir ) uploadMgr.Helper.setTempDir( new java.io.File( stmpdir ));  
 
         FileUploadManager.removeHandlers(); 
@@ -65,8 +68,16 @@ public class FileUploadLoader extends ScheduledTask {
     } 
     
     private void loadLocations() { 
-        def params = [ _schemaname: 'sys_fileloc', where:[' 1=1 ']]; 
-        qrySvc.getList( params ).each{ o-> 
+        def list = []; 
+        try { 
+            def params = [ _schemaname: 'sys_fileloc', where:[' 1=1 ']]; 
+            list = qrySvc.getList( params ); 
+        } catch(Throwable t) {
+            // do nothing 
+            return; 
+        } 
+        
+        list.each{ o-> 
             try { 
                 def conf = FileConf.add( o.objid, "1".equals(o.defaultloc.toString())); 
                 conf.type = o.loctype; 
@@ -75,12 +86,19 @@ public class FileUploadLoader extends ScheduledTask {
                 conf.user = o.user?.name;
                 conf.password = o.user?.pwd; 
                 
-                if ( "ftp".equalsIgnoreCase( o.loctype.toString())) {
-                    conf = com.rameses.ftp.FtpLocationConf.add( o.objid );  
-                    conf.host = o.url; 
-                    conf.user = o.user?.name; 
-                    conf.password = o.user?.pwd; 
-                } 
+                switch( conf.type.toString().toLowerCase() ) {
+                    case "ftp": 
+                        conf = com.rameses.ftp.FtpLocationConf.add( o.objid );  
+                        conf.host = o.url; 
+                        conf.user = o.user?.name; 
+                        conf.password = o.user?.pwd; 
+                        break; 
+                 
+                    case "db": 
+                        conf.setProperty( 'serviceName', o.url ); 
+                        break; 
+                }
+                
             } catch(Throwable t) {;} 
         } 
     } 

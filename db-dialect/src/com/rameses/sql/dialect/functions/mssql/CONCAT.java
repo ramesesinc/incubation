@@ -30,7 +30,7 @@ public class CONCAT implements SqlDialectFunction {
         int i = 0;
         for( String s: params ) {
             if(i++>0) sb.append(" + ");
-            sb.append( s );
+            sb.append("CONVERT(VARCHAR(MAX), ").append(s).append(")"); 
         }
         if ( sb.length() > 0 ) {
             sb.insert(0, "(");

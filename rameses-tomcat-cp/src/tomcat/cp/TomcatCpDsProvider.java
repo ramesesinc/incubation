@@ -207,8 +207,17 @@ public class TomcatCpDsProvider implements DsProvider
             } 
         }
         
-        protected Connection createConnection(String username, String pwd) throws SQLException {
-            return datasource.getConnection(); 
+        protected Connection createConnection(String username, String pwd) throws SQLException { 
+            boolean failed = true; 
+            try { 
+                Connection conn = datasource.getConnection(); 
+                failed = false; 
+                return conn; 
+            } finally {
+                if ( failed ) {
+                    System.out.println("["+ this.name +"] failed to create connection from datasource");
+                }
+            }
         }
         
         public void destroy() {

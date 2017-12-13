@@ -33,6 +33,8 @@ public class FileUploadManager {
     private Map<String, FileUploadItemProc> cache = new Hashtable();
     private ExecutorService scheduler = Executors.newFixedThreadPool(100);
     
+    private static FileUploadProvider provider = null; 
+    
     public void start() { 
         File tempdir = Helper.getTempDir(); 
         File[] files = tempdir.listFiles( new ValidFileFilter());  
@@ -144,6 +146,11 @@ public class FileUploadManager {
             stream_handler.add( handler ); 
         }
     } 
+    
+    public static FileUploadProvider getProvider() { return provider; } 
+    public static void setProvider( FileUploadProvider fp ) {
+        provider = fp;
+    }
     
     private static class StreamHandlerProxy implements FileStreamHandler { 
         
