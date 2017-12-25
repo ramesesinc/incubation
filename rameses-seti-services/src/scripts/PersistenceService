@@ -29,11 +29,13 @@ class PersistenceService  {
 	@ProxyMethod
 	public def create( o ) {
 		if ( !o._schemaname ) throw new Exception('Please provide a _schemaname');
-
+		
 		o.dtcreated = dateSvc.getServerDate();
 		o.createdby = [objid:env.USERID, name:env.FULLNAME, title:env.JOBTITLE];
 
-		return db.lookup(o._schemaname).create( o );
+		def em = db.lookup(o._schemaname);
+		if ( o.debug ) em.debug = o.debug;
+		return em.create( o ); 
 	}
 
 	@ProxyMethod
