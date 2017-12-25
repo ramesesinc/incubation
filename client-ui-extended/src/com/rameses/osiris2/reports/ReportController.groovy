@@ -42,7 +42,10 @@ public abstract class ReportController {
     
     def getRoot() { return this; }
     
+    boolean isDynamic() { return false; } 
+    
     def report = [ 
+        isDynamic     : { return root.isDynamic() }, 
         getReportName : { return root.getReportName() }, 
         getSubReports : { return root.getSubReports() }, 
         getReportData : { return root.getReportData() }, 

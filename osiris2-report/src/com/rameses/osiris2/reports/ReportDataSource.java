@@ -69,6 +69,10 @@ public class ReportDataSource implements JRRewindableDataSource {
         String fieldName = null;
         try {
             fieldName = jRField.getName();
+            if ( "_source".equals( fieldName )) {
+                return new ReportDataSource( getSource());
+            }
+            
             field = propertyResolver.getProperty(currentObject, fieldName);
             if(field==null) {
                 return null;
