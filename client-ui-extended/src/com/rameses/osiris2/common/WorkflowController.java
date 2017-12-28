@@ -109,12 +109,16 @@ public abstract class WorkflowController {
         workActions.clear();
         for(Map t: transitions) {
             Map props = (Map)t.get("properties");
-            boolean visible = true;
-            if(props!=null) {
-                if(props.get("visible")!=null) {
-                    try {visible = Boolean.parseBoolean( props.get("visible").toString());}catch(Exception ign){;}
-                }
+            if ( props == null ) { 
+                props = new HashMap();
+                t.put("properties", props); 
             }
+            
+            boolean visible = true;
+            if(props.get("visible")!=null) {
+                try {visible = Boolean.parseBoolean( props.get("visible").toString());}catch(Exception ign){;}
+            }
+
             String name = (String)t.get("action");
             WorkflowAction wa = new WorkflowAction(name,task, t);
             if( visible )formActions.add(wa );
@@ -326,6 +330,7 @@ public abstract class WorkflowController {
         private String messageHandler;
         private List assignees;
         private boolean closeOnEnd;
+        private String tag; 
         
         public WorkflowAction(String n, Map task, Map t) {
             super(n);
@@ -351,6 +356,9 @@ public abstract class WorkflowController {
                 if(props.get("closeonend")!=null) {
                     try { closeOnEnd = Boolean.parseBoolean( props.get("closeonend")+"" ); } catch(Exception e){;}
                 }
+                
+                Object val = props.get("tag"); 
+                tag = ( val == null ? null: val.toString()); 
             }
             if(caption==null) caption = "Submit";
             setCaption(caption);
@@ -368,7 +376,8 @@ public abstract class WorkflowController {
                 req.put("data", entity);
                 req.put("state", task.get("state"));
                 req.put("extended", task.get("extended"));
-                if(action!=null && action.trim().length()>0) req.put("action", action);
+                if (action!=null && action.trim().length()>0) req.put("action", action);
+                if ( tag != null ) req.put("tag", tag); 
                 
                 beforeSignal(req);
                 if( confirm !=null ) {

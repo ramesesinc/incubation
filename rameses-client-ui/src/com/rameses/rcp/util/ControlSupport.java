@@ -3,6 +3,7 @@ package com.rameses.rcp.util;
 import com.rameses.common.MethodResolver;
 import com.rameses.rcp.common.Opener;
 import com.rameses.common.PropertyResolver;
+import com.rameses.rcp.common.PopupMenuOpener;
 import com.rameses.rcp.framework.*;
 import com.rameses.rcp.support.ColorUtil;
 import com.rameses.rcp.support.FontSupport;
@@ -231,8 +232,11 @@ public final class ControlSupport {
                 } 
                 //if the opener action returns another opener,
                 //then intialize the opener and return it
-                else if ( o instanceof Opener ) 
-                {
+                else if ( o instanceof PopupMenuOpener ) {
+                    opener = (Opener) o; 
+                    return opener; 
+                }
+                else if ( o instanceof Opener ) {
                     Opener oo = (Opener) o;
                     opener = initOpener(oo, oo.getController(), invokeOpenerAction);
                 }

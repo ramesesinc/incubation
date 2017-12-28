@@ -37,6 +37,10 @@ public class NavigationHandlerImpl implements NavigationHandler {
             if ( outcome instanceof Opener )  {
                 Opener opener = (Opener) outcome;
                 opener = ControlSupport.initOpener( opener, curController.getController() );
+                if ( opener instanceof PopupMenuOpener ) {
+                    source.putClientProperty(PopupMenuOpener.class, opener);
+                    return; 
+                }
                 
                 String opTarget = opener.getTarget()+"";
                 if (opTarget.matches("process|_process")) return;
