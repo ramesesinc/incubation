@@ -42,7 +42,7 @@ public class CrudPageFlowModel extends PageFlowController {
     }
     
     public def getQueryService() {
-        return querySvc;
+        return qryService;
     }
 
     public String getSchemaName() {
