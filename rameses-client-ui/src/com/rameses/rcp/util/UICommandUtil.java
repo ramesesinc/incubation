@@ -63,7 +63,7 @@ public class UICommandUtil {
             String action = command.getActionName();
             if ( btn.getClientProperty(Action.class.getName()) != null ) {
                 Action a = (Action) btn.getClientProperty(Action.class.getName());
-                outcome = a.execute();                
+                outcome = a.execute(); 
             } 
             else if ( action != null ) {
                 if ( !action.startsWith("_")) {
@@ -114,6 +114,12 @@ public class UICommandUtil {
                 
                 navPanel = UIControlUtil.getParentPanel((JComponent)command, "parent");
                 handler.navigate(navPanel, command, outcome);
+                
+                Object pmo = command.getClientProperty(PopupMenuOpener.class); 
+                if ( pmo != null ) { 
+                    command.putClientProperty(PopupMenuOpener.class, null); 
+                    return (PopupMenuOpener) pmo; 
+                } 
                 
                 if (opener != null) {
                     Object closeBehindOnStart = opener.getProperties().get("closeBehindOnStart"); 
