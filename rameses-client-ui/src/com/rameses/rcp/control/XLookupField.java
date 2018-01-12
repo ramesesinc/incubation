@@ -257,13 +257,13 @@ public class XLookupField extends IconedTextField implements UILookup, UISelecto
     public Binding getBinding() { return binding; }    
     public void setBinding(Binding binding) { this.binding = binding; }
     
-    public void refresh() 
-    {
+    public void refresh() {
         //force to update the component status
         updateBackground(); 
         
         Object itemBean = null; 
-        if ( !ValueUtil.isEmpty(getName()) ) { 
+        boolean hasBindingName = !ValueUtil.isEmpty(getName()); 
+        if ( hasBindingName ) { 
             try {
                 itemBean = UIControlUtil.getBeanValue(this);
             } catch(NullPointerException npe) {
@@ -273,9 +273,9 @@ public class XLookupField extends IconedTextField implements UILookup, UISelecto
             } 
         }
 
-        Object expval = null;        
+        Object expval = null;
         Object bean = binding.getBean(); 
-        if (bean != null) {
+        if ( bean != null ) {
             Object exprBean = createExpressionBean(itemBean); 
             String sval = getDisableWhen();
             if (sval != null && sval.length() > 0) {
@@ -303,7 +303,11 @@ public class XLookupField extends IconedTextField implements UILookup, UISelecto
             }
         }
         
-        setText((expval == null? null: expval.toString()));         
+        if ( hasBindingName && (itemBean == null || itemBean.toString().trim().length()==0)) { 
+            setText( null ); 
+        } else {
+            setText((expval == null? null: expval.toString()));
+        }
     }
 
     public void load() 
