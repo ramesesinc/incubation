@@ -146,14 +146,15 @@ public class FormReportModel extends ReportModel {
         }
     }
 
+    //status is intended for long running reports that needs to requery.
     boolean processReport() {
         mode = "processing";
         def m = [reportid :getReportId(), txnid: txnid];
         m.parameters = query;
         if(status) m.status = status;
         def newData = reportService.getData(m);
-        status = newData.status;
-        if( status && status !=0 ) {
+        if(newData.status!=null) status = newData.status;
+        if( status !=0 ) {
             mergeData( newData );
             return false;
         }
