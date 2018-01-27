@@ -101,11 +101,15 @@ public class FormReportModel extends ReportModel {
         //do nothing
     }
 
+    def getConfInfo() {
+        return [reportid :getReportId(), txnid: txnid];    
+    }
+    
     def query() {
         queryView = true;
         mode = "query";
         //build control parameters
-        def m = [reportid: getReportId() ];
+        def m = getConfInfo();
         formControls.clear();
         def p = reportService.getParameters(m);
         if( !p.parameters ) {
@@ -149,7 +153,7 @@ public class FormReportModel extends ReportModel {
     //status is intended for long running reports that needs to requery.
     boolean processReport() {
         mode = "processing";
-        def m = [reportid :getReportId(), txnid: txnid];
+        def m =  getConfInfo();
         m.parameters = query;
         if(status) m.status = status;
         def newData = reportService.getData(m);
@@ -167,7 +171,7 @@ public class FormReportModel extends ReportModel {
     
     def processor = { 
         if(aborted) {
-            def m = [reportid :getReportId(), txnid: txnid];
+            def m =  getConfInfo();
             aborted = false;
             def z = reportService.abort(m);
             MsgBox.alert('process aborted');
