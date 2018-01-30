@@ -21,7 +21,7 @@
     <AuxValue name="FormSettings_listenerGenerationStyle" type="java.lang.Integer" value="0"/>
     <AuxValue name="FormSettings_variablesLocal" type="java.lang.Boolean" value="false"/>
     <AuxValue name="FormSettings_variablesModifier" type="java.lang.Integer" value="2"/>
-    <AuxValue name="designerSize" type="java.awt.Dimension" value="-84,-19,0,5,115,114,0,18,106,97,118,97,46,97,119,116,46,68,105,109,101,110,115,105,111,110,65,-114,-39,-41,-84,95,68,20,2,0,2,73,0,6,104,101,105,103,104,116,73,0,5,119,105,100,116,104,120,112,0,0,1,63,0,0,1,80"/>
+    <AuxValue name="designerSize" type="java.awt.Dimension" value="-84,-19,0,5,115,114,0,18,106,97,118,97,46,97,119,116,46,68,105,109,101,110,115,105,111,110,65,-114,-39,-41,-84,95,68,20,2,0,2,73,0,6,104,101,105,103,104,116,73,0,5,119,105,100,116,104,120,112,0,0,1,82,0,0,1,-110"/>
   </AuxValues>
 
   <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout"/>
@@ -50,6 +50,12 @@
             <Component class="com.rameses.rcp.control.XComboBox" name="xComboBox1">
               <Properties>
                 <Property name="caption" type="java.lang.String" value="Type"/>
+                <Property name="depends" type="[Ljava.lang.String;" editor="org.netbeans.beaninfo.editors.StringArrayEditor">
+                  <StringArray count="1">
+                    <StringItem index="0" value="uploaditems"/>
+                  </StringArray>
+                </Property>
+                <Property name="disableWhen" type="java.lang.String" value="#{uploadHandler.itemCount &gt; 0}"/>
                 <Property name="expression" type="java.lang.String" value="#{item.title}"/>
                 <Property name="itemKey" type="java.lang.String" value="objid"/>
                 <Property name="items" type="java.lang.String" value="fileTypes"/>
@@ -140,24 +146,6 @@
                 <Property name="text" type="java.lang.String" value="Attach"/>
               </Properties>
             </Component>
-            <Component class="com.rameses.rcp.control.XButton" name="xButton2">
-              <Properties>
-                <Property name="depends" type="[Ljava.lang.String;" editor="org.netbeans.beaninfo.editors.StringArrayEditor">
-                  <StringArray count="2">
-                    <StringItem index="0" value="entity.filetype"/>
-                    <StringItem index="1" value="selectedAttachment"/>
-                  </StringArray>
-                </Property>
-                <Property name="disableWhen" type="java.lang.String" value="#{entity.filetype == null || selectedAttachment == null}"/>
-                <Property name="iconResource" type="java.lang.String" value="images/toolbars/trash.png"/>
-                <Property name="immediate" type="boolean" value="true"/>
-                <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
-                  <Insets value="[2, 2, 2, 2]"/>
-                </Property>
-                <Property name="name" type="java.lang.String" value="removeAttachment" noResource="true"/>
-                <Property name="text" type="java.lang.String" value="Remove"/>
-              </Properties>
-            </Component>
           </SubComponents>
           <LayoutCode>
             <CodeStatement>
@@ -214,22 +202,6 @@
                 </CodeExpression>
               </Parameters>
             </CodeStatement>
-            <CodeStatement>
-              <CodeExpression id="1_jPanel1"/>
-              <StatementProvider type="CodeMethod">
-                <CodeMethod name="add" class="java.awt.Container" parameterTypes="java.awt.Component"/>
-              </StatementProvider>
-              <Parameters>
-                <CodeExpression id="5_xButton2">
-                  <CodeVariable name="xButton2" type="8194" declaredType="com.rameses.rcp.control.XButton"/>
-                  <ExpressionOrigin>
-                    <ExpressionProvider type="ComponentRef">
-                      <ComponentRef name="xButton2"/>
-                    </ExpressionProvider>
-                  </ExpressionOrigin>
-                </CodeExpression>
-              </Parameters>
-            </CodeStatement>
           </LayoutCode>
         </Container>
       </SubComponents>
@@ -241,7 +213,6 @@
             <StringItem index="0" value="entity.filetype"/>
           </StringArray>
         </Property>
-        <Property name="visibleWhen" type="java.lang.String" value="#{entity.filetype.toString().matches(&apos;jpg|jpeg|png&apos;)==true}"/>
       </Properties>
       <Constraints>
         <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
@@ -249,25 +220,15 @@
         </Constraint>
       </Constraints>
       <SubComponents>
-        <Component class="com.rameses.rcp.control.XImageGallery" name="xImageGallery1">
+        <Component class="com.rameses.filemgmt.components.FileUploadPanel" name="fileUploadPanel1">
           <Properties>
-            <Property name="cellSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-              <Dimension value="[50, 50]"/>
-            </Property>
-            <Property name="depends" type="[Ljava.lang.String;" editor="org.netbeans.beaninfo.editors.StringArrayEditor">
-              <StringArray count="1">
-                <StringItem index="0" value="entity.filetype"/>
-              </StringArray>
-            </Property>
-            <Property name="handler" type="java.lang.String" value="listHandler"/>
-            <Property name="name" type="java.lang.String" value="selectedAttachment" noResource="true"/>
-            <Property name="visibleWhen" type="java.lang.String" value="#{entity.filetype == &apos;jpg&apos;}"/>
+            <Property name="handler" type="java.lang.String" value="uploadHandler"/>
           </Properties>
         </Component>
       </SubComponents>
       <LayoutCode>
         <CodeStatement>
-          <CodeExpression id="6_yLayout1">
+          <CodeExpression id="5_yLayout1">
             <CodeVariable name="yLayout1" type="4096" declaredType="com.rameses.rcp.control.layout.YLayout"/>
             <ExpressionOrigin>
               <ExpressionProvider type="CodeConstructor">
@@ -276,16 +237,16 @@
             </ExpressionOrigin>
           </CodeExpression>
           <StatementProvider type="CodeExpression">
-            <CodeExpression id="6_yLayout1"/>
+            <CodeExpression id="5_yLayout1"/>
           </StatementProvider>
         </CodeStatement>
         <CodeStatement>
-          <CodeExpression id="6_yLayout1"/>
+          <CodeExpression id="5_yLayout1"/>
           <StatementProvider type="CodeMethod">
             <CodeMethod name="setAutoFill" class="com.rameses.rcp.control.layout.YLayout" parameterTypes="boolean"/>
           </StatementProvider>
           <Parameters>
-            <CodeExpression id="7">
+            <CodeExpression id="6">
               <ExpressionOrigin>
                 <Value type="boolean" value="true"/>
               </ExpressionOrigin>
@@ -293,7 +254,7 @@
           </Parameters>
         </CodeStatement>
         <CodeStatement>
-          <CodeExpression id="8_pnlImage">
+          <CodeExpression id="7_pnlImage">
             <CodeVariable name="pnlImage" type="8194" declaredType="com.rameses.rcp.control.XPanel"/>
             <ExpressionOrigin>
               <ExpressionProvider type="ComponentRef">
@@ -305,20 +266,20 @@
             <CodeMethod name="setLayout" class="java.awt.Container" parameterTypes="java.awt.LayoutManager"/>
           </StatementProvider>
           <Parameters>
-            <CodeExpression id="6_yLayout1"/>
+            <CodeExpression id="5_yLayout1"/>
           </Parameters>
         </CodeStatement>
         <CodeStatement>
-          <CodeExpression id="8_pnlImage"/>
+          <CodeExpression id="7_pnlImage"/>
           <StatementProvider type="CodeMethod">
             <CodeMethod name="add" class="java.awt.Container" parameterTypes="java.awt.Component"/>
           </StatementProvider>
           <Parameters>
-            <CodeExpression id="9_xImageGallery1">
-              <CodeVariable name="xImageGallery1" type="8194" declaredType="com.rameses.rcp.control.XImageGallery"/>
+            <CodeExpression id="8_fileUploadPanel1">
+              <CodeVariable name="fileUploadPanel1" type="8194" declaredType="com.rameses.filemgmt.components.FileUploadPanel"/>
               <ExpressionOrigin>
                 <ExpressionProvider type="ComponentRef">
-                  <ComponentRef name="xImageGallery1"/>
+                  <ComponentRef name="fileUploadPanel1"/>
                 </ExpressionProvider>
               </ExpressionOrigin>
             </CodeExpression>

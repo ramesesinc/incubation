@@ -4,26 +4,39 @@
  */
 package com.rameses.filemgmt;
 
-import com.rameses.io.FileLocType;
 import com.rameses.io.FileLocTypeProvider;
 import com.rameses.io.FileTransferSession;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 /**
  *
  * @author wflores 
  */
-public class FileUploadItem { 
+public final class FileUploadItem implements FileItem { 
         
+    public static synchronized FileUploadItem create( File folder, Map conf ) throws Exception { 
+        FileUploadItem fui = new FileUploadItem( folder ); 
+        fui.createImpl( conf ); 
+        return fui; 
+    }
+    
+    public static synchronized FileUploadItem open( File folder ) throws Exception { 
+        FileUploadItem fui = new FileUploadItem( folder ); 
+        fui.openImpl(); 
+        return fui; 
+    }
+    
+    
     public final static String MODE_TEMP_COPY = "TEMP";
     public final static String MODE_UPLOAD    = "UPLOAD";
     public final static String MODE_COMPLETED = "COMPLETED";
@@ -39,26 +52,23 @@ public class FileUploadItem {
     private ConfigFile confFile;  
     private ContentFile contentFile;
     
-    private Handler handler; 
-    private ArrayList<FileStreamHandler> streamHandlers; 
-    
-    public FileUploadItem( File file ) {
+    private FileUploadItem( File file ) {
         this.folder = file; 
-        this.streamHandlers = new ArrayList();
     }
     
     public String getName() { 
         return folder.getName(); 
     } 
+
+    public ConfigFile getConfigFile() { 
+        return confFile;  
+    } 
+    public ContentFile getContentFile() {
+        return contentFile; 
+    }
     
-    public void create( Map conf ) { 
-        create( conf, false );  
-    }    
-    public void create( Map conf, boolean immediate ) { 
+    private void createImpl( Map conf ) throws Exception { 
         verifyFolder();
-        if ( immediate ) { 
-            createTempFile( ".immediate "); 
-        } 
         confFile = new ConfigFile( folder, ".conf" ); 
         confFile.create( conf ); 
         Number filesize = confFile.getPropertyAsNumber( CONF_FILE_SIZE );
@@ -67,8 +77,13 @@ public class FileUploadItem {
         String str = MODE_TEMP_COPY +","+ filesize +",0";
         contentFile = new ContentFile( folder, "content" ); 
         contentFile.getStatusFile().create( str );  
+        createTempFile(".tempcopy");
+        createTempFile(".ready");
+        
+        FileUploadManager.getInstance().getFileHandlers().register( this ); 
     }
-    public void open() {
+    
+    private void openImpl() {
         verifyFolder();
         confFile = new ConfigFile( folder, ".conf" ); 
         confFile.read();
@@ -76,42 +91,55 @@ public class FileUploadItem {
         contentFile.getStatusFile().read(); 
     } 
     
-    public ConfigFile getConfigFile() { 
-        return confFile;  
-    } 
-    public ContentFile getContentFile() {
-        return contentFile; 
-    }
-
-    public Handler getHandler() { return handler; } 
-    public void setHandler( Handler handler ) {
-        this.handler = handler; 
-    }
-    
-    public void removeHandler( FileStreamHandler handler ) {
-        if ( handler != null ) {
-            streamHandlers.remove( handler ); 
-        }
-    }
-    public void addHandler( FileStreamHandler handler ) {
-        if ( handler != null && !streamHandlers.contains(handler) ) {
-            streamHandlers.add( handler ); 
-        }
-    }
-    
     public String getMode() {
-        return getContentFile().getStatusFile().getMode(); 
+        if ( isModeTempCopy()) {
+            return MODE_TEMP_COPY; 
+        } else if ( isModeUpload()) {
+            return MODE_UPLOAD; 
+        } else if ( isModeCompleted() ) {
+            return MODE_COMPLETED; 
+        } else {
+            return "";
+        }
     }
     
+    public boolean isModeReady() {
+        File file = new File( folder, ".ready");
+        return ( file.exists() && !file.isDirectory());
+    }
     public boolean isModeTempCopy() {
-        return getContentFile().isModeTempCopy(); 
+        File file = new File( folder, ".tempcopy");
+        return ( file.exists() && !file.isDirectory());
     }
     public boolean isModeCompleted() { 
-        return getContentFile().isModeCompleted(); 
+        File file = new File( folder, ".completed");
+        return ( file.exists() && !file.isDirectory());
     } 
     public boolean isModeUpload() { 
-        return getContentFile().isModeUpload();
+        File file = new File( folder, ".upload");
+        return ( file.exists() && !file.isDirectory());
     } 
+    
+    public FileUploadItemProc createProcessHandler() { 
+        if ( isMarkedForRemoval()) {
+            return new ModeRemovalProcess(); 
+        } else if ( isModeReady()) { 
+            return new ModeReadyProcess();  
+        } else if ( isModeTempCopy()) { 
+            return new ModeTempCopyProcess();  
+        } else if ( isModeUpload()) { 
+            return new ModeUploadProcess(); 
+        } 
+        return null; 
+    } 
+    
+    public void markForRemoval() {
+        createTempFile(".forremoval"); 
+    }
+    public boolean isMarkedForRemoval() {
+        File file = new File( folder, ".forremoval");
+        return ( file.exists() && !file.isDirectory());
+    }
     
     public void remove() { 
         remove( this.folder ); 
@@ -133,7 +161,7 @@ public class FileUploadItem {
         }
     }
     
-    private void verifyFolder() {
+    void verifyFolder() {
         if ( !folder.exists()) { 
             folder.mkdir(); 
             
@@ -143,10 +171,13 @@ public class FileUploadItem {
         } 
     }
     public void createTempFile( String name ) {
+        createTempFile(name, null); 
+    }
+    public void createTempFile( String name, String content ) {
         FileOutputStream fos = null; 
         try {
             fos = new FileOutputStream( new File( folder, name)); 
-            fos.write("".getBytes()); 
+            fos.write((content == null ? "" : content).getBytes()); 
             fos.flush(); 
         } catch(RuntimeException re) {
             throw re; 
@@ -165,34 +196,7 @@ public class FileUploadItem {
         } 
     }
     
-    public FileUploadItemProc createProcessHandler() {
-        if ( getContentFile().isModeTempCopy()) {
-            return new ModeTempCopyProcess();  
-        } else if ( getContentFile().isModeUpload()) {
-            return new ModeUploadProcess(); 
-        }
-        return null; 
-    } 
-    
-    public static interface Handler { 
-        void ontransfer( FileUploadItem item, long filesize, long bytesprocessed );
-        void oncompleted( FileUploadItem item );
-    } 
 
-    public void notifyEventOnTransfer( long bytesprocessed ) {
-        Number num = getConfigFile().getPropertyAsNumber( CONF_FILE_SIZE );
-        FileStreamHandler[] arr = streamHandlers.toArray(new FileStreamHandler[]{}); 
-        for (int i=0; i<arr.length; i++) {
-            //arr[i].ontransfer( this, num.longValue(), bytesprocessed ); 
-        }
-    } 
-    public void notifyEventOnCompleted( final Map data ) { 
-        FileStreamHandler[] arr = streamHandlers.toArray(new FileStreamHandler[]{}); 
-        for (int i=0; i<arr.length; i++) {
-            arr[i].oncomplete( data );
-        }
-    }
-    
     public class ConfigFile { 
         private File folder;
         private File idxfile; 
@@ -220,7 +224,7 @@ public class FileUploadItem {
             return data; 
         }
         
-        public void read() { 
+        public ConfigFile read() { 
             FileInputStream inp = null; 
             try { 
                 inp = new FileInputStream( idxfile );
@@ -233,6 +237,7 @@ public class FileUploadItem {
             } finally { 
                 try { inp.close(); }catch(Throwable t){;} 
             }
+            return this; 
         }
         
         public void update() {
@@ -353,7 +358,7 @@ public class FileUploadItem {
             
             read(); 
         }
-        void read() {
+        StatusFile read() {
             FileInputStream inp = null; 
             try {
                 inp = new FileInputStream( file );      
@@ -378,6 +383,7 @@ public class FileUploadItem {
             } finally { 
                 try { inp.close(); }catch(Throwable t){;} 
             } 
+            return this; 
         }
         void update() {
             OutputStream out = null; 
@@ -419,48 +425,96 @@ public class FileUploadItem {
             }
         } 
     }    
-        
-    private class ModeTempCopyProcess implements FileUploadItemProc { 
+
+    private class ModeReadyProcess extends FileUploadItemProc { 
         
         FileUploadItem root = FileUploadItem.this; 
         
-        private boolean cancelled; 
-        
-        public void cancel() { 
-            cancelled = true; 
+        public void run() {
+            boolean completed = false; 
+            boolean success = false; 
+            String message = null; 
+            
+            try {
+                if ( isCancelled() ) { 
+                    throw new InterruptedException();
+                } 
+
+                root.createTempFile(".started"); 
+                root.removeTempFile(".ready"); 
+                completed = success = true; 
+                message = "success";
+            } catch(InterruptedException ie) { 
+                //do nothing 
+            } catch(Throwable t) {
+                t.printStackTrace(); 
+            } 
+            
+            if ( completed ) { 
+                fireOnCompleted( success, message ); 
+            } 
         }
+    } 
+
+    private class ModeTempCopyProcess extends FileUploadItemProc { 
         
-        public void run() { 
+        FileUploadItem root = FileUploadItem.this; 
+        
+        public void run() {
+            boolean completed = false; 
+            boolean success = false; 
+            String message = null; 
+            
             while (true) {
                 try {
-                    if ( cancelled ) { 
+                    if ( isCancelled() ) { 
                         throw new InterruptedException();
-                    } else if ( runImpl()) { 
-                        break; 
                     } 
-                } catch(InterruptedException ie) {
+                    
+                    String status = runImpl(); 
+                    if ( "no_file_source".equals( status)) { 
+                        message = "no source file specified in the conf";
+                        root.createTempFile(".error", message);
+                        root.removeTempFile(".tempcopy"); 
+                        completed = true; 
+                        break;
+                    } else if ( "source_file_not_exist".equals( status)) {
+                        message = "source file does not exist";
+                        root.createTempFile(".error", message);
+                        root.removeTempFile(".tempcopy"); 
+                        completed = true; 
+                        break; 
+                    } else if ( "success".equals( status)) {
+                        root.createTempFile(".upload"); 
+                        root.removeTempFile(".tempcopy"); 
+                        root.removeTempFile(".error"); 
+                        message = "success";
+                        completed = true; 
+                        success = true; 
+                        break; 
+                    }
+                } catch(InterruptedException ie) { 
                     break; 
                 } catch(Throwable t) {
                     t.printStackTrace(); 
                 } 
             }
-
-            Handler handler = root.getHandler(); 
-            if ( handler != null ) {
-                handler.oncompleted( root ); 
+            
+            if ( completed ) { 
+                fireOnCompleted( success, message ); 
             } 
         }
         
-        private boolean runImpl() throws Exception { 
+        private String runImpl() throws Exception { 
             ConfigFile conf = root.getConfigFile(); 
             String strsource = conf.getProperty( CONF_FILE_SOURCE ); 
             if ( strsource == null || strsource.trim().length()==0 ) { 
-                throw new InterruptedException(); 
+                return "no_file_source";
             }
             strsource = strsource.replace('\\', '/'); 
             File sourcefile = new java.io.File( strsource ); 
             if ( !sourcefile.exists() ) {
-                throw new InterruptedException(); 
+                return "source_file_not_exist";
             }
             
             File targetfile = root.getContentFile().getFile(); 
@@ -472,7 +526,7 @@ public class FileUploadItem {
                 byte[] bytes = new byte[1024 * 100]; 
                 int read = -1; 
                 while ((read=inp.read(bytes)) != -1) { 
-                    if ( this.cancelled ) throw new InterruptedException(); 
+                    if ( isCancelled() ) throw new InterruptedException(); 
                     
                     out.write(bytes, 0, read); 
                 } 
@@ -481,7 +535,7 @@ public class FileUploadItem {
                 StatusFile sf = root.getContentFile().getStatusFile(); 
                 sf.setPos( 0 ); 
                 sf.changeMode( MODE_UPLOAD );  
-                return true; 
+                return "success"; 
             } finally { 
                 try { inp.close(); }catch(Throwable t){;} 
                 try { out.close(); }catch(Throwable t){;} 
@@ -489,15 +543,20 @@ public class FileUploadItem {
         } 
     } 
     
-    private class ModeUploadProcess implements FileUploadItemProc {
+    private class ModeUploadProcess extends FileUploadItemProc {
 
+        private final int STAT_SUCCESS    = 1;
+        private final int STAT_PROCESSING = 2;
+        private final int STAT_FILE_LOC_CONF_NOT_FOUND = 3; 
+        private final int STAT_FILE_LOC_TYPE_NOT_FOUND = 4; 
+        
         FileUploadItem root = FileUploadItem.this; 
 
-        private boolean cancelled; 
-        private FileTransferSession sess; 
+        FileTransferSession sess; 
+        LinkedBlockingQueue queue;
         
-        public void cancel() {
-            cancelled = true; 
+        public void cancel() { 
+            super.cancel(); 
             
             try {
                 sess.cancel(); 
@@ -507,26 +566,104 @@ public class FileUploadItem {
         } 
 
         public void run() { 
+            boolean completed = false;
+            boolean success = false;
+            String message = null; 
+            
             while (true) {
                 try {
-                    if ( cancelled ) { 
+                    if ( isCancelled() ) { 
                         throw new InterruptedException();
-                    } else if ( runImpl()) { 
+                    } 
+                    
+                    int stat = runImpl(); 
+                    if ( stat == STAT_SUCCESS ) {
+                        message = "success";
+                        root.createTempFile(".completed");
+                        root.removeTempFile(".upload");
+                        root.removeTempFile(".error");                         
+                        success = true;
+                        completed = true; 
+                        break; 
+                    } else if ( stat == STAT_FILE_LOC_CONF_NOT_FOUND ) {
+                        message = "file location config not found";
+                        root.createTempFile(".error", message);
+                        root.removeTempFile(".upload");                         
+                        completed = true; 
                         break;
-                    }                     
+                    } else if ( stat == STAT_FILE_LOC_TYPE_NOT_FOUND ) {
+                        message = "file location type not found";
+                        root.createTempFile(".error", message);
+                        root.removeTempFile(".upload");                         
+                        completed = true; 
+                        break;
+                    }
+                    
                 } catch(InterruptedException ie) {
                     break; 
                 } catch(Throwable t) { 
                     Throwable c = getNonRuntimeException(t); 
-                    c.printStackTrace(); 
+                    System.out.println("[ModeUploadProcess] error -> "+ c.getMessage());
+                    
+                    if ( !root.folder.exists()) { 
+                        System.out.println("[ModeUploadProcess] file item "+ root.getName() +" has been deleted manually");
+                        FileUploadManager.getInstance().remove( root ); 
+                        break; 
+                    } 
                 } 
+                
+                pause( 1000 );  
             }
             
-            Handler handler = root.getHandler(); 
-            if ( handler != null ) {
-                handler.oncompleted( root ); 
-            } 
+            if ( completed ) {
+                fireOnCompleted(success, message);
+            }
         }
+        
+        private int runImpl() throws Exception { 
+            ConfigFile conf = root.getConfigFile().read(); 
+            StatusFile sf = root.getContentFile().getStatusFile().read();
+            
+            long filepos = sf.getPos(); 
+            long filesize = sf.getSize(); 
+            if ( filepos >= filesize ) { 
+                sf.changeMode( MODE_COMPLETED ); 
+                return STAT_SUCCESS; 
+            } 
+
+            FileUploadManager fum = FileUploadManager.getInstance();
+            String filelocid = conf.getProperty( CONF_FILE_LOC_ID ); 
+            FileLocationConf fileloc = FileManager.getInstance().getLocationConfs().get( filelocid );
+            if ( fileloc == null ) {
+                System.out.println("[ModeUploadProcess] '"+ filelocid +"' file location config not found for "+ root.getName()); 
+                return STAT_FILE_LOC_CONF_NOT_FOUND; 
+            }
+            
+            FileLocTypeProvider loctype = fum.getLocType( fileloc.getType() ); 
+            if ( loctype == null ) {
+                System.out.println("[ModeUploadProcess] '"+ fileloc.getType() +"' file location type not found for "+ root.getName()); 
+                return STAT_FILE_LOC_TYPE_NOT_FOUND; 
+            }
+            
+            String filetype = conf.getProperty( CONF_FILE_TYPE ); 
+            StringBuilder sb = new StringBuilder(); 
+            sb.append( root.getName() ); 
+            if ( filetype != null && filetype.trim().length() > 0 ) {
+                sb.append(".").append( filetype.trim()); 
+            }
+            
+            sess = loctype.createUploadSession(); 
+            sess.setFile( root.getContentFile().getFile() ); 
+            sess.setLocationConfigId( filelocid );
+            sess.setTargetName( sb.toString() );
+            sess.setOffset( filepos ); 
+            
+            TransferHandler th = new TransferHandler(); 
+            th.proc = this; 
+            sess.setHandler( th ); 
+            sess.run(); 
+            return STAT_SUCCESS; 
+        } 
         
         private Throwable getNonRuntimeException( Throwable t ) {
             if ( t instanceof RuntimeException ) {
@@ -537,33 +674,50 @@ public class FileUploadItem {
             } else {
                 return t; 
             } 
+        }    
+        
+        private void pause( long millis ) {
+            try {
+                if ( queue == null ) {
+                    queue = new LinkedBlockingQueue(); 
+                }
+                
+                queue.poll(millis, TimeUnit.MILLISECONDS ); 
+            } catch(Throwable t) {
+                //do nothing 
+            }
+        }
+    }
+    
+    private class ModeRemovalProcess extends FileUploadItemProc {
+
+        FileUploadItem root = FileUploadItem.this; 
+
+        public void run() { 
+            try {
+                if ( !isCancelled() ) {
+                    runImpl(); 
+                } 
+            } catch(Throwable t) { 
+                Throwable c = getNonRuntimeException(t); 
+                System.out.println("[ModeRemovalProcess] error -> "+ c.getMessage());
+            } 
         }
         
-        private boolean runImpl() throws Exception { 
-            ConfigFile conf = root.getConfigFile(); 
-            conf.read(); 
-            
-            StatusFile sf = getContentFile().getStatusFile();
-            sf.read(); 
-            
-            long filepos = sf.getPos(); 
-            long filesize = sf.getSize(); 
-            if ( filepos >= filesize ) { 
-                sf.changeMode( MODE_COMPLETED ); 
-                throw new InterruptedException(); 
-            } 
-
+        private void runImpl() throws Exception { 
+            ConfigFile conf = root.getConfigFile().read(); 
             String filelocid = conf.getProperty( CONF_FILE_LOC_ID ); 
-            FileConf fileloc = FileConf.get( filelocid ); 
+            FileUploadManager fum = FileUploadManager.getInstance();
+            FileLocationConf fileloc = FileManager.getInstance().getLocationConfs().get( filelocid );
             if ( fileloc == null ) {
-                System.out.println("[mode_upload_process] '"+ filelocid +"' file location not found for "+ root.getName()); 
-                throw new InterruptedException(); 
+                System.out.println("[ModeRemovalProcess] '"+ filelocid +"' file location config not found for "+ root.getName()); 
+                return; 
             }
             
-            FileLocTypeProvider provider = FileLocType.getProvider( fileloc.getType()); 
-            if ( provider == null ) {
-                System.out.println("[mode_upload_process] '"+ fileloc.getType() +"' file location type not found for "+ root.getName()); 
-                throw new InterruptedException(); 
+            FileLocTypeProvider loctype = fum.getLocType( fileloc.getType() ); 
+            if ( loctype == null ) {
+                System.out.println("[ModeRemovalProcess] '"+ fileloc.getType() +"' file location type not found for "+ root.getName()); 
+                return; 
             }
             
             String filetype = conf.getProperty( CONF_FILE_TYPE ); 
@@ -573,35 +727,50 @@ public class FileUploadItem {
                 sb.append(".").append( filetype.trim()); 
             }
             
-            sess = provider.createUploadSession(); 
-            sess.setFile( root.getContentFile().getFile() ); 
-            sess.setLocationConfigId( filelocid );
-            sess.setTargetName( sb.toString() );
-            sess.setOffset( filepos ); 
-            sess.setHandler( new TransferHandler()); 
-            sess.run(); 
-            return true; 
+            fum.remove( root ); 
+            try { 
+                loctype.deleteFile( sb.toString(), filelocid ); 
+            } catch(Throwable t) {
+                //do nothing 
+            }
         } 
-    }
+        
+        private Throwable getNonRuntimeException( Throwable t ) {
+            if ( t instanceof RuntimeException ) {
+                Throwable c = t.getCause(); 
+                if ( c == null ) return t; 
+                
+                return getNonRuntimeException(c); 
+            } else {
+                return t; 
+            } 
+        }    
+    }    
     
     private class TransferHandler implements FileTransferSession.Handler {
 
         FileUploadItem root = FileUploadItem.this; 
+        FileUploadItemProc proc; 
         
-        public void ontransfer(long filesize, long bytesprocessed) {
-            StatusFile sf = root.getContentFile().getStatusFile(); 
-            sf.read();
+        public void ontransfer(long filesize, long bytesprocessed) { 
+            if ( root.isMarkedForRemoval() && proc != null ) {
+                proc.cancel();
+                return; 
+            }
+            
+            StatusFile sf = root.getContentFile().getStatusFile().read(); 
             sf.setPos( bytesprocessed );
             sf.update(); 
-            
-            Handler handler = root.getHandler(); 
-            if ( handler != null ) {
-                handler.ontransfer( root, filesize, bytesprocessed ); 
-            } 
+
+            FileUploadManager.getInstance().getFileHandlers().notifyOnTransfer( root, filesize, bytesprocessed );
         }
 
         public void oncomplete() { 
             root.getContentFile().getStatusFile().changeMode( MODE_COMPLETED ); 
+            FileUploadManager.getInstance().getFileHandlers().unregister( root ); 
         } 
+
+        public void ontransfer(long bytesprocessed) {
+        }
     } 
 }

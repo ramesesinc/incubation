@@ -39,9 +39,8 @@ public class FileNewPage extends javax.swing.JPanel {
         jPanel1 = new javax.swing.JPanel();
         xLabel1 = new com.rameses.rcp.control.XLabel();
         xButton1 = new com.rameses.rcp.control.XButton();
-        xButton2 = new com.rameses.rcp.control.XButton();
         pnlImage = new com.rameses.rcp.control.XPanel();
-        xImageGallery1 = new com.rameses.rcp.control.XImageGallery();
+        fileUploadPanel1 = new com.rameses.filemgmt.components.FileUploadPanel();
 
         setBorder(javax.swing.BorderFactory.createEmptyBorder(10, 10, 10, 10));
         setPreferredSize(new java.awt.Dimension(336, 319));
@@ -52,6 +51,8 @@ public class FileNewPage extends javax.swing.JPanel {
         xFormPanel1.setPadding(new java.awt.Insets(0, 0, 0, 0));
 
         xComboBox1.setCaption("Type");
+        xComboBox1.setDepends(new String[] {"uploaditems"});
+        xComboBox1.setDisableWhen("#{uploadHandler.itemCount > 0}");
         xComboBox1.setExpression("#{item.title}");
         xComboBox1.setItemKey("objid");
         xComboBox1.setItems("fileTypes");
@@ -95,44 +96,29 @@ public class FileNewPage extends javax.swing.JPanel {
         xButton1.setText("Attach");
         jPanel1.add(xButton1);
 
-        xButton2.setDepends(new String[] {"entity.filetype", "selectedAttachment"});
-        xButton2.setDisableWhen("#{entity.filetype == null || selectedAttachment == null}");
-        xButton2.setIconResource("images/toolbars/trash.png");
-        xButton2.setImmediate(true);
-        xButton2.setMargin(new java.awt.Insets(2, 2, 2, 2));
-        xButton2.setName("removeAttachment"); // NOI18N
-        xButton2.setText("Remove");
-        jPanel1.add(xButton2);
-
         pnlheader.add(jPanel1, java.awt.BorderLayout.CENTER);
 
         add(pnlheader, java.awt.BorderLayout.NORTH);
 
         pnlImage.setDepends(new String[] {"entity.filetype"});
-        pnlImage.setVisibleWhen("#{entity.filetype.toString().matches('jpg|jpeg|png')==true}");
         com.rameses.rcp.control.layout.YLayout yLayout1 = new com.rameses.rcp.control.layout.YLayout();
         yLayout1.setAutoFill(true);
         pnlImage.setLayout(yLayout1);
 
-        xImageGallery1.setCellSize(new java.awt.Dimension(50, 50));
-        xImageGallery1.setDepends(new String[] {"entity.filetype"});
-        xImageGallery1.setHandler("listHandler");
-        xImageGallery1.setName("selectedAttachment"); // NOI18N
-        xImageGallery1.setVisibleWhen("#{entity.filetype == 'jpg'}");
-        pnlImage.add(xImageGallery1);
+        fileUploadPanel1.setHandler("uploadHandler");
+        pnlImage.add(fileUploadPanel1);
 
         add(pnlImage, java.awt.BorderLayout.CENTER);
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private com.rameses.filemgmt.components.FileUploadPanel fileUploadPanel1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private com.rameses.rcp.control.XPanel pnlImage;
     private javax.swing.JPanel pnlheader;
     private com.rameses.rcp.control.XButton xButton1;
-    private com.rameses.rcp.control.XButton xButton2;
     private com.rameses.rcp.control.XComboBox xComboBox1;
     private com.rameses.rcp.control.XFormPanel xFormPanel1;
-    private com.rameses.rcp.control.XImageGallery xImageGallery1;
     private com.rameses.rcp.control.XLabel xLabel1;
     private com.rameses.rcp.control.XTextArea xTextArea1;
     private com.rameses.rcp.control.XTextField xTextField1;

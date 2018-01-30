@@ -6,10 +6,10 @@ package com.rameses.filemgmt;
 
 /**
  *
- * @author wflores
+ * @author wflores 
  */
-public class FileReader {
+public interface FileItem {
     
-    
+    String getName();
     
 }

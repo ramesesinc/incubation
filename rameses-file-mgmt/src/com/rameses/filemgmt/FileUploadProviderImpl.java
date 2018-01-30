@@ -4,15 +4,17 @@
  */
 package com.rameses.filemgmt;
 
-import java.util.List;
 import java.util.Map;
 
 /**
  *
  * @author wflores
  */
-public interface FileUploadProvider {
-    
-    void ontransfer( Map o, Number bytestransferred );
-    void oncomplete( Map o );
+public class FileUploadProviderImpl implements FileUploadProvider {
+
+    public void ontransfer(Map o, Number bytestransferred) {
+    }
+
+    public void oncomplete(Map o) { 
+    }    
 }

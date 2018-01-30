@@ -4,14 +4,12 @@
  */
 package com.rameses.filemgmt;
 
-import java.util.Map;
-
 /**
  *
  * @author wflores 
  */
-public interface FileStreamHandler { 
+public interface RunProc extends Runnable {
     
-    void ontransfer( Map data, long bytesTransferred ); 
-    void oncomplete( Map data ); 
+    void cancel();
+    
 }

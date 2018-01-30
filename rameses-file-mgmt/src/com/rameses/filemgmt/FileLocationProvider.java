@@ -4,12 +4,15 @@
  */
 package com.rameses.filemgmt;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  *
- * @author wflores 
+ * @author wflores
  */
-public interface FileUploadGroupProc extends Runnable { 
-
-    public void cancel();
+public interface FileLocationProvider {
+    
+    public List<Map> getLocations();
     
 }
