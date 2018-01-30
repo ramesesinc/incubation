@@ -2,10 +2,11 @@
 	<element  tablename="sys_fileloc">
 		<field name="objid" primary="true" prefix="FILELOC"/>
 		<field name="url" required="true" />
-		<field name="filepath" />
+		<field name="rootdir" />
 		<field name="defaultloc" required="true" />
-		<field name="loctype" />
-		<field name="user_name" />
-		<field name="user_pwd" />
+		<field name="loctype" required="true" />
+		<field name="user_name" /> 
+		<field name="user_pwd" /> 
+		<complex name="info" serializer="default" required="false"/> 
 	</element>
 </schema>
