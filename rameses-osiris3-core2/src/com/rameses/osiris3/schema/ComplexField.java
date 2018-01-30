@@ -21,6 +21,7 @@ public class ComplexField extends SchemaField implements IRelationalField {
     
     private String name;
     private boolean required = true;
+    private boolean merge;
     private String type;
     private String ref;
     private int min;
@@ -119,6 +120,11 @@ public class ComplexField extends SchemaField implements IRelationalField {
     
     public String getInversekey() {
         return (String)super.getProperty("inversekey");
+    }
+    
+    public boolean isMerge() { return merge; }
+    public void setMerge( boolean merge ) {
+        this.merge = merge; 
     }
 
     @Override
