@@ -758,8 +758,7 @@ public class XList extends JList implements UIControl, ActiveControl, MouseEvent
     
     // <editor-fold defaultstate="collapsed" desc=" DefaultListPaneModel ">
     
-    private class DefaultListPaneModel extends ListPaneModel 
-    {
+    private class DefaultListPaneModel extends ListPaneModel {
         private List list;
         
         DefaultListPaneModel(Object items) {
@@ -779,8 +778,8 @@ public class XList extends JList implements UIControl, ActiveControl, MouseEvent
     
     // <editor-fold defaultstate="collapsed" desc=" ProviderImpl ">
     
-    private class ProviderImpl implements ListPaneModel.Provider 
-    {
+    private class ProviderImpl implements ListPaneModel.Provider {
+        
         XList root = XList.this; 
         
         public Object getBinding() {
@@ -804,6 +803,11 @@ public class XList extends JList implements UIControl, ActiveControl, MouseEvent
                 root.setSelectedIndex(index); 
             }
         }
+        
+        public void addItem( Object item ) throws Exception { 
+            if ( item == null ) return; 
+            root.model.addElement(item);
+        } 
     }
     
     // </editor-fold>

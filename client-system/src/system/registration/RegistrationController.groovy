@@ -4,10 +4,7 @@ import com.rameses.rcp.annotations.*;
 import com.rameses.rcp.common.*;
 import com.rameses.osiris2.client.*;
 import com.rameses.osiris2.common.*;
-import com.rameses.rcp.common.*;
-import com.rameses.rcp.annotations.*;
 import com.rameses.util.*;
-import com.rameses.osiris2.client.*;
 
 public class RegistrationController 
 {
@@ -24,7 +21,17 @@ public class RegistrationController
         def t = new TerminalKey();
         if (t.open()) { 
             def terminalSvc = InvokerProxy.instance.create("TerminalService"); 
-            def data = terminalSvc.findTerminal([terminalid: t.terminalid]);
+
+            def data = null; 
+            try { 
+                data = terminalSvc.findTerminal([terminalid: t.terminalid]); 
+            } catch(Exception ex) { 
+                def ce = findConnectionError( ex ); 
+                if ( ce == null ) throw ex; 
+                
+                println 'Could not connect to the server...';
+            }
+            
             if (data) { 
                 user.terminalId = t.terminalid; 
                 return "_close";                 
@@ -70,5 +77,11 @@ public class RegistrationController
         o.terminalid = m.terminalid;
         saveTerminal( o );
         return "_close";
+    }
+    
+    private def findConnectionError(Throwable t) { 
+        if ( t == null ) return null; 
+        else if ( t instanceof java.net.ConnectException ) return t; 
+        else return findConnectionError( t.getCause() ); 
     }
 }

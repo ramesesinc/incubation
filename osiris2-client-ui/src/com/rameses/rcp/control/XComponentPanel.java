@@ -120,7 +120,12 @@ public abstract class XComponentPanel extends JPanel
         this.index = index; 
     }
 
+    protected void initComponentBean( ComponentBean bean ) {
+    }
+    
     public final void load() { 
+        initComponentBean( compBean );
+        
         Binding ib = getInnerBinding(); 
         if ( ib != null && compBean != null ) { 
             ib.setBean( compBean ); 

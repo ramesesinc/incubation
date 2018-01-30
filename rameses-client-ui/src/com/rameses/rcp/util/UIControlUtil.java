@@ -43,7 +43,8 @@ public class UIControlUtil {
     }
     
     public static Object getBeanValue(UIControl control, String property) {
-        Binding binding = control.getBinding(); 
+        if ( control == null ) return null; 
+        
         Object beanValue = getBeanValue(control.getBinding(), property);
         if ( beanValue != null ) return beanValue;
         
@@ -57,7 +58,11 @@ public class UIControlUtil {
     } 
     
     public static Object getBeanValue(Binding binding, String property) { 
-        return getBeanValue(binding.getBean(), property); 
+        if ( binding != null && binding.getBean() != null ) {
+            return getBeanValue(binding.getBean(), property); 
+        } else {
+            return null; 
+        }
     } 
     
     public static Object getBeanValue(Object bean, String property) {

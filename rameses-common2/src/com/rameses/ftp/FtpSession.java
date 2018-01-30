@@ -54,7 +54,7 @@ public class FtpSession {
             ftp.connect( conf.getHost(), conf.getPort() ); 
             int respcode = ftp.getReplyCode(); 
             if ( !FTPReply.isPositiveCompletion(respcode)) {
-                throw new RuntimeException("[ftp_error] Connection refused"); 
+                throw new FtpException(ftp.getReplyString(), respcode); 
             }
         } catch(RuntimeException re) {
             throw re; 
@@ -69,7 +69,7 @@ public class FtpSession {
             if ( FTPReply.isPositiveCompletion( ftp.getReplyCode())) {
                 // authenticated 
             } else { 
-                throw new RuntimeException("[ftp_error] "+ ftp.getReplyString()); 
+                throw new FtpException(ftp.getReplyString(), ftp.getReplyCode()); 
             }
         } catch(RuntimeException re) {
             throw re; 
@@ -95,22 +95,16 @@ public class FtpSession {
         }
     }
     
-    public void download( String remoteName, File targetFile ) {
+    public void deleteFile( String remoteName ) {
         InputStreamProxy inp = null; 
         try { 
             login(); 
             applySettings(); 
             
-            targetFile.getParentFile().mkdirs(); 
-            
-            DownloadStreamProxy dsp = new DownloadStreamProxy(targetFile); 
-            ftp.setRestartOffset( dsp.getLength()); 
-            ftp.retrieveFile(remoteName, dsp);
-            
+            ftp.deleteFile( remoteName );
             int respcode = ftp.getReplyCode(); 
-            System.out.println("reply string " + ftp.getReplyString());
             if ( !FTPReply.isPositiveCompletion(respcode)) {
-                throw new RuntimeException("[ftp_error] "+ respcode ); 
+                throw new FtpException(ftp.getReplyString(), respcode); 
             }
         } catch(IOException ioe) { 
             throw new RuntimeException(ioe); 
@@ -119,10 +113,43 @@ public class FtpSession {
             
             logout(); 
         } 
+    }
+    
+    public void download( String remoteName, File targetFile ) {
+        DownloadStreamProxy dsp = null; 
+        try { 
+            login(); 
+            applySettings(); 
+            
+            targetFile.getParentFile().mkdirs(); 
+            
+            StringBuilder buff = new StringBuilder(); 
+            String rootdir = conf.getRootDir(); 
+            if ( rootdir != null && rootdir.trim().length() > 0) { 
+                buff.append( rootdir ).append("/"); 
+            } 
+            buff.append( remoteName ); 
+            
+            dsp = new DownloadStreamProxy(targetFile); 
+            dsp.setOffset( dsp.getLength() ); 
+            ftp.setRestartOffset( dsp.getOffset() );  
+            ftp.retrieveFile( buff.toString(), dsp );  
+            
+            int respcode = ftp.getReplyCode(); 
+            if ( !FTPReply.isPositiveCompletion(respcode)) {
+                throw new FtpException(ftp.getReplyString(), respcode); 
+            }
+        } catch(IOException ioe) { 
+            throw new RuntimeException(ioe); 
+        } finally {
+            try { dsp.close(); }catch(Throwable t){;} 
+            
+            logout(); 
+        } 
         
         Handler handler = getHandler(); 
         if ( handler != null ) { 
-            handler.oncompleted(); 
+            handler.onComplete(); 
         }         
     }
 
@@ -136,8 +163,15 @@ public class FtpSession {
             login(); 
             applySettings(); 
             
+            StringBuilder buff = new StringBuilder();
+            String rootdir = conf.getRootDir(); 
+            if ( rootdir != null && rootdir.trim().length() > 0) {
+                buff.append( rootdir ).append("/");
+            }
+            buff.append( remoteName ); 
+            
             inp = new InputStreamProxy( file ); 
-            if ( inp.upload( ftp, remoteName, startpos )) {
+            if ( inp.upload( ftp, buff.toString(), startpos )) {
                 // do nothing 
                 
             } else {
@@ -156,7 +190,7 @@ public class FtpSession {
         
         Handler handler = getHandler(); 
         if ( handler != null ) { 
-            handler.oncompleted(); 
+            handler.onComplete(); 
         } 
     }
     
@@ -171,13 +205,15 @@ public class FtpSession {
         try { 
             ftp.setFileType( FTP.BINARY_FILE_TYPE );
         } catch (IOException e) {
-            throw new RuntimeException(e.getMessage(), e); 
-        } 
+            throw new FtpException(e.getMessage(), e); 
+        }         
     }
     
+        
     public static interface Handler { 
-        void onupload( long filesize, long bytesprocessed ); 
-        void oncompleted(); 
+        void onTransfer( long filesize, long bytesprocessed ); 
+        void onTransfer( long bytesprocessed );
+        void onComplete(); 
     }
     
     private class InputStreamProxy extends InputStream implements CopyStreamListener {
@@ -282,23 +318,34 @@ public class FtpSession {
             if ( handler == null ) return; 
             
             long procbytes = startpos + totalBytesTransferred; 
-            handler.onupload( filesize, procbytes ); 
+            handler.onTransfer( filesize, procbytes ); 
         }  
     } 
     
     private class DownloadStreamProxy extends OutputStream {
 
+        FtpSession root = FtpSession.this; 
+        
         private File targetFile; 
         private FileOutputStream fos;
         
+        private long offset; 
+        private long nextOffset;
+        
         DownloadStreamProxy( File targetFile ) {
             this.targetFile = targetFile; 
-            
+
             try { 
                 this.fos = new FileOutputStream( targetFile );
             } catch (FileNotFoundException fnfe ) { 
                 throw new RuntimeException( fnfe );
-            } 
+            }             
+        }
+        
+        long getOffset() { return offset; } 
+        void setOffset( long offset ) {
+            this.offset = offset; 
+            this.nextOffset = offset; 
         }
         
         public long getLength() { 
@@ -320,24 +367,99 @@ public class FtpSession {
             }
         } 
         
-        public void write(int b) throws IOException {
+        public void write(int b) throws IOException { 
             fos.write( b ); 
         } 
 
+        public void write(byte[] b, int off, int len) throws IOException { 
+            fos.write(b, off, len); 
+            nextOffset += len; 
+            fireOnTransfer( nextOffset ); 
+        }
+
         public void close() throws IOException { 
-            super.close(); 
-            
             try { 
                 fos.close(); 
             }catch(Throwable ign){;} 
+            
+            super.close();             
         }
 
         public void flush() throws IOException {
-            super.flush();
-            
             try { 
                 fos.flush(); 
             }catch(Throwable ign){;} 
+
+            super.flush();
+        }
+        
+        private void fireOnTransfer( long byteprocessed ) {
+            try {
+                Handler handler = root.getHandler(); 
+                if ( handler == null ) return; 
+                
+                handler.onTransfer( byteprocessed ); 
+            } catch(Throwable t) { 
+                //do nothing 
+            } 
         }
     }
+    
+    private class ByteBuffer {
+        
+        private final Object LOCKED = new Object();
+        
+        private int index; 
+        private int capacity;
+        private byte[] bytes;
+        private boolean markAsClosed;
+        
+        ByteBuffer( int capacity ) {
+            this.capacity = capacity; 
+            reset();
+        }
+        
+        void reset() { 
+            synchronized (LOCKED) {
+                if ( markAsClosed ) throw new RuntimeException("already marked as closed"); 
+
+                this.index = 0;
+                this.bytes = new byte[capacity]; 
+            }
+        }
+        
+        boolean add( int b ) {
+            synchronized (LOCKED) {
+                if ( markAsClosed ) throw new RuntimeException("already marked as closed"); 
+                
+                if (index >= 0 && index < bytes.length) {
+                    bytes[index] = (byte) b; 
+                    index += 1; 
+                    return true; 
+                } else { 
+                    return false; 
+                } 
+            }
+        }
+        
+        byte[] getBytes() { 
+            synchronized (LOCKED) {
+                if ( index <= 0 ) return null; 
+                if ( bytes == null || bytes.length == 0) return null;
+                
+                byte[] newbytes = new byte[index];
+                System.arraycopy(bytes, 0, newbytes, 0, newbytes.length); 
+                return newbytes; 
+            }
+        }
+        
+        void close() {
+            synchronized (LOCKED) {
+                markAsClosed = true; 
+                bytes = null; 
+                index = 0; 
+            }            
+        }
+    }
+    
 }

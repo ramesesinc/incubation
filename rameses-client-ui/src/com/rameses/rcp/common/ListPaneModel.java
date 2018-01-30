@@ -74,7 +74,9 @@ public class ListPaneModel {
     public void setSelectedIndex(int index) {
         if (provider != null) provider.setSelectedIndex(index); 
     }
-    
+    public void addItem( Object item ) throws Exception {
+        if (provider != null) provider.addItem( item ); 
+    }
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" Provider ">
@@ -84,14 +86,14 @@ public class ListPaneModel {
         this.provider = provider; 
     }
     
-    public static interface Provider 
-    {
+    public static interface Provider {
         Object getBinding();
         
         void repaint();        
         void refresh();
         void reload();
-        void setSelectedIndex(int index);         
+        void setSelectedIndex(int index); 
+        void addItem( Object item ) throws Exception; 
     }
     
     // </editor-fold>

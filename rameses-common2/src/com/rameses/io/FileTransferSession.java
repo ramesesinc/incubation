@@ -71,6 +71,7 @@ public abstract class FileTransferSession implements Runnable {
     }
     
     public static interface Handler { 
+        void ontransfer( long bytesprocessed ); 
         void ontransfer( long filesize, long bytesprocessed ); 
         void oncomplete(); 
     } 

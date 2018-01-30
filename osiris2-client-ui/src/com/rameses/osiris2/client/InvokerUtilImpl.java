@@ -149,12 +149,17 @@ class InvokerUtilImpl
     
     public static void invoke( Opener opener, UIController caller ) {
         ControlSupport.initOpener(opener, caller);
-        String target = opener.getTarget()+""; 
-        if ( target.equalsIgnoreCase("process")) { 
+        String target = opener.getTarget(); 
+        if ( "process".equalsIgnoreCase(target+"")) { 
             return; 
         }
         
         UIControllerContext uic = new UIControllerContext( opener.getController() );
+        String outcome = opener.getOutcome(); 
+        if ( outcome != null && opener.getController().containsView( outcome )) { 
+            uic.setCurrentView( outcome ); 
+        } 
+        
         UIControllerPanel panel = new UIControllerPanel( uic );
         
         Map winParams = new HashMap();

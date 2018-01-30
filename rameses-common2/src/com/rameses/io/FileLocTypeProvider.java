@@ -15,4 +15,5 @@ public interface FileLocTypeProvider {
     FileTransferSession createUploadSession(); 
     FileTransferSession createDownloadSession(); 
     
+    void deleteFile( String name, String locationConfigId ); 
 }
