@@ -4,7 +4,6 @@ import java.util.Map;
 
 public abstract class UIController {
     
-    
     public UIController() {}
     
     public abstract View[] getViews();
@@ -23,6 +22,7 @@ public abstract class UIController {
     public abstract void setName(String name);
     
     public abstract Map getInfo();
+    public abstract boolean containsView( String name ); 
 
     public final Object init(Map params, String action) {
         return init(params, action, null); 

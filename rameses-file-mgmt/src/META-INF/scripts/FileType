@@ -5,8 +5,8 @@ public class FileType {
 
     final def _types = [ 
         [ objid: "jpg",  title: "JPEG Images (*.jpg)", multiselect: true ],
-        [ objid: "doc",  title: "Word Document (*.doc)", multiselect: false ],
-        [ objid: "docx", title: "Word Document (*.docx)", multiselect: false ],
+        [ objid: "doc",  title: "Word Document (*.doc)", multiselect: true ],
+        [ objid: "docx", title: "Word Document (*.docx)", multiselect: true ],
         [ objid: "pdf",  title: "PDF Document (*.pdf)", multiselect: false ],
         [ objid: "png",  title: "PNG Images (*.png)", multiselect: true ]
     ];

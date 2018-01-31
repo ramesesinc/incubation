@@ -66,6 +66,7 @@ public class DataFillUtil {
                 }
             }
         }
+        
         //fill in the extende d items
         if( elem.getExtendedElement()!=null ) {
             fillInitialData( elem.getExtendedElement(), rawData );

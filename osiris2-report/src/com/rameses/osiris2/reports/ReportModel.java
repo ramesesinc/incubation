@@ -18,6 +18,10 @@ import com.rameses.rcp.annotations.Invoker;
 import com.rameses.rcp.common.Action;
 import com.rameses.rcp.framework.ClientContext;
 import com.rameses.util.URLStreamHandlers;
+import java.awt.Dialog;
+import java.awt.Frame;
+import java.awt.KeyboardFocusManager;
+import java.awt.Window;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.net.URL;
@@ -26,6 +30,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import javax.swing.JFileChooser;
 import net.sf.jasperreports.engine.JRDataSource;
 import net.sf.jasperreports.engine.JREmptyDataSource;
 import net.sf.jasperreports.engine.JRException;
@@ -48,6 +53,7 @@ public abstract class ReportModel {
     private boolean allowSave = true;
     private boolean allowPrint = true;
     private boolean allowBack = false;
+    private boolean ignorePagination;
     
     protected final PropertyResolver propertyResolver = PropertyResolver.getInstance();
     
@@ -57,6 +63,11 @@ public abstract class ReportModel {
     public boolean isDynamic() { return dynamic; } 
     public void setDynamic(boolean dynamic) {
         this.dynamic = dynamic; 
+    }
+    
+    public boolean isIgnorePagination() { return ignorePagination; }
+    public void setIgnorePagination( boolean ignorePagination ) {
+        this.ignorePagination = ignorePagination; 
     }
     
     public boolean isAllowSave() { return allowSave; }
@@ -131,12 +142,15 @@ public abstract class ReportModel {
     }
     
     protected void loadReportParams( Map conf ) { 
-        Map params = getServiceProxy().getStandardParameter(); 
-        if ( params != null ) { 
-            conf.putAll( params ); 
-        } 
+        ReportParamServiceProxy reportParamProxy = getServiceProxy(); 
+        if ( reportParamProxy != null ) {
+            Map params = reportParamProxy.getStandardParameter(); 
+            if ( params != null ) { 
+                conf.putAll( params ); 
+            } 
+        }
         
-        params = getParameters(); 
+        Map params = getParameters(); 
         if ( params != null ) { 
             conf.putAll( params ); 
         } 
@@ -174,6 +188,7 @@ public abstract class ReportModel {
         } 
         conf.put(JRParameter.REPORT_CLASS_LOADER, new CustomReportClassLoader(reportPath));
         conf.put(JRParameter.REPORT_URL_HANDLER_FACTORY, URLStreamHandlers.getFactory()); 
+        if ( isIgnorePagination()) conf.put(JRParameter.IS_IGNORE_PAGINATION, true); 
     } 
     
     private JasperPrint createReport() {
@@ -198,6 +213,26 @@ public abstract class ReportModel {
         return "report";
     }
 
+    public void exportToPDF() throws Exception { 
+        JFileChooser jfc = new JFileChooser();
+        jfc.setFileSelectionMode( JFileChooser.FILES_ONLY ); 
+        jfc.setMultiSelectionEnabled( false ); 
+            
+        int opt = JFileChooser.CANCEL_OPTION;
+        Window win = KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusedWindow(); 
+        if (win instanceof Frame) {
+            opt = jfc.showSaveDialog((Frame)win); 
+        } else if (win instanceof Dialog ) {
+            opt = jfc.showSaveDialog((Dialog)win); 
+        } else {
+            opt = jfc.showSaveDialog((Frame) null); 
+        }
+
+        if ( opt == JFileChooser.APPROVE_OPTION ) {
+            exportToPDF( jfc.getSelectedFile() ); 
+        }
+    }  
+    
     public void exportToPDF( File file ) throws Exception { 
         FileOutputStream fos = null; 
         try { 
@@ -224,6 +259,10 @@ public abstract class ReportModel {
         print( true ); 
     } 
     
+    public void printNoDialog() { 
+        print( false ); 
+    }
+
     public void print( boolean withPrintDialog ) { 
         try { 
             ReportUtil.print( createReport(), withPrintDialog ); 
@@ -233,7 +272,7 @@ public abstract class ReportModel {
             throw new RuntimeException(e.getMessage(), e); 
         } 
     }     
-    
+
     public List getReportActions() {
         List list = new ArrayList();
         list.add( new Action("_close", "Close", null));
@@ -396,9 +435,16 @@ public abstract class ReportModel {
     
     // <editor-fold defaultstate="collapsed" desc=" Proxy services "> 
     
+    public String getReportParameterServiceName() {
+        return "ReportParameterService"; 
+    }
+    
     private ReportParamServiceProxy svcproxy;
     private ReportParamServiceProxy getServiceProxy() {
-        if ( svcproxy == null ) {
+        if ( svcproxy == null ) { 
+            String sname = getReportParameterServiceName(); 
+            if ( sname == null ) return null; 
+            
             svcproxy = (ReportParamServiceProxy) InvokerProxy.getInstance().create("ReportParameterService", ReportParamServiceProxy.class); 
         } 
         return svcproxy; 

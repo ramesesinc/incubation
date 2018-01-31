@@ -1,19 +1,16 @@
 package com.rameses.filemgmt.models;
 
-import com.rameses.seti2.models.*;
 import com.rameses.rcp.annotations.*;
 import com.rameses.rcp.common.*;
 import com.rameses.osiris2.client.*;
 import com.rameses.osiris2.common.*;
+import com.rameses.seti2.models.*;
 import com.rameses.util.Base64Cipher;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class FileNewModel  {
         
-    @Service('FileUploadService') 
-    def fileUploadSvc;
-    
     @Script('FileType') 
     def fileType;
     
@@ -32,79 +29,67 @@ public class FileNewModel  {
     }
     
     def doOk() {
-        def helper = com.rameses.filemgmt.FileUploadManager.Helper; 
-        def fileitems = [];
-        
-        entity.items = []; 
-        attachments.each{
-            def skey = entity.objid +'-'+ new java.rmi.server.UID();
-            def encstr = com.rameses.util.Encoder.MD5.encode( skey ); 
-            def encparentid = com.rameses.util.Encoder.MD5.encode( entity.objid ); 
+        def fum = com.rameses.filemgmt.FileUploadManager.instance; 
+        def fileLocConf = com.rameses.filemgmt.FileManager.instance.locationConfs.defaultConf;
+        if ( fileLocConf == null ) throw new Exception('Please provide a default location conf'); 
 
-            def m = [:];
-            m.filesize = helper.getFileSize( it.file ); 
-            m.filetype = entity.filetype;
-            m.parentid = entity.objid;
-            m.filelocid = 'default';
-            m.caption = it.file.getName();
-            m.state = 'PENDING';
-            m.bytestransferred = 0;
-            m.objid = encstr; 
-            m.thumbnail = base64.encode((Object) it.image); 
-            entity.items << m; 
+        def scaler = new ImageScaler();
+        def items = uploadHandler.getItems(); 
+        if ( items.find{( it.completed == false )} ) 
+            throw new Exception('Wait until all items were uploaded'); 
             
-            fileitems << [
-                source    : it.file.absolutePath, 
-                filelocid : m.filelocid,
-                filetype  : m.filetype, 
-                filesize  : m.filesize,
-                fileid    : m.objid 
-            ]
+        entity.items = []; 
+        items.each{ o-> 
+            def data = o.data; 
+            def m = [:];
+            m.objid = data.objid; 
+            m.parentid = entity.objid;
+            m.state = 'COMPLETED';
+            m.caption = data.caption;
+            m.filesize = data.filesize;
+            m.filetype = data.filetype;
+            m.filelocid = data.filelocid;
+            m.bytestransferred = data.filesize;
+            
+            def image = scaler.createThumbnail( data.file );  
+            m.thumbnail = base64.encode((Object) scaler.getBytes( image )); 
+            entity.items << m; 
         } 
-        entity.info = info;
+        entity.info = info;        
         
-        def fup = com.rameses.filemgmt.FileUploadManager.provider; 
-        _entity = fup.save( entity ); 
-        //_entity = fileUploadSvc.upload( entity ); 
-        
-        def tempdir = helper.getTempDir(); 
-        fileitems.each{
-            def folder = new java.io.File( tempdir, it.fileid ); 
-            def fui = new com.rameses.filemgmt.FileUploadItem( folder ); 
-            fui.create( it, true ); 
-            com.rameses.filemgmt.FileUploadManager.schedule( fui ); 
-        } 
+        def dbp = com.rameses.filemgmt.FileManager.instance.dbProvider;
+        if ( dbp ) { 
+            def o = dbp.save( entity ); 
+            if ( o ) _entity.putAll( o ); 
+        }
         
         try { 
             if ( handler ) handler( entity ); 
         } finally {
             return "_close";
-        }
+        }        
     }
 
     def doCancel() {
         return "_close";
     }    
     
-    def attachments = [];
-    def listHandler = [
-        fetchList: {
-            return attachments; 
+    def self = this; 
+    def uploadHandler = [ 
+        afterRemoveItem: {
+            self.refreshFileType(); 
         }
-    ] as ImageGalleryModel;
+    ] as FileUploadModel;
     
-    def getCardViewName() { 
-        def filetype = entity?.filetype;
-        if ( filetype.toString().matches('jpg|png')) {
-            return 'image'; 
-        } else {
-            return 'empty'; 
-        }
+    void refreshFileType() {
+        if ( uploadHandler?.binding ) {
+            uploadHandler.binding.refresh('entity.filetype');
+        } 
     }
     
+    int fileIndexNo; 
     def fileChooser; 
     def selectedAttachment;
-    
     void attachFile() { 
         def filetype = fileTypes.find{ it.objid==entity.filetype }
         if ( !filetype ) throw new Exception('file type not supported');
@@ -124,45 +109,41 @@ public class FileNewModel  {
             fileChooser.setFileFilter( new FileNameExtensionFilter( filetype.title, filetype.objid ));
         } 
         
-        def scaler = new ImageScaler();
-        int opt = fileChooser.showOpenDialog( listHandler.binding?.owner ); 
-        if ( opt == JFileChooser.APPROVE_OPTION ) { 
-            def newlist = []; 
-            def files = fileChooser.getSelectedFiles(); 
-            files.each{ 
-                def item = [:];
-                item.file = it; 
-                item.caption = it.name; 
-                
-                def image = scaler.createThumbnail( it );  
-                item.image = scaler.getBytes( image ); 
-                newlist << item; 
-            }
-            attachments.addAll( newlist); 
-            listHandler.reload();
-        } 
-    }
-    
-    void removeAttachment() {
-        if ( !selectedAttachment ) return; 
+        def fum = com.rameses.filemgmt.FileUploadManager.instance; 
+        def locconf = com.rameses.filemgmt.FileManager.instance.locationConfs.defaultConf; 
+        if ( !locconf ) throw new Exception('No active location config available'); 
         
-        int idx = attachments.indexOf( selectedAttachment ); 
-        if ( idx >= 0 ) { 
-            attachments.remove( idx ); 
-            listHandler.remove( idx ); 
+        def tempdir = fum.getTempDir();         
+        int opt = fileChooser.showOpenDialog( uploadHandler.binding?.owner ); 
+        if ( opt == JFileChooser.APPROVE_OPTION ) { 
+            def files = null; 
+            if ( filetype.multiselect ) {
+                files = fileChooser.getSelectedFiles(); 
+            } else {
+                files = [ fileChooser.getSelectedFile() ];  
+            }
+            
+            files.each{ o-> 
+                fileIndexNo += 1; 
+                def item = [:];
+                def encstr = com.rameses.util.Encoder.MD5.encode( entity.objid ); 
+                item.objid = encstr + fileIndexNo.toString().padLeft(2, '0'); 
+                item.filesize = fum.helper.getFileSize( o ); 
+                item.filetype = entity.filetype; 
+                item.filelocid = locconf.name; 
+                item.fileid = item.objid; 
+                item.source = o.canonicalPath; 
+                item.caption = o.name; 
+                item.file = o;
+
+                def folder = new java.io.File( tempdir, item.fileid ); 
+                def fui = com.rameses.filemgmt.FileUploadItem.create( folder, item ); 
+                uploadHandler.add( fui, item.caption, item.filesize, item ); 
+                item.uploaditem = fui;
+                fum.schedule( fui ); 
+            } 
+            
+            refreshFileType(); 
         } 
     }
-    
-    long getFileSize( def file ) { 
-        def raf = null; 
-        def fc = null; 
-        try { 
-            raf = new java.io.RandomAccessFile( file, "r" );
-            fc = raf.getChannel(); 
-            return fc.size(); 
-        } finally {
-            try { fc.close(); }catch(Throwable t){;}
-            try { raf.close(); }catch(Throwable t){;}
-        }
-    } 
 }

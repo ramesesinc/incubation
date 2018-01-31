@@ -12,6 +12,8 @@ public final class FtpManager {
     
     public static FtpSession createSession( String configName ) {
         FtpLocationConf conf = FtpLocationConf.get( configName ); 
+        if ( conf == null ) throw new RuntimeException(""+ configName +" ftp config does not exist"); 
+        
         FtpSession sess = new FtpSession( conf );  
         sess.connect(); 
         return sess; 

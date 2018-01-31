@@ -58,6 +58,13 @@ public class WorkUnitUIController extends UIController
         return (UIController.View[]) list.toArray(new UIController.View[]{});
     }
     
+    public boolean containsView( String name ) { 
+        try {
+            return workunit.getWorkunit().getPages().containsKey( name ); 
+        } catch(Throwable t) { 
+            return false;  
+        } 
+    }
     
     public void setId( String id) {
         this.id = id;

@@ -74,6 +74,8 @@ public class XHtmlView extends HtmlViewPane implements UIControl, ActiveControl,
 
     private int stretchWidth;
     private int stretchHeight;    
+    private String handler;
+    private boolean dynamic;
     
     public XHtmlView() {
         super(); 
@@ -87,6 +89,11 @@ public class XHtmlView extends HtmlViewPane implements UIControl, ActiveControl,
     public String getVisibleWhen() { return visibleWhen; } 
     public void setVisibleWhen(String visibleWhen) {
         this.visibleWhen = visibleWhen; 
+    }
+    
+    public boolean isDynamic() { return dynamic; }
+    public void setDynamic( boolean dynamic ) {
+        this.dynamic = dynamic;
     }
     
     // </editor-fold>

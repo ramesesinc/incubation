@@ -125,6 +125,13 @@ public class SchemaElement implements Serializable {
         return serializedFields;
     }
     
+    public ComplexField findMergeComplexField() {
+        for (ComplexField cf : getSerializedFields()) {
+            if ( cf.isMerge()) return cf; 
+        }
+        return null; 
+    }
+    
     public Object getProperty(String name) {
         return this.properties.get( name );
     }

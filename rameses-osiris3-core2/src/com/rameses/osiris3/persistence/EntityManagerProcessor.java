@@ -1,9 +1,11 @@
 package com.rameses.osiris3.persistence;
 
 import com.rameses.osiris3.schema.AbstractSchemaView;
+import com.rameses.osiris3.schema.ComplexField;
 import com.rameses.osiris3.schema.OneToManyLink;
 import com.rameses.osiris3.schema.RelationKey;
 import com.rameses.osiris3.schema.SchemaElement;
+import com.rameses.osiris3.schema.SchemaField;
 import com.rameses.osiris3.schema.SchemaRelation;
 import com.rameses.osiris3.schema.SchemaView;
 import com.rameses.osiris3.schema.SchemaViewField;
@@ -19,7 +21,9 @@ import com.rameses.osiris3.sql.SqlUnitCache;
 import com.rameses.util.EntityUtil;
 import com.rameses.util.ValueUtil;
 import java.lang.String;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -108,12 +112,13 @@ public final class EntityManagerProcessor {
     public Map create(EntityManagerModel model, Map data) throws Exception {
         DataFillUtil.fillInitialData(model.getElement(), data);
         ValidationResult vr = ValidationUtil.validate(data, model.getElement());
-        if(vr.hasErrors()) 
-            throw new Exception(vr.toString());
+        if(vr.hasErrors()) throw new Exception(vr.toString());
         SchemaView svw = model.getSchemaView();
         Map sqlModelMap = new LinkedHashMap();
         SqlDialectModelBuilder.buildCreateSqlModels(svw, sqlModelMap);
 
+        resolveUpdateForMerge( model, data );         
+        
         create(svw, data, sqlModelMap, model.getVars());
         return data;
     }
@@ -192,11 +197,16 @@ public final class EntityManagerProcessor {
         if ((entityModel.getFinders().size() == 0) && (entityModel.getWhereElement() == null)) {
             throw new Exception("update error. finder or where must be specified");
         }
+
+        resolveUpdateForMerge( entityModel, odata ); 
+        
         SchemaView svw = entityModel.getSchemaView();
         Map data = DataTransposer.prepareDataForUpdate(svw, odata);
         Map<String, SqlDialectModel> modelMap = SqlDialectModelBuilder.buildUpdateSqlModels(entityModel, data);
-        Map params = new HashMap();
+        Map params = new HashMap(); 
         params.putAll(data);
+        
+        
         if( entityModel.getFinders()!=null) {
             params.putAll(entityModel.getFinders());
         }
@@ -321,7 +331,9 @@ public final class EntityManagerProcessor {
         SqlQuery sqlQry = createQuery(sqlModel, parms, vars);
         sqlQry.setFetchHandler(new DataMapFetchHandler(model.getSchemaView()));
         Map result = (Map) sqlQry.getSingleResult();
-        if (nestLevel > 0) {
+        ComplexField cf = model.getElement().findMergeComplexField(); 
+        resolveResultForMerge(cf, result); 
+        if (nestLevel > 0) { 
             fetchSubItems(model, result, 1, nestLevel);
         }
         return result;
@@ -490,4 +502,147 @@ public final class EntityManagerProcessor {
         return buildStatement(sqlModel);
     }
     
+    private void resolveResultForMerge( ComplexField cf, Map data ) {
+        if ( cf == null || !cf.isMerge() ) return; 
+        if ( data == null || data.isEmpty()) return; 
+        if ( !data.containsKey( cf.getName())) return; 
+        
+        Object info = data.remove( cf.getName()); 
+        if ( info instanceof Map ) {
+            Map infomap = (Map) info; 
+            copyItems( data, infomap ); 
+            
+            data.clear(); 
+            data.putAll( infomap ); 
+            infomap.clear(); 
+        }
+    }
+    
+    private void resolveUpdateForMerge(EntityManagerModel model, Map source ) { 
+        ComplexField cxf = model.getElement().findMergeComplexField(); 
+        if ( cxf == null || source == null || source.isEmpty() ) return; 
+        
+        ArrayList<String> sfnames = new ArrayList();
+        for( SchemaField sf: model.getElement().getFields() ) { 
+            String sname = sf.getName(); 
+            sfnames.add( sname ); 
+        }
+        
+        Map info = new HashMap(); 
+        Object o = source.remove( cxf.getName()); 
+        if ( o instanceof Map ) {
+            info = (Map)o; 
+        }
+
+        Iterator itr = source.keySet().iterator(); 
+        while (itr.hasNext()) {
+            Object val = itr.next(); 
+            if ( val == null ) continue; 
+
+            String fname = val.toString(); 
+            if ( sfnames.contains( fname)) {
+                //do nothing 
+            } else {
+                Object fvalue = source.get( fname ); 
+                if ( fvalue instanceof Map ) {
+                    if ( info.get( fname ) instanceof Map ) {
+                        //do nothing 
+                    } else {
+                        info.put( fname, new HashMap()); 
+                    }
+                    copyItems((Map) fvalue, (Map) info.get(fname)); 
+                } else { 
+                    info.put( fname, source.get( fname )); 
+                }
+            }
+        } 
+        
+        for( SchemaField sf: model.getElement().getSimpleFields() ) { 
+            String sname = sf.getName(); 
+            if ( sname.indexOf('_') <= 0 ) continue; 
+            
+            removeData( info, sname ); 
+        }
+        
+        source.put( cxf.getName(), info ); 
+    }
+    
+    private void removeData( Map data, String name ) {
+        if ( data == null || data.isEmpty()) return;
+        if ( name == null || name.trim().length() == 0) return;
+        
+        data.remove( name ); 
+        String[] arr = name.split("_"); 
+        if ( arr.length > 1 ) {
+            Object o = data.get(arr[0]); 
+            if ( o instanceof Map ) { 
+                Map child = (Map) o; 
+                String skey = join(arr, 1, "_"); 
+                removeData( child, skey ); 
+                if ( child.isEmpty() ) {
+                    data.remove( arr[0]); 
+                }
+            }
+        }
+    }
+    private void copyItems( Map source, Map dest ) { 
+        if ( source == null || source.isEmpty()) return;
+        
+        Iterator keys = source.keySet().iterator(); 
+        while (keys.hasNext()) {
+            Object okey = keys.next(); 
+            if ( okey == null ) continue; 
+
+            String fname = okey.toString(); 
+            copyData( fname, source, dest ); 
+        } 
+    }
+    private void copyData( String name, Map source, Map dest ) {
+        if ( source == null || source.isEmpty()) return;        
+        
+        if ( source.containsKey( name ) ) {
+            Object o = source.get( name); 
+            if ( o instanceof Map ) {
+                if ( dest.get(name) instanceof Map ) {
+                    //do nothing 
+                } else {
+                    dest.put(name, new HashMap());
+                }
+                Map childsrc = (Map) o; 
+                Map childdest = (Map) dest.get(name); 
+                copyItems( childsrc , childdest );
+            } else {
+                dest.put( name, source.get( name));  
+            }
+        } else if ( name.indexOf('_') > 0 ) {
+            String[] arr = name.split("_");
+            Object o = source.get(arr[0]);
+            if ( o instanceof Map ) {
+                if ( dest.get(arr[0]) instanceof Map ) { 
+                    //do nothing 
+                } else { 
+                    dest.put(arr[0], new HashMap()); 
+                } 
+                Map childsrc = (Map) o; 
+                Map childdest = (Map) dest.get(arr[0]); 
+                String skey = join(arr, 1, "_"); 
+                copyData( skey, childsrc, childdest ); 
+            }
+        }
+    }
+    private String join( String[] arr, int start, String delimiter ) {
+        if ( arr != null && arr.length > 0 && start >= 0 && start < arr.length ) {
+            String sdelim = (delimiter == null ? "" : delimiter); 
+            StringBuilder sb = new StringBuilder();
+            for (int i=start; i<arr.length; i++) {
+                if ( sb.length() > 0 ) {
+                    sb.append(delimiter); 
+                } 
+                sb.append( arr[i]); 
+            }
+            return sb.toString(); 
+        } else {
+            return null; 
+        } 
+    }
 }

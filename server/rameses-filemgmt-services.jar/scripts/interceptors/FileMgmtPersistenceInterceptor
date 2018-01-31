@@ -34,26 +34,6 @@ class FileMgmtPersistenceInterceptor {
 		} 
 	} 	
 
-	/*@Before( pattern="PersistenceService.create", eval="#{args[0]?._schemaname=='sys_fileitem'}", index=-9999 ) 
-	public void beforeCreateFileItem( evt ) {
-		def params = evt.args[0]; 
-		def objid = params.objid; 
-		if ( !objid ) { 
-			objid = 'FILEITEM'+ new java.rmi.server.UID();  
-			def encstr = com.rameses.util.Encoder.MD5.encode( objid ); 
-			params.objid = encstr; 
-		} 
-	} 
-
-	@After( pattern="PersistenceService.create", eval="#{args[0]?._schemaname=='sys_file'}" ) 
-	public void afterCreateFile( evt ) {
-		def params = evt.args[0];
-		params.items.each{ 
-			it.dtcreated = dateSvc.getServerDate();
-			it.createdby = [ objid: env.USERID, name: env.FULLNAME ];  
-			fileitemdb.create( it );  
-		} 
-	}*/ 
 
 	@Before( pattern="PersistenceService.removeEntity", eval="#{args[0]?._schemaname=='sys_file'}" ) 
 	public void beforeRemoveFile( evt ) {

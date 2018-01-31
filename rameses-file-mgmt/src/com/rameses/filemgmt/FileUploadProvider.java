@@ -13,8 +13,6 @@ import java.util.Map;
  */
 public interface FileUploadProvider {
     
-    List getLocations();
-    Map save( Map o ); 
     void ontransfer( Map o, Number bytestransferred );
     void oncomplete( Map o );
 }

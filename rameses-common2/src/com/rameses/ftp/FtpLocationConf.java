@@ -32,7 +32,7 @@ public final class FtpLocationConf {
             config.confs.put( name, conf ); 
         } 
 
-        conf.setHost( host );
+        conf.setHost( host ); 
         conf.setUser( user ); 
         conf.setPassword( pwd ); 
     } 
@@ -53,6 +53,7 @@ public final class FtpLocationConf {
     private String host; 
     private String username;
     private String userpwd;
+    private String rootdir; 
     private int port; 
     
     public FtpLocationConf( String name ) {
@@ -70,7 +71,7 @@ public final class FtpLocationConf {
             this.port = new Integer(arr[1]).intValue();  
         } catch(Throwable t) { 
             this.port = 21; 
-        }         
+        } 
     }
     
     public String getUser() { return username; }
@@ -86,6 +87,11 @@ public final class FtpLocationConf {
     public int getPort() { return port; } 
     public void setPort( int port ) {
         this.port = port; 
+    }
+    
+    public String getRootDir() { return rootdir; } 
+    public void setRootDir( String rootdir ) {
+        this.rootdir = rootdir; 
     }
     
     

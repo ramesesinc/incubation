@@ -1,7 +1,0 @@
-import com.rameses.rcp.annotations.*;
-import com.rameses.rcp.common.*;
-import com.rameses.filemgmt.*;
-
-public class FileReader {
-    
-} 
