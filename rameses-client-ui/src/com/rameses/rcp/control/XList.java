@@ -73,7 +73,7 @@ public class XList extends JList implements UIControl, ActiveControl, MouseEvent
     private int index;    
 
     private ListPaneModel listPaneModel;
-    private DefaultListModel model;
+    private DefaultListModelImpl model;
     private Insets padding = new Insets(1,3,1,3);    
     private int cellVerticalAlignment = SwingConstants.CENTER;
     private int cellHorizontalAlignment = SwingConstants.LEADING;
@@ -250,7 +250,7 @@ public class XList extends JList implements UIControl, ActiveControl, MouseEvent
     public void setBinding(Binding binding) { this.binding = binding; }  
     
     public void load() {
-        model = new DefaultListModel();
+        model = new DefaultListModelImpl();
         super.setModel(model);
         
         if (!isDynamic()) buildList();
@@ -435,11 +435,13 @@ public class XList extends JList implements UIControl, ActiveControl, MouseEvent
         }
     }
     
-    protected void removeItem() {
-        if ( listPaneModel == null ) return;
-        
+    protected boolean removeItem() {
         Object value = getSelectedValue(); 
-        listPaneModel.removeItem( value ); 
+        return removeItem( value ); 
+    }
+    protected boolean removeItem( Object item ) {
+        if ( listPaneModel == null ) return false; 
+        return listPaneModel.removeItem( item ); 
     }
 
     protected void processMouseEvent(MouseEvent e) {
@@ -774,6 +776,16 @@ public class XList extends JList implements UIControl, ActiveControl, MouseEvent
         }
     }
     
+    private class DefaultListModelImpl extends DefaultListModel {
+
+        void fireItemAdded( int index0, int index1 ) {
+            fireIntervalAdded( XList.this, index0, index1);
+        }
+        void fireItemRemoved( int index0, int index1 ) {
+            fireIntervalRemoved( XList.this, index0, index1); 
+        }
+    }
+    
     // </editor-fold> 
     
     // <editor-fold defaultstate="collapsed" desc=" ProviderImpl ">
@@ -804,10 +816,38 @@ public class XList extends JList implements UIControl, ActiveControl, MouseEvent
             }
         }
         
+        public Object getItem(int index) { 
+            try {
+                return root.getModel().getElementAt( index );
+            } catch(Throwable t) {
+                return null; 
+            }
+        }
+        
         public void addItem( Object item ) throws Exception { 
             if ( item == null ) return; 
             root.model.addElement(item);
         } 
+
+        public void removeSelectedItem() {
+            if ( root.listPaneModel == null ) return;
+            
+            int size = root.model.getSize(); 
+            int selindex = root.getSelectedIndex(); 
+            if ( selindex >= 0 && selindex < size) {
+                if ( root.listPaneModel.removeItemIndex(selindex)) { 
+                    root.model.remove( selindex ); 
+                    size = root.model.getSize(); 
+                    if ( size <= 0 ) {
+                        //do nothing 
+                    } else if ( selindex >= size ) {
+                        root.setSelectedIndex( selindex-1 ); 
+                    } else {
+                        root.setSelectedIndex( selindex ); 
+                    } 
+                }
+            }
+        }
     }
     
     // </editor-fold>

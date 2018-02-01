@@ -20,6 +20,11 @@ public class FileViewModel {
         return null; 
     } 
     
+    public boolean removeItem( Object item ) {
+        return true; 
+    }
+    
+    
     Object getItem( Map params ) { 
         DbProvider dbp = FileManager.getInstance().getDbProvider(); 
         return ( dbp == null ? null : dbp.read(params)); 
