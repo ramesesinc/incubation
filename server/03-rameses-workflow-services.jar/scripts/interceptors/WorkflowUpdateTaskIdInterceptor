@@ -25,11 +25,7 @@ public class WorkflowUpdateTaskIdInterceptor {
 			e.printStackTrace();
 		}
 		if( db  ) {
-			if ( task.state != 'end**') {
-				db.find([objid: p.refid]).update([taskid: task.taskid]);
-			} else {
-				db.find([objid: p.refid]).update([taskid: null]);
-			}
+			db.find([objid: p.refid]).update([taskid: task.taskid]);
 		}
 	}
 
