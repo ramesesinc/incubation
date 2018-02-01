@@ -7,6 +7,7 @@ package com.rameses.filemgmt.components;
 import com.rameses.common.MethodResolver;
 import com.rameses.common.PropertyResolver;
 import com.rameses.rcp.common.FileViewModel;
+import com.rameses.rcp.control.XButton;
 import com.rameses.rcp.control.XComponentPanel;
 import com.rameses.rcp.control.XLabel;
 import com.rameses.rcp.control.XList;
@@ -21,6 +22,7 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Insets;
 import java.awt.LayoutManager;
+import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.JPanel;
@@ -35,8 +37,12 @@ import javax.swing.border.Border;
 @ComponentBean("com.rameses.filemgmt.components.FileViewPanelModel")
 public class FileViewPanel extends XComponentPanel {
 
+    private String items; 
     private String handler; 
+    private String allowAddWhen;
+    private String allowRemoveWhen;
     
+    private HeaderPanel headerPanel; 
     private SplitterPanel splitPanel;
     private FileViewModel modelHandler;
     private ThumbnailViewPanel viewPanel; 
@@ -53,8 +59,10 @@ public class FileViewPanel extends XComponentPanel {
         setLayout(new MainLayoutManager());  
         setPreferredSize(new Dimension(200, 100)); 
         
+        headerPanel = new HeaderPanel();
         splitPanel = new SplitterPanel();
-        add( splitPanel );
+        add( "header", headerPanel); 
+        add( "content", splitPanel );
 
         XList xlist = new XList();
         xlist.setName("selectedItem"); 
@@ -134,6 +142,29 @@ public class FileViewPanel extends XComponentPanel {
         this.handler = handler; 
     } 
     
+    public String getItems() { return items; } 
+    public void setItems( String items ) { 
+        this.items = items; 
+    }
+
+    public String getAllowAddWhen() { 
+        return ( headerPanel == null ? null : headerPanel.btn1.getVisibleWhen() );
+    } 
+    public void setAllowAddWhen( String allowAddWhen ) { 
+        if ( headerPanel != null ) {
+            headerPanel.btn1.setVisibleWhen( allowAddWhen );
+        } 
+    }
+
+    public String getAllowRemoveWhen() { 
+        return ( headerPanel == null ? null : headerPanel.btn2.getVisibleWhen() );
+    }
+    public void setAllowRemoveWhen( String allowRemoveWhen ) { 
+        if ( headerPanel != null ) { 
+            headerPanel.btn2.setVisibleWhen( allowRemoveWhen ); 
+        } 
+    }
+    
     public int getDividerSize() { 
         return (splitPanel == null ? 0 : splitPanel.getDividerSize());
     } 
@@ -178,11 +209,20 @@ public class FileViewPanel extends XComponentPanel {
             Object oval = pr.getProperty(caller, shandler); 
             if ( oval instanceof FileViewModel ) {
                 newhandler = (FileViewModel) oval; 
-            }
+            } 
+        } 
+        
+        String items = getItems();
+        if ( newhandler == null && items != null && items.trim().length() > 0) {
+            Object caller = getBean();
+            Object oval = pr.getProperty(caller, items); 
+            if ( oval instanceof List ) {
+                newhandler = new FileViewModelImpl((List) oval); 
+            } 
         }
         
         if ( newhandler == null ) {
-            newhandler = new EmptyFileViewModel(); 
+            newhandler = new FileViewModelImpl( null ); 
         } 
         newhandler.setProvider(new FileViewModelProvider()); 
         modelHandler = newhandler; 
@@ -199,7 +239,19 @@ public class FileViewPanel extends XComponentPanel {
     
 
     // <editor-fold defaultstate="collapsed" desc="FileViewModel">  
-    private class EmptyFileViewModel extends FileViewModel {
+    private class FileViewModelImpl extends FileViewModel {
+        
+        private List items; 
+        
+        FileViewModelImpl( List items ) {
+            this.items = items; 
+        }
+
+        public boolean removeItem(Object item) {
+            if ( items == null || items.isEmpty() ) return false; 
+            
+            return items.remove( item );
+        }
     }
 
     private class FileViewModelProvider implements FileViewModel.Provider {
@@ -224,11 +276,31 @@ public class FileViewPanel extends XComponentPanel {
     // <editor-fold defaultstate="collapsed" desc="MainLayoutManager">
     private class MainLayoutManager implements LayoutManager {
 
-        FileViewPanel root = FileViewPanel.this; 
+        private Component header;
+        private Component content;
+        private Component footer; 
         
         public void addLayoutComponent(String name, Component comp) { 
+            if ( name == null || comp == null ) {
+                // do nothing 
+            } else if ( "header".equals(name)) {
+                header = comp;
+            } else if ( "content".equals(name)) {
+                content = comp;
+            } else if ( "footer".equals(name)) {
+                footer = comp;
+            }            
         }
         public void removeLayoutComponent(Component comp) { 
+            if ( comp == null ) {
+                // do nothing 
+            } else if ( header != null && header.equals(comp)) {
+                header = null; 
+            } else if ( content != null && content.equals(comp)) {
+                content = null;
+            } else if ( footer != null && footer.equals(comp)) {
+                footer = null;
+            }            
         }
 
         public Dimension preferredLayoutSize(Container parent) {
@@ -245,10 +317,13 @@ public class FileViewPanel extends XComponentPanel {
         
         private Dimension getLayoutSize(Container parent) {
             int w = 0, h = 0;
-            if ( root.splitPanel != null ) {
-                Dimension dim = root.splitPanel.getPreferredSize(); 
-                w = dim.width;
-                h = dim.height; 
+            Component[] comps = new Component[]{ header, content, footer };
+            for (int i=0; i<comps.length; i++) {
+                if ( comps[i] != null && comps[i].isVisible()) {
+                    Dimension dim = comps[i].getPreferredSize(); 
+                    w = Math.max( w, dim.width ); 
+                    h += dim.height; 
+                }
             }
             Insets margin = parent.getInsets(); 
             w += (margin.left + margin.right); 
@@ -266,9 +341,24 @@ public class FileViewPanel extends XComponentPanel {
                 int w = pw - (margin.left + margin.right); 
                 int h = ph - (margin.top + margin.bottom); 
                 
-                if ( root.splitPanel != null ) { 
-                    root.splitPanel.setBounds(x, y, w, h); 
-                } 
+                int topY = margin.top; 
+                if ( header != null && header.isVisible()) {
+                    Dimension dim = header.getPreferredSize(); 
+                    header.setBounds(x, topY, w, dim.height); 
+                    topY += dim.height; 
+                }
+                
+                int botY = ph - margin.bottom; 
+                if ( footer != null && footer.isVisible()) {
+                    Dimension dim = footer.getPreferredSize(); 
+                    botY -= dim.height; 
+                    footer.setBounds(x, botY, w, dim.height); 
+                }
+                
+                if ( content != null && content.isVisible()) {
+                    int ch = Math.max((botY - topY), 0);
+                    content.setBounds(x, topY, w, ch); 
+                }
             } 
         }         
     }
@@ -279,13 +369,141 @@ public class FileViewPanel extends XComponentPanel {
         
         FileViewPanel root = FileViewPanel.this; 
         
+        private XLabel label;
+        private XButton btn1;
+        private XButton btn2; 
+                
         HeaderPanel() {
+            setLayout( new HeaderPanelLayout());
+            setBorder( BorderFactory.createEmptyBorder(0, 0, 0, 0)); 
             
-        }
+            label = new XLabel();
+            label.setExpression("<b>Attachments</b>");
+            label.setFontStyle("font-weight:bold; font-size:12;"); 
+            label.setForeground(Color.decode("#505050")); 
+            label.setUseHtml(true);
+            label.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 20));
+            add("label", label); 
+            
+            btn1 = new XButton();
+            btn1.setMargin(new Insets(2,2,2,2));
+            btn1.setText("");
+            btn1.setName("addFile"); 
+            btn1.setToolTipText("Attach File(s)"); 
+            btn1.setIconResource("com/rameses/filemgmt/images/attachment_10x18.png"); 
+            btn1.setContentAreaFilled( false );
+            add("btn1", btn1); 
+
+            btn2 = new XButton();
+            btn2.setMargin(new Insets(2,2,2,2));
+            btn2.setText("");
+            btn2.setName("removeFile"); 
+            btn2.setToolTipText("Remove Selected Attachment"); 
+            btn2.setIconResource("com/rameses/filemgmt/images/trash_14x17.png"); 
+            btn2.setContentAreaFilled( false );
+            btn2.setDisableWhen("#{selectedItem == null}"); 
+            btn2.setDepends(new String[]{"selectedItem"}); 
+            add("btn2", btn2); 
+        } 
     }
     // </editor-fold>
     
-    // <editor-fold defaultstate="collapsed" desc="HeaderLayout">
-    
+    // <editor-fold defaultstate="collapsed" desc="HeaderPanelLayout">
+    private class HeaderPanelLayout implements LayoutManager {
+
+        private Component label; 
+        private Component btn1; 
+        private Component btn2; 
+        
+        public void addLayoutComponent(String name, Component comp) { 
+            if ( name == null || comp == null ) {
+                // do nothing 
+            } else if ( "label".equals(name)) {
+                label = comp;
+            } else if ( "btn1".equals(name)) {
+                btn1 = comp;
+            } else if ( "btn2".equals(name)) {
+                btn2 = comp;
+            }
+        }
+        public void removeLayoutComponent(Component comp) { 
+            if ( comp == null ) {
+                // do nothing 
+            } else if ( label != null && label.equals(comp)) {
+                label = null;
+            } else if ( btn1 != null && btn1.equals(comp)) {
+                btn1 = null;
+            } else if ( btn2 != null && btn2.equals(comp)) {
+                btn2 = null;
+            }            
+        }
+
+        public Dimension preferredLayoutSize(Container parent) {
+            synchronized( parent.getTreeLock() ) {
+                return getLayoutSize( parent ); 
+            }
+        }
+        public Dimension minimumLayoutSize(Container parent) {
+            synchronized( parent.getTreeLock() ) {
+                return getLayoutSize( parent ); 
+            }
+        }
+        private Dimension getLayoutSize(Container parent) { 
+            int w = 0, h = 0, flag = 0; 
+            Component[] comps = new Component[]{ label, btn1, btn2 };
+            for (int i=0; i<comps.length; i++ ) {
+                if ( comps[i] == null || !comps[i].isVisible() ) continue; 
+                
+                Dimension dim = comps[i].getPreferredSize(); 
+                if ( flag > 0 ) w += 1;
+                w += dim.width;
+                h = Math.max(h, dim.height); 
+                flag = 1; 
+            }
+            Insets margin = parent.getInsets(); 
+            w += (margin.left + margin.right);
+            h += (margin.top + margin.bottom);
+            return new Dimension( w, h ); 
+        }
+        public void layoutContainer(Container parent) {
+            synchronized( parent.getTreeLock() ) {
+                Insets margin = parent.getInsets(); 
+                int x = margin.left, y = margin.top;
+                int w = parent.getWidth() - (margin.left + margin.right); 
+                int h = parent.getHeight() - (margin.top + margin.bottom);
+                int rPos = parent.getWidth() - margin.right; 
+                
+                Component[] comps = new Component[]{ label, btn1, btn2 };
+                for (int i=0; i<comps.length; i++ ) {
+                    if ( comps[i] == null || !comps[i].isVisible() ) continue; 
+
+                    Dimension dim = comps[i].getPreferredSize(); 
+                    comps[i].setBounds(x, y, dim.width, h); 
+                    x += dim.width; 
+                }
+                
+//                if ( btn2 != null && btn2.isVisible()) {
+//                    Dimension dim = btn2.getPreferredSize(); 
+//                    int cx = rPos - dim.width; 
+//                    btn2.setBounds( cx, y, dim.width, h ); 
+//                    rPos = cx; 
+//                    flag = 1; 
+//                }
+//                if ( btn1 != null && btn1.isVisible()) {
+//                    Dimension dim = btn1.getPreferredSize(); 
+//                    int cx = rPos - dim.width - (flag > 0 ? 1 : 0); 
+//                    btn1.setBounds( cx, y, dim.width, h ); 
+//                    rPos = cx; 
+//                    flag = 1; 
+//                }
+//                if ( label != null && label.isVisible()) {
+//                    if ( flag > 0 ) rPos -= 1; 
+//                    int cw = Math.max( rPos - x, 0);
+//                    label.setBounds( x, y, cw, h ); 
+//                }                
+            }
+        }
+        
+    }
     // </editor-fold>
 }

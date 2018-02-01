@@ -5,7 +5,7 @@ import com.rameses.rcp.common.*;
 import com.rameses.osiris2.client.*;
 import com.rameses.osiris2.common.*;
 
-class FileUploadPanelModel extends ComponentBean {
+class FileViewPanelModel extends ComponentBean {
 
     @Binding
     def binding;
@@ -47,7 +47,14 @@ class FileUploadPanelModel extends ComponentBean {
             } else {
                 return null; 
             } 
-        } 
+        }, 
+        removeItem: { o-> 
+            if ( handlerProxy ) {
+                return handlerProxy.removeItem( o ); 
+            } else {
+                return false; 
+            }
+        }
     ] as ListPaneModel; 
     
     void addItem( Object item ) {
@@ -96,4 +103,23 @@ class FileUploadPanelModel extends ComponentBean {
             return Inv.lookupOpener('sys_fileitem:open', [ fileitem: o ]); 
         }
     ] as ThumbnailViewModel;     
+    
+    
+    def addFile() {
+        def params = [:]; 
+        params.handler = { o-> 
+            o.remove('items'); 
+            handlerProxy.addItem( o ); 
+        } 
+        return Inv.lookupOpener('sys_file:create', params );        
+    }
+    
+    def removeFile() { 
+        if ( !selectedItem ) return null; 
+        if ( MsgBox.confirm('You are about to remove the selected item. Proceed?')) {
+            listHandler.removeSelectedItem(); 
+        } else { 
+            return null; 
+        }
+    }
 }

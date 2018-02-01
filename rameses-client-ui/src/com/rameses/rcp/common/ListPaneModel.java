@@ -53,7 +53,16 @@ public class ListPaneModel {
         return 0; 
     }
     
-    public void removeItem( Object value ) {
+    public boolean removeItemIndex( int index ) {
+        Object item = null; 
+        if ( provider != null ) {
+            item = provider.getItem( index ); 
+        } 
+        return removeItem( item ); 
+    } 
+    
+    public boolean removeItem( Object item ) { 
+        return false;  
     }
     
     
@@ -77,6 +86,9 @@ public class ListPaneModel {
     public void addItem( Object item ) throws Exception {
         if (provider != null) provider.addItem( item ); 
     }
+    public void removeSelectedItem() {
+        if ( provider != null) provider.removeSelectedItem(); 
+    }
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" Provider ">
@@ -93,7 +105,10 @@ public class ListPaneModel {
         void refresh();
         void reload();
         void setSelectedIndex(int index); 
+        
+        Object getItem( int index );
         void addItem( Object item ) throws Exception; 
+        void removeSelectedItem(); 
     }
     
     // </editor-fold>

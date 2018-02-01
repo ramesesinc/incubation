@@ -29,12 +29,21 @@ public class TestPage2 extends javax.swing.JPanel {
         thumbnailViewPanel1 = new com.rameses.filemgmt.components.ThumbnailViewPanel();
         xButton1 = new com.rameses.rcp.control.XButton();
         xTextField1 = new com.rameses.rcp.control.XTextField();
+        jButton1 = new javax.swing.JButton();
+        jButton2 = new javax.swing.JButton();
 
         thumbnailViewPanel1.setCellSize(new java.awt.Dimension(100, 100));
 
+        xButton1.setIconResource("com/rameses/filemgmt/images/attachment_10x18.png");
         xButton1.setText("xButton1");
 
         xTextField1.setText("xTextField1");
+
+        jButton1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/rameses/filemgmt/images/attachment_10x18.png"))); // NOI18N
+        jButton1.setMargin(new java.awt.Insets(2, 5, 2, 5));
+
+        jButton2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/rameses/filemgmt/images/trash_14x17.png"))); // NOI18N
+        jButton2.setMargin(new java.awt.Insets(2, 5, 2, 5));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -48,6 +57,10 @@ public class TestPage2 extends javax.swing.JPanel {
                         .addComponent(xButton1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(xTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(58, 58, 58)
+                        .addComponent(jButton1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jButton2)
                         .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
@@ -55,15 +68,20 @@ public class TestPage2 extends javax.swing.JPanel {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(thumbnailViewPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 351, Short.MAX_VALUE)
+                .addComponent(thumbnailViewPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 347, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(xButton1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(xTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(xButton1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(xTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jButton1))
+                    .addComponent(jButton2))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
     private com.rameses.filemgmt.components.ThumbnailViewPanel thumbnailViewPanel1;
     private com.rameses.rcp.control.XButton xButton1;
     private com.rameses.rcp.control.XTextField xTextField1;

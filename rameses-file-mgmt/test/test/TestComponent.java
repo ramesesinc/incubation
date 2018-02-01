@@ -4,6 +4,7 @@
  */
 package test;
 
+import com.rameses.filemgmt.components.FileViewPanel;
 import com.rameses.filemgmt.components.ThumbnailViewPanel;
 import java.awt.Dimension;
 import javax.swing.BorderFactory;
@@ -27,10 +28,13 @@ public class TestComponent extends TestCase {
         panel.setBorder( BorderFactory.createEmptyBorder(10, 10, 5, 5)); 
         panel.setPreferredSize(new Dimension(400, 200)); 
         
+        FileViewPanel fvp = new FileViewPanel();
+        fvp.setPreferredSize(new Dimension(400, 300)); 
+        
         JDialog d = new JDialog();
         d.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE); 
         d.setModal(true); 
-        d.setContentPane( panel ); 
+        d.setContentPane( fvp ); 
         d.pack(); 
         d.setVisible(true); 
     }
