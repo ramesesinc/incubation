@@ -38,7 +38,7 @@ public class ThumbnailViewModel {
     
     public String getTitle( Object item ) {
         try {
-            Object value = PropertyResolver.getInstance().getProperty( item, "title" ); 
+            Object value = PropertyResolver.getInstance().getProperty( item, "caption" ); 
             return ( value == null ? null : value.toString()); 
         } catch( Throwable t ) {
             return null; 

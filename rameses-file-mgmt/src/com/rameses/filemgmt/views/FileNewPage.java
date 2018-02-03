@@ -6,6 +6,7 @@ package com.rameses.filemgmt.views;
 
 import com.rameses.osiris2.themes.OKCancelPage;
 import com.rameses.rcp.ui.annotations.Template;
+import java.awt.Dimension;
 
 /**
  *
@@ -36,6 +37,8 @@ public class FileNewPage extends javax.swing.JPanel {
         xTextField1 = new com.rameses.rcp.control.XTextField();
         jScrollPane1 = new javax.swing.JScrollPane();
         xTextArea1 = new com.rameses.rcp.control.XTextArea();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        xTextArea2 = new com.rameses.rcp.control.XTextArea();
         jPanel1 = new javax.swing.JPanel();
         xLabel1 = new com.rameses.rcp.control.XLabel();
         xButton1 = new com.rameses.rcp.control.XButton();
@@ -43,11 +46,13 @@ public class FileNewPage extends javax.swing.JPanel {
         fileUploadPanel1 = new com.rameses.filemgmt.components.FileUploadPanel();
 
         setBorder(javax.swing.BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        setPreferredSize(new java.awt.Dimension(336, 319));
+        setPreferredSize(new java.awt.Dimension(478, 413));
         setLayout(new java.awt.BorderLayout());
 
+        pnlheader.setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 5, 0, 5));
         pnlheader.setLayout(new java.awt.BorderLayout());
 
+        xFormPanel1.setCaptionWidth(100);
         xFormPanel1.setPadding(new java.awt.Insets(0, 0, 0, 0));
 
         xComboBox1.setCaption("Type");
@@ -57,7 +62,7 @@ public class FileNewPage extends javax.swing.JPanel {
         xComboBox1.setItemKey("objid");
         xComboBox1.setItems("fileTypes");
         xComboBox1.setName("entity.filetype"); // NOI18N
-        xComboBox1.setPreferredSize(new java.awt.Dimension(0, 20));
+        xComboBox1.setPreferredSize(new java.awt.Dimension(0, 22));
         xComboBox1.setRequired(true);
         xFormPanel1.add(xComboBox1);
 
@@ -68,38 +73,49 @@ public class FileNewPage extends javax.swing.JPanel {
         xTextField1.setTextCase(com.rameses.rcp.constant.TextCase.NONE);
         xFormPanel1.add(xTextField1);
 
-        jScrollPane1.setPreferredSize(new java.awt.Dimension(0, 63));
+        jScrollPane1.setPreferredSize(new java.awt.Dimension(0, 50));
 
-        xTextArea1.setCaption("Keywords");
-        xTextArea1.setName("entity.keywords"); // NOI18N
-        xTextArea1.setPreferredSize(new java.awt.Dimension(0, 61));
+        xTextArea1.setCaption("Description");
+        xTextArea1.setName("entity.description"); // NOI18N
+        xTextArea1.setPreferredSize(new java.awt.Dimension(0, 50));
         jScrollPane1.setViewportView(xTextArea1);
 
         xFormPanel1.add(jScrollPane1);
 
+        jScrollPane2.setPreferredSize(new java.awt.Dimension(0, 50));
+
+        xTextArea2.setCaption("Keywords");
+        xTextArea2.setName("entity.keywords"); // NOI18N
+        xTextArea2.setPreferredSize(new java.awt.Dimension(0, 50));
+        jScrollPane2.setViewportView(xTextArea2);
+
+        xFormPanel1.add(jScrollPane2);
+
         pnlheader.add(xFormPanel1, java.awt.BorderLayout.NORTH);
 
         jPanel1.setBorder(javax.swing.BorderFactory.createEmptyBorder(20, 0, 5, 0));
-        jPanel1.setLayout(new com.rameses.rcp.control.layout.XLayout());
+        jPanel1.setLayout(new java.awt.BorderLayout());
 
         xLabel1.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 20));
         xLabel1.setExpression("Attachments");
-        xLabel1.setFontStyle("font-weight:bold;");
-        jPanel1.add(xLabel1);
+        xLabel1.setFontStyle("font-weight:bold; font-size:12;");
+        xLabel1.setForeground(new java.awt.Color(90, 90, 90));
+        jPanel1.add(xLabel1, java.awt.BorderLayout.WEST);
 
         xButton1.setDepends(new String[] {"entity.filetype"});
         xButton1.setDisableWhen("#{entity.filetype == null}");
-        xButton1.setIconResource("images/clip.png");
+        xButton1.setIconResource("com/rameses/filemgmt/images/attachment-16.png");
         xButton1.setImmediate(true);
-        xButton1.setMargin(new java.awt.Insets(2, 2, 2, 2));
+        xButton1.setMargin(new java.awt.Insets(2, 10, 2, 10));
         xButton1.setName("attachFile"); // NOI18N
         xButton1.setText("Attach");
-        jPanel1.add(xButton1);
+        jPanel1.add(xButton1, java.awt.BorderLayout.EAST);
 
         pnlheader.add(jPanel1, java.awt.BorderLayout.CENTER);
 
         add(pnlheader, java.awt.BorderLayout.NORTH);
 
+        pnlImage.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 5, 5, 5));
         pnlImage.setDepends(new String[] {"entity.filetype"});
         com.rameses.rcp.control.layout.YLayout yLayout1 = new com.rameses.rcp.control.layout.YLayout();
         yLayout1.setAutoFill(true);
@@ -114,6 +130,7 @@ public class FileNewPage extends javax.swing.JPanel {
     private com.rameses.filemgmt.components.FileUploadPanel fileUploadPanel1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
     private com.rameses.rcp.control.XPanel pnlImage;
     private javax.swing.JPanel pnlheader;
     private com.rameses.rcp.control.XButton xButton1;
@@ -121,6 +138,7 @@ public class FileNewPage extends javax.swing.JPanel {
     private com.rameses.rcp.control.XFormPanel xFormPanel1;
     private com.rameses.rcp.control.XLabel xLabel1;
     private com.rameses.rcp.control.XTextArea xTextArea1;
+    private com.rameses.rcp.control.XTextArea xTextArea2;
     private com.rameses.rcp.control.XTextField xTextField1;
     // End of variables declaration//GEN-END:variables
 }

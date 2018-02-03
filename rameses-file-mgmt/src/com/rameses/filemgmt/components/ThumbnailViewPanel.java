@@ -17,6 +17,7 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.EventQueue;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Insets;
@@ -26,6 +27,7 @@ import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.beans.Beans;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -192,12 +194,13 @@ public class ThumbnailViewPanel extends XPanel {
         jscroll = new JScrollPane();         
         jscroll.setViewportView( jlist ); 
         
-        setCellSize(new Dimension(50, 50) ); 
+        setCellSize(new Dimension(100, 100) ); 
         setCellSpacing( 5 ); 
-        
         add( jscroll ); 
-        
-        setModel( new TestViewModel());
+
+        if ( Beans.isDesignTime()) { 
+            setModel( new TestViewModel()); 
+        }
     } 
     
     private class ListMouseHandler extends MouseAdapter { 
@@ -365,9 +368,16 @@ public class ThumbnailViewPanel extends XPanel {
         
         TestViewModel() {
             items = new ArrayList();
-            items.add(new HashMap());
-            items.add(new HashMap());
-            items.add(new HashMap());
+            items.add(createData("item1", "Document 1"));
+            items.add(createData("item2", "Document 2"));
+            items.add(createData("item3", "Document 3"));
+        }
+        
+        private Map createData( String objid, String caption ) {
+            Map m = new HashMap(); 
+            m.put("objid", objid); 
+            m.put("caption", caption); 
+            return m; 
         }
         
         public List fetchList(Map params) {
@@ -407,17 +417,25 @@ public class ThumbnailViewPanel extends XPanel {
         private ItemInfo info;
         
         private boolean selected; 
+        private int labelHeight;
+        private JLabel label; 
         
         ThumbnailItem() {
-            //addFocusListener( this );
-            //addMouseListener( this );
-            //setFocusable(true); 
             setHorizontalAlignment( SwingConstants.CENTER); 
             
+            labelHeight = 20; 
             focusInBorderColor = Color.BLUE; 
             focusOutBorderColor = Color.decode("#afafaf"); 
             hoverBorderColor = Color.decode("#D3D8FF"); 
-        }
+            
+            label = new JLabel();
+            label.setHorizontalAlignment( SwingConstants.CENTER);
+            label.setVerticalAlignment( SwingConstants.TOP );
+            Font font = getFont();
+            if ( font != null ) { 
+                label.setFont( font.deriveFont(10.0f)); 
+            }
+         }
         
         public ItemInfo getInfo() {
             return info; 
@@ -430,10 +448,11 @@ public class ThumbnailViewPanel extends XPanel {
             int w = getWidth() - spacing; 
             int h = getHeight() - spacing; 
             
+            Graphics2D g2 = null;
             ItemInfo info = getInfo(); 
             if ( info.hasImage() ) {
                 Rectangle rect = scaleToFitRect(); 
-                Graphics2D g2 = (Graphics2D) g.create(); 
+                g2 = (Graphics2D) g.create(); 
                 try { 
                     g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
                     g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -443,7 +462,7 @@ public class ThumbnailViewPanel extends XPanel {
                 } 
             }
 
-            Graphics2D g2 = (Graphics2D) g.create(); 
+            g2 = (Graphics2D) g.create(); 
             try { 
                 if ( selected ) {
                     g2.setColor( focusInBorderColor ); 
@@ -456,9 +475,14 @@ public class ThumbnailViewPanel extends XPanel {
                     g2.setColor( hoverBorderColor ); 
                     g2.drawRect(1, 1, w-3, h-3); 
                 }             
-            } finally {
+                
+//                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+//                g2.setColor( new Color(0, 0, 0)); 
+//                g2.drawString("Hello", 2, getHeight());
+            } finally { 
                 g2.dispose();
             } 
+            
         } 
         
         private Rectangle scaleToFitRect() {

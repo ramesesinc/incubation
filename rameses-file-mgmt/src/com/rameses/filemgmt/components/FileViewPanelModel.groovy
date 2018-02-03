@@ -40,7 +40,26 @@ class FileViewPanelModel extends ComponentBean {
         }
     } 
     
+    boolean isAllowAddPermitted() {
+        if ( handlerProxy == null ) return true; 
+        return ( handlerProxy.editable && handlerProxy.allowAdd );
+    }
+    boolean isAllowRemovePermitted() {
+        if ( handlerProxy == null ) return true; 
+        return ( handlerProxy.editable && handlerProxy.allowRemove );
+    }
+
+    
     def listHandler = [
+        isEditable: {
+            return ( handlerProxy ? handlerProxy.isEditable() : true );
+        }, 
+        isAllowAdd: {
+            return isAllowAddPermitted(); 
+        }, 
+        isAllowRemove: {
+            return isAllowRemovePermitted();
+        }, 
         fetchList: {
             if ( handlerProxy ) {
                 return handlerProxy.fetchList( it ); 
@@ -109,7 +128,7 @@ class FileViewPanelModel extends ComponentBean {
         def params = [:]; 
         params.handler = { o-> 
             o.remove('items'); 
-            handlerProxy.addItem( o ); 
+            handlerProxy.addItem([ objid: o.objid, title: o.title ]); 
         } 
         return Inv.lookupOpener('sys_file:create', params );        
     }

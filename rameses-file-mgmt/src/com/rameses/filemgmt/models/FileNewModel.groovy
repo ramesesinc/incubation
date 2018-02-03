@@ -29,8 +29,8 @@ public class FileNewModel  {
     }
     
     def doOk() {
-        def fum = com.rameses.filemgmt.FileUploadManager.instance; 
-        def fileLocConf = com.rameses.filemgmt.FileManager.instance.locationConfs.defaultConf;
+        def fm = com.rameses.filemgmt.FileManager.instance;
+        def fileLocConf = fm.locationConfs.defaultConf;
         if ( fileLocConf == null ) throw new Exception('Please provide a default location conf'); 
 
         def scaler = new ImageScaler();
@@ -51,13 +51,21 @@ public class FileNewModel  {
             m.filelocid = data.filelocid;
             m.bytestransferred = data.filesize;
             
-            def image = scaler.createThumbnail( data.file );  
+            def image = null; 
+            def aaa = fileType.getType( m.filetype );
+            if ( "true".equals( ""+ aaa?.image )) {
+                image = scaler.createThumbnail( data.file );  
+            } else {
+                def icon = fm.getFileTypeIcon( m.filetype ); 
+                if ( icon ) image = icon.image; 
+            }
+            
             m.thumbnail = base64.encode((Object) scaler.getBytes( image )); 
             entity.items << m; 
         } 
         entity.info = info;        
         
-        def dbp = com.rameses.filemgmt.FileManager.instance.dbProvider;
+        def dbp = fm.dbProvider;
         if ( dbp ) { 
             def o = dbp.save( entity ); 
             if ( o ) _entity.putAll( o ); 

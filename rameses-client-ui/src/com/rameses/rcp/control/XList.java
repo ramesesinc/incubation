@@ -119,7 +119,11 @@ public class XList extends JList implements UIControl, ActiveControl, MouseEvent
             }, KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), JComponent.WHEN_FOCUSED);
             
             registerKeyboardAction(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
+                public void actionPerformed(ActionEvent e) { 
+                    if ( listPaneModel == null ) return;
+                    if ( !listPaneModel.isEditable()) return; 
+                    if ( !listPaneModel.isAllowRemove()) return; 
+                    
                     fireRemoveItem();
                 }
             }, KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0), JComponent.WHEN_FOCUSED);            
@@ -404,7 +408,7 @@ public class XList extends JList implements UIControl, ActiveControl, MouseEvent
         }); 
     }
     
-    private void fireRemoveItem() {
+    private void fireRemoveItem() { 
         EventQueue.invokeLater(new Runnable() {
             public void run() { 
                 try { 
@@ -440,7 +444,7 @@ public class XList extends JList implements UIControl, ActiveControl, MouseEvent
         return removeItem( value ); 
     }
     protected boolean removeItem( Object item ) {
-        if ( listPaneModel == null ) return false; 
+        if ( listPaneModel == null ) return false;         
         return listPaneModel.removeItem( item ); 
     }
 
@@ -664,6 +668,24 @@ public class XList extends JList implements UIControl, ActiveControl, MouseEvent
     // </editor-fold>    
     
     // <editor-fold defaultstate="collapsed" desc=" ListSelectionSupport (class) "> 
+
+    private void updateBeanValueToNull() {
+        String vstat = getVarStatus(); 
+        if ( vstat != null ) {
+            UIControlUtil.setBeanValue(getBinding(), vstat, null); 
+        }
+
+        final String sname = getName(); 
+        if ( sname != null ) { 
+            UIControlUtil.setBeanValue(getBinding(), sname, null); 
+
+            EventQueue.invokeLater(new Runnable() {
+                public void run() { 
+                    binding.notifyDepends( sname );                  
+                }
+            });
+        }
+    }
     
     private class ListSelectionSupport implements ListSelectionListener
     {
@@ -826,11 +848,18 @@ public class XList extends JList implements UIControl, ActiveControl, MouseEvent
         
         public void addItem( Object item ) throws Exception { 
             if ( item == null ) return; 
+            if ( root.listPaneModel != null ) {
+                if ( !root.listPaneModel.isEditable()) return; 
+                else if ( !root.listPaneModel.isAllowAdd()) return; 
+            }
+            
             root.model.addElement(item);
         } 
 
-        public void removeSelectedItem() {
-            if ( root.listPaneModel == null ) return;
+        public void removeSelectedItem() { 
+            if ( root.listPaneModel == null ) return; 
+            if ( !root.listPaneModel.isEditable()) return; 
+            else if ( !root.listPaneModel.isAllowRemove()) return; 
             
             int size = root.model.getSize(); 
             int selindex = root.getSelectedIndex(); 
@@ -839,7 +868,7 @@ public class XList extends JList implements UIControl, ActiveControl, MouseEvent
                     root.model.remove( selindex ); 
                     size = root.model.getSize(); 
                     if ( size <= 0 ) {
-                        //do nothing 
+                        root.updateBeanValueToNull(); 
                     } else if ( selindex >= size ) {
                         root.setSelectedIndex( selindex-1 ); 
                     } else {
