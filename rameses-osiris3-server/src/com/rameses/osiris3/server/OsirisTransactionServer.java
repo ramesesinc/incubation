@@ -15,10 +15,12 @@ import com.rameses.osiris3.server.common.AbstractServlet;
 import com.rameses.server.ServerLoader;
 import com.rameses.server.ServerPID;
 import com.rameses.util.Service;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.handler.ContextHandlerCollection;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 
@@ -99,18 +101,29 @@ public class OsirisTransactionServer implements ServerLoader  {
         OsirisServer.setInstance( svr );
         svr.start();
         server = new Server(port);
-        ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
-        context.setContextPath("/"+ svr.getCluster() );
         
-        //sout this is used by the old system.
-        Iterator<AbstractServlet> iter = Service.providers( AbstractServlet.class, getClass().getClassLoader() );
-        while(iter.hasNext()) {
-            AbstractServlet ac = iter.next();
-            ac.setBlockingTimeout( blockingTimeout );
-            ac.setTaskPoolSize( taskPoolSize );
-            context.addServlet( new ServletHolder(ac), ac.getMapping() );
-        }
-        server.setHandler(context);
+        ArrayList<ServletContextHandler> list = new ArrayList();
+        String[] clusters = svr.getCluster().split(",");
+        for ( String cname : clusters ) {
+            if ( cname.trim().length() == 0 ) continue; 
+            
+            ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
+            context.setContextPath("/"+ cname.trim() );
+
+            //sout this is used by the old system.
+            Iterator<AbstractServlet> iter = Service.providers( AbstractServlet.class, getClass().getClassLoader() );
+            while(iter.hasNext()) { 
+                AbstractServlet ac = iter.next(); 
+                ac.setBlockingTimeout( blockingTimeout ); 
+                ac.setTaskPoolSize( taskPoolSize ); 
+                context.addServlet( new ServletHolder(ac), ac.getMapping() ); 
+            } 
+            list.add( context ); 
+        } 
+        
+        ContextHandlerCollection handlers = new ContextHandlerCollection(); 
+        handlers.setHandlers( list.toArray(new ServletContextHandler[]{})); 
+        server.setHandler( handlers ); 
         server.start();
         ServerPID.remove(this.name); 
         System.out.println("Server: "+ this.name +" has started");
