@@ -38,13 +38,14 @@ public class AnubisMainServlet extends AbstractAnubisServlet {
         }
         
         if (fullPath.equals("/")) {
-            if(project.getWelcomePage()!=null) {
-                hres.sendRedirect( project.getWelcomePage() );
+            if(project.getWelcomePage()!=null) { 
+                redirect( hres, project.getWelcomePage(), hreq.getContextPath());
             }
             else {
                 File ff = project.getFolderManager().findFirstVisibleFile("/");
-                if (ff != null) fullPath = ff.getPath();
-                hres.sendRedirect(fullPath);
+                if ( ff != null ) fullPath = ff.getPath(); 
+                
+                redirect( hres, fullPath, hreq.getContextPath());
             }
             return;
             
@@ -104,7 +105,7 @@ public class AnubisMainServlet extends AbstractAnubisServlet {
         }
         
         if (file.getHref() != null) {
-            hres.sendRedirect( file.getHref() );
+            redirect( hres, file.getHref(), hreq.getContextPath() );
             return;
         }
         
@@ -139,7 +140,7 @@ public class AnubisMainServlet extends AbstractAnubisServlet {
                 //file = project.getFileManager().getFile( "/reload.pg" );
                 //InputStream is = project.getContentManager().getContent(file, params);
                 //ResponseUtil.write( hreq, hres, mimeType, is);
-                hres.sendRedirect( path + "?target=" + URLEncoder.encode(requestPath) );
+                redirect( hres, path + "?target=" + URLEncoder.encode(requestPath), hreq.getContextPath() );
             }
         } 
         else {
@@ -183,7 +184,7 @@ public class AnubisMainServlet extends AbstractAnubisServlet {
                     //this is to avoid cyclic redirects...
                     if(!fullPath.equals(redirect) && !fullPath.endsWith(redirect)) {
                         if(queryParams !=null) redirect += "?" + queryParams;
-                        hres.sendRedirect(redirect);
+                        redirect( hres, redirect, hreq.getContextPath() ); 
                         return;
                     }
                 }
@@ -250,5 +251,17 @@ public class AnubisMainServlet extends AbstractAnubisServlet {
         } 
         ResponseUtil.write( hreq, hres, mimeType, inp );
     } 
+    
+    private void redirect(HttpServletResponse hres, String pathInfo, String contextPath ) throws Exception { 
+        if ( contextPath == null || contextPath.length() == 0 ) {
+            hres.sendRedirect( pathInfo ); 
+        } else if ( pathInfo.startsWith( contextPath )) {
+            hres.sendRedirect( pathInfo );
+        } else {
+            StringBuilder sb = new StringBuilder();
+            sb.append( contextPath ).append( pathInfo );
+            hres.sendRedirect( sb.toString() ); 
+        }
+    }
 }
 

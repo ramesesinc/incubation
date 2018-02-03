@@ -32,7 +32,7 @@
             list.each { 
                 if(flag_pass) print '<span class="breadcrumbs-gap">'+separator+'</span>';
                 if( it.href )
-                    print '<a class="breadcrumbs" href="' + it.href + '">'+it.title+'</a>';
+                    print '<a class="breadcrumbs" href="'+ ATTRS.contextPath + it.href +'">'+it.title+'</a>';
                 else    
                     print it.title;
                 flag_pass = true;

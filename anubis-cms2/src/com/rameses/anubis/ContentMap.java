@@ -14,19 +14,20 @@ import java.io.PrintWriter;
 import java.io.Writer;
 import java.util.HashMap;
 import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
 
 
 
 public class ContentMap extends HashMap {
     
-    private boolean editable = false;
+    private boolean editable;
+    private ContextAttrs attrs; 
     
     public ContentMap() {
         this.editable = AnubisContext.getCurrentContext().getProject().isEditable();
     }
     
     public Object get(Object key) {
-        AnubisContext ctx = AnubisContext.getCurrentContext();
         String skey = key.toString();
         if( skey.equals("_content")) {
             return super.get("content");
@@ -35,6 +36,14 @@ public class ContentMap extends HashMap {
             skey = skey.substring(1);
             return getBlockContent(skey);
         } 
+        
+        AnubisContext ctx = AnubisContext.getCurrentContext(); 
+        if ( skey.equals("ATTRS") ) { 
+            if ( attrs == null ) {
+                attrs = new ContextAttrs( ctx ); 
+            }
+            return attrs; 
+        }
         else if( skey.equals("PARAMS")) {
             Map params = ctx.getParams(); 
             return (params == null? new HashMap(): params); 
@@ -150,9 +159,37 @@ public class ContentMap extends HashMap {
         if(support==null) return null;
         return support.translate( key, value );
     }
+        
+    // <editor-fold defaultstate="collapsed" desc=" ContextAttrs ">
+    private class ContextAttrs extends HashMap {
+        
+        private AnubisContext ctx; 
+        
+        ContextAttrs( AnubisContext ctx ) {
+            this.ctx = ctx; 
+        }
+
+        public Object get(Object key) {
+            if (key == null || ctx == null) return null; 
+            
+            String skey = key.toString(); 
+            if ( skey.equals("contextPath")) {
+                Object value = ctx.getAttribute( skey ); 
+                return (value == null ? "" : value.toString()); 
+            } else {
+                return ctx.getAttribute( skey ); 
+            }
+        }
+
+        public Object put(Object key, Object value) {
+            return null; 
+        }
+        public void putAll(Map m) {
+        }
+    }
+    // </editor-fold> 
     
     // <editor-fold defaultstate="collapsed" desc=" ErrorInfo ">
-    
     public class ErrorInfo {
         
         private Throwable error; 

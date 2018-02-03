@@ -60,11 +60,23 @@ public class AnubisActionServlet extends AbstractAnubisServlet {
             }
             String outcome = o.toString();
             if(!outcome.startsWith("/")) outcome = "/"+outcome;
-            hres.sendRedirect( outcome );
+            
+            redirect( hres, outcome, hreq.getContextPath() );
         
         } catch(Exception e) {
             ResponseUtil.writetErr( hreq, hres, e, null );
         }
     }
     
+    private void redirect(HttpServletResponse hres, String pathInfo, String contextPath ) throws Exception {
+        if ( contextPath == null || contextPath.length() == 0 ) {
+            hres.sendRedirect( pathInfo ); 
+        } else if ( pathInfo.startsWith( contextPath )) {
+            hres.sendRedirect( pathInfo );
+        } else {
+            StringBuilder sb = new StringBuilder();
+            sb.append( contextPath ).append( pathInfo );
+            hres.sendRedirect( sb.toString() ); 
+        }
+    }        
 }

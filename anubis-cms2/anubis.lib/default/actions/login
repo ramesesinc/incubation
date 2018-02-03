@@ -11,6 +11,6 @@ if( PARAMS.password != "guest" ) {
 }	
 else {
 	SESSION.createSession(null);
-        SESSION.username = username;
+    SESSION.username = username;
 	return target;
 }	

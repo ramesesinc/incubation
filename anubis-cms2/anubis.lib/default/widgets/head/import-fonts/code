@@ -13,9 +13,9 @@
 <%for(fontname in arr.unique() ) {%>
 
 <%if( fontname.startsWith(":")) {%>
-	<link href="/res/fonts/${fontname.substring(1)}/stylesheet.css" type="text/css" rel="stylesheet" />	
+	<link href="${ATTRS.contextPath}/res/fonts/${fontname.substring(1)}/stylesheet.css" type="text/css" rel="stylesheet" />	
 <%} else {%>
-	<link href="/css/fonts/${fontname}/stylesheet.css" type="text/css" rel="stylesheet" />	
+	<link href="${ATTRS.contextPath}/css/fonts/${fontname}/stylesheet.css" type="text/css" rel="stylesheet" />	
 <%}%>
 
 <% } %>

@@ -2,8 +2,8 @@
 @css( o )
 <%}%>
 <% for(o in PAGE.styles) {%>
-<link href="${o}" type="text/css" rel="stylesheet" />	
+<link href="${ATTRS.contextPath}${o}" type="text/css" rel="stylesheet" />	
 <% } %>
 <% for(o in PAGE.scripts) {%>
-<script src="${o}" type="text/javascript"></script>	
+<script src="${ATTRS.contextPath}${o}" type="text/javascript"></script>	
 <% } %>

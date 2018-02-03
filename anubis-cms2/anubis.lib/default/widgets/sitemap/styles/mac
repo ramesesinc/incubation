@@ -1,5 +1,6 @@
 <%
-	def cols = OPTIONS.col ? OPTIONS.col : DATA.size();
+def cols = OPTIONS.col ? OPTIONS.col : DATA.size();
+def contextPath = OPTIONS.contextPath;
 %>
 
 <table width="900">
@@ -15,7 +16,7 @@
 						<%if( i.haschildren ) {%>
 							<%for( j in ANUBIS.getFolder( i.path ).children ) {%>
 								<div style="padding-left:10px;font-size:12px">
-									<a href="${j.href}">${j.title}</a></div>	
+									<a href="${contextPath}${j.href}">${j.title}</a></div>	
 							<%}%>
 						<%}%>
 					</td>

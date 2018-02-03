@@ -14,7 +14,7 @@
 				<tr>
 					<td>
 						<td class="${PAGE.path.startsWith(o.path) ? 'selected' : 'unselected'}">
-							<a href="${o.path}">${o.title}</a>
+							<a href="${ATTRS.contextPath}${o.path}">${o.title}</a>
 						</td>
 					</td>
 				</tr>
@@ -30,7 +30,7 @@
 				<%if( o.hidden != true ) {%>
 					<td>
 						<td class="${PAGE.path.startsWith(o.path) ? 'selected' : 'unselected'}">
-							<a href="${o.path}">${o.title}</a>
+							<a href="${ATTRS.contextPath}${o.path}">${o.title}</a>
 						</td>
 					</td>
 				<%}%>
