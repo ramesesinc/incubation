@@ -1,6 +1,5 @@
 package com.rameses.anubis.web;
 
-import com.rameses.server.BootLoader;
 import com.rameses.server.ServerLoader;
 import com.rameses.server.ServerPID;
 import java.io.File;
@@ -19,12 +18,13 @@ import org.eclipse.jetty.webapp.WebAppContext;
 public class AnubisWebServer implements ServerLoader  {
     
     public final static String 
-            ANUBIS_HOME = "anubis.home",
-            ANUBIS_HOSTS = "anubis.hosts", 
-            WEB_CONF_DIR = "web.conf.dir",
-            WEB_LIB_DIR  = "web.lib.dir",
-            WEB_APPS_DIR = "web.apps.dir",
-            KEY_LIBRARY_PATH = "web.lib.path",
+            ANUBIS_HOME    = "anubis.home",
+            ANUBIS_HOSTS   = "anubis.hosts", 
+            ANUBIS_CONTEXT = "anubis.context", 
+            WEB_CONF_DIR   = "web.conf.dir",
+            WEB_LIB_DIR    = "web.lib.dir",
+            WEB_APPS_DIR   = "web.apps.dir",
+            KEY_LIBRARY_PATH  = "web.lib.path",
             KEY_RESOURCE_PATH = "web.res.path",
             KEY_WEB_APPS_PATH = "web.apps.path";
     
@@ -35,10 +35,6 @@ public class AnubisWebServer implements ServerLoader  {
         this.name = name;
     }
     
-    public static void main(String[] args) throws Exception {
-        BootLoader b = new BootLoader();
-        b.start();
-    }
     
     private Server svr;
     private Map conf;
@@ -49,42 +45,49 @@ public class AnubisWebServer implements ServerLoader  {
     
     public void init(String baseUrl,  Map conf) throws Exception {
         this.conf  = conf;
-        System.out.println("**************************************************");
-        System.out.println("  STARTING ANUBIS CMS WEB SERVER ");
-        System.out.println("**************************************************");
+
+        Properties webconfig = new Properties();
+        if (conf != null) webconfig.putAll(conf);
+
+        String workspace = webconfig.getProperty("home.url", "").trim();
+        if ( workspace.length() == 0 )
+            throw new Exception("Anubis webserver failed to load. home.url must be specified in the server.conf");
+        
+        StringBuilder sout = new StringBuilder();
+        sout.append("***************************************************************\n");
+        sout.append("  STARTING ANUBIS CMS WEB SERVER \n");
+        sout.append("***************************************************************\n");
         
         String rundir = getSystemProperty("osiris.run.dir");
         String basedir = getSystemProperty("osiris.base.dir");
         
         //this is where anubis ommon libs and files are located.
         String svrdir = System.getProperty("anubis.server.dir", basedir);
-        
-        Properties webconfig = new Properties();
-        if (conf != null) webconfig.putAll(conf);
 
-        String workspace = webconfig.getProperty("home.url");
-        if (workspace == null)
-            throw new Exception("Anubis webserver failed to load. home.url must be specified in the server.conf");
-        
-        System.out.println("rundir: " + rundir);
-        System.out.println("basedir: " + basedir);
-        System.out.println("svrdir: " + svrdir);
-        System.out.println("anubis-workspace: " + workspace);
+        // build the context path 
+        String contextPath = webconfig.getProperty("context", "").trim(); 
+        if ( contextPath.length() == 0 ) contextPath = "/"; 
+        if ( !contextPath.startsWith("/")) contextPath = ("/" + contextPath);
 
+        sout.append(" context : ").append( contextPath ).append("\n");
+        sout.append(" rundir  : ").append( rundir ).append("\n");
+        sout.append(" basedir : ").append( basedir ).append("\n");
+        sout.append(" svrdir  : ").append( svrdir ).append("\n");
+        sout.append(" anubis-workspace : ").append( workspace ).append("\n");
+        System.out.println( sout.toString() );
+        
+        System.getProperties().put(ANUBIS_CONTEXT, contextPath);
         System.getProperties().put(ANUBIS_HOME, workspace);
         System.getProperties().put(ANUBIS_HOSTS, workspace + "/anubis.hosts");
         System.getProperties().put(KEY_LIBRARY_PATH, basedir + "/lib/anubis.lib");
         System.getProperties().put(WEB_CONF_DIR, rundir);
         System.getProperties().put(WEB_LIB_DIR, svrdir);
         
-        HandlerList handlerlist = new HandlerList();
-        //buildWebApps(handlerlist);
-        
         ServletContextHandler mainctx = new ServletContextHandler(ServletContextHandler.SESSIONS);
-        mainctx.setContextPath("/");
+        mainctx.setContextPath( contextPath );
         mainctx.setResourceBase(System.getProperty(KEY_LIBRARY_PATH));
         mainctx.addServlet(createServletHolder(AnubisStartupServlet.class, "cms-startup", 1), null);
-        mainctx.addServlet(AnubisResourceServlet.class, "/res/*");        
+        mainctx.addServlet(AnubisResourceServlet.class, "/res/*"); 
         mainctx.addServlet(AnubisThemeServlet.class, "/themes/*");
         mainctx.addServlet(JsProxyServlet.class, "/js-proxy/*");
         mainctx.addServlet(JsInvokeServlet.class, "/js-invoke/*");
@@ -96,10 +99,8 @@ public class AnubisWebServer implements ServerLoader  {
         mainctx.addServlet(AnubisPollServlet.class, "/poll/*");
         mainctx.addServlet(BasicResourceServlet.class, "/favicon.ico");
         mainctx.addServlet(AnubisMainServlet.class, "/*");
-        
-        //extensions
-        
-        
+
+        HandlerList handlerlist = new HandlerList();        
         handlerlist.addHandler(mainctx);
         
         SelectChannelConnector conn = new SelectChannelConnector();
@@ -128,7 +129,7 @@ public class AnubisWebServer implements ServerLoader  {
         if (pval != null) conn.setResponseHeaderSize(Integer.parseInt(pval));
         
         conn.setThreadPool(new QueuedThreadPool(Integer.parseInt(webconfig.getProperty("thread-pool-size", "250"))));
-        
+                
         ResourceHandler static_resource_handler = new ResourceHandler();
         static_resource_handler.setResourceBase(System.getProperty(KEY_LIBRARY_PATH));
         static_resource_handler.setDirectoriesListed(false);
@@ -136,7 +137,7 @@ public class AnubisWebServer implements ServerLoader  {
         
         svr = new Server();
         svr.addConnector(conn);
-        svr.setHandler(handlerlist);
+        svr.setHandler(mainctx);
     }
     
     
@@ -207,5 +208,11 @@ public class AnubisWebServer implements ServerLoader  {
         return System.getProperty(name);
     }
     
-    
+    private String resolvePathSpec( String context, String path ) {
+        if ( "/".equals( context )) return path; 
+
+        StringBuilder sb = new StringBuilder(); 
+        sb.append( context ).append( path ); 
+        return sb.toString(); 
+    }
 }

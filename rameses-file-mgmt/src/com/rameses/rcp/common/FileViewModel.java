@@ -16,12 +16,34 @@ import java.util.Map;
  */
 public class FileViewModel {
 
+    private boolean editable = true; 
+    private boolean allowAdd = true; 
+    private boolean allowRemove = true; 
+    
+    public boolean isEditable() { return editable; } 
+    public void setEditable( boolean editable ) {
+        this.editable = editable; 
+    }
+    
+    public boolean isAllowAdd() { return allowAdd; } 
+    public void setAllowAdd( boolean allowAdd ) {
+        this.allowAdd = allowAdd; 
+    }
+    
+    public boolean isAllowRemove() { return allowRemove; }
+    public void setAllowRemove( boolean allowRemove ) {
+        this.allowRemove = allowRemove; 
+    }
+    
     public List fetchList( Map params ) { 
         return null; 
     } 
     
     public boolean removeItem( Object item ) {
         return true; 
+    }
+    
+    public void afterAddItem( Object item ) {
     }
     
     
@@ -51,5 +73,4 @@ public class FileViewModel {
         Binding getInnerBinding(); 
         void addItem( Object item ) throws Exception;
     }    
-    
 }

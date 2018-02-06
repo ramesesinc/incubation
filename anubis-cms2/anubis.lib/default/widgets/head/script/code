@@ -1,1 +1,1 @@
-<script src="${OPTIONS.name}"></script>
+<script src="${ATTRS.contextPath}${OPTIONS.name}"></script>

@@ -8,17 +8,18 @@
 -->
 
 <%
-    PAGE.addStyle( "/js/ext/slider/default.css" );
-    PAGE.addScript( "/js/ext/slider/default.js" );
-    def id = OPTIONS.id;
-    if( !id ) id = "slider";
-    def items = ANUBIS.getFolder( OPTIONS.folderid ).allowedChildren;
+PAGE.addStyle( "/js/ext/slider/default.css" );
+PAGE.addScript( "/js/ext/slider/default.js" );
 
-    def name = (OPTIONS.name) ? OPTIONS.name : 'curImageData';
-    def width = (OPTIONS.width) ? OPTIONS.width : 800;
-    def height = (OPTIONS.height) ? OPTIONS.height : 500;
-    def transitionspeed = (OPTIONS.transitionspeed) ? OPTIONS.transitionspeed : 1000;
-    def autoplay = (OPTIONS.autoplay) ? OPTIONS.autoplay : 15000;
+def id = OPTIONS.id;
+if( !id ) id = "slider";
+def items = ANUBIS.getFolder( OPTIONS.folderid ).allowedChildren;
+
+def name = (OPTIONS.name) ? OPTIONS.name : 'curImageData';
+def width = (OPTIONS.width) ? OPTIONS.width : 800;
+def height = (OPTIONS.height) ? OPTIONS.height : 500;
+def transitionspeed = (OPTIONS.transitionspeed) ? OPTIONS.transitionspeed : 1000;
+def autoplay = (OPTIONS.autoplay) ? OPTIONS.autoplay : 15000;
 %>
 
 <script type="text/javascript">

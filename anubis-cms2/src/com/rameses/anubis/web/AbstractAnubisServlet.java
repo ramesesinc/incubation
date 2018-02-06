@@ -46,6 +46,7 @@ public abstract class AbstractAnubisServlet extends HttpServlet {
         }
         
         WebAnubisContext wctx = new WebAnubisContext(app, hreq, hres);
+        wctx.setAttribute("contextPath", hreq.getContextPath()); 
         AnubisContext.setContext(wctx);
        
         
@@ -68,7 +69,7 @@ public abstract class AbstractAnubisServlet extends HttpServlet {
                 //check if we need to reload
                 if (PROJECT_RELOAD_KEY.equals(pathInfo)) {
                     resolver.removeProject(project.getUrl());
-                    hres.sendRedirect("/");
+                    redirect( hres, "/", hreq.getContextPath() ); 
                     return;
                 }
                 //determine the module if any
@@ -100,4 +101,11 @@ public abstract class AbstractAnubisServlet extends HttpServlet {
             AnubisContext.removeContext();
         }
     }
+    
+    private void redirect(HttpServletResponse hres, String pathInfo, String contextPath ) throws Exception {
+        StringBuilder sb = new StringBuilder();
+        sb.append((contextPath == null ? "" : contextPath)); 
+        sb.append( pathInfo );
+        hres.sendRedirect( sb.toString() ); 
+    }    
 }

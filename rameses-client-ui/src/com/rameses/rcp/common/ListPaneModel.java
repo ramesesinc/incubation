@@ -21,7 +21,23 @@ import java.util.concurrent.ScheduledExecutorService;
  */
 public class ListPaneModel {
     
-    public ListPaneModel() {
+    private boolean editable = true; 
+    private boolean allowAdd = true; 
+    private boolean allowRemove = true; 
+    
+    public boolean isEditable() { return editable; } 
+    public void setEditable( boolean editable ) {
+        this.editable = editable; 
+    }
+    
+    public boolean isAllowAdd() { return allowAdd; } 
+    public void setAllowAdd( boolean allowAdd ) {
+        this.allowAdd = allowAdd; 
+    }
+    
+    public boolean isAllowRemove() { return allowRemove; }
+    public void setAllowRemove( boolean allowRemove ) {
+        this.allowRemove = allowRemove; 
     }
 
     @Deprecated
@@ -45,9 +61,9 @@ public class ListPaneModel {
         }
     }
         
-    public void afterFetchList() {
+    public void afterFetchList() { 
         afterLoadItems(); 
-    }    
+    } 
     
     public long getRefreshInterval() {
         return 0; 
@@ -83,7 +99,7 @@ public class ListPaneModel {
     public void setSelectedIndex(int index) {
         if (provider != null) provider.setSelectedIndex(index); 
     }
-    public void addItem( Object item ) throws Exception {
+    public void addItem( Object item ) throws Exception { 
         if (provider != null) provider.addItem( item ); 
     }
     public void removeSelectedItem() {

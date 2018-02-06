@@ -14,6 +14,7 @@ import com.rameses.rcp.control.XList;
 import com.rameses.rcp.control.XPanel;
 import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.ui.annotations.ComponentBean;
+import com.rameses.rcp.util.UIControlUtil;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Color;
@@ -23,6 +24,7 @@ import java.awt.Dimension;
 import java.awt.Insets;
 import java.awt.LayoutManager;
 import java.util.List;
+import java.util.Map;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.JPanel;
@@ -41,6 +43,7 @@ public class FileViewPanel extends XComponentPanel {
     private String handler; 
     private String allowAddWhen;
     private String allowRemoveWhen;
+    private String editableWhen;
     
     private HeaderPanel headerPanel; 
     private SplitterPanel splitPanel;
@@ -58,7 +61,9 @@ public class FileViewPanel extends XComponentPanel {
     private void initComponents() { 
         setLayout(new MainLayoutManager());  
         setPreferredSize(new Dimension(200, 100)); 
+        setName("fileviewpanel");
         
+        modelHandler = new FileViewModelImpl(null); 
         headerPanel = new HeaderPanel();
         splitPanel = new SplitterPanel();
         add( "header", headerPanel); 
@@ -146,24 +151,6 @@ public class FileViewPanel extends XComponentPanel {
     public void setItems( String items ) { 
         this.items = items; 
     }
-
-    public String getAllowAddWhen() { 
-        return ( headerPanel == null ? null : headerPanel.btn1.getVisibleWhen() );
-    } 
-    public void setAllowAddWhen( String allowAddWhen ) { 
-        if ( headerPanel != null ) {
-            headerPanel.btn1.setVisibleWhen( allowAddWhen );
-        } 
-    }
-
-    public String getAllowRemoveWhen() { 
-        return ( headerPanel == null ? null : headerPanel.btn2.getVisibleWhen() );
-    }
-    public void setAllowRemoveWhen( String allowRemoveWhen ) { 
-        if ( headerPanel != null ) { 
-            headerPanel.btn2.setVisibleWhen( allowRemoveWhen ); 
-        } 
-    }
     
     public int getDividerSize() { 
         return (splitPanel == null ? 0 : splitPanel.getDividerSize());
@@ -197,6 +184,21 @@ public class FileViewPanel extends XComponentPanel {
         if ( viewPanel != null ) {
             viewPanel.setCellSpacing( this.cellSpacing ); 
         }
+    }
+    
+    public String getAllowAddWhen() { return allowAddWhen; } 
+    public void setAllowAddWhen( String allowAddWhen ) { 
+        this.allowAddWhen = allowAddWhen; 
+    }
+
+    public String getAllowRemoveWhen() { return allowRemoveWhen; }
+    public void setAllowRemoveWhen( String allowRemoveWhen ) { 
+        this.allowRemoveWhen = allowRemoveWhen; 
+    }
+    
+    public String getEditableWhen() { return editableWhen; }
+    public void setEditableWhen( String editableWhen ) {
+        this.editableWhen = editableWhen;
     }
 
     protected void initComponentBean(com.rameses.rcp.common.ComponentBean bean) {
@@ -233,9 +235,31 @@ public class FileViewPanel extends XComponentPanel {
         super.afterLoad();
     } 
     
-    public void afterRefresh() {
-        super.afterRefresh();        
+    public void refresh() { 
+        boolean bool = getExprValue(getBean(), getEditableWhen(), true); 
+        modelHandler.setEditable( bool ); 
+
+        bool = getExprValue(getBean(), getAllowAddWhen(), true); 
+        modelHandler.setAllowAdd( bool ); 
+        
+        bool = getExprValue(getBean(), getAllowRemoveWhen(), true); 
+        modelHandler.setAllowRemove( bool ); 
+
+        if (headerPanel != null) { 
+            headerPanel.setEditable( modelHandler.isEditable() ); 
+        } 
+        
+        super.refresh();        
     } 
+    
+    private boolean getExprValue( Object bean, String expr, boolean defaultValue ) {
+        if (expr != null && expr.trim().length() > 0) {
+            try { 
+                return UIControlUtil.evaluateExprBoolean(getBean(), expr);
+            } catch(Throwable t) {;} 
+        } 
+        return defaultValue; 
+    }
     
 
     // <editor-fold defaultstate="collapsed" desc="FileViewModel">  
@@ -247,10 +271,20 @@ public class FileViewPanel extends XComponentPanel {
             this.items = items; 
         }
 
+        public List fetchList(Map params) {
+            return items; 
+        }
+
         public boolean removeItem(Object item) {
-            if ( items == null || items.isEmpty() ) return false; 
-            
-            return items.remove( item );
+            if ( item == null ) return false; 
+            else if ( items == null || items.isEmpty() ) return false; 
+            else return items.remove( item );
+        }
+
+        public void afterAddItem(Object item) {
+            if ( items != null ) {
+                items.add( item ); 
+            }
         }
     }
 
@@ -269,6 +303,7 @@ public class FileViewPanel extends XComponentPanel {
         public void addItem(Object item) throws Exception {
             Object bean = root.getInnerBinding().getBean(); 
             MethodResolver.getInstance().invoke(bean, "addItem", new Object[]{ item }); 
+            root.modelHandler.afterAddItem( item ); 
         } 
     }
     // </editor-fold>
@@ -382,7 +417,7 @@ public class FileViewPanel extends XComponentPanel {
             label.setFontStyle("font-weight:bold; font-size:12;"); 
             label.setForeground(Color.decode("#505050")); 
             label.setUseHtml(true);
-            label.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 20));
+            label.setBorder(BorderFactory.createEmptyBorder(3, 0, 3, 20));
             add("label", label); 
             
             btn1 = new XButton();
@@ -390,8 +425,10 @@ public class FileViewPanel extends XComponentPanel {
             btn1.setText("");
             btn1.setName("addFile"); 
             btn1.setToolTipText("Attach File(s)"); 
-            btn1.setIconResource("com/rameses/filemgmt/images/attachment_10x18.png"); 
             btn1.setContentAreaFilled( false );
+            btn1.setDisableWhen("#{allowAddPermitted != true}");  
+            btn1.setVisibleWhen("#{allowAddPermitted == true}"); 
+            btn1.setIconResource("com/rameses/filemgmt/images/attachment-16.png"); 
             add("btn1", btn1); 
 
             btn2 = new XButton();
@@ -399,12 +436,18 @@ public class FileViewPanel extends XComponentPanel {
             btn2.setText("");
             btn2.setName("removeFile"); 
             btn2.setToolTipText("Remove Selected Attachment"); 
-            btn2.setIconResource("com/rameses/filemgmt/images/trash_14x17.png"); 
             btn2.setContentAreaFilled( false );
-            btn2.setDisableWhen("#{selectedItem == null}"); 
             btn2.setDepends(new String[]{"selectedItem"}); 
+            btn2.setDisableWhen("#{allowRemovePermitted != true}");  
+            btn2.setVisibleWhen("#{allowRemovePermitted == true}"); 
+            btn2.setIconResource("com/rameses/filemgmt/images/recyclebin-16.png"); 
             add("btn2", btn2); 
         } 
+        
+        void setEditable( boolean editable ) {
+            btn1.setVisible( editable ); 
+            btn2.setVisible( editable ); 
+        }
     }
     // </editor-fold>
     
@@ -481,29 +524,8 @@ public class FileViewPanel extends XComponentPanel {
                     comps[i].setBounds(x, y, dim.width, h); 
                     x += dim.width; 
                 }
-                
-//                if ( btn2 != null && btn2.isVisible()) {
-//                    Dimension dim = btn2.getPreferredSize(); 
-//                    int cx = rPos - dim.width; 
-//                    btn2.setBounds( cx, y, dim.width, h ); 
-//                    rPos = cx; 
-//                    flag = 1; 
-//                }
-//                if ( btn1 != null && btn1.isVisible()) {
-//                    Dimension dim = btn1.getPreferredSize(); 
-//                    int cx = rPos - dim.width - (flag > 0 ? 1 : 0); 
-//                    btn1.setBounds( cx, y, dim.width, h ); 
-//                    rPos = cx; 
-//                    flag = 1; 
-//                }
-//                if ( label != null && label.isVisible()) {
-//                    if ( flag > 0 ) rPos -= 1; 
-//                    int cw = Math.max( rPos - x, 0);
-//                    label.setBounds( x, y, cw, h ); 
-//                }                
             }
         }
-        
     }
     // </editor-fold>
 }

@@ -5,7 +5,7 @@
 		}
 	);	
 </script>
-<form method="post" action="/actions/login">
+<form method="post" action="${ATTRS.contextPath}/actions/login">
    <input type="hidden" name="target" value="${OPTIONS.target}"/>
    <input type="text" name="username" r:context="header_login" r:name="info.username" r:hint="Username"/>
    <input type="password" name="password" r:context="header_login" r:name="info.password" r:hint="Password"/>
