@@ -4,6 +4,8 @@
  */
 package com.rameses.seti2.components;
 
+import com.rameses.rcp.common.Column;
+
 /**
  *
  * @author dell
@@ -22,6 +24,22 @@ public class ListPanel extends javax.swing.JPanel {
         return tblList.getHandler();
     }
     
+    public boolean isDynamic() {
+        return tblList.isDynamic();
+    }
+    
+    public void setDynamic( boolean b ) {
+        tblList.setDynamic(b);
+    }
+
+    public Column[] getColumns() {
+        return tblList.getColumns();
+    }
+    
+    public void setColumns(Column[] cols ) {
+        tblList.setColumns(cols);
+    }
+    
     public void setHandler(String s) {
         tblList.setHandler(s);
         tblList.setId(s);
@@ -35,8 +53,14 @@ public class ListPanel extends javax.swing.JPanel {
         lblPageCount.setText("of #{" + s + ".pageCount"  +"}");
     }
     
+    public String[] getDepends() {
+        return tblList.getDepends();
+    }
     
-    
+    public void setDepends(String[] arr) {
+        tblList.setDepends( arr );
+    }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
