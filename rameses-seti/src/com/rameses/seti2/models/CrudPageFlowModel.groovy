@@ -5,7 +5,7 @@ import com.rameses.rcp.common.*;
 import com.rameses.rcp.annotations.*;
 import com.rameses.osiris2.client.*;
 import com.rameses.util.*;
-import com.rameses.rcp.framework.ClientContext;
+import com.rameses.rcp.framework.*;
 import com.rameses.common.*;
 import com.rameses.rcp.constant.*;
 import java.rmi.server.*;
@@ -27,6 +27,10 @@ public class CrudPageFlowModel extends PageFlowController {
     def adapter;
     def entity;
     def itemHandlers = [:];     //holder for all specific item handlers
+    def mode = "create";
+    def barcodeid;
+    def findBy;                 //this is also included for opening via barcode.
+    def refid;                  //this is also used for opening. If there is no entity passed
     
     @Script("ListTypes")
     def listTypes;
@@ -162,4 +166,65 @@ public class CrudPageFlowModel extends PageFlowController {
         return super.start(name);
     }
 
+    def create() {
+        mode = "create";
+        init();
+        return super.start("create");
+    }
+
+    /**************************************************************************
+     * This method is an alternative to openining a record. 
+     **************************************************************************/
+    /*
+    public def getBarcodeFieldname() {
+        return null;
+    }
+    
+    public def openBarcode() {
+        if( !barcodeid ) 
+            throw new Exception("Open barcode error! barcodeid is not specified" );
+        def key = getBarcodeFieldname();
+        if( !key ) throw new Exception("Open barcode error! Please override (def)getBarcodeFieldname method" );
+        findBy = [:];
+        findBy.put(key, barcodeid);
+        return open();
+    }
+    
+    public final def buildFindByForOpenByRefid() {
+        if( !schema ) throw new Exception("buildKeysForOpenByRefid error. There is no schema built yet!");
+        def primKey = schema.fields.find{ it.primary == true }?.name;
+        findBy = [:];
+        findBy.put(primKey, refid);
+        //initialize also the entity bec. there is no entity in this instance
+    }
+    
+    public def fetchEntityData() {
+         return getPersistenceService().read( entity );
+    }
+    
+    def open() {
+        mode = "read";
+        init();
+        if( !entity ) entity = [:];
+        //we need to set the schemaname that will be used for open
+        if( refid ) {
+            buildFindByForOpenByRefid();
+        }
+        if( findBy !=null ) {
+            entity.findBy = findBy;
+        }
+        entity._schemaname = schemaName;
+        if( debug ) entity.debug = debug;
+        beforeOpen();
+        entity.putAll(fetchEntityData());
+        //we need to reset this so it can be used again.
+        findBy = null;  
+        //we need to reset the schema name for update.
+        entity._schemaname = schemaName;
+        afterOpen();
+        if( pageExists("view")) return "view";
+        return null;
+    }
+    */
+    
 }
