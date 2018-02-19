@@ -166,10 +166,11 @@ public class CrudPageFlowModel extends PageFlowController {
         return super.start(name);
     }
 
-    def create() {
+    //do not touch this. This is being used by aftxn model. It should be void
+    void create() {
         mode = "create";
         init();
-        return super.start("create");
+        super.start("create");
     }
 
     /**************************************************************************

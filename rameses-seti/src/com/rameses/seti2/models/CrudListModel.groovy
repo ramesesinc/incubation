@@ -85,10 +85,10 @@ public class CrudListModel extends AbstractCrudModel {
     public def getCustomFilter() {
         String s = invoker.properties.customFilter;
         if( s!=null ) {
-            return [s, [:]];
+            return [s, query];
         }
         s = workunit.info.workunit_properties.customFilter;
-        if( s != null ) return [s, [:]];
+        if( s != null ) return [s, query];
         return null;
     }
     
