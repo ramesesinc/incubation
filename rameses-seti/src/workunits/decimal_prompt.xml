@@ -1,6 +1,6 @@
 <workunit>
     <invokers>
-        <invoker type="decimal:prompt" caption="Enter Date" target="popup"/>
+        <invoker type="decimal:prompt" caption="Enter Value" target="popup"/>
     </invokers>
     <code>
         class DecimalPrompt {

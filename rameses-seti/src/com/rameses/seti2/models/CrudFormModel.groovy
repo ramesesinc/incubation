@@ -472,7 +472,11 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
         return entity; 
     }
     
-    def preview() { 
+    def preview() {
+        return preview( "simple_form_report" );
+    }
+    
+    def preview(def handlerName) { 
         def sname = getClass().getName();
         int idx = sname.lastIndexOf('.'); 
         if ( idx > 0 ) sname = sname.substring(0, idx); 
@@ -490,7 +494,7 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
                return getPrintFormData(); 
            } 
         ]; 
-        return Inv.lookupOpener("simple_form_report", [reportHandler:rh, title: getTitle()]);  
+        return Inv.lookupOpener(handlerName, [reportHandler:rh, title: getTitle()]);  
    }      
 }
 
