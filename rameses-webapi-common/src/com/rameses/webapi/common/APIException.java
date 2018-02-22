@@ -24,6 +24,11 @@ public class APIException extends RuntimeException {
         return code; 
     }
 
+    public static class Require extends APIException {
+        public Require( String message ) { 
+            super(1, message); 
+        }
+    }    
     public static class RequiredParam extends APIException {
         public RequiredParam( String name ) { 
             super(1, name + " parameter is required"); 
@@ -31,7 +36,10 @@ public class APIException extends RuntimeException {
     }
     public static class InvalidAccount extends APIException {
         public InvalidAccount() {
-            super(2, "Invalid Account"); 
+            this("Invalid Account"); 
+        }
+        public InvalidAccount( String message ) {
+            super(2, message); 
         }
     }
     public static class InvalidHashKey extends APIException {
