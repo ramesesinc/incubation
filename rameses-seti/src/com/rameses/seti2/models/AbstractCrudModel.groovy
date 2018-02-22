@@ -197,7 +197,8 @@ public abstract class AbstractCrudModel  {
     
     //shared security features
     boolean isCreateAllowed() { 
-        def allowCreate = workunit.info.workunit_properties.allowCreate;  
+        def allowCreate = invoker.properties.allowCreate;
+        if(!allowCreate ) allowCreate = workunit.info.workunit_properties.allowCreate;  
         if( allowCreate ) {
             if (allowCreate == 'false') return false;
             if (allowCreate.startsWith('#{')){
@@ -236,8 +237,9 @@ public abstract class AbstractCrudModel  {
         return allowed.toBoolean();
     }
     
-    boolean isOpenAllowed() { 
-        def allowOpen = workunit.info.workunit_properties.allowOpen;  
+    boolean isOpenAllowed() {
+        def allowOpen = invoker.properties.allowOpen;
+        if(!allowOpen) allowOpen = workunit.info.workunit_properties.allowOpen;  
         if( allowOpen ) {
             if (allowOpen == 'false') return false;
             if (allowOpen.startsWith('#{')){
@@ -258,7 +260,8 @@ public abstract class AbstractCrudModel  {
     }
 
     boolean isEditAllowed() { 
-        def allowEdit = workunit.info.workunit_properties.allowEdit;        
+        def allowEdit = invoker.properties.allowEdit;
+        if(!allowEdit) allowEdit = workunit.info.workunit_properties.allowEdit;        
          if( allowEdit ) {
             if (allowEdit == 'false') return false;
             if (allowEdit.startsWith('#{')){
@@ -280,7 +283,8 @@ public abstract class AbstractCrudModel  {
     }
 
     boolean isDeleteAllowed() { 
-        def allowDelete = workunit.info.workunit_properties.allowDelete;  
+        def allowDelete = invoker.properties.allowDelete;  
+        if(!allowDelete) allowDelete = workunit.info.workunit_properties.allowDelete;  
         if( allowDelete ) {
             if (allowDelete == 'false') return false;
             if (allowDelete.startsWith('#{')){
