@@ -510,6 +510,9 @@ public final class EntityManagerProcessor {
         Object info = data.remove( cf.getName()); 
         if ( info instanceof Map ) {
             Map infomap = (Map) info; 
+            Map nestedmap = new HashMap();
+            extractNestedFields( infomap, nestedmap ); 
+            infomap.putAll( nestedmap ); 
             copyItems( data, infomap ); 
             
             data.clear(); 
@@ -644,5 +647,45 @@ public final class EntityManagerProcessor {
         } else {
             return null; 
         } 
+    }
+    private void extractNestedFields( Map source, Map dest ) {
+        if ( source == null || source.isEmpty()) return;
+        
+        ArrayList nestedfields = new ArrayList();
+        Iterator keys = source.keySet().iterator(); 
+        while (keys.hasNext()) {
+            Object okey = keys.next(); 
+            if ( okey == null ) continue; 
+
+            String kname = okey.toString().trim(); 
+            if ( kname.startsWith("_")) continue;
+            
+            int idx = kname.indexOf('_'); 
+            if (idx <= 0) continue; 
+            
+            extractNestedField(kname, source.get(okey), dest);
+            nestedfields.add( okey ); 
+        } 
+        
+        for ( Object fk : nestedfields ) {
+            source.remove( fk ); 
+        }
+        nestedfields.clear(); 
+    }
+    private void extractNestedField( String name, Object value, Map dest ) { 
+        String[] arr = name.split("_");
+        if ( arr.length == 1 ) { 
+            dest.put(arr[0], value); 
+            return; 
+        } 
+        
+        if ( dest.get(arr[0]) instanceof Map ) { 
+            //do nothing  
+        } else { 
+            dest.put(arr[0], new HashMap()); 
+        }
+        
+        String skey = join(arr, 1, "_"); 
+        extractNestedField( skey, value, (Map) dest.get(arr[0])); 
     }
 }
