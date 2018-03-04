@@ -37,3 +37,5 @@ UPDATE sys_user SET
     pwdexpirydate=$P{pwdexpirydate}, usedpwds=$P{usedpwds} 
 WHERE 
     objid=$P{objid} 
+
+
