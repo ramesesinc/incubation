@@ -47,7 +47,7 @@ public class NewRulePage extends javax.swing.JPanel {
         xFormPanel1.setCaptionWidth(120);
         xFormPanel1.setPadding(new java.awt.Insets(5, 0, 0, 0));
 
-        xLabel1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 204)));
+        xLabel1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(180, 180, 180)));
         xLabel1.setCaption("Rule Set");
         xLabel1.setExpression("#{entity.ruleset}");
         xLabel1.setPreferredSize(new java.awt.Dimension(0, 20));
@@ -113,7 +113,7 @@ public class NewRulePage extends javax.swing.JPanel {
             .add(layout.createSequentialGroup()
                 .addContainerGap()
                 .add(jPanel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(96, Short.MAX_VALUE))
+                .addContainerGap(327, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
     

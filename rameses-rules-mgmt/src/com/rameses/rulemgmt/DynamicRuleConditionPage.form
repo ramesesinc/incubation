@@ -1,13 +1,17 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
-<Form version="1.3" type="org.netbeans.modules.form.forminfo.JPanelFormInfo">
+<Form version="1.3" maxVersion="1.3" type="org.netbeans.modules.form.forminfo.JPanelFormInfo">
   <Properties>
     <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
       <Dimension value="[636, 400]"/>
     </Property>
   </Properties>
   <AuxValues>
+    <AuxValue name="FormSettings_autoResourcing" type="java.lang.Integer" value="0"/>
+    <AuxValue name="FormSettings_autoSetComponentName" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_generateFQN" type="java.lang.Boolean" value="true"/>
     <AuxValue name="FormSettings_generateMnemonicsCode" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_i18nAutoMode" type="java.lang.Boolean" value="false"/>
     <AuxValue name="FormSettings_layoutCodeTarget" type="java.lang.Integer" value="2"/>
     <AuxValue name="FormSettings_listenerGenerationStyle" type="java.lang.Integer" value="0"/>
     <AuxValue name="FormSettings_variablesLocal" type="java.lang.Boolean" value="false"/>
@@ -20,9 +24,12 @@
           <Group type="102" alignment="0" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="xFormPanel1" alignment="0" min="-2" pref="428" max="-2" attributes="0"/>
                   <Component id="xFormPanel2" alignment="1" pref="616" max="32767" attributes="0"/>
                   <Component id="jPanel1" alignment="0" max="32767" attributes="0"/>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Component id="xFormPanel1" min="-2" pref="499" max="-2" attributes="0"/>
+                      <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
+                  </Group>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
@@ -30,13 +37,13 @@
     </DimensionLayout>
     <DimensionLayout dim="1">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Group type="102" alignment="0" max="-2" attributes="0">
-              <EmptySpace min="-2" pref="34" max="-2" attributes="0"/>
-              <Component id="xFormPanel1" min="-2" pref="61" max="-2" attributes="0"/>
-              <EmptySpace min="-2" pref="19" max="-2" attributes="0"/>
+          <Group type="102" alignment="0" attributes="0">
+              <EmptySpace max="-2" attributes="0"/>
+              <Component id="xFormPanel1" min="-2" pref="73" max="-2" attributes="0"/>
+              <EmptySpace min="-2" pref="30" max="-2" attributes="0"/>
               <Component id="jPanel1" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
-              <Component id="xFormPanel2" pref="273" max="32767" attributes="0"/>
+              <Component id="xFormPanel2" pref="255" max="32767" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
       </Group>
@@ -51,7 +58,7 @@
               <Color blue="cc" green="cc" red="cc" type="rgb"/>
             </Property>
             <Property name="padding" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
-              <Insets value="[5, 0, 0, 0]"/>
+              <Insets value="[5, 5, 0, 0]"/>
             </Property>
           </PropertyBean>
         </Property>
@@ -63,7 +70,7 @@
         <Property name="captionWidth" type="int" value="120"/>
         <Property name="cellspacing" type="int" value="5"/>
         <Property name="dynamic" type="boolean" value="true"/>
-        <Property name="name" type="java.lang.String" value="constraintControls"/>
+        <Property name="name" type="java.lang.String" value="constraintControls" noResource="true"/>
       </Properties>
     </Container>
     <Container class="javax.swing.JPanel" name="jPanel1">
@@ -135,6 +142,7 @@
     </Container>
     <Container class="com.rameses.rcp.control.XFormPanel" name="xFormPanel1">
       <Properties>
+        <Property name="captionVAlignment" type="java.lang.String" value="CENTER"/>
         <Property name="captionWidth" type="int" value="120"/>
         <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
           <Dimension value="[0, 50]"/>
@@ -146,7 +154,7 @@
             <Property name="caption" type="java.lang.String" value="Dynamic Attribute"/>
             <Property name="expression" type="java.lang.String" value="#{entity.dynamic.key}"/>
             <Property name="handler" type="java.lang.String" value="lookupTypes"/>
-            <Property name="name" type="java.lang.String" value="entity.dynamic"/>
+            <Property name="name" type="java.lang.String" value="entity.dynamic" noResource="true"/>
             <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
               <Dimension value="[0, 20]"/>
             </Property>
@@ -154,20 +162,27 @@
         </Component>
         <Component class="com.rameses.rcp.control.XLabel" name="xLabel1">
           <Properties>
+            <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+              <Border info="org.netbeans.modules.form.compat2.border.LineBorderInfo">
+                <LineBorder>
+                  <Color PropertyName="color" blue="b4" green="b4" red="b4" type="rgb"/>
+                </LineBorder>
+              </Border>
+            </Property>
             <Property name="caption" type="java.lang.String" value="Data Type"/>
             <Property name="expression" type="java.lang.String" value="#{entity.dynamic.datatype}"/>
-            <Property name="name" type="java.lang.String" value="entity.dynamic.datatype"/>
+            <Property name="name" type="java.lang.String" value="entity.dynamic.datatype" noResource="true"/>
             <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-              <Dimension value="[0, 16]"/>
+              <Dimension value="[0, 20]"/>
             </Property>
           </Properties>
         </Component>
         <Component class="com.rameses.rcp.control.XTextField" name="xTextField2">
           <Properties>
             <Property name="caption" type="java.lang.String" value="Fact Variable Name"/>
-            <Property name="name" type="java.lang.String" value="entity.varname"/>
+            <Property name="name" type="java.lang.String" value="entity.varname" noResource="true"/>
             <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-              <Dimension value="[0, 19]"/>
+              <Dimension value="[0, 20]"/>
             </Property>
             <Property name="spaceChar" type="char" value="_"/>
           </Properties>

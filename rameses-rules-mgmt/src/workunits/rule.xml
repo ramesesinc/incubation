@@ -246,7 +246,7 @@
             <transition to="editing" caption="Edit" action="edit"/>
             <transition to="deployed" caption="Deploy" action="deploy"/>
             <transition to="end" name="delete" caption="Delete" action="removeRule" confirm="You are about to remove this rule. Continue?"/>
-            <transition to="route" visibleWhen="#{1==0}"/>
+            <transition to="route" name="route" visibleWhen="#{1==0}"/>
         </page>    
         <process name="route">
             <transition to="deployed" cond="#{entity.state=='DEPLOYED'}" />    
@@ -262,7 +262,7 @@
         <page name="deployed" title="Deployed Rule">
             <transition to="end" caption="Cancel" />
             <transition to="editinfo" caption="Undeploy" action="undeploy"/>
-            <transition to="route" visibleWhen="#{1==0}"/>
+            <transition to="route" name="route" visibleWhen="#{1==0}"/>
         </page>    
         <end/>
     </pageflow>
