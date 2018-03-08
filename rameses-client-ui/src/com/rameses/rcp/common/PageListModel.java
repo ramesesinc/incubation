@@ -43,8 +43,7 @@ public abstract class PageListModel extends AbstractListDataProvider
     }
     
     public String getSearchtext() {  return searchtext; }     
-    public void setSearchtext(String searchtext) 
-    { 
+    public void setSearchtext(String searchtext) { 
         this.searchtext = searchtext; 
         getQuery().put("searchtext", searchtext); 
     }
@@ -178,16 +177,11 @@ public abstract class PageListModel extends AbstractListDataProvider
     
     public int getLastPageIndex() { return -1; }
     
-    public boolean isLastPage() 
-    {
-        if (pageIndex < pageCount) 
-            return false; 
-        else if (fetchedRows <= preferredRows)
-            return true; 
-        else if (pageIndex > pageCount) 
-            return true; 
-        else 
-            return false;
+    public boolean isLastPage() {
+        if (pageIndex < pageCount) return false; 
+        else if (fetchedRows <= preferredRows) return true; 
+        else if (pageIndex > pageCount) return true; 
+        else return false;
     } 
 
     

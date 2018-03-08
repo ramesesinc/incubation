@@ -43,7 +43,7 @@ public class ComponentBeanInfo extends SimpleBeanInfo
                 new PropertyDescriptor("preferredSize", Component.class),
                 new PropertyDescriptor("font", Component.class), 
                 
-                new PropertyDescriptor("name", Component.class),
+                createPropertyDescriptor("name", Component.class, true),
                 new PropertyDescriptor("visible", Component.class), 
                 new PropertyDescriptor("opaque", JComponent.class, "isOpaque", "setOpaque"),
                 new PropertyDescriptor("toolTipText", JComponent.class)
@@ -53,6 +53,13 @@ public class ComponentBeanInfo extends SimpleBeanInfo
             return super.getPropertyDescriptors();
         }
     }
+    
+    protected PropertyDescriptor createPropertyDescriptor( String name, Class beanClass, boolean preferred ) throws IntrospectionException {
+        PropertyDescriptor pd = new PropertyDescriptor( name, beanClass); 
+        if ( preferred ) pd.setPreferred( preferred ); 
+        return pd; 
+    }
+    
     
     public abstract static class Support extends SimpleBeanInfo {
     
