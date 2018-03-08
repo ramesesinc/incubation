@@ -28,3 +28,14 @@ FROM sys_usergroup_member ugm
 	LEFT JOIN sys_securitygroup sg ON sg.objid=ugm.securitygroup_objid 
 WHERE 
 	ugm.user_objid=$P{userid} ${filter}
+
+
+[findPermissionExist]
+SELECT 
+   up.object,up.permission, ug.role,ug.domain,ugm.user_objid,
+   ugm.exclude AS roleexclude, sg.exclude AS securitygroupexclude
+FROM sys_usergroup_permission up 
+INNER JOIN sys_usergroup ug ON up.usergroup_objid=ug.objid
+INNER JOIN sys_usergroup_member ugm ON ugm.`usergroup_objid`=ug.objid 
+LEFT JOIN sys_securitygroup sg ON sg.objid=ugm.securitygroup_objid 
+WHERE up.object = $P{object} AND up.permission=$P{action} AND ugm.user_objid=$P{userid}

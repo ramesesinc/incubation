@@ -107,6 +107,7 @@ class AdminSessionInterceptor
 		result.env.ORGNAME = orginfo.name; 
 		result.env.ORGCLASS = orginfo.orgclass; 
 		result.env.ORGTXNCODE = orginfo.txncode; 
+		result.env.ORGROOT = orginfo.root;
 
 		def roles = roleSvc.getRolesByUser([userid: info.objid, orgid:orgid]); 
 		roles.addAll( sysroles );
