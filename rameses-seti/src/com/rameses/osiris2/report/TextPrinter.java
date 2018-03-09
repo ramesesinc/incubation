@@ -4,15 +4,13 @@
  */
 package com.rameses.osiris2.report;
 
-
 import groovy.lang.Writable;
 import groovy.text.SimpleTemplateEngine;
 import groovy.text.Template;
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.StringReader;
-import java.util.List;
+import java.net.URL;
 import java.util.Map;
 
 /**
@@ -20,55 +18,67 @@ import java.util.Map;
  * @author Elmo Nazareno
  */
 public class TextPrinter {
+     private PrinterService printerService = new PrinterService();
     
-    private PrinterService printerService = new PrinterService();
+    private String printerName;
     private Template template;
-    
-    //we must make this static so it will only be set once
-    private static String printerName; //"EPSON LQ-300+ /II ESC/P 2"
-    
-    public void parseTemplate(String s ) throws Exception {
-        SimpleTemplateEngine se = new SimpleTemplateEngine();
-        template = se.createTemplate(s);
-    }
-    
-    public void setPrinterName(String name ) {
-        TextPrinter.printerName = name;
-    }
-    
+
+    /**
+     * @return the printerName
+     */
     public String getPrinterName() {
-        return  TextPrinter.printerName;
+        return printerName;
     }
 
-    public List getPrinters() {
-        return printerService.getPrinters();
+    /**
+     * @param printerName the printerName to set
+     */
+    public void setPrinterName(String printerName) {
+        this.printerName = printerName;
+    }
+
+    /**
+     * @return the template
+     */
+    public Template getTemplate() {
+        return template;
+    }
+
+    /**
+     * @param template the template to set
+     */
+    public void setTemplate(Template template) {
+        this.template = template;
     }
     
-    public void print( Map map ) throws Exception {
-        if( printerName == null )
-            throw new Exception("Please choose a printerName");
-        if(template == null )
-            throw new Exception("Please parse a template first");
-        String line = null;
-        StringReader strReader = null;
-        BufferedReader bufferedReader = null;
-        try{
-            Writable pw = template.make(map);
-            strReader = new StringReader(pw.toString());
-            bufferedReader = new BufferedReader(strReader);            
-            while((line = bufferedReader.readLine()) != null) {
-                printerService.printString(printerName, line + "\n");
-            }
+    public void setTemplate(InputStream is) {
+        try {
+            if(is==null) throw new Exception("InputStream in setTemplate must not be null");
+            SimpleTemplateEngine se = new SimpleTemplateEngine();
+            this.template = se.createTemplate(new InputStreamReader(is));
         }
-        catch(FileNotFoundException ex) {
-            ex.printStackTrace();               
-        }
-        catch(IOException ex) {
-            ex.printStackTrace();
+        catch(Exception ex) {
+            throw new RuntimeException(ex);
         }
         finally {
-            try {strReader.close();} catch(Exception ex){;}
-            try {bufferedReader.close();} catch(Exception ex){;}
+            try { is.close(); } catch(Exception ign){;}
         }
+    }
+    
+    public void setTemplate(String str ) {
+        try {
+            if(str==null) throw new Exception("String in setTemplate must not be null");
+            SimpleTemplateEngine se = new SimpleTemplateEngine();
+            this.template = se.createTemplate(new StringReader(str));
+        }
+        catch(Exception ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+    
+    public void print( Map data ) throws Exception {
+        if(printerName == null ) printerName = printerService.getPrinters().iterator().next();
+        Writable pw  = template.make(data);
+        printerService.printString(printerName, pw.toString());
     }
 }
