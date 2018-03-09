@@ -20,17 +20,19 @@ public class SchemaListComponent extends ComponentBean  {
     String hiddenCols;
     String orderBy;
     String groupBy;
-        
+    String actionContext;
+    String menuContext;
+
     boolean allowCreate;
     boolean allowOpen;
     boolean allowDelete;
+    int rows = 20;
 
-    def _schema;
     def query;    
     def handler; 
     def selectedItem;
-    int rows = 20;
     
+    def _schema;    
     def searchText;
 
     def getSchema() {
@@ -88,11 +90,7 @@ public class SchemaListComponent extends ComponentBean  {
             return queryService.getList( m );
         },
         onOpenItem : {o, colName ->
-            if ( allowOpen ) { 
-                if ( handler?.beforeOpen ) handler.beforeOpen( o );  
-                return Inv.lookupOpener(schemaName+":open", [ entity: o ]);
-            }
-            return null;
+            return openImpl( o );
         }, 
         onRemoveItem: { o-> 
             if ( handler?.beforeRemoveItem ) handler.beforeRemoveItem( o );  
@@ -133,11 +131,14 @@ public class SchemaListComponent extends ComponentBean  {
         } 
     } 
     
-    def open() {
-        if(!allowOpen || !selectedItem) return null;
+    def open() { 
+        return openImpl( selectedItem );  
+    }
+    def openImpl( o ) {
+        if(!allowOpen || !o) return null;
 
-        if ( handler?.beforeOpen ) handler.beforeOpen( selectedItem );  
-        return Inv.lookupOpener(schemaName+":open", [ entity: selectedItem ]);         
+        if ( handler?.beforeOpen ) handler.beforeOpen( o );  
+        return Inv.lookupOpener(schemaName+":open", [ entity: o ]);         
     }
     
     void removeEntity() {
@@ -157,7 +158,7 @@ public class SchemaListComponent extends ComponentBean  {
             m = handler.createItem(); 
         }
         if ( m == null ) m = [:]; 
-        return Inv.lookupOpener(schemaName+":create", m );
+        return Inv.lookupOpener(schemaName+":create", [entity: m] );
     } 
     
     void refresh() { 

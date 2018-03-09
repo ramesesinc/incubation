@@ -187,8 +187,11 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
         return map;
     }
     
-    void initNewData() {
+    void initNewData() { 
+        def olddata = entity; 
         entity = createData( schemaName, schema );
+        if ( olddata ) entity.putAll( olddata ); 
+        
         //reload the schema items
         itemHandlers.each { k,v->
             v.reload();
