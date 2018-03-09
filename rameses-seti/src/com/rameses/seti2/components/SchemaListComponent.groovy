@@ -28,7 +28,7 @@ public class SchemaListComponent extends ComponentBean  {
     def query;    
     def handler; 
     def selectedItem;
-    
+        
     void setSelectedItem( o ) {
         this.selectedItem = o; 
         if ( ui && ui.name ) { 
@@ -96,7 +96,20 @@ public class SchemaListComponent extends ComponentBean  {
                 return handler.afterColumnUpdate( o, name );  
             } 
         }
-    ] as EditorListModel;
+    ] as EditorListModel; 
+    
+    void setHandler( o ) { 
+        if ( o == null ) o = [:]; 
+        
+        this.handler = o; 
+        if ( o instanceof Map ) {
+            o.load = { listModel.load(); }
+            o.refresh = { listModel.refresh(); }
+            o.reload = { listModel.reload(); }
+            o.reloadAll = { listModel.reloadAll(); }
+            o.refreshSelectedItem = { listModel.refreshSelectedItem(); } 
+        } 
+    } 
     
     public void removeItem() {
         if(!allowDelete) return null;
