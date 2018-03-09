@@ -27,6 +27,7 @@ public class SchemaList extends XComponentPanel {
     private String visibleWhen;
     private String readonlyWhen;
     private String handler; 
+    private int rows = 20;
     
     private Column[] columns;     
     
@@ -103,6 +104,7 @@ public class SchemaList extends XComponentPanel {
         }
     }
     
+    
     public boolean isAutoResize() { 
         return (datatable == null ? true : datatable.isAutoResize()); 
     }    
@@ -164,6 +166,7 @@ public class SchemaList extends XComponentPanel {
         bean.setProperty("query", getProperty(getQueryName())); 
         bean.setProperty("handler", getProperty(getHandler())); 
         bean.setProperty("ui", this);  
+        bean.setProperty("rows", getRows()); 
     } 
     
     public void setProperty( String name, Object value ) { 
@@ -193,7 +196,23 @@ public class SchemaList extends XComponentPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jPanel1 = new javax.swing.JPanel();
+        jPanel8 = new javax.swing.JPanel();
+        jToolBar1 = new javax.swing.JToolBar();
+        btnCreate = new com.rameses.rcp.control.XButton();
+        btnOpen = new com.rameses.rcp.control.XButton();
+        btnDelete = new com.rameses.rcp.control.XButton();
+        btnPrint = new com.rameses.rcp.control.XButton();
+        btnFilter = new com.rameses.rcp.control.XButton();
+        btnSelectColumn = new com.rameses.rcp.control.XButton();
+        btnRefresh = new com.rameses.rcp.control.XButton();
+        xActionBar1 = new com.rameses.rcp.control.XActionBar();
+        jPanel7 = new javax.swing.JPanel();
+        xLabel2 = new com.rameses.rcp.control.XLabel();
+        xSubFormPanel1 = new com.rameses.rcp.control.XSubFormPanel();
+        jToolBar3 = new javax.swing.JToolBar();
+        xActionTextField1 = new com.rameses.rcp.control.XActionTextField();
+        xButton2 = new com.rameses.rcp.control.XButton();
+        xButton1 = new com.rameses.rcp.control.XButton();
         datatable = new com.rameses.rcp.control.XDataTable();
         jToolBar2 = new javax.swing.JToolBar();
         btnMoveFirst = new com.rameses.rcp.control.XButton();
@@ -207,76 +226,221 @@ public class SchemaList extends XComponentPanel {
         setPreferredSize(new java.awt.Dimension(351, 183));
         setLayout(new java.awt.BorderLayout());
 
-        jPanel1.setPreferredSize(new java.awt.Dimension(456, 30));
+        jPanel8.setLayout(new java.awt.BorderLayout());
 
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 351, Short.MAX_VALUE)
+        jToolBar1.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        jToolBar1.setFloatable(false);
+        jToolBar1.setRollover(true);
+
+        btnCreate.setName("create"); // NOI18N
+        btnCreate.setAccelerator("ctrl N");
+        btnCreate.setCaption("");
+        btnCreate.setFocusable(false);
+        btnCreate.setIconResource("images/toolbars/create.png");
+        btnCreate.setMargin(new java.awt.Insets(1, 1, 1, 1));
+        btnCreate.setVisibleWhen("#{createAllowed==true}");
+        jToolBar1.add(btnCreate);
+
+        btnOpen.setName("open"); // NOI18N
+        btnOpen.setAccelerator("ctrl O");
+        btnOpen.setCaption("");
+        btnOpen.setFocusable(false);
+        btnOpen.setIconResource("images/toolbars/open.png");
+        btnOpen.setMargin(new java.awt.Insets(1, 1, 1, 1));
+        btnOpen.setVisibleWhen("#{openAllowed==true}");
+        jToolBar1.add(btnOpen);
+
+        btnDelete.setName("removeEntity"); // NOI18N
+        btnDelete.setCaption("");
+        btnDelete.setDepends(new String[] {"selectedItem"});
+        btnDelete.setFocusable(false);
+        btnDelete.setIconResource("images/toolbars/trash.png");
+        btnDelete.setMargin(new java.awt.Insets(1, 1, 1, 1));
+        btnDelete.setVisibleWhen("#{deleteAllowed==true}");
+        jToolBar1.add(btnDelete);
+
+        btnPrint.setName("print"); // NOI18N
+        btnPrint.setAccelerator("ctrl P");
+        btnPrint.setCaption("");
+        btnPrint.setFocusable(false);
+        btnPrint.setIconResource("images/toolbars/printer.png");
+        btnPrint.setImmediate(true);
+        btnPrint.setMargin(new java.awt.Insets(1, 1, 1, 1));
+        btnPrint.setVisibleWhen("#{printAllowed}");
+        jToolBar1.add(btnPrint);
+
+        btnFilter.setName("showFilter"); // NOI18N
+        btnFilter.setAccelerator("ctrl F");
+        btnFilter.setCaption("");
+        btnFilter.setFocusable(false);
+        btnFilter.setIconResource("images/toolbars/filter.png");
+        btnFilter.setImmediate(true);
+        btnFilter.setMargin(new java.awt.Insets(1, 1, 1, 1));
+        btnFilter.setVisibleWhen("#{filterAllowed}");
+        jToolBar1.add(btnFilter);
+
+        btnSelectColumn.setName("selectColumns"); // NOI18N
+        btnSelectColumn.setCaption("");
+        btnSelectColumn.setFocusable(false);
+        btnSelectColumn.setIconResource("images/toolbars/table-column.png");
+        btnSelectColumn.setImmediate(true);
+        btnSelectColumn.setMargin(new java.awt.Insets(1, 1, 1, 1));
+        btnSelectColumn.setVisibleWhen("#{showColsAllowed}");
+        jToolBar1.add(btnSelectColumn);
+
+        btnRefresh.setAccelerator("ctrl R");
+        btnRefresh.setCaption("");
+        btnRefresh.setFocusable(false);
+        btnRefresh.setIconResource("images/toolbars/refresh.png");
+        btnRefresh.setImmediate(true);
+        btnRefresh.setMargin(new java.awt.Insets(1, 1, 1, 1));
+        btnRefresh.setName("refresh"); // NOI18N
+        jToolBar1.add(btnRefresh);
+
+        xActionBar1.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 10, 0, 0));
+        xActionBar1.setFormName("formName");
+        xActionBar1.setName("listActions"); // NOI18N
+        jToolBar1.add(xActionBar1);
+
+        jPanel8.add(jToolBar1, java.awt.BorderLayout.WEST);
+
+        jPanel7.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 5));
+        jPanel7.setLayout(new java.awt.BorderLayout());
+
+        xLabel2.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        xLabel2.setCellPadding(new java.awt.Insets(5, 0, 0, 5));
+        xLabel2.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        xLabel2.setForeground(new java.awt.Color(204, 0, 0));
+        xLabel2.setName("filterText"); // NOI18N
+        xLabel2.setText("xLabel2");
+        jPanel7.add(xLabel2, java.awt.BorderLayout.WEST);
+
+        xSubFormPanel1.setHandler("queryForm");
+
+        javax.swing.GroupLayout xSubFormPanel1Layout = new javax.swing.GroupLayout(xSubFormPanel1);
+        xSubFormPanel1.setLayout(xSubFormPanel1Layout);
+        xSubFormPanel1Layout.setHorizontalGroup(
+            xSubFormPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 210, Short.MAX_VALUE)
         );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 30, Short.MAX_VALUE)
+        xSubFormPanel1Layout.setVerticalGroup(
+            xSubFormPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 25, Short.MAX_VALUE)
         );
 
-        add(jPanel1, java.awt.BorderLayout.PAGE_START);
+        jPanel7.add(xSubFormPanel1, java.awt.BorderLayout.CENTER);
 
-        datatable.setHandler("listModel");
-        datatable.setName("selectedItem"); // NOI18N
-        add(datatable, java.awt.BorderLayout.CENTER);
+        jToolBar3.setFloatable(false);
+        jToolBar3.setRollover(true);
 
-        jToolBar2.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
-        jToolBar2.setRollover(true);
+        xActionTextField1.setName("searchText"); // NOI18N
+        xActionTextField1.setActionName("search");
+        xActionTextField1.setFocusKeyStroke("F3");
+        xActionTextField1.setMaxLength(50);
+        xActionTextField1.setPreferredSize(new java.awt.Dimension(180, 20));
+        xActionTextField1.setVisibleWhen("#{allowSearch == true}");
+        jToolBar3.add(xActionTextField1);
 
-        btnMoveFirst.setFocusable(false);
-        btnMoveFirst.setIconResource("images/navbar/first.png");
-        btnMoveFirst.setName("listModel.moveFirstPage"); // NOI18N
-        jToolBar2.add(btnMoveFirst);
+        xButton2.setBackground(new java.awt.Color(255, 255, 255));
+        xButton2.setCaption("");
+        xButton2.setFocusable(false);
+        xButton2.setIconResource("images/info.png");
+        xButton2.setImmediate(true);
+        xButton2.setName("showInfo"); // NOI18N
+        jToolBar3.add(xButton2);
 
-        btnMovePrev.setFocusable(false);
-        btnMovePrev.setIconResource("images/navbar/previous.png");
-        btnMovePrev.setName("listModel.moveBackPage"); // NOI18N
-        jToolBar2.add(btnMovePrev);
+        xButton1.setBackground(new java.awt.Color(255, 255, 255));
+        xButton1.setCaption("\\");
+            xButton1.setFocusable(false);
+            xButton1.setIconResource("images/help.png");
+            xButton1.setImmediate(true);
+            xButton1.setName("showHelp"); // NOI18N
+            jToolBar3.add(xButton1);
 
-        btnMoveNext.setFocusable(false);
-        btnMoveNext.setIconResource("images/navbar/next.png");
-        btnMoveNext.setImmediate(true);
-        btnMoveNext.setName("listModel.moveNextPage"); // NOI18N
-        jToolBar2.add(btnMoveNext);
+            jPanel7.add(jToolBar3, java.awt.BorderLayout.EAST);
 
-        btnMoveLast.setFocusable(false);
-        btnMoveLast.setIconResource("images/navbar/last.png");
-        btnMoveLast.setName("listModel.moveLastPage"); // NOI18N
-        jToolBar2.add(btnMoveLast);
+            jPanel8.add(jPanel7, java.awt.BorderLayout.CENTER);
 
-        jPanel5.setPreferredSize(new java.awt.Dimension(100, 20));
-        jPanel5.setLayout(new com.rameses.rcp.control.layout.XLayout());
+            add(jPanel8, java.awt.BorderLayout.NORTH);
 
-        lblRecordCount.setDepends(new String[] {"selectedItem"});
-        lblRecordCount.setExpression("Page #{listModel.pageIndex}");
-        lblRecordCount.setUseHtml(true);
-        jPanel5.add(lblRecordCount);
+            datatable.setName("selectedItem"); // NOI18N
+            datatable.setHandler("listModel");
+            add(datatable, java.awt.BorderLayout.CENTER);
 
-        lblPageCount.setDepends(new String[] {"selectedItem"});
-        lblPageCount.setExpression("of #{listModel.pageCount}");
-        lblPageCount.setUseHtml(true);
-        jPanel5.add(lblPageCount);
+            jToolBar2.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
+            jToolBar2.setRollover(true);
 
-        jToolBar2.add(jPanel5);
+            btnMoveFirst.setFocusable(false);
+            btnMoveFirst.setIconResource("images/navbar/first.png");
+            btnMoveFirst.setName("listModel.moveFirstPage"); // NOI18N
+            jToolBar2.add(btnMoveFirst);
 
-        add(jToolBar2, java.awt.BorderLayout.SOUTH);
-    }// </editor-fold>//GEN-END:initComponents
+            btnMovePrev.setFocusable(false);
+            btnMovePrev.setIconResource("images/navbar/previous.png");
+            btnMovePrev.setName("listModel.moveBackPage"); // NOI18N
+            jToolBar2.add(btnMovePrev);
+
+            btnMoveNext.setFocusable(false);
+            btnMoveNext.setIconResource("images/navbar/next.png");
+            btnMoveNext.setImmediate(true);
+            btnMoveNext.setName("listModel.moveNextPage"); // NOI18N
+            jToolBar2.add(btnMoveNext);
+
+            btnMoveLast.setFocusable(false);
+            btnMoveLast.setIconResource("images/navbar/last.png");
+            btnMoveLast.setName("listModel.moveLastPage"); // NOI18N
+            jToolBar2.add(btnMoveLast);
+
+            jPanel5.setPreferredSize(new java.awt.Dimension(100, 20));
+            jPanel5.setLayout(new com.rameses.rcp.control.layout.XLayout());
+
+            lblRecordCount.setDepends(new String[] {"selectedItem"});
+            lblRecordCount.setExpression("Page #{listModel.pageIndex}");
+            lblRecordCount.setUseHtml(true);
+            jPanel5.add(lblRecordCount);
+
+            lblPageCount.setDepends(new String[] {"selectedItem"});
+            lblPageCount.setExpression("of #{listModel.pageCount}");
+            lblPageCount.setUseHtml(true);
+            jPanel5.add(lblPageCount);
+
+            jToolBar2.add(jPanel5);
+
+            add(jToolBar2, java.awt.BorderLayout.SOUTH);
+        }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private com.rameses.rcp.control.XButton btnCreate;
+    private com.rameses.rcp.control.XButton btnDelete;
+    private com.rameses.rcp.control.XButton btnFilter;
     private com.rameses.rcp.control.XButton btnMoveFirst;
     private com.rameses.rcp.control.XButton btnMoveLast;
     private com.rameses.rcp.control.XButton btnMoveNext;
     private com.rameses.rcp.control.XButton btnMovePrev;
+    private com.rameses.rcp.control.XButton btnOpen;
+    private com.rameses.rcp.control.XButton btnPrint;
+    private com.rameses.rcp.control.XButton btnRefresh;
+    private com.rameses.rcp.control.XButton btnSelectColumn;
     private com.rameses.rcp.control.XDataTable datatable;
-    private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel5;
+    private javax.swing.JPanel jPanel7;
+    private javax.swing.JPanel jPanel8;
+    private javax.swing.JToolBar jToolBar1;
     private javax.swing.JToolBar jToolBar2;
+    private javax.swing.JToolBar jToolBar3;
     private com.rameses.rcp.control.XLabel lblPageCount;
     private com.rameses.rcp.control.XLabel lblRecordCount;
+    private com.rameses.rcp.control.XActionBar xActionBar1;
+    private com.rameses.rcp.control.XActionTextField xActionTextField1;
+    private com.rameses.rcp.control.XButton xButton1;
+    private com.rameses.rcp.control.XButton xButton2;
+    private com.rameses.rcp.control.XLabel xLabel2;
+    private com.rameses.rcp.control.XSubFormPanel xSubFormPanel1;
     // End of variables declaration//GEN-END:variables
+
+    /**
+     * @return the rows
+     */
+    public int getRows() {
+        return rows;
+    }
 }
