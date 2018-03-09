@@ -258,19 +258,34 @@ public class XActionBar extends JPanel implements UIComposite, ActiveControl, Mo
         }
                 
         String _formname = getFormName();
-        if (_formname != null && _formname.length() > 0 && actionProvider != null) {
+        if (_formname != null && actionProvider != null) {
             Object retval = null;
-            try { retval = UIControlUtil.getBeanValue(getBinding(), _formname); } catch(Throwable t){;} 
+            try { 
+                retval = UIControlUtil.getBeanValue(getBinding(), _formname); 
+            } catch(Throwable t){;} 
             
             if (retval != null) _formname = retval.toString();
             
             String _formtype = (_name == null? "formActions" : _name);
-            List<Action> list = actionProvider.lookupActions(_formname +":"+ _formtype);
-            if ( list != null && !list.isEmpty()) { 
-                Collections.sort(list);
-                actions.addAll(list);
+            
+            StringBuilder invtype = new StringBuilder(); 
+            if ( _formname.length() > 0 ) {
+                invtype.append( _formname );
             }
-        }
+            if ( _formtype.length() > 0 ) {
+                if ( invtype.length() > 0 ) {
+                    invtype.append(":");
+                } 
+                invtype.append( _formtype ); 
+            }
+            if ( invtype.length() > 0 ) {
+                List<Action> list = actionProvider.lookupActions( invtype.toString() ); 
+                if ( list != null && !list.isEmpty()) { 
+                    Collections.sort(list); 
+                    actions.addAll(list); 
+                } 
+            } 
+        } 
 
         if (actions.size() > 0) {
             for (Action action: actions) {

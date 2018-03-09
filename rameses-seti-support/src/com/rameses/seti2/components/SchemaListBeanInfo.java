@@ -33,6 +33,9 @@ public class SchemaListBeanInfo extends ComponentBeanInfo.Support {
             new PropertyDescriptor("rows", getBeanClass()),
             new PropertyDescriptor("visibleWhen", getBeanClass()),
             
+            new PropertyDescriptor("actionContext", getBeanClass()),
+            new PropertyDescriptor("menuContext", getBeanClass()),
+            
             createPropertyDescriptor("schemaName", true),
             createPropertyDescriptor("customFilter", true),
             createPropertyDescriptor("queryName", true),

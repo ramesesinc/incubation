@@ -7,8 +7,6 @@ package com.rameses.seti2.components;
 import com.rameses.common.PropertyResolver;
 import com.rameses.rcp.common.Column;
 import com.rameses.rcp.control.XComponentPanel;
-import com.rameses.rcp.framework.Binding;
-import com.rameses.rcp.util.UIInputUtil;
 
 @com.rameses.rcp.ui.annotations.ComponentBean("com.rameses.seti2.components.SchemaListComponent")
 public class SchemaList extends XComponentPanel {
@@ -24,12 +22,13 @@ public class SchemaList extends XComponentPanel {
     private boolean allowDelete;
     private boolean allowOpen = true;
     
-    private String visibleWhen;
-    private String readonlyWhen;
     private String handler; 
-    private int rows = 20;
+    private String actionContext;
+    private String menuContext; 
+    private String visibleWhen;
     
     private Column[] columns;     
+    private int rows = 20;
     
     public SchemaList() { 
         initComponents(); 
@@ -142,6 +141,20 @@ public class SchemaList extends XComponentPanel {
         this.handler = handler; 
     }
     
+    public String getActionContext() { return actionContext; } 
+    public void setActionContext( String actionContext ) {
+        this.actionContext = actionContext; 
+        if ( actionBar != null ) {
+            actionBar.setName( actionContext ); 
+            actionBar.setFormName(""); 
+        } 
+    } 
+    
+    public String getMenuContext() { return menuContext; } 
+    public void setMenuContext( String menuContext ) {
+        this.menuContext = menuContext; 
+    }
+    
     public int getRowHeight() {
         return (datatable == null ?  null : datatable.getRowHeight());
     }
@@ -169,6 +182,8 @@ public class SchemaList extends XComponentPanel {
         bean.setProperty("groupBy", getGroupBy()); 
         bean.setProperty("query", getProperty(getQueryName())); 
         bean.setProperty("handler", getProperty(getHandler())); 
+        bean.setProperty("actionContext", getActionContext()); 
+        bean.setProperty("menuContext", getMenuContext()); 
         bean.setProperty("rows", getRows()); 
         bean.setProperty("ui", this);  
     } 
@@ -209,7 +224,7 @@ public class SchemaList extends XComponentPanel {
         btnFilter = new com.rameses.rcp.control.XButton();
         btnSelectColumn = new com.rameses.rcp.control.XButton();
         btnRefresh = new com.rameses.rcp.control.XButton();
-        xActionBar1 = new com.rameses.rcp.control.XActionBar();
+        actionBar = new com.rameses.rcp.control.XActionBar();
         jPanel7 = new javax.swing.JPanel();
         xLabel2 = new com.rameses.rcp.control.XLabel();
         xSubFormPanel1 = new com.rameses.rcp.control.XSubFormPanel();
@@ -302,10 +317,8 @@ public class SchemaList extends XComponentPanel {
         btnRefresh.setMargin(new java.awt.Insets(1, 1, 1, 1));
         jToolBar1.add(btnRefresh);
 
-        xActionBar1.setName("listActions"); // NOI18N
-        xActionBar1.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 10, 0, 0));
-        xActionBar1.setFormName("formName");
-        jToolBar1.add(xActionBar1);
+        actionBar.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 10, 0, 0));
+        jToolBar1.add(actionBar);
 
         jPanel8.add(jToolBar1, java.awt.BorderLayout.WEST);
 
@@ -414,6 +427,7 @@ public class SchemaList extends XComponentPanel {
             add(jToolBar2, java.awt.BorderLayout.SOUTH);
         }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private com.rameses.rcp.control.XActionBar actionBar;
     private com.rameses.rcp.control.XButton btnCreate;
     private com.rameses.rcp.control.XButton btnDelete;
     private com.rameses.rcp.control.XButton btnFilter;
@@ -434,7 +448,6 @@ public class SchemaList extends XComponentPanel {
     private javax.swing.JToolBar jToolBar3;
     private com.rameses.rcp.control.XLabel lblPageCount;
     private com.rameses.rcp.control.XLabel lblRecordCount;
-    private com.rameses.rcp.control.XActionBar xActionBar1;
     private com.rameses.rcp.control.XActionTextField xActionTextField1;
     private com.rameses.rcp.control.XButton xButton1;
     private com.rameses.rcp.control.XButton xButton2;
