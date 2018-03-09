@@ -30,6 +30,7 @@ public class SchemaListBeanInfo extends ComponentBeanInfo.Support {
             new PropertyDescriptor("handler", getBeanClass()),
             new PropertyDescriptor("index", getBeanClass()),
             new PropertyDescriptor("rowHeight", getBeanClass()),
+            new PropertyDescriptor("rows", getBeanClass()),
             new PropertyDescriptor("visibleWhen", getBeanClass()),
             
             createPropertyDescriptor("schemaName", true),

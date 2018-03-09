@@ -29,7 +29,7 @@ public class SchemaListComponent extends ComponentBean  {
     def query;    
     def handler; 
     def selectedItem;
-    int rows;
+    int rows = 20;
     
     def searchText;
 

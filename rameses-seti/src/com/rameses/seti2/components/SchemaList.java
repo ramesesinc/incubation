@@ -151,6 +151,10 @@ public class SchemaList extends XComponentPanel {
         }
     }
     
+    public int getRows() { return rows; } 
+    public void setRows( int rows ) {
+        this.rows = rows;
+    }
 
     @Override
     protected void initComponentBean(com.rameses.rcp.common.ComponentBean bean) { 
@@ -165,8 +169,8 @@ public class SchemaList extends XComponentPanel {
         bean.setProperty("groupBy", getGroupBy()); 
         bean.setProperty("query", getProperty(getQueryName())); 
         bean.setProperty("handler", getProperty(getHandler())); 
-        bean.setProperty("ui", this);  
         bean.setProperty("rows", getRows()); 
+        bean.setProperty("ui", this);  
     } 
     
     public void setProperty( String name, Object value ) { 
@@ -438,10 +442,4 @@ public class SchemaList extends XComponentPanel {
     private com.rameses.rcp.control.XSubFormPanel xSubFormPanel1;
     // End of variables declaration//GEN-END:variables
 
-    /**
-     * @return the rows
-     */
-    public int getRows() {
-        return rows;
-    }
 }
