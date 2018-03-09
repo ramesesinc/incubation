@@ -28,6 +28,13 @@ public class SchemaListComponent extends ComponentBean  {
     def query;    
     def handler; 
     def selectedItem;
+    int rows;
+    
+    def searchText;
+    
+    void search() {
+        listModel.reload();
+    }
     
     void setSelectedItem( o ) {
         this.selectedItem = o; 
@@ -38,6 +45,9 @@ public class SchemaListComponent extends ComponentBean  {
     }
     
     def listModel = [
+        getRows: {
+            return rows;
+        },
         isPagingEnabled: {
             return true;
         },
@@ -60,7 +70,9 @@ public class SchemaListComponent extends ComponentBean  {
                if ( query == null ) query = [:]; 
                m.where = [ customFilter, query ]; 
             }
-            
+            if(searchText) {
+                m.search
+            }
             if( orderBy ) m.orderBy = orderBy;
             if( groupBy ) m.groupBy = groupBy; 
             return queryService.getList( m );
