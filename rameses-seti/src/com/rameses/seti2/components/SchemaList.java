@@ -21,8 +21,8 @@ public class SchemaList extends XComponentPanel {
     private String hiddenCols;
     
     private boolean allowCreate;
-    private boolean allowOpen;
     private boolean allowDelete;
+    private boolean allowOpen = true;
     
     private String visibleWhen;
     private String readonlyWhen;
@@ -238,7 +238,7 @@ public class SchemaList extends XComponentPanel {
         btnCreate.setFocusable(false);
         btnCreate.setIconResource("images/toolbars/create.png");
         btnCreate.setMargin(new java.awt.Insets(1, 1, 1, 1));
-        btnCreate.setVisibleWhen("#{createAllowed==true}");
+        btnCreate.setVisibleWhen("#{allowCreate==true}");
         jToolBar1.add(btnCreate);
 
         btnOpen.setName("open"); // NOI18N
@@ -247,7 +247,7 @@ public class SchemaList extends XComponentPanel {
         btnOpen.setFocusable(false);
         btnOpen.setIconResource("images/toolbars/open.png");
         btnOpen.setMargin(new java.awt.Insets(1, 1, 1, 1));
-        btnOpen.setVisibleWhen("#{openAllowed==true}");
+        btnOpen.setVisibleWhen("#{allowOpen==true}");
         jToolBar1.add(btnOpen);
 
         btnDelete.setName("removeEntity"); // NOI18N
@@ -256,7 +256,7 @@ public class SchemaList extends XComponentPanel {
         btnDelete.setFocusable(false);
         btnDelete.setIconResource("images/toolbars/trash.png");
         btnDelete.setMargin(new java.awt.Insets(1, 1, 1, 1));
-        btnDelete.setVisibleWhen("#{deleteAllowed==true}");
+        btnDelete.setVisibleWhen("#{allowDelete==true}");
         jToolBar1.add(btnDelete);
 
         btnPrint.setName("print"); // NOI18N
@@ -266,6 +266,7 @@ public class SchemaList extends XComponentPanel {
         btnPrint.setIconResource("images/toolbars/printer.png");
         btnPrint.setImmediate(true);
         btnPrint.setMargin(new java.awt.Insets(1, 1, 1, 1));
+        btnPrint.setVisible(false);
         btnPrint.setVisibleWhen("#{printAllowed}");
         jToolBar1.add(btnPrint);
 
@@ -276,7 +277,6 @@ public class SchemaList extends XComponentPanel {
         btnFilter.setIconResource("images/toolbars/filter.png");
         btnFilter.setImmediate(true);
         btnFilter.setMargin(new java.awt.Insets(1, 1, 1, 1));
-        btnFilter.setVisibleWhen("#{filterAllowed}");
         jToolBar1.add(btnFilter);
 
         btnSelectColumn.setName("selectColumns"); // NOI18N
@@ -285,21 +285,22 @@ public class SchemaList extends XComponentPanel {
         btnSelectColumn.setIconResource("images/toolbars/table-column.png");
         btnSelectColumn.setImmediate(true);
         btnSelectColumn.setMargin(new java.awt.Insets(1, 1, 1, 1));
+        btnSelectColumn.setVisible(false);
         btnSelectColumn.setVisibleWhen("#{showColsAllowed}");
         jToolBar1.add(btnSelectColumn);
 
+        btnRefresh.setName("refresh"); // NOI18N
         btnRefresh.setAccelerator("ctrl R");
         btnRefresh.setCaption("");
         btnRefresh.setFocusable(false);
         btnRefresh.setIconResource("images/toolbars/refresh.png");
         btnRefresh.setImmediate(true);
         btnRefresh.setMargin(new java.awt.Insets(1, 1, 1, 1));
-        btnRefresh.setName("refresh"); // NOI18N
         jToolBar1.add(btnRefresh);
 
+        xActionBar1.setName("listActions"); // NOI18N
         xActionBar1.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 10, 0, 0));
         xActionBar1.setFormName("formName");
-        xActionBar1.setName("listActions"); // NOI18N
         jToolBar1.add(xActionBar1);
 
         jPanel8.add(jToolBar1, java.awt.BorderLayout.WEST);
@@ -308,10 +309,10 @@ public class SchemaList extends XComponentPanel {
         jPanel7.setLayout(new java.awt.BorderLayout());
 
         xLabel2.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        xLabel2.setName("filterText"); // NOI18N
         xLabel2.setCellPadding(new java.awt.Insets(5, 0, 0, 5));
         xLabel2.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         xLabel2.setForeground(new java.awt.Color(204, 0, 0));
-        xLabel2.setName("filterText"); // NOI18N
         xLabel2.setText("xLabel2");
         jPanel7.add(xLabel2, java.awt.BorderLayout.WEST);
 
@@ -321,7 +322,7 @@ public class SchemaList extends XComponentPanel {
         xSubFormPanel1.setLayout(xSubFormPanel1Layout);
         xSubFormPanel1Layout.setHorizontalGroup(
             xSubFormPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 210, Short.MAX_VALUE)
+            .addGap(0, 258, Short.MAX_VALUE)
         );
         xSubFormPanel1Layout.setVerticalGroup(
             xSubFormPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -341,20 +342,20 @@ public class SchemaList extends XComponentPanel {
         xActionTextField1.setVisibleWhen("#{allowSearch == true}");
         jToolBar3.add(xActionTextField1);
 
+        xButton2.setName("showInfo"); // NOI18N
         xButton2.setBackground(new java.awt.Color(255, 255, 255));
         xButton2.setCaption("");
         xButton2.setFocusable(false);
         xButton2.setIconResource("images/info.png");
         xButton2.setImmediate(true);
-        xButton2.setName("showInfo"); // NOI18N
         jToolBar3.add(xButton2);
 
+        xButton1.setName("showHelp"); // NOI18N
         xButton1.setBackground(new java.awt.Color(255, 255, 255));
         xButton1.setCaption("\\");
             xButton1.setFocusable(false);
             xButton1.setIconResource("images/help.png");
             xButton1.setImmediate(true);
-            xButton1.setName("showHelp"); // NOI18N
             jToolBar3.add(xButton1);
 
             jPanel7.add(jToolBar3, java.awt.BorderLayout.EAST);

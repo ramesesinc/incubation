@@ -25,12 +25,22 @@ public class SchemaListComponent extends ComponentBean  {
     boolean allowOpen;
     boolean allowDelete;
 
+    def _schema;
     def query;    
     def handler; 
     def selectedItem;
     int rows;
     
     def searchText;
+
+    def getSchema() {
+        if ( _schema == null ) {
+            def map = [ name: schemaName ]; 
+            _schema = persistenceService.getSchema( map );
+            _schema.name = schemaName;
+        }
+        return _schema; 
+    }
     
     void search() {
         listModel.reload();
@@ -123,7 +133,14 @@ public class SchemaListComponent extends ComponentBean  {
         } 
     } 
     
-    public void removeItem() {
+    def open() {
+        if(!allowOpen || !selectedItem) return null;
+
+        if ( handler?.beforeOpen ) handler.beforeOpen( selectedItem );  
+        return Inv.lookupOpener(schemaName+":open", [ entity: selectedItem ]);         
+    }
+    
+    void removeEntity() {
         if(!allowDelete) return null;
         if(!selectedItem) throw new Exception("Please select an item to remove");
         if( !MsgBox.confirm("Are you srue you want to remove this item?")) return null;
@@ -133,7 +150,32 @@ public class SchemaListComponent extends ComponentBean  {
     } 
     
     public def create() {
-        if(!allowCreate) return null;
-        return Inv.lookupOpener(schemaName+":create" );
+        if(!allowCreate) return null; 
+        
+        def m = null; 
+        if ( handler?.createItem ) {  
+            m = handler.createItem(); 
+        }
+        if ( m == null ) m = [:]; 
+        return Inv.lookupOpener(schemaName+":create", m );
     } 
+    
+    void refresh() { 
+        listModel.reload(); 
+    }
+    
+    void showFilter() {
+        MsgBox.alert('Not supported at this time'); 
+    }
+    
+    def getFilterText() {
+        return "";
+    }
+    
+    void showInfo() {        
+        Modal.show("debug:view", [schema: schema, data: selectedItem ]);
+    }
+    def showHelp() {
+        return null; 
+    }
 }   

@@ -58,7 +58,7 @@
                 <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
                   <Insets value="[1, 1, 1, 1]"/>
                 </Property>
-                <Property name="visibleWhen" type="java.lang.String" value="#{createAllowed==true}"/>
+                <Property name="visibleWhen" type="java.lang.String" value="#{allowCreate==true}"/>
               </Properties>
             </Component>
             <Component class="com.rameses.rcp.control.XButton" name="btnOpen">
@@ -71,7 +71,7 @@
                 <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
                   <Insets value="[1, 1, 1, 1]"/>
                 </Property>
-                <Property name="visibleWhen" type="java.lang.String" value="#{openAllowed==true}"/>
+                <Property name="visibleWhen" type="java.lang.String" value="#{allowOpen==true}"/>
               </Properties>
             </Component>
             <Component class="com.rameses.rcp.control.XButton" name="btnDelete">
@@ -88,7 +88,7 @@
                 <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
                   <Insets value="[1, 1, 1, 1]"/>
                 </Property>
-                <Property name="visibleWhen" type="java.lang.String" value="#{deleteAllowed==true}"/>
+                <Property name="visibleWhen" type="java.lang.String" value="#{allowDelete==true}"/>
               </Properties>
             </Component>
             <Component class="com.rameses.rcp.control.XButton" name="btnPrint">
@@ -102,6 +102,7 @@
                 <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
                   <Insets value="[1, 1, 1, 1]"/>
                 </Property>
+                <Property name="visible" type="boolean" value="false"/>
                 <Property name="visibleWhen" type="java.lang.String" value="#{printAllowed}"/>
               </Properties>
             </Component>
@@ -116,7 +117,6 @@
                 <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
                   <Insets value="[1, 1, 1, 1]"/>
                 </Property>
-                <Property name="visibleWhen" type="java.lang.String" value="#{filterAllowed}"/>
               </Properties>
             </Component>
             <Component class="com.rameses.rcp.control.XButton" name="btnSelectColumn">
@@ -129,11 +129,13 @@
                 <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
                   <Insets value="[1, 1, 1, 1]"/>
                 </Property>
+                <Property name="visible" type="boolean" value="false"/>
                 <Property name="visibleWhen" type="java.lang.String" value="#{showColsAllowed}"/>
               </Properties>
             </Component>
             <Component class="com.rameses.rcp.control.XButton" name="btnRefresh">
               <Properties>
+                <Property name="name" type="java.lang.String" value="refresh" noResource="true"/>
                 <Property name="accelerator" type="java.lang.String" value="ctrl R"/>
                 <Property name="caption" type="java.lang.String" value=""/>
                 <Property name="focusable" type="boolean" value="false"/>
@@ -142,18 +144,17 @@
                 <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
                   <Insets value="[1, 1, 1, 1]"/>
                 </Property>
-                <Property name="name" type="java.lang.String" value="refresh" noResource="true"/>
               </Properties>
             </Component>
             <Component class="com.rameses.rcp.control.XActionBar" name="xActionBar1">
               <Properties>
+                <Property name="name" type="java.lang.String" value="listActions" noResource="true"/>
                 <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
                   <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
                     <EmptyBorder bottom="0" left="10" right="0" top="0"/>
                   </Border>
                 </Property>
                 <Property name="formName" type="java.lang.String" value="formName"/>
-                <Property name="name" type="java.lang.String" value="listActions" noResource="true"/>
               </Properties>
             </Component>
           </SubComponents>
@@ -177,6 +178,7 @@
             <Component class="com.rameses.rcp.control.XLabel" name="xLabel2">
               <Properties>
                 <Property name="horizontalAlignment" type="int" value="2"/>
+                <Property name="name" type="java.lang.String" value="filterText" noResource="true"/>
                 <Property name="cellPadding" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
                   <Insets value="[5, 0, 0, 5]"/>
                 </Property>
@@ -186,7 +188,6 @@
                 <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
                   <Color blue="0" green="0" red="cc" type="rgb"/>
                 </Property>
-                <Property name="name" type="java.lang.String" value="filterText" noResource="true"/>
                 <Property name="text" type="java.lang.String" value="xLabel2"/>
               </Properties>
               <Constraints>
@@ -208,7 +209,7 @@
               <Layout>
                 <DimensionLayout dim="0">
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <EmptySpace min="0" pref="210" max="32767" attributes="0"/>
+                      <EmptySpace min="0" pref="258" max="32767" attributes="0"/>
                   </Group>
                 </DimensionLayout>
                 <DimensionLayout dim="1">
@@ -245,6 +246,7 @@
                 </Component>
                 <Component class="com.rameses.rcp.control.XButton" name="xButton2">
                   <Properties>
+                    <Property name="name" type="java.lang.String" value="showInfo" noResource="true"/>
                     <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
                       <Color blue="ff" green="ff" red="ff" type="rgb"/>
                     </Property>
@@ -252,11 +254,11 @@
                     <Property name="focusable" type="boolean" value="false"/>
                     <Property name="iconResource" type="java.lang.String" value="images/info.png"/>
                     <Property name="immediate" type="boolean" value="true"/>
-                    <Property name="name" type="java.lang.String" value="showInfo" noResource="true"/>
                   </Properties>
                 </Component>
                 <Component class="com.rameses.rcp.control.XButton" name="xButton1">
                   <Properties>
+                    <Property name="name" type="java.lang.String" value="showHelp" noResource="true"/>
                     <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
                       <Color blue="ff" green="ff" red="ff" type="rgb"/>
                     </Property>
@@ -264,7 +266,6 @@
                     <Property name="focusable" type="boolean" value="false"/>
                     <Property name="iconResource" type="java.lang.String" value="images/help.png"/>
                     <Property name="immediate" type="boolean" value="true"/>
-                    <Property name="name" type="java.lang.String" value="showHelp" noResource="true"/>
                   </Properties>
                 </Component>
               </SubComponents>
