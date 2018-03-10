@@ -4,13 +4,13 @@
  */
 package com.rameses.osiris2.report;
 
+import com.rameses.rcp.common.MsgBox;
 import groovy.lang.Writable;
 import groovy.text.SimpleTemplateEngine;
 import groovy.text.Template;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringReader;
-import java.net.URL;
 import java.util.Map;
 
 /**

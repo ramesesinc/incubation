@@ -1,0 +1,30 @@
+import com.rameses.rcp.annotations.*;
+import com.rameses.osiris2.common.*;
+import com.rameses.osiris2.client.*;
+import com.rameses.rcp.common.*;
+import com.rameses.osiris2.report.*;
+
+
+public class ReportService {
+    
+    @Service("QueryService")
+    def qryService;
+    
+    def reports = [:]
+    
+    public void print(String reportName, def data) {
+        if(!reports.containsKey(reportName)) {
+            def m = [_schemaname:"sys_report"]
+            m.findBy = [objid: reportName];
+            def str = qryService.findFirst( m )?.template;
+            if(!str) throw new Exception("sys_report " + reportName + " not found");
+            
+            def txtReport = new TextPrinter();
+            txtReport.setTemplate( str );
+            reports.put( reportName, txtReport );
+        }
+        def rpt = reports.get(reportName);
+        rpt.print( data );
+    }
+
+}

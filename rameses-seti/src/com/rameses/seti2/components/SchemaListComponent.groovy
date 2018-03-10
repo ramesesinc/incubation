@@ -158,7 +158,7 @@ public class SchemaListComponent extends ComponentBean  {
             m = handler.createItem(); 
         }
         if ( m == null ) m = [:]; 
-        return Inv.lookupOpener(schemaName+":create", [entity: m] );
+        return Inv.lookupOpener(schemaName+":create", [defaultData: m] );
     } 
     
     void refresh() { 
