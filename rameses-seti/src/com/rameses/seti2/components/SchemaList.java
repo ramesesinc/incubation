@@ -18,6 +18,7 @@ public class SchemaList extends XComponentPanel {
     private String groupBy;
     private String hiddenCols;
     
+    private boolean multiSelect;
     private boolean allowCreate;
     private boolean allowDelete;
     private boolean allowOpen = true;
@@ -79,6 +80,11 @@ public class SchemaList extends XComponentPanel {
         this.hiddenCols = hiddenCols; 
     }
 
+    public boolean isMultiSelect() { return multiSelect; } 
+    public void setMultiSelect( boolean multiSelect ) {
+        this.multiSelect = multiSelect; 
+    }
+    
     public boolean isAllowCreate() { return allowCreate; } 
     public void setAllowCreate( boolean allowCreate ) {
         this.allowCreate = allowCreate; 
@@ -185,7 +191,8 @@ public class SchemaList extends XComponentPanel {
         bean.setProperty("actionContext", getActionContext()); 
         bean.setProperty("menuContext", getMenuContext()); 
         bean.setProperty("rows", getRows()); 
-        bean.setProperty("ui", this);  
+        
+        bean.setProperty("ui", this);         
     } 
     
     public void setProperty( String name, Object value ) { 
@@ -204,8 +211,7 @@ public class SchemaList extends XComponentPanel {
             }
         }
     }
-    
-    
+        
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always

@@ -29,9 +29,9 @@ public class SchemaListComponent extends ComponentBean  {
     int rows = 20;
 
     def query;    
-    def handler; 
     def selectedItem;
     
+    def _handler; 
     def _schema;    
     def searchText;
 
@@ -56,10 +56,17 @@ public class SchemaListComponent extends ComponentBean  {
         } 
     }
     
+    boolean isMultiSelectEnabled() {
+        return (ui ? ui.isMultiSelect() : false); 
+    }
+    
     def listModel = [
         getRows: {
             return rows;
         },
+        isMultiSelect: {
+            return isMultiSelectEnabled(); 
+        }, 
         isPagingEnabled: {
             return true;
         },
@@ -93,42 +100,50 @@ public class SchemaListComponent extends ComponentBean  {
             return openImpl( o );
         }, 
         onRemoveItem: { o-> 
-            if ( handler?.beforeRemoveItem ) handler.beforeRemoveItem( o );  
+            if ( _handler?.beforeRemoveItem ) _handler.beforeRemoveItem( o );  
             
             removeItem();
             
-            if ( handler?.afterRemoveItem ) handler.afterRemoveItem( o );  
+            if ( _handler?.afterRemoveItem ) _handler.afterRemoveItem( o );  
         }, 
         isColumnEditable: { o, name-> 
-            if ( handler?.isColumnEditable ) { 
-                return handler.isColumnEditable( o, name );  
+            if ( _handler?.isColumnEditable ) { 
+                return _handler.isColumnEditable( o, name );  
             }
             return true; 
         }, 
         beforeColumnUpdate: { o, name, newValue->  
-            if ( handler?.beforeColumnUpdate ) { 
-                return handler.beforeColumnUpdate( o, name, newValue );  
+            if ( _handler?.beforeColumnUpdate ) { 
+                return _handler.beforeColumnUpdate( o, name, newValue );  
             } 
             return true; 
         },
         afterColumnUpdate: { o, name-> 
-            if ( handler?.afterColumnUpdate ) { 
-                return handler.afterColumnUpdate( o, name );  
+            if ( _handler?.afterColumnUpdate ) { 
+                return _handler.afterColumnUpdate( o, name );  
             } 
         }
     ] as EditorListModel; 
     
     void setHandler( o ) { 
-        if ( o == null ) o = [:]; 
-        
-        this.handler = o; 
         if ( o instanceof Map ) {
             o.load = { listModel.load(); }
             o.refresh = { listModel.refresh(); }
             o.reload = { listModel.reload(); }
             o.reloadAll = { listModel.reloadAll(); }
             o.refreshSelectedItem = { listModel.refreshSelectedItem(); } 
+
+            o.getSelectedValue = {
+                if ( isMultiSelectEnabled()) {
+                    return listModel.getSelectedValue(); 
+                } else { 
+                    return selectedItem; 
+                }
+            } 
+            o.selectedValue = { return o.getSelectedValue(); }
         } 
+        
+        _handler = o; 
     } 
     
     def open() { 
@@ -137,7 +152,7 @@ public class SchemaListComponent extends ComponentBean  {
     def openImpl( o ) {
         if(!allowOpen || !o) return null;
 
-        if ( handler?.beforeOpen ) handler.beforeOpen( o );  
+        if ( _handler?.beforeOpen ) _handler.beforeOpen( o );  
         return Inv.lookupOpener(schemaName+":open", [ entity: o ]);         
     }
     
@@ -154,8 +169,8 @@ public class SchemaListComponent extends ComponentBean  {
         if(!allowCreate) return null; 
         
         def m = null; 
-        if ( handler?.createItem ) {  
-            m = handler.createItem(); 
+        if ( _handler?.createItem ) {  
+            m = _handler.createItem(); 
         }
         if ( m == null ) m = [:]; 
         return Inv.lookupOpener(schemaName+":create", [defaultData: m] );

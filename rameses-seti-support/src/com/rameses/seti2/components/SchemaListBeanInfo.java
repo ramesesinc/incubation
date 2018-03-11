@@ -43,6 +43,7 @@ public class SchemaListBeanInfo extends ComponentBeanInfo.Support {
             createPropertyDescriptor("groupBy", true),
             createPropertyDescriptor("hiddenCols", true),
             
+            new PropertyDescriptor("multiSelect", getBeanClass(), "isMultiSelect", "setMultiSelect"),
             new PropertyDescriptor("allowCreate", getBeanClass(), "isAllowCreate", "setAllowCreate"),
             new PropertyDescriptor("allowDelete", getBeanClass(), "isAllowDelete", "setAllowDelete"),
             new PropertyDescriptor("allowOpen", getBeanClass(), "isAllowOpen", "setAllowOpen") 
