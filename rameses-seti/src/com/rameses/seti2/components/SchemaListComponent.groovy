@@ -85,13 +85,17 @@ public class SchemaListComponent extends ComponentBean  {
 
             if ( colnames ) m.select = colnames.join(",");
             
-            if ( customFilter ) { 
-               if ( query == null ) query = [:]; 
+            if ( query == null ) query = [:];             
+            m.debug = (query.debug.toString() == 'true');
+            
+            if ( query.where instanceof String ) { 
+                m.where = [ query.where, query ]; 
+            } else if ( query.where instanceof List ) {
+                m.where = query.where; 
+            } else if ( customFilter ) { 
                m.where = [ customFilter, query ]; 
-            }
-            if(searchText) {
-                m.search
-            }
+            } 
+            
             if( orderBy ) m.orderBy = orderBy;
             if( groupBy ) m.groupBy = groupBy; 
             return queryService.getList( m );
