@@ -168,10 +168,11 @@ public class SchemaListComponent extends ComponentBean  {
         return openImpl( selectedItem );  
     }
     def openImpl( o ) {
-        if(!allowOpen || !o) return null;
-
-        if ( _handler?.beforeOpen ) _handler.beforeOpen( o );  
-        return Inv.lookupOpener(schemaName+":open", [ entity: o ]);         
+        if (allowOpen && o) {
+            if ( _handler?.beforeOpen ) _handler.beforeOpen( o );  
+            return Inv.lookupOpener(schemaName+":open", [ entity: o ]);         
+        }
+        return null; 
     }
     
     void removeEntity() {

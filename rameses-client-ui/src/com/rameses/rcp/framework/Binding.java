@@ -18,6 +18,7 @@ import com.rameses.common.MethodResolver;
 import com.rameses.platform.interfaces.SubWindow;
 import com.rameses.platform.interfaces.ViewContext;
 import com.rameses.rcp.annotations.Close;
+import com.rameses.rcp.common.Opener;
 import com.rameses.rcp.common.Validator;
 import com.rameses.rcp.common.ValidatorEvent;
 import com.rameses.rcp.common.ViewHandler;
@@ -150,7 +151,9 @@ public class Binding
     }
     
     public UIViewPanel getOwner() { return owner; }    
-    public void setOwner(UIViewPanel owner) { this.owner = owner; }
+    public void setOwner(UIViewPanel owner) { 
+        this.owner = owner; 
+    }
     
     public void addValidator(Validator validator) 
     {
@@ -401,10 +404,12 @@ public class Binding
                     comp.requestFocusInWindow(); 
             }
             focusComponentName = null;
-        }
-        if ( owner != null ) {
-            owner.revalidate();
-            owner.repaint(); 
+        } 
+        
+        JComponent jcomp = getOwner();
+        if ( jcomp != null ) {
+            jcomp.revalidate();
+            jcomp.repaint(); 
         }
     }
     
@@ -725,16 +730,23 @@ public class Binding
             process.run(); 
     }
     
-    private void doFireNavigation(Object outcome, String target) {
-        try {
+    private void doFireNavigation(Object outcome, String target) { 
+        JComponent jcomp = null; 
+        try { 
             if (outcome == null) return;
-            if (outcome instanceof Object[] || outcome instanceof Collection)
+
+            jcomp = getOwner(); 
+            if ((outcome instanceof String) || (outcome instanceof Opener)) {
+                // valid outcome value 
+            } else {
                 throw new Exception("outcome must be a String or Opener"); 
+            }
+            
             
             ClientContext ctx = ClientContext.getCurrentContext();
             NavigationHandler handler = ctx.getNavigationHandler();
-            if (handler != null) {
-                NavigatablePanel navPanel = UIControlUtil.getParentPanel(owner, target);
+            if (handler != null) { 
+                NavigatablePanel navPanel = UIControlUtil.getParentPanel(jcomp, target);
                 if (navPanel == null) {
                     Object viewctx = getViewContext(); 
                     if (viewctx instanceof NavigatablePanel) { 
@@ -747,7 +759,7 @@ public class Binding
         } catch(BreakException be) {
             //do nothing 
         } catch(Exception e) {
-            ClientContext.getCurrentContext().getPlatform().showError(owner, e);
+            ClientContext.getCurrentContext().getPlatform().showError(jcomp, e);
         }
     }
     

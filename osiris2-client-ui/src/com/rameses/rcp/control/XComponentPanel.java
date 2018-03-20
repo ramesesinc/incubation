@@ -8,9 +8,11 @@ import com.rameses.classutils.ClassDefUtil;
 import com.rameses.common.PropertyResolver;
 import com.rameses.osiris2.AppContext;
 import com.rameses.osiris2.client.FieldInjectionHandler;
+import com.rameses.platform.interfaces.ViewContext;
 import com.rameses.rcp.common.ComponentBean;
 import com.rameses.rcp.common.PropertySupport.PropertyInfo;
 import com.rameses.rcp.framework.Binding;
+import com.rameses.rcp.framework.UIViewPanel;
 import com.rameses.rcp.framework.ValueChangeSupport;
 import com.rameses.rcp.support.MouseEventSupport;
 import com.rameses.rcp.ui.ActiveControl;
@@ -87,7 +89,7 @@ public abstract class XComponentPanel extends JPanel
             innerBinding = null; 
         } else {
             compBean = loadComponentBean(); 
-            innerBinding = new Binding(); 
+            innerBinding = new ChildBindingImpl(); 
             compBean.setBinding( innerBinding ); 
             compBean.setBindingName( getName() ); 
             compBean.setCallerBinding( callerBinding ); 
@@ -389,6 +391,21 @@ public abstract class XComponentPanel extends JPanel
             root.unregisterControl( uic ); 
         } 
     } 
+
+    private class ChildBindingImpl extends Binding {
+
+        XComponentPanel root = XComponentPanel.this;
+
+        public UIViewPanel getOwner() { 
+            Binding b = root.getBinding(); 
+            return (b == null ? null : b.getOwner()); 
+        }
+
+        public ViewContext getViewContext() {
+            Binding b = root.getBinding(); 
+            return (b == null ? null : b.getViewContext()); 
+        }        
+    }
     
     // </editor-fold>
     
