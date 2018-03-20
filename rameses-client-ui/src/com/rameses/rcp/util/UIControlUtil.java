@@ -136,6 +136,11 @@ public class UIControlUtil {
     
     public static NavigatablePanel getParentPanel(JComponent comp, String target) 
     {
+        Object np = (comp == null ? null : comp.getClientProperty(NavigatablePanel.class));
+        if ( np instanceof NavigatablePanel ) {
+            return (NavigatablePanel) np; 
+        }
+        
         NavigatablePanel panel = null;
         if ( panel == null ) {
             Container parent = (comp==null? null: comp.getParent());

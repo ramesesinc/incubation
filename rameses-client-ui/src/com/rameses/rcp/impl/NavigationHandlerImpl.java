@@ -1,12 +1,14 @@
 package com.rameses.rcp.impl;
 
 import com.rameses.platform.interfaces.Platform;
+import com.rameses.platform.interfaces.SubWindow;
 import com.rameses.rcp.common.*;
 import com.rameses.rcp.util.ControlSupport;
 import com.rameses.rcp.common.Opener;
 import com.rameses.rcp.framework.*;
 import com.rameses.rcp.ui.UIControl;
 import com.rameses.util.ValueUtil;
+import java.awt.Container;
 import java.util.*;
 import javax.swing.JComponent;
 
@@ -48,7 +50,7 @@ public class NavigationHandlerImpl implements NavigationHandler {
                 if (opTarget.startsWith("_")) 
                     opTarget = opTarget.substring(1);
 
-                boolean self = !opTarget.matches("window|popup|floating");
+                boolean self = !opTarget.matches("window|popup|floating|popuppanel");
                 String windowId = opener.getController().getId();
 
                 if ( !self && platform.isWindowExists( windowId ) ) {
@@ -99,8 +101,20 @@ public class NavigationHandlerImpl implements NavigationHandler {
                     props.put("modal", opener.isModal()); 
                     uic.putClientProperty("Opener.properties", props); 
                     
+                    if ( "popuppanel".equals(opTarget)) {
+                        ContentLayer cpl = findTopContentLayer( sourceComp ); 
+                        if ( cpl == null ) {
+                            System.out.println("Cannot preview opener popuppanel. No available ContentPane.Layer"); 
+                            return; 
+                        }
+                        
+                        cpl.show( uic, props ); 
+                        return; 
+                    }
+                    
                     if ( "popup".equals(opTarget) ) {
                         platform.showPopup(sourceComp, uic, props);
+                        
                     } else if ( opener instanceof FloatingOpener ) {
                         FloatingOpener fo = (FloatingOpener) opener;
                         JComponent owner = (JComponent) source.getBinding().find( fo.getOwner() );
@@ -108,12 +122,13 @@ public class NavigationHandlerImpl implements NavigationHandler {
                             props.put("orientation", fo.getOrientation());
                         
                         platform.showFloatingWindow(owner, uic, props);
+                        
                     } else {
                         platform.showWindow(sourceComp, uic, props);
                     }
+                    
                     return;
                 }
-                
             }
             //-- process String outcome
             else {
@@ -128,6 +143,12 @@ public class NavigationHandlerImpl implements NavigationHandler {
                             return;
                         }
                     } else {
+                        Object h = panel.getClientProperty(SubWindow.class); 
+                        if ( h instanceof SubWindow ) { 
+                            ((SubWindow) h).closeWindow(); 
+                            return; 
+                        }
+                        
                         String conId = (curController==null? null : curController.getId());
                         if ( conId != null ) platform.closeWindow( conId );  
                         
@@ -173,4 +194,17 @@ public class NavigationHandlerImpl implements NavigationHandler {
         } 
     }
     
+    private ContentLayer findTopContentLayer( JComponent comp ) { 
+        ContentLayer cpl = null; 
+        if ( comp == null ) return cpl;
+        
+        Container parent = comp; 
+        while ( parent != null ) { 
+            if ( parent instanceof ContentLayer ) { 
+                cpl = (ContentLayer) parent; 
+            } 
+            parent = parent.getParent(); 
+        }
+        return cpl; 
+    }
 }

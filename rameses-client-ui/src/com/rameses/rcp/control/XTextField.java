@@ -40,8 +40,8 @@ import javax.swing.InputVerifier;
  *
  * @author jaycverg
  */
-public class XTextField extends DefaultTextField implements UIInput, Validatable, 
-    ActiveControl, MouseEventSupport.ComponentInfo 
+public class XTextField extends DefaultTextField 
+    implements UIInput, Validatable, ActiveControl, MouseEventSupport.ComponentInfo 
 {    
     protected Binding binding;
     protected ControlProperty property = new ControlProperty();

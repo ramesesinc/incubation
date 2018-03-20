@@ -27,8 +27,7 @@ public interface ContentPane
     void activate();
     
     
-    public static interface View 
-    {        
+    public static interface View { 
         Object getClientProperty(Object key);
         void putClientProperty(Object key, Object value); 
         

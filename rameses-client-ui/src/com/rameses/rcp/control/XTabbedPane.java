@@ -490,6 +490,8 @@ public class XTabbedPane extends JTabbedPane implements UIControl, ActiveControl
             TabbedPaneModel tpm = (TabbedPaneModel)handlerObj; 
             newModel = new TabbedPaneModelProxy( tpm, itemsObj ); 
             newModel.activate(); 
+        } else if ( handlerObj instanceof List ) {
+            newModel = new TabbedPaneModelProxy( null, handlerObj ); 
         } else {
             newModel = new TabbedPaneModelProxy( null, itemsObj ); 
         } 
