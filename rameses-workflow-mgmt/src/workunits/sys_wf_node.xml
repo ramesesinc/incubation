@@ -1,23 +1,8 @@
 <workunit schemaName="sys_wf_node">
     <invokers>
-        <invoker type="sys_wf_node:open" caption="Open Workflow Node" target="popup"  
-                 action="open"/>
+        <invoker type="sys_wf_node:open" caption="Open Workflow Node" target="popup" action="open"/>
     </invokers>
-    <code>
-        <![CDATA[
-        
-        class CustomNode extends com.rameses.seti2.models.CrudFormModel {
-        
-            public void afterAddItem(String name, def item ) {
-                item.processname = entity.processname;
-                item.parentid = entity.name;
-            }
-            
-        }
-        
-        
-        ]]>
-    </code>    
+    <code class="com.rameses.wf.models.SysWfNodeModel" />
     <pages>
         <page template="com.rameses.wf.views.SysWfNodePage"/>    
     </pages>    

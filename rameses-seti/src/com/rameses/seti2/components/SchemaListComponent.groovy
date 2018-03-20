@@ -126,7 +126,21 @@ public class SchemaListComponent extends ComponentBean  {
             if ( _handler?.afterColumnUpdate ) { 
                 return _handler.afterColumnUpdate( o, name );  
             } 
-        }
+        },
+        getContextMenu: { item, name-> 
+            if ( _handler?.getContextMenu ) { 
+                return _handler.getContextMenu( item, name );  
+            } else {
+                return null; 
+            } 
+        }, 
+        callContextMenu: { item, menuitem-> 
+            def outcome = null; 
+            if ( _handler?.callContextMenu ) { 
+                 outcome = _handler.callContextMenu( item, menuitem );  
+            } 
+            return outcome; 
+	}
     ] as EditorListModel; 
     
     void setHandler( o ) { 

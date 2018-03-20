@@ -48,7 +48,9 @@ public class WorkflowTaskModel extends CrudFormModel implements WorkflowTaskList
     }
     
     public String getProcessName() {
-        return workunit.info.workunit_properties.processName;
+        String procName = workunit.info.workunit_properties.processName;
+        if(!procName) procName = schemaName;
+        return procName;
     }
 
     public def open() {
@@ -101,13 +103,15 @@ public class WorkflowTaskModel extends CrudFormModel implements WorkflowTaskList
         binding.refresh();
         buildMessage();
         afterSignal(transition, newTask);
+        if( pageExists(task.state)) {
+            return task.state;
+        }
         return null;
     }
     
     final void buildTransitionActions( def tsk ) {
          if ( !tsk || tsk.state == 'end' ) return; 
-         
-         if( !tsk.assignee?.objid ) {
+         if( !tsk.assignee?.objid && tsk.role != null ) {
             def h = {
                 def m = [:];
                 m.processname = getProcessName();
