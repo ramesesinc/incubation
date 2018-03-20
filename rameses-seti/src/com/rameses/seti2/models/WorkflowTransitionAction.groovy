@@ -74,13 +74,13 @@ public class WorkflowTransitionAction extends com.rameses.rcp.common.Action {
         if( !t) return null;
         //by default confirm message is displayed. 
         //Instead the prompt message will be displayed
-        if( props.showPrompt == null || props.showPrompt.toBoolean() == true ) {
+        if( props.showPrompt != null && props.showPrompt.toBoolean() == true ) {
             t = showMessagePrompt( param );
             if(!t) return null;
         }
         else if( props.showConfirm == null || props.showConfirm.toBoolean() == true ) {
             String s = props.confirmMessage;
-            if( !s ) s = "You are about to process this action. Proceed?";
+            if( !s ) s = "You are about to submit this action. Proceed?";
             t = MsgBox.confirm( s );
             if(!t) return null;
         }

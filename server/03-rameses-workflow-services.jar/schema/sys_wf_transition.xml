@@ -7,7 +7,7 @@
 		<field name="action"/>
 		<field name="idx" />
 		<field name="eval" />
-		<field name="properties" />
+		<complex name="properties" serializer="default" type="object"/>
 		<field name="permission" />
 		<field name="caption"/>
 	</element>	

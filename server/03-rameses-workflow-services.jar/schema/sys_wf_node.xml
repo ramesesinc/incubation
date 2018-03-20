@@ -14,7 +14,7 @@
 			<key field="name" target="parentid"/>
 			<key field="processname" target="processname"/>
 		</complex>	
-
+		<complex name="properties" serializer="default" type="object"/>
 	</element>	
 
 </schema>	

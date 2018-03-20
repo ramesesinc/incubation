@@ -23,6 +23,9 @@
             @Caller
             def caller;
         
+            @FormTitle
+            def formTitle = "Task History";
+        
             def task;
         
             void init() {

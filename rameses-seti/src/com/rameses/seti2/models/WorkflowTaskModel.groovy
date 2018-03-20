@@ -48,7 +48,9 @@ public class WorkflowTaskModel extends CrudFormModel implements WorkflowTaskList
     }
     
     public String getProcessName() {
-        return workunit.info.workunit_properties.processName;
+        String procName = workunit.info.workunit_properties.processName;
+        if(!procName) procName = schemaName;
+        return procName;
     }
 
     public def open() {
@@ -65,8 +67,9 @@ public class WorkflowTaskModel extends CrudFormModel implements WorkflowTaskList
             }
         }
         
-        def v = super.open();
-	if( tsk ) { 
+        super.open();
+        if( entity.taskid ) tsk = [taskid: entity.taskid ];
+        if( tsk?.taskid ) { 
             task = workflowTaskService.findTask( [processname: getProcessName(), taskid: tsk.taskid ] );
             if ( task ) {
                 buildTransitionActions(task);  
@@ -76,7 +79,7 @@ public class WorkflowTaskModel extends CrudFormModel implements WorkflowTaskList
                 }
             }
         } 
-        return v;
+        return null;
     }
     
     public def signal( def transition ) {
@@ -95,19 +98,21 @@ public class WorkflowTaskModel extends CrudFormModel implements WorkflowTaskList
             task = [:];
         }
         //refresh the list
-        if( caller.listHandler !=null ) {
+        if( caller?.listHandler !=null ) {
             caller.listHandler.reload();
         }
         binding.refresh();
         buildMessage();
         afterSignal(transition, newTask);
-        return null;
+        if( pageExists(task.state)) {
+            return task.state;
+        }
+        return "default";
     }
     
     final void buildTransitionActions( def tsk ) {
          if ( !tsk || tsk.state == 'end' ) return; 
-         
-         if( !tsk.assignee?.objid ) {
+         if( !tsk.assignee?.objid && tsk.role != null ) {
             def h = {
                 def m = [:];
                 m.processname = getProcessName();

@@ -62,7 +62,9 @@ public class SysWfPage extends javax.swing.JPanel {
                 , new Object[]{"nullWhenEmpty", true}
                 , new Object[]{"editable", true}
                 , new Object[]{"editableWhen", null}
-                , new Object[]{"textCase", com.rameses.rcp.constant.TextCase.NONE}
+                , new Object[]{"visible", true}
+                , new Object[]{"visibleWhen", null}
+                , new Object[]{"textCase", com.rameses.rcp.constant.TextCase.LOWER}
                 , new Object[]{"typeHandler", new com.rameses.rcp.common.TextColumnHandler()}
             }),
             new com.rameses.rcp.common.Column(new Object[]{
@@ -76,6 +78,8 @@ public class SysWfPage extends javax.swing.JPanel {
                 , new Object[]{"nullWhenEmpty", true}
                 , new Object[]{"editable", true}
                 , new Object[]{"editableWhen", null}
+                , new Object[]{"visible", true}
+                , new Object[]{"visibleWhen", null}
                 , new Object[]{"textCase", com.rameses.rcp.constant.TextCase.NONE}
                 , new Object[]{"typeHandler", new com.rameses.rcp.common.TextColumnHandler()}
             }),
@@ -90,7 +94,9 @@ public class SysWfPage extends javax.swing.JPanel {
                 , new Object[]{"nullWhenEmpty", true}
                 , new Object[]{"editable", true}
                 , new Object[]{"editableWhen", null}
-                , new Object[]{"textCase", com.rameses.rcp.constant.TextCase.NONE}
+                , new Object[]{"visible", true}
+                , new Object[]{"visibleWhen", null}
+                , new Object[]{"textCase", com.rameses.rcp.constant.TextCase.LOWER}
                 , new Object[]{"typeHandler", new com.rameses.rcp.common.TextColumnHandler()}
             }),
             new com.rameses.rcp.common.Column(new Object[]{
@@ -104,6 +110,8 @@ public class SysWfPage extends javax.swing.JPanel {
                 , new Object[]{"nullWhenEmpty", true}
                 , new Object[]{"editable", true}
                 , new Object[]{"editableWhen", null}
+                , new Object[]{"visible", true}
+                , new Object[]{"visibleWhen", null}
                 , new Object[]{"textCase", com.rameses.rcp.constant.TextCase.NONE}
                 , new Object[]{"typeHandler", new com.rameses.rcp.common.IntegerColumnHandler(null, -1, -1)}
             }),
@@ -118,6 +126,8 @@ public class SysWfPage extends javax.swing.JPanel {
                 , new Object[]{"nullWhenEmpty", true}
                 , new Object[]{"editable", true}
                 , new Object[]{"editableWhen", null}
+                , new Object[]{"visible", true}
+                , new Object[]{"visibleWhen", null}
                 , new Object[]{"textCase", com.rameses.rcp.constant.TextCase.NONE}
                 , new Object[]{"typeHandler", new com.rameses.rcp.common.IntegerColumnHandler(null, -1, -1)}
             }),
@@ -132,7 +142,9 @@ public class SysWfPage extends javax.swing.JPanel {
                 , new Object[]{"nullWhenEmpty", true}
                 , new Object[]{"editable", true}
                 , new Object[]{"editableWhen", null}
-                , new Object[]{"textCase", com.rameses.rcp.constant.TextCase.NONE}
+                , new Object[]{"visible", true}
+                , new Object[]{"visibleWhen", null}
+                , new Object[]{"textCase", com.rameses.rcp.constant.TextCase.UPPER}
                 , new Object[]{"typeHandler", new com.rameses.rcp.common.TextColumnHandler()}
             }),
             new com.rameses.rcp.common.Column(new Object[]{
@@ -146,6 +158,24 @@ public class SysWfPage extends javax.swing.JPanel {
                 , new Object[]{"nullWhenEmpty", true}
                 , new Object[]{"editable", true}
                 , new Object[]{"editableWhen", null}
+                , new Object[]{"visible", true}
+                , new Object[]{"visibleWhen", null}
+                , new Object[]{"textCase", com.rameses.rcp.constant.TextCase.UPPER}
+                , new Object[]{"typeHandler", new com.rameses.rcp.common.TextColumnHandler()}
+            }),
+            new com.rameses.rcp.common.Column(new Object[]{
+                new Object[]{"name", "properties"}
+                , new Object[]{"caption", "Properties"}
+                , new Object[]{"width", 100}
+                , new Object[]{"minWidth", 0}
+                , new Object[]{"maxWidth", 0}
+                , new Object[]{"required", false}
+                , new Object[]{"resizable", true}
+                , new Object[]{"nullWhenEmpty", true}
+                , new Object[]{"editable", true}
+                , new Object[]{"editableWhen", null}
+                , new Object[]{"visible", true}
+                , new Object[]{"visibleWhen", null}
                 , new Object[]{"textCase", com.rameses.rcp.constant.TextCase.NONE}
                 , new Object[]{"typeHandler", new com.rameses.rcp.common.TextColumnHandler()}
             })
@@ -159,7 +189,7 @@ public class SysWfPage extends javax.swing.JPanel {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(xFormPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 584, Short.MAX_VALUE)
+                    .addComponent(xFormPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 761, Short.MAX_VALUE)
                     .addComponent(xDataTable2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );

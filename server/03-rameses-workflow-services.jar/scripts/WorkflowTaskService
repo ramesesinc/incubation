@@ -178,7 +178,7 @@ class WorkflowTaskService  {
     	def em = db.lookup( r.processname +"_task" );
     	def ti = em.select("taskid,startdate,dtcreated,state,prevtaskid,assignee.*,refid,message").find( [taskid: r.taskid ]).first(); 
     	if(!ti) throw new Exception("Task not found for " + r.taskid);
-    	ti += wfNode.select("title,domain,role").find( [name:ti.state, processname: r.processname] ).first();
+    	ti += wfNode.select("title,domain,role,properties").find( [name:ti.state, processname: r.processname] ).first();
     	ti.transitions = wfTransitions.select("action,to,idx,eval,properties,permission,caption")
     			.find( [processname: r.processname, parentid: ti.state ]).list();
         ti.transitions.each {
