@@ -1870,25 +1870,19 @@ public class DataTableComponent extends JTable implements TableControl
             List<Map> menuItems = root.getDataProvider().getContextMenu(li.getItem(), colName); 
             if (menuItems == null || menuItems.isEmpty()) return;
             
-            Object items = popup.getClientProperty("ContextMenu.items");
-            if (items == null || (items != null && !items.equals(menuItems))) 
-            { 
-                popup.removeAll();
-                for (Map data: menuItems) 
-                {
-                    String value = getString(data, "value");
-                    if ("-".equals(value+"")) {
-                        popup.addSeparator();
-                        continue;
-                    }
+            popup.removeAll();
+            for (Map data: menuItems) {
+                String value = getString(data, "value");
+                if ("-".equals(value+"")) {
+                    popup.addSeparator();
+                    continue;
+                }
 
-                    ActionMenuItem jmi = new ActionMenuItem(data, li);
-                    Dimension dim = jmi.getPreferredSize();
-                    jmi.setPreferredSize(new Dimension(Math.max(dim.width, 100), dim.height)); 
-                    popup.add(jmi); 
-                } 
-                popup.putClientProperty("ContextMenu.items", menuItems);
-            }
+                ActionMenuItem jmi = new ActionMenuItem(data, li);
+                Dimension dim = jmi.getPreferredSize();
+                jmi.setPreferredSize(new Dimension(Math.max(dim.width, 100), dim.height)); 
+                popup.add(jmi); 
+            } 
             
             Component[] comps = popup.getComponents();
             for (int i=0; i<comps.length; i++) {

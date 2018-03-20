@@ -67,8 +67,9 @@ public class WorkflowTaskModel extends CrudFormModel implements WorkflowTaskList
             }
         }
         
-        def v = super.open();
-	if( tsk ) { 
+        super.open();
+        if( entity.taskid ) tsk = [taskid: entity.taskid ];
+        if( tsk?.taskid ) { 
             task = workflowTaskService.findTask( [processname: getProcessName(), taskid: tsk.taskid ] );
             if ( task ) {
                 buildTransitionActions(task);  
@@ -78,7 +79,7 @@ public class WorkflowTaskModel extends CrudFormModel implements WorkflowTaskList
                 }
             }
         } 
-        return v;
+        return null;
     }
     
     public def signal( def transition ) {
@@ -97,7 +98,7 @@ public class WorkflowTaskModel extends CrudFormModel implements WorkflowTaskList
             task = [:];
         }
         //refresh the list
-        if( caller.listHandler !=null ) {
+        if( caller?.listHandler !=null ) {
             caller.listHandler.reload();
         }
         binding.refresh();
@@ -106,7 +107,7 @@ public class WorkflowTaskModel extends CrudFormModel implements WorkflowTaskList
         if( pageExists(task.state)) {
             return task.state;
         }
-        return null;
+        return "default";
     }
     
     final void buildTransitionActions( def tsk ) {
