@@ -4,8 +4,10 @@
  */
 package com.rameses.seti2.components;
 
+import com.rameses.common.MethodResolver;
 import com.rameses.common.PropertyResolver;
 import com.rameses.rcp.common.Column;
+import com.rameses.rcp.common.MsgBox;
 import com.rameses.rcp.control.XComponentPanel;
 
 @com.rameses.rcp.ui.annotations.ComponentBean("com.rameses.seti2.components.SchemaListComponent")
@@ -192,13 +194,18 @@ public class SchemaList extends XComponentPanel {
         bean.setProperty("menuContext", getMenuContext()); 
         bean.setProperty("rows", getRows()); 
         
-        bean.setProperty("ui", this);         
+        bean.setProperty("ui", this); 
     } 
     
     public void setProperty( String name, Object value ) { 
         if ( name != null && name.trim().length() > 0 ) {
             Object b = getBinding(); 
             Object bean = (b == null ? null : getBinding().getBean()); 
+            setProperty(name, value, bean); 
+        }
+    }
+    public void setProperty( String name, Object value, Object bean ) { 
+        if ( name != null && name.trim().length() > 0 ) {
             PropertyResolver.getInstance().setProperty(bean, name, value);
         }
     }
@@ -211,6 +218,18 @@ public class SchemaList extends XComponentPanel {
             }
         }
     }
+
+    public void afterRefresh() { 
+        try { 
+            Object bean = getComponentBean(); 
+            setProperty("query", getProperty(getQueryName()), bean); 
+            MethodResolver.getInstance().invoke(bean, "search",  new Object[]{}); 
+        } catch(Throwable t) {
+            MsgBox.err( t ); 
+        }
+    }
+    
+    
         
     /**
      * This method is called from within the constructor to initialize the form.
