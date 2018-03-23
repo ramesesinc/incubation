@@ -9,40 +9,32 @@
 
 package com.rameses.rcp.control;
 
-import com.rameses.beaninfo.ComponentBeanInfo;
+import com.rameses.beaninfo.ComponentBeanInfoSupport;
+import com.rameses.beaninfo.UITextFieldBeanInfo;
 import java.beans.BeanInfo;
-import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
+import java.util.List;
 
 /**
  *
  * @author wflores
  */
-public class XActionTextFieldBeanInfo extends ComponentBeanInfo.Support 
-{
+public class XActionTextFieldBeanInfo extends ComponentBeanInfoSupport { 
+
     private Class beanClass;
     
-    protected Class getBeanClass() 
-    {
-        if (beanClass == null) beanClass = XActionTextField.class; 
-        
+    public Class getBeanClass() {
+        if (beanClass == null) { 
+            beanClass = XActionTextField.class;
+        } 
         return beanClass;
     }
     
-    protected PropertyDescriptor[] createPropertyDescriptors() throws IntrospectionException 
-    {
-        return new PropertyDescriptor[] {
-            new PropertyDescriptor("actionName", getBeanClass()) 
-        }; 
-    }
-
-    public BeanInfo[] getAdditionalBeanInfo() 
-    {
-        return new BeanInfo[] {
-            new XTextFieldBeanInfo(), 
-            new ComponentBeanInfo() 
-        }; 
-    }
+    protected void loadAdditionalBeanInfo( List<BeanInfo> list ) { 
+        list.add( new UITextFieldBeanInfo( getBeanClass())); 
+    }    
     
-    
+    protected void loadProperties(List<PropertyDescriptor> list) { 
+        add( list, "actionName", true );
+    }
 }

@@ -9,44 +9,25 @@
 
 package com.rameses.rcp.control;
 
-import com.rameses.beaninfo.ComponentBeanInfo;
-import java.beans.IntrospectionException;
+import com.rameses.beaninfo.ComponentBeanInfoSupport;
 import java.beans.PropertyDescriptor;
+import java.util.List;
 
 /**
  *
  * @author wflores
  */
-public class XTabbedListBeanInfo extends ComponentBeanInfo.Support 
-{
+public class XTabbedListBeanInfo extends ComponentBeanInfoSupport {
+    
     private Class beanClass;
     
-    protected Class getBeanClass() 
-    {
-        if (beanClass == null) beanClass = XTabbedList.class;
-        
+    public Class getBeanClass() {
+        if (beanClass == null) { 
+            beanClass = XTabbedList.class;
+        }
         return beanClass; 
     }
-    
-    protected PropertyDescriptor[] createPropertyDescriptors() throws IntrospectionException 
-    {
-        return new PropertyDescriptor[] {
-            new PropertyDescriptor("caption", getBeanClass()),
-            new PropertyDescriptor("captionMnemonic", getBeanClass()),
-            new PropertyDescriptor("captionWidth", getBeanClass()),
-            new PropertyDescriptor("captionFont", getBeanClass()),
-            new PropertyDescriptor("captionFontStyle", getBeanClass()),
-            new PropertyDescriptor("cellPadding", getBeanClass()),
-            new PropertyDescriptor("showCaption", getBeanClass(), "isShowCaption", "setShowCaption"),
-            
-            new PropertyDescriptor("depends", getBeanClass()), 
-            new PropertyDescriptor("disableWhen", getBeanClass()), 
-            new PropertyDescriptor("dynamic", getBeanClass(), "isDynamic", "setDynamic"),
-            new PropertyDescriptor("index", getBeanClass()),
-            new PropertyDescriptor("stretchWidth", getBeanClass()),
-            new PropertyDescriptor("stretchHeight", getBeanClass()),
-            new PropertyDescriptor("visibleWhen", getBeanClass())
-            
-        }; 
+
+    protected void loadProperties(List<PropertyDescriptor> list) { 
     }
 }

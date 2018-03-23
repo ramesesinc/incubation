@@ -9,62 +9,36 @@
 
 package com.rameses.rcp.control;
 
-import com.rameses.beaninfo.ComponentBeanInfo;
-import java.beans.IntrospectionException;
+import com.rameses.beaninfo.ComponentBeanInfoSupport;
+import com.rameses.beaninfo.UITextFieldBeanInfo;
+import java.beans.BeanInfo;
 import java.beans.PropertyDescriptor;
+import java.util.List;
 
 /**
  *
  * @author wflores
  */
-public class XIntegerFieldBeanInfo extends ComponentBeanInfo.Support 
-{
+public class XIntegerFieldBeanInfo extends ComponentBeanInfoSupport {
+    
     private Class beanClass;
     
-    protected Class getBeanClass() 
-    {
-        if (beanClass == null) beanClass = XIntegerField.class; 
-        
+    public Class getBeanClass() {
+        if (beanClass == null) {
+            beanClass = XIntegerField.class;
+        } 
         return beanClass;
     }
-    
-    protected PropertyDescriptor[] createPropertyDescriptors() throws IntrospectionException 
-    {
-        return new PropertyDescriptor[] {
-            new PropertyDescriptor("text", getBeanClass()),
-            new PropertyDescriptor("editable", getBeanClass(), "isEditable", "setEditable"),
-            new PropertyDescriptor("focusable", getBeanClass()),
-            new PropertyDescriptor("border", getBeanClass()),
-            new PropertyDescriptor("margin", getBeanClass()),            
-            new PropertyDescriptor("fontStyle", getBeanClass()), 
-            new PropertyDescriptor("disabledTextColor", getBeanClass()),
-            new PropertyDescriptor("actionCommand", getBeanClass()), 
-            
-            new PropertyDescriptor("caption", getBeanClass()),
-            new PropertyDescriptor("captionFont", getBeanClass()),
-            new PropertyDescriptor("captionFontStyle", getBeanClass()),
-            new PropertyDescriptor("captionMnemonic", getBeanClass()),
-            new PropertyDescriptor("captionWidth", getBeanClass()),
-            new PropertyDescriptor("showCaption", getBeanClass(), "isShowCaption", "setShowCaption"),            
-            new PropertyDescriptor("cellPadding", getBeanClass()),
-            
-            new PropertyDescriptor("depends", getBeanClass()),
-            new PropertyDescriptor("focusAccelerator", getBeanClass()),
-            new PropertyDescriptor("focusKeyStroke", getBeanClass()),            
-            new PropertyDescriptor("index", getBeanClass()),
-            new PropertyDescriptor("minValue", getBeanClass()),
-            new PropertyDescriptor("maxValue", getBeanClass()),
-            new PropertyDescriptor("pattern", getBeanClass()),
-            
-            new PropertyDescriptor("stretchWidth", getBeanClass()),
-            new PropertyDescriptor("stretchHeight", getBeanClass()),
-            
-            new PropertyDescriptor("disableWhen", getBeanClass()),
-            new PropertyDescriptor("visibleWhen", getBeanClass()),  
-            
-            new PropertyDescriptor("usePrimitiveValue", getBeanClass(), "isUsePrimitiveValue", "setUsePrimitiveValue"),
-            new PropertyDescriptor("readonly", getBeanClass(), "isReadonly", "setReadonly"),
-            new PropertyDescriptor("required", getBeanClass(), "isRequired", "setRequired")
-        }; 
+
+    protected void loadAdditionalBeanInfo(List<BeanInfo> list) {
+        list.add( new UITextFieldBeanInfo(getBeanClass())); 
+    }
+
+    protected void loadProperties(List<PropertyDescriptor> list) { 
+        addBoolean( list, "usePrimitiveValue", true );
+        
+        add( list, "minValue", true );
+        add( list, "maxValue", true );
+        add( list, "pattern", true );
     }
 }

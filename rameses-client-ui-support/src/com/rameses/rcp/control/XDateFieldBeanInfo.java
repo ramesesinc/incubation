@@ -9,61 +9,34 @@
 
 package com.rameses.rcp.control;
 
-import com.rameses.beaninfo.ComponentBeanInfo;
-import java.beans.IntrospectionException;
+import com.rameses.beaninfo.ComponentBeanInfoSupport;
+import com.rameses.beaninfo.UITextFieldBeanInfo;
+import java.beans.BeanInfo;
 import java.beans.PropertyDescriptor;
+import java.util.List;
 
 /**
  *
  * @author wflores
  */
-public class XDateFieldBeanInfo extends ComponentBeanInfo.Support 
+public class XDateFieldBeanInfo extends ComponentBeanInfoSupport 
 {
     private Class beanClass;
     
-    protected Class getBeanClass() 
-    {
-        if (beanClass == null) beanClass = XDateField.class; 
-        
+    public Class getBeanClass() {
+        if (beanClass == null) { 
+            beanClass = XDateField.class;
+        } 
         return beanClass;
     }
+
+    protected void loadAdditionalBeanInfo(List<BeanInfo> list) {
+        list.add( new UITextFieldBeanInfo(getBeanClass()));  
+    }
     
-    protected PropertyDescriptor[] createPropertyDescriptors() throws IntrospectionException 
-    {
-        return new PropertyDescriptor[] {
-            new PropertyDescriptor("text", getBeanClass()),
-            new PropertyDescriptor("editable", getBeanClass(), "isEditable", "setEditable"),
-            new PropertyDescriptor("border", getBeanClass()), 
-            new PropertyDescriptor("margin", getBeanClass()), 
-            new PropertyDescriptor("fontStyle", getBeanClass()),
-            new PropertyDescriptor("disabledTextColor", getBeanClass()), 
-            new PropertyDescriptor("actionCommand", getBeanClass()), 
-            
-            new PropertyDescriptor("caption", getBeanClass()),
-            new PropertyDescriptor("captionFont", getBeanClass()),
-            new PropertyDescriptor("captionFontStyle", getBeanClass()),
-            new PropertyDescriptor("captionMnemonic", getBeanClass()),
-            new PropertyDescriptor("captionWidth", getBeanClass()),
-            new PropertyDescriptor("showCaption", getBeanClass(), "isShowCaption", "setShowCaption"),            
-            new PropertyDescriptor("cellPadding", getBeanClass()),
-            
-            new PropertyDescriptor("depends", getBeanClass()),
-            new PropertyDescriptor("focusAccelerator", getBeanClass()),
-            new PropertyDescriptor("focusKeyStroke", getBeanClass()),            
-            new PropertyDescriptor("hint", getBeanClass()),
-            new PropertyDescriptor("index", getBeanClass()),
-            new PropertyDescriptor("inputFormat", getBeanClass()),
-            new PropertyDescriptor("inputMask", getBeanClass()),
-            new PropertyDescriptor("outputFormat", getBeanClass()),             
-            new PropertyDescriptor("valueFormat", getBeanClass()),            
-            
-            new PropertyDescriptor("readonly", getBeanClass(), "isReadonly", "setReadonly"),
-            new PropertyDescriptor("required", getBeanClass(), "isRequired", "setRequired"),
-            new PropertyDescriptor("stretchWidth", getBeanClass()),
-            new PropertyDescriptor("stretchHeight", getBeanClass()),
-            
-            new PropertyDescriptor("disableWhen", getBeanClass()),
-            new PropertyDescriptor("visibleWhen", getBeanClass())             
-        }; 
+    protected void loadProperties(List<PropertyDescriptor> list) { 
+        add( list, "inputMask", true);
+        add( list, "outputFormat", true);
+        add( list, "valueFormat", true);
     }
 }

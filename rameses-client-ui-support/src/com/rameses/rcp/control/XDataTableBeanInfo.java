@@ -9,75 +9,52 @@
 
 package com.rameses.rcp.control;
 
-import com.rameses.beaninfo.ComponentBeanInfo;
+import com.rameses.beaninfo.ComponentBeanInfoSupport;
 import com.rameses.beaninfo.editor.ColumnPropertyEditor;
-import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
+import java.util.List;
 
 /**
  *
  * @author wflores
  */
-public class XDataTableBeanInfo extends ComponentBeanInfo.Support
+public class XDataTableBeanInfo extends ComponentBeanInfoSupport
 {
     private Class beanClass;
     
-    protected Class getBeanClass() {
-        if (beanClass == null) beanClass = XDataTable.class;
-        
+    public Class getBeanClass() {
+        if (beanClass == null) { 
+            beanClass = XDataTable.class;
+        }
         return beanClass; 
     }
     
-    
-    protected PropertyDescriptor[] createPropertyDescriptors() throws IntrospectionException 
-    {
-        return new PropertyDescriptor[] {
-            new PropertyDescriptor("border", getBeanClass()),
-            new PropertyDescriptor("autoResize", getBeanClass(), "isAutoResize", "setAutoResize"),
-            new PropertyDescriptor("showHorizontalLines", getBeanClass(), "isShowHorizontalLines", "setShowHorizontalLines"), 
-            new PropertyDescriptor("showVerticalLines", getBeanClass(), "isShowVerticalLines", "setShowVerticalLines"),
-            
-            new PropertyDescriptor("caption", getBeanClass()),
-            new PropertyDescriptor("captionMnemonic", getBeanClass()),
-            new PropertyDescriptor("captionWidth", getBeanClass()),
-            new PropertyDescriptor("captionFont", getBeanClass()),
-            new PropertyDescriptor("captionFontStyle", getBeanClass()),
-            new PropertyDescriptor("cellPadding", getBeanClass()),
-            new PropertyDescriptor("showCaption", getBeanClass(), "isShowCaption", "setShowCaption"),
-            
-            installEditor(new PropertyDescriptor("columns", getBeanClass()), ColumnPropertyEditor.class), 
-            
-            new PropertyDescriptor("borderColor", getBeanClass()),
-            new PropertyDescriptor("cellSpacing", getBeanClass()),
-            new PropertyDescriptor("depends", getBeanClass()),
-            new PropertyDescriptor("dynamic", getBeanClass(), "isDynamic", "setDynamic"),
-            new PropertyDescriptor("editable", getBeanClass(), "isEditable", "setEditable"),
-            new PropertyDescriptor("errorBackground", getBeanClass()),
-            new PropertyDescriptor("errorForeground", getBeanClass()),
-            new PropertyDescriptor("evenBackground", getBeanClass()),
-            new PropertyDescriptor("evenForeground", getBeanClass()),
-            new PropertyDescriptor("fontStyle", getBeanClass()),
-            new PropertyDescriptor("gridColor", getBeanClass()),
-            new PropertyDescriptor("handler", getBeanClass()),
-            new PropertyDescriptor("immediate", getBeanClass(), "isImmediate", "setImmediate"),
-            new PropertyDescriptor("index", getBeanClass()),
-            new PropertyDescriptor("items", getBeanClass()),
-            new PropertyDescriptor("id", getBeanClass()),
-            new PropertyDescriptor("varName", getBeanClass()),
-            new PropertyDescriptor("varStatus", getBeanClass()), 
-            new PropertyDescriptor("multiSelectName", getBeanClass()),             
-            new PropertyDescriptor("oddBackground", getBeanClass()),
-            new PropertyDescriptor("oddForeground", getBeanClass()),
-            new PropertyDescriptor("readonlyWhen", getBeanClass()),
-            new PropertyDescriptor("readonly", getBeanClass(), "isReadonly", "setReadonly"),            
-            new PropertyDescriptor("required", getBeanClass(), "isRequired", "setRequired"),
-            new PropertyDescriptor("rowHeight", getBeanClass()),
-            new PropertyDescriptor("rowHeaderHeight", getBeanClass()),
-            new PropertyDescriptor("showRowHeader", getBeanClass(), "isShowRowHeader", "setShowRowHeader"),
-            
-            new PropertyDescriptor("stretchWidth", getBeanClass()),
-            new PropertyDescriptor("stretchHeight", getBeanClass()),
-            new PropertyDescriptor("visibleWhen", getBeanClass())
-        }; 
+    protected void loadProperties(List<PropertyDescriptor> list) { 
+        addBoolean( list, "autoResize" );
+        addBoolean( list, "showHorizontalLines" );
+        addBoolean( list, "showVerticalLines" );
+        addBoolean( list, "editable" );
+        addBoolean( list, "immediate" );
+        addBoolean( list, "showRowHeader" );
+        
+        add( list, "columns", ColumnPropertyEditor.class ); 
+        add( list, "borderColor" );
+        add( list, "cellSpacing" );
+        add( list, "errorBackground" );
+        add( list, "errorForeground" );
+        add( list, "evenBackground" );
+        add( list, "evenForeground" );
+        add( list, "gridColor" );
+        add( list, "handler", true );
+        add( list, "items", true );
+        add( list, "id" );
+        add( list, "varName" );
+        add( list, "varStatus" );
+        add( list, "multiSelectName" );
+        add( list, "oddBackground" );
+        add( list, "oddForeground" );
+        add( list, "readonlyWhen" );
+        add( list, "rowHeight" );
+        add( list, "rowHeaderHeight" );
     }
 }

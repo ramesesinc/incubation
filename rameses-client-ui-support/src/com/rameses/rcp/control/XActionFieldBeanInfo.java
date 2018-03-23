@@ -9,57 +9,39 @@
 
 package com.rameses.rcp.control;
 
-import com.rameses.beaninfo.ComponentBeanInfo;
-import java.beans.IntrospectionException;
+import com.rameses.beaninfo.ComponentBeanInfoSupport;
+import com.rameses.beaninfo.UITextFieldBeanInfo;
+import java.beans.BeanInfo;
 import java.beans.PropertyDescriptor;
+import java.util.List;
 
 /**
  *
  * @author wflores
  */
-public class XActionFieldBeanInfo extends ComponentBeanInfo.Support 
+public class XActionFieldBeanInfo extends ComponentBeanInfoSupport 
 {
     private Class beanClass;
     
-    protected Class getBeanClass() 
-    {
-        if (beanClass == null) beanClass = XActionField.class; 
-        
+    public Class getBeanClass() {
+        if (beanClass == null) {
+            beanClass = XActionField.class;
+        } 
         return beanClass;
     }
     
-    protected PropertyDescriptor[] createPropertyDescriptors() throws IntrospectionException 
-    {
-        return new PropertyDescriptor[] {
-            new PropertyDescriptor("border", getBeanClass()),
-            new PropertyDescriptor("expression", getBeanClass()), 
-            new PropertyDescriptor("fontStyle", getBeanClass()), 
-            new PropertyDescriptor("handler", getBeanClass()), 
-            new PropertyDescriptor("spacing", getBeanClass()), 
-            new PropertyDescriptor("readonly", getBeanClass(), "isReadonly", "setReadonly"), 
-            
-            new PropertyDescriptor("actionFont", getBeanClass()), 
-            new PropertyDescriptor("actionFontStyle", getBeanClass()), 
-            new PropertyDescriptor("actionIcon", getBeanClass()), 
-            new PropertyDescriptor("actionText", getBeanClass()), 
-            new PropertyDescriptor("actionTextMargin", getBeanClass()), 
-            
-            new PropertyDescriptor("caption", getBeanClass()),
-            new PropertyDescriptor("captionFont", getBeanClass()),
-            new PropertyDescriptor("captionFontStyle", getBeanClass()),
-            new PropertyDescriptor("captionMnemonic", getBeanClass()),
-            new PropertyDescriptor("captionWidth", getBeanClass()),
-            new PropertyDescriptor("showCaption", getBeanClass(), "isShowCaption", "setShowCaption"),            
-            new PropertyDescriptor("cellPadding", getBeanClass()),
-            
-            new PropertyDescriptor("depends", getBeanClass()),
-            new PropertyDescriptor("index", getBeanClass()),
-            new PropertyDescriptor("readonly", getBeanClass(), "isReadonly", "setReadonly"),
-            new PropertyDescriptor("stretchWidth", getBeanClass()),
-            new PropertyDescriptor("stretchHeight", getBeanClass()),
-            
-            new PropertyDescriptor("disableWhen", getBeanClass()),
-            new PropertyDescriptor("visibleWhen", getBeanClass())
-        }; 
-    }
+    protected void loadAdditionalBeanInfo( List<BeanInfo> list ) { 
+        list.add( new UITextFieldBeanInfo( getBeanClass())); 
+    }    
+    
+    protected void loadProperties(List<PropertyDescriptor> list) { 
+        add( list, "expression", true );
+        add( list, "handler", true );
+        add( list, "spacing" );
+        add( list, "actionFont" );
+        add( list, "actionFontStyle" );
+        add( list, "actionIcon" );
+        add( list, "actionText" );
+        add( list, "actionTextMargin" );
+    }     
 }

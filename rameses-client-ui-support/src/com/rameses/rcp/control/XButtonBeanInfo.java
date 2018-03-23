@@ -9,63 +9,43 @@
 
 package com.rameses.rcp.control;
 
-import com.rameses.beaninfo.ComponentBeanInfo;
+import com.rameses.beaninfo.ComponentBeanInfoSupport;
 import com.rameses.beaninfo.editor.SwingConstantsHTextPosition;
 import com.rameses.beaninfo.editor.SwingConstantsVTextPosition;
-import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
+import java.util.List;
 
 /**
  *
  * @author wflores
  */
-public class XButtonBeanInfo extends ComponentBeanInfo.Support
+public class XButtonBeanInfo extends ComponentBeanInfoSupport
 {
     private Class beanClass;
     
-    protected Class getBeanClass() {
-        if (beanClass == null) beanClass = XButton.class;
-        
+    public Class getBeanClass() {
+        if (beanClass == null) { 
+            beanClass = XButton.class;
+        }
         return beanClass; 
     }
-    
-    
-    protected PropertyDescriptor[] createPropertyDescriptors() throws IntrospectionException 
-    {
-        return new PropertyDescriptor[] {
-            new PropertyDescriptor("accelerator", getBeanClass()),            
-            new PropertyDescriptor("border", getBeanClass()),
-            new PropertyDescriptor("margin", getBeanClass()),
-            new PropertyDescriptor("mnemonic", getBeanClass()),
-            new PropertyDescriptor("text", getBeanClass()),     
-            new PropertyDescriptor("fontStyle", getBeanClass()),
-            new PropertyDescriptor("icon", getBeanClass()),
-            new PropertyDescriptor("iconResource", getBeanClass()),
-            new PropertyDescriptor("borderPainted", getBeanClass(), "isBorderPainted", "setBorderPainted"),
-            new PropertyDescriptor("contentAreaFilled", getBeanClass(), "isContentAreaFilled", "setContentAreaFilled"),
-            
-            installEditor(new PropertyDescriptor("horizontalTextPosition", getBeanClass()), SwingConstantsHTextPosition.class), 
-            installEditor(new PropertyDescriptor("verticalTextPosition", getBeanClass()), SwingConstantsVTextPosition.class), 
-            
-            new PropertyDescriptor("caption", getBeanClass()),
-            new PropertyDescriptor("captionFont", getBeanClass()),
-            new PropertyDescriptor("captionFontStyle", getBeanClass()),
-            new PropertyDescriptor("captionWidth", getBeanClass()),
-            new PropertyDescriptor("showCaption", getBeanClass(), "isShowCaption", "setShowCaption"),            
-            new PropertyDescriptor("cellPadding", getBeanClass()),
-            
-            new PropertyDescriptor("defaultCommand", getBeanClass(), "isDefaultCommand", "setDefaultCommand"),
-            new PropertyDescriptor("depends", getBeanClass()),
-            new PropertyDescriptor("disableWhen", getBeanClass()),
-            new PropertyDescriptor("expression", getBeanClass()),
-            new PropertyDescriptor("immediate", getBeanClass(), "isImmediate", "setImmediate"),
-            new PropertyDescriptor("index", getBeanClass()),
-            new PropertyDescriptor("target", getBeanClass()),  
-            new PropertyDescriptor("focusable", getBeanClass(), "isFocusable", "setFocusable"),
-            new PropertyDescriptor("params", getBeanClass()), 
-            new PropertyDescriptor("stretchWidth", getBeanClass()),
-            new PropertyDescriptor("stretchHeight", getBeanClass()),
-            new PropertyDescriptor("visibleWhen", getBeanClass()) 
-        };        
+        
+    protected void loadProperties(List<PropertyDescriptor> list) { 
+        add( list, "accelerator" );
+        add( list, "margin" );
+        add( list, "mnemonic" );
+        add( list, "text" );
+        add( list, "icon" );
+        add( list, "iconResource" );
+        add( list, "horizontalTextPosition", SwingConstantsHTextPosition.class );
+        add( list, "verticalTextPosition", SwingConstantsVTextPosition.class );
+        add( list, "target" );
+        add( list, "params" );
+        
+        addBoolean( list, "borderPainted" );
+        addBoolean( list, "contentAreaFilled" );
+        addBoolean( list, "defaultCommand" );
+        addBoolean( list, "immediate" );
+        addBoolean( list, "focusable" );
     }
 }

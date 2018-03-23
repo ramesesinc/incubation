@@ -9,44 +9,32 @@
 
 package com.rameses.rcp.control;
 
-import com.rameses.beaninfo.ComponentBeanInfo;
+import com.rameses.beaninfo.ComponentBeanInfoSupport;
 import java.beans.BeanInfo;
-import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
+import java.util.List;
 
 /**
  *
  * @author wflores
  */
-public class XSubControlBeanInfo extends ComponentBeanInfo.Support
-{
+public class XSubControlBeanInfo extends ComponentBeanInfoSupport {
+    
     private Class beanClass;
     
-    protected Class getBeanClass() 
-    {
-        if (beanClass == null) beanClass = XSubControl.class;
-        
+    public Class getBeanClass() {
+        if (beanClass == null) { 
+            beanClass = XSubControl.class;
+        }
         return beanClass; 
     }
-    
-    
-    protected PropertyDescriptor[] createPropertyDescriptors() throws IntrospectionException 
-    {
-        return new PropertyDescriptor[] {
-            new PropertyDescriptor("editable", getBeanClass(), "isEditable", "setEditable"),
-            new PropertyDescriptor("handlerAutoLookup", getBeanClass(), "isHandlerAutoLookup", "setHandlerAutoLookup"),
-            
-            new PropertyDescriptor("readonly", getBeanClass(), "isReadonly", "setReadonly"),
-            new PropertyDescriptor("required", getBeanClass(), "isRequired", "setRequired")
-        }; 
-    }
 
-    public BeanInfo[] getAdditionalBeanInfo() {
-        return new BeanInfo[] {
-            new XSubFormPanelBeanInfo(), 
-            new ComponentBeanInfo() 
-        };
+    protected void loadAdditionalBeanInfo(List<BeanInfo> list) {
+        list.add( new XSubFormPanelBeanInfo() ); 
     }
     
-    
+    protected void loadProperties(List<PropertyDescriptor> list) { 
+        addBoolean( list, "editable" ); 
+        addBoolean( list, "handlerAutoLookup" ); 
+    }
 }

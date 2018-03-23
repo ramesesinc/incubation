@@ -9,49 +9,36 @@
 
 package com.rameses.rcp.control;
 
-import com.rameses.beaninfo.ComponentBeanInfo;
-import java.beans.IntrospectionException;
+import com.rameses.beaninfo.ComponentBeanInfoSupport;
 import java.beans.PropertyDescriptor;
+import java.util.List;
 
 /**
  *
  * @author wflores
  */
-public class XTreeTableBeanInfo extends ComponentBeanInfo.Support 
-{
+public class XTreeTableBeanInfo extends ComponentBeanInfoSupport {
+    
     private Class beanClass;
     
-    protected Class getBeanClass() 
-    {
-        if (beanClass == null) beanClass = XTreeTable.class; 
-        
+    public Class getBeanClass() {
+        if (beanClass == null) {
+            beanClass = XTreeTable.class;
+        } 
         return beanClass;
     }
     
-    protected PropertyDescriptor[] createPropertyDescriptors() throws IntrospectionException 
-    {
-        return new PropertyDescriptor[] { 
-            new PropertyDescriptor("caption", getBeanClass()),
-            new PropertyDescriptor("captionMnemonic", getBeanClass()),
-            new PropertyDescriptor("captionWidth", getBeanClass()),
-            new PropertyDescriptor("captionFont", getBeanClass()),
-            new PropertyDescriptor("captionFontStyle", getBeanClass()),
-            new PropertyDescriptor("cellPadding", getBeanClass()),
-            new PropertyDescriptor("showCaption", getBeanClass(), "isShowCaption", "setShowCaption"),
-            
-            new PropertyDescriptor("autoResize", getBeanClass(), "isAutoResize", "setAutoResize"),            
-            new PropertyDescriptor("depends", getBeanClass()),
-            new PropertyDescriptor("errorBackground", getBeanClass()),
-            new PropertyDescriptor("errorForeground", getBeanClass()),
-            new PropertyDescriptor("evenBackground", getBeanClass()),
-            new PropertyDescriptor("evenForeground", getBeanClass()),            
-            new PropertyDescriptor("gridColor", getBeanClass()),
-            new PropertyDescriptor("handler", getBeanClass()),
-            new PropertyDescriptor("index", getBeanClass()),
-            new PropertyDescriptor("multiselect", getBeanClass(), "isMultiselect", "setMultiselect"),
-            new PropertyDescriptor("oddBackground", getBeanClass()),
-            new PropertyDescriptor("oddForeground", getBeanClass()),
-            new PropertyDescriptor("visibleWhen", getBeanClass())
-        }; 
+    protected void loadProperties(List<PropertyDescriptor> list) { 
+        addBoolean( list, "autoResize" ); 
+        addBoolean( list, "multiselect" ); 
+        
+        add( list, "errorBackground" ); 
+        add( list, "errorForeground" ); 
+        add( list, "evenBackground" ); 
+        add( list, "evenForeground" ); 
+        add( list, "gridColor" ); 
+        add( list, "handler", true ); 
+        add( list, "oddBackground" ); 
+        add( list, "oddForeground" ); 
     }
 }
