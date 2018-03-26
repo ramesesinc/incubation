@@ -28,7 +28,8 @@ public class SchemaListComponent extends ComponentBean  {
     boolean allowDelete;
     int rows = 20;
 
-    def query;    
+    def query; 
+    def stylerule; 
     def selectedItem;
     
     def _handler; 

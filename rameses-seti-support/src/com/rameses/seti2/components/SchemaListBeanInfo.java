@@ -27,6 +27,7 @@ public class SchemaListBeanInfo extends ComponentBeanInfoSupport {
         
         add( list, "columns", true, ColumnPropertyEditor.class ); 
         add( list, "handler", true); 
+        add( list, "id"); 
         add( list, "rowHeight" ); 
         add( list, "rows" ); 
         add( list, "actionContext", true ); 
@@ -37,5 +38,6 @@ public class SchemaListBeanInfo extends ComponentBeanInfoSupport {
         add( list, "orderBy", true ); 
         add( list, "groupBy", true ); 
         add( list, "hiddenCols", true ); 
+        add( list, "styleRule" ); 
     }
 }

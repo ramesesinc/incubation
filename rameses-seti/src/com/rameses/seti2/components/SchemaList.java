@@ -19,16 +19,18 @@ public class SchemaList extends XComponentPanel {
     private String orderBy;
     private String groupBy;
     private String hiddenCols;
-    
+        
     private boolean multiSelect;
     private boolean allowCreate;
     private boolean allowDelete;
     private boolean allowOpen = true;
     
+    private String id; 
     private String handler; 
     private String actionContext;
     private String menuContext; 
     private String visibleWhen;
+    private String styleRule;
     
     private Column[] columns;     
     private int rows = 20;
@@ -144,9 +146,23 @@ public class SchemaList extends XComponentPanel {
         this.visibleWhen = visibleWhen; 
     }
     
+    public String getStyleRule() { return styleRule; } 
+    public void setStyleRule( String styleRule ) {
+        this.styleRule = styleRule;
+    }
+    
     public String getHandler() { return handler; } 
     public void setHandler( String handler ) {
         this.handler = handler; 
+    }
+    
+    public String getId() { 
+        return (datatable == null ? null: datatable.getId());
+    } 
+    public void setId( String id ) {
+        if ( datatable != null ) {
+            datatable.setId(id); 
+        }
     }
     
     public String getActionContext() { return actionContext; } 
@@ -193,6 +209,9 @@ public class SchemaList extends XComponentPanel {
         bean.setProperty("actionContext", getActionContext()); 
         bean.setProperty("menuContext", getMenuContext()); 
         bean.setProperty("rows", getRows()); 
+
+        Object sr = getProperty(getStyleRule()); 
+        bean.setProperty("stylerule", (sr == null ? getStyleRule() : sr)); 
         
         bean.setProperty("ui", this); 
     } 
@@ -266,6 +285,7 @@ public class SchemaList extends XComponentPanel {
         jPanel5 = new javax.swing.JPanel();
         lblRecordCount = new com.rameses.rcp.control.XLabel();
         lblPageCount = new com.rameses.rcp.control.XLabel();
+        xStyleRule1 = new com.rameses.rcp.control.XStyleRule();
 
         setPreferredSize(new java.awt.Dimension(351, 183));
         setLayout(new java.awt.BorderLayout());
@@ -447,6 +467,21 @@ public class SchemaList extends XComponentPanel {
             lblPageCount.setUseHtml(true);
             jPanel5.add(lblPageCount);
 
+            xStyleRule1.setName("stylerule"); // NOI18N
+
+            javax.swing.GroupLayout xStyleRule1Layout = new javax.swing.GroupLayout(xStyleRule1);
+            xStyleRule1.setLayout(xStyleRule1Layout);
+            xStyleRule1Layout.setHorizontalGroup(
+                xStyleRule1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGap(0, 20, Short.MAX_VALUE)
+            );
+            xStyleRule1Layout.setVerticalGroup(
+                xStyleRule1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGap(0, 20, Short.MAX_VALUE)
+            );
+
+            jPanel5.add(xStyleRule1);
+
             jToolBar2.add(jPanel5);
 
             add(jToolBar2, java.awt.BorderLayout.SOUTH);
@@ -477,6 +512,7 @@ public class SchemaList extends XComponentPanel {
     private com.rameses.rcp.control.XButton xButton1;
     private com.rameses.rcp.control.XButton xButton2;
     private com.rameses.rcp.control.XLabel xLabel2;
+    private com.rameses.rcp.control.XStyleRule xStyleRule1;
     private com.rameses.rcp.control.XSubFormPanel xSubFormPanel1;
     // End of variables declaration//GEN-END:variables
 
