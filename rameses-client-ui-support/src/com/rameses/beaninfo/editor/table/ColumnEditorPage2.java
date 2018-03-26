@@ -64,6 +64,7 @@ public class ColumnEditorPage2 extends javax.swing.JPanel {
         controller.addExtendedPage("lookup", new LookupExtendedPage()); 
         controller.addExtendedPage("opener", new OpenerExtendedPage()); 
         controller.addExtendedPage("button", new ButtonExtendedPage()); 
+        controller.addExtendedPage("icon", new IconExtendedPage()); 
         controller.setEnableComponents(false); 
         
         cboTextcase.setItems(new ComboItem[]{
@@ -99,7 +100,8 @@ public class ColumnEditorPage2 extends javax.swing.JPanel {
            new ComboItem("label"),
            new ComboItem("lookup"),
            new ComboItem("opener"),
-           new ComboItem("button")
+           new ComboItem("button"),
+           new ComboItem("icon")
         });
         cbotype.setUpdateable(false); 
         cbotype.addItemListener(new TypeHandler());    
@@ -375,24 +377,24 @@ public class ColumnEditorPage2 extends javax.swing.JPanel {
         chkNWE.setBounds(236, 108, 186, 18);
 
         chkEditable.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        chkEditable.setText("Editable");
+        chkEditable.setText("Visible");
         chkEditable.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        chkEditable.setName("editable"); // NOI18N
+        chkEditable.setName("visible"); // NOI18N
         pnlInfo.add(chkEditable);
         chkEditable.setBounds(70, 157, 76, 18);
 
-        txtEditableWhen.setName("editableWhen"); // NOI18N
+        txtEditableWhen.setName("visibleWhen"); // NOI18N
         pnlInfo.add(txtEditableWhen);
         txtEditableWhen.setBounds(154, 157, 268, 20);
 
         chkVisible.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        chkVisible.setText("Visible");
+        chkVisible.setText("Editable");
         chkVisible.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        chkVisible.setName("visible"); // NOI18N
+        chkVisible.setName("editable"); // NOI18N
         pnlInfo.add(chkVisible);
         chkVisible.setBounds(70, 132, 76, 18);
 
-        txtVisibleWhen.setName("visibleWhen"); // NOI18N
+        txtVisibleWhen.setName("editableWhen"); // NOI18N
         pnlInfo.add(txtVisibleWhen);
         txtVisibleWhen.setBounds(154, 132, 268, 20);
 
@@ -425,7 +427,7 @@ public class ColumnEditorPage2 extends javax.swing.JPanel {
         pnlInfo.add(txtExpression);
         txtExpression.setBounds(80, 230, 332, 20);
 
-        cbotype.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "text", "integer", "checkbox", "combobox", "date", "double", "decimal", "label", "lookup", "opener" }));
+        cbotype.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "text", "integer", "checkbox", "combobox", "date", "double", "decimal", "label", "lookup", "opener", "icon" }));
         cbotype.setName("typeHandler"); // NOI18N
         pnlInfo.add(cbotype);
         cbotype.setBounds(80, 270, 108, 22);

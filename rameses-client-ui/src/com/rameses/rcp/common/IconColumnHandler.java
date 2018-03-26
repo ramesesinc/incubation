@@ -13,17 +13,12 @@ package com.rameses.rcp.common;
  *
  * @author wflores
  */
-public class IconColumnHandler extends Column.TypeHandler implements PropertySupport.TextPropertyInfo
-{   
+public class IconColumnHandler extends Column.TypeHandler {
+
     private static final long serialVersionUID = 1L;
     
     public IconColumnHandler(){
     } 
     
     public String getType() { return "icon"; }   
-    
-    public Object getValue(Object rowValue, Object columnValue) { 
-        return columnValue; 
-    } 
-    
 }

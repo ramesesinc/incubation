@@ -27,7 +27,6 @@ import com.rameses.rcp.common.MsgBox;
 import com.rameses.rcp.common.OpenerColumnHandler;
 import com.rameses.rcp.common.StyleRule;
 import com.rameses.rcp.constant.TextCase;
-import com.rameses.rcp.support.ColorUtil;
 import com.rameses.rcp.support.ComponentSupport;
 import com.rameses.rcp.support.FontSupport;
 import com.rameses.rcp.support.ImageIconSupport;
@@ -83,6 +82,7 @@ public class CellRenderers {
         renderers.put("lookup", LookupRenderer.class);
         renderers.put("opener", OpenerRenderer.class);
         renderers.put("button", ButtonRenderer.class);
+        renderers.put("icon", IconRenderer.class);
     }
     
     public static AbstractRenderer getRendererFor(Column oColumn) {
@@ -353,37 +353,30 @@ public class CellRenderers {
             JComponent comp = getComponent(table, rowIndex, columnIndex);
             getComponentSupport().setEmptyBorder(comp, CELL_MARGIN);
             comp.setFont(table.getFont());
-            
-            if (isSelected) {
-                comp.setBackground(table.getSelectionBackground());
-                comp.setForeground(table.getSelectionForeground());
-                comp.setOpaque(true);
-                if (hasFocus) {
-                    comp.setBackground(FOCUS_BG);
-                    comp.setForeground(table.getForeground());
+
+            comp.setForeground(table.getForeground());
+            comp.setOpaque(false);
+
+            if ((rowIndex+1)%2 == 0) {
+                if (tc.getEvenBackground() != null) {
+                    comp.setBackground(tc.getEvenBackground());
+                    comp.setOpaque(true);
                 }
+                if (tc.getEvenForeground() != null)
+                    comp.setForeground(tc.getEvenForeground());
             } 
             else {
-                comp.setForeground(table.getForeground());
-                comp.setOpaque(false);
-                
-                if ((rowIndex+1)%2 == 0) {
-                    if (tc.getEvenBackground() != null) {
-                        comp.setBackground(tc.getEvenBackground());
-                        comp.setOpaque(true);
-                    }
-                    if (tc.getEvenForeground() != null)
-                        comp.setForeground(tc.getEvenForeground());
-                } 
-                else {
-                    if (tc.getOddBackground() != null) {
-                        comp.setBackground(tc.getOddBackground());
-                        comp.setOpaque(true);
-                    }                    
-                    if (tc.getOddForeground() != null)
-                        comp.setForeground(tc.getOddForeground());
-                }
+                if (tc.getOddBackground() != null) {
+                    comp.setBackground(tc.getOddBackground());
+                    comp.setOpaque(true);
+                }                    
+                if (tc.getOddForeground() != null)
+                    comp.setForeground(tc.getOddForeground());
             }
+            
+            if (isSelected) {
+                decorateSelected( table, comp, isSelected, hasFocus ); 
+            } 
             
             try {
                 applyStyles(comp, hasFocus);
@@ -424,7 +417,20 @@ public class CellRenderers {
             refresh(table, value, isSelected, hasFocus, rowIndex, columnIndex);
             return comp;
         }
-                
+        
+        protected void decorateSelected(JTable table, JComponent comp, boolean selected, boolean hasFocus) {
+            if ( selected ) {
+                comp.setBackground(table.getSelectionBackground());
+                comp.setForeground(table.getSelectionForeground());
+                comp.setOpaque( true );
+            }
+            if ( hasFocus ) { 
+                comp.setBackground(FOCUS_BG); 
+                comp.setForeground(table.getForeground()); 
+                comp.setOpaque( true );
+            }
+        } 
+              
         private void applyStyles(JComponent comp, boolean hasFocus) {
             TableControl tc = getContext().getTableControl();
             if (tc.getVarName() == null || tc.getVarName().length() == 0) return;
@@ -953,29 +959,70 @@ public class CellRenderers {
     
     // <editor-fold defaultstate="collapsed" desc="  IconRenderer (class)  ">
     
-    public static class IconRenderer extends TextRenderer {        
-        protected void setValue(JLabel label, Column oColumn, Object value) {
+    public static class IconRenderer extends AbstractRenderer { 
+        
+        private JLabel label;
+        
+        public IconRenderer() {
+            label = createComponent();
+            label.setVerticalAlignment(SwingConstants.CENTER);
+        }
+        
+        private JLabel createComponent() {
+            if (label == null) {
+                label = new JLabel();
+                label.setHorizontalAlignment( SwingConstants.CENTER ); 
+            }
+            return label;
+        }
+        
+        public JComponent getComponent(JTable table, int rowIndex, int columnIndex) {
+            return label;
+        }
+
+        protected void decorateSelected(JTable table, JComponent comp, boolean selected, boolean hasFocus) {
+            super.decorateSelected(table, comp, false, hasFocus); 
+        } 
+        
+        protected Object resolveValue(CellRenderers.Context ctx) {
+            return ctx.getValue();
+        }
+        
+        public void refresh(JTable table, Object value, boolean selected, boolean focus, int rowIndex, int columnIndex) {
+            Object cellValue = resolveValue(getContext());
+            Column oColumn = getContext().getColumn();
+
+            Column.TypeHandler handler = (oColumn==null? null: oColumn.getTypeHandler()); 
+            try {
+                String expression = (oColumn == null ? null: oColumn.getExpression()); 
+                if (expression != null && expression.trim().length() > 0) {
+                    Object exprBean = getContext().createExpressionBean(); 
+                    cellValue = UIControlUtil.evaluateExpr(exprBean, expression);
+                } 
+            } catch(Throwable t){;} 
+            
+            loadIcon( cellValue ); 
+        }
+        
+        void loadIcon( Object value ) { 
             label.setText("");
-            Object itemData = getContext().getItemData();
-            if (itemData == null) {
-                label.setIcon(null); 
+            if ( value == null ) {
+                label.setIcon( null ); 
             } else {
-                IconColumnHandler ich = (IconColumnHandler) oColumn.getTypeHandler(); 
-                Object retval = ich.getValue(itemData, value);
-                if (retval instanceof ImageIcon) {
-                    label.setIcon((ImageIcon) retval); 
+                if (value instanceof ImageIcon) {
+                    label.setIcon((ImageIcon) value); 
                     
-                } else if (retval instanceof byte[]) { 
+                } else if (value instanceof byte[]) { 
                     try { 
-                        label.setIcon(new ImageIcon((byte[]) retval)); 
+                        label.setIcon(new ImageIcon((byte[]) value)); 
                     } catch(Throwable t) {
                         System.out.println("[WARN] failed to render icon caused by " + t.getClass().getName() + ": " + t.getMessage()); 
                         label.setIcon(null); 
                     } 
                     
-                } else if (retval instanceof String) {
+                } else if (value instanceof String) {
                     try { 
-                        String sval = retval.toString();
+                        String sval = value.toString();
                         if (sval.matches("[a-zA-Z0-9]://.*")) {
                             label.setIcon(new ImageIcon(new URL(sval)));
                         } else {

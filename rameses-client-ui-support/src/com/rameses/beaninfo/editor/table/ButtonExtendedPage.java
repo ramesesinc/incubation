@@ -8,7 +8,6 @@ package com.rameses.beaninfo.editor.table;
 
 import com.rameses.rcp.common.ButtonColumnHandler;
 import com.rameses.rcp.common.Column;
-import com.rameses.rcp.common.LabelColumnHandler;
 
 /**
  *

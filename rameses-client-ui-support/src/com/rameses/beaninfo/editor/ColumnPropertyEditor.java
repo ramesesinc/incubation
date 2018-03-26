@@ -17,6 +17,7 @@ import com.rameses.rcp.common.ComboBoxColumnHandler;
 import com.rameses.rcp.common.DateColumnHandler;
 import com.rameses.rcp.common.DecimalColumnHandler;
 import com.rameses.rcp.common.DoubleColumnHandler;
+import com.rameses.rcp.common.IconColumnHandler;
 import com.rameses.rcp.common.IntegerColumnHandler;
 import com.rameses.rcp.common.LabelColumnHandler;
 import com.rameses.rcp.common.LookupColumnHandler;
@@ -210,6 +211,9 @@ public class ColumnPropertyEditor implements PropertyEditor
             sb.append("new " + handler.getClass().getName() + "(");
             sb.append(convertString(handler.getVisibleWhen())); 
             sb.append(")");
+        } else if ( typeHandler instanceof IconColumnHandler ) { 
+            IconColumnHandler lch = (IconColumnHandler) typeHandler;
+            sb.append("new " + lch.getClass().getName() + "()");
         } else { 
             sb.append("new " + TextColumnHandler.class.getName() + "()"); 
         } 

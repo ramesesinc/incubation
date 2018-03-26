@@ -895,8 +895,10 @@ public class DataTableComponent extends JTable implements TableControl
         }
     } 
     
-    public Object createExpressionBean(Object itemBean) {
-        ExprBeanSupport beanSupport = new ExprBeanSupport(binding.getBean());
+    public Object createExpressionBean(Object itemBean) { 
+        Object bean = (binding == null ? null : binding.getBean()); 
+        ExprBeanSupport beanSupport = new ExprBeanSupport( bean );
+        beanSupport.setItem("parent", bean); 
         beanSupport.setItem(getVarName(), itemBean); 
         return beanSupport.createProxy(); 
     }

@@ -28,24 +28,22 @@ public class ExprBeanSupport extends HashMap implements InvocationHandler
     private Object root;
     private String _toString;
     
-    public ExprBeanSupport(Object root) 
-    {
-        super();
+    public ExprBeanSupport(Object root) { 
+        super(); 
         this.root = root; 
         this._toString = "$ExprBeanSupport@"+new UID(); 
     }
     
-    public void setItem(String name, Object item) 
-    {
-        if (name == null) name = "item";
-        
+    public void setItem(String name, Object item) {
+        if (name == null) {
+            name = "item";
+        }
         super.put(name, item); 
     }
 
-    public Object get(Object key) 
-    {
+    public Object get(Object key) { 
         if (key == null) return null; 
-        if (containsKey(key)) return super.get(key);
+        else if (containsKey(key)) return super.get(key);
         
         String skey = key.toString(); 
         String propName = "get" + skey.substring(0,1).toUpperCase() + skey.substring(1); 
