@@ -9,51 +9,33 @@
 
 package com.rameses.rcp.control;
 
-import com.rameses.beaninfo.ComponentBeanInfo;
-import java.beans.IntrospectionException;
+import com.rameses.beaninfo.ComponentBeanInfoSupport;
 import java.beans.PropertyDescriptor;
+import java.util.List;
 
 /**
  *
  * @author wflores
  */
-public class XPhotoBeanInfo extends ComponentBeanInfo.Support
-{
+public class XPhotoBeanInfo extends ComponentBeanInfoSupport {
+    
     private Class beanClass;
     
-    protected Class getBeanClass() {
-        if (beanClass == null) beanClass = XPhoto.class;
-        
+    public Class getBeanClass() {
+        if (beanClass == null) {
+            beanClass = XPhoto.class;
+        }
         return beanClass; 
     }
     
-    
-    protected PropertyDescriptor[] createPropertyDescriptors() throws IntrospectionException 
-    {
-        return new PropertyDescriptor[] {
-            new PropertyDescriptor("caption", getBeanClass()),
-            new PropertyDescriptor("captionMnemonic", getBeanClass()),
-            new PropertyDescriptor("captionWidth", getBeanClass()),
-            new PropertyDescriptor("captionFont", getBeanClass()),
-            new PropertyDescriptor("captionFontStyle", getBeanClass()),
-            new PropertyDescriptor("cellPadding", getBeanClass()),
-            new PropertyDescriptor("showCaption", getBeanClass(), "isShowCaption", "setShowCaption"),
-            
-            new PropertyDescriptor("border", getBeanClass()),
-            new PropertyDescriptor("text", getBeanClass()), 
-            
-            new PropertyDescriptor("stretchWidth", getBeanClass()),
-            new PropertyDescriptor("stretchHeight", getBeanClass()),
-            new PropertyDescriptor("visibleWhen", getBeanClass()),
-            
-            new PropertyDescriptor("depends", getBeanClass()),
-            new PropertyDescriptor("index", getBeanClass()), 
-            new PropertyDescriptor("noImageIcon", getBeanClass()), 
-            new PropertyDescriptor("noImageBackground", getBeanClass()), 
-            new PropertyDescriptor("noImageForeground", getBeanClass()), 
-            new PropertyDescriptor("scaled", getBeanClass(), "isScaled", "setScaled"), 
-            new PropertyDescriptor("showNoImageIcon", getBeanClass(), "isShowNoImageIcon", "setShowNoImageIcon"), 
-            new PropertyDescriptor("showNoImageText", getBeanClass(), "isShowNoImageText", "setShowNoImageText")
-        };        
+    protected void loadProperties(List<PropertyDescriptor> list) { 
+        add( list, "text" );
+        add( list, "noImageIcon" );
+        add( list, "noImageBackground" );
+        add( list, "noImageForeground" );
+        
+        addBoolean( list, "scaled" );
+        addBoolean( list, "showNoImageIcon" );
+        addBoolean( list, "showNoImageText" );
     }
 }

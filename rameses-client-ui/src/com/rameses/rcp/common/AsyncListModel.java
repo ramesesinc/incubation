@@ -15,9 +15,7 @@ public abstract class AsyncListModel extends ScrollListModel implements Runnable
     private Thread thread;
     private boolean cancelled;
     private int batchNo;
-    
-    private ProgressModel progress = new ProgressModel(this);
-    
+        
     public AsyncListModel() {
     }
     
@@ -79,7 +77,6 @@ public abstract class AsyncListModel extends ScrollListModel implements Runnable
     public void run() 
     {
         toprow = 0;
-        getProgress().notifyStart();
         batchNo = 1;
         getListItems().clear();
         
@@ -137,10 +134,7 @@ public abstract class AsyncListModel extends ScrollListModel implements Runnable
             //during fetchList event.
             
             if (subList.size() == 0) cancelled = true;
-            
-            //the newlist is added to the main list.
-            getProgress().addCompleted(subList.size());
-            
+                        
             //if a cancel signal exists, it will override the default
             //cancelled behavior
             if (params.get("cancel") != null) 
@@ -160,8 +154,6 @@ public abstract class AsyncListModel extends ScrollListModel implements Runnable
             }
             batchNo++;
         }
-        System.out.println("TOTAL MAX ROWS IN ASYNC LIST->" + maxRows);
-        getProgress().notifyStop();
         thread = null;
     }
         
@@ -179,10 +171,6 @@ public abstract class AsyncListModel extends ScrollListModel implements Runnable
     
     protected boolean isAutoStart() {
         return false;
-    }
-
-    public ProgressModel getProgress() {
-        return progress;
     }
 
     protected void onfinalize() throws Throwable {

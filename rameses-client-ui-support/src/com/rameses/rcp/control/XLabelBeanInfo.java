@@ -9,60 +9,38 @@
 
 package com.rameses.rcp.control;
 
-import com.rameses.beaninfo.ComponentBeanInfo;
+import com.rameses.beaninfo.ComponentBeanInfoSupport;
 import com.rameses.beaninfo.editor.SwingConstantsHAlignment;
 import com.rameses.beaninfo.editor.SwingConstantsVAlignment;
-import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
+import java.util.List;
 
 /**
  *
  * @author wflores
  */
-public class XLabelBeanInfo extends ComponentBeanInfo.Support
-{
+public class XLabelBeanInfo extends ComponentBeanInfoSupport {
+    
     private Class beanClass;
     
-    protected Class getBeanClass() {
-        if (beanClass == null) beanClass = XLabel.class;
-        
+    public Class getBeanClass() {
+        if (beanClass == null) {
+            beanClass = XLabel.class;
+        }
         return beanClass; 
     }
     
-    
-    protected PropertyDescriptor[] createPropertyDescriptors() throws IntrospectionException 
-    {
-        return new PropertyDescriptor[] {
-            new PropertyDescriptor("border", getBeanClass()),
-            new PropertyDescriptor("text", getBeanClass()), 
-            
-            installEditor(new PropertyDescriptor("horizontalAlignment", getBeanClass()), SwingConstantsHAlignment.class), 
-            installEditor(new PropertyDescriptor("verticalAlignment", getBeanClass()), SwingConstantsVAlignment.class), 
-            
-            new PropertyDescriptor("caption", getBeanClass()),
-            new PropertyDescriptor("captionFont", getBeanClass()),
-            new PropertyDescriptor("captionFontStyle", getBeanClass()),
-            new PropertyDescriptor("captionMnemonic", getBeanClass()),
-            new PropertyDescriptor("captionWidth", getBeanClass()),
-            new PropertyDescriptor("showCaption", getBeanClass(), "isShowCaption", "setShowCaption"),              
-            new PropertyDescriptor("cellPadding", getBeanClass()),
-            
-            new PropertyDescriptor("stretchWidth", getBeanClass()),
-            new PropertyDescriptor("stretchHeight", getBeanClass()),
-            
-            new PropertyDescriptor("antiAliasOn", getBeanClass(), "isAntiAliasOn", "setAntiAliasOn"),
-            new PropertyDescriptor("depends", getBeanClass()),
-            new PropertyDescriptor("expression", getBeanClass()),
-            new PropertyDescriptor("fontStyle", getBeanClass()),
-            new PropertyDescriptor("for", getBeanClass()),
-            new PropertyDescriptor("format", getBeanClass()),
-            new PropertyDescriptor("iconResource", getBeanClass()),
-            new PropertyDescriptor("index", getBeanClass()),
-            new PropertyDescriptor("padding", getBeanClass()), 
-            new PropertyDescriptor("useHtml", getBeanClass(), "isUseHtml", "setUseHtml"),            
-            new PropertyDescriptor("varName", getBeanClass()),
-            new PropertyDescriptor("visibleWhen", getBeanClass(), "isVisibleWhen", "setVisibleWhen")              
-        }; 
+    protected void loadProperties(List<PropertyDescriptor> list) { 
+        addBoolean( list, "antiAliasOn", true );
+        addBoolean( list, "useHtml", true );
+        
+        add( list, "text" );
+        add( list, "horizontalAlignment", SwingConstantsHAlignment.class );
+        add( list, "verticalAlignment", SwingConstantsVAlignment.class );
+        add( list, "for" );
+        add( list, "format" );
+        add( list, "iconResource" );
+        add( list, "padding" );
+        add( list, "varName" );
     }
-    
 }

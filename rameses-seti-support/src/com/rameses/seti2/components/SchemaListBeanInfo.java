@@ -1,58 +1,41 @@
 package com.rameses.seti2.components;
 
-import com.rameses.beaninfo.ComponentBeanInfo;
+import com.rameses.beaninfo.ComponentBeanInfoSupport;
 import com.rameses.beaninfo.editor.ColumnPropertyEditor;
-import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
+import java.util.List;
 
-public class SchemaListBeanInfo extends ComponentBeanInfo.Support {
+public class SchemaListBeanInfo extends ComponentBeanInfoSupport {
     
     private Class beanClass;
     
-    protected Class getBeanClass() {
-        if (beanClass == null) beanClass = SchemaList.class;
-        
+    public Class getBeanClass() {
+        if (beanClass == null) { 
+            beanClass = SchemaList.class;
+        }
         return beanClass; 
     }
-    
-    
-    protected PropertyDescriptor[] createPropertyDescriptors() throws IntrospectionException {
-        return new PropertyDescriptor[] {
-            new PropertyDescriptor("border", getBeanClass()),
-            new PropertyDescriptor("autoResize", getBeanClass(), "isAutoResize", "setAutoResize"),
-            new PropertyDescriptor("showHorizontalLines", getBeanClass(), "isShowHorizontalLines", "setShowHorizontalLines"), 
-            new PropertyDescriptor("showVerticalLines", getBeanClass(), "isShowVerticalLines", "setShowVerticalLines"),
-            
-            installEditor(new PropertyDescriptor("columns", getBeanClass()), ColumnPropertyEditor.class), 
-            
-            new PropertyDescriptor("depends", getBeanClass()),
-            new PropertyDescriptor("dynamic", getBeanClass(), "isDynamic", "setDynamic"),
-            new PropertyDescriptor("handler", getBeanClass()),
-            new PropertyDescriptor("index", getBeanClass()),
-            new PropertyDescriptor("rowHeight", getBeanClass()),
-            new PropertyDescriptor("rows", getBeanClass()),
-            new PropertyDescriptor("visibleWhen", getBeanClass()),
-            
-            new PropertyDescriptor("actionContext", getBeanClass()),
-            new PropertyDescriptor("menuContext", getBeanClass()),
-            
-            createPropertyDescriptor("schemaName", true),
-            createPropertyDescriptor("customFilter", true),
-            createPropertyDescriptor("queryName", true),
-            createPropertyDescriptor("orderBy", true),
-            createPropertyDescriptor("groupBy", true),
-            createPropertyDescriptor("hiddenCols", true),
-            
-            new PropertyDescriptor("multiSelect", getBeanClass(), "isMultiSelect", "setMultiSelect"),
-            new PropertyDescriptor("allowCreate", getBeanClass(), "isAllowCreate", "setAllowCreate"),
-            new PropertyDescriptor("allowDelete", getBeanClass(), "isAllowDelete", "setAllowDelete"),
-            new PropertyDescriptor("allowOpen", getBeanClass(), "isAllowOpen", "setAllowOpen") 
-        }; 
-    }
-    
-    protected PropertyDescriptor createPropertyDescriptor( String name, boolean preferred ) throws IntrospectionException {
-        PropertyDescriptor pd = new PropertyDescriptor( name, getBeanClass()); 
-        if ( preferred ) pd.setPreferred( preferred ); 
-        return pd; 
+
+    protected void loadProperties(List<PropertyDescriptor> list) { 
+        addBoolean( list, "autoResize" ); 
+        addBoolean( list, "showHorizontalLines" ); 
+        addBoolean( list, "showVerticalLines" ); 
+        addBoolean( list, "multiSelect" ); 
+        addBoolean( list, "allowCreate" ); 
+        addBoolean( list, "allowDelete" ); 
+        addBoolean( list, "allowOpen" ); 
+        
+        add( list, "columns", true, ColumnPropertyEditor.class ); 
+        add( list, "handler", true); 
+        add( list, "rowHeight" ); 
+        add( list, "rows" ); 
+        add( list, "actionContext", true ); 
+        add( list, "menuContext", true ); 
+        add( list, "schemaName", true ); 
+        add( list, "customFilter", true ); 
+        add( list, "queryName", true ); 
+        add( list, "orderBy", true ); 
+        add( list, "groupBy", true ); 
+        add( list, "hiddenCols", true ); 
     }
 }

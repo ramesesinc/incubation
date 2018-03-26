@@ -1,138 +1,85 @@
 /*
- * ProgressModel.java
+ * ListCellModel.java
  *
- * Created on January 29, 2010, 10:16 AM
+ * Created on March 21, 2018, 3:34 PM
  *
  * To change this template, choose Tools | Template Manager
  * and open the template in the editor.
  */
-
 package com.rameses.rcp.common;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 /**
  *
- * @author elmo
+ * @author wflores
  */
 public class ProgressModel {
     
-    private int minSize = 0;
-    private long estimatedMaxSize;
-    private long totalFetchedSize;
-    private boolean started;
-    private boolean indeterminate;
+    private int minValue;
+    private int maxValue; 
+    private int value;
     
-    private ProgressInfo progressInfo;
+    public int getMinValue() { return minValue; } 
     
-    
-    public ProgressModel() {}
-    
-    public ProgressModel(ProgressInfo info) {
-        this.progressInfo = info;
+    public int getMaxValue() { return maxValue; } 
+    public void setMaxValue( int maxValue ) {
+        this.maxValue = maxValue; 
+        refresh();
+    }
+
+    public int getValue() { return value; } 
+    public void setValue( int value ) {
+        this.value = value; 
+        refresh(); 
     }
     
-    private List<ProgressListener> listeners = new ArrayList<ProgressListener>();
-    
-    public void addListener( ProgressListener listener ) {
-        listeners.add(listener);
+    public void refresh() {
+        if ( provider != null ) {
+            provider.adjustValues( getMinValue(), getMaxValue(), getValue() ); 
+        }
+    }
+
+    public void setText( String text ) {
+        if ( provider != null ) { 
+            provider.adjustText( text ); 
+        }
     }
     
-    public void removeListener( ProgressListener listener ) {
-        listeners.remove(listener);
-    }
     
-    public void notifyStart() {
-        if ( started ) return;
+    private LinkedBlockingQueue queue;    
+    public void pause() {
+        pause( 250 ); 
+    }
+    public void pause( long millis ) {
+        if ( queue == null ) {
+            queue = new LinkedBlockingQueue();
+        }
         
-        totalFetchedSize = 0;
-        estimatedMaxSize = getEstimatedMaxSize();
-        for(ProgressListener l: listeners) {
-            l.onStart(minSize, 100 );
-        }
-        started = true;
+        try {
+            queue.poll(millis, TimeUnit.MILLISECONDS );
+        } catch(Throwable t) {;} 
     }
     
-    public void notifySuspend() {
-        for(ProgressListener l: listeners) {
-            l.onSuspend();
-        }
-        started = false;
+    
+    // <editor-fold defaultstate="collapsed" desc=" Provider ">
+    
+    private Provider provider;    
+    public final void setProvider(Provider provider) { 
+        this.provider = provider; 
     }
     
-    public void notifyStop() {
-        if ( !started ) return;
-        
-        for(ProgressListener l: listeners) {
-            l.onStop();
-        }
-        started = false;
+    public Object getBinding() {
+        return (provider == null? null: provider.getBinding()); 
     }
     
-    public void addCompleted(long newSize) {
-        totalFetchedSize += newSize;
-        if( totalFetchedSize >= estimatedMaxSize) {
-            estimatedMaxSize = getEstimatedMaxSize();
-        }
-        for(ProgressListener l: listeners) {
-            l.onProgress(getComputedValue(), 100);
-        }
+    public static interface Provider {
+        Object getBinding(); 
+        void adjustValues( int min, int max, int value );  
+        void adjustText( String text ); 
     }
     
-    public void setValue(long sz) {
-        totalFetchedSize = sz;
-        if( totalFetchedSize >= estimatedMaxSize) {
-            estimatedMaxSize = getEstimatedMaxSize();
-        }
-        for(ProgressListener l: listeners) {
-            l.onProgress(getComputedValue(), 100);
-        }
-    }
-    
-    private int getComputedValue() {
-        int count = (int) ((totalFetchedSize / (double) getEstimatedMaxSize()) * 100);
-        return count;
-    }
-    
-    public long getTotalFetchedSize() {
-        return totalFetchedSize;
-    }
-    
-    public boolean isCompleted() {
-        return  totalFetchedSize >= getEstimatedMaxSize();
-    }
-    
-    //can be called when using indeterminate progress bar
-    public void completed() {
-        if ( indeterminate ) {
-            totalFetchedSize = 0;
-            progressInfo = null;
-            estimatedMaxSize = 0;
-        }
-    }
-    
-    public long getEstimatedMaxSize() {
-        if ( progressInfo != null )
-            return progressInfo.getEstimatedMaxSize();
-        
-        return estimatedMaxSize;
-    }
-    
-    public void setEstimatedMaxSize(long estimatedMaxSize) {
-        this.estimatedMaxSize = estimatedMaxSize;
-    }
-    
-    public boolean isStarted() {
-        return started;
-    }
-    
-    public boolean isIndeterminate() {
-        return indeterminate;
-    }
-    
-    public void setIndeterminate(boolean indeterminate) {
-        this.indeterminate = indeterminate;
-    }
+    // </editor-fold>
     
 }

@@ -9,50 +9,29 @@
 
 package com.rameses.rcp.control;
 
-import com.rameses.beaninfo.ComponentBeanInfo;
-import java.beans.IntrospectionException;
+import com.rameses.beaninfo.ComponentBeanInfoSupport;
 import java.beans.PropertyDescriptor;
+import java.util.List;
 
 /**
  *
  * @author wflores
  */
-public class XRadioBeanInfo extends ComponentBeanInfo.Support
-{
+public class XRadioBeanInfo extends ComponentBeanInfoSupport {
+    
     private Class beanClass;
     
-    protected Class getBeanClass() {
-        if (beanClass == null) beanClass = XRadio.class;
-        
+    public Class getBeanClass() {
+        if (beanClass == null) {
+            beanClass = XRadio.class;
+        }
         return beanClass; 
     }
     
-    
-    protected PropertyDescriptor[] createPropertyDescriptors() throws IntrospectionException 
-    {
-        return new PropertyDescriptor[] {
-            new PropertyDescriptor("text", getBeanClass()),
-            new PropertyDescriptor("fontStyle", getBeanClass()),
-            new PropertyDescriptor("margin", getBeanClass()),
-            new PropertyDescriptor("mnemonic", getBeanClass()),            
-            
-            new PropertyDescriptor("caption", getBeanClass()),
-            new PropertyDescriptor("captionFont", getBeanClass()),
-            new PropertyDescriptor("captionFontStyle", getBeanClass()),
-            new PropertyDescriptor("captionMnemonic", getBeanClass()),
-            new PropertyDescriptor("captionWidth", getBeanClass()),
-            new PropertyDescriptor("showCaption", getBeanClass(), "isShowCaption", "setShowCaption"),  
-
-            new PropertyDescriptor("cellPadding", getBeanClass()),
-            
-            new PropertyDescriptor("stretchWidth", getBeanClass()),
-            new PropertyDescriptor("stretchHeight", getBeanClass()),
-            new PropertyDescriptor("visibleWhen", getBeanClass()),
-            
-            new PropertyDescriptor("depends", getBeanClass()),
-            new PropertyDescriptor("index", getBeanClass()),
-            new PropertyDescriptor("optionValue", getBeanClass()),
-            new PropertyDescriptor("readonly", getBeanClass(), "isReadonly", "setReadonly")
-        }; 
+    protected void loadProperties(List<PropertyDescriptor> list) { 
+        add( list, "text" ); 
+        add( list, "margin" ); 
+        add( list, "mnemonic" ); 
+        add( list, "optionValue", true ); 
     }
 }

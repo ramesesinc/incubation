@@ -1,7 +1,7 @@
 /*
- * XButtonBeanInfo.java
+ * XProgressBarBeanInfo.java
  *
- * Created on May 4, 2013, 11:00 AM
+ * Created on March 22, 2018, 09:39 AM
  *
  * To change this template, choose Tools | Template Manager
  * and open the template in the editor.
@@ -10,7 +10,6 @@
 package com.rameses.rcp.control;
 
 import com.rameses.beaninfo.ComponentBeanInfoSupport;
-import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
 import java.util.List;
 
@@ -18,22 +17,18 @@ import java.util.List;
  *
  * @author wflores
  */
-public class XCheckBoxBeanInfo extends ComponentBeanInfoSupport
-{
+public class XProgressBarBeanInfo extends ComponentBeanInfoSupport { 
+    
     private Class beanClass;
     
     public Class getBeanClass() {
-        if (beanClass == null) { 
-            beanClass = XCheckBox.class;
+        if (beanClass == null) {
+            beanClass = XProgressBar.class;
         }
         return beanClass; 
     }
     
     protected void loadProperties(List<PropertyDescriptor> list) { 
-        add( list, "text" );
-        add( list, "margin" );
-        add( list, "mnemonic" );
-        add( list, "checkValue", true );
-        add( list, "uncheckValue", true );
+        add( list, "handler", true );
     }
 }

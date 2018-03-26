@@ -10,7 +10,6 @@
 package com.rameses.beaninfo;
 
 import java.awt.Component;
-import java.awt.Image;
 import java.awt.KeyboardFocusManager;
 import java.awt.Window;
 import java.beans.BeanDescriptor;
@@ -19,8 +18,8 @@ import java.beans.Beans;
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
 import java.beans.SimpleBeanInfo;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 
@@ -28,48 +27,57 @@ import javax.swing.JOptionPane;
  *
  * @author wflores
  */
-public class ComponentBeanInfo extends SimpleBeanInfo 
-{
+public class ComponentBeanInfo extends SimpleBeanInfo {
     
-    public PropertyDescriptor[] getPropertyDescriptors() 
-    {
-        try 
-        {
-            return new PropertyDescriptor[] {
-                new PropertyDescriptor("background", Component.class, "getBackground", "setBackground"),                
-                new PropertyDescriptor("foreground", Component.class, "getForeground", "setForeground"),
-                
-                new PropertyDescriptor("enabled", Component.class, "isEnabled", "setEnabled"),                
-                new PropertyDescriptor("preferredSize", Component.class),
+    private BeanInfoHelper helper = new BeanInfoHelper(); 
+    
+    public PropertyDescriptor[] getPropertyDescriptors() {
+        try {
+            return new PropertyDescriptor[] { 
+                new PropertyDescriptor("background", Component.class), 
+                new PropertyDescriptor("foreground", Component.class), 
                 new PropertyDescriptor("font", Component.class), 
                 
                 createPropertyDescriptor("name", Component.class, true),
+                createPropertyDescriptorBoolean("enabled", Component.class), 
+                createPropertyDescriptorBoolean("opaque", JComponent.class), 
+                
+                new PropertyDescriptor("preferredSize", Component.class),
                 new PropertyDescriptor("visible", Component.class), 
-                new PropertyDescriptor("opaque", JComponent.class, "isOpaque", "setOpaque"),
                 new PropertyDescriptor("toolTipText", JComponent.class)
             };
         } 
-        catch (IntrospectionException ie) {
+        catch (IntrospectionException ie) { 
+            ie.printStackTrace(); 
             return super.getPropertyDescriptors();
         }
     }
-    
+
+    protected PropertyDescriptor createPropertyDescriptor( String name, Class beanClass ) throws IntrospectionException { 
+        return createPropertyDescriptor(name, beanClass, false );
+    }    
     protected PropertyDescriptor createPropertyDescriptor( String name, Class beanClass, boolean preferred ) throws IntrospectionException {
-        PropertyDescriptor pd = new PropertyDescriptor( name, beanClass); 
-        if ( preferred ) pd.setPreferred( preferred ); 
-        return pd; 
+        return helper.createPropertyDescriptor(name, beanClass, preferred); 
+    }
+
+    protected PropertyDescriptor createPropertyDescriptorBoolean( String name, Class beanClass ) throws IntrospectionException { 
+        return createPropertyDescriptorBoolean(name, beanClass, false); 
+    }    
+    protected PropertyDescriptor createPropertyDescriptorBoolean( String name, Class beanClass, boolean preferred ) throws IntrospectionException { 
+        return helper.createPropertyDescriptorBoolean(name, beanClass, preferred); 
     }
     
     
     public abstract static class Support extends SimpleBeanInfo {
-    
+
+        private BeanInfoHelper helper = new BeanInfoHelper();        
         private String _icon = "gear.png";        
         private Class beanClass;
-
+        
         public Support() {
             this.beanClass = getBeanClass(); 
         }
-                
+
         protected abstract PropertyDescriptor[] createPropertyDescriptors() throws IntrospectionException; 
         protected abstract Class getBeanClass();         
 
@@ -77,10 +85,33 @@ public class ComponentBeanInfo extends SimpleBeanInfo
             return new BeanDescriptor(this.beanClass, null);
         }
         
+        protected BeanInfo getUIControlBeanInfo() {
+            return new UIControlBeanInfo( beanClass ); 
+        }
+        
         public BeanInfo[] getAdditionalBeanInfo() {
-            return new BeanInfo[] { new ComponentBeanInfo() };
+            ArrayList<BeanInfo> list = new ArrayList();
+            list.add( new ComponentBeanInfo() ); 
+            
+            try {
+                BeanInfo bi = getUIControlBeanInfo(); 
+                if ( bi != null ) list.add( bi ); 
+            } catch(Throwable t) { 
+                t.printStackTrace(); 
+            } 
+                        
+            try { 
+                loadAdditionalBeanInfo( list ); 
+            } catch(Throwable t) { 
+                t.printStackTrace(); 
+            } 
+            
+            return list.toArray(new BeanInfo[]{}); 
         }
 
+        protected void loadAdditionalBeanInfo( List<BeanInfo> list ) {
+        }
+        
         public PropertyDescriptor[] getPropertyDescriptors() {
             try {
                 if (Beans.isDesignTime()) 
@@ -93,10 +124,9 @@ public class ComponentBeanInfo extends SimpleBeanInfo
                 return null;
             }
         }  
-        
+                
         protected PropertyDescriptor installEditor(PropertyDescriptor pd, Class editorClass) {
-            pd.setPropertyEditorClass(editorClass); 
-            return pd; 
+            return helper.installEditor(pd, editorClass); 
         } 
         
         private void showError(Throwable t) {

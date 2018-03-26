@@ -9,32 +9,29 @@
 
 package com.rameses.rcp.control;
 
-import com.rameses.beaninfo.ComponentBeanInfo;
-import java.beans.IntrospectionException;
+import com.rameses.beaninfo.ComponentBeanInfoSupport;
+import com.rameses.beaninfo.editor.UIConstantsOrientationPropertyEditor;
 import java.beans.PropertyDescriptor;
+import java.util.List;
 
 /**
  *
  * @author wflores
  */
-public class XSplitViewBeanInfo extends ComponentBeanInfo.Support
-{
+public class XSplitViewBeanInfo extends ComponentBeanInfoSupport {
+    
     private Class beanClass;
     
-    protected Class getBeanClass() {
-        if (beanClass == null) beanClass = XSplitView.class;
-        
+    public Class getBeanClass() {
+        if (beanClass == null) {
+            beanClass = XSplitView.class;
+        }
         return beanClass; 
     }
     
-    
-    protected PropertyDescriptor[] createPropertyDescriptors() throws IntrospectionException 
-    {
-        return new PropertyDescriptor[] {
-            new PropertyDescriptor("border", getBeanClass()),
-            new PropertyDescriptor("dividerLocation", getBeanClass()),
-            new PropertyDescriptor("dividerSize", getBeanClass()),
-            new PropertyDescriptor("orientation", getBeanClass())
-        }; 
+    protected void loadProperties(List<PropertyDescriptor> list) { 
+        add( list, "dividerLocation", true ); 
+        add( list, "dividerSize", true ); 
+        add( list, "orientation", true, UIConstantsOrientationPropertyEditor.class ); 
     }
 }

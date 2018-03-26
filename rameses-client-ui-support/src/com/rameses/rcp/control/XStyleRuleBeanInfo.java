@@ -9,28 +9,25 @@
 
 package com.rameses.rcp.control;
 
-import com.rameses.beaninfo.ComponentBeanInfo;
-import java.beans.IntrospectionException;
+import com.rameses.beaninfo.ComponentBeanInfoSupport;
 import java.beans.PropertyDescriptor;
+import java.util.List;
 
 /**
  *
  * @author wflores
  */
-public class XStyleRuleBeanInfo extends ComponentBeanInfo.Support
-{
+public class XStyleRuleBeanInfo extends ComponentBeanInfoSupport {
+    
     private Class beanClass;
     
-    protected Class getBeanClass() {
-        if (beanClass == null) beanClass = XStyleRule.class;
-        
+    public Class getBeanClass() {
+        if (beanClass == null) { 
+            beanClass = XStyleRule.class;
+        }
         return beanClass; 
     }
     
-    
-    protected PropertyDescriptor[] createPropertyDescriptors() throws IntrospectionException 
-    {
-        return new PropertyDescriptor[] {
-        }; 
+    protected void loadProperties(List<PropertyDescriptor> list) { 
     }
 }

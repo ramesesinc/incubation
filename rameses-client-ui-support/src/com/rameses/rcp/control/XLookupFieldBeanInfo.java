@@ -9,67 +9,39 @@
 
 package com.rameses.rcp.control;
 
-import com.rameses.beaninfo.ComponentBeanInfo;
-import com.rameses.beaninfo.editor.TextCasePropertyEditor;
-import com.rameses.beaninfo.editor.TrimSpaceOptionPropertyEditor;
-import java.beans.IntrospectionException;
+import com.rameses.beaninfo.ComponentBeanInfoSupport;
+import com.rameses.beaninfo.UITextFieldBeanInfo;
+import java.beans.BeanInfo;
 import java.beans.PropertyDescriptor;
+import java.util.List;
 
 /**
  *
  * @author wflores
  */
-public class XLookupFieldBeanInfo extends ComponentBeanInfo.Support
-{
+public class XLookupFieldBeanInfo extends ComponentBeanInfoSupport {
+    
     private Class beanClass;
     
-    protected Class getBeanClass() {
-        if (beanClass == null) beanClass = XLookupField.class;
-        
+    public Class getBeanClass() {
+        if (beanClass == null) {
+            beanClass = XLookupField.class;
+        }
         return beanClass; 
     }
+
+    protected void loadAdditionalBeanInfo(List<BeanInfo> list) {
+        list.add( new UITextFieldBeanInfo(getBeanClass())); 
+    }
     
-    
-    protected PropertyDescriptor[] createPropertyDescriptors() throws IntrospectionException 
-    {
-        return new PropertyDescriptor[] {
-            new PropertyDescriptor("text", getBeanClass()),
-            new PropertyDescriptor("editable", getBeanClass(), "isEditable", "setEditable"),
-            new PropertyDescriptor("fontStyle", getBeanClass()), 
-            new PropertyDescriptor("disabledTextColor", getBeanClass()), 
-            
-            new PropertyDescriptor("caption", getBeanClass()),
-            new PropertyDescriptor("captionFont", getBeanClass()),
-            new PropertyDescriptor("captionFontStyle", getBeanClass()),
-            new PropertyDescriptor("captionMnemonic", getBeanClass()),
-            new PropertyDescriptor("captionWidth", getBeanClass()),
-            new PropertyDescriptor("showCaption", getBeanClass(), "isShowCaption", "setShowCaption"),            
-            new PropertyDescriptor("cellPadding", getBeanClass()),
-                        
-            new PropertyDescriptor("depends", getBeanClass()),
-            new PropertyDescriptor("disableWhen", getBeanClass()),
-            new PropertyDescriptor("expression", getBeanClass()),
-            new PropertyDescriptor("focusAccelerator", getBeanClass()),
-            new PropertyDescriptor("focusKeyStroke", getBeanClass()),            
-            new PropertyDescriptor("hint", getBeanClass()),
-            new PropertyDescriptor("handler", getBeanClass()),
-            new PropertyDescriptor("handlerObject", getBeanClass()),
-            new PropertyDescriptor("index", getBeanClass()),
-            new PropertyDescriptor("orientation", getBeanClass()),
-            new PropertyDescriptor("returnFields", getBeanClass()),
-            new PropertyDescriptor("varName", getBeanClass()),
-            new PropertyDescriptor("visibleWhen", getBeanClass()),
-            
-            installEditor(new PropertyDescriptor("textCase", getBeanClass()), TextCasePropertyEditor.class),
-            installEditor(new PropertyDescriptor("trimSpaceOption", getBeanClass()), TrimSpaceOptionPropertyEditor.class),
-            
-            new PropertyDescriptor("stretchWidth", getBeanClass()),
-            new PropertyDescriptor("stretchHeight", getBeanClass()),
-            
-            new PropertyDescriptor("nullWhenEmpty", getBeanClass(), "isNullWhenEmpty", "setNullWhenEmpty"),  
-            new PropertyDescriptor("readonly", getBeanClass(), "isReadonly", "setReadonly"),  
-            new PropertyDescriptor("required", getBeanClass(), "isRequired", "setRequired"), 
-            new PropertyDescriptor("transferFocusOnSelect", getBeanClass(), "isTransferFocusOnSelect", "setTransferFocusOnSelect") 
-        }; 
+    protected void loadProperties(List<PropertyDescriptor> list) { 
+        add( list, "handler", true ); 
+        add( list, "handlerObject" );
+        add( list, "orientation" );
+        add( list, "returnFields", true );
+        add( list, "varName" );
+        
+        addBoolean( list, "nullWhenEmpty" );
+        addBoolean( list, "transferFocusOnSelect" );
     }
 }

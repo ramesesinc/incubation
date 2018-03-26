@@ -1,227 +1,217 @@
-/*
- * XProgressBar.java
- *
- * Created on July 21, 2010, 5:24 PM
- * @author jaycverg
- */
-
 package com.rameses.rcp.control;
 
-import com.rameses.rcp.common.ProgressListener;
 import com.rameses.rcp.common.ProgressModel;
-import com.rameses.rcp.common.PropertySupport;
+import com.rameses.rcp.common.PropertySupport.PropertyInfo;
 import com.rameses.rcp.framework.Binding;
-import com.rameses.rcp.framework.ClientContext;
-import com.rameses.rcp.framework.NavigatablePanel;
-import com.rameses.rcp.framework.NavigationHandler;
 import com.rameses.rcp.ui.UIControl;
-import com.rameses.rcp.util.UIControlUtil;
-import com.rameses.common.MethodResolver;
 import com.rameses.rcp.support.MouseEventSupport;
 import com.rameses.rcp.ui.ActiveControl;
 import com.rameses.rcp.ui.ControlProperty;
-import com.rameses.util.ValueUtil;
+import com.rameses.rcp.util.UIControlUtil;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Insets;
+import java.beans.Beans;
+import java.util.HashMap;
 import java.util.Map;
 import javax.swing.JProgressBar;
 
-
-public class XProgressBar extends JProgressBar implements UIControl, 
-    ProgressListener, MouseEventSupport.ComponentInfo, ActiveControl  
-{    
+public class XProgressBar extends JProgressBar 
+    implements UIControl, MouseEventSupport.ComponentInfo, ActiveControl  
+{ 
     private Binding binding;
     private String[] depends;
     private int index;
-    private String onComplete;
-    
-    private ProgressModel model;
-    
     private int stretchWidth;
     private int stretchHeight; 
     private String visibleWhen; 
+    private String disableWhen;
     
-    public XProgressBar() {
+    private String handler;
+    private ProgressModel progmodel;
+    
+    public XProgressBar() { 
+        initComponent();
+    }
+  
+    // <editor-fold defaultstate="collapsed" desc=" initComponent ">
+    
+    private void initComponent() {
+        setPreferredSize(new Dimension(100, 20)); 
+        setStringPainted( true ); 
         new MouseEventSupport(this).install(); 
+        
+        if (Beans.isDesignTime()) {
+            setMinimum(0);
+            setMaximum(100);
+            setValue(75); 
+        }
     }
     
+    // </editor-fold>     
+    
+    // <editor-fold defaultstate="collapsed" desc=" Properties ">
+    
+    public String getHandler() { return handler; } 
+    public void setHandler( String handler ) {
+        this.handler = handler;
+    }
+    
+    // </editor-fold>     
+    
+    // <editor-fold defaultstate="collapsed" desc=" UIControl ">
+    
+    public Binding getBinding() { return binding; }
+    public void setBinding(Binding binding) {
+        this.binding = binding;
+    }
+
+    public String[] getDepends() { return depends; }
+    public void setDepends( String[] depends ) {
+        this.depends = depends; 
+    }
+
+    public int getIndex() { return index; }
+    public void setIndex( int index ) {
+        this.index = index; 
+    }
+
+    public void load() {
+        Object handlerObj = null; 
+        String handler = getHandler(); 
+        if ( handler != null && handler.trim().length() > 0 ) {
+            handlerObj = UIControlUtil.getBeanValue(getBinding(), handler); 
+        } 
+        
+        if ( progmodel != null ) { 
+            progmodel.setProvider( null ); 
+        } 
+        
+        if ( handlerObj instanceof ProgressModel ) {
+            progmodel = (ProgressModel) handlerObj; 
+        } else {
+            progmodel = new ProgressModel(); 
+        }
+                
+        progmodel.setProvider( new ProviderImpl()); 
+    }
+
     public void refresh() { 
-        Object bean = (getBinding() == null? null : getBinding().getBean()); 
-        String whenExpr = getVisibleWhen();
-        if (whenExpr != null && whenExpr.length() > 0 && bean != null) {
+        int min = Math.max(progmodel.getMinValue(), 0);
+        int max = progmodel.getMaxValue(); 
+        max = (max > 0 ? max : (min+1));
+        setMinimum( min ); 
+        setMaximum( max ); 
+        setValue( progmodel.getValue() ); 
+         
+        String expr = getDisableWhen();
+        if ( expr != null && expr.length() > 0 ) {
             boolean result = false; 
             try { 
-                result = UIControlUtil.evaluateExprBoolean(bean, whenExpr);
+                result = UIControlUtil.evaluateExprBoolean(binding.getBean(), expr);
+            } catch(Throwable t) {
+                t.printStackTrace();
+            }
+            setEnabled( result ); 
+        }
+        
+        expr = getVisibleWhen();
+        if ( expr != null && expr.length() > 0 ) {
+            boolean result = false; 
+            try { 
+                result = UIControlUtil.evaluateExprBoolean(binding.getBean(), expr);
             } catch(Throwable t) {
                 t.printStackTrace();
             }
             setVisible( result ); 
         }
     }
-    
-    public void load() {
-        Object value = UIControlUtil.getBeanValue(this);
-        if ( value instanceof ProgressModel ) {
-            model = (ProgressModel) value;
-            model.addListener(this);
-        }
+
+    public void setPropertyInfo(PropertyInfo info) {
     }
-    
-    public int compareTo(Object o) {
+
+    public int getStretchWidth() { return stretchWidth; }
+    public void setStretchWidth(int stretchWidth) { 
+        this.stretchWidth = stretchWidth;
+    }
+
+    public int getStretchHeight() { return stretchHeight; }
+    public void setStretchHeight(int stretchHeight) {
+        this.stretchHeight = stretchHeight; 
+    }
+
+    public String getVisibleWhen() { return visibleWhen; }
+    public void setVisibleWhen(String visibleWhen) { 
+        this.visibleWhen = visibleWhen; 
+    }
+
+    public String getDisableWhen() { return disableWhen; }
+    public void setDisableWhen(String disableWhen) { 
+        this.disableWhen = disableWhen; 
+    }
+
+    public int compareTo(Object o) { 
         return UIControlUtil.compare(this, o);
     }
     
+    // </editor-fold>    
+    
+    // <editor-fold defaultstate="collapsed" desc=" MouseEventSupport.ComponentInfo ">
+    
     public Map getInfo() { 
-        return null; 
-    }    
-    
-    public void onStart(int min, int max) {
-        if ( model.isIndeterminate() ) {
-            setIndeterminate( true );
-        } else {
-            setMinimum(min);
-            setMaximum(max);
-            setStringPainted(true);
-        }
-        binding.notifyDepends(this);
+        Map map = new HashMap();
+        map.put("handler", getHandler()); 
+        map.put("disableWhen", getDisableWhen());
+        map.put("visibleWhen", getVisibleWhen()); 
+        return map;
     }
     
-    public void onProgress(int totalFetched, int maxSize) {
-        if ( model.isIndeterminate() ) return;
-        
-        setMaximum(maxSize);
-        setValue(totalFetched);
-        binding.notifyDepends(this);
-    }
-    
-    public void onStop() {
-        if ( model.isIndeterminate() ) {
-            setIndeterminate( false );
-        }
-        
-        binding.notifyDepends(this);
-        if( model.isCompleted() ) {
-            fireAction();
-        }
-    }
-    
-    public void onSuspend() {
-        binding.notifyDepends(this);
-    }
-    
-    private void fireAction() {
-        if ( ValueUtil.isEmpty(onComplete) ) return;
-        
-        try 
-        {
-            ClientContext ctx = ClientContext.getCurrentContext();
-            MethodResolver mr = MethodResolver.getInstance();
-            Object outcome = mr.invoke(binding.getBean(), onComplete, null, null);
-            
-            NavigationHandler nh = ctx.getNavigationHandler();
-            NavigatablePanel panel = UIControlUtil.getParentPanel(this, null);
-            
-            nh.navigate(panel, this, outcome);            
-        }
-        catch(RuntimeException re) {
-            throw re;
-        }
-        catch(Exception e) {
-            throw new IllegalStateException("XProgressBar::fireAction", e);
-        }
-    }
-    
-    public int getStretchWidth() { return stretchWidth; } 
-    public void setStretchWidth(int stretchWidth) {
-        this.stretchWidth = stretchWidth; 
-    }
+    // </editor-fold>     
 
-    public int getStretchHeight() { return stretchHeight; } 
-    public void setStretchHeight(int stretchHeight) {
-        this.stretchHeight = stretchHeight;
-    }    
-
-    public String getVisibleWhen() { return visibleWhen; } 
-    public void setVisibleWhen( String visibleWhen ) {
-        this.visibleWhen = visibleWhen;
-    }
-    
-    // <editor-fold defaultstate="collapsed" desc="  Getters/Setters  ">
-    
-    public String[] getDepends() {
-        return depends;
-    }
-    
-    public void setDepends(String[] depends) {
-        this.depends = depends;
-    }
-    
-    public int getIndex() {
-        return index;
-    }
-    
-    public void setIndex(int index) {
-        this.index = index;
-    }
-    
-    public void setBinding(Binding binding) {
-        this.binding = binding;
-    }
-    
-    public Binding getBinding() {
-        return binding;
-    }
-    
-    public String getOnComplete() {
-        return onComplete;
-    }
-    
-    public void setOnComplete(String onComplete) {
-        this.onComplete = onComplete;
-    }
-    
-    public void setPropertyInfo(PropertySupport.PropertyInfo info) {
-    }
-    
-    // </editor-fold>
-    
-    // <editor-fold defaultstate="collapsed" desc=" ActiveControl implementation ">    
+    // <editor-fold defaultstate="collapsed" desc=" ActiveControl ">
     
     private ControlProperty property; 
     
     public ControlProperty getControlProperty() { 
         if ( property == null ) {
             property = new ControlProperty(); 
-        } 
+        }
         return property; 
-    } 
+    }
+    
+    public boolean isRequired() { 
+        return getControlProperty().isRequired(); 
+    }    
+    public void setRequired(boolean required) {
+        getControlProperty().setRequired( required ); 
+    }
     
     public String getCaption() { 
         return getControlProperty().getCaption(); 
-    }    
-    public void setCaption(String caption) { 
-        getControlProperty().setCaption( caption ); 
     }
+    public void setCaption(String caption) { 
+        getControlProperty().setCaption(caption); 
+    } 
     
-    public char getCaptionMnemonic() {
+    public char getCaptionMnemonic() { 
         return getControlProperty().getCaptionMnemonic();
     }    
     public void setCaptionMnemonic(char c) {
         getControlProperty().setCaptionMnemonic(c);
     }
-
+    
     public int getCaptionWidth() {
         return getControlProperty().getCaptionWidth();
     }    
     public void setCaptionWidth(int width) {
         getControlProperty().setCaptionWidth(width);
-    }
-
+    }    
+    
     public boolean isShowCaption() {
         return getControlProperty().isShowCaption();
-    } 
-    public void setShowCaption(boolean show) {
-        getControlProperty().setShowCaption(show);
+    }    
+    public void setShowCaption(boolean showCaption) {
+        getControlProperty().setShowCaption(showCaption);
     }
     
     public Font getCaptionFont() {
@@ -236,7 +226,7 @@ public class XProgressBar extends JProgressBar implements UIControl,
     } 
     public void setCaptionFontStyle(String captionFontStyle) {
         getControlProperty().setCaptionFontStyle(captionFontStyle); 
-    }    
+    }     
     
     public Insets getCellPadding() {
         return getControlProperty().getCellPadding();
@@ -244,7 +234,37 @@ public class XProgressBar extends JProgressBar implements UIControl,
     public void setCellPadding(Insets padding) {
         getControlProperty().setCellPadding(padding);
     }    
-
-    // </editor-fold>        
     
+    // </editor-fold>     
+
+    // <editor-fold defaultstate="collapsed" desc=" Model Provider ">
+
+    private class ProviderImpl implements ProgressModel.Provider {
+        
+        XProgressBar root = XProgressBar.this; 
+        
+        public Object getBinding() { 
+            return root.getBinding(); 
+        } 
+
+        public void adjustValues( int min, int max, int value ) {
+            min = Math.max(min, 0); 
+            max = (max > 0 ? max : (min+1)); 
+            value = Math.max(value, 0); 
+            
+            root.setMinimum(min);
+            root.setMaximum(max);
+            root.setValue(value); 
+            root.repaint();
+        }
+        
+        public void adjustText( String text ) { 
+            if ( text != null ) {
+                root.setString( text ); 
+                root.repaint(); 
+            }
+        }
+    }
+
+    // </editor-fold>     
 }
