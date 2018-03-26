@@ -10,8 +10,25 @@ class ChangeInfoService  {
 	def persistenceService;
 
 	@ProxyMethod
-	public def update( o ) { 
-		if ( !o.info._schemaname ) throw new Exception("ChangeInfoService error. Please include as schemaname");
-		persistenceService.update( o.info ); 
+	public def save( def o ) { 
+		if ( !o._schemaname ) throw new Exception("ChangeInfoService error. Please include _schemaname");
+		if ( !o.data ) throw new Exception("ChangeInfoService error. Please include data");
+		if ( !o.reftype ) throw new Exception("ChangeInfoService error. Please include reftype");
+		if ( !o.refkeys ) throw new Exception("ChangeInfoService error. Please include refkeys");
+
+		throw new Exception("Error save change info " + o);
+
+		def data = o.remove("data");
+		def refkeys = o.remove("refkeys");
+
+		//save the change info
+		persistenceService.create( o ); 
+
+		//update the 
+		def m = [:];
+		m._schemaname = o.reftype;
+		m.findBy = refkeys;
+		m.putAll( data ); 
+		persistenceService.update( m );
 	}
 }

@@ -13,61 +13,56 @@ import com.rameses.util.*;
 /****
 * This facility only extracts only a portion of the data. 
 */
-public class ChangeInfoModel  {
-    
+public class ChangeInfoModel extends DynamicForm {
+   
     @Service("ChangeInfoService")
-    def changeInfoService;
+    def changeInfoSvc;
     
-    @Invoker
-    def invoker;
+    def entity = [:];
+    def oldValues = [:];
     
-    @Caller
-    def caller;
+    def reftype;
+    def refkey = "objid";
+    def refid;
     
-    @Script("ListTypes")
-    def listTypes;
+    def listener;
     
-    def handler;
-    def fields;
-    def entity;
-    def schema;
-    def info;
-    boolean _inited_ = false;
+    @PropertyChangeListener
+    def fieldListener;
     
-    public def init() {
-        if(!schema) throw new Exception("schema is required in ChangeInfoModel");
-        if(!entity) throw new Exception("entity is required in ChangeInfoModel");
-        if(!fields) {
-            fields = invoker.properties.fields;
+    public void init() {
+        if(listener!=null) {
+            fieldListener = [:];
+            listener.each { k,v->
+                if( !k.startsWith("data.")) k = "data." + k;
+                fieldListener.put( k, { newVal ->  v( data, newVal ); })
+            }
         }
-        if(!fields) throw new Exception("fields is return required in ChangeInfoModel. Pass or specifiy in invoker");
-        info = EntityUtil.clone(entity, fields);
-
-        def primKeyMatch = schema.fields.findAll{ it.primary == true && it.source == schema.name }*.name.join("|");
-        
-        info.findBy = EntityUtil.clone( entity, primKeyMatch ); 
-        listTypes.init( schema ); 
-        
-        _inited_ = true;
-        
-        def vw = invoker.properties.view;
-        if ( !vw ) vw = "default";
-        
-        return vw;
+        super.init();
     }
+    
+    public String getSchemaName() {
+        return workunit?.info?.workunit_properties?.schemaName;
+    }    
     
     def doOk() {
-        if(!_inited_) throw new Exception("Please run init first");
-        def m = [info:info];
-        m.info._schemaname = schema.name;
-        changeInfoService.update( m );
-        if(handler) handler(m);
-        return "_close";
+        MsgBox.alert( "data is " + data);    
+        
+        entity._schemaname = schemaName;
+        entity.data = data;
+        
+        changeInfoSvc.save( entity );
+        /*
+        def changeInfo = [:];
+        changeInfo.reftype;
+        changeInfo.refid;
+        changeInfo.oldvalue = oldValues;
+        entity._changeinfo = changeInfo;
+        persistenceService.update( m );
+        */
+       return doOk();
     }
     
-    def doCancel() {
-        return "_close";
-    }
     
 }
         
