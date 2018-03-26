@@ -70,11 +70,7 @@ public class FormPanelModel {
             PropertyResolver.getInstance().setProperty(bean, name, value); 
         }
     } 
-    
-    public Object getBinding() {
-        return (provider == null? null: provider.getBinding()); 
-    }
-    
+
         
     // <editor-fold defaultstate="collapsed" desc=" Listener interface ">
     
@@ -93,6 +89,10 @@ public class FormPanelModel {
     public final void setProvider(FormPanelModel.Provider provider) {
         this.provider = provider; 
     } 
+
+    public Object getBinding() {
+        return (provider == null? null: provider.getBinding()); 
+    }
     
     
     public static interface Provider {

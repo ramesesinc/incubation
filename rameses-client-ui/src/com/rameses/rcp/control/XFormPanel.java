@@ -1396,18 +1396,31 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
                 try { propertyResolver.setProperty(userObj, "value", value); } catch(Throwable t){;} 
             }
 
+            boolean has_value_changed = false; 
             try { 
-                root.model.updateBean(name, value, userObj); 
+                Object bean = (binding == null ? null : binding.getBean());
+                Object oldvalue = (bean == null ? null: propertyResolver.getProperty(bean, name));
+                if ( ValueUtil.isEqual(oldvalue, value)) {
+                    //do nothing
+                } else { 
+                    has_value_changed = true; 
+                    root.model.updateBean(name, value, userObj); 
+                } 
             } catch(Throwable t){;} 
             
             //fire onchange handle on the item if available 
             try { 
-                fireOnChangeEvent(userObj, value); 
+                if ( has_value_changed ) {
+                    fireOnChangeEvent(userObj, value); 
+                }
             } catch(Throwable t) { 
                 MsgBox.err(t); 
             } 
             
-            binding.getValueChangeSupport().notify(name, value);  
+            if ( has_value_changed ) {
+                binding.getValueChangeSupport().notify(name, value);  
+            }
+            
             if (jcomp instanceof JTextComponent) {
                 JTextComponent jtxt = (JTextComponent) jcomp;
                 int oldCaretPos = jtxt.getCaretPosition(); 
