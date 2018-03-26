@@ -20,6 +20,12 @@ import com.rameses.util.*;
 *****/
 public class DynamicForm  {
     
+    @Binding
+    def binding;
+
+    @Controller
+    def workunit;
+    
     def data;
     def fields;
     def handler;
@@ -27,16 +33,12 @@ public class DynamicForm  {
     def formTitle;
     
     public void init() {
-        if(!handler) throw new Exception("handler is required in dynamic input");
         if(!fields) throw new Exception("handler must have getFields in dynamic input");
         if(!data) data = [:];
         buildFormInfos();
     }
 
     def formControls = [
-        updateBean: {name,value,item->
-            data[(name)] = value;
-        },
         getControlList: {
             return formInfos;
         }
@@ -46,16 +48,23 @@ public class DynamicForm  {
         formInfos.clear();
         fields.each {x->
             if(!x.datatype) x.datatype = "string";
-            x.value = data[ (x.name) ];
+            def nme = x.name;
+            if(!nme) throw new Exception("Error in DynamicForm. name is required");
+            if(!nme.startsWith("data.")) nme = "data."+nme;
             def i = [
                 type:x.datatype, 
                 caption: (x.caption ? x.caption : x.title), 
                 categoryid: x.category,
-                name:x.name, 
+                name: nme, 
                 required: ((x.required!=null) ? x.required : false),
                 properties: [:],
-                value: x.value
             ];
+            if( x.enabled!=null ) i.enabled = x.enabled;
+            if( x.depends!=null ) {
+                if(!x.depends.startsWith("data.")) x.depends = "data."+x.depends;
+                i.depends = x.depends;
+            }
+            
             //fix the datatype
             if(x.datatype.indexOf("_")>0) {
                 x.datatype = x.datatype.substring(0, x.datatype.indexOf("_"));
@@ -83,7 +92,7 @@ public class DynamicForm  {
      }
     
     def doOk() {
-        handler( data );
+        if(handler) handler( data );
         return "_close";
     }
     
