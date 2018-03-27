@@ -68,10 +68,10 @@ public class XStyleRule extends JPanel implements UIControl
         loaded = true;
         
         Collection newRules = null;
-        if( !ValueUtil.isEmpty(getName()) ) {
+        if( !ValueUtil.isEmpty(getName()) ) { 
             Object value = UIControlUtil.getBeanValue(this);
-            if(value==null) {
-                //do nothing
+            if( value == null ) {
+                newRules = loadStyleFromFile( getName() ); 
             } else if(value instanceof StyleRule[]) {
                 newRules = new ArrayList();
                 for(StyleRule s: (StyleRule[])value ) {
