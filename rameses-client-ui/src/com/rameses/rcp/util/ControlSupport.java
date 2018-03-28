@@ -47,19 +47,35 @@ public final class ControlSupport {
             try {
                 if ("background".equals(key) || "background-color".equals(key)) {
                     Color color = null;
-                    if (me.getValue() instanceof Color) 
+                    if (me.getValue() instanceof Color) { 
                         color = (Color) me.getValue(); 
-                    else 
+                    } else { 
                         color = ColorUtil.decode(me.getValue()+"");
+                    } 
+                    
+                    if ( color != null ) {
+                        int num = 0; 
+                        try {
+                            num = Integer.parseInt( props.get("opacity").toString());
+                        } catch(Throwable t) {;} 
+
+                        if ( num > 0 ) { 
+                            num = Math.max( num, 0 ); 
+                            num = Math.min( num, 100 ); 
+                            double orate = ((Number) num).doubleValue() / 100.0; 
+                            int opacity = ((Number) (orate * 255.0)).intValue(); 
+                            color = new Color( color.getRed(), color.getGreen(), color.getBlue(), opacity); 
+                        }
+                    }
                     
                     Color oldColor = (Color) getClientProperty(component, "ControlSupport.background");
                     if (color != null) {
-                        if (oldColor == null) 
+                        if (oldColor == null) {
                             setClientProperty(component, "ControlSupport.background", component.getBackground()); 
-                        
+                        }
                         component.setBackground(color);
-                    } 
-                    else if (oldColor != null) {
+                        
+                    } else if (oldColor != null) {
                         component.setBackground(oldColor);
                     }                   
                 }

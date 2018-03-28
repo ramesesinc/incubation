@@ -9,6 +9,7 @@
 
 package com.rameses.rcp.control.table;
 
+import com.rameses.rcp.common.ChildObject;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -46,6 +47,8 @@ public class ExprBeanSupport extends HashMap implements InvocationHandler
         else if (containsKey(key)) return super.get(key);
         
         String skey = key.toString(); 
+        if ( skey.equals("parent")) return root; 
+        
         String propName = "get" + skey.substring(0,1).toUpperCase() + skey.substring(1); 
         Object[] params = new Object[]{};
         Method method = findGetterMethod(root, propName, params); 
@@ -82,8 +85,7 @@ public class ExprBeanSupport extends HashMap implements InvocationHandler
         return Proxy.newProxyInstance(classLoader, classes.toArray(new Class[]{}), this); 
     } 
 
-    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable 
-    {
+    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         if ("toString".equals(method.getName()))  return _toString;
         else if ("hashCode".equals(method.getName())) return proxy.hashCode();
 
@@ -108,15 +110,20 @@ public class ExprBeanSupport extends HashMap implements InvocationHandler
         
         Class beanClass = bean.getClass();
         Method[] methods = beanClass.getMethods(); 
-        for (int i=0; i<methods.length; i++) 
-        {
-            Method m = methods[i];
-            if (!m.getName().equals(name)) continue;
+        for (int i=0; i<methods.length; i++) { 
+            if (!methods[i].getName().equals(name)) continue;
             
+            Method m = methods[i];
             int paramSize = (m.getParameterTypes() == null? 0: m.getParameterTypes().length); 
             int argSize = (args == null? 0: args.length); 
             if (paramSize == argSize) return m;
         }
+        
+        if ( bean instanceof ChildObject ) { 
+            bean = ((ChildObject) bean).getParentObject(); 
+            return findGetterMethod(bean, name, args); 
+        }
+        
         return null;
     }    
 }

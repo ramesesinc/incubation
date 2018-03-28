@@ -7,7 +7,7 @@ package com.rameses.rcp.common;
 import com.rameses.common.PropertyResolver;
 import com.rameses.rcp.framework.Binding;
 
-public abstract class ComponentBean {
+public abstract class ComponentBean implements ChildObject {
  
     private String bindingName; 
     private Binding innerBinding;
@@ -40,6 +40,10 @@ public abstract class ComponentBean {
     public Object getCaller() { 
         Binding bi = getCallerBinding(); 
         return ( bi == null? null : bi.getBean()); 
+    } 
+
+    public Object getParentObject() { 
+        return getCaller(); 
     } 
     
     public Object getValue() {

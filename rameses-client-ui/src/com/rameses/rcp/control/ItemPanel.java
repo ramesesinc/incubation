@@ -503,9 +503,13 @@ public class ItemPanel extends JPanel implements FormItemProperty {
                 } 
                 
                 Dimension dim = editor.getPreferredSize(); 
+//                System.out.println("editor dim -> "+ dim);
+//                System.out.println("  stretch width -> "+ uimodel.getStretchWidth() );
+                
                 if ( editor instanceof JPanel ) { 
                     JPanel panel = (JPanel)editor; 
-                    dim = panel.getLayout().preferredLayoutSize( panel ); 
+                    Dimension ldim = panel.getLayout().preferredLayoutSize( panel ); 
+//                    System.out.println("  layout dim -> "+ ldim ); 
                 }
                 h = Math.max(h, dim.height); 
                 w += dim.width;                 
