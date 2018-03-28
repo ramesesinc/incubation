@@ -133,8 +133,8 @@ public class XStyleRule extends JPanel implements UIControl
             
             return handler.getList();
             
-        } catch(Exception e) {
-            e.printStackTrace();
+        } catch(Throwable e) { 
+            //do nothing
         } finally {
             try{ is.close(); }catch(Exception ign){}
         }

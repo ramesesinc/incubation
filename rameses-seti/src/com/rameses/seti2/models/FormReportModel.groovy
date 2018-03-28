@@ -204,6 +204,7 @@ public class FormReportModel extends ReportModel {
         }
         else {
             binding.fireNavigation(mode);
+            return null; 
         }
     } as Runnable;
        

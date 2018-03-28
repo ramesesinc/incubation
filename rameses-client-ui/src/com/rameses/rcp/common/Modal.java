@@ -15,6 +15,7 @@ import com.rameses.rcp.framework.UIControllerContext;
 import com.rameses.rcp.framework.UIControllerPanel;
 import com.rameses.rcp.impl.ClientContextImpl;
 import com.rameses.rcp.util.ControlSupport;
+import com.rameses.util.ValueUtil;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -110,8 +111,16 @@ public final class Modal
         if (map.get("title") == null) {
             map.put("title", opener.getCaption()); 
         }
-        
+                
         UIControllerContext uicx = new UIControllerContext(uic);
+        if ( !ValueUtil.isEmpty(opener.getOutcome()) ) {
+            if ( "_close".equals( opener.getOutcome()) ) {
+                return;
+            }
+
+            uicx.setCurrentView( opener.getOutcome() );
+        }
+        
         UIControllerPanel uicp = new UIControllerPanel(uicx);        
         uicp.putClientProperty("Opener.properties", map); 
         platform.showPopup(null, uicp, map);
