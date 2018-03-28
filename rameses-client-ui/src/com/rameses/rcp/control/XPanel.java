@@ -28,8 +28,8 @@ import javax.swing.JPanel;
  *
  * @author wflores
  */
-public class XPanel extends JPanel implements UIControl, ControlContainer, ActiveControl 
-{
+public class XPanel extends JPanel implements UIControl, ControlContainer, ActiveControl {
+    
     private Binding binding;
     private String[] depends;
     private int index;
