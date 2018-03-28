@@ -49,13 +49,19 @@ public class ExprBeanSupport extends HashMap implements InvocationHandler
         String skey = key.toString(); 
         if ( skey.equals("parent")) return root; 
         
-        String propName = "get" + skey.substring(0,1).toUpperCase() + skey.substring(1); 
+        Object bean = root; 
         Object[] params = new Object[]{};
-        Method method = findGetterMethod(root, propName, params); 
-        if (method == null) return null;
+        String propName = "get" + skey.substring(0,1).toUpperCase() + skey.substring(1); 
+        Method method = findGetterMethod(bean, propName, params); 
+        if ( method == null && bean instanceof ChildObject ) {
+            bean = ((ChildObject) bean).getParentObject(); 
+            method = findGetterMethod(bean, propName, params); 
+        }
+        
+        if ( method == null ) return null;
         
         try {
-            return method.invoke(root, params);
+            return method.invoke(bean, params);
         } catch (IllegalArgumentException ex) {
             //do nothing
         } catch (IllegalAccessException ex) {
@@ -103,8 +109,7 @@ public class ExprBeanSupport extends HashMap implements InvocationHandler
         return null; 
     }   
     
-    private Method findGetterMethod(Object bean, String name, Object[] args) 
-    {
+    private Method findGetterMethod(Object bean, String name, Object[] args) {
         if (bean == null || name == null) return null;
         if (args == null) args = new Object[]{};
         
@@ -117,13 +122,7 @@ public class ExprBeanSupport extends HashMap implements InvocationHandler
             int paramSize = (m.getParameterTypes() == null? 0: m.getParameterTypes().length); 
             int argSize = (args == null? 0: args.length); 
             if (paramSize == argSize) return m;
-        }
-        
-        if ( bean instanceof ChildObject ) { 
-            bean = ((ChildObject) bean).getParentObject(); 
-            return findGetterMethod(bean, name, args); 
-        }
-        
+        }         
         return null;
     }    
 }
