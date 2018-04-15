@@ -1,13 +1,16 @@
 import com.rameses.annotations.*;
 import com.rameses.util.*;
 
-class AdminSessionInterceptor 
-{
+class AdminSessionInterceptor {
+	
 	@ActiveDB('session') 
 	def em;
 
 	@ActiveDB('user') 
 	def user;	
+
+	@ActiveDB('org') 
+	def org_db;	
 
 	@Service("OrgService")
 	def orgSvc;
@@ -92,8 +95,9 @@ class AdminSessionInterceptor
 		def orgid = null;
 		if (env.CLIENTCODE) {
 			orginfo = orgSvc.findByCode([code: env.CLIENTCODE]); 
-			if(!orginfo)
-				throw new Exception("Client code org does not exist");
+			if ( !orginfo ) orginfo = org_db.read([objid: env.CLIENTCODE]); 
+			if ( !orginfo ) throw new Exception("Client code org does not exist");
+
 			orgid = orginfo.objid;	
 		}	
 		else {
