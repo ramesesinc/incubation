@@ -22,10 +22,10 @@ public class ChangeInfoModel extends DynamicForm {
     def oldValues = [:];
     
     def reftype;
-    def refkey = "objid";
-    def refid;
+    def refkeys;
     
     def listener;
+    def beforeUpdate;
     
     @PropertyChangeListener
     def fieldListener;
@@ -46,21 +46,13 @@ public class ChangeInfoModel extends DynamicForm {
     }    
     
     def doOk() {
-        MsgBox.alert( "data is " + data);    
-        
+        if(beforeUpdate) beforeUpdate( data );
         entity._schemaname = schemaName;
         entity.data = data;
-        
+        entity.reftype = reftype;
+        entity.refkeys = refkeys;
         changeInfoSvc.save( entity );
-        /*
-        def changeInfo = [:];
-        changeInfo.reftype;
-        changeInfo.refid;
-        changeInfo.oldvalue = oldValues;
-        entity._changeinfo = changeInfo;
-        persistenceService.update( m );
-        */
-       return doOk();
+       return "_close";
     }
     
     

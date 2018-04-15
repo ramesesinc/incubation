@@ -87,6 +87,12 @@ public class DynamicForm  {
                 i.type = "text";
             }
             if(!i.sortorder) i.sortorder = 0;
+            
+            x.each { kk,vv->
+                if( !kk.matches("name|datatype|caption|title|category|required|enabled|depends|arrayvalues|sortorder") ) {
+                    i.put(kk,vv);
+                }
+            }
             formInfos << i;
         }
      }

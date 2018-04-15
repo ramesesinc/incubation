@@ -16,19 +16,20 @@ class ChangeInfoService  {
 		if ( !o.reftype ) throw new Exception("ChangeInfoService error. Please include reftype");
 		if ( !o.refkeys ) throw new Exception("ChangeInfoService error. Please include refkeys");
 
-		throw new Exception("Error save change info " + o);
-
 		def data = o.remove("data");
 		def refkeys = o.remove("refkeys");
 
 		//save the change info
-		persistenceService.create( o ); 
+		//persistenceService.create( o ); 
+		
 
 		//update the 
 		def m = [:];
+		if(o.debug) m.debug = true;
 		m._schemaname = o.reftype;
 		m.findBy = refkeys;
 		m.putAll( data ); 
+		m._tag = 'changeinfo';
 		persistenceService.update( m );
 	}
 }
