@@ -113,7 +113,12 @@ public class UICommandUtil {
                 if (opener != null) callbackErrorHandler = opener.getProperties().get("windowError");
                 
                 navPanel = UIControlUtil.getParentPanel((JComponent)command, "parent");
-                handler.navigate(navPanel, command, outcome);
+                if ( opener != null && "popupmenu".equals(opener.getTarget()) ) {
+                    handler.navigate(navPanel, command, opener); 
+                    return null;
+                } 
+                
+                handler.navigate(navPanel, command, outcome); 
                 
                 Object pmo = command.getClientProperty(PopupMenuOpener.class); 
                 if ( pmo != null ) { 

@@ -8,6 +8,7 @@ import com.rameses.rcp.common.Opener;
 import com.rameses.rcp.framework.*;
 import com.rameses.rcp.ui.UIControl;
 import com.rameses.util.ValueUtil;
+import java.awt.Component;
 import java.awt.Container;
 import java.util.*;
 import javax.swing.JComponent;
@@ -50,7 +51,7 @@ public class NavigationHandlerImpl implements NavigationHandler {
                 if (opTarget.startsWith("_")) 
                     opTarget = opTarget.substring(1);
 
-                boolean self = !opTarget.matches("window|popup|floating|popuppanel");
+                boolean self = !opTarget.matches("window|popup|floating|popuppanel|popupmenu");
                 String windowId = opener.getController().getId();
 
                 if ( !self && platform.isWindowExists( windowId ) ) {
@@ -109,6 +110,11 @@ public class NavigationHandlerImpl implements NavigationHandler {
                         }
                         
                         cpl.show( uic, props ); 
+                        return; 
+                    }
+                    
+                    if ( "popupmenu".equals(opTarget)) { 
+                        WindowMenu.show(sourceComp, uic);
                         return; 
                     }
                     
