@@ -9,6 +9,9 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.GraphicsConfiguration;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
 import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -47,19 +50,28 @@ public final class WindowMenu extends JWindow {
         wm.setView( view ); 
         wm.pack();
         
+        Insets margin = Toolkit.getDefaultToolkit().getScreenInsets(wm.getGraphicsConfiguration());
+        Dimension scrdim = Toolkit.getDefaultToolkit().getScreenSize();
+        Rectangle scrRect = new Rectangle(0, 0, scrdim.width, scrdim.height); 
+        
         int x = 0, y = 0;
         if ( invoker != null ) {
             Point p = invoker.getLocationOnScreen(); 
             Rectangle rect = invoker.getBounds(); 
             y = p.y + rect.height; 
             x = p.x;  
+            
+            Rectangle r = wm.getExtendedScreenBounds( p ); 
+            if ( r != null ) {
+                margin = new Insets(0,0,0,0); 
+                scrdim = new Dimension(r.width, r.height); 
+                scrRect = r; 
+            }
         }
         
-        Insets margin = Toolkit.getDefaultToolkit().getScreenInsets(wm.getGraphicsConfiguration()); 
-        Dimension scrdim = Toolkit.getDefaultToolkit().getScreenSize();
         Dimension windim = wm.getPreferredSize();
-        int scrMaxX = scrdim.width - margin.right; 
-        int scrMaxY = scrdim.height - margin.bottom; 
+        int scrMaxX = (scrRect.x+scrdim.width) - margin.right; 
+        int scrMaxY = (scrRect.y+scrdim.height) - margin.bottom; 
         int lx = x + windim.width; 
         int ly = y + windim.height; 
         if ( lx > scrMaxX ) { 
@@ -73,6 +85,7 @@ public final class WindowMenu extends JWindow {
         wm.setLocation( x, y ); 
         wm.setVisible(true);
     }
+
     
     
     
@@ -98,6 +111,29 @@ public final class WindowMenu extends JWindow {
     void setView( Component view ) {
         contentpane.removeAll(); 
         contentpane.add(view, BorderLayout.NORTH); 
+    }
+    
+    private Rectangle getExtendedScreenBounds( Point p ) {
+        if ( p == null ) return null; 
+        
+        Rectangle screenRect = null; 
+        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment(); 
+        GraphicsDevice gdmain = ge.getDefaultScreenDevice(); 
+        GraphicsDevice[] gds = ge.getScreenDevices(); 
+        for ( GraphicsDevice gd : gds ) { 
+            if ( screenRect != null ) break;
+            if ( gdmain.equals(gd)) continue; 
+            
+            GraphicsConfiguration[] gcs = gd.getConfigurations();
+            for ( GraphicsConfiguration gc : gcs ) {
+                Rectangle rect = gc.getBounds(); 
+                if ( rect.contains(p)) {
+                    screenRect = rect; 
+                    break; 
+                }
+            }
+        }
+        return screenRect; 
     }
     
     private class AWTEventHandler implements AWTEventListener {
