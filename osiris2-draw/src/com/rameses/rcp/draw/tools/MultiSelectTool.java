@@ -48,7 +48,7 @@ public class MultiSelectTool extends AbstractTool {
         super.mouseDrag(x, y, e);
         moved = (Math.abs(x - getStartX()) > 4) || (Math.abs(y - getStartY()) > 4);
 
-        if (moved && getEditor().isInteractive()) {
+        if (moved && !getEditor().isReadonly()) {
             int dx = x - lastX;
             int dy = y - lastY;
 

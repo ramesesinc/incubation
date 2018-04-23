@@ -17,6 +17,7 @@ import java.util.Map;
 public class DrawModel {
     private DrawComponentModel componentModel;
     private Editor editor;
+    private boolean readonly = false;
     
     
     public void setComponentModel(DrawComponentModel componentModel){
@@ -63,7 +64,7 @@ public class DrawModel {
     
     public void reload(){
         editor.getDrawing().clearFigures();
-        editor.setInteractive(interactive());
+        editor.setReadonly(isReadonly());
         loadDrawing();
         editor.getCanvas().revalidateRect(new Rectangle());
         editor.getCanvas().requestFocus();
@@ -151,8 +152,13 @@ public class DrawModel {
         return true;
     }
     
-    public boolean interactive(){
-        return true;
+    public boolean isReadonly(){
+        return readonly;
+    }
+    
+    public final void setReadonly(boolean readonly){
+        this.readonly = readonly;
+        getEditor().setReadonly(readonly);
     }
     
     public boolean showHandles(){

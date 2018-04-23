@@ -20,8 +20,8 @@ public interface Editor {
     public void setCurrentTool(Tool tool);
     public Tool getDefaultTool();
     
-    public boolean isInteractive();
-    public void setInteractive(boolean interactive);
+    public boolean isReadonly();
+    public void setReadonly(boolean readonly);
     
     public void reset();
 

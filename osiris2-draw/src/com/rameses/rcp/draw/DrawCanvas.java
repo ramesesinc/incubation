@@ -34,7 +34,7 @@ import javax.swing.border.Border;
 
 public class DrawCanvas extends JPanel implements Canvas{
     private Editor editor;
-    private boolean interactive;
+    private boolean readonly;
     private MenuProxy menu;
     private Rectangle selectionArea;
     
@@ -46,7 +46,7 @@ public class DrawCanvas extends JPanel implements Canvas{
     public DrawCanvas(){
         setLayout(new BorderLayout());
         setOpaque(true);
-        setInteractive(true);
+        setReadonly(false);
         setFocusable(true);
         addMouseListeners();
         addKeyListener();
@@ -99,10 +99,15 @@ public class DrawCanvas extends JPanel implements Canvas{
         DrawUtil.setHDRenderingHints(g);
         draw((Graphics2D)g);
     }
+
+    @Override
+    public boolean isReadonly() {
+        return readonly;
+    }
     
     @Override
-    public void setInteractive(boolean interactive){
-        this.interactive = interactive;
+    public void setReadonly(boolean readonly){
+        this.readonly = readonly;
     }
 
     @Override
@@ -238,14 +243,14 @@ public class DrawCanvas extends JPanel implements Canvas{
     class CanvasMouseAdapter extends MouseAdapter{
         @Override
         public void mouseDragged(MouseEvent e){
-            if (interactive){
+            if (!readonly){
                 handleMouseDrag(e.getX(), e.getY(), e);
             }
         }
         
         @Override
         public void mouseMoved(MouseEvent e){
-            if (interactive){
+            if (!readonly){
                 handleMouseMoved(e.getX(), e.getY(), e);
             }
         }
@@ -264,14 +269,14 @@ public class DrawCanvas extends JPanel implements Canvas{
 
         @Override
         public void mousePressed(MouseEvent e) {
-            if (interactive){
+            if (!readonly){
                 handleMousePressed(e.getX(), e.getY(), e);
             }
         }
 
         @Override
         public void mouseReleased(MouseEvent e) {
-            if (interactive){
+            if (!readonly){
                 handleMouseReleased(e.getX(), e.getY(), e);
             }
         }

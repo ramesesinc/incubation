@@ -12,7 +12,8 @@ public interface Canvas {
     public Editor getEditor();
     public void setEditor(Editor editor);
     
-    public void setInteractive(boolean interactive);
+    public boolean isReadonly();
+    public void setReadonly(boolean readonly);
     
     public void draw(Graphics2D g);
     public void refresh();

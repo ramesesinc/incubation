@@ -25,12 +25,12 @@ public class DrawingEditor implements Editor{
     private Drawing drawing;
     private Canvas canvas;
     private Tool currentTool;
-    private boolean interactive;
+    private boolean readonly;
     private List<EditorListener> listeners;
     
     public DrawingEditor(){
         listeners = new ArrayList<EditorListener>();
-        interactive = true;
+        readonly = false;
     }
     
     @Override
@@ -103,15 +103,15 @@ public class DrawingEditor implements Editor{
     }
 
     @Override
-    public boolean isInteractive() {
-        return interactive;
+    public boolean isReadonly() {
+        return readonly;
     }
 
     @Override
-    public void setInteractive(boolean interactive) {
-        this.interactive = interactive;
+    public void setReadonly(boolean readonly) {
+        this.readonly = readonly;
         if (canvas != null){
-            canvas.setInteractive(interactive);
+            canvas.setReadonly(readonly);
             setCurrentTool(getDefaultTool());
         }
     }
