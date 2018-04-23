@@ -47,7 +47,11 @@ public class DrawModel {
     public List showMenu(Object o){
         return new ArrayList();
     }
-    
+
+    public DrawComponentModel getComponentModel() {
+        return componentModel;
+    }
+
     public void onAddItem(Object o){
     }
     
@@ -73,6 +77,9 @@ public class DrawModel {
     
     public void refresh(){
         editor.getCanvas().refresh();
+        editor.setDefaultTool();
+        componentModel.getBinding().refresh();
+        componentModel.getCallerBinding().refresh();
     }
     
     
@@ -159,6 +166,7 @@ public class DrawModel {
     public final void setReadonly(boolean readonly){
         this.readonly = readonly;
         getEditor().setReadonly(readonly);
+        refresh();
     }
     
     public boolean showHandles(){

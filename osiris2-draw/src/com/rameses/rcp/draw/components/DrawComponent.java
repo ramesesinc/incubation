@@ -66,7 +66,6 @@ public class DrawComponent extends XComponentPanel {
         setLayout(new java.awt.BorderLayout());
 
         jPanel1.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 5, 1));
-        jPanel1.setPreferredSize(new java.awt.Dimension(257, 28));
         jPanel1.setLayout(new java.awt.BorderLayout());
 
         jPanel3.setLayout(new java.awt.BorderLayout());
@@ -74,7 +73,7 @@ public class DrawComponent extends XComponentPanel {
         cboCategory.setAllowNull(false);
         cboCategory.setItems("categories");
         cboCategory.setName("category"); // NOI18N
-        cboCategory.setPreferredSize(new java.awt.Dimension(100, 19));
+        cboCategory.setPreferredSize(new java.awt.Dimension(68, 23));
         cboCategory.setVisibleWhen("#{showToolbars && showDrawTools}");
         jPanel3.add(cboCategory, java.awt.BorderLayout.WEST);
 

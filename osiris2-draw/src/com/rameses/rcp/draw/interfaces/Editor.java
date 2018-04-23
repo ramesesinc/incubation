@@ -40,4 +40,6 @@ public interface Editor {
 
     public void propertyChanged(AttributeKey key, Object value);
 
+    public void setDefaultTool();
+
 }

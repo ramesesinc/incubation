@@ -103,6 +103,13 @@ public class DrawingEditor implements Editor{
     }
 
     @Override
+    public void setDefaultTool() {
+        setCurrentTool(getDefaultTool());
+    }
+    
+    
+
+    @Override
     public boolean isReadonly() {
         return readonly;
     }
