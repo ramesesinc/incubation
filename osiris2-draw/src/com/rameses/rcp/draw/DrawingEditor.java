@@ -1,7 +1,11 @@
 package com.rameses.rcp.draw;
 
+import com.rameses.rcp.common.DrawModel;
 import com.rameses.rcp.common.Opener;
+import com.rameses.rcp.draw.figures.FigureCache;
+import com.rameses.rcp.draw.figures.LineConnector;
 import com.rameses.rcp.draw.interfaces.Canvas;
+import com.rameses.rcp.draw.interfaces.Connector;
 import com.rameses.rcp.draw.interfaces.Drawing;
 import com.rameses.rcp.draw.interfaces.Editor;
 import com.rameses.rcp.draw.interfaces.EditorListener;
@@ -17,7 +21,9 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.imageio.ImageIO;
 import javax.imageio.stream.ImageOutputStream;
 
@@ -29,8 +35,13 @@ public class DrawingEditor implements Editor{
     private List<EditorListener> listeners;
     
     public DrawingEditor(){
+        this(null);
+    }
+    
+    public DrawingEditor(Drawing drawing){
         listeners = new ArrayList<EditorListener>();
         readonly = false;
+        this.drawing = drawing;
     }
     
     @Override
@@ -56,7 +67,7 @@ public class DrawingEditor implements Editor{
 
     @Override
     public Image getImage() {
-        return getImage(false);
+        return getImage(true);
     }
     
     @Override
@@ -208,11 +219,107 @@ public class DrawingEditor implements Editor{
         }
         getCanvas().refresh();
     }
+
+    @Override
+    public void loadDrawing(DrawModel handler) {
+        loadDrawing(handler, handler.fetchData(null));
+    }
+    
+    @Override
+    public void loadDrawing(DrawModel handler, Object drawing) {
+        Map data = new HashMap(); 
+        if (drawing instanceof Map){
+            data = (Map)drawing;
+        }else if (drawing instanceof String){
+            //TODO:
+            //this is an xml file, process xml and return as map
+            //data = XmlDataProcess.process(o);
+            data = new HashMap();
+        }
+        
+        loadFigures(handler, data);
+        loadConnectors(handler, data);
+        //getCanvas().revalidateRect(new Rectangle());
+        //getCanvas().requestFocus();
+    }
+    
+    private void loadFigures(DrawModel handler, Map data){
+        List<Map> figures = (List)data.get("figures");
+        if (figures != null){
+            for (Map fprop : figures){
+                Figure figure = loadFigure(handler, fprop);
+                if (figure != null){
+                    getDrawing().addFigure(figure);
+                }
+            }
+        }
+    }    
+    
+    private void loadConnectors(DrawModel handler, Map data){
+        List<Map> list = (List)data.get("connectors");
+        if (list != null && !list.isEmpty()){
+            for (Map cprop : list){
+                Figure startFigure = getDrawing().figureById(cprop.get("startFigureId").toString());
+                Figure endFigure = getDrawing().figureById(cprop.get("endFigureId").toString());
+                if (startFigure != null && endFigure != null){
+                    loadConnector(handler, startFigure, endFigure, cprop);
+                }
+            }
+        }
+    }  
+    
+    private Connector loadConnector(DrawModel handler, Figure startFigure, Figure endFigure, Map cprop){
+        Connector connector = (LineConnector) loadFigure(handler, cprop);
+        if (connector != null){
+            connector.setStartFigure(startFigure, false);
+            connector.setEndFigure(endFigure, false);
+            getDrawing().addConnector(connector);
+        }
+        return connector;
+    }
+        
+    private final Figure loadFigure(DrawModel handler, Map fprop){
+        Map ui = (Map)fprop.get("ui");
+
+        Figure figure = null;
+        try{
+            Figure prototype = FigureCache.getInstance().getFigure(ui.get("type")+"");
+            if (prototype != null){
+                figure = prototype.getClass().newInstance();
+                if (handler != null){
+                    figure.showHandles(handler.showHandles());
+                }
+                figure.readAttributes(fprop);
+            }else{
+                System.out.println("No Figure is associated with the type " + ui.get("type") + ".");
+            }
+        }
+        catch(Exception ex){
+            ex.printStackTrace();
+            System.out.println("Unable to create Figure for type " + ui.get("type") + ".");
+            System.out.println("[ERROR] : " + ex.getMessage());
+        }
+        return figure;
+    }
+    
+    
+    
     
     private BufferedImage getDrawingImage(boolean crop){
-        Rectangle r = getCanvas().getBounds();
-        BufferedImage bi = new BufferedImage(r.width, r.height, BufferedImage.TYPE_INT_ARGB);
+        Rectangle r = new Rectangle();
+        if (getCanvas() != null){
+            r = getCanvas().getBounds();
+        }
+        if (r.isEmpty()){
+            //the canvas is not yet rendered, 
+            // use the drawing bounds instead
+            r = getDrawing().getBounds();
+        }
+        //add padding
+        r.grow(10, 10);
+        BufferedImage bi = new BufferedImage(r.x + r.width , r.y + r.height, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = bi.createGraphics();
+        DrawUtil.setHDRenderingHints(g);
         try{
             for( Figure f : getDrawing().getFigures()){
                 f.draw(g);

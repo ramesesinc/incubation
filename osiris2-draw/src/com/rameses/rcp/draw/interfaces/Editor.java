@@ -1,6 +1,7 @@
 package com.rameses.rcp.draw.interfaces;
 
 import com.rameses.osiris2.Invoker;
+import com.rameses.rcp.common.DrawModel;
 import com.rameses.rcp.draw.support.AttributeKey;
 import java.awt.Image;
 import java.util.List;
@@ -41,5 +42,8 @@ public interface Editor {
     public void propertyChanged(AttributeKey key, Object value);
 
     public void setDefaultTool();
+
+    public void loadDrawing(DrawModel handler);
+    public void loadDrawing(DrawModel handler, Object drawing);
 
 }
