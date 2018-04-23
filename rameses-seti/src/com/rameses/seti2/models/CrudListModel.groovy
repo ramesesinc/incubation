@@ -32,6 +32,8 @@ public class CrudListModel extends AbstractCrudModel {
     String filterText;
     def cols = [];
     
+    def onOpenHandler;
+    
     List searchables;
     List orWhereList = [];
 
@@ -364,6 +366,8 @@ public class CrudListModel extends AbstractCrudModel {
             return fetchList(o);
         },
         onOpenItem: { o, colName -> 
+            if( onOpenHandler ) return onOpenHandler( o, colName );
+            
             try {
                 return open();  
             }

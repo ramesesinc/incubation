@@ -1,9 +1,0 @@
-<workunit>
-    <invokers>
-        <invoker type="changeinfo" caption="Change Information" action="init"/>
-    </invokers>
-    <code class="com.rameses.seti2.models.ChangeInfoModel" />
-    <pages>
-        <page template="com.rameses.seti2.views.ChangeInfoPage"/>
-    </pages>
-</workunit> 
