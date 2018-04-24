@@ -49,6 +49,8 @@ public class SplitViewLayout implements LayoutManager
     private Point targetPoint;
     private Rectangle viewRect; 
     
+    private boolean startedMoving;
+    
     public SplitViewLayout(SplitViewLayout.Provider provider)
     {
         this.provider = provider;
@@ -267,6 +269,7 @@ public class SplitViewLayout implements LayoutManager
 
         public void mouseMoved(MouseEvent e) {}        
         public void mouseDragged(MouseEvent e) {
+            root.startedMoving = true;             
             targetPoint = e.getPoint(); 
             Rectangle divRect = divider.getBounds();
             int ny = divRect.y + targetPoint.y; 
@@ -354,8 +357,8 @@ public class SplitViewLayout implements LayoutManager
     
     // <editor-fold defaultstate="collapsed" desc=" VerticalLayout (Class) ">
 
-    private class VerticalLayout implements LayoutManager 
-    {
+    private class VerticalLayout implements LayoutManager {
+        
         SplitViewLayout root = SplitViewLayout.this; 
         
         public void addLayoutComponent(String name, Component comp) {;}
@@ -396,7 +399,7 @@ public class SplitViewLayout implements LayoutManager
                 viewRect = new Rectangle(x, y, w, h); 
 
                 int divsize = root.getDividerSize();
-                int locindex = root.getDividerLocation(); 
+                int locindex = (root.startedMoving ? root.locationIndex : root.getDividerLocation());
                 if (locindex < 0) { 
                     locindex = 0;
                 } else if (locindex >= (ph-margin.bottom)) {
