@@ -19,11 +19,9 @@ public class Commands {
     
     public void buildCommands(){
         addCommand(new DeleteCommand(canvas));
-        addCommand(new SendBackwardCommand(canvas));
-        addCommand(new SendToBackCommand(canvas));
-        addCommand(new BringForwardCommand(canvas));
-        addCommand(new BringToFrontCommand(canvas));
+        addCommand(new ArrangeCommand(canvas));
         addCommand(new CancelAddFigureCommand(canvas));
+        addCommand(new MoveCommand(canvas));
     }
     
     public void addCommand(Command handler){
