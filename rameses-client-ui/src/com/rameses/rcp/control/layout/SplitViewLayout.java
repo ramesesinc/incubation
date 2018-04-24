@@ -371,10 +371,9 @@ public class SplitViewLayout implements LayoutManager
         
         public Dimension getLayoutSize(Container parent) {
             synchronized (parent.getTreeLock()) {
-                int w=0, h=0;
-
-                w += getDividerSize();
-                h += getDividerSize();
+                int dsize = root.getDividerSize(); 
+                int w = dsize; 
+                int h = dsize; 
 
                 Insets margin = parent.getInsets();
                 w += (margin.left + margin.right);
@@ -396,19 +395,22 @@ public class SplitViewLayout implements LayoutManager
                 int h = ph - (margin.top + margin.bottom);
                 viewRect = new Rectangle(x, y, w, h); 
 
-                if (locationIndex < 0) 
-                    locationIndex = 0; 
-                else if (locationIndex >= (ph-margin.bottom)) 
-                    locationIndex = (ph-margin.bottom)-getDividerSize();
+                int divsize = root.getDividerSize();
+                int locindex = root.getDividerLocation(); 
+                if (locindex < 0) { 
+                    locindex = 0;
+                } else if (locindex >= (ph-margin.bottom)) {
+                    locindex = (ph-margin.bottom)-getDividerSize();
+                }
 
                 Component[] comps = getLayoutComponents(parent.getComponents());
                 if (comps.length >= 1) {
-                    comps[0].setBounds(x, y, w, locationIndex); 
+                    comps[0].setBounds(x, y, w, locindex); 
                 }
 
-                y += locationIndex;
-                divider.setBounds(x, y, w, getDividerSize()); 
-                y += getDividerSize();
+                y += locindex;
+                divider.setBounds(x, y, w, divsize); 
+                y += divsize;
 
                 int nh = (ph-margin.bottom)-y;
                 if (nh < 0) nh = 0;
