@@ -389,13 +389,24 @@ public class XButton extends JButton implements UICommand, ActionListener,
         else 
             popup.setVisible(false); 
         
-        popup.removeAll();         
+        popup.removeAll(); 
         for (Object o: menu.getItems()) {
-            ActionMenuItem ami = null; 
-            if (o instanceof Opener) 
-                ami = new ActionMenuItem((Opener)o);
-            else 
-                ami = new ActionMenuItem((Action)o);
+            String expr = getVisibleWhen( o ); 
+            if ( !ValueUtil.isEmpty(expr) ) {
+                boolean b = false; 
+                try { 
+                    b = UIControlUtil.evaluateExprBoolean(getBinding().getBean(), expr);
+                } catch(Throwable t) {;}
+                
+                if ( !b ) continue; 
+            }
+            
+            ActionMenuItem ami = null;             
+            if (o instanceof Opener) {
+                ami = new ActionMenuItem((Opener) o); 
+            } else {
+                ami = new ActionMenuItem((Action) o);
+            }
             
             Dimension dim = ami.getPreferredSize();
             ami.setPreferredSize(new Dimension(Math.max(dim.width, 100), dim.height)); 
@@ -407,6 +418,20 @@ public class XButton extends JButton implements UICommand, ActionListener,
         popup.show(XButton.this, 0, rect.height); 
         popup.requestFocus(); 
     } 
+    
+    private String getVisibleWhen( Object item ) {
+        if (item instanceof Opener) {
+            Opener op = (Opener) item; 
+            Object val = op.getProperties().get("visibleWhen");
+            return (val == null ? null: val.toString()); 
+        } else if ( item instanceof Action ) {
+            Action act = (Action) item;
+            return act.getVisibleWhen(); 
+        } else {
+            return null; 
+        }
+        
+    }
     
     private class ActionMenuItem extends JMenuItem 
     {
