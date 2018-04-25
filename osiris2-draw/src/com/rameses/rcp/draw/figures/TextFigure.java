@@ -6,7 +6,6 @@ import com.rameses.rcp.draw.interfaces.Tool;
 import com.rameses.rcp.draw.support.AttributeKey;
 import static com.rameses.rcp.draw.support.AttributeKeys.*;
 import com.rameses.rcp.draw.support.RotatedRectangle;
-import com.rameses.rcp.draw.support.XmlElement;
 import com.rameses.rcp.draw.tools.TextTool;
 import com.rameses.rcp.draw.utils.DataUtil;
 import com.rameses.rcp.draw.utils.DrawUtil;

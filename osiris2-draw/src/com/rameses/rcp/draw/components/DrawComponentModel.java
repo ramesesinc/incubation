@@ -195,6 +195,10 @@ public class DrawComponentModel extends ComponentBean implements EditorListener 
     
     
     public boolean isShowToolbars(){
+        if (handler.isReadonly()){
+            return false;
+        }
+        
         if (handler != null){
             return handler.showToolbars();
         }
@@ -202,6 +206,10 @@ public class DrawComponentModel extends ComponentBean implements EditorListener 
     }
     
     public boolean isShowDrawTools(){
+        if (handler.isReadonly()){
+            return false;
+        }
+        
         if (handler != null){
             return handler.showDrawTools();
         }
@@ -209,6 +217,10 @@ public class DrawComponentModel extends ComponentBean implements EditorListener 
     }
     
     public boolean isShowEditTools(){
+        if (handler.isReadonly()){
+            return false;
+        }
+        
         if (handler != null){
             return handler.showEditTools();
         }

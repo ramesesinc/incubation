@@ -4,51 +4,41 @@
  */
 package test.window;
 
-import com.rameses.rcp.control.layout.YLayout;
 import java.awt.BorderLayout;
-import java.awt.Graphics;
-import javax.swing.BorderFactory;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.border.Border;
 
 /**
  *
  * @author ramesesinc
  */
-public class MenuPanel extends javax.swing.JPanel {
+public class MenuPanel2 extends javax.swing.JPanel {
 
     /**
-     * Creates new form MenuPanel
+     * Creates new form MenuPanel2
      */
-    public MenuPanel() {
+    public MenuPanel2() {
         initComponents();
 
         VerticalMenuBar mb = new VerticalMenuBar(); 
         menucontentpanel.setLayout( new BorderLayout());
         menucontentpanel.add(mb, BorderLayout.NORTH); 
         
-        JMenu jm = createMenu("File", false);
-        jm.add(new JMenuItem("New File"));        
-        jm.add(new JMenuItem("New Project"));        
-        mb.add( jm );
+        Menu jm = mb.addMenu("File"); 
+        jm.addMenuItem("New File"); 
+        jm.addMenu("New Recent File"); 
         
-        jm = createMenu("Edit", false);
-        jm.add(new JMenuItem("Cut"));        
-        jm.add(new JMenuItem("Copy"));        
-        jm.add(new JMenuItem("Paste"));        
-        mb.add( jm );
+        jm = (Menu) jm.getMenuComponent(1); 
+        jm.addMenuItem("Sample.txt");
+        jm.addMenuItem("Test.txt");
         
-        mb.add( new JMenu("View"));
-        mb.add( new JMenu("Navigate"));
+        jm = mb.addMenu("Edit");
+        jm.addMenuItem("Cut"); 
+        jm.addMenuItem("Copy");
+        jm.addMenuItem("Paste"); 
+        
+        mb.addMenu("View");
+        mb.addMenu("Navigate");
     }
     
-    private JMenu createMenu( String text, boolean selected ) {
-        JMenu m = new JMenu(text);
-        if ( selected ) m.setSelected(selected); 
-        return m; 
-    }
     
     
     /**

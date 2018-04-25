@@ -65,6 +65,7 @@ public class TextTool extends AbstractTool{
             getEditor().notifyAddedListener(createdFigure);
             getCanvas().revalidateRect(createdFigure.getDisplayBox());
         }
+        floatingText = null;
     }
     
     

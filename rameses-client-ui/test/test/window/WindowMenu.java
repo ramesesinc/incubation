@@ -101,7 +101,7 @@ public final class WindowMenu extends JWindow {
     private void initComponent() {
         contentpane = new JPanel();
         contentpane.setLayout(new BorderLayout()); 
-        contentpane.setBorder(BorderFactory.createLineBorder(new Color(180,180,180), 1)); 
+        contentpane.setBorder(BorderFactory.createLineBorder(new Color(150,150,150), 1)); 
         setContentPane( contentpane ); 
         
         eventHandler = new AWTEventHandler(); 
@@ -164,8 +164,13 @@ public final class WindowMenu extends JWindow {
         
         private void processFocusEvent( FocusEvent e ) {
             if ( e.getID() == FocusEvent.FOCUS_LOST ) {
-                if ( e.isTemporary()) {
-                    root.dispose();
+                if ( e.isTemporary()) { 
+                    WindowMenu wm = findTop(e.getOppositeComponent()); 
+                    if ( wm != null && wm.equals(root)) {
+                        //do nothing 
+                    } else {
+                        root.dispose();
+                    }
                 }
             }
         }
@@ -179,6 +184,19 @@ public final class WindowMenu extends JWindow {
                 return findTop( comp.getParent() ); 
             }
         }
+        
+        private void dumpTree( Component comp, int level ) {
+            if ( comp == null ) return; 
+            if ( level <= 0 ) level = 1; 
+            
+            StringBuilder sb = new StringBuilder("-> "); 
+            for (int i=1; i<level; i++) {
+                sb.append("   "); 
+            }
+            sb.append(comp.getClass().getName());
+            System.out.println( sb );
+            dumpTree(comp.getParent(), level+1);
+        }
     }
     
     private class WindowEventHandler extends WindowAdapter { 
@@ -186,16 +204,13 @@ public final class WindowMenu extends JWindow {
         WindowMenu root = WindowMenu.this; 
         
         public void windowOpened(WindowEvent e) { 
-            System.out.println("windowOpened");
             Toolkit.getDefaultToolkit().addAWTEventListener( root.eventHandler, AWTEvent.MOUSE_EVENT_MASK | AWTEvent.FOCUS_EVENT_MASK ); 
         }
 
         public void windowClosing(WindowEvent e) {
-            System.out.println("windowClosing");
         }
 
         public void windowClosed(WindowEvent e) { 
-            System.out.println("windowClosed");
             Toolkit.getDefaultToolkit().removeAWTEventListener( root.eventHandler ); 
         } 
     } 

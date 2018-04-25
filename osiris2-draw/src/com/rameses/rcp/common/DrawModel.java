@@ -47,7 +47,11 @@ public class DrawModel {
     public List showMenu(Object o){
         return new ArrayList();
     }
-    
+
+    public DrawComponentModel getComponentModel() {
+        return componentModel;
+    }
+
     public void onAddItem(Object o){
     }
     
@@ -65,87 +69,15 @@ public class DrawModel {
     public void reload(){
         editor.getDrawing().clearFigures();
         editor.setReadonly(isReadonly());
-        loadDrawing();
-        editor.getCanvas().revalidateRect(new Rectangle());
-        editor.getCanvas().requestFocus();
+        editor.loadDrawing(this);
         refresh();
     }
     
     public void refresh(){
         editor.getCanvas().refresh();
-    }
-    
-    
-    protected void loadDrawing(){
-        Object o = fetchData(componentModel.getCategory());
-        Map data = new HashMap(); 
-        if (o instanceof Map){
-            data = (Map)o;
-        }else if (o instanceof String){
-            //TODO:
-            //this is an xml file, process xml and return as map
-            //data = XmlDataProcess.process(o);
-            data = new HashMap();
-        }
-        
-        loadFigures(data);
-        loadConnectors(data);
-    }
-    
-    protected void loadFigures(Map data){
-        List<Map> figures = (List)data.get("figures");
-        if (figures != null){
-            for (Map fprop : figures){
-                Figure figure = loadFigure(fprop);
-                if (figure != null){
-                    editor.getDrawing().addFigure(figure);
-                }
-            }
-        }
-    }
-    
-    protected void loadConnectors(Map data){
-        List<Map> list = (List)data.get("connectors");
-        if (list != null && !list.isEmpty()){
-            for (Map cprop : list){
-                Figure startFigure = getEditor().getDrawing().figureById(cprop.get("startFigureId").toString());
-                Figure endFigure = getEditor().getDrawing().figureById(cprop.get("endFigureId").toString());
-                if (startFigure != null && endFigure != null){
-                    loadConnector(startFigure, endFigure, cprop);
-                }
-            }
-        }
-    }    
-        
-    protected final Connector loadConnector(Figure startFigure, Figure endFigure, Map cprop){
-        Connector connector = (LineConnector) loadFigure(cprop);
-        if (connector != null){
-            connector.setStartFigure(startFigure, false);
-            connector.setEndFigure(endFigure, false);
-            getEditor().getDrawing().addConnector(connector);
-        }
-        return connector;
-    }
-        
-    protected final Figure loadFigure(Map fprop){
-        Map ui = (Map)fprop.get("ui");
-
-        Figure figure = null;
-        try{
-            Figure prototype = FigureCache.getInstance().getFigure(ui.get("type")+"");
-            if (prototype != null){
-                figure = prototype.getClass().newInstance();
-                figure.showHandles(showHandles());
-                figure.readAttributes(fprop);
-            }else{
-                System.out.println("No Figure is associated with the type " + ui.get("type") + ".");
-            }
-        }
-        catch(Exception ex){
-            System.out.println("Unable to create Figure for type " + ui.get("type") + ".");
-            System.out.println("[ERROR] : " + ex.getMessage());
-        }
-        return figure;
+        editor.setDefaultTool();
+        componentModel.getBinding().refresh();
+        componentModel.getCallerBinding().refresh();
     }
     
     public boolean showCategories() {
@@ -158,7 +90,10 @@ public class DrawModel {
     
     public final void setReadonly(boolean readonly){
         this.readonly = readonly;
-        getEditor().setReadonly(readonly);
+        if (getEditor() != null){
+            getEditor().setReadonly(readonly);
+            refresh();
+        }
     }
     
     public boolean showHandles(){
@@ -182,7 +117,10 @@ public class DrawModel {
     }
 
     public Map getData(){
-        return getEditor().getDrawing().getData();
+        if (getEditor() != null){
+            return getEditor().getDrawing().getData();
+        }
+        return new HashMap();
     }
     
     public Image getImage(){

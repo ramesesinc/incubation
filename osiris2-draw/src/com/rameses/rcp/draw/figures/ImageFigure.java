@@ -3,10 +3,8 @@ package com.rameses.rcp.draw.figures;
 
 import com.rameses.rcp.draw.handles.BoxHandle;
 import com.rameses.rcp.draw.interfaces.Tool;
-import com.rameses.rcp.draw.support.AttributeKey;
 import com.rameses.rcp.draw.tools.ImageTool;
 import com.rameses.rcp.draw.utils.DataUtil;
-import com.rameses.rcp.draw.utils.DrawUtil;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -14,7 +12,6 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
-import java.util.Iterator;
 import java.util.Map;
 
 public class ImageFigure extends AbstractAttributedFigure{
