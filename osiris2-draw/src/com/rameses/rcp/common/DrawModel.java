@@ -59,7 +59,7 @@ public class DrawModel {
         return true;
     }
     
-    public void afterRemoveItem(){
+    public void afterRemoveItem(List<Figure> deletedItems){
     }
     
     public List<Figure> getFigures(){

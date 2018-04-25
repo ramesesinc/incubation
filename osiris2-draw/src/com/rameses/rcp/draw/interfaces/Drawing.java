@@ -36,7 +36,7 @@ public interface Drawing {
     public String getXml();
     public Map getData();
     
-    public void deleteSelections();
+    public List<Figure> deleteSelections();
     public void clearFigures();
     public void setShowHandles(boolean showHandles);
     public Rectangle getBounds();

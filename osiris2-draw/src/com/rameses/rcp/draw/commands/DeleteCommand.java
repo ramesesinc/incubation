@@ -5,7 +5,9 @@
 package com.rameses.rcp.draw.commands;
 
 import com.rameses.rcp.draw.interfaces.Canvas;
+import com.rameses.rcp.draw.interfaces.Figure;
 import java.awt.event.KeyEvent;
+import java.util.List;
 
 
 public class DeleteCommand extends Command{
@@ -22,8 +24,8 @@ public class DeleteCommand extends Command{
         
         boolean delete = getEditor().notifyBeforeRemoveListener(getDrawing().getSelections());
         if (delete){
-            getEditor().deleteSelections();
-            getEditor().notifyAfterRemoveListener();
+            List<Figure> deletedItems = getEditor().deleteSelections();
+            getEditor().notifyAfterRemoveListener(deletedItems);
         }
     }
 
