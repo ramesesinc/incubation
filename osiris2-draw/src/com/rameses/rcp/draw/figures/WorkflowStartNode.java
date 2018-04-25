@@ -21,7 +21,7 @@ public class WorkflowStartNode extends WorkflowNode{
         
     @Override
     public String getType(){
-        return "startnode";
+        return "start";
     }
 
     @Override

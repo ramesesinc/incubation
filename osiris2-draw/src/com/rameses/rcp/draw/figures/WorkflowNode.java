@@ -27,7 +27,7 @@ public class WorkflowNode extends ImageFigure{
         
     @Override
     public String getType(){
-        return "node";
+        return "process";
     }
 
     @Override
