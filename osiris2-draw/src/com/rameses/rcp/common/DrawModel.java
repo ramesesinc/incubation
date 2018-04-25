@@ -74,6 +74,7 @@ public class DrawModel {
     }
     
     public void refresh(){
+        editor.setReadonly(isReadonly());
         editor.getCanvas().refresh();
         editor.setDefaultTool();
         componentModel.getBinding().refresh();
