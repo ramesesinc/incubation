@@ -26,6 +26,12 @@ public class DynamicForm  {
     @Controller
     def workunit;
     
+    @Invoker
+    def invoker;
+    
+    @Caller
+    def caller;
+    
     def data;
     def fields;
     def handler;
