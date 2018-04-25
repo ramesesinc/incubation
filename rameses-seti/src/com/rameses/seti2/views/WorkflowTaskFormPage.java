@@ -43,9 +43,6 @@ public class WorkflowTaskFormPage extends javax.swing.JPanel {
         btnDebug.setToolTipText("Debug Info");
         btnHelp.setToolTipText("Help");
         
-        //hide the status panel for now 
-        pnlstat.setVisible(false); 
-        
         renderer = new NoteRenderer();
         xDropDownList1.setRenderer(renderer);
         xDropDownList1.setVisibility(new NoteVisibility(renderer));         
@@ -63,7 +60,6 @@ public class WorkflowTaskFormPage extends javax.swing.JPanel {
     private void initComponents() {
 
         xStyleRule1 = new com.rameses.rcp.control.XStyleRule();
-        pnlstat = new javax.swing.JPanel();
         jPanel2 = new javax.swing.JPanel();
         jPanel3 = new javax.swing.JPanel();
         xLabel1 = new com.rameses.rcp.control.XLabel();
@@ -94,25 +90,10 @@ public class WorkflowTaskFormPage extends javax.swing.JPanel {
         );
         xStyleRule1Layout.setVerticalGroup(
             xStyleRule1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 262, Short.MAX_VALUE)
+            .addGap(0, 287, Short.MAX_VALUE)
         );
 
         add(xStyleRule1, java.awt.BorderLayout.LINE_START);
-
-        pnlstat.setPreferredSize(new java.awt.Dimension(400, 25));
-
-        javax.swing.GroupLayout pnlstatLayout = new javax.swing.GroupLayout(pnlstat);
-        pnlstat.setLayout(pnlstatLayout);
-        pnlstatLayout.setHorizontalGroup(
-            pnlstatLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 727, Short.MAX_VALUE)
-        );
-        pnlstatLayout.setVerticalGroup(
-            pnlstatLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 25, Short.MAX_VALUE)
-        );
-
-        add(pnlstat, java.awt.BorderLayout.PAGE_END);
 
         jPanel2.setPreferredSize(new java.awt.Dimension(420, 70));
         jPanel2.setLayout(new com.rameses.rcp.control.layout.YLayout());
@@ -120,8 +101,8 @@ public class WorkflowTaskFormPage extends javax.swing.JPanel {
         jPanel3.setBackground(new java.awt.Color(255, 255, 255));
         jPanel3.setPreferredSize(new java.awt.Dimension(420, 35));
 
-        xLabel1.setBackground(new java.awt.Color(255, 255, 255));
         xLabel1.setExpression("#{title}");
+        xLabel1.setBackground(new java.awt.Color(255, 255, 255));
         xLabel1.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         xLabel1.setOpaque(true);
         xLabel1.setPreferredSize(new java.awt.Dimension(41, 30));
@@ -562,7 +543,6 @@ public class WorkflowTaskFormPage extends javax.swing.JPanel {
     private javax.swing.JPanel jPanel3;
     private javax.swing.JToolBar jToolBar1;
     private javax.swing.JToolBar jToolBar3;
-    private javax.swing.JPanel pnlstat;
     private com.rameses.rcp.control.XActionBar xActionBar1;
     private com.rameses.rcp.control.XActionBar xActionBar2;
     private com.rameses.rcp.control.XDropDownList xDropDownList1;
