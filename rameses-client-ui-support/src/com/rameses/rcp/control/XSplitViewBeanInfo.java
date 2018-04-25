@@ -31,6 +31,7 @@ public class XSplitViewBeanInfo extends ComponentBeanInfoSupport {
     
     protected void loadProperties(List<PropertyDescriptor> list) { 
         add( list, "dividerLocation", true ); 
+        add( list, "dividerLocationPercentage", true ); 
         add( list, "dividerSize", true ); 
         add( list, "orientation", true, UIConstantsOrientationPropertyEditor.class ); 
     }

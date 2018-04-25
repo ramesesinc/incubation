@@ -59,6 +59,14 @@ public class XSplitView extends JPanel implements SplitViewLayout.Provider
         layout.setDividerLocation(dividerLocation); 
     }
     
+    public int getDividerLocationPercentage() { 
+        return layout.getDividerLocationPercentage(); 
+    } 
+    public void setDividerLocationPercentage( int dividerLocationPercentage ) {
+        layout.setDividerLocationPercentage( dividerLocationPercentage ); 
+    }
+    
+    
     public void paint(Graphics g) {
         super.paint(g); 
         if (dividerRect != null && targetPoint != null) { 
