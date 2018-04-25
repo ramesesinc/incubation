@@ -103,6 +103,10 @@ public class LineConnector extends PolyLineFigure implements Connector {
             return;
         }
         if(updateConnectorPoint){
+            if (getPoints().isEmpty()){
+                addPoint(new Point(0,0));
+                addPoint(new Point(0,0));
+            }
             Point loc = figure.getDisplayBox().getLocation();
             Point p = getStartPoint();
             p.x = figure.getCenter().x;
