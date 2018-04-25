@@ -34,5 +34,6 @@ public class XSplitViewBeanInfo extends ComponentBeanInfoSupport {
         add( list, "dividerLocationPercentage", true ); 
         add( list, "dividerSize", true ); 
         add( list, "orientation", true, UIConstantsOrientationPropertyEditor.class ); 
+        addBoolean(list, "showDividerBorder", true );
     }
 }

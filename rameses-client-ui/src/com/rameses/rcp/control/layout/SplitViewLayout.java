@@ -11,14 +11,17 @@ package com.rameses.rcp.control.layout;
 
 
 import com.rameses.rcp.constant.UIConstants;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.Graphics;
 import java.awt.Insets;
 import java.awt.LayoutManager;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.SystemColor;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -27,6 +30,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.swing.JLabel;
+import javax.swing.SwingConstants;
 
 /**
  *
@@ -51,6 +55,7 @@ public class SplitViewLayout implements LayoutManager
     private Rectangle viewRect; 
     
     private boolean startedMoving;
+    private boolean showDividerBorder; 
     
     public SplitViewLayout(SplitViewLayout.Provider provider)
     {
@@ -88,6 +93,11 @@ public class SplitViewLayout implements LayoutManager
     public void setDividerLocationPercentage( int dividerLocationPercentage ) {
         this.dividerLocationPercentage = dividerLocationPercentage; 
     }
+    
+    public boolean isShowDividerBorder() { return showDividerBorder; } 
+    public void setShowDividerBorder( boolean showDividerBorder ) {
+        this.showDividerBorder = showDividerBorder; 
+    }
 
     void setLocationIndex(int x) {
         this.locationIndex = x; 
@@ -96,7 +106,7 @@ public class SplitViewLayout implements LayoutManager
     private Component getDivider() {
         if ("vertical".equalsIgnoreCase(getOrientation()+"")) { 
             if (verticalDivider == null) {
-                JLabel lbl = new JLabel();
+                JDivider lbl = new JDivider( SwingConstants.VERTICAL );
                 lbl.setName("splitview.divider"); 
                 lbl.setCursor(Cursor.getPredefinedCursor(Cursor.N_RESIZE_CURSOR)); 
                 
@@ -106,7 +116,7 @@ public class SplitViewLayout implements LayoutManager
             return verticalDivider; 
         } else {
             if (horizontalDivider == null) {
-                JLabel lbl = new JLabel();
+                JDivider lbl = new JDivider( SwingConstants.HORIZONTAL );
                 lbl.setName("splitview.divider"); 
                 lbl.setCursor(Cursor.getPredefinedCursor(Cursor.W_RESIZE_CURSOR)); 
                 
@@ -292,6 +302,50 @@ public class SplitViewLayout implements LayoutManager
     }
     
     // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" JDivider ">
+    
+    private class JDivider extends JLabel {
+        
+        SplitViewLayout root = SplitViewLayout.this; 
+        
+        private Color hilite; 
+        private Color shadow; 
+        private int orientation; 
+        
+        public JDivider( int orientation ) {
+            super(); 
+            this.orientation = orientation; 
+            this.hilite = SystemColor.controlLtHighlight;
+            this.shadow = SystemColor.controlDkShadow; 
+        }
+        
+        protected void paintBorder(Graphics g) {
+            super.paintBorder(g);
+            
+            if ( !root.isShowDividerBorder()) return; 
+            
+            int dsize = root.getDividerSize();
+            if ( dsize < 3 ) return;
+            
+            Rectangle rect = getBounds(); 
+            if ( orientation == SwingConstants.VERTICAL ) {
+                g.setColor(hilite); 
+                g.drawLine(0, 1, rect.width, 1);
+                g.setColor(shadow); 
+                g.drawLine(0, rect.height-2, rect.width, rect.height-2); 
+                
+            } else {
+                g.setColor(hilite); 
+                g.drawLine(1, 0, 1, rect.height);
+                g.setColor(shadow); 
+                g.drawLine(rect.width-2, 0, rect.width-2, rect.height); 
+                
+            }
+        }
+    }
+    
+    // </editor-fold>    
     
     // <editor-fold defaultstate="collapsed" desc=" HorizontalLayout (Class) ">
 
