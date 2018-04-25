@@ -126,7 +126,6 @@ public class WorkflowTaskListPage extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jPanel1 = new javax.swing.JPanel();
         jPanel2 = new javax.swing.JPanel();
         jPanel3 = new javax.swing.JPanel();
         xLabel1 = new com.rameses.rcp.control.XLabel();
@@ -148,28 +147,13 @@ public class WorkflowTaskListPage extends javax.swing.JPanel {
         xActionTextField1 = new com.rameses.rcp.control.XActionTextField();
         xSubFormPanel1 = new com.rameses.rcp.control.XSubFormPanel();
         jPanel4 = new javax.swing.JPanel();
-        jPanel6 = new javax.swing.JPanel();
-        listPanel1 = new com.rameses.seti2.components.ListPanel();
         sidebarpanel = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         xList1 = new com.rameses.rcp.control.XList();
+        jPanel6 = new javax.swing.JPanel();
+        listPanel1 = new com.rameses.seti2.components.ListPanel();
 
         setLayout(new java.awt.BorderLayout());
-
-        jPanel1.setPreferredSize(new java.awt.Dimension(400, 25));
-
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 727, Short.MAX_VALUE)
-        );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 25, Short.MAX_VALUE)
-        );
-
-        add(jPanel1, java.awt.BorderLayout.PAGE_END);
 
         jPanel2.setPreferredSize(new java.awt.Dimension(420, 65));
         jPanel2.setLayout(new com.rameses.rcp.control.layout.YLayout());
@@ -177,8 +161,8 @@ public class WorkflowTaskListPage extends javax.swing.JPanel {
         jPanel3.setBackground(new java.awt.Color(255, 255, 255));
         jPanel3.setPreferredSize(new java.awt.Dimension(420, 35));
 
-        xLabel1.setBackground(new java.awt.Color(255, 255, 255));
         xLabel1.setExpression("#{title}");
+        xLabel1.setBackground(new java.awt.Color(255, 255, 255));
         xLabel1.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         xLabel1.setOpaque(true);
         xLabel1.setPreferredSize(new java.awt.Dimension(41, 30));
@@ -335,14 +319,13 @@ public class WorkflowTaskListPage extends javax.swing.JPanel {
 
             add(jPanel2, java.awt.BorderLayout.NORTH);
 
+            jPanel4.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 5, 5, 5));
             jPanel4.setLayout(new java.awt.BorderLayout());
 
-            jPanel6.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 204)));
-            jPanel6.setLayout(new java.awt.BorderLayout());
-            jPanel6.add(listPanel1, java.awt.BorderLayout.CENTER);
-
-            jPanel4.add(jPanel6, java.awt.BorderLayout.CENTER);
-
+            com.rameses.rcp.control.border.XLineBorder xLineBorder1 = new com.rameses.rcp.control.border.XLineBorder();
+            xLineBorder1.setHideRight(true);
+            xLineBorder1.setLineColor(new java.awt.Color(180, 180, 180));
+            sidebarpanel.setBorder(xLineBorder1);
             sidebarpanel.setPreferredSize(new java.awt.Dimension(250, 292));
             sidebarpanel.setLayout(new java.awt.BorderLayout());
 
@@ -358,6 +341,12 @@ public class WorkflowTaskListPage extends javax.swing.JPanel {
 
             jPanel4.add(sidebarpanel, java.awt.BorderLayout.WEST);
 
+            jPanel6.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(180, 180, 180)));
+            jPanel6.setLayout(new java.awt.BorderLayout());
+            jPanel6.add(listPanel1, java.awt.BorderLayout.CENTER);
+
+            jPanel4.add(jPanel6, java.awt.BorderLayout.CENTER);
+
             add(jPanel4, java.awt.BorderLayout.CENTER);
         }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -369,7 +358,6 @@ public class WorkflowTaskListPage extends javax.swing.JPanel {
     private com.rameses.rcp.control.XButton btnPrint;
     private com.rameses.rcp.control.XButton btnRefresh;
     private com.rameses.rcp.control.XButton btnSelectColumn;
-    private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;

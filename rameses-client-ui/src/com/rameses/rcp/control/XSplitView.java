@@ -30,6 +30,8 @@ public class XSplitView extends JPanel implements SplitViewLayout.Provider
     private Rectangle dividerRect;
     private Point targetPoint;
     
+    private boolean showDividerBorder; 
+    
     public XSplitView() {
         layout = new SplitViewLayout(this); 
         super.setLayout(layout); 
@@ -57,6 +59,20 @@ public class XSplitView extends JPanel implements SplitViewLayout.Provider
     } 
     public void setDividerLocation(int dividerLocation) {
         layout.setDividerLocation(dividerLocation); 
+    }
+    
+    public int getDividerLocationPercentage() { 
+        return layout.getDividerLocationPercentage(); 
+    } 
+    public void setDividerLocationPercentage( int dividerLocationPercentage ) {
+        layout.setDividerLocationPercentage( dividerLocationPercentage ); 
+    }
+    
+    public boolean isShowDividerBorder() { 
+        return layout.isShowDividerBorder(); 
+    } 
+    public void setShowDividerBorder( boolean showDividerBorder ) {
+        layout.setShowDividerBorder( showDividerBorder ); 
     }
     
     public void paint(Graphics g) {

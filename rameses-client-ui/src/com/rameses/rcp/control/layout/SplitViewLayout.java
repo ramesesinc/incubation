@@ -11,14 +11,17 @@ package com.rameses.rcp.control.layout;
 
 
 import com.rameses.rcp.constant.UIConstants;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.Graphics;
 import java.awt.Insets;
 import java.awt.LayoutManager;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.SystemColor;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -27,6 +30,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.swing.JLabel;
+import javax.swing.SwingConstants;
 
 /**
  *
@@ -39,6 +43,7 @@ public class SplitViewLayout implements LayoutManager
     private String orientation;
     private int dividerSize;
     private int dividerLocation;
+    private int dividerLocationPercentage;
     private int locationIndex;
     private Component divider;
     private SplitViewLayout.Provider provider;
@@ -50,6 +55,7 @@ public class SplitViewLayout implements LayoutManager
     private Rectangle viewRect; 
     
     private boolean startedMoving;
+    private boolean showDividerBorder; 
     
     public SplitViewLayout(SplitViewLayout.Provider provider)
     {
@@ -82,7 +88,17 @@ public class SplitViewLayout implements LayoutManager
         this.dividerLocation = dividerLocation;
         this.locationIndex = dividerLocation;         
     }
-        
+    
+    public int getDividerLocationPercentage() { return dividerLocationPercentage; } 
+    public void setDividerLocationPercentage( int dividerLocationPercentage ) {
+        this.dividerLocationPercentage = dividerLocationPercentage; 
+    }
+    
+    public boolean isShowDividerBorder() { return showDividerBorder; } 
+    public void setShowDividerBorder( boolean showDividerBorder ) {
+        this.showDividerBorder = showDividerBorder; 
+    }
+
     void setLocationIndex(int x) {
         this.locationIndex = x; 
     }
@@ -90,7 +106,7 @@ public class SplitViewLayout implements LayoutManager
     private Component getDivider() {
         if ("vertical".equalsIgnoreCase(getOrientation()+"")) { 
             if (verticalDivider == null) {
-                JLabel lbl = new JLabel();
+                JDivider lbl = new JDivider( SwingConstants.VERTICAL );
                 lbl.setName("splitview.divider"); 
                 lbl.setCursor(Cursor.getPredefinedCursor(Cursor.N_RESIZE_CURSOR)); 
                 
@@ -100,7 +116,7 @@ public class SplitViewLayout implements LayoutManager
             return verticalDivider; 
         } else {
             if (horizontalDivider == null) {
-                JLabel lbl = new JLabel();
+                JDivider lbl = new JDivider( SwingConstants.HORIZONTAL );
                 lbl.setName("splitview.divider"); 
                 lbl.setCursor(Cursor.getPredefinedCursor(Cursor.W_RESIZE_CURSOR)); 
                 
@@ -215,6 +231,7 @@ public class SplitViewLayout implements LayoutManager
 
         public void mouseMoved(MouseEvent e) {}        
         public void mouseDragged(MouseEvent e) {
+            startedMoving = true;
             targetPoint = e.getPoint(); 
             Rectangle divRect = divider.getBounds();
             int nx = divRect.x + targetPoint.x; 
@@ -286,10 +303,54 @@ public class SplitViewLayout implements LayoutManager
     
     // </editor-fold>
     
+    // <editor-fold defaultstate="collapsed" desc=" JDivider ">
+    
+    private class JDivider extends JLabel {
+        
+        SplitViewLayout root = SplitViewLayout.this; 
+        
+        private Color hilite; 
+        private Color shadow; 
+        private int orientation; 
+        
+        public JDivider( int orientation ) {
+            super(); 
+            this.orientation = orientation; 
+            this.hilite = SystemColor.controlLtHighlight;
+            this.shadow = SystemColor.controlDkShadow; 
+        }
+        
+        protected void paintBorder(Graphics g) {
+            super.paintBorder(g);
+            
+            if ( !root.isShowDividerBorder()) return; 
+            
+            int dsize = root.getDividerSize();
+            if ( dsize < 3 ) return;
+            
+            Rectangle rect = getBounds(); 
+            if ( orientation == SwingConstants.VERTICAL ) {
+                g.setColor(hilite); 
+                g.drawLine(0, 1, rect.width, 1);
+                g.setColor(shadow); 
+                g.drawLine(0, rect.height-2, rect.width, rect.height-2); 
+                
+            } else {
+                g.setColor(hilite); 
+                g.drawLine(1, 0, 1, rect.height);
+                g.setColor(shadow); 
+                g.drawLine(rect.width-2, 0, rect.width-2, rect.height); 
+                
+            }
+        }
+    }
+    
+    // </editor-fold>    
+    
     // <editor-fold defaultstate="collapsed" desc=" HorizontalLayout (Class) ">
 
-    private class HorizontalLayout implements LayoutManager 
-    {
+    private class HorizontalLayout implements LayoutManager {
+        
         SplitViewLayout root = SplitViewLayout.this; 
         
         public void addLayoutComponent(String name, Component comp) {;}
@@ -305,10 +366,8 @@ public class SplitViewLayout implements LayoutManager
         
         public Dimension getLayoutSize(Container parent) {
             synchronized (parent.getTreeLock()) {
-                int w=0, h=0;
-
-                w += getDividerSize();
-                h += getDividerSize();
+                int dsize = root.getDividerSize(); 
+                int w=dsize, h=dsize;
 
                 Insets margin = parent.getInsets();
                 w += (margin.left + margin.right);
@@ -325,23 +384,41 @@ public class SplitViewLayout implements LayoutManager
 
                 Insets margin = parent.getInsets();
                 int pw = parent.getWidth(), ph = parent.getHeight();
+                int lbound = margin.left; 
+                int rbound = pw - margin.right; 
                 int x = margin.left, y = margin.top; 
                 int w = pw - (margin.left + margin.right);
                 int h = ph - (margin.top + margin.bottom);
                 viewRect = new Rectangle(x, y, w, h); 
 
-                if (locationIndex < 0) 
-                    locationIndex = 0; 
-                else if (locationIndex >= (pw-margin.right)) 
-                    locationIndex = (pw-margin.right)-getDividerSize();
+                int divsize = root.getDividerSize();
+                int locindex = 0; 
+                if ( root.startedMoving ) {
+                    locindex = root.locationIndex;  
+                } else {
+                    double locper = (double) root.getDividerLocationPercentage(); 
+                    if ( locper > 0 ) {
+                        locper = Math.min( locper, 100.0 );
+                        locindex = margin.left + ((int) ((locper / 100.0) * w)); 
+                    } else {
+                        locindex = root.getDividerLocation(); 
+                    }
+                }
+
+                if ( locindex < lbound ) {
+                    locindex = lbound + divsize;
+                }
+                if ( locindex > rbound ) {
+                    locindex = rbound - divsize; 
+                }
 
                 Component[] comps = getLayoutComponents(parent.getComponents());
                 if (comps.length >= 1) {
-                    comps[0].setBounds(x, y, locationIndex, h); 
+                    comps[0].setBounds(x, y, locindex, h); 
                 }
                 
-                x += locationIndex;
-                divider.setBounds(x, y, getDividerSize(), h); 
+                x += locindex;
+                divider.setBounds(x, y, divsize, h); 
                 x += getDividerSize();
 
                 int rw = (pw-margin.right)-x;
@@ -375,8 +452,7 @@ public class SplitViewLayout implements LayoutManager
         public Dimension getLayoutSize(Container parent) {
             synchronized (parent.getTreeLock()) {
                 int dsize = root.getDividerSize(); 
-                int w = dsize; 
-                int h = dsize; 
+                int w=dsize, h=dsize;
 
                 Insets margin = parent.getInsets();
                 w += (margin.left + margin.right);
@@ -393,17 +469,32 @@ public class SplitViewLayout implements LayoutManager
 
                 Insets margin = parent.getInsets();
                 int pw = parent.getWidth(), ph = parent.getHeight();
+                int tMax = margin.top; 
+                int bMax = ph - margin.bottom;                 
                 int x = margin.left, y = margin.top; 
                 int w = pw - (margin.left + margin.right);
                 int h = ph - (margin.top + margin.bottom);
                 viewRect = new Rectangle(x, y, w, h); 
 
                 int divsize = root.getDividerSize();
-                int locindex = (root.startedMoving ? root.locationIndex : root.getDividerLocation());
-                if (locindex < 0) { 
-                    locindex = 0;
-                } else if (locindex >= (ph-margin.bottom)) {
-                    locindex = (ph-margin.bottom)-getDividerSize();
+                int locindex = 0; 
+                if ( root.startedMoving ) {
+                    locindex = root.locationIndex;  
+                } else {
+                    double locper = (double) root.getDividerLocationPercentage(); 
+                    if ( locper > 0 ) {
+                        locper = Math.min( locper, 100.0 );
+                        locindex = margin.top + ((int) ((locper / 100.0) * h)); 
+                    } else {
+                        locindex = root.getDividerLocation(); 
+                    }
+                }
+                
+                if ( locindex < tMax ) {
+                    locindex = tMax + divsize;
+                }
+                if ( locindex > bMax ) {
+                    locindex = bMax - divsize; 
                 }
 
                 Component[] comps = getLayoutComponents(parent.getComponents());
