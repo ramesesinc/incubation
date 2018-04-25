@@ -182,7 +182,13 @@ public abstract class AbstractFigure implements Figure{
     public Figure getInnerFigure(){
         return innerFigure;
     }
-    
+
+    @Override
+    public void setLocation(Point pt) {
+        Rectangle r = getDisplayBox();
+        r.x = pt.x;
+        r.y = pt.y;
+    }
     
 
     @Override

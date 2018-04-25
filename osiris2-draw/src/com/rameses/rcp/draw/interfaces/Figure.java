@@ -26,6 +26,7 @@ public interface Figure {
     public void setDisplayBox(Rectangle displayBox);
     public void setDisplayBox(int x1, int y1, int x2, int y2);
     public Rectangle getBounds();
+    public void setLocation(Point pt);
     public int getX();
     public int getY();
     public boolean getSelected();
