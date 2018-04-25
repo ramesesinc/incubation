@@ -34,6 +34,7 @@ public abstract class AbstractFigure implements Figure{
     private Rectangle displayBox;
     private List<Handle> handles;
     private boolean selected;
+    private int index = 0;
     
     private boolean allowResize;
     private boolean showHandle;
@@ -96,6 +97,16 @@ public abstract class AbstractFigure implements Figure{
         }
     }
 
+    @Override
+    public int getIndex() {
+        return index;
+    }
+
+    @Override
+    public void setIndex(int index) {
+        this.index = index;
+    }
+    
     @Override
     public boolean getSelected() {
         return selected;

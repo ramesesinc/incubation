@@ -18,6 +18,8 @@ public interface Figure {
     public void setName(String name);
     public String getCaption();
     public void setCaption(String caption);
+    public int getIndex();
+    public void setIndex(int index);
     public String getTooltip();
     public void setTooltip(String tooltip);
     public Rectangle getDisplayBox();
