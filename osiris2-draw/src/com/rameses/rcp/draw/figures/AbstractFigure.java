@@ -8,9 +8,9 @@ import com.rameses.rcp.draw.interfaces.Tool;
 import com.rameses.rcp.draw.support.AttributeKey;
 import com.rameses.rcp.draw.utils.Geom;
 import static com.rameses.rcp.draw.support.AttributeKeys.*;
-import com.rameses.rcp.draw.support.XmlElement;
 import com.rameses.rcp.draw.tools.CreationTool;
 import com.rameses.rcp.draw.utils.DataUtil;
+import com.rameses.rcp.draw.utils.DrawUtil;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -35,6 +35,7 @@ public abstract class AbstractFigure implements Figure{
     private List<Handle> handles;
     private boolean selected;
     private int index = 0;
+    private boolean showIndex = false;
     
     private boolean allowResize;
     private boolean showHandle;
@@ -43,6 +44,7 @@ public abstract class AbstractFigure implements Figure{
     private boolean endConnectionAllowed;
     private List<Connector> connectors;
     private TextFigure innerFigure;
+    private Map info;
     
     public AbstractFigure(){
         id = this.hashCode()+"";
@@ -54,6 +56,7 @@ public abstract class AbstractFigure implements Figure{
         startConnectionAllowed = connectionAllowed;
         endConnectionAllowed = connectionAllowed;
         connectors = new ArrayList<Connector>();
+        info = new HashMap();
     }
 
     @Override
@@ -156,6 +159,11 @@ public abstract class AbstractFigure implements Figure{
     public void showHandles(boolean showHandle) {
         this.showHandle = showHandle;
     }
+
+    @Override
+    public void toggleShowIndex() {
+        this.showIndex = !this.showIndex;
+    }
     
     
     @Override
@@ -220,6 +228,18 @@ public abstract class AbstractFigure implements Figure{
         int y = r.y + (r.height / 2);
         return new Point(x, y);
     }
+
+    /*Centers the figure on the specified point*/
+    @Override
+    public void center(Point pt) {
+        Rectangle r = getDisplayBox();
+        int dx = r.width / 2;
+        int dy = r.height / 2;
+        r.x = pt.x - dx;
+        r.y = pt.y - dy;
+    }
+    
+    
     
     @Override
     public boolean hitTest(int x, int y){
@@ -286,11 +306,20 @@ public abstract class AbstractFigure implements Figure{
 
         drawFigure(g);
         drawCaption(g);
+        if (showIndex){
+            drawIndex(g);
+        }
         
         g.setFont(oldFont);
         g.setStroke(oldStroke);
         g.setColor(oldColor);
     }
+
+    @Override
+    public final Map getInfo() {
+        return info;
+    }
+    
     
     protected void propertyChanged(AttributeKey attr){
     }
@@ -300,6 +329,17 @@ public abstract class AbstractFigure implements Figure{
     protected void drawCaption(Graphics2D g) {
         if (innerFigure != null){
             innerFigure.drawFigure(g);
+        }
+    }
+    
+    protected void drawIndex(Graphics2D g) {
+        if (showIndex){
+            Rectangle r = getDisplayBox();
+            Dimension ts = DrawUtil.getTextSize(g, getIndex()+"");
+            int x = r.x + (r.width - ts.width) / 2;
+            int y = r.y + r.height + ts.height;
+            g.setColor(Color.RED);
+            g.drawString(getIndex()+"", x, y);
         }
     }
 
@@ -413,6 +453,11 @@ public abstract class AbstractFigure implements Figure{
         setName(DataUtil.decodeString("name", prop));
         setTooltip(DataUtil.decodeString("tooltip", prop));
         
+        Object o = prop.get("info");
+        if (o != null && o instanceof Map){
+            info = (Map)o;
+        }
+        
         Map ui = (Map) prop.get("ui");
         Point pos = DataUtil.decodePoint("pos", ui);
         Dimension size = DataUtil.decodeSize("size", ui);
@@ -432,6 +477,7 @@ public abstract class AbstractFigure implements Figure{
         DataUtil.putValue(map, "name", getName());
         DataUtil.putValue(map, "caption", getCaption());
         DataUtil.putValue(map, "tooltip", getTooltip());
+        map.put("info", getInfo());
         
         Rectangle r = getDisplayBox();
         Map ui = new HashMap();

@@ -8,6 +8,8 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import static com.rameses.rcp.draw.support.AttributeKeys.*;
 import com.rameses.rcp.draw.tools.WorkflowCreationTool;
+import com.rameses.rcp.draw.utils.DrawUtil;
+import java.awt.Dimension;
 
 public class WorkflowNode extends ImageFigure{
     public WorkflowNode(){
@@ -69,6 +71,16 @@ public class WorkflowNode extends ImageFigure{
             return true;
         }
         return false;
+    }
+
+    @Override
+    protected void drawIndex(Graphics2D g) {
+        Rectangle r = getDisplayBox();
+        Dimension ts = DrawUtil.getTextSize(g, getIndex()+"");
+        int x = r.x + (r.width - ts.width) / 2;
+        int y = r.y + r.height + ts.height - 4;
+        g.setColor(Color.RED);
+        g.drawString(getIndex()+"", x, y);
     }
 
 }

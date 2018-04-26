@@ -163,6 +163,10 @@ public class PolyLineFigure extends AbstractAttributedFigure {
     }
     
     @Override
+    protected void drawIndex(Graphics2D g) {
+    }
+    
+    @Override
     public boolean isConnectionAllowed() {
         return false;
     }

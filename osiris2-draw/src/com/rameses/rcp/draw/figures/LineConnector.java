@@ -75,12 +75,16 @@ public class LineConnector extends PolyLineFigure implements Connector {
     @Override
     protected void drawCaption(Graphics2D g) {
         Figure innerFigure = getInnerFigure();
-        if (getPoints().size() <= 2 && innerFigure != null){
-            innerFigure.setLocation(getCenter());
+        if (innerFigure != null){
+            if (getPoints().size() <= 2){
+                Point pt = new Point(getCenter());
+                pt.y -= 10;
+                innerFigure.center(pt);
+            }
+            innerFigure.draw(g);
         }
-        innerFigure.draw(g);
     }
-        
+    
     public void addPoint(int idx, Point pt){
         getPoints().add(idx, pt);
         updateDisplayBox();

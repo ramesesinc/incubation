@@ -6,6 +6,7 @@ import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import static com.rameses.rcp.draw.support.AttributeKeys.*;
+import com.rameses.rcp.draw.utils.DrawUtil;
 import java.awt.Dimension;
 
 public class WorkflowStartNode extends WorkflowNode{
@@ -64,6 +65,10 @@ public class WorkflowStartNode extends WorkflowNode{
     @Override
     protected void drawCaption(Graphics2D g) {
         
+    }
+    
+    @Override
+    protected void drawIndex(Graphics2D g) {
     }
 
 }

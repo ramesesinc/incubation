@@ -22,6 +22,7 @@ public class Commands {
         addCommand(new ArrangeCommand(canvas));
         addCommand(new CancelAddFigureCommand(canvas));
         addCommand(new MoveCommand(canvas));
+        addCommand(new ShowIndexCommand(canvas));
     }
     
     public void addCommand(Command handler){

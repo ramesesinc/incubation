@@ -122,6 +122,10 @@ public class TextFigure extends AbstractAttributedFigure{
     }
     
     @Override
+    protected void drawIndex(Graphics2D g) {
+    }
+    
+    @Override
     protected void drawCaption(Graphics2D g) {
     }
 
