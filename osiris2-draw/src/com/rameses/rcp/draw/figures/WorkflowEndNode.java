@@ -21,7 +21,7 @@ public class WorkflowEndNode extends WorkflowNode{
         
     @Override
     public String getType(){
-        return "endnode";
+        return "end";
     }
 
     @Override
@@ -64,4 +64,7 @@ public class WorkflowEndNode extends WorkflowNode{
     protected void drawCaption(Graphics2D g) {
     }
 
+    @Override
+    protected void drawIndex(Graphics2D g) {
+    }
 }

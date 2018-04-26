@@ -11,6 +11,7 @@ import com.rameses.rcp.draw.utils.DataUtil;
 import com.rameses.rcp.draw.utils.DrawUtil;
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.util.List;
@@ -48,13 +49,42 @@ public class LineConnector extends PolyLineFigure implements Connector {
         return "arrow";
     }
     
+    @Override
+    public Rectangle getDisplayBox() {
+        if (getPoints().isEmpty()){
+            return new Rectangle();
+        }
+        
+        Rectangle r = null;
+        for (Point p : getPoints()){
+            if (r == null){
+                r = new Rectangle(p);
+            }
+            r.add(p);
+        }
+        return r;
+    }
+    
 
     @Override
     protected void drawFigure(Graphics2D g) {
         super.drawFigure(g);
         drawDecoration(g);
     }
-        
+    
+    @Override
+    protected void drawCaption(Graphics2D g) {
+        Figure innerFigure = getInnerFigure();
+        if (innerFigure != null){
+            if (getPoints().size() <= 2){
+                Point pt = new Point(getCenter());
+                pt.y -= 10;
+                innerFigure.center(pt);
+            }
+            innerFigure.draw(g);
+        }
+    }
+    
     public void addPoint(int idx, Point pt){
         getPoints().add(idx, pt);
         updateDisplayBox();
@@ -103,6 +133,10 @@ public class LineConnector extends PolyLineFigure implements Connector {
             return;
         }
         if(updateConnectorPoint){
+            if (getPoints().isEmpty()){
+                addPoint(new Point(0,0));
+                addPoint(new Point(0,0));
+            }
             Point loc = figure.getDisplayBox().getLocation();
             Point p = getStartPoint();
             p.x = figure.getCenter().x;

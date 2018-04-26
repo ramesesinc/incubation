@@ -146,9 +146,10 @@ public class DrawingEditor implements Editor{
     }
 
     @Override
-    public void deleteSelections() {
-        getDrawing().deleteSelections();
+    public List<Figure> deleteSelections() {
+        List<Figure> deletedItems = getDrawing().deleteSelections();
         getCanvas().refresh();
+        return deletedItems;
     }
 
     @Override
@@ -190,9 +191,9 @@ public class DrawingEditor implements Editor{
     }
     
     @Override
-    public void notifyAfterRemoveListener() {
+    public void notifyAfterRemoveListener(List<Figure> deletedItems) {
         for(EditorListener listener : listeners){
-            listener.afterRemoveFigure();
+            listener.afterRemoveFigure(deletedItems);
         }
     }
     
@@ -271,8 +272,9 @@ public class DrawingEditor implements Editor{
     private Connector loadConnector(DrawModel handler, Figure startFigure, Figure endFigure, Map cprop){
         Connector connector = (LineConnector) loadFigure(handler, cprop);
         if (connector != null){
-            connector.setStartFigure(startFigure, false);
-            connector.setEndFigure(endFigure, false);
+            boolean update = connector.getPoints().isEmpty();
+            connector.setStartFigure(startFigure, update);
+            connector.setEndFigure(endFigure, update);
             getDrawing().addConnector(connector);
         }
         return connector;

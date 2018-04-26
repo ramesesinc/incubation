@@ -308,11 +308,13 @@ public class StdDrawing implements Drawing{
     }
     
     @Override
-    public void deleteSelections() {
+    public List<Figure>deleteSelections() {
+        List<Figure> selections = new ArrayList<Figure>(getSelections());
         for (Figure f: getSelections()){
             removeFigure(f);
         }
         clearSelections();
+        return selections;
     }
     
     protected final void clearConnectors(){

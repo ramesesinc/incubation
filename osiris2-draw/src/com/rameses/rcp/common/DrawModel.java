@@ -59,7 +59,7 @@ public class DrawModel {
         return true;
     }
     
-    public void afterRemoveItem(){
+    public void afterRemoveItem(List<Figure> deletedItems){
     }
     
     public List<Figure> getFigures(){
@@ -74,6 +74,7 @@ public class DrawModel {
     }
     
     public void refresh(){
+        editor.setReadonly(isReadonly());
         editor.getCanvas().refresh();
         editor.setDefaultTool();
         componentModel.getBinding().refresh();

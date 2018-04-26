@@ -26,7 +26,7 @@ public interface Editor {
     
     public void reset();
 
-    public void deleteSelections();
+    public List<Figure> deleteSelections();
 
     public void openFigure(Figure figure);
     
@@ -35,7 +35,7 @@ public interface Editor {
 
     public void notifyAddedListener(Figure createdFigure);
     public boolean notifyBeforeRemoveListener(List<Figure> figures);
-    public void notifyAfterRemoveListener();
+    public void notifyAfterRemoveListener(List<Figure> deletedItems);
 
     public List<Invoker> showMenu(Figure figure);
 

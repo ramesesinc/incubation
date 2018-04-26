@@ -175,9 +175,9 @@ public class DrawComponentModel extends ComponentBean implements EditorListener 
     }
     
     @Override
-    public void afterRemoveFigure(){
+    public void afterRemoveFigure(List<Figure> deletedItems){
         if (handler != null){
-            handler.afterRemoveItem();
+            handler.afterRemoveItem(deletedItems);
         }
     }
     

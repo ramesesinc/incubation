@@ -18,16 +18,22 @@ public interface Figure {
     public void setName(String name);
     public String getCaption();
     public void setCaption(String caption);
+    public int getIndex();
+    public void setIndex(int index);
     public String getTooltip();
     public void setTooltip(String tooltip);
     public Rectangle getDisplayBox();
     public void setDisplayBox(Rectangle displayBox);
     public void setDisplayBox(int x1, int y1, int x2, int y2);
     public Rectangle getBounds();
+    public void setLocation(Point pt);
+    public void center(Point pt);
     public int getX();
     public int getY();
     public boolean getSelected();
     public void setSelected(boolean selected);
+    public void toggleShowIndex();
+    public Map getInfo();
     
     public void moveBy(int dx, int dy, MouseEvent e);
     public void draw(Graphics2D g);
