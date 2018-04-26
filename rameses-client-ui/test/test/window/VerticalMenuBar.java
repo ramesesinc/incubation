@@ -18,6 +18,7 @@ import javax.swing.BorderFactory;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.plaf.MenuBarUI;
 
 /**
  *
@@ -89,7 +90,7 @@ public class VerticalMenuBar extends JMenuBar {
             JMenuItem mi = (JMenuItem) comp;
             mi.setForeground( Color.BLACK ); 
             mi.removeMouseListener(mouseHandler); 
-        }        
+        } 
     }
     
     private class MenuItemMouseHandler extends MouseAdapter {
@@ -103,5 +104,10 @@ public class VerticalMenuBar extends JMenuBar {
             JMenuItem mi = (JMenuItem) e.getSource(); 
             System.out.println(mi.getText() +": armed="+ mi.isArmed());
         }
+    }
+
+    public void setUI(MenuBarUI ui) {
+        //com.sun.java.swing.plaf.windows.WindowsMenuBarUI
+        super.setUI(ui);
     }
 }

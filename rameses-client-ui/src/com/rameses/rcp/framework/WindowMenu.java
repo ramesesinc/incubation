@@ -7,6 +7,8 @@ package com.rameses.rcp.framework;
 import com.rameses.platform.interfaces.SubWindow;
 import com.rameses.platform.interfaces.SubWindowListener;
 import com.rameses.platform.interfaces.ViewContext;
+import com.rameses.rcp.common.MenuRootElement;
+
 import java.awt.AWTEvent;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -39,7 +41,7 @@ import javax.swing.SwingUtilities;
  *
  * @author wflores
  */
-public final class WindowMenu extends JWindow implements SubWindow { 
+public final class WindowMenu extends JWindow implements MenuRootElement, SubWindow { 
     
     public static synchronized void show( Component invoker, Component view ) { 
         if ( view == null ) {
