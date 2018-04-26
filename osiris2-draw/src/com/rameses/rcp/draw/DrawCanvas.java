@@ -20,8 +20,6 @@ import java.awt.Rectangle;
 import java.awt.Stroke;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.List;
@@ -39,7 +37,7 @@ public class DrawCanvas extends JPanel implements Canvas{
     private Rectangle selectionArea;
     
     private CanvasMouseAdapter  canvasMouseAdapter;
-    private CanvasKeyListener canvasKeyListener;
+    // private CanvasKeyListener canvasKeyListener;
     private Commands keyHandlers;
     
     
@@ -49,9 +47,10 @@ public class DrawCanvas extends JPanel implements Canvas{
         setReadonly(false);
         setFocusable(true);
         addMouseListeners();
-        addKeyListener();
+        //addKeyListener();
         setBackground(Color.WHITE);
         setBorder(createLineBorder());
+        createKeyBindings();
     }
         
     @Override
@@ -63,10 +62,10 @@ public class DrawCanvas extends JPanel implements Canvas{
     public void setEditor(Editor editor){
         this.editor = editor;
         this.editor.setCanvas(this);
-        if (keyHandlers == null && editor != null){
-            keyHandlers = new Commands(editor.getCanvas());
-            keyHandlers.buildCommands();
-        }
+//        if (keyHandlers == null && editor != null){
+//            keyHandlers = new Commands(editor.getCanvas());
+//            keyHandlers.buildCommands();
+//        }
     }
     
     @Override
@@ -196,36 +195,36 @@ public class DrawCanvas extends JPanel implements Canvas{
             repaint();
         }
     }
-    
-    protected void addKeyListener(){
-        if (canvasKeyListener == null){
-            canvasKeyListener = new CanvasKeyListener();
-        }
-        addKeyListener(canvasKeyListener);
-    }
+//    
+//    protected void addKeyListener(){
+//        if (canvasKeyListener == null){
+//            canvasKeyListener = new CanvasKeyListener();
+//        }
+//        addKeyListener(canvasKeyListener);
+//    }
     
     private Border createLineBorder() {
         XLineBorder b = new XLineBorder();
         b.setLineColor(Color.LIGHT_GRAY);
         return b;
     }
-    
-    class CanvasKeyListener extends KeyAdapter{
-
-        @Override
-        public void keyPressed(KeyEvent e) {
-            keyHandlers.execute(e);
-        }
-
-        private boolean isControlPressed(KeyEvent e) {
-            return (e.getModifiers() & KeyEvent.CTRL_MASK) != 0;
-        }
-        
-        private boolean isAltPressed(KeyEvent e) {
-            return (e.getModifiers() & KeyEvent.ALT_MASK) != 0;
-        }
-        
-    }
+//    
+//    class CanvasKeyListener extends KeyAdapter{
+//
+//        @Override
+//        public void keyPressed(KeyEvent e) {
+//            keyHandlers.execute(e);
+//        }
+//
+//        private boolean isControlPressed(KeyEvent e) {
+//            return (e.getModifiers() & KeyEvent.CTRL_MASK) != 0;
+//        }
+//        
+//        private boolean isAltPressed(KeyEvent e) {
+//            return (e.getModifiers() & KeyEvent.ALT_MASK) != 0;
+//        }
+//        
+//    }
     
     private void addMouseListeners(){
         if (canvasMouseAdapter == null){
@@ -336,5 +335,12 @@ public class DrawCanvas extends JPanel implements Canvas{
             }
         }
     }
+    
+    private void createKeyBindings(){
+        Commands c = new Commands(this);
+        c.registerCommands();
+    }
+    
+    
             
 }

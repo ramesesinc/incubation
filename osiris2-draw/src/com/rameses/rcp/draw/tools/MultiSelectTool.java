@@ -63,7 +63,7 @@ public class MultiSelectTool extends AbstractTool {
     }
 
     @Override
-    protected Cursor getToolCursor() {
+    public Cursor getToolCursor() {
         return new Cursor(Cursor.HAND_CURSOR);
     }
 }

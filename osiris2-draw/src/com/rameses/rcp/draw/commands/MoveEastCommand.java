@@ -5,22 +5,22 @@
 package com.rameses.rcp.draw.commands;
 
 import com.rameses.rcp.draw.interfaces.Canvas;
+import com.rameses.rcp.draw.interfaces.Connector;
 import com.rameses.rcp.draw.interfaces.Figure;
 import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
-import java.util.List;
 import javax.swing.KeyStroke;
 
-
-public class DeleteCommand extends Command{
+public class MoveEastCommand extends Command{
     
-    public DeleteCommand(Canvas canvas){
-        super("draw_delete", canvas);
+    public MoveEastCommand(Canvas canvas){
+        super("draw_move_east", canvas);
     }
 
     @Override
     public KeyStroke getKeyStroke() {
-        return KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0, true);
+        return KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, InputEvent.CTRL_DOWN_MASK, true);
     }
 
     @Override
@@ -29,11 +29,15 @@ public class DeleteCommand extends Command{
             return;
         }
         
-        boolean delete = getEditor().notifyBeforeRemoveListener(getDrawing().getSelections());
-        if (delete){
-            List<Figure> deletedItems = getEditor().deleteSelections();
-            getEditor().notifyAfterRemoveListener(deletedItems);
+        for (Figure f : getDrawing().getSelections()){
+            if (!(f instanceof Connector )){
+                f.moveBy(1, 0, null);
+            }
         }
+        
+        getCanvas().refresh();
     }
-    
+
 }
+
+

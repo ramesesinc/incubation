@@ -1,13 +1,11 @@
 package com.rameses.rcp.draw.commands;
 
 import com.rameses.rcp.draw.interfaces.Canvas;
-import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
+import javax.swing.JComponent;
 
 
-
-// <editor-fold defaultstate="collapsed" desc="DeleteKeyHandler">
 
 public class Commands {
     private List<Command> commands = new ArrayList<Command>();
@@ -17,35 +15,30 @@ public class Commands {
         this.canvas = canvas;
     }
     
-    public void buildCommands(){
-        addCommand(new DeleteCommand(canvas));
-        addCommand(new ArrangeCommand(canvas));
-        addCommand(new CancelAddFigureCommand(canvas));
-        addCommand(new MoveCommand(canvas));
-        addCommand(new ShowIndexCommand(canvas));
-    }
-    
-    public void addCommand(Command handler){
-        if (!commands.contains(handler)){
-            commands.add(handler);
-        }
-    }
-    
-    public Command getCommand(String name){
+    public void registerCommands(){
+        buildCommands();
+        JComponent comp = (JComponent)canvas;
+        
         for (Command c : commands){
-            if (c.getName().equalsIgnoreCase(name)){
-                return c;
-            }
+            comp.getInputMap().put(c.getKeyStroke(), c.getName());
+            comp.getActionMap().put(c.getName(), c);
         }
-        return null;
     }
     
-    public void execute(KeyEvent e){
-        for(Command handler : commands){
-            if (handler.accept(e)){
-                handler.execute();
-            }
-        }
+    private void buildCommands(){
+        commands.add(new DeleteCommand(canvas));
+        commands.add(new CancelAddFigureCommand(canvas));
+        commands.add(new ArrangeForwardCommand(canvas));
+        commands.add(new ArrangeToFrontCommand(canvas));
+        commands.add(new ArrangeBackwardCommand(canvas));
+        commands.add(new ArrangeToBackCommand(canvas));
+        commands.add(new MoveNorthCommand(canvas));
+        commands.add(new MoveSouthCommand(canvas));
+        commands.add(new MoveEastCommand(canvas));
+        commands.add(new MoveWestCommand(canvas));
+        commands.add(new ShowIndexCommand(canvas));
+        commands.add(new ReindexCommand(canvas));
     }
+    
 }
 

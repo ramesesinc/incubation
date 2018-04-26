@@ -108,7 +108,7 @@ public class SelectionTool extends AbstractTool {
     }
     
     @Override
-    protected Cursor getToolCursor(){
+    public Cursor getToolCursor(){
         return new Cursor(Cursor.DEFAULT_CURSOR);
     }    
     

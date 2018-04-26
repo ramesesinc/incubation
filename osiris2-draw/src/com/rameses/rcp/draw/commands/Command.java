@@ -3,9 +3,11 @@ package com.rameses.rcp.draw.commands;
 import com.rameses.rcp.draw.interfaces.Canvas;
 import com.rameses.rcp.draw.interfaces.Drawing;
 import com.rameses.rcp.draw.interfaces.Editor;
-import java.awt.event.KeyEvent;
+import java.awt.event.ActionEvent;
+import javax.swing.AbstractAction;
+import javax.swing.KeyStroke;
 
-public abstract class Command {
+public abstract class Command extends AbstractAction {
     private String name;
     private Canvas canvas;
 
@@ -14,9 +16,12 @@ public abstract class Command {
         this.canvas = canvas;
     }
     
-    public abstract void execute();
     
-    public abstract boolean accept(KeyEvent e);
+    @Override
+    public abstract void actionPerformed(ActionEvent e);
+    
+    public abstract KeyStroke getKeyStroke();
+
     
     public String getName(){
         return name;
@@ -33,35 +38,4 @@ public abstract class Command {
     public Editor getEditor(){
         return canvas.getEditor();
     }
-    
-    protected boolean isControlPressed(KeyEvent e) {
-        return (e.getModifiers() & KeyEvent.CTRL_MASK) != 0;
-    }
-        
-    protected boolean isAltPressed(KeyEvent e) {
-        return (e.getModifiers() & KeyEvent.ALT_MASK) != 0;
-    }
-
-    @Override
-    public int hashCode() {
-        if (name == null){
-            return this.hashCode();
-        }
-        return name.hashCode();
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == null){
-            return false;
-        }
-        
-        if (!(obj instanceof Command)){
-            return false;
-        }
-        
-        Command h = (Command)obj;
-        return hashCode() == h.hashCode();
-    }
-    
 }

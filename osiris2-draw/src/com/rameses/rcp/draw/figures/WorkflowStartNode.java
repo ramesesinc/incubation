@@ -67,8 +67,4 @@ public class WorkflowStartNode extends WorkflowNode{
         
     }
     
-    @Override
-    protected void drawIndex(Graphics2D g) {
-    }
-
 }

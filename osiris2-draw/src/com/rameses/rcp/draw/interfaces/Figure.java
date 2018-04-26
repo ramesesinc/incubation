@@ -80,4 +80,6 @@ public interface Figure {
     
     public void setRotation(int degree);
     public Figure getInnerFigure();
+
+    
 }

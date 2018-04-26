@@ -1,5 +1,6 @@
 package com.rameses.rcp.draw.interfaces;
 
+import java.awt.Cursor;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
 
@@ -29,6 +30,7 @@ public interface Tool {
     public Class getPrototype();
     public void setPrototype(Class prototype);
     public void setToolCursor();
+    public Cursor getToolCursor();
 
     public boolean isActive();
     public void setActive(boolean active);
