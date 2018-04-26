@@ -51,11 +51,11 @@ public class DrawModel {
     public void onAddItem(Object o){
     }
     
-    public boolean beforeRemoveItem(Object o){
+    public boolean beforeRemove(Object o){
         return true;
     }
     
-    public void afterRemoveItem(List<Figure> deletedItems){
+    public void afterRemove(Object deletedItems){
     }
     
     public List<Figure> getFigures(){

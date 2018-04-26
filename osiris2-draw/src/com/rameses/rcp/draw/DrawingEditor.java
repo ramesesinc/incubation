@@ -185,7 +185,7 @@ public class DrawingEditor implements Editor{
     @Override
     public boolean notifyBeforeRemoveListener(List<Figure> figures) {
         for(EditorListener listener : listeners){
-            return listener.beforeRemoveFigure(figures);
+            return listener.beforeRemoveFigures(figures);
         }
         return true;
     }
@@ -193,7 +193,7 @@ public class DrawingEditor implements Editor{
     @Override
     public void notifyAfterRemoveListener(List<Figure> deletedItems) {
         for(EditorListener listener : listeners){
-            listener.afterRemoveFigure(deletedItems);
+            listener.afterRemoveFigures(deletedItems);
         }
     }
     
