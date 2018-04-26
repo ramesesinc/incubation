@@ -5,18 +5,18 @@
 package com.rameses.rcp.draw.components;
 
 import com.rameses.rcp.control.XComponentPanel;
+import com.rameses.rcp.control.menu.VMenuBar;
 import com.rameses.rcp.ui.annotations.ComponentBean;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.GridLayout;
-import javax.swing.JMenuBar;
 import static com.rameses.rcp.draw.support.AttributeKeys.*;
 
 
 @ComponentBean("com.rameses.rcp.draw.components.AttributePickerComponentModel")
 public class AttributePickerComponent extends XComponentPanel {
     private String handler;
-    private JMenuBar menuBar;
+    private VMenuBar menuBar;
     protected AttributePickerModel model;
     protected com.rameses.rcp.common.ComponentBean bean;
     
@@ -73,7 +73,7 @@ public class AttributePickerComponent extends XComponentPanel {
 
 
     private void loadMenuItems(){
-        menuBar = new JMenuBar();
+        menuBar = new VMenuBar();
         menuBar.setLayout(new GridLayout(0,1));
         add(menuBar, BorderLayout.SOUTH);
         

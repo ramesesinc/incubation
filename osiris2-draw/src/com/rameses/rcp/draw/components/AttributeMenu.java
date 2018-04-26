@@ -1,8 +1,8 @@
 package com.rameses.rcp.draw.components;
 
-import javax.swing.JMenu;
+import com.rameses.rcp.control.menu.VMenu;
 
-public class AttributeMenu extends JMenu {
+public class AttributeMenu extends VMenu {
     private final AttributePickerModel model;
     private final com.rameses.rcp.common.ComponentBean bean;
 

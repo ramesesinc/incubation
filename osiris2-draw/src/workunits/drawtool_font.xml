@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <workunit>
     <invokers>
-        <invoker type="drawtool:font" action="init" caption="Font" target="popup"/>
+        <invoker type="drawtool:font" action="init" caption="Font" target="popupmenu"/>
     </invokers>
     <code class="com.rameses.rcp.draw.models.FontPickerModel">
     </code>
