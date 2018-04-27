@@ -35,6 +35,11 @@ public class WorkflowEndNode extends WorkflowNode{
     }
     
     @Override
+    public boolean isSystem() {
+        return true;
+    }
+    
+    @Override
     public Dimension getSize(){
         return get(WORKFLOW_NODE_DIMENSION);
     }

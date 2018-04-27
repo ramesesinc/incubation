@@ -309,17 +309,19 @@ public class StdDrawing implements Drawing{
     
     @Override
     public List<Figure>deleteSelections() {
-        List<Figure> selections = new ArrayList<Figure>(getSelections());
+        List<Figure> deletedItems = new ArrayList<Figure>(getSelections());
         for (Figure f: getSelections()){
-            for (Connector c : f.getConnectors()){
-                 if (!selections.contains(c)){
-                     selections.add((Figure)c);
-                 }
+            if (!f.isSystem()){
+                for (Connector c : f.getConnectors()){
+                     if (!deletedItems.contains(c)){
+                         deletedItems.add((Figure)c);
+                     }
+                }
+                removeFigure(f);
             }
-            removeFigure(f);
         }
         clearSelections();
-        return selections;
+        return deletedItems;
     }
     
     protected final void clearConnectors(){

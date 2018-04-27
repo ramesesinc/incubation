@@ -20,6 +20,8 @@ public interface Figure {
     public void setCaption(String caption);
     public int getIndex();
     public void setIndex(int index);
+    public boolean isSystem();
+    public void setSystem(boolean system);
     public String getTooltip();
     public void setTooltip(String tooltip);
     public Rectangle getDisplayBox();

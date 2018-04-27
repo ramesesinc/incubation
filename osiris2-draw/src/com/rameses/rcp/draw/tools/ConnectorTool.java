@@ -44,7 +44,7 @@ public class ConnectorTool extends AbstractTool {
         
         Handle handle = getDrawing().handleAt(x, y);
         if (!isCtrlPressed(e) && handle != null){
-            toolDelegate = new HandleTool(getEditor(), handle);
+            toolDelegate = new ConnectorHandleTool(getEditor(), handle);
         }else if (!connecting){
             selectedFigure = getDrawing().figureAt(x, y);
             if (selectedFigure != null && isConnector(selectedFigure)){
@@ -92,7 +92,7 @@ public class ConnectorTool extends AbstractTool {
     @Override
     public void mouseReleased(int x, int y, MouseEvent e) {
         if (toolDelegate != null){
-            toolDelegate.mousePressed(x, y, e);
+            toolDelegate.mouseReleased(x, y, e);
             toolDelegate = null;
             return;
         }

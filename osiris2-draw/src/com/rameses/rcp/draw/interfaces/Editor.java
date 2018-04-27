@@ -36,6 +36,7 @@ public interface Editor {
     public void notifyAddedListener(Figure createdFigure);
     public boolean notifyBeforeRemoveListener(List<Figure> figures);
     public void notifyAfterRemoveListener(List<Figure> deletedItems);
+    public void notifyConnectionChangedListener(Connector c, Figure fromFigure, Figure toFigure);
 
     public List<Invoker> showMenu(Figure figure);
 
@@ -45,5 +46,7 @@ public interface Editor {
 
     public void loadDrawing(DrawModel handler);
     public void loadDrawing(DrawModel handler, Object drawing);
+
+    
 
 }

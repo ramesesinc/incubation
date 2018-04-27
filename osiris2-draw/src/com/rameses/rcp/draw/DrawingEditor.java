@@ -196,6 +196,15 @@ public class DrawingEditor implements Editor{
             listener.afterRemoveFigures(deletedItems);
         }
     }
+
+    @Override
+    public void notifyConnectionChangedListener(Connector c, Figure fromFigure, Figure toFigure) {
+        for(EditorListener listener : listeners){
+            listener.connectionChanged(c, fromFigure, toFigure);
+        }
+    }
+    
+    
     
 
     @Override

@@ -36,6 +36,7 @@ public abstract class AbstractFigure implements Figure{
     private boolean selected;
     private int index = 0;
     private boolean showIndex = false;
+    private boolean system = false;
     
     private boolean allowResize;
     private boolean showHandle;
@@ -108,6 +109,16 @@ public abstract class AbstractFigure implements Figure{
     @Override
     public void setIndex(int index) {
         this.index = index;
+    }
+
+    @Override
+    public boolean isSystem() {
+        return system;
+    }
+
+    @Override
+    public void setSystem(boolean system) {
+        this.system = system;
     }
     
     @Override

@@ -18,6 +18,7 @@ import com.rameses.rcp.draw.actions.SelectionAction;
 import com.rameses.rcp.draw.figures.FigureCache;
 import com.rameses.rcp.draw.support.AttributeKeys;
 import com.rameses.rcp.draw.actions.AttributePickerAction;
+import com.rameses.rcp.draw.interfaces.Connector;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -180,6 +181,16 @@ public class DrawComponentModel extends ComponentBean implements EditorListener 
             handler.afterRemove(deletedItems);
         }
     }
+
+    @Override
+    public void connectionChanged(Connector c, Figure fromFigure, Figure toFigure) {
+        if (handler != null){
+            handler.connectionChanged(c, fromFigure, toFigure);
+        }
+    }
+    
+    
+    
     
     @Override
     public List showMenu(Figure figure){
