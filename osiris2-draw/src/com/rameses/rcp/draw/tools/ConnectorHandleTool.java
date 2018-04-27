@@ -70,6 +70,10 @@ public class ConnectorHandleTool extends HandleTool{
         if (isTail(x, y) && !f.isStartConnectionAllowed())
             return false;
         
+        if (!(isHead(x, y) || isTail(x, y))){
+            return false;
+        }
+        
         return true;
     }
     
