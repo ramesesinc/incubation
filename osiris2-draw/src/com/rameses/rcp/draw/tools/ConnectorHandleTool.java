@@ -75,7 +75,7 @@ public class ConnectorHandleTool extends HandleTool{
     
     private boolean isHead(int x, int y){
         Connector c = (Connector)getOwner();
-        Point p = c.getPoints().get(1);
+        Point p = c.getPoints().get(c.getPoints().size() - 1);
         return getHandle().getDisplayBox().contains(p);
     }
     
