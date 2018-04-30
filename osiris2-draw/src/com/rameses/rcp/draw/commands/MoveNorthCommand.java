@@ -25,17 +25,7 @@ public class MoveNorthCommand extends Command{
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (getDrawing().getSelections().isEmpty()){
-            return;
-        }
-        
-        for (Figure f : getDrawing().getSelections()){
-            if (!(f instanceof Connector )){
-                f.moveBy(0, -1, null);
-            }
-        }
-        
-        getCanvas().refresh();
+        getEditor().moveSelections(MoveDirection.NORTH);
     }
 
 }

@@ -1,5 +1,6 @@
 package com.rameses.rcp.draw.tools;
 
+import com.rameses.rcp.draw.commands.MoveDirection;
 import com.rameses.rcp.draw.interfaces.Editor;
 import com.rameses.rcp.draw.interfaces.Figure;
 import com.rameses.rcp.draw.interfaces.Handle;
@@ -11,6 +12,7 @@ import javax.swing.SwingUtilities;
 
 public class SelectionTool extends AbstractTool {
     private Tool toolDelegate;
+    private boolean hasDragged = false;
     
     public SelectionTool(){
     }
@@ -28,8 +30,11 @@ public class SelectionTool extends AbstractTool {
             return;
         }
         
+        hasDragged = false;
+        
         Handle handle = getDrawing().handleAt(x, y);
         if (handle != null){
+            handle.setEditor(getEditor());
             toolDelegate = new HandleTool(getEditor(), handle);
         }else{
             Figure figure = null;
@@ -75,6 +80,7 @@ public class SelectionTool extends AbstractTool {
     public void mouseDrag(int x, int y, MouseEvent e) {
         if (toolDelegate != null){
             toolDelegate.mouseDrag(x, y, e);
+            hasDragged = true;
         }
     }
 

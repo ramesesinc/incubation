@@ -38,6 +38,9 @@ public class Commands {
         commands.add(new MoveWestCommand(canvas));
         commands.add(new ShowIndexCommand(canvas));
         commands.add(new ReindexCommand(canvas));
+        commands.add(new UndoCommand(canvas));
+        commands.add(new RedoCommand(canvas));
+        commands.add(new CenterTextCommand(canvas));
     }
     
 }

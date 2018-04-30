@@ -33,7 +33,7 @@ public class WorkflowCreationTool extends AbstractTool {
         if (!existing){
             createdFigure = createFigure();
             createdFigure.setDisplayBox(x, y, x, y);
-            getDrawing().addFigure(createdFigure);
+            getEditor().addToDrawing(createdFigure);
         }
     }   
 
@@ -53,7 +53,7 @@ public class WorkflowCreationTool extends AbstractTool {
             }else{
                 getCanvas().revalidateRect(createdFigure.getDisplayBox());
             }
-            getEditor().notifyAddedListener(createdFigure);
+            getEditor().figureAdded(createdFigure);
             dragging = false;
         }
     }

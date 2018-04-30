@@ -31,7 +31,7 @@ public class PolyLineTool extends AbstractTool {
             createdFigure = createFigure();
             createdFigure.addPoint(x, y);
             createdFigure.addPoint(x, y);
-            getDrawing().addFigure(createdFigure);
+            getEditor().addToDrawing(createdFigure);
             processing = true;
         }
     }   
@@ -55,7 +55,7 @@ public class PolyLineTool extends AbstractTool {
             }
             else{
                 createdFigure.smoothenPoints();
-                getEditor().notifyAddedListener(createdFigure);
+                getEditor().figureAdded(createdFigure);
                 getCanvas().revalidateRect(createdFigure.getDisplayBox());
             }
             processing = false;

@@ -2,7 +2,7 @@ package com.rameses.rcp.draw.figures;
 
 import com.rameses.rcp.draw.support.AttributeKey;
 import com.rameses.rcp.draw.support.AttributeKeys;
-import com.rameses.rcp.draw.support.XmlElement;
+import com.rameses.rcp.draw.FigureEvent;
 import com.rameses.rcp.draw.utils.DataUtil;
 import java.util.*;
 
@@ -26,8 +26,9 @@ public abstract class AbstractAttributedFigure extends AbstractFigure {
     
     @Override
     public <T> void set(AttributeKey<T> key, T newValue) {
+        T oldValue = get(key);
         key.put(attributes, newValue);
-        propertyChanged(key);
+        fireAttributedChanged(key, oldValue, newValue);
     }
     
     @Override

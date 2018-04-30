@@ -188,7 +188,7 @@ public class FontPickerComponent extends XComponentPanel implements AdjustmentLi
     @Override
     public void adjustmentValueChanged(AdjustmentEvent e) {
         double rotation = (double)e.getValue();
-        model.getEditor().propertyChanged(ROTATION_ANGLE, rotation);
+        model.getEditor().attributeChanged(ROTATION_ANGLE, rotation);
     }
 
     private void setupColorPanel() {

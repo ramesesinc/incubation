@@ -26,7 +26,7 @@ public class AttributeMenuItem extends JMenuItem implements ActionListener {
     
     @Override
     public void actionPerformed(ActionEvent e) {
-        model.getEditor().propertyChanged(key, value);
+        model.getEditor().attributeChanged(key, value);
     }
 
     public Object getValue() {

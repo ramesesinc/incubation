@@ -54,7 +54,7 @@ public class ConnectorHandleTool extends HandleTool{
         toFigure.addConnector(c);
         
         //notify handlers
-        getEditor().notifyConnectionChangedListener(c, fromFigure, toFigure);
+        getEditor().connectionChanged(c, fromFigure, toFigure);
     }
 
     private boolean isAllowConnect(Figure f, int x, int y) {

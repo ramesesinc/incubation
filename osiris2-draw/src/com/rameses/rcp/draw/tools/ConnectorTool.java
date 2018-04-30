@@ -49,7 +49,7 @@ public class ConnectorTool extends AbstractTool {
             selectedFigure = getDrawing().figureAt(x, y);
             if (selectedFigure != null && isConnector(selectedFigure)){
                 selectedConnector = (LineConnector)selectedFigure;
-                getDrawing().addSelection(selectedConnector);
+                getEditor().addToSelections(selectedConnector);
             }
         }
     }
@@ -61,7 +61,6 @@ public class ConnectorTool extends AbstractTool {
         }
         
         if (connecting){
-            //selectedConnector = null;
             handleConnection(x, y, e);
         }
         else{
@@ -112,7 +111,7 @@ public class ConnectorTool extends AbstractTool {
             else{
                 connectEndFigure(x, y, e);
                 if (selectedConnector != null){
-                    getEditor().notifyAddedListener(selectedConnector);
+                    getEditor().figureAdded(selectedConnector);
                     getCanvas().revalidateRect(selectedConnector.getDisplayBox());
                 }
             }
@@ -129,7 +128,7 @@ public class ConnectorTool extends AbstractTool {
         connector.setStartFigure(selectedFigure);
         connector.updateStartPoint(x, y);
         connector.updateEndPoint(x, y);
-        getDrawing().addConnector(connector);
+        getEditor().addToConnector(connector);
         selectedFigure = null;
         connecting = true;
     }

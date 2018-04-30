@@ -37,9 +37,9 @@ public class ColorButton extends JButton implements ActionListener{
         @Override
         public void actionPerformed(ActionEvent e) {
             if (key != null){
-                model.getEditor().propertyChanged(key, color);
+                model.getEditor().attributeChanged(key, color);
             }else {
-                model.getEditor().propertyChanged(model.getAttributeKey(), color);
+                model.getEditor().attributeChanged(model.getAttributeKey(), color);
             }
         }
 

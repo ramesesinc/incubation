@@ -25,17 +25,7 @@ public class MoveEastCommand extends Command{
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (getDrawing().getSelections().isEmpty()){
-            return;
-        }
-        
-        for (Figure f : getDrawing().getSelections()){
-            if (!(f instanceof Connector )){
-                f.moveBy(1, 0, null);
-            }
-        }
-        
-        getCanvas().refresh();
+        getEditor().moveSelections(MoveDirection.EAST);
     }
 
 }

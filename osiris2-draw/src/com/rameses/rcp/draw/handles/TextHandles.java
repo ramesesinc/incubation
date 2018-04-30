@@ -1,14 +1,9 @@
 package com.rameses.rcp.draw.handles;
 
-import com.rameses.rcp.draw.figures.PolyLineFigure;
 import com.rameses.rcp.draw.figures.TextFigure;
 import com.rameses.rcp.draw.interfaces.Figure;
-import com.rameses.rcp.draw.support.RotatedRectangle;
-import java.awt.Dimension;
 import java.awt.Point;
-import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
-
 
 public class TextHandles extends AbstractHandle{
     private Point center; 
@@ -46,7 +41,6 @@ public class TextHandles extends AbstractHandle{
     }
     
 }
-
 
 
 class TextHandle extends AbstractHandle{

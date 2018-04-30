@@ -43,6 +43,7 @@ public class HandleTool extends AbstractTool {
     @Override
     public void mouseReleased(int x, int y, MouseEvent e) {
         super.mouseReleased(x, y, e);
+        handle.doEnd(x, y, e);
     }
     
     protected Handle getHandle(){

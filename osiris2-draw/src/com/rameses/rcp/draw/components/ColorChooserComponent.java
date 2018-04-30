@@ -36,7 +36,7 @@ public class ColorChooserComponent extends XComponentPanel {
             public void stateChanged(ChangeEvent e) {
                 if (model != null){
                     Color color = colorChooser.getColor();
-                    model.getEditor().propertyChanged(model.getAttributeKey(), color);
+                    model.getEditor().attributeChanged(model.getAttributeKey(), color);
                 }
             }
         

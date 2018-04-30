@@ -158,7 +158,7 @@ public class StdDrawing implements Drawing{
         }
         for (int i = figures.size() - 1; i >= 0; i--){
             Figure f = figures.get(i);
-            Figure inner = f.getInnerFigure();
+            Figure inner = f.getInnerText();
             if (inner != null && inner.hitTest(x, y)){
                 removeSelection(f);
                 return inner;

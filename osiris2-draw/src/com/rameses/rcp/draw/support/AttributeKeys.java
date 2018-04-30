@@ -78,16 +78,19 @@ public class AttributeKeys {
     /**
      * Stroke type. The value of this attribute is either VALUE_STROKE_TYPE_BASIC
      * or VALUE_STROKE_TYPE_DOUBLE.
-     * FIXME - Type should be an enumeration.
      */
     public final static AttributeKey<StrokeType> STROKE_TYPE = new AttributeKey<StrokeType>("strokeType", StrokeType.class, StrokeType.BASIC);
 
+    /**
+     * Center text on figure.
+     */
+    public final static AttributeKey<Boolean> CENTER_TEXT = new AttributeKey<Boolean>("centerText", Boolean.class, new Boolean(true));
     /**
      * Text color.
      */
     public final static AttributeKey<Color> TEXT_COLOR = new AttributeKey<Color>("textColor", Color.class, Color.BLACK);
     /**
-     * Text color.
+     * Text background color.
      */
     public final static AttributeKey<Color> TEXT_BACKGROUND = new AttributeKey<Color>("textBackground", Color.class, Color.WHITE);
     /**

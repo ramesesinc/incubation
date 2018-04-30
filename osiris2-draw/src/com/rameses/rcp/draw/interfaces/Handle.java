@@ -7,6 +7,8 @@ import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 
 public interface Handle {
+    public Editor getEditor();
+    public void setEditor(Editor editor);
     public Figure getOwner();
     public void setOwner(Figure owner);
     public void moveBy(int x, int y, MouseEvent e);
@@ -23,5 +25,6 @@ public interface Handle {
 
     public void doStart(int dx, int dy, MouseEvent e);
     public void doStep(int dx, int dy, MouseEvent e);
+    public void doEnd(int dx, int dy, MouseEvent e);
     
 }
