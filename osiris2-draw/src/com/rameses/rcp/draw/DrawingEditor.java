@@ -1,5 +1,8 @@
 package com.rameses.rcp.draw;
 
+import com.rameses.rcp.draw.undo.UndoableDelete;
+import com.rameses.rcp.draw.undo.UndoRedoManager;
+import com.rameses.rcp.draw.undo.UndoableAttribute;
 import com.rameses.rcp.common.DrawModel;
 import com.rameses.rcp.common.Opener;
 import com.rameses.rcp.draw.figures.FigureCache;
@@ -12,7 +15,12 @@ import com.rameses.rcp.draw.interfaces.EditorListener;
 import com.rameses.rcp.draw.interfaces.Figure;
 import com.rameses.rcp.draw.interfaces.Tool;
 import com.rameses.rcp.draw.support.AttributeKey;
+import com.rameses.rcp.draw.undo.UndoRedoManager.RedoAction;
+import com.rameses.rcp.draw.undo.UndoRedoManager.UndoAction;
+import com.rameses.rcp.draw.commands.MoveDirection;
 import com.rameses.rcp.draw.tools.SelectionTool;
+import com.rameses.rcp.draw.undo.UndoableMove;
+import com.rameses.rcp.draw.undo.UndoableProperty;
 import com.rameses.rcp.draw.utils.DrawUtil;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -26,13 +34,16 @@ import java.util.List;
 import java.util.Map;
 import javax.imageio.ImageIO;
 import javax.imageio.stream.ImageOutputStream;
+import javax.swing.undo.CompoundEdit;
+import javax.swing.undo.UndoableEdit;
 
-public class DrawingEditor implements Editor{
+public class DrawingEditor implements Editor, FigureListener{
     private Drawing drawing;
     private Canvas canvas;
     private Tool currentTool;
     private boolean readonly;
     private List<EditorListener> listeners;
+    private UndoRedoManager undoRedoManager;
     
     public DrawingEditor(){
         this(null);
@@ -42,6 +53,7 @@ public class DrawingEditor implements Editor{
         listeners = new ArrayList<EditorListener>();
         readonly = false;
         this.drawing = drawing;
+        undoRedoManager = new UndoRedoManager(this);
     }
     
     @Override
@@ -64,6 +76,31 @@ public class DrawingEditor implements Editor{
         this.canvas = canvas;
         setCurrentTool(getCurrentTool());
     }
+
+    @Override
+    public void addToDrawing(Figure figure) {
+        figure.addFigureListener(this);
+        getDrawing().addFigure(figure);
+        
+        for (Connector c : figure.getConnectors()){
+            ((Figure)c).addFigureListener(this);
+            getDrawing().addConnector(c);
+        }
+    }
+    
+    @Override
+    public void addToSelections(Figure figure) {
+        figure.addFigureListener(this);
+        getDrawing().addSelection(figure);
+    }
+    
+    @Override
+    public void addToConnector(Connector connector){
+        ((LineConnector)connector).addFigureListener(this);
+        getDrawing().addConnector(connector);
+    }
+    
+    
 
     @Override
     public Image getImage() {
@@ -146,11 +183,42 @@ public class DrawingEditor implements Editor{
     }
 
     @Override
-    public List<Figure> deleteSelections() {
-        List<Figure> deletedItems = getDrawing().deleteSelections();
-        getCanvas().refresh();
-        return deletedItems;
+    public void deleteSelections() {
+        if (getDrawing().getSelections().isEmpty()){
+            return;
+        }
+        
+        boolean delete = fireBeforeRemoveFigures(getDrawing().getSelections());
+        if (delete){
+            List<Figure> deletedItems = getDrawing().deleteSelections();
+            fireAfterRemoveFigures(deletedItems);
+            getCanvas().refresh();
+            undoRedoManager.addEdit(new UndoableDelete(this, deletedItems));
+        }
     }
+
+    @Override
+    public void moveSelections(MoveDirection direction) {
+        if (getDrawing().getSelections().isEmpty()){
+            return;
+        }
+        
+        CompoundEdit ce = new CompoundEdit();
+
+        for (Figure f : getDrawing().getSelections()){
+            if (!(f instanceof Connector )){
+                ce.addEdit(createMoveEdit(f, direction.getOffsetX(), direction.getOffsetY()));
+                f.moveBy(direction.getOffsetX(), direction.getOffsetY(), null);
+            }
+        }
+        
+        ce.end();
+        undoRedoManager.addEdit(ce);
+
+        getCanvas().refresh();
+    }
+    
+    
 
     @Override
     public void openFigure(Figure figure) {
@@ -173,29 +241,63 @@ public class DrawingEditor implements Editor{
         return menus;
     }
     
-    
-
     @Override
-    public void notifyAddedListener(Figure figure) {
+    public void figureAdded(Figure figure) {
+        fireFigureAdded(figure);
+    }
+    
+    
+    
+    protected void fireFigureAdded(Figure figure){
         for(EditorListener listener : listeners){
             listener.figureAdded(figure);
         }
     }
     
-    @Override
-    public boolean notifyBeforeRemoveListener(List<Figure> figures) {
+    protected boolean fireBeforeRemoveFigures(List<Figure> figures) {
         for(EditorListener listener : listeners){
-            return listener.beforeRemoveFigure(figures);
+            return listener.beforeRemoveFigures(figures);
         }
         return true;
     }
     
-    @Override
-    public void notifyAfterRemoveListener(List<Figure> deletedItems) {
+    protected void fireAfterRemoveFigures(List<Figure> deletedItems) {
         for(EditorListener listener : listeners){
-            listener.afterRemoveFigure(deletedItems);
+            listener.afterRemoveFigures(deletedItems);
         }
     }
+
+    @Override
+    public void connectionChanged(Connector c, Figure fromFigure, Figure toFigure) {
+        for(EditorListener listener : listeners){
+            listener.connectionChanged(c, fromFigure, toFigure);
+        }
+    }
+
+    @Override
+    public UndoRedoManager getUndoRedoManager() {
+        return undoRedoManager;
+    }
+
+    @Override
+    public void addUndoableEdit(UndoableEdit ce) {
+        undoRedoManager.addEdit(ce);
+    }
+    
+    
+    @Override
+    public UndoAction getUndoAction() {
+        return undoRedoManager.getUndoAction();
+    }
+
+    @Override
+    public RedoAction getRedoAction() {
+        return undoRedoManager.getRedoAction();
+    }
+    
+    
+    
+    
     
 
     @Override
@@ -214,10 +316,21 @@ public class DrawingEditor implements Editor{
 
  
     @Override
-    public void propertyChanged(AttributeKey key, Object value){
+    public void attributeChanged(AttributeKey key, Object value){
+        if (getDrawing().getSelections().isEmpty()){
+            return;
+        }
+        
+        CompoundEdit ce = new CompoundEdit();
+        
         for (Figure f: getDrawing().getSelections()){
+            ce.addEdit(createAttributeEdit(f, key, value));
             f.set(key, value);
         }
+        
+        ce.end();
+        undoRedoManager.addEdit(ce);
+        
         getCanvas().refresh();
     }
 
@@ -240,8 +353,7 @@ public class DrawingEditor implements Editor{
         
         loadFigures(handler, data);
         loadConnectors(handler, data);
-        //getCanvas().revalidateRect(new Rectangle());
-        //getCanvas().requestFocus();
+        undoRedoManager.discardAllEdits();
     }
     
     private void loadFigures(DrawModel handler, Map data){
@@ -250,7 +362,7 @@ public class DrawingEditor implements Editor{
             for (Map fprop : figures){
                 Figure figure = loadFigure(handler, fprop);
                 if (figure != null){
-                    getDrawing().addFigure(figure);
+                    addToDrawing(figure);
                 }
             }
         }
@@ -275,7 +387,8 @@ public class DrawingEditor implements Editor{
             boolean update = connector.getPoints().isEmpty();
             connector.setStartFigure(startFigure, update);
             connector.setEndFigure(endFigure, update);
-            getDrawing().addConnector(connector);
+            addToConnector(connector);
+            //getDrawing().addConnector(connector);
         }
         return connector;
     }
@@ -337,4 +450,40 @@ public class DrawingEditor implements Editor{
         }
         return bi;
     }   
+
+    
+    
+    
+// <editor-fold defaultstate="collapsed" desc="Figure Listener Support">
+    
+    @Override
+    public void propertyChanged(FigureEvent e) {
+        logUndoPropertyChanged(e);
+        getCanvas().refresh();
+    }
+    
+    
+    @Override
+    public void attributeChanged(FigureEvent e){
+    }
+    
+    @Override
+    public void figureChanged(FigureEvent e){
+        
+    }
+    
+// </editor-fold>
+
+    private UndoableEdit createAttributeEdit(Figure figure, AttributeKey key, Object newValue) {
+        return new UndoableAttribute(figure, key, figure.get(key), newValue);
+    }
+
+    private UndoableEdit createMoveEdit(Figure f, int offsetX, int offsetY) {
+        return new UndoableMove(this, f, offsetX, offsetY);
+    }
+
+    private void logUndoPropertyChanged(FigureEvent e) {
+        UndoableProperty edit = new UndoableProperty(e.getFigure(), e.getPropertyName(), e.getType(), e.getOldValue(), e.getNewValue());
+        addUndoableEdit(edit);
+    }
 }

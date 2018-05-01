@@ -39,7 +39,7 @@ public class ImageTool extends AbstractTool {
             ImageFigure figure = new ImageFigure();
             figure.setImage(img);
             figure.setDisplayBox(x, y, x + img.getWidth(), y + img.getHeight());
-            getDrawing().addFigure(figure);
+            getEditor().addToDrawing(figure);
         }
         catch(Exception ex){
             ex.printStackTrace();

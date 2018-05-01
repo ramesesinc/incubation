@@ -158,7 +158,7 @@ public class StdDrawing implements Drawing{
         }
         for (int i = figures.size() - 1; i >= 0; i--){
             Figure f = figures.get(i);
-            Figure inner = f.getInnerFigure();
+            Figure inner = f.getInnerText();
             if (inner != null && inner.hitTest(x, y)){
                 removeSelection(f);
                 return inner;
@@ -309,12 +309,19 @@ public class StdDrawing implements Drawing{
     
     @Override
     public List<Figure>deleteSelections() {
-        List<Figure> selections = new ArrayList<Figure>(getSelections());
+        List<Figure> deletedItems = new ArrayList<Figure>(getSelections());
         for (Figure f: getSelections()){
-            removeFigure(f);
+            if (!f.isSystem()){
+                for (Connector c : f.getConnectors()){
+                     if (!deletedItems.contains(c)){
+                         deletedItems.add((Figure)c);
+                     }
+                }
+                removeFigure(f);
+            }
         }
         clearSelections();
-        return selections;
+        return deletedItems;
     }
     
     protected final void clearConnectors(){

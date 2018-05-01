@@ -1,5 +1,6 @@
 package com.rameses.rcp.draw.handles;
 
+import com.rameses.rcp.draw.interfaces.Editor;
 import com.rameses.rcp.draw.interfaces.Figure;
 import com.rameses.rcp.draw.interfaces.Handle;
 import java.awt.Color;
@@ -15,6 +16,7 @@ public abstract class AbstractHandle implements Handle{
     public static Color HANDLE_BORDER_COLOR = new Color(150,150,150);
     public static Color HANDLE_FILL_COLOR = new Color(202, 234, 237);
     
+    private Editor editor;
     private Figure owner;
     private double offsetX;
     private double offsetY;
@@ -34,7 +36,16 @@ public abstract class AbstractHandle implements Handle{
         this.offsetX = offsetX;
         this.offsetY = offsetY;
     }
-    
+
+    @Override
+    public Editor getEditor() {
+        return editor;
+    }
+
+    @Override
+    public void setEditor(Editor editor) {
+        this.editor = editor;
+    }
     
     @Override
     public Figure getOwner() {
@@ -60,6 +71,10 @@ public abstract class AbstractHandle implements Handle{
 
     @Override
     public void doStep(int dx, int dy, MouseEvent e) {
+    }
+
+    @Override
+    public void doEnd(int dx, int dy, MouseEvent e) {
     }
     
     

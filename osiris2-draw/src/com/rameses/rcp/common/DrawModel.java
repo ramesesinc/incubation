@@ -3,13 +3,10 @@ package com.rameses.rcp.common;
 import com.rameses.rcp.draw.interfaces.Editor;
 import com.rameses.rcp.draw.interfaces.Figure;
 import com.rameses.rcp.draw.components.DrawComponentModel;
-import com.rameses.rcp.draw.figures.LineConnector;
 import com.rameses.rcp.draw.interfaces.Connector;
 import java.util.ArrayList;
 import java.util.List;
-import com.rameses.rcp.draw.figures.FigureCache;
 import java.awt.Image;
-import java.awt.Rectangle;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -55,11 +52,14 @@ public class DrawModel {
     public void onAddItem(Object o){
     }
     
-    public boolean beforeRemoveItem(Object o){
+    public boolean beforeRemove(Object o){
         return true;
     }
     
-    public void afterRemoveItem(List<Figure> deletedItems){
+    public void afterRemove(Object deletedItems){
+    }
+    
+    public void connectionChanged(Connector c, Figure fromFigure, Figure toFigure) {
     }
     
     public List<Figure> getFigures(){
@@ -135,4 +135,6 @@ public class DrawModel {
     public Image getImage(boolean crop, String imageType){
         return getEditor().getImage(crop, imageType);
     }
+
+
 }

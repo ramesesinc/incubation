@@ -34,6 +34,11 @@ public class WorkflowStartNode extends WorkflowNode{
     public boolean isAllowResize() {
         return false;
     }
+
+    @Override
+    public boolean isSystem() {
+        return true;
+    }
     
     @Override
     public Dimension getSize(){
@@ -67,8 +72,4 @@ public class WorkflowStartNode extends WorkflowNode{
         
     }
     
-    @Override
-    protected void drawIndex(Graphics2D g) {
-    }
-
 }

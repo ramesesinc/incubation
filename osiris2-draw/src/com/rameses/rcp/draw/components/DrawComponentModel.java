@@ -18,6 +18,7 @@ import com.rameses.rcp.draw.actions.SelectionAction;
 import com.rameses.rcp.draw.figures.FigureCache;
 import com.rameses.rcp.draw.support.AttributeKeys;
 import com.rameses.rcp.draw.actions.AttributePickerAction;
+import com.rameses.rcp.draw.interfaces.Connector;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -162,10 +163,10 @@ public class DrawComponentModel extends ComponentBean implements EditorListener 
     }
     
     @Override
-    public boolean beforeRemoveFigure(List<Figure> figures){
+    public boolean beforeRemoveFigures(List<Figure> figures){
         if (handler != null){
             try{
-                return handler.beforeRemoveItem(figures);
+                return handler.beforeRemove(figures);
             }
             catch(Exception ex){
                 return false;
@@ -175,11 +176,21 @@ public class DrawComponentModel extends ComponentBean implements EditorListener 
     }
     
     @Override
-    public void afterRemoveFigure(List<Figure> deletedItems){
+    public void afterRemoveFigures(List<Figure> deletedItems){
         if (handler != null){
-            handler.afterRemoveItem(deletedItems);
+            handler.afterRemove(deletedItems);
         }
     }
+
+    @Override
+    public void connectionChanged(Connector c, Figure fromFigure, Figure toFigure) {
+        if (handler != null){
+            handler.connectionChanged(c, fromFigure, toFigure);
+        }
+    }
+    
+    
+    
     
     @Override
     public List showMenu(Figure figure){

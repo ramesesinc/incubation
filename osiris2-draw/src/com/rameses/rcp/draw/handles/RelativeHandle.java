@@ -2,11 +2,19 @@ package com.rameses.rcp.draw.handles;
 
 import com.rameses.rcp.draw.interfaces.Figure;
 import com.rameses.rcp.draw.interfaces.Handle;
+import com.rameses.rcp.draw.undo.UndoableResize;
 import java.awt.Cursor;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 
+
+
+
+
+
 public class RelativeHandle extends AbstractHandle{
+    private Rectangle prevBounds;
+    
     public RelativeHandle(double offsetX, double offsetY){
         super(offsetX, offsetY);
     }
@@ -14,10 +22,26 @@ public class RelativeHandle extends AbstractHandle{
     public RelativeHandle(Figure owner, double offsetX, double offsetY){
         super(owner, offsetX, offsetY);
     }
+
+    @Override
+    public void doStart(int dx, int dy, MouseEvent e) {
+        super.doStart(dx, dy, e);
+        this.prevBounds = getOwner().getBounds();
+    }
     
     @Override
     public void doStep(int dx, int dy, MouseEvent e){
     }
+
+    @Override
+    public void doEnd(int dx, int dy, MouseEvent e) {
+        super.doEnd(dx, dy, e);
+        if (getEditor() != null){
+            logResizeUndoEdit();
+        }
+    }
+    
+    
     
     public static Handle north(Figure owner){
         return new RelativeNorthHandle(owner);
@@ -50,10 +74,12 @@ public class RelativeHandle extends AbstractHandle{
     public static Handle northWest(Figure owner){
         return new RelativeNorthWestHandle(owner);
     }
+
+    private void logResizeUndoEdit() {
+        UndoableResize edit = new UndoableResize(getOwner(), prevBounds, getOwner().getBounds());
+        getEditor().getUndoRedoManager().addEdit(edit);
+    }
 }
-
-
-
 
 
 class RelativeNorthHandle extends RelativeHandle{

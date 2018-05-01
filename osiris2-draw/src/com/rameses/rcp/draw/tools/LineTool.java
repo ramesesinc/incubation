@@ -25,7 +25,7 @@ public class LineTool extends AbstractTool {
     public void mousePressed(int x, int y, MouseEvent e){
         super.mousePressed(x, y, e);
         createdFigure = createFigure(x, y);
-        getDrawing().addFigure(createdFigure);
+        getEditor().addToDrawing(createdFigure);
     }   
 
     @Override
@@ -38,7 +38,7 @@ public class LineTool extends AbstractTool {
         if (createdFigure.isEmpty()){
             getDrawing().removeFigure(createdFigure);
         }else {
-            getEditor().notifyAddedListener(createdFigure);
+            getEditor().figureAdded(createdFigure);
             getCanvas().revalidateRect(createdFigure.getDisplayBox());
         }
     }

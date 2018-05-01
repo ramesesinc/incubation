@@ -2,6 +2,8 @@
 package com.rameses.rcp.draw.figures;
 
 import com.rameses.rcp.draw.handles.TextHandles;
+import com.rameses.rcp.draw.interfaces.Figure;
+import com.rameses.rcp.draw.interfaces.Handle;
 import com.rameses.rcp.draw.interfaces.Tool;
 import com.rameses.rcp.draw.support.AttributeKey;
 import static com.rameses.rcp.draw.support.AttributeKeys.*;
@@ -17,12 +19,14 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.util.List;
 import java.util.Map;
 
 public class TextFigure extends AbstractAttributedFigure{
     private String text;
     private BufferedImage rotatedText; 
     private RotatedRectangle rotatedRect = new RotatedRectangle();
+    private Figure parentFigure;
     
     
     public TextFigure(){
@@ -35,7 +39,6 @@ public class TextFigure extends AbstractAttributedFigure{
     public TextFigure(String text, int x, int y, int width, int height){
         setDisplayBox(x, y, x + width, y + height);
         setText(text);
-        TextHandles.addHandles(this);
     }
     
     @Override
@@ -58,31 +61,26 @@ public class TextFigure extends AbstractAttributedFigure{
     public String getIcon() {
         return "images/draw/text16.png";
     }
+
+    @Override
+    public List<Handle> getHandles() {
+        TextHandles.addHandles(this);
+        return super.getHandles();
+    }
+
+    public Figure getParentFigure() {
+        return parentFigure;
+    }
+
+    public void setParentFigure(Figure parentFigure) {
+        this.parentFigure = parentFigure;
+    }
     
     public RotatedRectangle getRotatedRectangle(){
         return rotatedRect;
     }
 
-    @Override
-    public void setCaption(String caption) {
-        super.setCaption(caption);
-        if (caption != null){
-            updateDisplayBox();
-        }
-    }
-    
-    
-    
     public Point[] getBoundPoints(){
-        if (get(ROTATION_ANGLE) == 0){
-            Rectangle r = getDisplayBox();
-            Point[] pts = new Point[4];
-            pts[0] = new Point(r.x, r.y);
-            pts[1] = new Point(r.x + r.width, r.y);
-            pts[2] = new Point(r.x + r.width, r.y + r.height);
-            pts[3] = new Point(r.x, r.y + r.height);
-            return pts;
-        }
         return rotatedRect.getPoints();
     }
         
@@ -114,6 +112,7 @@ public class TextFigure extends AbstractAttributedFigure{
         if (get(ROTATION_ANGLE) == 0){
             Rectangle r = getDisplayBox();
             g.drawString(getText(), r.x + padding, r.y + r.height - padding);
+            updateRotatedRect(r);
         }else{
             g.drawImage(rotatedText, padding, padding, null);
             rotateText(g);
@@ -159,17 +158,18 @@ public class TextFigure extends AbstractAttributedFigure{
         
         return map;
     }     
-
+    
     @Override
-    protected void propertyChanged(AttributeKey attr) {
-        if (getText() != null && "fontFace".equalsIgnoreCase(attr.getKey())){
+    public <T> void set(AttributeKey<T> key, T newValue) {
+        super.set(key, newValue);
+        if (getText() != null && "fontFace".equalsIgnoreCase(key.getKey())){
             Rectangle r = getDisplayBox();
             Dimension size = DrawUtil.getTextSize(getText(), get(FONT_FACE));
             r.width = size.width;
             r.height = size.height;
             TextHandles.addHandles(this);
         }
-    }
+    }    
 
     private void rotateText(Graphics2D g) {
         if (get(ROTATION_ANGLE) == 0){
@@ -277,9 +277,25 @@ public class TextFigure extends AbstractAttributedFigure{
         }
     }
     
+
     @Override
-    public void move(int dx, int dy, MouseEvent e) {
+    protected void move(int dx, int dy, MouseEvent e) {
+        if (get(CENTER_TEXT)){
+            return;
+        }
+        
         super.move(dx, dy, e);
+        for (Point pt : getRotatedRectangle().getPoints()){
+            if (pt != null){
+                pt.x += dx;
+                pt.y += dy;
+            }
+        }
+        TextHandles.addHandles(this);
+    }
+    
+    public void moveInner(int dx, int dy) {
+        super.move(dx, dy, null);
         for (Point pt : getRotatedRectangle().getPoints()){
             if (pt != null){
                 pt.x += dx;
@@ -305,6 +321,17 @@ public class TextFigure extends AbstractAttributedFigure{
         r.height = h;
         rotateText(g2);
         g2.dispose();
+    }
+
+    public void updateRotatedRect() {
+        updateRotatedRect(getDisplayBox());
+    }
+    
+    public void updateRotatedRect(Rectangle r) {
+        rotatedRect.getPoints()[0] = new Point(r.x, r.y);
+        rotatedRect.getPoints()[1] = new Point(r.x + r.width, r.y);
+        rotatedRect.getPoints()[2] = new Point(r.x + r.width, r.y + r.height);
+        rotatedRect.getPoints()[3] = new Point(r.x, r.y + r.height);
     }
     
     

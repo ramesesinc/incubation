@@ -1,23 +1,23 @@
 package com.rameses.rcp.draw.tools;
 
 import com.rameses.rcp.draw.figures.LineConnector;
+import com.rameses.rcp.draw.interfaces.Connector;
 import com.rameses.rcp.draw.interfaces.Editor;
 import com.rameses.rcp.draw.interfaces.Figure;
-import java.awt.BasicStroke;
-import java.awt.Color;
+import com.rameses.rcp.draw.undo.UndoableDrag;
 import java.awt.Cursor;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.Point;
-import java.awt.Rectangle;
-import java.awt.Stroke;
 import java.awt.event.MouseEvent;
+import java.util.HashMap;
+import java.util.Map;
+import javax.swing.undo.CompoundEdit;
 
 public class MultiSelectTool extends AbstractTool {
 
     private Figure figure;
     private int lastX, lastY;
     private boolean moved;
+    private Map<Figure, Point> initialFigureLocations;
 
     public MultiSelectTool() {
     }
@@ -51,7 +51,9 @@ public class MultiSelectTool extends AbstractTool {
         if (moved && !getEditor().isReadonly()) {
             int dx = x - lastX;
             int dy = y - lastY;
-
+                        
+            preservePreviousFigureLocations();
+            
             for (Figure f : getDrawing().getSelections()) {
                 if (!(f instanceof LineConnector)){
                     f.moveBy(dx, dy, e);
@@ -63,7 +65,42 @@ public class MultiSelectTool extends AbstractTool {
     }
 
     @Override
-    protected Cursor getToolCursor() {
+    public void mouseReleased(int x, int y, MouseEvent e) {
+        if (moved && initialFigureLocations != null){
+            logUndoableMove(x, y);
+        }
+    }
+    
+    
+
+    @Override
+    public Cursor getToolCursor() {
         return new Cursor(Cursor.HAND_CURSOR);
+    }
+
+    private void logUndoableMove(int x, int y) {
+        int dx = x - getStartX();
+        int dy = y - getStartY();
+        
+        CompoundEdit ce = new CompoundEdit();
+        
+        for (Figure f : getDrawing().getSelections()){
+            ce.addEdit(new UndoableDrag(f, initialFigureLocations.get(f), dx, dy));
+        }
+        
+        ce.end();
+        getEditor().addUndoableEdit(ce);
+    }
+
+    private void preservePreviousFigureLocations() {
+        if (initialFigureLocations == null){
+            initialFigureLocations = new HashMap<Figure,Point>();
+
+            for (Figure f : getDrawing().getSelections()) {
+                if (!(f instanceof Connector)){
+                    initialFigureLocations.put(f, f.getLocation());
+                }
+            }
+        }
     }
 }

@@ -3,13 +3,8 @@ package com.rameses.rcp.draw.tools;
 import com.rameses.rcp.draw.interfaces.Editor;
 import com.rameses.rcp.draw.interfaces.Figure;
 import com.rameses.rcp.draw.interfaces.Handle;
-import com.rameses.rcp.draw.interfaces.Tool;
 import java.awt.Cursor;
-import java.awt.Point;
-import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
-import java.util.List;
-import javax.swing.SwingUtilities;
 
 public class HandleTool extends AbstractTool {
     private Handle handle;
@@ -48,6 +43,15 @@ public class HandleTool extends AbstractTool {
     @Override
     public void mouseReleased(int x, int y, MouseEvent e) {
         super.mouseReleased(x, y, e);
+        handle.doEnd(x, y, e);
+    }
+    
+    protected Handle getHandle(){
+        return handle;
+    }
+    
+    protected Figure getOwner(){
+        return handle.getOwner();
     }
     
 }

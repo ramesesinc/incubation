@@ -132,7 +132,8 @@ public abstract class AbstractTool implements Tool{
         
     }
     
-    protected Cursor getToolCursor(){
+    @Override
+    public Cursor getToolCursor(){
         return new Cursor(Cursor.CROSSHAIR_CURSOR);
     }
     

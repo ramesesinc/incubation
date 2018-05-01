@@ -61,8 +61,8 @@ public class TextTool extends AbstractTool{
     public final void endEdit(){
         floatingText.endOverlay();
         if (createdFigure != null && !createdFigure.isEmpty()){
-            getDrawing().addFigure(createdFigure);
-            getEditor().notifyAddedListener(createdFigure);
+            getEditor().addToDrawing(createdFigure);
+            getEditor().figureAdded(createdFigure);
             getCanvas().revalidateRect(createdFigure.getDisplayBox());
         }
         floatingText = null;

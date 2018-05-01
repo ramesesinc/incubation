@@ -1,5 +1,6 @@
 package com.rameses.rcp.draw.interfaces;
 
+import com.rameses.rcp.draw.FigureListener;
 import com.rameses.rcp.draw.support.AttributeKey;
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -20,12 +21,15 @@ public interface Figure {
     public void setCaption(String caption);
     public int getIndex();
     public void setIndex(int index);
+    public boolean isSystem();
+    public void setSystem(boolean system);
     public String getTooltip();
     public void setTooltip(String tooltip);
     public Rectangle getDisplayBox();
     public void setDisplayBox(Rectangle displayBox);
     public void setDisplayBox(int x1, int y1, int x2, int y2);
     public Rectangle getBounds();
+    public Point getLocation();
     public void setLocation(Point pt);
     public void center(Point pt);
     public int getX();
@@ -79,5 +83,9 @@ public interface Figure {
     public Map toMap();
     
     public void setRotation(int degree);
-    public Figure getInnerFigure();
+    public Figure getInnerText();
+    
+    public void addFigureListener(FigureListener listener);
+    public void removeFigureListener(FigureListener listener);
+    
 }

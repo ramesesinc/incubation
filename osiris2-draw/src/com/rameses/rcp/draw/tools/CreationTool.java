@@ -28,7 +28,7 @@ public class CreationTool extends AbstractTool {
         super.mousePressed(x, y, e);
         createdFigure = createFigure();
         createdFigure.setDisplayBox(x, y, x, y);
-        getDrawing().addFigure(createdFigure);
+        getEditor().addToDrawing(createdFigure);
     }   
 
     @Override
@@ -44,7 +44,7 @@ public class CreationTool extends AbstractTool {
         }else{
             getCanvas().revalidateRect(createdFigure.getDisplayBox());
         }
-        getEditor().notifyAddedListener(createdFigure);
+        getEditor().figureAdded(createdFigure);
         dragging = false;
         
     }

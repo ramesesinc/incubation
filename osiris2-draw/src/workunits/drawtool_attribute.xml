@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <workunit>
     <invokers>
-        <invoker type="drawtool:attribute" action="init" caption="Attributes" target="popup"/>
+        <invoker type="drawtool:attribute" action="init" caption="Attributes" target="popupmenu"/>
     </invokers>
     <code class="com.rameses.rcp.draw.models.AttributePickerModel">
     </code>

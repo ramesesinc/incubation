@@ -5,6 +5,7 @@ import com.rameses.rcp.draw.interfaces.Connector;
 import com.rameses.rcp.draw.interfaces.Editor;
 import com.rameses.rcp.draw.interfaces.Figure;
 import com.rameses.rcp.draw.interfaces.Handle;
+import com.rameses.rcp.draw.interfaces.Tool;
 import com.rameses.rcp.draw.utils.DrawUtil;
 import java.awt.Cursor;
 import java.awt.Point;
@@ -22,6 +23,8 @@ public class ConnectorTool extends AbstractTool {
     private static Cursor splitCursor;
     private static Cursor combineCursor;
     
+    private Tool toolDelegate;
+    
     public ConnectorTool(){
         connecting = false;
         allowChop = false;
@@ -38,19 +41,26 @@ public class ConnectorTool extends AbstractTool {
     @Override
     public void mousePressed(int x, int y, MouseEvent e) {
         super.mousePressed(x, y, e);
-        if (!connecting){
+        
+        Handle handle = getDrawing().handleAt(x, y);
+        if (!isCtrlPressed(e) && handle != null){
+            toolDelegate = new ConnectorHandleTool(getEditor(), handle);
+        }else if (!connecting){
             selectedFigure = getDrawing().figureAt(x, y);
             if (selectedFigure != null && isConnector(selectedFigure)){
                 selectedConnector = (LineConnector)selectedFigure;
-                getDrawing().addSelection(selectedConnector);
+                getEditor().addToSelections(selectedConnector);
             }
         }
     }
     
     @Override
     public void mouseMoved(int x, int y, MouseEvent e) {
+        if (toolDelegate != null){
+            return;
+        }
+        
         if (connecting){
-            //selectedConnector = null;
             handleConnection(x, y, e);
         }
         else{
@@ -61,7 +71,10 @@ public class ConnectorTool extends AbstractTool {
 
     @Override
     public void mouseDrag(int x, int y, MouseEvent e) {
-        if (isConnector(selectedFigure)){
+        if (toolDelegate != null){
+            toolDelegate.mouseDrag(x, y, e);
+        }
+        else if (isConnector(selectedFigure)){
             if (!dragging){
                 selectedConnector = (LineConnector)selectedFigure;
                 getDrawing().addSelection(selectedFigure);
@@ -77,6 +90,11 @@ public class ConnectorTool extends AbstractTool {
     
     @Override
     public void mouseReleased(int x, int y, MouseEvent e) {
+        if (toolDelegate != null){
+            toolDelegate.mouseReleased(x, y, e);
+            toolDelegate = null;
+            return;
+        }
         if (selectedConnector != null){
             Handle handle = getDrawing().handleAt(x, y);
             if (handle != null && isCtrlPressed(e)){
@@ -93,7 +111,7 @@ public class ConnectorTool extends AbstractTool {
             else{
                 connectEndFigure(x, y, e);
                 if (selectedConnector != null){
-                    getEditor().notifyAddedListener(selectedConnector);
+                    getEditor().figureAdded(selectedConnector);
                     getCanvas().revalidateRect(selectedConnector.getDisplayBox());
                 }
             }
@@ -110,7 +128,7 @@ public class ConnectorTool extends AbstractTool {
         connector.setStartFigure(selectedFigure);
         connector.updateStartPoint(x, y);
         connector.updateEndPoint(x, y);
-        getDrawing().addConnector(connector);
+        getEditor().addToConnector(connector);
         selectedFigure = null;
         connecting = true;
     }
@@ -206,7 +224,7 @@ public class ConnectorTool extends AbstractTool {
     }
     
     @Override
-    protected Cursor getToolCursor(){
+    public Cursor getToolCursor(){
         return Cursor.getPredefinedCursor(Cursor.HAND_CURSOR);
     }
     
@@ -230,6 +248,13 @@ public class ConnectorTool extends AbstractTool {
 
     @Override
     public void cancel() {
+        if (connector.getStartFigure() != null){
+            connector.getStartFigure().removeConnector(connector);
+        }
+        if (connector.getEndFigure() != null){
+            connector.getEndFigure().removeConnector(connector);
+        }
+        
         getDrawing().removeConnector(connector);
         selectedFigure = null;
         selectedConnector = null;

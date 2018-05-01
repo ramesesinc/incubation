@@ -5,33 +5,25 @@
 package com.rameses.rcp.draw.commands;
 
 import com.rameses.rcp.draw.interfaces.Canvas;
-import com.rameses.rcp.draw.interfaces.Figure;
+import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
-import java.util.List;
+import javax.swing.KeyStroke;
 
 
 public class DeleteCommand extends Command{
     
     public DeleteCommand(Canvas canvas){
-        super("delete", canvas);
+        super("draw_delete", canvas);
     }
 
     @Override
-    public void execute() {
-        if (getDrawing().getSelections().isEmpty()){
-            return;
-        }
-        
-        boolean delete = getEditor().notifyBeforeRemoveListener(getDrawing().getSelections());
-        if (delete){
-            List<Figure> deletedItems = getEditor().deleteSelections();
-            getEditor().notifyAfterRemoveListener(deletedItems);
-        }
+    public KeyStroke getKeyStroke() {
+        return KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0, true);
     }
 
     @Override
-    public boolean accept(KeyEvent e) {
-        return (e.getModifiers() == 0 && e.getKeyCode() == KeyEvent.VK_DELETE);
+    public void actionPerformed(ActionEvent e) {
+        getEditor().deleteSelections();
     }
     
 }

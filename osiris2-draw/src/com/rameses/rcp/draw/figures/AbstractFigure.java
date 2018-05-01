@@ -1,6 +1,7 @@
 package com.rameses.rcp.draw.figures;
 
-import com.rameses.rcp.draw.handles.TextHandles;
+import com.rameses.rcp.draw.FigureEvent;
+import com.rameses.rcp.draw.FigureListener;
 import com.rameses.rcp.draw.interfaces.Connector;
 import com.rameses.rcp.draw.interfaces.Figure;
 import com.rameses.rcp.draw.interfaces.Handle;
@@ -36,6 +37,7 @@ public abstract class AbstractFigure implements Figure{
     private boolean selected;
     private int index = 0;
     private boolean showIndex = false;
+    private boolean system = false;
     
     private boolean allowResize;
     private boolean showHandle;
@@ -43,8 +45,9 @@ public abstract class AbstractFigure implements Figure{
     private boolean startConnectionAllowed;
     private boolean endConnectionAllowed;
     private List<Connector> connectors;
-    private TextFigure innerFigure;
+    private TextFigure innerText;
     private Map info;
+    private List<FigureListener> listeners;
     
     public AbstractFigure(){
         id = this.hashCode()+"";
@@ -57,6 +60,7 @@ public abstract class AbstractFigure implements Figure{
         endConnectionAllowed = connectionAllowed;
         connectors = new ArrayList<Connector>();
         info = new HashMap();
+        listeners = new ArrayList<FigureListener>();
     }
 
     @Override
@@ -87,17 +91,23 @@ public abstract class AbstractFigure implements Figure{
 
     @Override
     public void setCaption(String caption) {
+        String oldCaption = this.caption;
+        
         this.caption = caption;
         if (caption != null ){
-            if (innerFigure == null){
-                innerFigure = new TextFigure(getCaption(), 0, 0);
-                centerInnerFigure();
+            if (innerText == null){
+                innerText = new TextFigure(getCaption(), 0, 0);
+                innerText.setParentFigure(this);
             }else{
-                innerFigure.setText(getCaption());
+                innerText.setText(getCaption());
             }
+            centerInnerText();
         }else{
-            innerFigure = null;
+            innerText = null;
         }
+        
+        firePropertyChanged("caption", String.class, oldCaption, caption);
+        
     }
 
     @Override
@@ -108,6 +118,16 @@ public abstract class AbstractFigure implements Figure{
     @Override
     public void setIndex(int index) {
         this.index = index;
+    }
+
+    @Override
+    public boolean isSystem() {
+        return system;
+    }
+
+    @Override
+    public void setSystem(boolean system) {
+        this.system = system;
     }
     
     @Override
@@ -187,21 +207,20 @@ public abstract class AbstractFigure implements Figure{
     }
     
     @Override
-    public Figure getInnerFigure(){
-        return innerFigure;
+    public Figure getInnerText(){
+        return innerText;
     }
 
     @Override
-    public void setLocation(Point pt) {
-        Rectangle r = getDisplayBox();
-        r.x = pt.x;
-        r.y = pt.y;
+    public Point getLocation() {
+        return new Point(getX(), getY());
     }
-    
 
     @Override
     public void setDisplayBox(Rectangle displayBox) {
         this.displayBox = displayBox;
+        updateConnectors();
+        centerInnerText();
     }
     
     @Override 
@@ -209,6 +228,7 @@ public abstract class AbstractFigure implements Figure{
         Rectangle rect = new Rectangle(x1, y1, x2 - x1, y2 - y1);
         setDisplayBox(rect);
         updateConnectors();
+        centerInnerText();
     }
 
     @Override
@@ -239,17 +259,23 @@ public abstract class AbstractFigure implements Figure{
         r.y = pt.y - dy;
     }
     
-    
-    
     @Override
     public boolean hitTest(int x, int y){
         return getDisplayBox().contains(x, y);
     }
     
+    
+    @Override
+    public void setLocation(Point pt) {
+        Rectangle r = getDisplayBox();
+        r.x = pt.x;
+        r.y = pt.y;
+    }
+    
     @Override
     public final void moveBy(int dx, int dy, MouseEvent e) {
         move(dx, dy, e);
-        moveTextFigue(dx, dy, e);
+        moveInnerText(dx, dy, e);
     }
     
     protected void move(int dx, int dy, MouseEvent e){
@@ -321,14 +347,15 @@ public abstract class AbstractFigure implements Figure{
     }
     
     
-    protected void propertyChanged(AttributeKey attr){
-    }
-    
     protected abstract void drawFigure(Graphics2D g);
     
     protected void drawCaption(Graphics2D g) {
-        if (innerFigure != null){
-            innerFigure.drawFigure(g);
+        if (innerText != null){
+//            boolean b = get(CENTER_TEXT);
+//            if (b){
+//                centerInnerText();
+//            }
+            innerText.drawFigure(g);
         }
     }
     
@@ -465,8 +492,8 @@ public abstract class AbstractFigure implements Figure{
         setCaption(DataUtil.decodeString("caption", prop));
         
         Map inner = (Map)prop.get("inner");
-        if (inner != null && innerFigure != null){
-            innerFigure.readAttributes(inner);
+        if (inner != null && innerText != null){
+            innerText.readAttributes(inner);
         }
     }
 
@@ -484,8 +511,8 @@ public abstract class AbstractFigure implements Figure{
         DataUtil.putValue(ui, "type", getType());
         DataUtil.putValue(ui, "pos", DataUtil.encodePos(r));
         DataUtil.putValue(ui, "size", DataUtil.encodeSize(r));
-        if (innerFigure != null){
-            map.put("inner", innerFigure.toMap());
+        if (innerText != null){
+            map.put("inner", innerText.toMap());
         }
         map.put("ui", ui);
         return map;
@@ -514,20 +541,22 @@ public abstract class AbstractFigure implements Figure{
         }
     }
 
-    protected void moveTextFigue(int dx, int dy, MouseEvent e) {
-        if (innerFigure != null){
-            innerFigure.moveBy(dx, dy, e);
+    protected void moveInnerText(int dx, int dy, MouseEvent e) {
+        if (innerText != null){
+            innerText.moveInner(dx, dy);
         }
     }
 
-    protected void centerInnerFigure() {
-        Rectangle pr = getDisplayBox();
-        Rectangle ir = innerFigure.getDisplayBox();
-        int dx = (pr.width - ir.width) / 2;
-        int dy = (pr.height - ir.height) / 2;
-        ir.x = pr.x + dx;
-        ir.y = pr.y + dy;
-        TextHandles.addHandles(innerFigure);
+    protected void centerInnerText() {
+        if (innerText != null && get(CENTER_TEXT)){
+            Rectangle pr = getDisplayBox();
+            Rectangle ir = innerText.getDisplayBox();
+            int dx = (pr.width - ir.width) / 2;
+            int dy = (pr.height - ir.height) / 2;
+            ir.x = pr.x + dx;
+            ir.y = pr.y + dy;
+            innerText.updateRotatedRect();
+        }
     }
     
     private void updatePoint(Point pt, Point newPt) {
@@ -535,4 +564,37 @@ public abstract class AbstractFigure implements Figure{
         pt.y = newPt.y;
     }    
 
+    @Override
+    public void addFigureListener(FigureListener listener) {
+        if (!listeners.contains(listener)){
+            listeners.add(listener);
+        }
+    }
+
+    @Override
+    public void removeFigureListener(FigureListener listener) {
+        if (listeners.contains(listener)){
+            listeners.remove(listener);
+        }
+    }
+    
+    protected void fireAttributedChanged(AttributeKey key, Object oldValue, Object newValue){
+        if (!listeners.isEmpty() && (oldValue == null || newValue == null || !oldValue.equals(newValue))){
+            FigureEvent event = new FigureEvent(this, key, oldValue, newValue);
+            for (FigureListener listener : listeners){
+                listener.attributeChanged(event);
+            }
+        }
+    }
+
+    private void firePropertyChanged(String propertyName, Class type, String oldValue, String newValue) {
+        if (!listeners.isEmpty() && (oldValue == null || newValue == null || !oldValue.equals(newValue))){
+            FigureEvent event = new FigureEvent(this, propertyName, type, oldValue, newValue);
+            for (FigureListener listener : listeners){
+                listener.propertyChanged(event);
+            }
+        }
+    }
+    
+    
 }

@@ -5,24 +5,25 @@
 package com.rameses.rcp.draw.commands;
 
 import com.rameses.rcp.draw.interfaces.Canvas;
+import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import javax.swing.KeyStroke;
 
 public class CancelAddFigureCommand extends Command{
     
     public CancelAddFigureCommand(Canvas canvas){
-        super("camceladd", canvas);
+        super("draw_camceladd", canvas);
     }
 
     @Override
-    public void execute() {
+    public KeyStroke getKeyStroke() {
+        return KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0, true);
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
         if (getEditor().getCurrentTool().isActive()){
             getEditor().getCurrentTool().cancel();
         }
     }
-
-    @Override
-    public boolean accept(KeyEvent e) {
-        return (e.getModifiers() == 0 && e.getKeyCode() == KeyEvent.VK_ESCAPE);
-    }
-    
 }

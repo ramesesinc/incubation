@@ -74,14 +74,14 @@ public class LineConnector extends PolyLineFigure implements Connector {
     
     @Override
     protected void drawCaption(Graphics2D g) {
-        Figure innerFigure = getInnerFigure();
-        if (innerFigure != null){
+        Figure innerText = getInnerText();
+        if (innerText != null){
             if (getPoints().size() <= 2){
                 Point pt = new Point(getCenter());
                 pt.y -= 10;
-                innerFigure.center(pt);
+                innerText.center(pt);
             }
-            innerFigure.draw(g);
+            innerText.draw(g);
         }
     }
     
@@ -110,7 +110,14 @@ public class LineConnector extends PolyLineFigure implements Connector {
                 pt.x += dx;
                 pt.y += dy;
             }
-            moveTextFigue(dx, dy, e);
+            moveInnerText(dx, dy, e);
+        }
+    }
+    
+    @Override
+    protected void moveInnerText(int dx, int dy, MouseEvent e) {
+        if (getInnerText() != null){
+            getInnerText().moveBy(dx, dy, e);
         }
     }
     
