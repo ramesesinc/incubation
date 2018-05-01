@@ -391,15 +391,15 @@ public class XButton extends JButton implements UICommand, ActionListener,
         
         popup.removeAll(); 
         for (Object o: menu.getItems()) {
-            String expr = getVisibleWhen( o ); 
-            if ( !ValueUtil.isEmpty(expr) ) {
-                boolean b = false; 
-                try { 
-                    b = UIControlUtil.evaluateExprBoolean(getBinding().getBean(), expr);
-                } catch(Throwable t) {;}
-                
-                if ( !b ) continue; 
-            }
+//            String expr = getVisibleWhen( o ); 
+//            if ( !ValueUtil.isEmpty(expr) ) {
+//                boolean b = false; 
+//                try { 
+//                    b = UIControlUtil.evaluateExprBoolean(getBinding().getBean(), expr);
+//                } catch(Throwable t) {;}
+//                
+//                if ( !b ) continue; 
+//            }
             
             ActionMenuItem ami = null;             
             if (o instanceof Opener) {
