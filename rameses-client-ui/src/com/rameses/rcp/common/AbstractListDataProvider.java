@@ -726,6 +726,24 @@ public abstract class AbstractListDataProvider
         fireFocusSelectedItem(); 
     } 
     
+    public void refreshItem( Object o ) { 
+        if ( o == null ) return; 
+        if ( getDataListSize() > 0 ) return; 
+        
+        if ( o instanceof Number ) {
+            int idx = ((Number) o).intValue(); 
+            Object data = getData(idx);
+            if ( data == null ) return; 
+            
+            propertySupport.firePropertyChange("refreshItem", o ); 
+        } else { 
+            int idx = getDataList().indexOf( o ); 
+            if ( idx < 0 ) return; 
+            
+            propertySupport.firePropertyChange("refreshItem", (Object) idx);  
+        } 
+    }
+    
     public final Object getSelectedValue() 
     {
         if (isMultiSelect()) 

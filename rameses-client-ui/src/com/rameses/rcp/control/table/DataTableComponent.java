@@ -1701,17 +1701,15 @@ public class DataTableComponent extends JTable implements TableControl
     
     // <editor-fold defaultstate="collapsed" desc="  PropertyChangeHandlerImpl (class)  ">    
     
-    private class PropertyChangeHandlerImpl implements PropertyChangeHandler 
-    {
+    private class PropertyChangeHandlerImpl implements PropertyChangeHandler {
+        
         DataTableComponent root = DataTableComponent.this; 
         
         public void firePropertyChange(String name, int value) {
         }
 
-        public void firePropertyChange(String name, boolean value) 
-        {
-            if ("loading".equals(name)) 
-            {
+        public void firePropertyChange(String name, boolean value) {
+            if ("loading".equals(name)) {
                 root.fetching = value;
                 root.repaint(); 
             }             
@@ -1720,14 +1718,19 @@ public class DataTableComponent extends JTable implements TableControl
         public void firePropertyChange(String name, String value) {
         }
 
-        public void firePropertyChange(String name, Object value) 
-        {
-            if ("focusSelectedItem".equals(name)) 
+        public void firePropertyChange(String name, Object value) {
+            if ("focusSelectedItem".equals(name)) {
                 focusSelectedItem();
+            } else if ("refreshItem".equals(name)) {  
+                try { 
+                    refreshItem( value ); 
+                } catch(Throwable t) {
+                    System.out.println("failed to refreshItem caused by " + t.getMessage());
+                }
+            }
         } 
         
-        void focusSelectedItem() 
-        {
+        void focusSelectedItem() {
             Point loc = (Point) getClientProperty("selectionPoint");
             if (loc == null) loc = new Point(); 
             
@@ -1738,6 +1741,13 @@ public class DataTableComponent extends JTable implements TableControl
             root.tableModel.fireTableRowsUpdated(rowIndex, rowIndex); 
             root.setRowSelectionInterval(rowIndex, rowIndex); 
         }
+        
+        void refreshItem( Object o ) { 
+            if ( o instanceof Number ) { 
+                int idx = ((Number) o).intValue(); 
+                root.tableModel.fireTableRowsUpdated(idx, idx); 
+            } 
+        } 
     }
     
     // </editor-fold> 

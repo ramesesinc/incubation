@@ -78,23 +78,17 @@ public abstract class AbstractServlet extends HttpServlet {
     {
         //prepare to write the response
         ObjectOutputStream out = null;
-        try 
-        {
+        try {
             out = new ObjectOutputStream(res.getOutputStream());
             out.writeObject(filterOutput(response));
-        } 
-        catch (Exception ex) 
-        {
-            try 
-            {
+        } catch (Exception ex) {
+            try {
                 out = new ObjectOutputStream(res.getOutputStream());
                 out.writeObject(filterOutput(ex));
-            } 
-            catch(Exception ign){
+            } catch(Exception ign){
                 System.out.println("error in filtering output");
             }
-        } 
-        finally {
+        } finally {
             try { out.close(); } catch (Exception ex) {;}
         }
     }

@@ -148,6 +148,7 @@ public class CrudListPage extends javax.swing.JPanel {
         xButton2 = new com.rameses.rcp.control.XButton();
         xButton1 = new com.rameses.rcp.control.XButton();
         jPanel4 = new javax.swing.JPanel();
+        xSplitView1 = new com.rameses.rcp.control.XSplitView();
         sidebarpanel = new javax.swing.JPanel();
         jPanel6 = new javax.swing.JPanel();
         listPanel1 = new com.rameses.seti2.components.ListPanel();
@@ -320,26 +321,30 @@ public class CrudListPage extends javax.swing.JPanel {
             jPanel4.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 5, 5, 5));
             jPanel4.setLayout(new java.awt.BorderLayout());
 
+            xSplitView1.setDividerLocation(150);
+
             sidebarpanel.setName("sidebar"); // NOI18N
 
             javax.swing.GroupLayout sidebarpanelLayout = new javax.swing.GroupLayout(sidebarpanel);
             sidebarpanel.setLayout(sidebarpanelLayout);
             sidebarpanelLayout.setHorizontalGroup(
                 sidebarpanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGap(0, 120, Short.MAX_VALUE)
+                .addGap(0, 150, Short.MAX_VALUE)
             );
             sidebarpanelLayout.setVerticalGroup(
                 sidebarpanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGap(0, 312, Short.MAX_VALUE)
             );
 
-            jPanel4.add(sidebarpanel, java.awt.BorderLayout.LINE_START);
+            xSplitView1.add(sidebarpanel);
 
             jPanel6.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 204)));
             jPanel6.setLayout(new java.awt.BorderLayout());
             jPanel6.add(listPanel1, java.awt.BorderLayout.CENTER);
 
-            jPanel4.add(jPanel6, java.awt.BorderLayout.CENTER);
+            xSplitView1.add(jPanel6);
+
+            jPanel4.add(xSplitView1, java.awt.BorderLayout.CENTER);
 
             add(jPanel4, java.awt.BorderLayout.CENTER);
         }// </editor-fold>//GEN-END:initComponents
@@ -368,6 +373,7 @@ public class CrudListPage extends javax.swing.JPanel {
     private com.rameses.rcp.control.XButton xButton2;
     private com.rameses.rcp.control.XLabel xLabel1;
     private com.rameses.rcp.control.XLabel xLabel2;
+    private com.rameses.rcp.control.XSplitView xSplitView1;
     private com.rameses.rcp.control.XSubFormPanel xSubFormPanel1;
     // End of variables declaration//GEN-END:variables
 }

@@ -33,7 +33,8 @@ public class XDecimalFieldBeanInfo extends ComponentBeanInfoSupport
         add( list, "maxValue", true );
         add( list, "pattern", true );
         add( list, "scale", true );
-        
+        add( list, "disabledTextColor"); 
+        addBoolean( list, "editable");
         addBoolean( list, "usePrimitiveValue" ); 
     }
 }
