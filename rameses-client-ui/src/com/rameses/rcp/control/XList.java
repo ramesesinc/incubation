@@ -92,26 +92,21 @@ public class XList extends JList implements UIControl, ActiveControl, MouseEvent
     
     private RefreshTask refreshTask;
     
-    public XList() 
-    {
+    public XList() {
         super.addListSelectionListener(getSelectionSupport()); 
         setCellRenderer(new DefaultCellRenderer());
         setEnableNavigation(true); 
         setMultiselect(false);
         setVarName("item");
 
-        if ( Beans.isDesignTime() ) 
-        {
+        if ( Beans.isDesignTime() ) {
             setPreferredSize(new Dimension(80, 100));
-            super.setModel(new javax.swing.AbstractListModel() 
-            {
+            super.setModel(new javax.swing.AbstractListModel() {
                 String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
                 public int getSize() { return strings.length; }
                 public Object getElementAt(int i) { return strings[i]; }
             });
-        }
-        else 
-        {
+        } else {
             registerKeyboardAction(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     fireOpenItem();
@@ -586,21 +581,19 @@ public class XList extends JList implements UIControl, ActiveControl, MouseEvent
     
     // <editor-fold defaultstate="collapsed" desc=" DefaultCellRenderer (class) ">
     
-    private class DefaultCellRenderer implements ListCellRenderer 
-    {
+    private class DefaultCellRenderer implements ListCellRenderer {
         XList root = XList.this; 
         private JLabel cellLabel;
         private FontSupport fontSupport; 
         
-        DefaultCellRenderer() 
-        {
+        DefaultCellRenderer() {
             cellLabel = new JLabel();
             cellLabel.setOpaque(true);
+            cellLabel.setBorder(BorderFactory.createEmptyBorder(2, 10, 2, 2));  
             fontSupport = new FontSupport(); 
         }
         
-        public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) 
-        {
+        public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
             Insets pads = root.getPadding();
             if (pads == null) pads = new Insets(1,3,1,3); 
 
@@ -657,8 +650,7 @@ public class XList extends JList implements UIControl, ActiveControl, MouseEvent
             return cellLabel;
         }
         
-        private Object createExpressionBean(Object itemBean) 
-        {
+        private Object createExpressionBean(Object itemBean) {
             ExprBeanSupport beanSupport = new ExprBeanSupport(binding.getBean());
             beanSupport.setItem(getVarName(), itemBean); 
             return beanSupport.createProxy(); 

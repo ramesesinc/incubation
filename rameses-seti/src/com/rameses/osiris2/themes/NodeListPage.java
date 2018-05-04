@@ -33,10 +33,7 @@ public class NodeListPage extends javax.swing.JPanel {
         jScrollPane1 = new javax.swing.JScrollPane();
         xList1 = new com.rameses.rcp.control.XList();
 
-        com.rameses.rcp.control.border.XLineBorder xLineBorder1 = new com.rameses.rcp.control.border.XLineBorder();
-        xLineBorder1.setHideRight(true);
-        xLineBorder1.setLineColor(new java.awt.Color(204, 204, 204));
-        setBorder(xLineBorder1);
+        setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(180, 180, 180)));
         setLayout(new java.awt.BorderLayout());
 
         jScrollPane1.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -44,6 +41,7 @@ public class NodeListPage extends javax.swing.JPanel {
         xList1.setExpression("#{item.title}");
         xList1.setHandler("nodeListHandler");
         xList1.setName("selectedNode"); // NOI18N
+        xList1.setFixedCellHeight(20);
         jScrollPane1.setViewportView(xList1);
 
         add(jScrollPane1, java.awt.BorderLayout.CENTER);

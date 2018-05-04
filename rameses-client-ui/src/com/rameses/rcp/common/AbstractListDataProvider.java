@@ -727,20 +727,24 @@ public abstract class AbstractListDataProvider
     } 
     
     public void refreshItem( Object o ) { 
+        refreshItem( o, -1 ); 
+    }
+    
+    public void refreshItem( Object o, int colIndex ) { 
         if ( o == null ) return; 
-        if ( getDataListSize() > 0 ) return; 
+        if ( getDataListSize() == 0 ) return; 
         
         if ( o instanceof Number ) {
             int idx = ((Number) o).intValue(); 
             Object data = getData(idx);
             if ( data == null ) return; 
             
-            propertySupport.firePropertyChange("refreshItem", o ); 
+            propertySupport.firePropertyChange("refreshItem", new Integer[]{ idx, colIndex }); 
         } else { 
             int idx = getDataList().indexOf( o ); 
             if ( idx < 0 ) return; 
             
-            propertySupport.firePropertyChange("refreshItem", (Object) idx);  
+            propertySupport.firePropertyChange("refreshItem", new Integer[]{ idx, colIndex });  
         } 
     }
     
