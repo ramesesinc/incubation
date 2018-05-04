@@ -1743,10 +1743,16 @@ public class DataTableComponent extends JTable implements TableControl
         }
         
         void refreshItem( Object o ) { 
-            if ( o instanceof Number ) { 
-                int idx = ((Number) o).intValue(); 
-                root.tableModel.fireTableRowsUpdated(idx, idx); 
-            } 
+            if ( o instanceof Integer[]) {
+                Integer[] arr = (Integer[]) o;
+                int rowIndex = arr[0].intValue(); 
+                int colIndex = arr[1].intValue(); 
+                if ( colIndex < 0 ) {
+                    root.tableModel.fireTableRowsUpdated(rowIndex, rowIndex);
+                } else {
+                    root.tableModel.fireTableCellUpdated(rowIndex, colIndex);
+                }
+            }
         } 
     }
     
