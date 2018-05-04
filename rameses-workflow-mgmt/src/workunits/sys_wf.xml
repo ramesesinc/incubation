@@ -1,10 +1,17 @@
-<workunit schemaName="sys_wf">
+<workunit allowCreate="false">
+    
     <invokers>
-        <invoker type="sys_wf:create" caption="Create Workflow" target="popup"  action="create"/>
-        <invoker type="sys_wf:open" caption="Open Workflow" target="popup"  action="open"/>
+        <invoker type="sys_wf:create" caption="New Workflow" target="window"  action="create"/>
+        <invoker type="sys_wf:open" caption="Open Workflow" target="window"  action="open"/>
+        
+        <!-- form actions -->
+        <invoker type="formActions" caption="Edit"  action="edit" visibleWhen="#{editing == false }"/>
+        <invoker type="formActions" caption="Save"  action="save" visibleWhen="#{editing == true }"/>
+        <invoker type="formActions" caption="View Info"  action="viewInfo" />
     </invokers>
-    <code class="com.rameses.wf.models.SysWfModel"/>
+    <code class="com.rameses.wf.models.WorkflowGUIModel"/>
     <pages>
-        <page template="com.rameses.wf.views.SysWfPage"/>    
-    </pages>    
+        <page template="com.rameses.wf.views.WorkflowGUIPage"/>    
+    </pages>
+    
 </workunit>
