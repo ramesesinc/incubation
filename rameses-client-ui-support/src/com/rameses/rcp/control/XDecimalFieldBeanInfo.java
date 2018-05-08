@@ -10,6 +10,8 @@
 package com.rameses.rcp.control;
 
 import com.rameses.beaninfo.ComponentBeanInfoSupport;
+import com.rameses.beaninfo.UITextFieldBeanInfo;
+import java.beans.BeanInfo;
 import java.beans.PropertyDescriptor;
 import java.util.List;
 
@@ -28,13 +30,16 @@ public class XDecimalFieldBeanInfo extends ComponentBeanInfoSupport
         return beanClass;
     }
 
+    protected void loadAdditionalBeanInfo(List<BeanInfo> list) {
+        list.add( new UITextFieldBeanInfo(getBeanClass())); 
+    }
+    
     protected void loadProperties(List<PropertyDescriptor> list) { 
         add( list, "minValue", true );
         add( list, "maxValue", true );
         add( list, "pattern", true );
         add( list, "scale", true );
-        add( list, "disabledTextColor"); 
-        addBoolean( list, "editable");
+
         addBoolean( list, "usePrimitiveValue" ); 
     }
 }
