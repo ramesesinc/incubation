@@ -5,13 +5,13 @@
 package com.rameses.osiris2.themes;
 
 import com.rameses.rcp.ui.annotations.Template;
-import com.rameses.seti2.views.CrudListPage;
+import com.rameses.seti2.views.NodeListTemplate;
 
 /**
  *
  * @author dell
  */
-@Template(value=CrudListPage.class, target="sidebar")
+@Template(value=NodeListTemplate.class, target="sidebar")
 public class NodeListPage extends javax.swing.JPanel {
 
     /**
