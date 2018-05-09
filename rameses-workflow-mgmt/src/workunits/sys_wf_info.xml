@@ -1,0 +1,12 @@
+<workunit>
+    <invokers>
+        <invoker type="sys_wf_info:create" caption="Create Workflow" target="popup"  action="create"/>
+        <invoker type="sys_wf_info:open" caption="Workflow Info" target="popup"  action="open"/>
+    </invokers>
+    
+    <code class="com.rameses.wf.models.WorkflowInfoModel"/>
+    <pages>
+        <page template="com.rameses.wf.views.WorkflowInfoPage"/>    
+    </pages>
+    
+</workunit>

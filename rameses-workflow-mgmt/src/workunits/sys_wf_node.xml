@@ -1,9 +1,9 @@
-<workunit schemaName="sys_wf_node">
+<workunit>
     <invokers>
-        <invoker type="sys_wf_node:open" caption="Open Workflow Node" target="popup" action="open"/>
+        <invoker type="sys_wf_node:open" caption="Open Workflow Node" target="popup" action="init"/>
     </invokers>
-    <code class="com.rameses.wf.models.SysWfNodeModel" />
+    <code class="com.rameses.wf.models.WorkflowNodeModel" />
     <pages>
-        <page template="com.rameses.wf.views.SysWfNodePage"/>    
+        <page template="com.rameses.wf.views.WorkflowNodePage"/>    
     </pages>    
 </workunit>

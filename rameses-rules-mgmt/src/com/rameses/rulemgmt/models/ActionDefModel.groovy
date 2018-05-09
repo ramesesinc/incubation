@@ -24,7 +24,7 @@ class ActionDefModel extends CrudFormModel {
     ] as BasicListModel;
     
     public void initNewData() {
-        entity = [objid: "RULADEF" + new UID()];
+        entity = [:];
         entity.params  = [];
     }
     
@@ -89,6 +89,7 @@ class ActionDefModel extends CrudFormModel {
             e = entity.data(); 
         }
         e.name = entity.actionname;
+        entity.objid = entity.actionclass;
         devService.save( e );
         entity = e;
         MsgBox.alert("Record saved");

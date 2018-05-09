@@ -1,12 +1,9 @@
-<workunit schemaName="sys_wf_transition">
+<workunit>
     <invokers>
-        <invoker type="sys_wf_transition:create" caption="New Workflow Transition" target="popup"  
-                 action="create"/>
-        <invoker type="sys_wf_transition:open" caption="Workflow Transition" target="popup"  
-                 action="open"/>
+        <invoker type="sys_wf_transition:open" caption="Workflow Transition" target="popup" action="init"/>
     </invokers>
-    <code class="com.rameses.wf.models.SysWfTransitionModel" />
+    <code class="com.rameses.wf.models.WorkflowTransitionModel" />
     <pages>
-        <page template="com.rameses.wf.views.SysWfTransitionPage"/>    
+        <page template="com.rameses.wf.views.WorkflowTransitionPage"/>    
     </pages>    
 </workunit>

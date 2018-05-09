@@ -1,20 +1,46 @@
 <workunit>
     <invokers>
-        <invoker type="date:prompt" caption="Enter Date" target="popup"/>
+        <invoker type="date:prompt" caption="Enter Date" target="popup" action="init"/>
     </invokers>
     <code>
+        import com.rameses.rcp.common.*;
+        import com.rameses.rcp.common.*;
+        import com.rameses.rcp.annotations.*;
+        import com.rameses.osiris2.client.*;
+        import com.rameses.osiris2.common.*;
+        import com.rameses.seti2.models.*;
+        
         class DatePrompt {
 
             def date = new java.sql.Date( System.currentTimeMillis()); 
             def handler;
             String title;
+            boolean includeTime = false;
+        
+            def hour;        
+            def min;
+            def hourList;
+            def minList;
+        
+            void init() {
+                if( includeTime ) {
+                    hourList = (0..23).collect{ it.toString().padLeft(2, "0")  }
+                    minList = (0..59).collect{ it.toString().padLeft(2, "0")  };
+                }
+            }
                 
             def doCancel() {
                 return "_close";
             }
+        
             def doOk() {
                 if(!handler) throw new Exception("Please specify handler in date:prompt");
-                if(handler) handler(date);
+                if(handler) {
+                    if(includeTime) {
+                        date = [date: date, hour: hour, minute:min ];
+                    }
+                    handler(date);
+                }    
                 return "_close";
             }
         }

@@ -89,6 +89,7 @@ class FactModel extends CrudFormModel {
             e = entity.data(); 
         }
         e.name = entity.factclass;
+        e.objid = e.name;
         devService.save( e );
         entity = e;
         MsgBox.alert("Record saved");
