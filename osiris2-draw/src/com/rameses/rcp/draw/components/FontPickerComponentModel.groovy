@@ -128,7 +128,7 @@ public class FontPickerComponentModel extends ComponentBean {
     }
     
     private void update(Color color){
-        model.getEditor().propertyChanged(model.getAttributeKey(), color);
+        model.getEditor().attributeChanged(model.getAttributeKey(), color);
     }    
     
     def getFontFamilies(){
@@ -152,7 +152,7 @@ public class FontPickerComponentModel extends ComponentBean {
         def size = (entity.size ? entity.size : currentFont.size);
         def newfont = new Font(family, style, size);
             
-        model.editor.propertyChanged(FONT_FACE, newfont);
+        model.editor.attributeChanged(FONT_FACE, newfont);
     }
     
     def showColorChoosers(){
