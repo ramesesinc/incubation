@@ -218,6 +218,15 @@ public class CrudListModel extends AbstractCrudModel {
         if(query) {
             m.putAll(query);
         };
+        
+        //place the orgid and userid immediately in the query.
+        if( query !=null && !query.orgid) {
+            query.orgid = OsirisContext.env.ORGID;
+        }
+        if( query !=null && !query.userid) {
+            query.userid =  OsirisContext.env.USERID;
+        };
+        
         if(getFindBy()) {
             m.findBy = getFindBy();
         };
