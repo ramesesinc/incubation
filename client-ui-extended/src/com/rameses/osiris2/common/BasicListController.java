@@ -97,16 +97,16 @@ public abstract class BasicListController extends PageListModel
     
     // <editor-fold defaultstate="collapsed" desc=" Form and Extended Actions ">  
     
-    public List getFormActions() 
-    { 
-        if (formActions == null)
-        {
-            formActions = new ArrayList();
-            try { 
-                formActions.addAll(lookupActions("formActions")); 
-            } catch(Exception ex) {;} 
-        }
-        return formActions;
+    public List getFormActions() {
+        return null; 
+        
+//        if (formActions == null) {
+//            formActions = new ArrayList();
+//            try { 
+//                formActions.addAll(lookupActions("formActions")); 
+//            } catch(Exception ex) {;} 
+//        }
+//        return formActions;
     } 
     
     public List getNavActions() { 
