@@ -11,6 +11,7 @@ import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.DefaultConsumer;
 import com.rabbitmq.client.Envelope;
+import com.rabbitmq.client.ShutdownSignalException;
 import com.rameses.osiris3.core.AbstractContext;
 import com.rameses.osiris3.xconnection.MessageConnection;
 import com.rameses.osiris3.xconnection.MessageHandler;
@@ -75,13 +76,15 @@ public class RabbitMQConnection extends MessageConnection {
             factory.setHost( getProperty("host") ); 
             factory.setUsername( getProperty("user") ); 
             factory.setPassword( getProperty("pwd") ); 
+            factory.setAutomaticRecoveryEnabled( true ); 
             
-            int heartbeat = 60; 
+            int heartbeat = 30; 
             try { 
                 heartbeat = Integer.parseInt(getProperty("heartbeat")); 
-            } 
-            catch(Throwable t) {;} 
+            } catch(Throwable t) {;} 
+            
             factory.setRequestedHeartbeat( heartbeat );
+            //factory.setNetworkRecoveryInterval((heartbeat + 5)*1000); 
             connection = factory.newConnection(); 
             
             //check if there is a channel specified. If there is, then you must listen.
@@ -108,19 +111,30 @@ public class RabbitMQConnection extends MessageConnection {
             ex.printStackTrace();            
         }
     } 
-
-    private class MessageConsumer extends DefaultConsumer {
-        private MessageHandler handler;
+    
+    private class MessageConsumer extends DefaultConsumer { 
+        
+        RabbitMQConnection root = RabbitMQConnection.this;
+        
         private Base64Cipher base64 = new Base64Cipher(); 
+        private boolean autoDelete = false;
+        private MessageHandler handler;
         private String exchange;
         private String queueName;
-        private boolean autoDelete = false;
         
         public MessageConsumer(Channel channel, MessageHandler handler) {
             super(channel);
             this.handler = handler;
         }
 
+        public void handleShutdownSignal(String consumerTag, ShutdownSignalException sig) {
+            System.out.println("handleShutdownSignal: consumerTag="+ consumerTag +", message="+ sig.getMessage() +", reason="+ sig.getReason());
+        }
+
+        public void handleRecoverOk(String consumerTag) {
+            System.out.println("handleRecoverOk: consumerTag="+ consumerTag );
+        }
+        
         public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException { 
             if ( body == null || body.length==0 ) return; 
             String message = new String(body, "UTF-8");
