@@ -53,6 +53,7 @@ public class LineTool extends AbstractTool {
             return f;
         }
         catch(Throwable e){
+            e.printStackTrace();
             throw new RuntimeException(e);
         }
     }

@@ -75,6 +75,7 @@ public class PolyLineTool extends AbstractTool {
             return (PolyLineFigure)getPrototype().newInstance();
         }
         catch(Throwable e){
+            e.printStackTrace();
             throw new RuntimeException(e);
         }
     }

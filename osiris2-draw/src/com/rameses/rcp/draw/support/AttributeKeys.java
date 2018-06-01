@@ -180,6 +180,7 @@ public class AttributeKeys {
                     }
                 }
                 catch(Exception ex){
+                    ex.printStackTrace();
                     break;
                 }
             }
