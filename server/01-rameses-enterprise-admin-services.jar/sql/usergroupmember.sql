@@ -12,12 +12,17 @@ SELECT
 	u.txncode, 
 	ugm.org_objid as orgid, 
 	ugm.org_name as orgname 
-FROM sys_usergroup_member ugm 
-	INNER JOIN sys_user u ON ugm.user_objid=u.objid 
-	INNER JOIN sys_usergroup ug ON ug.objid=ugm.usergroup_objid 
+FROM ( 
+	select objid from sys_user where lastname like $P{searchtext} 
+	union 
+	select objid from sys_user where firstname like $P{searchtext} 
+)tmp 
+	inner join sys_user u on u.objid = tmp.objid 
+	inner join sys_usergroup_member ugm on ugm.user_objid = u.objid 
+	inner join sys_usergroup ug ON ug.objid = ugm.usergroup_objid 
 WHERE ug.role IN (${roles})  
-	AND u.lastname LIKE $P{searchtext}
-ORDER BY u.lastname 
+ORDER BY u.lastname, u.firstname, u.middlename  
+
 
 [findMember]
 SELECT ug.* 

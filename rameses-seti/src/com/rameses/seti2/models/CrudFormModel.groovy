@@ -56,11 +56,13 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
     }
      
     boolean isDeleteAllowed() { 
+        if( entity?.system == 1 ) return false;
         if( mode != 'read') return false;
         return super.isDeleteAllowed();
     }
                 
     boolean isEditAllowed() { 
+        if( entity?.system == 1 ) return false;
         if( mode !='read') return false;
         return super.isEditAllowed();
     }

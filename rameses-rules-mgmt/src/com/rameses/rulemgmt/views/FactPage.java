@@ -66,6 +66,7 @@ public class FactPage extends javax.swing.JPanel {
         xFormPanel1.setCaptionWidth(120);
 
         xTextField3.setCaption("Fact Class");
+        xTextField3.setDisableWhen("#{ mode != 'create' }");
         xTextField3.setName("entity.factclass"); // NOI18N
         xTextField3.setPreferredSize(new java.awt.Dimension(0, 20));
         xTextField3.setRequired(true);

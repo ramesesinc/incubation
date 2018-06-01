@@ -45,50 +45,58 @@ public class TableModelSupport implements TableModelHandler, Cloneable
     }
     
     public void fireTableCellUpdated(int row, int column) {
-        for (TableModelHandler handler : handlers) {
-            handler.fireTableCellUpdated(row, column); 
+        TableModelHandler[] arrs = handlers.toArray(new TableModelHandler[]{}); 
+        for (int i=0; i<arrs.length; i++) {
+            arrs[i].fireTableCellUpdated(row, column); 
         }
     }
 
     public void fireTableDataChanged() {
-        for (TableModelHandler handler : handlers) {
-            handler.fireTableDataChanged();
-        }        
+        TableModelHandler[] arrs = handlers.toArray(new TableModelHandler[]{}); 
+        for (int i=0; i<arrs.length; i++) {
+            arrs[i].fireTableDataChanged(); 
+        }
     }
 
     public void fireTableRowsDeleted(int firstRow, int lastRow) {
-        for (TableModelHandler handler : handlers) {
-            handler.fireTableRowsDeleted(firstRow, lastRow);
-        }          
+        TableModelHandler[] arrs = handlers.toArray(new TableModelHandler[]{}); 
+        for (int i=0; i<arrs.length; i++) {
+            arrs[i].fireTableRowsDeleted(firstRow, lastRow);
+        } 
     }
 
     public void fireTableRowsInserted(int firstRow, int lastRow) {
-        for (TableModelHandler handler : handlers) {
-            handler.fireTableRowsInserted(firstRow, lastRow);
-        }           
+        TableModelHandler[] arrs = handlers.toArray(new TableModelHandler[]{}); 
+        for (int i=0; i<arrs.length; i++) {
+            arrs[i].fireTableRowsInserted(firstRow, lastRow);
+        } 
     }
 
     public void fireTableRowsUpdated(int firstRow, int lastRow) {
-        for (TableModelHandler handler : handlers) {
-            handler.fireTableRowsUpdated(firstRow, lastRow);
+        TableModelHandler[] arrs = handlers.toArray(new TableModelHandler[]{}); 
+        for (int i=0; i<arrs.length; i++) {
+            arrs[i].fireTableRowsUpdated(firstRow, lastRow);
         } 
     }
 
     public void fireTableStructureChanged() {
-        for (TableModelHandler handler : handlers) {
-            handler.fireTableStructureChanged();
-        }         
+        TableModelHandler[] arrs = handlers.toArray(new TableModelHandler[]{}); 
+        for (int i=0; i<arrs.length; i++) {
+            arrs[i].fireTableStructureChanged();
+        } 
     }
 
     public void fireTableRowSelected(int row, boolean focusOnItemDataOnly) {
-        for (TableModelHandler handler : handlers) {
-            handler.fireTableRowSelected(row, focusOnItemDataOnly);
-        }          
+        TableModelHandler[] arrs = handlers.toArray(new TableModelHandler[]{}); 
+        for (int i=0; i<arrs.length; i++) {
+            arrs[i].fireTableRowSelected(row, focusOnItemDataOnly);
+        } 
     }    
 
     public void fireTableDataProviderChanged() {
-        for (TableModelHandler handler : handlers) {
-            handler.fireTableDataProviderChanged();
+        TableModelHandler[] arrs = handlers.toArray(new TableModelHandler[]{}); 
+        for (int i=0; i<arrs.length; i++) {
+            arrs[i].fireTableDataProviderChanged();
         }         
     }
 }

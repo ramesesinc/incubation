@@ -218,6 +218,15 @@ public class CrudListModel extends AbstractCrudModel {
         if(query) {
             m.putAll(query);
         };
+        
+        //place the orgid and userid immediately in the query.
+        if( query !=null && !query.orgid) {
+            query.orgid = OsirisContext.env.ORGID;
+        }
+        if( query !=null && !query.userid) {
+            query.userid =  OsirisContext.env.USERID;
+        };
+        
         if(getFindBy()) {
             m.findBy = getFindBy();
         };
@@ -380,6 +389,7 @@ public class CrudListModel extends AbstractCrudModel {
     
     void search() {
         orWhereList.clear();
+        listHandler.searchtext = searchText;
         if( searchText ) {
             searchables.each { 
                 def st = searchText+"%";
@@ -486,8 +496,17 @@ public class CrudListModel extends AbstractCrudModel {
         return d;
     }
     
+    void beforeRemoveItem() {}
+    
     void removeEntity() {
         if(!selectedItem) return;
+        
+        try {
+            beforeRemoveItem(); 
+        } catch(BreakException be) { 
+            return; 
+        } 
+        
         if( !MsgBox.confirm('You are about to delete this record. Proceed?')) return;
         def m = [:];
         def ename = (!entitySchemaName)? schemaName : entitySchemaName;

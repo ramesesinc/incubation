@@ -34,6 +34,9 @@ public class DatePrompt extends javax.swing.JPanel {
         xLabel1 = new com.rameses.rcp.control.XLabel();
         xFormPanel1 = new com.rameses.rcp.control.XFormPanel();
         xDateField1 = new com.rameses.rcp.control.XDateField();
+        xFormPanel2 = new com.rameses.rcp.control.XFormPanel();
+        xComboBox1 = new com.rameses.rcp.control.XComboBox();
+        xComboBox2 = new com.rameses.rcp.control.XComboBox();
 
         jPanel1.setLayout(new com.rameses.rcp.control.layout.YLayout());
 
@@ -41,14 +44,42 @@ public class DatePrompt extends javax.swing.JPanel {
         xLabel1.setExpression("#{title}");
         jPanel1.add(xLabel1);
 
+        xFormPanel1.setCaptionFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
+        xFormPanel1.setCaptionWidth(120);
+
         xDateField1.setCaption("Enter Date");
+        xDateField1.setName("date"); // NOI18N
         xDateField1.setCaptionFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         xDateField1.setCaptionWidth(120);
         xDateField1.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
-        xDateField1.setName("date"); // NOI18N
         xDateField1.setPreferredSize(new java.awt.Dimension(0, 40));
         xDateField1.setRequired(true);
         xFormPanel1.add(xDateField1);
+
+        xFormPanel2.setCaption("Time");
+        xFormPanel2.setVisibleWhen("#{ includeTime == true }");
+        xFormPanel2.setCaptionFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
+        xFormPanel2.setCaptionWidth(120);
+        xFormPanel2.setCellspacing(0);
+        xFormPanel2.setOrientation(com.rameses.rcp.constant.UIConstants.HORIZONTAL);
+        xFormPanel2.setPadding(new java.awt.Insets(0, 0, 0, 0));
+
+        xComboBox1.setItems("hourList");
+        xComboBox1.setName("hour"); // NOI18N
+        xComboBox1.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
+        xComboBox1.setPreferredSize(new java.awt.Dimension(60, 40));
+        xComboBox1.setShowCaption(false);
+        xFormPanel2.add(xComboBox1);
+
+        xComboBox2.setItems("minList");
+        xComboBox2.setName("min"); // NOI18N
+        xComboBox2.setCellPadding(new java.awt.Insets(0, 5, 0, 0));
+        xComboBox2.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
+        xComboBox2.setPreferredSize(new java.awt.Dimension(60, 40));
+        xComboBox2.setShowCaption(false);
+        xFormPanel2.add(xComboBox2);
+
+        xFormPanel1.add(xFormPanel2);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -69,14 +100,17 @@ public class DatePrompt extends javax.swing.JPanel {
                 .addContainerGap()
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(xFormPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 77, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(39, Short.MAX_VALUE))
+                .addComponent(xFormPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(70, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel jPanel1;
+    private com.rameses.rcp.control.XComboBox xComboBox1;
+    private com.rameses.rcp.control.XComboBox xComboBox2;
     private com.rameses.rcp.control.XDateField xDateField1;
     private com.rameses.rcp.control.XFormPanel xFormPanel1;
+    private com.rameses.rcp.control.XFormPanel xFormPanel2;
     private com.rameses.rcp.control.XLabel xLabel1;
     // End of variables declaration//GEN-END:variables
 }

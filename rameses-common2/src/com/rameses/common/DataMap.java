@@ -142,7 +142,7 @@ public class DataMap extends HashMap implements Serializable {
             return false;
         } else if (newValue != null && oldValue == null) {
             return false;
-        } else if (!newValue.equals(oldValue)) {
+        } else if (newValue != null && !newValue.equals(oldValue)) {
             return false;
         }
         return true;

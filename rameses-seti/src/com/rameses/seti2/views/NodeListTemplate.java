@@ -4,16 +4,24 @@
  */
 package com.rameses.seti2.views;
 
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.Insets;
+import java.awt.LayoutManager;
+import java.awt.LayoutManager2;
+
+
 /**
  *
- * @author ramesesinc
- */
-public class CrudListPage extends javax.swing.JPanel {
+ * @author dell
+ */ 
+public class NodeListTemplate extends javax.swing.JPanel {
 
     /**
-     * Creates new form CrudListPage
+     * Creates new form NodeListTemplate
      */
-    public CrudListPage() {
+    public NodeListTemplate() {
         initComponents();
         btnDelete.setToolTipText("Delete");
         btnCreate.setToolTipText("New");
@@ -22,8 +30,91 @@ public class CrudListPage extends javax.swing.JPanel {
         btnRefresh.setToolTipText("Refresh");
         
         btnFilter.setToolTipText("Filter Criteria");
-        btnSelectColumn.setToolTipText("Select Columns");        
+        btnSelectColumn.setToolTipText("Select Columns");
+        sidebarpanel.setLayout(new SideBarLayout());
     }
+    
+    
+    // <editor-fold defaultstate="collapsed" desc=" SideBarLayout ">
+    
+    private class SideBarLayout implements LayoutManager, LayoutManager2 
+    {
+        public void addLayoutComponent(String name, Component comp) {}
+        public void removeLayoutComponent(Component comp) {}
+
+        public Dimension preferredLayoutSize(Container parent) {
+            return getLayoutSize(parent);
+        }
+
+        public Dimension minimumLayoutSize(Container parent) {
+            return getLayoutSize(parent);
+        }
+
+        private Component getVisibleComponent(Component[] comps) {
+            Component selected = null;
+            for (int i=0; i<comps.length; i++) {
+                Component c = comps[i];
+                if (c.isVisible()) selected = c;
+            }
+            return selected;
+        }
+        
+        public void layoutContainer(Container parent) {
+            layoutContainerImpl(parent);            
+        }
+
+        public void addLayoutComponent(Component comp, Object constraints) {}
+
+        public Dimension maximumLayoutSize(Container target) {
+            return getLayoutSize(target);
+        }
+
+        public float getLayoutAlignmentX(Container target) { 
+            return 0.5f;
+        }
+
+        public float getLayoutAlignmentY(Container target) {
+            return 0.5f;
+        }
+
+        public void invalidateLayout(Container target) {
+            layoutContainerImpl(target);
+        }
+
+        private Dimension getLayoutSize(Container parent) {
+            synchronized (parent.getTreeLock()) {
+                int w=0, h=0;
+                Component comp = getVisibleComponent(parent.getComponents()); 
+                if (comp != null) {
+                    Dimension dim = comp.getPreferredSize();
+                    w = dim.width;
+                    h = dim.height;
+                }
+                if (w > 0 || h > 0) {
+                    Insets margin = parent.getInsets();
+                    w += (margin.left + margin.right);
+                    h += (margin.top + margin.bottom);
+                }
+                return new Dimension(w, h);
+            }
+        }
+        
+        private void layoutContainerImpl(Container parent) {
+            synchronized (parent.getTreeLock()) {
+                Insets margin = parent.getInsets();
+                int pwidth = parent.getWidth();
+                int pheight = parent.getHeight();
+                int x = margin.left;
+                int y = margin.top;
+                int w = pwidth - (margin.left + margin.right);
+                int h = pheight - (margin.top + margin.bottom);
+                Component comp = getVisibleComponent(parent.getComponents()); 
+                if (comp != null) comp.setBounds(x, y, w, h);
+            }            
+        }
+    }    
+    
+    // </editor-fold>    
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -34,10 +125,10 @@ public class CrudListPage extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jPanel1 = new javax.swing.JPanel();
-        xLabel1 = new com.rameses.rcp.control.XLabel();
         jPanel2 = new javax.swing.JPanel();
-        xPanel2 = new com.rameses.rcp.control.XPanel();
+        jPanel3 = new javax.swing.JPanel();
+        xLabel1 = new com.rameses.rcp.control.XLabel();
+        jPanel8 = new javax.swing.JPanel();
         jToolBar1 = new javax.swing.JToolBar();
         btnCancel1 = new com.rameses.rcp.control.XButton();
         btnCreate = new com.rameses.rcp.control.XButton();
@@ -48,45 +139,49 @@ public class CrudListPage extends javax.swing.JPanel {
         btnSelectColumn = new com.rameses.rcp.control.XButton();
         btnRefresh = new com.rameses.rcp.control.XButton();
         xActionBar1 = new com.rameses.rcp.control.XActionBar();
+        jPanel7 = new javax.swing.JPanel();
         xLabel2 = new com.rameses.rcp.control.XLabel();
         xSubFormPanel1 = new com.rameses.rcp.control.XSubFormPanel();
-        xPanel1 = new com.rameses.rcp.control.XPanel();
-        xActionTextField1 = new com.rameses.rcp.control.XActionTextField();
         jToolBar2 = new javax.swing.JToolBar();
+        xActionTextField1 = new com.rameses.rcp.control.XActionTextField();
         xButton2 = new com.rameses.rcp.control.XButton();
         xButton1 = new com.rameses.rcp.control.XButton();
+        jPanel4 = new javax.swing.JPanel();
+        xSplitView1 = new com.rameses.rcp.control.XSplitView();
+        sidebarpanel = new javax.swing.JPanel();
         jPanel6 = new javax.swing.JPanel();
         listPanel1 = new com.rameses.seti2.components.ListPanel();
 
-        setPreferredSize(new java.awt.Dimension(850, 450));
         setLayout(new java.awt.BorderLayout());
 
-        jPanel1.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 3, 0));
-        jPanel1.setLayout(new java.awt.BorderLayout());
+        jPanel2.setPreferredSize(new java.awt.Dimension(420, 65));
+        jPanel2.setLayout(new com.rameses.rcp.control.layout.YLayout());
 
-        xLabel1.setExpression("#{title}");
+        jPanel3.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel3.setPreferredSize(new java.awt.Dimension(420, 35));
+        jPanel3.setLayout(new java.awt.BorderLayout());
+
         xLabel1.setBackground(new java.awt.Color(255, 255, 255));
-        xLabel1.setBorder(javax.swing.BorderFactory.createEmptyBorder(7, 2, 10, 5));
+        xLabel1.setExpression("#{title}");
         xLabel1.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         xLabel1.setOpaque(true);
-        jPanel1.add(xLabel1, java.awt.BorderLayout.NORTH);
+        xLabel1.setPreferredSize(new java.awt.Dimension(41, 30));
+        jPanel3.add(xLabel1, java.awt.BorderLayout.NORTH);
 
-        jPanel2.setBorder(javax.swing.BorderFactory.createEmptyBorder(3, 0, 0, 0));
-        jPanel2.setPreferredSize(new java.awt.Dimension(400, 28));
-        jPanel2.setLayout(new java.awt.BorderLayout());
+        jPanel2.add(jPanel3);
 
-        xPanel2.setLayout(new com.rameses.rcp.control.layout.XLayout());
+        jPanel8.setLayout(new java.awt.BorderLayout());
 
         jToolBar1.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         jToolBar1.setFloatable(false);
         jToolBar1.setRollover(true);
 
         btnCancel1.setCaption("");
-        btnCancel1.setName("showMenu"); // NOI18N
         btnCancel1.setFocusable(false);
         btnCancel1.setIconResource("images/menu.png");
         btnCancel1.setImmediate(true);
         btnCancel1.setMargin(new java.awt.Insets(1, 1, 1, 1));
+        btnCancel1.setName("showMenu"); // NOI18N
         jToolBar1.add(btnCancel1);
 
         btnCreate.setAccelerator("ctrl N");
@@ -154,22 +249,23 @@ public class CrudListPage extends javax.swing.JPanel {
         btnRefresh.setName("refresh"); // NOI18N
         jToolBar1.add(btnRefresh);
 
-        xPanel2.add(jToolBar1);
-
+        xActionBar1.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 10, 0, 0));
         xActionBar1.setFormName("formName");
         xActionBar1.setName("listActions"); // NOI18N
-        xActionBar1.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 10, 0, 0));
-        xPanel2.add(xActionBar1);
+        jToolBar1.add(xActionBar1);
+
+        jPanel8.add(jToolBar1, java.awt.BorderLayout.WEST);
+
+        jPanel7.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 5));
+        jPanel7.setLayout(new java.awt.BorderLayout());
 
         xLabel2.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-        xLabel2.setName("filterText"); // NOI18N
         xLabel2.setCellPadding(new java.awt.Insets(5, 0, 0, 5));
         xLabel2.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         xLabel2.setForeground(new java.awt.Color(204, 0, 0));
+        xLabel2.setName("filterText"); // NOI18N
         xLabel2.setText("xLabel2");
-        xPanel2.add(xLabel2);
-
-        jPanel2.add(xPanel2, java.awt.BorderLayout.WEST);
+        jPanel7.add(xLabel2, java.awt.BorderLayout.WEST);
 
         xSubFormPanel1.setHandler("queryForm");
 
@@ -177,58 +273,71 @@ public class CrudListPage extends javax.swing.JPanel {
         xSubFormPanel1.setLayout(xSubFormPanel1Layout);
         xSubFormPanel1Layout.setHorizontalGroup(
             xSubFormPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 313, Short.MAX_VALUE)
+            .addGap(0, 187, Short.MAX_VALUE)
         );
         xSubFormPanel1Layout.setVerticalGroup(
             xSubFormPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGap(0, 25, Short.MAX_VALUE)
         );
 
-        jPanel2.add(xSubFormPanel1, java.awt.BorderLayout.CENTER);
+        jPanel7.add(xSubFormPanel1, java.awt.BorderLayout.CENTER);
 
-        xPanel1.setLayout(new java.awt.BorderLayout());
-
-        xActionTextField1.setActionName("search");
-        xActionTextField1.setName("searchText"); // NOI18N
-        xActionTextField1.setVisibleWhen("#{allowSearch == true}");
-        xActionTextField1.setFocusKeyStroke("F3");
-        xActionTextField1.setMaxLength(50);
-        xActionTextField1.setPreferredSize(new java.awt.Dimension(180, 20));
-        xPanel1.add(xActionTextField1, java.awt.BorderLayout.WEST);
-
-        jToolBar2.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         jToolBar2.setFloatable(false);
         jToolBar2.setRollover(true);
 
-        xButton2.setCaption("");
-        xButton2.setName("showInfo"); // NOI18N
+        xActionTextField1.setActionName("search");
+        xActionTextField1.setFocusKeyStroke("F3");
+        xActionTextField1.setMaxLength(50);
+        xActionTextField1.setName("searchText"); // NOI18N
+        xActionTextField1.setPreferredSize(new java.awt.Dimension(180, 20));
+        xActionTextField1.setVisibleWhen("#{allowSearch == true}");
+        jToolBar2.add(xActionTextField1);
+
         xButton2.setBackground(new java.awt.Color(255, 255, 255));
+        xButton2.setCaption("");
         xButton2.setFocusable(false);
         xButton2.setIconResource("images/info.png");
         xButton2.setImmediate(true);
+        xButton2.setName("showInfo"); // NOI18N
         jToolBar2.add(xButton2);
 
+        xButton1.setBackground(new java.awt.Color(255, 255, 255));
         xButton1.setCaption("\\");
-            xButton1.setName("showHelp"); // NOI18N
-            xButton1.setBackground(new java.awt.Color(255, 255, 255));
             xButton1.setFocusable(false);
             xButton1.setIconResource("images/help.png");
             xButton1.setImmediate(true);
+            xButton1.setName("showHelp"); // NOI18N
             jToolBar2.add(xButton1);
 
-            xPanel1.add(jToolBar2, java.awt.BorderLayout.EAST);
+            jPanel7.add(jToolBar2, java.awt.BorderLayout.EAST);
 
-            jPanel2.add(xPanel1, java.awt.BorderLayout.EAST);
+            jPanel8.add(jPanel7, java.awt.BorderLayout.CENTER);
 
-            jPanel1.add(jPanel2, java.awt.BorderLayout.SOUTH);
+            jPanel2.add(jPanel8);
 
-            add(jPanel1, java.awt.BorderLayout.PAGE_START);
+            add(jPanel2, java.awt.BorderLayout.NORTH);
 
-            jPanel6.setBorder(javax.swing.BorderFactory.createCompoundBorder(javax.swing.BorderFactory.createEmptyBorder(1, 5, 5, 5), javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 204))));
+            jPanel4.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 5, 5, 5));
+            jPanel4.setLayout(new java.awt.BorderLayout());
+
+            xSplitView1.setDividerLocation(150);
+
+            sidebarpanel.setName("sidebar"); // NOI18N
+            com.rameses.rcp.control.layout.YLayout yLayout1 = new com.rameses.rcp.control.layout.YLayout();
+            yLayout1.setAutoFill(true);
+            yLayout1.setSpacing(0);
+            sidebarpanel.setLayout(yLayout1);
+            xSplitView1.add(sidebarpanel);
+
+            jPanel6.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 204)));
             jPanel6.setLayout(new java.awt.BorderLayout());
             jPanel6.add(listPanel1, java.awt.BorderLayout.CENTER);
 
-            add(jPanel6, java.awt.BorderLayout.CENTER);
+            xSplitView1.add(jPanel6);
+
+            jPanel4.add(xSplitView1, java.awt.BorderLayout.CENTER);
+
+            add(jPanel4, java.awt.BorderLayout.CENTER);
         }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private com.rameses.rcp.control.XButton btnCancel1;
@@ -239,20 +348,23 @@ public class CrudListPage extends javax.swing.JPanel {
     private com.rameses.rcp.control.XButton btnPrint;
     private com.rameses.rcp.control.XButton btnRefresh;
     private com.rameses.rcp.control.XButton btnSelectColumn;
-    private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel6;
+    private javax.swing.JPanel jPanel7;
+    private javax.swing.JPanel jPanel8;
     private javax.swing.JToolBar jToolBar1;
     private javax.swing.JToolBar jToolBar2;
     private com.rameses.seti2.components.ListPanel listPanel1;
+    private javax.swing.JPanel sidebarpanel;
     private com.rameses.rcp.control.XActionBar xActionBar1;
     private com.rameses.rcp.control.XActionTextField xActionTextField1;
     private com.rameses.rcp.control.XButton xButton1;
     private com.rameses.rcp.control.XButton xButton2;
     private com.rameses.rcp.control.XLabel xLabel1;
     private com.rameses.rcp.control.XLabel xLabel2;
-    private com.rameses.rcp.control.XPanel xPanel1;
-    private com.rameses.rcp.control.XPanel xPanel2;
+    private com.rameses.rcp.control.XSplitView xSplitView1;
     private com.rameses.rcp.control.XSubFormPanel xSubFormPanel1;
     // End of variables declaration//GEN-END:variables
 }

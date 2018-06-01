@@ -61,6 +61,7 @@ public class ActionDefPage extends javax.swing.JPanel {
         xFormPanel1.add(xTextField3);
 
         xTextField2.setCaption("Action Class");
+        xTextField2.setDisableWhen("#{ mode != 'create' }");
         xTextField2.setName("entity.actionclass"); // NOI18N
         xTextField2.setPreferredSize(new java.awt.Dimension(0, 20));
         xTextField2.setRequired(true);
