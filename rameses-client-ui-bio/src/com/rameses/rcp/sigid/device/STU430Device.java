@@ -10,10 +10,6 @@ import com.florentis.signature.SigObj;
 import com.rameses.rcp.common.SigIdModel;
 import com.rameses.rcp.common.SigIdResult;
 import com.rameses.rcp.sigid.SigIdDevice;
-import com.sun.image.codec.jpeg.JPEGCodec;
-import com.sun.image.codec.jpeg.JPEGImageEncoder;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
 
 /**
  *
