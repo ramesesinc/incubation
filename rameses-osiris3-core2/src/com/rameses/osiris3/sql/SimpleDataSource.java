@@ -13,8 +13,10 @@ import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
 
 import java.util.Map;
+import java.util.logging.Logger;
 import javax.sql.DataSource;
 
 /**
@@ -81,6 +83,11 @@ public class SimpleDataSource implements DataSource {
     
     public boolean isWrapperFor(Class<?> T) throws SQLException {
         throw new SQLException("isWrapperFor not supported");
+    }
+
+    @Override
+    public Logger getParentLogger() throws SQLFeatureNotSupportedException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     
 }

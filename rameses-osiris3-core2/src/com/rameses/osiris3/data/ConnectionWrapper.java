@@ -27,6 +27,7 @@ import java.sql.Statement;
 import java.sql.Struct;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.Executor;
 
 /**
  *
@@ -239,6 +240,31 @@ public class ConnectionWrapper implements Connection {
     public boolean isWrapperFor(Class<?> iface) throws SQLException {
         return conn.isWrapperFor(iface);
     }
+
+    @Override
+    public void setSchema(String schema) throws SQLException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public String getSchema() throws SQLException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void abort(Executor executor) throws SQLException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void setNetworkTimeout(Executor executor, int milliseconds) throws SQLException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public int getNetworkTimeout() throws SQLException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
     
     
     
@@ -249,5 +275,9 @@ public class ConnectionWrapper implements Connection {
     public Connection getConnection() {
         return conn;
     }
+    
+    
+    
+    
     
 }
