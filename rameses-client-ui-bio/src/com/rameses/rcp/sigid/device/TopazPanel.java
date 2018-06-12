@@ -11,8 +11,6 @@ package com.rameses.rcp.sigid.device;
 
 import com.rameses.rcp.common.SigIdResult;
 import com.rameses.rcp.sigid.SigIdParams;
-import com.sun.image.codec.jpeg.JPEGCodec;
-import com.sun.image.codec.jpeg.JPEGImageEncoder;
 import com.topaz.sigplus.SigPlus;
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -27,6 +25,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JPanel;
@@ -314,8 +313,7 @@ class TopazPanel extends JPanel
                 ByteArrayOutputStream fos = null; 
                 try { 
                     fos = new ByteArrayOutputStream(); 
-                    JPEGImageEncoder jpeg = JPEGCodec.createJPEGEncoder(fos); 
-                    jpeg.encode(sigImage); 
+                    ImageIO.write(sigImage, "JPG", fos); 
                     return fos.toByteArray(); 
                 } catch(RuntimeException re) { 
                     throw re; 
