@@ -478,6 +478,7 @@ public abstract class AbstractFigure implements Figure{
     public void readAttributes(Map prop){
         setId(DataUtil.decodeString("id", prop));
         setName(DataUtil.decodeString("name", prop));
+        setIndex(DataUtil.decodeInt("index", prop));
         setTooltip(DataUtil.decodeString("tooltip", prop));
         
         Object o = prop.get("info");
@@ -502,6 +503,7 @@ public abstract class AbstractFigure implements Figure{
         Map map = new HashMap();
         DataUtil.putValue(map, "id", getId());
         DataUtil.putValue(map, "name", getName());
+        DataUtil.putValue(map, "index", getIndex());
         DataUtil.putValue(map, "caption", getCaption());
         DataUtil.putValue(map, "tooltip", getTooltip());
         map.put("info", getInfo());
