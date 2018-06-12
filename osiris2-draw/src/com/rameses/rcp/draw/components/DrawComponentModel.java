@@ -169,6 +169,7 @@ public class DrawComponentModel extends ComponentBean implements EditorListener 
                 return handler.beforeRemove(figures);
             }
             catch(Exception ex){
+                ex.printStackTrace();
                 return false;
             }
         }

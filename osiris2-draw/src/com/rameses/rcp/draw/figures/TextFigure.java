@@ -280,7 +280,7 @@ public class TextFigure extends AbstractAttributedFigure{
 
     @Override
     protected void move(int dx, int dy, MouseEvent e) {
-        if (get(CENTER_TEXT)){
+        if (parentFigure != null && get(CENTER_TEXT)){
             return;
         }
         
