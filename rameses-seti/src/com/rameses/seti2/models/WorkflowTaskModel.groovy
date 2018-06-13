@@ -153,7 +153,10 @@ public class WorkflowTaskModel extends CrudFormModel implements WorkflowTaskList
         return false;
     }
 
-    
+    public boolean isViewReportAllowed() { 
+        return false;
+    }
+
     //This is to display the standard workflow actions
     public List getNavActions() {
         def actions2 = [];

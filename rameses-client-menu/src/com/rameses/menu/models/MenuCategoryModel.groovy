@@ -26,7 +26,7 @@ class MenuCategoryModel  {
     def invokers = [:];
 
     def fontColor = "black";
-    def fontFace = "times";
+    def fontFace = "arial";
     int fontSize = 5;
     int cellwidth = 350;
     int iconwidth = 80;

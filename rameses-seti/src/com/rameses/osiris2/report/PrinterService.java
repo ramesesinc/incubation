@@ -4,6 +4,7 @@
  */
 package com.rameses.osiris2.report;
 
+import com.rameses.rcp.common.MsgBox;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -37,6 +38,7 @@ public class PrinterService implements Printable {
     @Override
     public int print(Graphics g, PageFormat pf, int page)
             throws PrinterException {
+        
         if (page > 0) { /* We have only one page, and 'page' is zero-based */
             return NO_SUCH_PAGE;
         }

@@ -73,12 +73,12 @@ class WorkflowGUIService {
             data._deletedconnectors.each {
                 if(!it.info) {
                     it.info = [parentid:it.startFigureId, to: it.endFigureId ];
-                }   
+                }  
                 def p = [parentid: it.info.parentid, to: it.info.to, processname: data.processname ];
                 wfTransition.find( p ).delete();
             }
         };
-
+        
 		data.figures.each {
             def p = [processname:data.processname, name: it.id];
             def vb = null;
@@ -92,6 +92,7 @@ class WorkflowGUIService {
             def u = it.info;
             u.ui = it.ui;
             u.idx = it.index;
+
             if(!u.properties) u.properties = [:];
             if( !u.title ) u.title = u.name;
             
@@ -107,11 +108,13 @@ class WorkflowGUIService {
                 wfNode.create( u );
             }
 		}
-
+        
         //push connectors
         data.connectors.each {
             def p = [parentid: it.startFigureId, to: it.endFigureId, processname: data.processname ];
             def wt = null;
+
+
             if( it.startFigureId != it.info.parentid || it.endFigureId != it.info.to ) {
                 wfTransition.find( p ).delete();    
             }
@@ -124,7 +127,7 @@ class WorkflowGUIService {
             if(!u.properties) u.properties = [:];
 
             if( wt ) {
-                wfNode.find( p ).update( u );
+                wfTransition.find( p ).update( u );
             }
             else {
                 u.processname = data.processname;
