@@ -42,6 +42,12 @@ public class WorkflowNodeModel  {
         item.caption = entity.title;
         item.info.clear();
         item.info.putAll( entity );
+
+        propList.each {
+            def val = it.value; 
+            if(val?.matches("true|false")) val = Boolean.parseBoolean( val );
+            entity.properties[(it.key)] = val;
+        }
         return "_close";
     }
     

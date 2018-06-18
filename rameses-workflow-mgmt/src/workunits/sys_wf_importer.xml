@@ -1,0 +1,6 @@
+<workunit>
+    <invokers>
+        <invoker type="sys_wf:list:listActions" caption="Import" target="process" index="100" action="startImport"/>
+    </invokers>
+    <code class="com.rameses.wf.models.WorkflowImporterModel" />
+</workunit>

@@ -7,11 +7,13 @@
 package com.rameses.rulemgmt.action;
 
 import com.rameses.rcp.ui.annotations.StyleSheet;
+import com.rameses.rcp.ui.annotations.Template;
 
 /**
  *
  * @author  Elmo
  */
+@Template(value=ActionHandlerTemplate.class)
 @StyleSheet
 public class StringHandler extends javax.swing.JPanel {
     

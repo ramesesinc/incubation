@@ -12,6 +12,9 @@ class RuleActionController  {
     @Service("RuleMgmtService")
     def service;
 
+    @Binding
+    def binding;
+
     def rule;
     def actionDef;
     def entity;     //action.
@@ -26,6 +29,7 @@ class RuleActionController  {
         entity.rulename = rule.name;
         actionDef = service.findActionDef(actionDef);
         entity.actiondef = actionDef;
+        /*
         actionDef.params.each { 
             def actionParam = [:];
             actionParam.objid = "RULACT"+ new UID();
@@ -34,10 +38,12 @@ class RuleActionController  {
             entity.params << actionParam;
             addParamControl(actionParam);
         }
+        */
     }
 
     void open() {
         mode = "edit";
+        actionDef = service.findActionDef(entity.actiondef);
         entity.params.each {
             addParamControl(it);
         }
@@ -96,6 +102,36 @@ class RuleActionController  {
             }
         }
         entity.params = list;
+    }
+
+
+    def getAvailableFields() {
+        return actionDef.params; //.findAll{it.required!=1};
+    }
+
+    def addParameter() {
+        def fieldList = getAvailableFields();
+        return InvokerUtil.lookupOpener("rule:selectfield",[
+            fieldList : fieldList,
+            onselect: {o->
+                def actionParam = [:];
+                actionParam.objid = "RULACT"+ new UID();
+                actionParam.param = o;
+                actionParam.actiondefparam = o;
+                entity.params << actionParam;
+                addParamControl(actionParam);
+                binding.refresh( "paramControls" );
+            }
+        ]);
+    }
+
+    void removeParam(def param) {
+        entity.params.remove(param);
+        paramControls.clear();
+        entity.params.each {
+            addParamControl(it);
+        }
+        binding.refresh();
     }
     
 }

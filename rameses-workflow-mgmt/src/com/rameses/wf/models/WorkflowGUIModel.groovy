@@ -12,16 +12,19 @@ import com.rameses.seti2.models.*;
 import com.rameses.rcp.draw.figures.*;
 import com.rameses.rcp.draw.interfaces.*;
 import com.rameses.util.*;
+import com.rameses.common.*;
+import java.rmi.server.*;
 
 public class WorkflowGUIModel  {
     
     @Service("WorkflowGUIService")
     def guiSvc;
-    
-    
+
     @FormTitle
     String title;
     
+    def fileChooser = new javax.swing.JFileChooser(); 
+
     boolean editing = false;
     def entity;
     def data;
@@ -108,6 +111,23 @@ public class WorkflowGUIModel  {
         }
     ] as GraphModel;
     
+    void exportData() { 
+        fileChooser.setFileSelectionMode(fileChooser.FILES_ONLY); 
+        fileChooser.setSelectedFile(new java.io.File('wf_' + entity.name)); 
+        int opt = fileChooser.showSaveDialog(null); 
+        if (opt == fileChooser.APPROVE_OPTION) { 
+            def file = fileChooser.getSelectedFile(); 
+            def data = guiSvc.openDataForExport([name: entity.name]); 
+ 
+            if (!data) throw new Exception('No record(s) found'); 
+            com.rameses.io.FileUtil.writeObject(file, data); 
+            MsgBox.alert('Successfully exported to file'); 
+        } 
+    } 
+
     
+
+    
+
 }
 

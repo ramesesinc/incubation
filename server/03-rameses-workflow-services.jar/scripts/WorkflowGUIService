@@ -138,4 +138,35 @@ class WorkflowGUIService {
 		}
 	}
 
+
+    @ProxyMethod 
+    public def openDataForExport(o) {
+        def obj = wf.find( [name: o.name ]).first();
+        obj.nodes = wfNode.find( [processname: o.name ]).list();
+        obj.transitions = wfTransition.find( [processname: o.name ]).list();
+        return obj;
+    }    
+
+    @ProxyMethod 
+    public void importData(o) {
+        //cleanup first
+        def v = [processname: o.name];    
+        wfTransition.find( v).delete();
+        wfNode.find( v).delete();
+        wf.delete(o); 
+
+        def nodes = o.remove("nodes");
+        def transitions = o.remove("transitions");
+
+        wf.create(o);
+        nodes.each {
+           wfNode.create( it );
+        }
+        transitions.each {
+            wfTransition.create(it);
+        }
+        
+    }
+
+
 }

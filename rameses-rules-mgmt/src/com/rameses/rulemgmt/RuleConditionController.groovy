@@ -90,7 +90,7 @@ class RuleConditionController  {
 
     def addConstraint() {
         def fieldList = getAvailableFields();
-        return InvokerUtil.lookupOpener("rulecondition:selectfield",[
+        return InvokerUtil.lookupOpener("rule:selectfield",[
             fieldList : fieldList,
             onselect: {o->
                 def constraint = [objid:"RCONST"+new UID(), pos:entity.constraints.size() ];
