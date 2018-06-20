@@ -45,7 +45,7 @@
                         def vars = service.findAllVarsByType( [ruleid: action.parentid, datatype: type ] );
                         return vars.collect{
                             [caption: it.name, title:it.name,  signature: it.name, description : "("+it.datatype +")" ]
-                        };
+                        }.unique();
                     }
                 ] as ExpressionModel;
                 def handle = { o-> 

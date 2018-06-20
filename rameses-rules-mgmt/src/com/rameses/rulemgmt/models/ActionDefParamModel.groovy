@@ -14,7 +14,7 @@ class ActionDefParamModel {
     def handler;
     
     def handlerTypes = [
-        "lov", "lookup", "var", "expression", "message", "boolean", "string"
+        "lov", "lookup", "var", "expression", "message", "boolean", "string", "fieldlist"
     ]
 
     @PropertyChangeListener

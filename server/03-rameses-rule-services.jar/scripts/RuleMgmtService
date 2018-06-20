@@ -224,6 +224,11 @@ class RuleMgmtService extends ActiveCrudListService {
 	}
 
 
+	@ProxyMethod
+	public def getFactFields(def o) {
+		return em.getFactFields(o)*.name;
+	}
+
 	/*********************************************
 	* ACTION
 	**********************************************/
