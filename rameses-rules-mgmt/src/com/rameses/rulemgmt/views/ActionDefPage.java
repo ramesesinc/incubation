@@ -33,8 +33,9 @@ public class ActionDefPage extends javax.swing.JPanel {
         xTabbedPane1 = new com.rameses.rcp.control.XTabbedPane();
         jPanel2 = new javax.swing.JPanel();
         xFormPanel1 = new com.rameses.rcp.control.XFormPanel();
-        xTextField3 = new com.rameses.rcp.control.XTextField();
+        xLabel1 = new com.rameses.rcp.control.XLabel();
         xTextField2 = new com.rameses.rcp.control.XTextField();
+        xTextField3 = new com.rameses.rcp.control.XTextField();
         xTextField4 = new com.rameses.rcp.control.XTextField();
         xIntegerField1 = new com.rameses.rcp.control.XIntegerField();
         xTextField12 = new com.rameses.rcp.control.XTextField();
@@ -52,21 +53,28 @@ public class ActionDefPage extends javax.swing.JPanel {
 
         xFormPanel1.setCaptionWidth(120);
 
+        xLabel1.setCaption("Action Class");
+        xLabel1.setExpression("#{ entity.actionclass }");
+        xLabel1.setVisibleWhen("#{ mode != 'create' }");
+        xLabel1.setPreferredSize(new java.awt.Dimension(0, 20));
+        xFormPanel1.add(xLabel1);
+
+        xTextField2.setCaption("Action Class");
+        xTextField2.setDisableWhen("");
+        xTextField2.setName("entity.actionclass"); // NOI18N
+        xTextField2.setVisibleWhen("#{ mode == 'create' }");
+        xTextField2.setPreferredSize(new java.awt.Dimension(0, 20));
+        xTextField2.setRequired(true);
+        xTextField2.setTextCase(com.rameses.rcp.constant.TextCase.NONE);
+        xFormPanel1.add(xTextField2);
+
         xTextField3.setCaption("Action Name");
         xTextField3.setName("entity.actionname"); // NOI18N
         xTextField3.setPreferredSize(new java.awt.Dimension(150, 20));
         xTextField3.setRequired(true);
         xTextField3.setSpaceChar('_');
-        xTextField3.setTextCase(com.rameses.rcp.constant.TextCase.NONE);
+        xTextField3.setTextCase(com.rameses.rcp.constant.TextCase.LOWER);
         xFormPanel1.add(xTextField3);
-
-        xTextField2.setCaption("Action Class");
-        xTextField2.setDisableWhen("#{ mode != 'create' }");
-        xTextField2.setName("entity.actionclass"); // NOI18N
-        xTextField2.setPreferredSize(new java.awt.Dimension(0, 20));
-        xTextField2.setRequired(true);
-        xTextField2.setTextCase(com.rameses.rcp.constant.TextCase.NONE);
-        xFormPanel1.add(xTextField2);
 
         xTextField4.setCaption("Title");
         xTextField4.setName("entity.title"); // NOI18N
@@ -105,6 +113,8 @@ public class ActionDefPage extends javax.swing.JPanel {
 
         xTabbedPane1.addTab("General Info", jPanel2);
 
+        xDataTable1.setHandler("paramModel");
+        xDataTable1.setName("selectedParam"); // NOI18N
         xDataTable1.setColumns(new com.rameses.rcp.common.Column[]{
             new com.rameses.rcp.common.Column(new Object[]{
                 new Object[]{"name", "name"}
@@ -227,35 +237,33 @@ public class ActionDefPage extends javax.swing.JPanel {
                 , new Object[]{"typeHandler", new com.rameses.rcp.common.TextColumnHandler()}
             })
         });
-        xDataTable1.setHandler("paramModel");
-        xDataTable1.setName("selectedParam"); // NOI18N
         xDataTable1.setVarStatus("varStatus");
 
-        xButton2.setImmediate(true);
         xButton2.setName("addParam"); // NOI18N
-        xButton2.setText("Add");
         xButton2.setVisibleWhen("#{mode!='read'}");
+        xButton2.setImmediate(true);
+        xButton2.setText("Add");
 
-        xButton3.setImmediate(true);
         xButton3.setName("editParam"); // NOI18N
-        xButton3.setText("Edit");
         xButton3.setVisibleWhen("#{mode!='read'}");
+        xButton3.setImmediate(true);
+        xButton3.setText("Edit");
 
-        xButton4.setImmediate(true);
         xButton4.setName("removeParam"); // NOI18N
-        xButton4.setText("Remove");
         xButton4.setVisibleWhen("#{mode!='read'}");
+        xButton4.setImmediate(true);
+        xButton4.setText("Remove");
 
-        xButton1.setMargin(new java.awt.Insets(0, 0, 0, 0));
         xButton1.setName("shiftUp"); // NOI18N
-        xButton1.setText("Up");
         xButton1.setVisibleWhen("#{mode!='read'}");
+        xButton1.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        xButton1.setText("Up");
 
+        xButton5.setName("shiftDown"); // NOI18N
+        xButton5.setVisibleWhen("#{mode!='read'}");
         xButton5.setImmediate(true);
         xButton5.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        xButton5.setName("shiftDown"); // NOI18N
         xButton5.setText("Dn");
-        xButton5.setVisibleWhen("#{mode!='read'}");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -354,6 +362,7 @@ public class ActionDefPage extends javax.swing.JPanel {
     private com.rameses.rcp.control.XDataTable xDataTable1;
     private com.rameses.rcp.control.XFormPanel xFormPanel1;
     private com.rameses.rcp.control.XIntegerField xIntegerField1;
+    private com.rameses.rcp.control.XLabel xLabel1;
     private com.rameses.rcp.control.XList xList1;
     private com.rameses.rcp.control.XPanel xPanel1;
     private com.rameses.rcp.control.XTabbedPane xTabbedPane1;

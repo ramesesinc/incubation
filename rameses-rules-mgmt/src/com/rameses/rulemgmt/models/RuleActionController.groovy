@@ -1,4 +1,4 @@
-package com.rameses.rulemgmt;
+package com.rameses.rulemgmt.models;
 
 import com.rameses.rcp.common.*;
 import com.rameses.rcp.annotations.*;

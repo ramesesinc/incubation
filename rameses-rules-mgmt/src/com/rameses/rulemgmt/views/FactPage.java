@@ -32,8 +32,8 @@ public class FactPage extends javax.swing.JPanel {
 
         xTabbedPane1 = new com.rameses.rcp.control.XTabbedPane();
         jPanel2 = new javax.swing.JPanel();
-        xFormPanel2 = new com.rameses.rcp.control.XFormPanel();
         xFormPanel1 = new com.rameses.rcp.control.XFormPanel();
+        xLabel1 = new com.rameses.rcp.control.XLabel();
         xTextField3 = new com.rameses.rcp.control.XTextField();
         xTextField13 = new com.rameses.rcp.control.XTextField();
         xTextField2 = new com.rameses.rcp.control.XTextField();
@@ -61,13 +61,18 @@ public class FactPage extends javax.swing.JPanel {
         xList1 = new com.rameses.rcp.control.XList();
         jLabel1 = new javax.swing.JLabel();
 
-        xFormPanel2.setCaptionWidth(120);
-
         xFormPanel1.setCaptionWidth(120);
 
+        xLabel1.setCaption("Fact Class");
+        xLabel1.setExpression("#{ entity.factclass }");
+        xLabel1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 204)));
+        xLabel1.setPreferredSize(new java.awt.Dimension(0, 20));
+        xFormPanel1.add(xLabel1);
+
         xTextField3.setCaption("Fact Class");
-        xTextField3.setDisableWhen("#{ mode != 'create' }");
+        xTextField3.setDisableWhen("");
         xTextField3.setName("entity.factclass"); // NOI18N
+        xTextField3.setVisibleWhen("#{ mode == 'create' }");
         xTextField3.setPreferredSize(new java.awt.Dimension(0, 20));
         xTextField3.setRequired(true);
         xTextField3.setSpaceChar('_');
@@ -179,55 +184,51 @@ public class FactPage extends javax.swing.JPanel {
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(xFormPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(xFormPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 425, Short.MAX_VALUE)
-                            .addComponent(xFormPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addGap(0, 298, Short.MAX_VALUE)))
-                .addContainerGap())
+                    .addComponent(xFormPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 634, Short.MAX_VALUE))
+                .addContainerGap(87, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(xFormPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(xFormPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGap(17, 17, 17)
                 .addComponent(xFormPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, 128, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
 
         xTabbedPane1.addTab("General Info", jPanel2);
 
-        xButton2.setImmediate(true);
         xButton2.setName("addField"); // NOI18N
-        xButton2.setText("Add");
         xButton2.setVisibleWhen("#{mode!='read'}");
+        xButton2.setImmediate(true);
+        xButton2.setText("Add");
 
-        xButton3.setImmediate(true);
         xButton3.setName("editField"); // NOI18N
-        xButton3.setText("Edit");
         xButton3.setVisibleWhen("#{mode!='read'}");
+        xButton3.setImmediate(true);
+        xButton3.setText("Edit");
 
-        xButton4.setImmediate(true);
         xButton4.setName("removeField"); // NOI18N
-        xButton4.setText("Remove");
         xButton4.setVisibleWhen("#{mode!='read'}");
+        xButton4.setImmediate(true);
+        xButton4.setText("Remove");
 
-        xButton1.setMargin(new java.awt.Insets(0, 0, 0, 0));
         xButton1.setName("shiftUp"); // NOI18N
-        xButton1.setText("Up");
         xButton1.setVisibleWhen("#{mode!='read'}");
+        xButton1.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        xButton1.setText("Up");
 
+        xButton5.setName("shiftDown"); // NOI18N
+        xButton5.setVisibleWhen("#{mode!='read'}");
         xButton5.setImmediate(true);
         xButton5.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        xButton5.setName("shiftDown"); // NOI18N
         xButton5.setText("Dn");
-        xButton5.setVisibleWhen("#{mode!='read'}");
 
+        xDataTable1.setHandler("fieldModel");
+        xDataTable1.setName("selectedField"); // NOI18N
         xDataTable1.setColumns(new com.rameses.rcp.common.Column[]{
             new com.rameses.rcp.common.Column(new Object[]{
                 new Object[]{"name", "name"}
@@ -290,8 +291,6 @@ public class FactPage extends javax.swing.JPanel {
                 , new Object[]{"typeHandler", new com.rameses.rcp.common.TextColumnHandler()}
             })
         });
-        xDataTable1.setHandler("fieldModel");
-        xDataTable1.setName("selectedField"); // NOI18N
         xDataTable1.setVarStatus("varStatus");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
@@ -396,9 +395,9 @@ public class FactPage extends javax.swing.JPanel {
     private com.rameses.rcp.control.XCheckBox xCheckBox1;
     private com.rameses.rcp.control.XDataTable xDataTable1;
     private com.rameses.rcp.control.XFormPanel xFormPanel1;
-    private com.rameses.rcp.control.XFormPanel xFormPanel2;
     private com.rameses.rcp.control.XFormPanel xFormPanel3;
     private com.rameses.rcp.control.XIntegerField xIntegerField1;
+    private com.rameses.rcp.control.XLabel xLabel1;
     private com.rameses.rcp.control.XList xList1;
     private com.rameses.rcp.control.XPanel xPanel1;
     private com.rameses.rcp.control.XTabbedPane xTabbedPane1;
