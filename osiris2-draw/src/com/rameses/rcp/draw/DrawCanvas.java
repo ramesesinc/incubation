@@ -327,7 +327,7 @@ public class DrawCanvas extends JPanel implements Canvas{
             g2.drawRect(selectionArea.x, selectionArea.y, selectionArea.width, selectionArea.height);
         }
         catch(Exception ex){
-            
+            ex.printStackTrace();
         }
         finally{
             if (g2 != null){

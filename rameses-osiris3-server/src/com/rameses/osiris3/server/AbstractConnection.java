@@ -253,6 +253,7 @@ public class AbstractConnection implements Connection {
         throw new UnsupportedOperationException("Not supported yet.");
     }
     
+    
     public static interface ConnectionListener {
         void onConnectionClose( Connection conn );
     }

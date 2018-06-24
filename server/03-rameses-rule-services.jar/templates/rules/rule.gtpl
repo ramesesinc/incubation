@@ -57,6 +57,9 @@
 			case "string":
 				r = "\"" + o.stringvalue + "\"";
 				break;
+			case "fieldlist":
+				r = "\"" + o.stringvalue + "\"";
+				break;	
 			case "boolean":
 				if( o.booleanvalue == 1 || o.booleanvalue == true ) 
 					r = "true";

@@ -13,12 +13,12 @@ public class ReportService {
     def reports = [:]
     
     public void print(String reportName, def data) {
+        
         if(!reports.containsKey(reportName)) {
             def m = [_schemaname:"sys_report"]
             m.findBy = [objid: reportName];
             def str = qryService.findFirst( m )?.template;
             if(!str) throw new Exception("sys_report " + reportName + " not found");
-            
             def txtReport = new TextPrinter();
             txtReport.setTemplate( str );
             reports.put( reportName, txtReport );

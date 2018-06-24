@@ -2,9 +2,6 @@
     
     <invokers>
         <invoker type="rule:selectactiondef" caption="Select Action Definition" action="init" target="popup"/>
-                
-        <invoker type="rulemgmt:tools" caption="Manage Actions" action="manage" target="popup" visibleWhen="#{debug==true}" index="2"/>
-
     </invokers>
     
     <code>

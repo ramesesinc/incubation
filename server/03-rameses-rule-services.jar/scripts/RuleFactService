@@ -15,6 +15,9 @@ class RuleFactService  {
 	@DataContext("sys_ruleset_fact")
 	def rfact;
 
+	@DataContext("sys_rule_fact")
+	def factEm;
+
 	@Env
 	def env;
 
@@ -42,6 +45,39 @@ class RuleFactService  {
 			it.parentid = o.objid;
 			em.save( it, "fact_field" );
 		}
+	}
+
+	@ProxyMethod
+	public void copy( def o ) {
+		if(!o.oldid) throw new Exception("oldid is required in RuleFactService.copy");
+		if(!o.newid) throw new Exception("newid is required in RuleFactService.copy");
+		if( o.newid.matches(".*\\s{1,}.*"))
+			throw new Exception("Fact Class must not contain spaces");
+		factEm.copyFact(o);
+		factEm.copyFactField(o);
+		if(o.copyruleset) factEm.copyRulesetFact(o);
+	}
+
+	@ProxyMethod
+	public void refactor( def o ) {
+		if(!o.oldid) throw new Exception("oldid is required in RuleFactService.copy");
+		if(!o.newid) throw new Exception("newid is required in RuleFactService.copy");
+
+		if( o.newid.matches(".*\\s{1,}.*"))
+			throw new Exception("Fact Class must not contain spaces");		
+
+		o.copyruleset = true;	
+		copy(o);
+		
+		//refactor conditions
+		factEm.refactorCondition(o);
+		factEm.refactorConstraint(o);
+
+		//remove old fact
+		factEm.removeRulesetFact(o);
+		factEm.removeFactField(o);
+		factEm.removeFact(o);
+
 	}
 	
 

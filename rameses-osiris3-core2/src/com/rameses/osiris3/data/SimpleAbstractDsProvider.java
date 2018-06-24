@@ -12,7 +12,9 @@ package com.rameses.osiris3.data;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
 import java.util.Map;
+import java.util.logging.Logger;
 
 /**
  *
@@ -43,6 +45,11 @@ public class SimpleAbstractDsProvider implements DsProvider  {
         }
         public void destroy() {
             System.out.println("destroying simple datasource");
+        }
+
+        @Override
+        public Logger getParentLogger() throws SQLFeatureNotSupportedException {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
         }
     }
     

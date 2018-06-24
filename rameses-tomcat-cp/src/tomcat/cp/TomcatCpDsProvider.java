@@ -13,7 +13,9 @@ import com.rameses.osiris3.data.AbstractDataSource;
 import com.rameses.osiris3.data.DsProvider;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
 import java.util.Map;
+import java.util.logging.Logger;
 import org.apache.tomcat.jdbc.pool.DataSource;
 import org.apache.tomcat.jdbc.pool.PoolProperties;
 
@@ -247,5 +249,10 @@ public class TomcatCpDsProvider implements DsProvider
 //            System.out.println(" removeAbandonedTimeout="+p.getRemoveAbandonedTimeout());
 //            System.out.println(" ");
 //        }
+
+        @Override
+        public Logger getParentLogger() throws SQLFeatureNotSupportedException {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        }
     }
 }

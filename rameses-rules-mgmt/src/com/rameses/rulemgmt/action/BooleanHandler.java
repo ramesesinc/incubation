@@ -7,11 +7,14 @@
 package com.rameses.rulemgmt.action;
 
 import com.rameses.rcp.ui.annotations.StyleSheet;
+import com.rameses.rcp.ui.annotations.Template;
+
 
 /**
  *
  * @author  Elmo
  */
+@Template(value=ActionHandlerTemplate.class)
 @StyleSheet
 public class BooleanHandler extends javax.swing.JPanel {
     

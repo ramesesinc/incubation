@@ -25,3 +25,4 @@ _dev
 /**/nbproject/groovy-build.xml
 /**/.terminal
 /**/Thumbs.db
+.DS_Store

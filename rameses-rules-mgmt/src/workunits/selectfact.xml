@@ -2,8 +2,6 @@
     
     <invokers>
         <invoker type="rule:selectfact" caption="Select a Fact Type" action="init" target="popup"/>
-        
-        <invoker type="rulemgmt:tools" caption="Manage Facts" action="manage" target="popup"  index="1" visibleWhen="#{debug==true}"/>
     </invokers>
     <code>
          <![CDATA[

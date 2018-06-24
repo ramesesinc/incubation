@@ -76,6 +76,7 @@ public class DrawingBuilder {
             return sb.toString();
         }
         catch(Exception e){
+            e.printStackTrace();
             throw new RuntimeException(e);
         }
         finally{

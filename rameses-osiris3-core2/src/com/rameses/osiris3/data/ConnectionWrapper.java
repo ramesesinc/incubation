@@ -265,5 +265,4 @@ public class ConnectionWrapper implements Connection {
     public Connection getConnection() {
         return conn;
     }
-    
 }

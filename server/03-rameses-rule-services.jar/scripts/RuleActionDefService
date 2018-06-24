@@ -18,6 +18,9 @@ class RuleActionDefService  {
 	@Env
 	def env;
 
+	@DataContext("sys_rule_actiondef")
+	def actionDefEm;
+
 	@ProxyMethod
 	public def find(o) {
 		def a = em.read( o, "actiondef" );
@@ -49,5 +52,38 @@ class RuleActionDefService  {
 		em.removeActionDef(o);
 	}
 
+	@ProxyMethod
+	public void copy( def o ) {
+		if(!o.oldid) throw new Exception("oldid is required in RuleFactService.copy");
+		if(!o.newid) throw new Exception("newid is required in RuleFactService.copy");
+		if( o.newid.matches(".*\\s{1,}.*"))
+			throw new Exception("Action Class must not contain spaces");		
+		
+		actionDefEm.copyActionDef(o);
+		actionDefEm.copyActionDefParam(o);
+		if(o.copyruleset) actionDefEm.copyRulesetActionDefs(o);
+	}
+
+	@ProxyMethod
+	public void refactor( def o ) {
+		if(!o.oldid) throw new Exception("oldid is required in RuleFactService.copy");
+		if(!o.newid) throw new Exception("newid is required in RuleFactService.copy");
+
+		if( o.newid.matches(".*\\s{1,}.*"))
+			throw new Exception("Action Class must not contain spaces");		
+
+		o.copyruleset = true;	
+		copy(o);
+		
+		//refactor conditions
+		actionDefEm.refactorAction(o);
+		actionDefEm.refactorActionParam(o);
+
+		//remove old fact
+		actionDefEm.removeRulesetActionDef(o);
+		actionDefEm.removeActionDefParam(o);
+		actionDefEm.removeActionDef(o);
+
+	}
 
 }

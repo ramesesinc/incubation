@@ -1,8 +1,8 @@
 <workunit>
     
     <invokers>
-        <invoker type="sys_rule_actiondef_param:create" caption="Create Action Def" target="popup"/>
-        <invoker type="sys_rule_actiondef_param:open" caption="Action Def" target="popup"/>
+        <invoker type="sys_rule_actiondef_param:create" caption="Create Action Def Parameter" action="create" target="popup"/>
+        <invoker type="sys_rule_actiondef_param:edit" caption="Action Def Parameter"  action="edit"  target="popup"/>
     </invokers>
     <code class="com.rameses.rulemgmt.models.ActionDefParamModel" />
     <pages>
@@ -18,5 +18,6 @@
         <page name="message" template="com.rameses.rulemgmt.views.ActionDefParamDefault"/>
         <page name="string" template="com.rameses.rulemgmt.views.ActionDefParamDefault"/>
         <page name="boolean" template="com.rameses.rulemgmt.views.ActionDefParamDefault"/>
+        <page name="fieldlist" template="com.rameses.rulemgmt.views.ActionDefParamFieldList"/>
     </pages>
 </workunit>

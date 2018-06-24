@@ -5,7 +5,7 @@
         <invoker type="ruleaction:default:open" action="open" caption="Rule Action" target="popup"/>
     </invokers>
     
-    <code class="com.rameses.rulemgmt.RuleActionController" />
+    <code class="com.rameses.rulemgmt.models.RuleActionController" />
 
     <pages>
         <page  template="com.rameses.rulemgmt.DefaultRuleActionPage"/>

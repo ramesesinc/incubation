@@ -10,6 +10,9 @@ public class RuleActionHandler  {
     @Binding
     def binding;
 
+    @Caller
+    def caller;
+
     def rule;
     def action;
     def actionParam;
@@ -18,5 +21,8 @@ public class RuleActionHandler  {
     void init() {
     }
 
+    void removeAction() {
+        caller.removeParam( actionParam );
+    }
 
 }

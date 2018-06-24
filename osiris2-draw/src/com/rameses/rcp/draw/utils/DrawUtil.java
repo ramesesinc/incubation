@@ -40,6 +40,7 @@ public class DrawUtil {
             Class clz = Class.forName(className);
             return clz.newInstance();
         } catch (Throwable t) {
+            t.printStackTrace();
             return null;
         }
 
@@ -71,6 +72,7 @@ public class DrawUtil {
             try {
                 return toolkit.getImage(url);
             } catch (Exception ex) {
+                ex.printStackTrace();
             }
         }
         return null;
@@ -128,7 +130,7 @@ public class DrawUtil {
                 }
             }
         }
-        int pad = 5;
+        int pad = 0;
         return image.getSubimage(minX - pad, minY - pad, maxX - minX + (pad*2), maxY - minY + (pad*2));
     }
 

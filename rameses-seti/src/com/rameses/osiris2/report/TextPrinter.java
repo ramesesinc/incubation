@@ -4,13 +4,13 @@
  */
 package com.rameses.osiris2.report;
 
-import com.rameses.rcp.common.MsgBox;
 import groovy.lang.Writable;
 import groovy.text.SimpleTemplateEngine;
 import groovy.text.Template;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringReader;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -77,7 +77,10 @@ public class TextPrinter {
     }
     
     public void print( Map data ) throws Exception {
-        if(printerName == null ) printerName = printerService.getPrinters().iterator().next();
+        List<String> printerList = printerService.getPrinters();
+        if(printerList.size()==0)
+            throw new Exception("There are no printer names registered in printer list");
+        if(printerName == null ) printerName = printerList.iterator().next();
         Writable pw  = template.make(data);
         printerService.printString(printerName, pw.toString());
     }

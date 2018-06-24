@@ -88,5 +88,4 @@ public class SimpleDataSource implements DataSource {
     public Logger getParentLogger() throws SQLFeatureNotSupportedException {
         throw new UnsupportedOperationException("Not supported yet.");
     }
-    
 }

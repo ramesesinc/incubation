@@ -24,6 +24,7 @@ public class FigureFactory {
             return (Figure) Class.forName(className).newInstance();
         }
         catch(Exception ex){
+            ex.printStackTrace();
             return null;
         }
     }
