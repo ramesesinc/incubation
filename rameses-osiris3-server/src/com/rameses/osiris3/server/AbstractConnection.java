@@ -26,6 +26,7 @@ import java.sql.Statement;
 import java.sql.Struct;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.Executor;
 
 /**
  *
@@ -235,6 +236,21 @@ public class AbstractConnection implements Connection {
 
     public boolean isWrapperFor(Class<?> iface) throws SQLException {
         return conn.isWrapperFor(iface);
+    }
+
+    public void setSchema(String string) throws SQLException {
+    }
+    public String getSchema() throws SQLException {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public void abort(Executor exctr) throws SQLException {
+    }
+
+    public void setNetworkTimeout(Executor exctr, int i) throws SQLException {
+    }
+    public int getNetworkTimeout() throws SQLException {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
     
     public static interface ConnectionListener {

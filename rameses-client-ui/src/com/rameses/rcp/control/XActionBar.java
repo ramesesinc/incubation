@@ -341,6 +341,7 @@ public class XActionBar extends JPanel implements UIComposite, ActiveControl, Mo
         else if ("[no caption]".equalsIgnoreCase(caption+"")) caption = null;
         
         XButton btn = new XButton();
+        btn.setMnemonic(action.getMnemonic());         
         ActionButtonSupport.getInstance().loadDefaults(btn, action.getName(), caption, btn);
 
         btn.setFocusable(false);
@@ -438,7 +439,6 @@ public class XActionBar extends JPanel implements UIComposite, ActiveControl, Mo
         else if (caption != null)
             btn.setToolTipText(caption);
         
-        btn.setMnemonic(action.getMnemonic());  
         return btn;
     }
     

@@ -9,8 +9,8 @@
     <![CDATA[        
 import com.rameses.rcp.common.*;
 import com.rameses.rcp.annotations.*;
-import com.rameses.util.*;
 import com.rameses.osiris2.client.*;
+import com.rameses.util.*;
 import system.launcher.*;
 
 public class QuickLaunchListController
@@ -49,15 +49,15 @@ public class QuickLaunchListController
     def listHandler = [
         getColumns: {
             return [
-                new Column(name:'code', caption:'Code'),
+                new Column(name:'code', caption:'Code', maxWidth:120),
                 new Column(name:'desc', caption:'Description'),
-                new Column(name:'allowed', caption:'Allowed'),
+                new Column(name:'allowed', caption:'Allowed', maxWidth:80)
             ]
         },
         fetchList: { o-> 
             return createSubList( list, o, searchtext );
         }
-    ] as ScrollListModel;
+    ] as DataListModel;
 
 
     private def cache = [:]; 

@@ -142,6 +142,7 @@ public class NodeListTemplate extends javax.swing.JPanel {
         jPanel7 = new javax.swing.JPanel();
         xLabel2 = new com.rameses.rcp.control.XLabel();
         xSubFormPanel1 = new com.rameses.rcp.control.XSubFormPanel();
+        jPanel1 = new javax.swing.JPanel();
         jToolBar2 = new javax.swing.JToolBar();
         xActionTextField1 = new com.rameses.rcp.control.XActionTextField();
         xButton2 = new com.rameses.rcp.control.XButton();
@@ -260,10 +261,10 @@ public class NodeListTemplate extends javax.swing.JPanel {
         jPanel7.setLayout(new java.awt.BorderLayout());
 
         xLabel2.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        xLabel2.setName("filterText"); // NOI18N
         xLabel2.setCellPadding(new java.awt.Insets(5, 0, 0, 5));
         xLabel2.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         xLabel2.setForeground(new java.awt.Color(204, 0, 0));
-        xLabel2.setName("filterText"); // NOI18N
         xLabel2.setText("xLabel2");
         jPanel7.add(xLabel2, java.awt.BorderLayout.WEST);
 
@@ -273,7 +274,7 @@ public class NodeListTemplate extends javax.swing.JPanel {
         xSubFormPanel1.setLayout(xSubFormPanel1Layout);
         xSubFormPanel1Layout.setHorizontalGroup(
             xSubFormPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 187, Short.MAX_VALUE)
+            .addGap(0, 270, Short.MAX_VALUE)
         );
         xSubFormPanel1Layout.setVerticalGroup(
             xSubFormPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -282,15 +283,18 @@ public class NodeListTemplate extends javax.swing.JPanel {
 
         jPanel7.add(xSubFormPanel1, java.awt.BorderLayout.CENTER);
 
+        jPanel1.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 5, 0, 0));
+        jPanel1.setLayout(new com.rameses.rcp.control.layout.CenterLayout());
+
         jToolBar2.setFloatable(false);
         jToolBar2.setRollover(true);
 
         xActionTextField1.setActionName("search");
+        xActionTextField1.setName("searchText"); // NOI18N
+        xActionTextField1.setVisibleWhen("#{allowSearch == true}");
         xActionTextField1.setFocusKeyStroke("F3");
         xActionTextField1.setMaxLength(50);
-        xActionTextField1.setName("searchText"); // NOI18N
         xActionTextField1.setPreferredSize(new java.awt.Dimension(180, 20));
-        xActionTextField1.setVisibleWhen("#{allowSearch == true}");
         jToolBar2.add(xActionTextField1);
 
         xButton2.setBackground(new java.awt.Color(255, 255, 255));
@@ -309,7 +313,9 @@ public class NodeListTemplate extends javax.swing.JPanel {
             xButton1.setName("showHelp"); // NOI18N
             jToolBar2.add(xButton1);
 
-            jPanel7.add(jToolBar2, java.awt.BorderLayout.EAST);
+            jPanel1.add(jToolBar2);
+
+            jPanel7.add(jPanel1, java.awt.BorderLayout.EAST);
 
             jPanel8.add(jPanel7, java.awt.BorderLayout.CENTER);
 
@@ -348,6 +354,7 @@ public class NodeListTemplate extends javax.swing.JPanel {
     private com.rameses.rcp.control.XButton btnPrint;
     private com.rameses.rcp.control.XButton btnRefresh;
     private com.rameses.rcp.control.XButton btnSelectColumn;
+    private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;

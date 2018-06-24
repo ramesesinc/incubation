@@ -50,6 +50,7 @@ public class CrudListPage extends javax.swing.JPanel {
         xActionBar1 = new com.rameses.rcp.control.XActionBar();
         xLabel2 = new com.rameses.rcp.control.XLabel();
         xSubFormPanel1 = new com.rameses.rcp.control.XSubFormPanel();
+        jPanel3 = new javax.swing.JPanel();
         xPanel1 = new com.rameses.rcp.control.XPanel();
         xActionTextField1 = new com.rameses.rcp.control.XActionTextField();
         jToolBar2 = new javax.swing.JToolBar();
@@ -177,7 +178,7 @@ public class CrudListPage extends javax.swing.JPanel {
         xSubFormPanel1.setLayout(xSubFormPanel1Layout);
         xSubFormPanel1Layout.setHorizontalGroup(
             xSubFormPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 313, Short.MAX_VALUE)
+            .addGap(0, 308, Short.MAX_VALUE)
         );
         xSubFormPanel1Layout.setVerticalGroup(
             xSubFormPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -185,6 +186,9 @@ public class CrudListPage extends javax.swing.JPanel {
         );
 
         jPanel2.add(xSubFormPanel1, java.awt.BorderLayout.CENTER);
+
+        jPanel3.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 5, 0, 0));
+        jPanel3.setLayout(new com.rameses.rcp.control.layout.CenterLayout());
 
         xPanel1.setLayout(new java.awt.BorderLayout());
 
@@ -218,7 +222,9 @@ public class CrudListPage extends javax.swing.JPanel {
 
             xPanel1.add(jToolBar2, java.awt.BorderLayout.EAST);
 
-            jPanel2.add(xPanel1, java.awt.BorderLayout.EAST);
+            jPanel3.add(xPanel1);
+
+            jPanel2.add(jPanel3, java.awt.BorderLayout.EAST);
 
             jPanel1.add(jPanel2, java.awt.BorderLayout.SOUTH);
 
@@ -241,6 +247,7 @@ public class CrudListPage extends javax.swing.JPanel {
     private com.rameses.rcp.control.XButton btnSelectColumn;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel6;
     private javax.swing.JToolBar jToolBar1;
     private javax.swing.JToolBar jToolBar2;

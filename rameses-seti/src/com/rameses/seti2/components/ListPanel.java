@@ -17,6 +17,7 @@ public class ListPanel extends javax.swing.JPanel {
      */
     public ListPanel() {
         initComponents();
+        setHandler("listHandler"); 
         tblList.setIndex(-1);
     }
 
@@ -47,10 +48,9 @@ public class ListPanel extends javax.swing.JPanel {
         btnMovePrev.setName(s+".moveBackPage");
         btnMoveNext.setName(s+".moveNextPage");
         btnMoveLast.setName(s+".moveLastPage");
-        lblRecordCount.setExpression("Page #{" + s + ".pageIndex"  +"}");
-        lblRecordCount.setText("Page #{" + s + ".pageIndex"  +"}");
-        lblPageCount.setExpression("of #{" + s + ".pageCount"  +"}");
-        lblPageCount.setText("of #{" + s + ".pageCount"  +"}");
+        
+        lblRecordCount.setExpression("#{"+ s +".recordCountInfo}");
+        lblPageCount.setExpression("#{"+ s +".pageCountInfo}");
     }
     
     public String[] getDepends() {
@@ -71,28 +71,36 @@ public class ListPanel extends javax.swing.JPanel {
     private void initComponents() {
 
         tblList = new com.rameses.rcp.control.XDataTable();
+        jPanel1 = new javax.swing.JPanel();
         jToolBar2 = new javax.swing.JToolBar();
         btnMoveFirst = new com.rameses.rcp.control.XButton();
         btnMovePrev = new com.rameses.rcp.control.XButton();
         btnMoveNext = new com.rameses.rcp.control.XButton();
         btnMoveLast = new com.rameses.rcp.control.XButton();
-        jPanel5 = new javax.swing.JPanel();
+        filler1 = new javax.swing.Box.Filler(new java.awt.Dimension(35, 0), new java.awt.Dimension(35, 0), new java.awt.Dimension(35, 32767));
         lblRecordCount = new com.rameses.rcp.control.XLabel();
+        filler2 = new javax.swing.Box.Filler(new java.awt.Dimension(10, 0), new java.awt.Dimension(10, 0), new java.awt.Dimension(10, 32767));
         lblPageCount = new com.rameses.rcp.control.XLabel();
 
         setLayout(new java.awt.BorderLayout());
 
-        tblList.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         tblList.setHandler("listHandler");
         tblList.setName("selectedItem"); // NOI18N
+        tblList.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         add(tblList, java.awt.BorderLayout.CENTER);
 
-        jToolBar2.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
+        jPanel1.setBorder(javax.swing.BorderFactory.createEmptyBorder(4, 4, 2, 0));
+        com.rameses.rcp.control.layout.XLayout xLayout1 = new com.rameses.rcp.control.layout.XLayout();
+        xLayout1.setSpacing(1);
+        jPanel1.setLayout(xLayout1);
+
+        jToolBar2.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        jToolBar2.setFloatable(false);
         jToolBar2.setRollover(true);
 
+        btnMoveFirst.setName("listHandler.moveFirstPage"); // NOI18N
         btnMoveFirst.setFocusable(false);
         btnMoveFirst.setIconResource("images/navbar/first.png");
-        btnMoveFirst.setName("listHandler.moveFirstPage"); // NOI18N
         jToolBar2.add(btnMoveFirst);
 
         btnMovePrev.setFocusable(false);
@@ -110,30 +118,33 @@ public class ListPanel extends javax.swing.JPanel {
         btnMoveLast.setIconResource("images/navbar/last.png");
         btnMoveLast.setName("listHandler.moveLastPage"); // NOI18N
         jToolBar2.add(btnMoveLast);
+        jToolBar2.add(filler1);
 
-        jPanel5.setPreferredSize(new java.awt.Dimension(100, 20));
-        jPanel5.setLayout(new com.rameses.rcp.control.layout.XLayout());
+        jPanel1.add(jToolBar2);
 
         lblRecordCount.setDepends(new String[] {"selectedItem"});
         lblRecordCount.setExpression("#{recordCountInfo}");
+        lblRecordCount.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         lblRecordCount.setUseHtml(true);
-        jPanel5.add(lblRecordCount);
+        jPanel1.add(lblRecordCount);
+        jPanel1.add(filler2);
 
         lblPageCount.setDepends(new String[] {"selectedItem"});
         lblPageCount.setExpression("#{pageCountInfo}");
+        lblPageCount.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         lblPageCount.setUseHtml(true);
-        jPanel5.add(lblPageCount);
+        jPanel1.add(lblPageCount);
 
-        jToolBar2.add(jPanel5);
-
-        add(jToolBar2, java.awt.BorderLayout.SOUTH);
+        add(jPanel1, java.awt.BorderLayout.SOUTH);
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private com.rameses.rcp.control.XButton btnMoveFirst;
     private com.rameses.rcp.control.XButton btnMoveLast;
     private com.rameses.rcp.control.XButton btnMoveNext;
     private com.rameses.rcp.control.XButton btnMovePrev;
-    private javax.swing.JPanel jPanel5;
+    private javax.swing.Box.Filler filler1;
+    private javax.swing.Box.Filler filler2;
+    private javax.swing.JPanel jPanel1;
     private javax.swing.JToolBar jToolBar2;
     private com.rameses.rcp.control.XLabel lblPageCount;
     private com.rameses.rcp.control.XLabel lblRecordCount;

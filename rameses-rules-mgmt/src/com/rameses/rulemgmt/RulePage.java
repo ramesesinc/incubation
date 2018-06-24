@@ -55,17 +55,18 @@ public class RulePage extends javax.swing.JPanel {
         xTitledBorder1.setTitle("  General Information   ");
         jPanel1.setBorder(xTitledBorder1);
 
+        xFormPanel1.setCaptionWidth(100);
         xFormPanel1.setPadding(new java.awt.Insets(5, 0, 0, 0));
 
-        xLabel1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(180, 180, 180)));
         xLabel1.setCaption("Rule Set");
         xLabel1.setExpression("#{entity.ruleset}");
+        xLabel1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(180, 180, 180)));
         xLabel1.setPreferredSize(new java.awt.Dimension(0, 20));
         xFormPanel1.add(xLabel1);
 
-        xLabel3.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(180, 180, 180)));
         xLabel3.setCaption("Rule Name");
         xLabel3.setExpression("#{entity.name}");
+        xLabel3.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(180, 180, 180)));
         xLabel3.setPreferredSize(new java.awt.Dimension(0, 20));
         xFormPanel1.add(xLabel3);
 
@@ -81,10 +82,10 @@ public class RulePage extends javax.swing.JPanel {
         jScrollPane3.setName("entity.description"); // NOI18N
         jScrollPane3.setPreferredSize(new java.awt.Dimension(0, 42));
 
-        xTextArea1.setLineWrap(true);
-        xTextArea1.setWrapStyleWord(true);
         xTextArea1.setCaption("Title");
+        xTextArea1.setLineWrap(true);
         xTextArea1.setName("entity.title"); // NOI18N
+        xTextArea1.setWrapStyleWord(true);
         jScrollPane3.setViewportView(xTextArea1);
 
         xFormPanel1.add(jScrollPane3);
@@ -99,7 +100,7 @@ public class RulePage extends javax.swing.JPanel {
             jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .add(xFormPanel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 537, Short.MAX_VALUE)
+                .add(xFormPanel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 535, Short.MAX_VALUE)
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
@@ -113,6 +114,7 @@ public class RulePage extends javax.swing.JPanel {
         xTitledBorder2.setTitle("  Effectivity Dates    ");
         jPanel2.setBorder(xTitledBorder2);
 
+        xFormPanel3.setCaptionVAlignment(com.rameses.rcp.constant.UIConstants.CENTER);
         xFormPanel3.setPadding(new java.awt.Insets(5, 0, 0, 0));
 
         xDateField1.setText("entity.effectivefrom");
@@ -130,8 +132,9 @@ public class RulePage extends javax.swing.JPanel {
 
         xCheckBox1.setCheckValue(1);
         xCheckBox1.setName("entity.noloop"); // NOI18N
-        xCheckBox1.setText("  No loop");
         xCheckBox1.setUncheckValue(0);
+        xCheckBox1.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        xCheckBox1.setText("  No loop");
         xCheckBox1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 xCheckBox1ActionPerformed(evt);
@@ -165,16 +168,17 @@ public class RulePage extends javax.swing.JPanel {
         );
 
         xButton1.setCaption("Add Condition");
-        xButton1.setMargin(new java.awt.Insets(0, 0, 0, 0));
         xButton1.setName("addCondition"); // NOI18N
+        xButton1.setMargin(new java.awt.Insets(0, 0, 0, 0));
         xButton1.setText("Add Condition");
 
-        xButton2.setMargin(new java.awt.Insets(0, 0, 0, 0));
         xButton2.setName("addAction"); // NOI18N
+        xButton2.setMargin(new java.awt.Insets(0, 0, 0, 0));
         xButton2.setText("Add Action");
 
-        xButton3.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        xButton3.setMnemonic('R');
         xButton3.setName("reloadInfo"); // NOI18N
+        xButton3.setMargin(new java.awt.Insets(0, 0, 0, 0));
         xButton3.setText("Refresh");
 
         xHtmlView1.setName("ruleHtml"); // NOI18N
@@ -193,11 +197,11 @@ public class RulePage extends javax.swing.JPanel {
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(jPanel2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                     .add(layout.createSequentialGroup()
-                        .add(xButton1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 79, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(xButton1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 102, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(xButton2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 74, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .add(64, 64, 64)
-                        .add(xButton3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 74, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(xButton2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 86, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(52, 52, 52)
+                        .add(xButton3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 84, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .add(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );

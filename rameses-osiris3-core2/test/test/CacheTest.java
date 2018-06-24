@@ -13,6 +13,7 @@ import com.rameses.osiris3.core.AppContext;
 import com.rameses.osiris3.core.TransactionContext;
 import com.rameses.osiris3.script.ScriptService;
 import com.rameses.osiris3.script.ScriptTransactionManager;
+import groovy.sql.Sql;
 import java.util.HashMap;
 import java.util.Map;
 

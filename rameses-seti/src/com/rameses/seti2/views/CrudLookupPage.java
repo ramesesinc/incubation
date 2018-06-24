@@ -147,6 +147,7 @@ public class CrudLookupPage extends javax.swing.JPanel {
         xActionBar1 = new com.rameses.rcp.control.XActionBar();
         jPanel7 = new javax.swing.JPanel();
         xSubFormPanel1 = new com.rameses.rcp.control.XSubFormPanel();
+        jPanel1 = new javax.swing.JPanel();
         xActionTextField1 = new com.rameses.rcp.control.XActionTextField();
         jPanel4 = new javax.swing.JPanel();
         sidebarpanel = new javax.swing.JPanel();
@@ -298,7 +299,7 @@ public class CrudLookupPage extends javax.swing.JPanel {
             xSubFormPanel1.setLayout(xSubFormPanel1Layout);
             xSubFormPanel1Layout.setHorizontalGroup(
                 xSubFormPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGap(0, 283, Short.MAX_VALUE)
+                .addGap(0, 278, Short.MAX_VALUE)
             );
             xSubFormPanel1Layout.setVerticalGroup(
                 xSubFormPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -307,13 +308,18 @@ public class CrudLookupPage extends javax.swing.JPanel {
 
             jPanel7.add(xSubFormPanel1, java.awt.BorderLayout.CENTER);
 
+            jPanel1.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 5, 0, 0));
+            jPanel1.setLayout(new com.rameses.rcp.control.layout.CenterLayout());
+
             xActionTextField1.setActionName("search");
+            xActionTextField1.setName("searchText"); // NOI18N
+            xActionTextField1.setVisibleWhen("#{allowSearch == true}");
             xActionTextField1.setFocusKeyStroke("F3");
             xActionTextField1.setMaxLength(50);
-            xActionTextField1.setName("searchText"); // NOI18N
             xActionTextField1.setPreferredSize(new java.awt.Dimension(180, 20));
-            xActionTextField1.setVisibleWhen("#{allowSearch == true}");
-            jPanel7.add(xActionTextField1, java.awt.BorderLayout.EAST);
+            jPanel1.add(xActionTextField1);
+
+            jPanel7.add(jPanel1, java.awt.BorderLayout.EAST);
 
             jPanel8.add(jPanel7, java.awt.BorderLayout.CENTER);
 
@@ -358,6 +364,7 @@ public class CrudLookupPage extends javax.swing.JPanel {
     private com.rameses.rcp.control.XButton btnPrint;
     private com.rameses.rcp.control.XButton btnRefresh;
     private com.rameses.rcp.control.XButton btnSelectColumn;
+    private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;

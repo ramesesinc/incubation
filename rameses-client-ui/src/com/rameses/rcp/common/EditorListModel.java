@@ -176,8 +176,18 @@ public class EditorListModel extends AbstractListDataProvider
         pageCount = 1;
     }    
     
-    public int getRows() { return DEFAULT_ROW_LIMIT; }
-    public int getRowCount() { return getRows(); }
+    public int getRows() { 
+        if ( isPagingEnabled()) {
+            return DEFAULT_ROW_LIMIT;  
+        }
+        return -1;
+    }
+    public int getRowCount() { 
+        if ( isPagingEnabled()) {
+            return getRows(); 
+        }
+        return getDataListSize();
+    }
     public int getMaxRows() { return getRows(); }            
     public Map getQuery() { return query; } 
     

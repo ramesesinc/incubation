@@ -354,30 +354,6 @@ public class InboxController extends ListController
         System.out.println("No available file type handler"); 
         return null; 
     } 
-
-    private StringBuffer footerInfo;
-    
-    protected void dataChanged(Object stat) {
-        footerInfo = new StringBuffer();
-        if (stat instanceof ListItemStatus) {
-            ListItemStatus lis = (ListItemStatus)stat;
-//            System.out.println("pageindex="+lis.getPageIndex() + ", pagecount="+lis.getPageCount());
-//            int pagecount = lis.getPageCount()-1;
-//            int totalrows = Math.max(pagecount,0) * getRows(); 
-//            if (lis.isIsLastPage()) {
-//                totalrows -= Math.max(getRows(), 0); 
-//                totalrows += getDataListSize(); 
-//            }
-//            
-//            footerInfo.append( totalrows ); 
-//            footerInfo.append(" Record(s)    ");
-//            footerInfo.append("Page  " + lis.getPageIndex() + "  of  ");
-//            if (lis.isIsLastPage()) 
-//                footerInfo.append(lis.getPageCount()); 
-//            else 
-//                footerInfo.append("?");            
-        }
-    } 
     
     // </editor-fold>
     

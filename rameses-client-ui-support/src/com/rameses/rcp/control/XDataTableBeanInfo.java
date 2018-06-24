@@ -35,6 +35,7 @@ public class XDataTableBeanInfo extends ComponentBeanInfoSupport
         addBoolean( list, "showVerticalLines" );
         addBoolean( list, "editable" );
         addBoolean( list, "immediate" );
+        addBoolean( list, "readonly" );
         addBoolean( list, "showRowHeader" );
         
         add( list, "columns", ColumnPropertyEditor.class ); 

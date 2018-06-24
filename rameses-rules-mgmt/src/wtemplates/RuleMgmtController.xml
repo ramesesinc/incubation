@@ -1,6 +1,7 @@
 <workunit>
     <invokers>
-        <invoker type="formActions" caption="Tools" action="showTools" index="100" />
+        <invoker type="formActions" caption="Tools" action="showTools" 
+                 mnemonic="T" index="100" />
     </invokers>
     <code class="com.rameses.rulemgmt.models.RuleMgmtModel" />
     <pages>

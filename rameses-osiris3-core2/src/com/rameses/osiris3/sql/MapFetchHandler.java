@@ -45,8 +45,8 @@ public class MapFetchHandler implements FetchHandler {
         ResultSetMetaData meta = rs.getMetaData();
         int columnCount = meta.getColumnCount();
         for (int i=0; i<columnCount; i++) {
-            String name = meta.getColumnName(i+1);
-            data.put(name, rs.getObject(name));
+            String name = meta.getColumnLabel(i+1);
+            data.put(name, rs.getObject(i+1)); 
         }
         if( fieldToMap == true ) {
             return FieldToMap.convert(data, excludeFields);

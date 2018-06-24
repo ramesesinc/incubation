@@ -4,7 +4,7 @@
         <invoker type="rulemgmt:create" caption="New Rule" action="create" target="popup"/>
         <invoker type="rulemgmt:open" caption="Rule" action="open" target="popup"/>
         
-        <invoker type="extActions" caption="View Rule" action="viewRule" visibleWhen="#{mode=='read'}" />
+        <invoker type="extActions" caption="View Rule" action="viewRule" visibleWhen="#{mode=='read'}" mnemonic="V"/>
         <invoker type="extActions" caption="Copy" action="copyRule" visibleWhen="#{mode=='read'}" />
         <invoker type="extActions" caption="Transfer Ruleset" action="transferRuleset" visibleWhen="#{entity.state!='DEPLOYED' &amp;&amp; mode=='read'}" />
     </invokers>
@@ -238,14 +238,17 @@
             <transition name="open-deployed" to="deployed"/>
         </start>
         <page name="initial" title="New Rule">
-            <transition to="editinfo" caption="Next" immediate="false" 
-                confirm="You are about to create this rule. Continue?" action="createNew"/>
+            <transition to="editinfo" caption="Next" action="createNew"  
+                confirm="You are about to create this rule. Continue?" 
+                immediate="false" mnemonic="N"/>
         </page>
         <page name="editinfo" title="Rule Info">
-            <transition to="end" name="cancel" caption="Cancel" />
-            <transition to="editing" caption="Edit" action="edit"/>
-            <transition to="deployed" caption="Deploy" action="deploy"/>
-            <transition to="end" name="delete" caption="Delete" action="removeRule" confirm="You are about to remove this rule. Continue?"/>
+            <transition to="end" name="cancel" caption="Cancel" mnemonic="C"/>
+            <transition to="editing" caption="Edit" action="edit" mnemonic="E"/>
+            <transition to="deployed" caption="Deploy" action="deploy" mnemonic="o"/>
+            <transition to="end" name="delete" caption="Delete" action="removeRule" 
+                        confirm="You are about to remove this rule. Continue?" 
+                         mnemonic="D"/>
             <transition to="route" name="route" visibleWhen="#{1==0}"/>
         </page>    
         <process name="route">
@@ -253,15 +256,15 @@
             <transition to="editinfo" cond="#{entity.state!='DEPLOYED'}" />    
         </process>            
         <page name="editing" title="Rule Info (Edit)">
-            <transition to="editinfo" caption="Cancel" action="cancelEdit"/>
-            <transition to="saveInfo" caption="Save" action="saveUpdate"/>
+            <transition to="editinfo" caption="Cancel" action="cancelEdit" mnemonic="C"/>
+            <transition to="saveInfo" caption="Save" action="saveUpdate" mnemonic="S"/>
         </page>    
         <process name="saveInfo">
             <transition to="editinfo" />    
         </process>    
         <page name="deployed" title="Deployed Rule">
-            <transition to="end" caption="Cancel" />
-            <transition to="editinfo" caption="Undeploy" action="undeploy"/>
+            <transition to="end" caption="Cancel" mnemonic="C"/>
+            <transition to="editinfo" caption="Undeploy" action="undeploy" mnemonic="U"/>
             <transition to="route" name="route" visibleWhen="#{1==0}"/>
         </page>    
         <end/>

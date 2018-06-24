@@ -27,6 +27,7 @@ import java.sql.Struct;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.Executor;
 
 /**
  *
@@ -255,5 +256,20 @@ public class DBServiceConnection implements Connection {
 
     public boolean isWrapperFor(Class<?> iface) throws SQLException {
         throw new SQLException("not supported");
+    }
+
+    public void setSchema(String string) throws SQLException {
+    }
+    public String getSchema() throws SQLException {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public void abort(Executor exctr) throws SQLException {
+    }
+
+    public void setNetworkTimeout(Executor exctr, int i) throws SQLException {
+    }
+    public int getNetworkTimeout() throws SQLException {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 }
