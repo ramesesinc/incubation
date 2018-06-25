@@ -5,6 +5,7 @@
         <invoker type="formActions" caption="Copy" action="copyFact"  visibleWhen="#{mode!='create'}"/>
         <invoker type="formActions" caption="Refactor" action="refactor" visibleWhen="#{mode!='create'}"/>
         <invoker type="formActions" caption="Update ID" action="updateId"  visibleWhen="#{entity.objid!=entity.factclass}"/>
+        <invoker type="formActions" caption="Merge" action="merge"  visibleWhen="#{mode!='create'}"/>
     </invokers>
     <code class="com.rameses.rulemgmt.models.FactModel" />
     <pages>

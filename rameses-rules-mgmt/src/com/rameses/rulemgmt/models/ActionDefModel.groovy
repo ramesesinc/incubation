@@ -119,5 +119,15 @@ class ActionDefModel extends CrudFormModel {
         devService.refactor( [oldid:entity.objid, newid: entity.actionclass ] ); 
         return "_close";
     }
+
+    def merge() {
+        def p = MsgBox.prompt( "Enter new action class" );
+        if(!p) return;
+        if(!MsgBox.confirm("This will transfer all links to the new target class. Check first if has similar parameters before executing. Proceed?")) return false;
+        devService.merge( [oldid:entity.objid, newid: p ] ); 
+        return "_close";
+    }
+
+
     
 }

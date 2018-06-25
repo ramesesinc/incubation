@@ -64,6 +64,11 @@ class RuleActionDefService  {
 		if(o.copyruleset) actionDefEm.copyRulesetActionDefs(o);
 	}
 
+	/**********************************************************************************************
+	* refactor changes the objid of the action to its classname, 
+	* also updates action params objid to classname + parameter name
+	* it also updates all links to all rule actions and rule action parameters 
+	**********************************************************************************************/
 	@ProxyMethod
 	public void refactor( def o ) {
 		if(!o.oldid) throw new Exception("oldid is required in RuleFactService.copy");
@@ -83,6 +88,28 @@ class RuleActionDefService  {
 		actionDefEm.removeRulesetActionDef(o);
 		actionDefEm.removeActionDefParam(o);
 		actionDefEm.removeActionDef(o);
+
+	}
+
+	/**********************************************************************************************
+	* merge is similar to refactor except it does not make a new copy
+	* instead it will use an existing copy and links that instead
+	**********************************************************************************************/
+	@ProxyMethod
+	public void merge( def o ) {
+		if(!o.oldid) throw new Exception("oldid is required in RuleFactService.copy");
+		if(!o.newid) throw new Exception("newid is required in RuleFactService.copy");
+
+		if( o.newid.matches(".*\\s{1,}.*"))
+			throw new Exception("Action Class must not contain spaces");
+
+		def m = actionDefEm.find( [objid: o.newid ] ).first();
+		if( !m) throw new Exception("Class definition does not exist. Please make sure the target class is updated before proceeding");					
+		if( !m.objid = o.newid) throw new Exception("Class must match exact objid");
+
+		//refactor conditions
+		actionDefEm.refactorAction(o);
+		actionDefEm.refactorActionParam(o);
 
 	}
 

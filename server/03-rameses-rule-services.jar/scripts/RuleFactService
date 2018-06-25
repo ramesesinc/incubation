@@ -58,6 +58,11 @@ class RuleFactService  {
 		if(o.copyruleset) factEm.copyRulesetFact(o);
 	}
 
+	/**********************************************************************************************
+	* refactor changes the objid of the action to its classname, 
+	* also updates action params objid to classname + parameter name
+	* it also updates all links to all rule actions and rule action parameters 
+	**********************************************************************************************/
 	@ProxyMethod
 	public void refactor( def o ) {
 		if(!o.oldid) throw new Exception("oldid is required in RuleFactService.copy");
@@ -77,8 +82,32 @@ class RuleFactService  {
 		factEm.removeRulesetFact(o);
 		factEm.removeFactField(o);
 		factEm.removeFact(o);
-
 	}
 	
+	/**********************************************************************************************
+	* merge is similar to refactor except it does not make a new copy
+	* instead it will use an existing copy and links that instead
+	**********************************************************************************************/
+	@ProxyMethod
+	public void merge( def o ) {
+		if(!o.oldid) throw new Exception("oldid is required in RuleFactService.copy");
+		if(!o.newid) throw new Exception("newid is required in RuleFactService.copy");
+
+		if( o.newid.matches(".*\\s{1,}.*"))
+			throw new Exception("Fact Class must not contain spaces");
+
+		factEm.debug = true;
+		def m = factEm.find( [objid: o.newid ] ).first();
+		if( !m) throw new Exception("Class definition does not exist. Please makre sure the target class is updated before proceeding");					
+		if( m.objid != o.newid) throw new Exception("Class must match exact objid");
+
+
+
+		//refactor conditions
+		factEm.refactorCondition(o);
+		factEm.refactorConstraint(o);
+
+	}
+
 
 }

@@ -120,4 +120,12 @@ class FactModel extends CrudFormModel {
         return "_close";
     }
     
+    def merge() {
+        def p = MsgBox.prompt( "Enter target fact class to merge with" );
+        if(!p) return;
+        if(!MsgBox.confirm("This will transfer all links to the new target class. Check first if has similar parameters before executing. Proceed?")) return false;
+        devService.merge( [oldid:entity.objid, newid: p ] ); 
+        return "_close";
+    }
+
 }
