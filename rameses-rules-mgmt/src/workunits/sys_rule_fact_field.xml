@@ -1,8 +1,10 @@
 <workunit>
     
     <invokers>
-        <invoker type="sys_rule_fact_field:create" caption="Create Fact Field" target="popup"/>
+        <invoker type="sys_rule_fact_field:create" caption="Create Fact Field" action="create" target="popup"/>
+        <invoker type="sys_rule_fact_field:edit" caption="Edit Fact Field" action="edit"  target="popup"/>
         <invoker type="sys_rule_fact_field:open" caption="Fact Field" target="popup"/>
+        <invoker type="formActions" caption="Change Field Name" action="changeName" target="popup"/>
     </invokers>
     <code class="com.rameses.rulemgmt.models.FactFieldModel" />
     <pages>

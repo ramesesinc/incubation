@@ -914,12 +914,15 @@ public class DataTableComponent extends JTable implements TableControl
             dataProvider.getMessageSupport().getErrorMessage(getSelectedRow()) == null) 
             return;
         
+        //if (!editorSupport.isAllowAdd()) return; 
+        
         ListItem oListItem = tableModel.getListItem(rowIndex);
         if (!editorSupport.isAllowedForEditing(oListItem)) return;
         
         Column col = tableModel.getColumn(colIndex);
         if (col == null || !col.isEditable()) return;
         
+        boolean has_loaded_item = false;
         boolean fired_delete_key = false; 
         try {
             if (e instanceof KeyEvent) {
@@ -940,6 +943,7 @@ public class DataTableComponent extends JTable implements TableControl
                 editorSupport.loadTemporaryItem(oListItem, col.getName());
                 oListItem.setRoot(binding.getBean()); 
                 tableModel.fireTableRowsUpdated(rowIndex, rowIndex); 
+                has_loaded_item = true; 
             } 
         } catch(Exception ex) {
             MsgBox.err(ex); 
@@ -958,6 +962,10 @@ public class DataTableComponent extends JTable implements TableControl
             }
             
             if (!passed) {
+                if ( has_loaded_item ) {
+                    oListItem.loadItem(null, ListItem.STATE_EMPTY); 
+                    tableModel.fireTableRowsUpdated(rowIndex, rowIndex); 
+                }
                 if (dataProvider.getListItem(rowIndex+1) == null) {
                     oListItem.loadItem(null, ListItem.STATE_EMPTY);
                     tableModel.fireTableRowsUpdated(rowIndex, rowIndex); 
@@ -968,7 +976,13 @@ public class DataTableComponent extends JTable implements TableControl
         
         try { 
             boolean editable = editorSupport.isColumnEditable(oListItem.getItem(), col.getName());
-            if (!editable) return; 
+            if (!editable) {
+                if ( has_loaded_item ) {
+                    oListItem.loadItem(null, ListItem.STATE_EMPTY); 
+                    tableModel.fireTableRowsUpdated(rowIndex, rowIndex); 
+                }
+                return; 
+            }
         } catch(Throwable t) {  
             System.out.println("[WARN] error caused by " + t.getMessage());
             return; 

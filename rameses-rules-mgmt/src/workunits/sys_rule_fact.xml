@@ -2,7 +2,10 @@
     <invokers>
         <invoker type="sys_rule_fact:create" caption="Create Fact" action="create" target="popup"/>
         <invoker type="sys_rule_fact:open" caption="Edit Fact" action="open" target="popup"/>
-        <invoker type="formActions" caption="Copy" action="copyFact"/>
+        <invoker type="formActions" caption="Copy" action="copyFact"  visibleWhen="#{mode!='create'}"/>
+        <invoker type="formActions" caption="Refactor" action="refactor" visibleWhen="#{mode!='create'}"/>
+        <invoker type="formActions" caption="Update ID" action="updateId"  visibleWhen="#{entity.objid!=entity.factclass}"/>
+        <invoker type="formActions" caption="Merge" action="merge"  visibleWhen="#{mode!='create'}"/>
     </invokers>
     <code class="com.rameses.rulemgmt.models.FactModel" />
     <pages>

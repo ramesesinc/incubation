@@ -238,30 +238,21 @@ public class AbstractConnection implements Connection {
         return conn.isWrapperFor(iface);
     }
 
-    @Override
-    public void setSchema(String schema) throws SQLException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public void setSchema(String string) throws SQLException {
     }
-
-    @Override
     public String getSchema() throws SQLException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    @Override
-    public void abort(Executor executor) throws SQLException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public void abort(Executor exctr) throws SQLException {
     }
 
-    @Override
-    public void setNetworkTimeout(Executor executor, int milliseconds) throws SQLException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public void setNetworkTimeout(Executor exctr, int i) throws SQLException {
     }
-
-    @Override
     public int getNetworkTimeout() throws SQLException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        throw new UnsupportedOperationException("Not supported yet.");
     }
+    
     
     public static interface ConnectionListener {
         void onConnectionClose( Connection conn );

@@ -89,6 +89,11 @@ class InvokerUtilImpl
                 outcome = u.init(params, action); 
             }
             
+            if ( outcome instanceof String && outcome.toString().matches("_close|_exit")) {
+                // exit immediately, do not proceed below 
+                return; 
+            }
+            
             String windowId = u.getId();
             
             //check if window id already exists

@@ -27,7 +27,7 @@ public class ReportPreviewPage extends javax.swing.JPanel {
 
         xReportPanel1 = new com.rameses.osiris2.reports.ui.XReportPanel();
 
-        setPreferredSize(new java.awt.Dimension(771, 439));
+        setPreferredSize(new java.awt.Dimension(669, 445));
         setLayout(new java.awt.BorderLayout());
 
         xReportPanel1.setName("model"); // NOI18N
@@ -36,11 +36,11 @@ public class ReportPreviewPage extends javax.swing.JPanel {
         xReportPanel1.setLayout(xReportPanel1Layout);
         xReportPanel1Layout.setHorizontalGroup(
             xReportPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(0, 771, Short.MAX_VALUE)
+            .add(0, 669, Short.MAX_VALUE)
         );
         xReportPanel1Layout.setVerticalGroup(
             xReportPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(0, 439, Short.MAX_VALUE)
+            .add(0, 445, Short.MAX_VALUE)
         );
 
         add(xReportPanel1, java.awt.BorderLayout.CENTER);

@@ -8,6 +8,7 @@
         <invoker type="formActions" caption="Edit"  action="edit" visibleWhen="#{editing == false }"/>
         <invoker type="formActions" caption="Save"  action="save" visibleWhen="#{editing == true }"/>
         <invoker type="formActions" caption="View Info"  action="viewInfo" />
+        <invoker type="formActions" caption="Export Data"  action="exportData" />
     </invokers>
     <code class="com.rameses.wf.models.WorkflowGUIModel"/>
     <pages>

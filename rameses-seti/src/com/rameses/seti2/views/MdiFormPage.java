@@ -60,6 +60,7 @@ public class MdiFormPage extends javax.swing.JPanel {
         xList1.setExpression("#{item.caption}");
         xList1.setItems("sections");
         xList1.setName("selectedSection"); // NOI18N
+        xList1.setFixedCellHeight(20);
         xList1.setPreferredSize(new java.awt.Dimension(100, 100));
         jScrollPane1.setViewportView(xList1);
 

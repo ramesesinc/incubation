@@ -10,12 +10,22 @@ import java.rmi.server.UID;
         
 class ActionDefParamModel {
     
+    def mode;
     def entity;
     def handler;
     
     def handlerTypes = [
-        "lov", "lookup", "var", "expression", "message", "boolean", "string"
+        "lov", "lookup", "var", "expression", "message", "boolean", "string", "fieldlist"
     ]
+
+    void create() {
+        mode = "create";
+    }
+
+    void edit() {
+        mode = "edit";
+    }
+
 
     @PropertyChangeListener
     def listener = [

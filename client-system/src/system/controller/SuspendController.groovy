@@ -15,8 +15,10 @@ public class SuspendController
     def pwd;
     boolean canclose;
 
-    void init() {
+    def init() {
+        if (!user?.sessionId) return '_close'; 
         ClientContext.currentContext.platform.lock();
+        return null; 
     }
 
     @Close

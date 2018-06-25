@@ -38,17 +38,17 @@
     </DimensionLayout>
   </Layout>
   <SubComponents>
-    <Container class="com.rameses.rcp.control.XFormPanel" name="xFormPanel1">
-      <Properties>
-        <Property name="captionWidth" type="int" value="120"/>
-        <Property name="dynamic" type="boolean" value="true"/>
-        <Property name="name" type="java.lang.String" value="formControls" noResource="true"/>
-      </Properties>
-    </Container>
     <Component class="com.rameses.rcp.control.XLabel" name="xLabel1">
       <Properties>
         <Property name="expression" type="java.lang.String" value="#{ formTitle }"/>
       </Properties>
     </Component>
+    <Container class="com.rameses.rcp.control.XFormPanel" name="xFormPanel1">
+      <Properties>
+        <Property name="name" type="java.lang.String" value="formControls" noResource="true"/>
+        <Property name="captionWidth" type="int" value="120"/>
+        <Property name="dynamic" type="boolean" value="true"/>
+      </Properties>
+    </Container>
   </SubComponents>
 </Form>

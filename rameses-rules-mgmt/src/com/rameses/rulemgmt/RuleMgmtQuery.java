@@ -30,7 +30,7 @@ public class RuleMgmtQuery extends javax.swing.JPanel {
         jLabel2 = new javax.swing.JLabel();
         cboState = new com.rameses.rcp.control.XComboBox();
         jLabel3 = new javax.swing.JLabel();
-        xTextField1 = new com.rameses.rcp.control.XTextField();
+        xActionTextField1 = new com.rameses.rcp.control.XActionTextField();
 
         setBorder(javax.swing.BorderFactory.createEmptyBorder(3, 0, 3, 5));
         setLayout(new com.rameses.rcp.control.layout.XLayout());
@@ -43,6 +43,7 @@ public class RuleMgmtQuery extends javax.swing.JPanel {
         cboRulegroup.setItemKey("name");
         cboRulegroup.setItems("rulegroups");
         cboRulegroup.setName("query.rulegroup"); // NOI18N
+        cboRulegroup.setIndex(10);
         cboRulegroup.setPreferredSize(new java.awt.Dimension(170, 20));
         add(cboRulegroup);
 
@@ -53,6 +54,7 @@ public class RuleMgmtQuery extends javax.swing.JPanel {
         cboState.setCaption("Rule State");
         cboState.setItems("rulestates");
         cboState.setName("query.state"); // NOI18N
+        cboState.setIndex(10);
         cboState.setPreferredSize(new java.awt.Dimension(100, 20));
         add(cboState);
 
@@ -60,9 +62,12 @@ public class RuleMgmtQuery extends javax.swing.JPanel {
         jLabel3.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 10, 0, 5));
         add(jLabel3);
 
-        xTextField1.setName("query.title"); // NOI18N
-        xTextField1.setPreferredSize(new java.awt.Dimension(170, 20));
-        add(xTextField1);
+        xActionTextField1.setActionName("search");
+        xActionTextField1.setName("query.title"); // NOI18N
+        xActionTextField1.setFocusKeyStroke("F3");
+        xActionTextField1.setIndex(10);
+        xActionTextField1.setPreferredSize(new java.awt.Dimension(170, 20));
+        add(xActionTextField1);
     }// </editor-fold>//GEN-END:initComponents
     
     
@@ -72,7 +77,7 @@ public class RuleMgmtQuery extends javax.swing.JPanel {
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
-    private com.rameses.rcp.control.XTextField xTextField1;
+    private com.rameses.rcp.control.XActionTextField xActionTextField1;
     // End of variables declaration//GEN-END:variables
     
 }

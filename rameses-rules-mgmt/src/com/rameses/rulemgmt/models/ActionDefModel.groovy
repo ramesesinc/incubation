@@ -72,7 +72,7 @@ class ActionDefModel extends CrudFormModel {
         }
         def p = [:];
         p.putAll( selectedParam );
-        Modal.show( "sys_rule_actiondef_param:create", [entity: p, handler: h] )
+        Modal.show( "sys_rule_actiondef_param:edit", [entity: p, handler: h] )
     }
 
     void removeParam() {
@@ -89,7 +89,10 @@ class ActionDefModel extends CrudFormModel {
             e = entity.data(); 
         }
         e.name = entity.actionname;
-        entity.objid = entity.actionclass;
+        e.objid = entity.actionclass;
+        e.params.each {
+            it.objid = e.objid + "." + it.name.replace("-","_");
+        }
         devService.save( e );
         entity = e;
         MsgBox.alert("Record saved");
@@ -97,31 +100,34 @@ class ActionDefModel extends CrudFormModel {
         return null;
     }
     
-     public def copyAction() {
-        def e = [params:[]];
-        entity.each { k,v->
-            if( !k.matches("objid|params") ) {
-                e.put(k,v);
-            } 
-        }
-        entity.params.each { f->
-            def fld = [:];
-            f.each { k,v->
-                if(!k.matches("objid|parentid")) {
-                    fld.put(k,v);
-                }
-            }
-            e.params << fld;
-        }
-        e.name = null;
-        e.actionname = null;
-        e.actionclass = null;
-        e.rulesets = [];
-        e.title = null;
-        def z = create();
-        entity = e;
-        return z;
+    public def copyAction() {
+        def p = MsgBox.prompt( "Enter action class name for copy" );
+        if(!p) return;
+        devService.copy( [oldid:entity.objid, newid: p ] ); 
+        MsgBox.alert("Copy successful" );
     }
     
+    def refactor() {
+        def p = MsgBox.prompt( "Enter new action class" );
+        if(!p) return;
+        if(!MsgBox.confirm("You are about to refactor/rename the class and will affect all rules associated with this. Proceed?")) return false;
+        devService.refactor( [oldid:entity.objid, newid: p ] ); 
+        return "_close";
+    }
+
+    def updateId() {
+        devService.refactor( [oldid:entity.objid, newid: entity.actionclass ] ); 
+        return "_close";
+    }
+
+    def merge() {
+        def p = MsgBox.prompt( "Enter new action class" );
+        if(!p) return;
+        if(!MsgBox.confirm("This will transfer all links to the new target class. Check first if has similar parameters before executing. Proceed?")) return false;
+        devService.merge( [oldid:entity.objid, newid: p ] ); 
+        return "_close";
+    }
+
+
     
 }

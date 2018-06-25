@@ -13,7 +13,9 @@ import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
 import java.util.Map;
+import java.util.logging.Logger;
 import javax.sql.DataSource;
 
 /**
@@ -134,4 +136,8 @@ public abstract class AbstractDataSource implements DataSource,  ConnectionWrapp
         Object value = (extInfo == null ? null: extInfo.get(name)); 
         return (value == null? null: value.toString()); 
     }
+    
+    public Logger getParentLogger() throws SQLFeatureNotSupportedException {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }    
 }

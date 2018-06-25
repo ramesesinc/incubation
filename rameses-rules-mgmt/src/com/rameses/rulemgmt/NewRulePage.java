@@ -47,9 +47,9 @@ public class NewRulePage extends javax.swing.JPanel {
         xFormPanel1.setCaptionWidth(120);
         xFormPanel1.setPadding(new java.awt.Insets(5, 0, 0, 0));
 
-        xLabel1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(180, 180, 180)));
         xLabel1.setCaption("Rule Set");
         xLabel1.setExpression("#{entity.ruleset}");
+        xLabel1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(180, 180, 180)));
         xLabel1.setPreferredSize(new java.awt.Dimension(0, 20));
         xFormPanel1.add(xLabel1);
 

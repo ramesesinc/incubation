@@ -1,0 +1,38 @@
+<workunit>
+    
+    <invokers>
+        <invoker type="ruleaction:handler:fieldlist" action="init" />
+    </invokers>
+    <code>
+        <![CDATA[
+        import com.rameses.rcp.common.*;
+        import com.rameses.rcp.annotations.*;
+        import com.rameses.osiris2.client.*;
+        import com.rameses.osiris2.common.*
+        import com.rameses.rulemgmt.action.*;
+
+        class RuleActionFieldListHandler extends RuleActionHandler {
+        
+            @Service("RuleMgmtService")
+            def service;
+
+            def varList;
+
+            void init() {
+                if(varList) return;
+                String lookupkey = actionParamDef.lookupkey;
+                def fact = action.params.find{ it.actiondefparam.handler == "var" && it.actiondefparam.name == lookupkey  }?.var;
+                
+                if( fact == null )
+                    throw new Exception("Fact reference does nto exist");
+                //lookup fields in the fact. 
+                varList =  service.getFactFields( [objid: fact.datatype] );
+            }
+        }
+        ]]>
+        
+    </code>    
+    <pages>
+        <page template="com.rameses.rulemgmt.action.FieldListHandler"/>
+    </pages>
+</workunit>

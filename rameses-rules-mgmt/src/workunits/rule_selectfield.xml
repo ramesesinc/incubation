@@ -1,7 +1,7 @@
 <workunit>
     
     <invokers>
-        <invoker type="rulecondition:selectfield" caption="Select Field" target="popup"/>
+        <invoker type="rule:selectfield" caption="Select Field" target="popup"/>
     </invokers>
     <code>
          <![CDATA[

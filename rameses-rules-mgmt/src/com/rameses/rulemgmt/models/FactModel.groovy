@@ -24,7 +24,7 @@ class FactModel extends CrudFormModel {
     ] as BasicListModel;
     
     public void initNewData() {
-        entity = [objid: "RULFACT" + new UID()];
+        entity = [:];
         entity.fields  = [];
     }
     
@@ -59,7 +59,7 @@ class FactModel extends CrudFormModel {
         def h = { o->
             entity.fields << o;
         }
-        def p = [objid: "FACTFLD"+new UID()];
+        def p = [:];
         p.sortorder = 0;
         Modal.show( "sys_rule_fact_field:create", [entity: p, handler: h] )
     }
@@ -72,7 +72,7 @@ class FactModel extends CrudFormModel {
         }
         def p = [:];
         p.putAll( selectedField );
-        Modal.show( "sys_rule_fact_field:create", [entity: p, handler: h] )
+        Modal.show( "sys_rule_fact_field:edit", [entity: p, handler: h] )
     }
 
     void removeField() {
@@ -90,6 +90,9 @@ class FactModel extends CrudFormModel {
         }
         e.name = entity.factclass;
         e.objid = e.name;
+        e.fields.each {
+            it.objid = e.objid + "." + it.name;
+        }
         devService.save( e );
         entity = e;
         MsgBox.alert("Record saved");
@@ -98,29 +101,31 @@ class FactModel extends CrudFormModel {
     }
     
     public def copyFact() {
-        def e = [fields:[]];
-        entity.each { k,v->
-            if( !k.matches("objid|fields") ) {
-                e.put(k,v);
-            } 
-        }
-        entity.fields.each { f->
-            def fld = [:];
-            f.each { k,v->
-                if(!k.matches("objid|parentid")) {
-                    fld.put(k,v);
-                }
-            }
-            e.fields << fld;
-        }
-        e.name = null;
-        e.factclass = null;
-        e.title = null;
-        e.rulesets = [];
-        def z = create();
-        entity = e;
-        return z;
+        def p = MsgBox.prompt( "Enter new fact class" );
+        if(!p) return;
+        devService.copy( [oldid:entity.objid, newid: p ] ); 
+        MsgBox.alert("Copy successful" );
     }
     
+    def refactor() {
+        def p = MsgBox.prompt( "Enter new fact class" );
+        if(!p) return;
+        if(!MsgBox.confirm("You are about to refactor/rename the class and will affect all rules associated with this. Proceed?")) return false;
+        devService.refactor( [oldid:entity.objid, newid: p ] ); 
+        return "_close";
+    }
+
+    def updateId() {
+        devService.refactor( [oldid:entity.objid, newid: entity.factclass ] ); 
+        return "_close";
+    }
     
+    def merge() {
+        def p = MsgBox.prompt( "Enter target fact class to merge with" );
+        if(!p) return;
+        if(!MsgBox.confirm("This will transfer all links to the new target class. Check first if has similar parameters before executing. Proceed?")) return false;
+        devService.merge( [oldid:entity.objid, newid: p ] ); 
+        return "_close";
+    }
+
 }

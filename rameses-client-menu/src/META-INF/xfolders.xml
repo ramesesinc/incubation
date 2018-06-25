@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <folders>
     <folder id="menu">
-        <folder id="system" caption="System" index="-9999"/>
-        <folder id="txn" caption="Transactions"/>
-        <folder id="report" caption="Reports"/>
-        <folder id="help" caption="Help" index="999999"/>
+        <folder id="system" caption="System" index="-9999" mnemonic="S"/>
+        <folder id="txn" caption="Transactions" mnemonic="T"/>
+        <folder id="report" caption="Reports" mnemonic="R"/>
+        <folder id="help" caption="Help" index="999999" mnemonic="H"/>
     </folder>
     
     <folder id="explorer" caption="Explorer">

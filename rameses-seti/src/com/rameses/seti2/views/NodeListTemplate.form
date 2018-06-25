@@ -11,7 +11,7 @@
     <AuxValue name="FormSettings_listenerGenerationStyle" type="java.lang.Integer" value="0"/>
     <AuxValue name="FormSettings_variablesLocal" type="java.lang.Boolean" value="false"/>
     <AuxValue name="FormSettings_variablesModifier" type="java.lang.Integer" value="2"/>
-    <AuxValue name="designerSize" type="java.awt.Dimension" value="-84,-19,0,5,115,114,0,18,106,97,118,97,46,97,119,116,46,68,105,109,101,110,115,105,111,110,65,-114,-39,-41,-84,95,68,20,2,0,2,73,0,6,104,101,105,103,104,116,73,0,5,119,105,100,116,104,120,112,0,0,1,126,0,0,2,-41"/>
+    <AuxValue name="designerSize" type="java.awt.Dimension" value="-84,-19,0,5,115,114,0,18,106,97,118,97,46,97,119,116,46,68,105,109,101,110,115,105,111,110,65,-114,-39,-41,-84,95,68,20,2,0,2,73,0,6,104,101,105,103,104,116,73,0,5,119,105,100,116,104,120,112,0,0,1,126,0,0,3,47"/>
   </AuxValues>
 
   <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout"/>
@@ -225,6 +225,7 @@
                 <Component class="com.rameses.rcp.control.XLabel" name="xLabel2">
                   <Properties>
                     <Property name="horizontalAlignment" type="int" value="2"/>
+                    <Property name="name" type="java.lang.String" value="filterText" noResource="true"/>
                     <Property name="cellPadding" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
                       <Insets value="[5, 0, 0, 5]"/>
                     </Property>
@@ -234,7 +235,6 @@
                     <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
                       <Color blue="0" green="0" red="cc" type="rgb"/>
                     </Property>
-                    <Property name="name" type="java.lang.String" value="filterText" noResource="true"/>
                     <Property name="text" type="java.lang.String" value="xLabel2"/>
                   </Properties>
                   <Constraints>
@@ -256,7 +256,7 @@
                   <Layout>
                     <DimensionLayout dim="0">
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <EmptySpace min="0" pref="187" max="32767" attributes="0"/>
+                          <EmptySpace min="0" pref="270" max="32767" attributes="0"/>
                       </Group>
                     </DimensionLayout>
                     <DimensionLayout dim="1">
@@ -266,56 +266,107 @@
                     </DimensionLayout>
                   </Layout>
                 </Container>
-                <Container class="javax.swing.JToolBar" name="jToolBar2">
+                <Container class="javax.swing.JPanel" name="jPanel1">
                   <Properties>
-                    <Property name="floatable" type="boolean" value="false"/>
-                    <Property name="rollover" type="boolean" value="true"/>
+                    <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+                      <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+                        <EmptyBorder bottom="0" left="5" right="0" top="0"/>
+                      </Border>
+                    </Property>
                   </Properties>
                   <Constraints>
                     <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
                       <BorderConstraints direction="East"/>
                     </Constraint>
                   </Constraints>
-
-                  <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBoxLayout"/>
                   <SubComponents>
-                    <Component class="com.rameses.rcp.control.XActionTextField" name="xActionTextField1">
+                    <Container class="javax.swing.JToolBar" name="jToolBar2">
                       <Properties>
-                        <Property name="actionName" type="java.lang.String" value="search"/>
-                        <Property name="focusKeyStroke" type="java.lang.String" value="F3"/>
-                        <Property name="maxLength" type="int" value="50"/>
-                        <Property name="name" type="java.lang.String" value="searchText" noResource="true"/>
-                        <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                          <Dimension value="[180, 20]"/>
-                        </Property>
-                        <Property name="visibleWhen" type="java.lang.String" value="#{allowSearch == true}"/>
+                        <Property name="floatable" type="boolean" value="false"/>
+                        <Property name="rollover" type="boolean" value="true"/>
                       </Properties>
-                    </Component>
-                    <Component class="com.rameses.rcp.control.XButton" name="xButton2">
-                      <Properties>
-                        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-                          <Color blue="ff" green="ff" red="ff" type="rgb"/>
-                        </Property>
-                        <Property name="caption" type="java.lang.String" value=""/>
-                        <Property name="focusable" type="boolean" value="false"/>
-                        <Property name="iconResource" type="java.lang.String" value="images/info.png"/>
-                        <Property name="immediate" type="boolean" value="true"/>
-                        <Property name="name" type="java.lang.String" value="showInfo" noResource="true"/>
-                      </Properties>
-                    </Component>
-                    <Component class="com.rameses.rcp.control.XButton" name="xButton1">
-                      <Properties>
-                        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-                          <Color blue="ff" green="ff" red="ff" type="rgb"/>
-                        </Property>
-                        <Property name="caption" type="java.lang.String" value="\u005c" containsInvalidXMLChars="true"/>
-                        <Property name="focusable" type="boolean" value="false"/>
-                        <Property name="iconResource" type="java.lang.String" value="images/help.png"/>
-                        <Property name="immediate" type="boolean" value="true"/>
-                        <Property name="name" type="java.lang.String" value="showHelp" noResource="true"/>
-                      </Properties>
-                    </Component>
+
+                      <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBoxLayout"/>
+                      <SubComponents>
+                        <Component class="com.rameses.rcp.control.XActionTextField" name="xActionTextField1">
+                          <Properties>
+                            <Property name="actionName" type="java.lang.String" value="search"/>
+                            <Property name="name" type="java.lang.String" value="searchText" noResource="true"/>
+                            <Property name="visibleWhen" type="java.lang.String" value="#{allowSearch == true}"/>
+                            <Property name="focusKeyStroke" type="java.lang.String" value="F3"/>
+                            <Property name="maxLength" type="int" value="50"/>
+                            <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                              <Dimension value="[180, 20]"/>
+                            </Property>
+                          </Properties>
+                        </Component>
+                        <Component class="com.rameses.rcp.control.XButton" name="xButton2">
+                          <Properties>
+                            <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+                              <Color blue="ff" green="ff" red="ff" type="rgb"/>
+                            </Property>
+                            <Property name="caption" type="java.lang.String" value=""/>
+                            <Property name="focusable" type="boolean" value="false"/>
+                            <Property name="iconResource" type="java.lang.String" value="images/info.png"/>
+                            <Property name="immediate" type="boolean" value="true"/>
+                            <Property name="name" type="java.lang.String" value="showInfo" noResource="true"/>
+                          </Properties>
+                        </Component>
+                        <Component class="com.rameses.rcp.control.XButton" name="xButton1">
+                          <Properties>
+                            <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+                              <Color blue="ff" green="ff" red="ff" type="rgb"/>
+                            </Property>
+                            <Property name="caption" type="java.lang.String" value="\u005c" containsInvalidXMLChars="true"/>
+                            <Property name="focusable" type="boolean" value="false"/>
+                            <Property name="iconResource" type="java.lang.String" value="images/help.png"/>
+                            <Property name="immediate" type="boolean" value="true"/>
+                            <Property name="name" type="java.lang.String" value="showHelp" noResource="true"/>
+                          </Properties>
+                        </Component>
+                      </SubComponents>
+                    </Container>
                   </SubComponents>
+                  <LayoutCode>
+                    <CodeStatement>
+                      <CodeExpression id="1_jPanel1">
+                        <CodeVariable name="jPanel1" type="8194" declaredType="javax.swing.JPanel"/>
+                        <ExpressionOrigin>
+                          <ExpressionProvider type="ComponentRef">
+                            <ComponentRef name="jPanel1"/>
+                          </ExpressionProvider>
+                        </ExpressionOrigin>
+                      </CodeExpression>
+                      <StatementProvider type="CodeMethod">
+                        <CodeMethod name="setLayout" class="java.awt.Container" parameterTypes="java.awt.LayoutManager"/>
+                      </StatementProvider>
+                      <Parameters>
+                        <CodeExpression id="2">
+                          <ExpressionOrigin>
+                            <ExpressionProvider type="CodeConstructor">
+                              <CodeConstructor class="com.rameses.rcp.control.layout.CenterLayout" parameterTypes=""/>
+                            </ExpressionProvider>
+                          </ExpressionOrigin>
+                        </CodeExpression>
+                      </Parameters>
+                    </CodeStatement>
+                    <CodeStatement>
+                      <CodeExpression id="1_jPanel1"/>
+                      <StatementProvider type="CodeMethod">
+                        <CodeMethod name="add" class="java.awt.Container" parameterTypes="java.awt.Component"/>
+                      </StatementProvider>
+                      <Parameters>
+                        <CodeExpression id="3_jToolBar2">
+                          <CodeVariable name="jToolBar2" type="8194" declaredType="javax.swing.JToolBar"/>
+                          <ExpressionOrigin>
+                            <ExpressionProvider type="ComponentRef">
+                              <ComponentRef name="jToolBar2"/>
+                            </ExpressionProvider>
+                          </ExpressionOrigin>
+                        </CodeExpression>
+                      </Parameters>
+                    </CodeStatement>
+                  </LayoutCode>
                 </Container>
               </SubComponents>
             </Container>
@@ -324,7 +375,7 @@
       </SubComponents>
       <LayoutCode>
         <CodeStatement>
-          <CodeExpression id="1_jPanel2">
+          <CodeExpression id="4_jPanel2">
             <CodeVariable name="jPanel2" type="8194" declaredType="javax.swing.JPanel"/>
             <ExpressionOrigin>
               <ExpressionProvider type="ComponentRef">
@@ -336,7 +387,7 @@
             <CodeMethod name="setLayout" class="java.awt.Container" parameterTypes="java.awt.LayoutManager"/>
           </StatementProvider>
           <Parameters>
-            <CodeExpression id="2">
+            <CodeExpression id="5">
               <ExpressionOrigin>
                 <ExpressionProvider type="CodeConstructor">
                   <CodeConstructor class="com.rameses.rcp.control.layout.YLayout" parameterTypes=""/>
@@ -346,12 +397,12 @@
           </Parameters>
         </CodeStatement>
         <CodeStatement>
-          <CodeExpression id="1_jPanel2"/>
+          <CodeExpression id="4_jPanel2"/>
           <StatementProvider type="CodeMethod">
             <CodeMethod name="add" class="java.awt.Container" parameterTypes="java.awt.Component"/>
           </StatementProvider>
           <Parameters>
-            <CodeExpression id="3_jPanel3">
+            <CodeExpression id="6_jPanel3">
               <CodeVariable name="jPanel3" type="8194" declaredType="javax.swing.JPanel"/>
               <ExpressionOrigin>
                 <ExpressionProvider type="ComponentRef">
@@ -362,12 +413,12 @@
           </Parameters>
         </CodeStatement>
         <CodeStatement>
-          <CodeExpression id="1_jPanel2"/>
+          <CodeExpression id="4_jPanel2"/>
           <StatementProvider type="CodeMethod">
             <CodeMethod name="add" class="java.awt.Container" parameterTypes="java.awt.Component"/>
           </StatementProvider>
           <Parameters>
-            <CodeExpression id="4_jPanel8">
+            <CodeExpression id="7_jPanel8">
               <CodeVariable name="jPanel8" type="8194" declaredType="javax.swing.JPanel"/>
               <ExpressionOrigin>
                 <ExpressionProvider type="ComponentRef">
@@ -411,7 +462,7 @@
               </Properties>
               <LayoutCode>
                 <CodeStatement>
-                  <CodeExpression id="5_yLayout1">
+                  <CodeExpression id="8_yLayout1">
                     <CodeVariable name="yLayout1" type="4096" declaredType="com.rameses.rcp.control.layout.YLayout"/>
                     <ExpressionOrigin>
                       <ExpressionProvider type="CodeConstructor">
@@ -420,16 +471,16 @@
                     </ExpressionOrigin>
                   </CodeExpression>
                   <StatementProvider type="CodeExpression">
-                    <CodeExpression id="5_yLayout1"/>
+                    <CodeExpression id="8_yLayout1"/>
                   </StatementProvider>
                 </CodeStatement>
                 <CodeStatement>
-                  <CodeExpression id="5_yLayout1"/>
+                  <CodeExpression id="8_yLayout1"/>
                   <StatementProvider type="CodeMethod">
                     <CodeMethod name="setAutoFill" class="com.rameses.rcp.control.layout.YLayout" parameterTypes="boolean"/>
                   </StatementProvider>
                   <Parameters>
-                    <CodeExpression id="6">
+                    <CodeExpression id="9">
                       <ExpressionOrigin>
                         <Value type="boolean" value="true"/>
                       </ExpressionOrigin>
@@ -437,12 +488,12 @@
                   </Parameters>
                 </CodeStatement>
                 <CodeStatement>
-                  <CodeExpression id="5_yLayout1"/>
+                  <CodeExpression id="8_yLayout1"/>
                   <StatementProvider type="CodeMethod">
                     <CodeMethod name="setSpacing" class="com.rameses.rcp.control.layout.YLayout" parameterTypes="int"/>
                   </StatementProvider>
                   <Parameters>
-                    <CodeExpression id="7">
+                    <CodeExpression id="10">
                       <ExpressionOrigin>
                         <Value type="int" value="0"/>
                       </ExpressionOrigin>
@@ -450,7 +501,7 @@
                   </Parameters>
                 </CodeStatement>
                 <CodeStatement>
-                  <CodeExpression id="8_sidebarpanel">
+                  <CodeExpression id="11_sidebarpanel">
                     <CodeVariable name="sidebarpanel" type="8194" declaredType="javax.swing.JPanel"/>
                     <ExpressionOrigin>
                       <ExpressionProvider type="ComponentRef">
@@ -462,7 +513,7 @@
                     <CodeMethod name="setLayout" class="java.awt.Container" parameterTypes="java.awt.LayoutManager"/>
                   </StatementProvider>
                   <Parameters>
-                    <CodeExpression id="5_yLayout1"/>
+                    <CodeExpression id="8_yLayout1"/>
                   </Parameters>
                 </CodeStatement>
               </LayoutCode>

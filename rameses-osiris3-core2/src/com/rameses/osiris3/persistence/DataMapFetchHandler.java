@@ -41,9 +41,9 @@ public class DataMapFetchHandler implements FetchHandler {
         ResultSetMetaData meta = rs.getMetaData();
         int columnCount = meta.getColumnCount();
         for (int i=0; i<columnCount; i++) {
-            String name = meta.getColumnName(i+1);
+            String name = meta.getColumnLabel(i+1);
             SchemaViewField fld = schemaView.getField(name);
-            Object val = rs.getObject(name);
+            Object val = rs.getObject(i+1);
             if(val!=null) {
                 if( fld !=null ) {
                     if( fld.isSerialized() ) {

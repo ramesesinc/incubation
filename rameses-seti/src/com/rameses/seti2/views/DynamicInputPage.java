@@ -30,14 +30,14 @@ public class DynamicInputPage extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        xFormPanel1 = new com.rameses.rcp.control.XFormPanel();
         xLabel1 = new com.rameses.rcp.control.XLabel();
-
-        xFormPanel1.setCaptionWidth(120);
-        xFormPanel1.setDynamic(true);
-        xFormPanel1.setName("formControls"); // NOI18N
+        xFormPanel1 = new com.rameses.rcp.control.XFormPanel();
 
         xLabel1.setExpression("#{ formTitle }");
+
+        xFormPanel1.setName("formControls"); // NOI18N
+        xFormPanel1.setCaptionWidth(120);
+        xFormPanel1.setDynamic(true);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);

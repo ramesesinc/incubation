@@ -60,7 +60,8 @@ class RuleMgmtService extends ActiveCrudListService {
 	}
 
 	public void beforeCreate(def o) {
-		if(o.salience==null) o.salience = 0;
+		if ( o.salience == null ) o.salience = 0;
+		if ( o.noloop == null ) o.noloop = 1; 
 		o.dtfiled = dateSvc.serverDate;
 		o.user = [objid:env.USERID, name:env.USER];
 		o.state = 'DRAFT';
@@ -223,6 +224,11 @@ class RuleMgmtService extends ActiveCrudListService {
 		return em.findAllVarsByType(opt);
 	}
 
+
+	@ProxyMethod
+	public def getFactFields(def o) {
+		return em.getFactFields(o)*.name;
+	}
 
 	/*********************************************
 	* ACTION

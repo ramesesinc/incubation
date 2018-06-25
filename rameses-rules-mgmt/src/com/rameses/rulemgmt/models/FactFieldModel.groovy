@@ -10,9 +10,18 @@ import java.rmi.server.UID;
         
 class FactFieldModel {
     
+    def mode;
     def entity;
     def handler;
     
+    void create() {
+        mode = "create";
+    }
+
+    void edit() {
+        mode = "edit";
+    }
+
     def handlerTypes = [
         "lov", "lookup", "var", "decimal", "integer", "string", "boolean","date"
     ]

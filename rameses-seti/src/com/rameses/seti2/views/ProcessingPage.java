@@ -35,12 +35,11 @@ public class ProcessingPage extends javax.swing.JPanel {
 
         xLabel2.setIconResource("com/rameses/rcp/icons/loading16.gif");
 
-        xLabel1.setForeground(new java.awt.Color(51, 51, 51));
-        xLabel1.setText("Processing ... please wait");
-        xLabel1.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         xLabel1.setFontStyle("font-weight:bold;font-size:12;");
+        xLabel1.setForeground(new java.awt.Color(51, 51, 51));
         xLabel1.setPadding(new java.awt.Insets(1, 5, 1, 1));
         xLabel1.setPreferredSize(new java.awt.Dimension(150, 20));
+        xLabel1.setText("Processing... please wait");
 
         xButton1.setName("abort"); // NOI18N
         xButton1.setText("Abort");
@@ -62,11 +61,11 @@ public class ProcessingPage extends javax.swing.JPanel {
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(36, 36, 36)
+                .addGap(23, 23, 23)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(xLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(xLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 29, Short.MAX_VALUE)
+                    .addComponent(xLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 44, Short.MAX_VALUE)
+                    .addComponent(xLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(18, 18, 18)
                 .addComponent(xButton1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );

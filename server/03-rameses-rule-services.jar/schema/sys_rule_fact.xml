@@ -20,6 +20,8 @@
 			<key field="objid" target="parentid"/>
 		</complex>	
 
+
+		<field name="updated" expr="CASE WHEN objid = factclass THEN true ELSE false END" type="checkbox"/>
 	</element>	
 </schema>	
 

@@ -30,15 +30,11 @@ public class SimpleLookupListPage extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        xDataTable1 = new com.rameses.rcp.control.XDataTable();
         jPanel1 = new javax.swing.JPanel();
         xLabel1 = new com.rameses.rcp.control.XLabel();
+        xDataTable1 = new com.rameses.rcp.control.XDataTable();
 
         setLayout(new java.awt.BorderLayout());
-
-        xDataTable1.setHandler("listHandler");
-        xDataTable1.setName("selectedItem"); // NOI18N
-        add(xDataTable1, java.awt.BorderLayout.CENTER);
 
         jPanel1.setPreferredSize(new java.awt.Dimension(100, 30));
 
@@ -61,6 +57,10 @@ public class SimpleLookupListPage extends javax.swing.JPanel {
         );
 
         add(jPanel1, java.awt.BorderLayout.PAGE_START);
+
+        xDataTable1.setHandler("listHandler");
+        xDataTable1.setName("selectedItem"); // NOI18N
+        add(xDataTable1, java.awt.BorderLayout.CENTER);
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel jPanel1;
