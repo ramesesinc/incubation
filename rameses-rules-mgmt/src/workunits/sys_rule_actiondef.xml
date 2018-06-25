@@ -5,6 +5,7 @@
         <invoker type="sys_rule_actiondef:open" caption="Edit Action Def" action="open" target="popup"/>
         <invoker type="formActions" caption="Copy" action="copyAction"  visibleWhen="#{mode!='create'}"/>
         <invoker type="formActions" caption="Refactor" action="refactor" visibleWhen="#{mode!='create'}"/>
+        <invoker type="formActions" caption="Update ID" action="updateId"  visibleWhen="#{entity.objid!=entity.actionclass}"/>
         
     </invokers>
     <code class="com.rameses.rulemgmt.models.ActionDefModel" />

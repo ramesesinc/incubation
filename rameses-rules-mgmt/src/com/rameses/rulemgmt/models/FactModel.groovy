@@ -115,5 +115,9 @@ class FactModel extends CrudFormModel {
         return "_close";
     }
 
+    def updateId() {
+        devService.refactor( [oldid:entity.objid, newid: entity.factclass ] ); 
+        return "_close";
+    }
     
 }

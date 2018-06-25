@@ -115,5 +115,9 @@ class ActionDefModel extends CrudFormModel {
         return "_close";
     }
 
+    def updateId() {
+        devService.refactor( [oldid:entity.objid, newid: entity.actionclass ] ); 
+        return "_close";
+    }
     
 }
