@@ -53,9 +53,10 @@ class RuleFactService  {
 		if(!o.newid) throw new Exception("newid is required in RuleFactService.copy");
 		if( o.newid.matches(".*\\s{1,}.*"))
 			throw new Exception("Fact Class must not contain spaces");
+		
 		factEm.copyFact(o);
 		factEm.copyFactField(o);
-		if(o.copyruleset) factEm.copyRulesetFact(o);
+		factEm.copyRulesetFact(o);
 	}
 
 	/**********************************************************************************************
@@ -96,17 +97,20 @@ class RuleFactService  {
 		if( o.newid.matches(".*\\s{1,}.*"))
 			throw new Exception("Fact Class must not contain spaces");
 
-		factEm.debug = true;
 		def m = factEm.find( [objid: o.newid ] ).first();
 		if( !m) throw new Exception("Class definition does not exist. Please makre sure the target class is updated before proceeding");					
 		if( m.objid != o.newid) throw new Exception("Class must match exact objid");
 
-
+		factEm.copyRulesetFact(o);
 
 		//refactor conditions
 		factEm.refactorCondition(o);
 		factEm.refactorConstraint(o);
 
+		//remove old fact
+		factEm.removeRulesetFact(o);
+		factEm.removeFactField(o);
+		factEm.removeFact(o);
 	}
 
 

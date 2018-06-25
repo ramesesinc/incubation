@@ -17,9 +17,10 @@ FROM sys_rule_actiondef_param WHERE parentid=$P{oldid}
 [copyRulesetActionDefs]
 INSERT INTO sys_ruleset_actiondef
 (ruleset, actiondef) 
-SELECT ruleset, $P{newid} 
-FROM sys_ruleset_actiondef 
-WHERE actiondef = $P{oldid}
+SELECT a.ruleset, $P{newid} 
+FROM sys_ruleset_actiondef a 
+WHERE a.actiondef = $P{oldid}
+	AND NOT EXISTS (SELECT * FROM sys_ruleset_actiondef WHERE actiondef=$P{newid} and ruleset=a.ruleset)
 
 [refactorAction]
 UPDATE sys_rule_action 

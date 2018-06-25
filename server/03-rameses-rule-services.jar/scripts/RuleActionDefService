@@ -61,7 +61,7 @@ class RuleActionDefService  {
 		
 		actionDefEm.copyActionDef(o);
 		actionDefEm.copyActionDefParam(o);
-		if(o.copyruleset) actionDefEm.copyRulesetActionDefs(o);
+		actionDefEm.copyRulesetActionDefs(o);
 	}
 
 	/**********************************************************************************************
@@ -105,12 +105,18 @@ class RuleActionDefService  {
 
 		def m = actionDefEm.find( [objid: o.newid ] ).first();
 		if( !m) throw new Exception("Class definition does not exist. Please make sure the target class is updated before proceeding");					
-		if( !m.objid = o.newid) throw new Exception("Class must match exact objid");
+		if( m.objid != o.newid) throw new Exception("Class must match exact objid");
+
+		actionDefEm.copyRulesetActionDefs(o);
 
 		//refactor conditions
 		actionDefEm.refactorAction(o);
 		actionDefEm.refactorActionParam(o);
 
+		//remove old fact
+		actionDefEm.removeRulesetActionDef(o);
+		actionDefEm.removeActionDefParam(o);
+		actionDefEm.removeActionDef(o);
 	}
 
 }

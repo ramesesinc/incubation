@@ -14,11 +14,11 @@ CONCAT($P{newid},'.',name),$P{newid},name,title,datatype,sortorder,handler,looku
 FROM sys_rule_fact_field WHERE parentid=$P{oldid}
 
 [copyRulesetFact]
-INSERT INTO sys_ruleset_fact
-(ruleset, rulefact) 
-SELECT ruleset, $P{newid} 
-FROM sys_ruleset_fact 
-WHERE rulefact = $P{oldid}
+INSERT INTO sys_ruleset_fact (ruleset, rulefact) 
+SELECT f.ruleset, $P{newid} 
+FROM sys_ruleset_fact f 
+WHERE f.rulefact = $P{oldid}  
+ AND NOT EXISTS (SELECT * FROM sys_ruleset_fact WHERE rulefact=$P{newid} and ruleset=f.ruleset)
 
 
 [refactorCondition]
