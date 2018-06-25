@@ -184,6 +184,11 @@ public abstract class AbstractFigure implements Figure{
     public void toggleShowIndex() {
         this.showIndex = !this.showIndex;
     }
+
+    @Override
+    public boolean isShowIndex() {
+        return showIndex;
+    }
     
     
     @Override

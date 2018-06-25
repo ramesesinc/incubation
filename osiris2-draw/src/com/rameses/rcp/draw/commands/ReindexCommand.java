@@ -40,14 +40,19 @@ public class ReindexCommand extends Command{
     
     private void reindex(Figure f, int idx){
         if (f.getIndex() != 0){
-            //indexed already
+            if (f.getIndex() <= idx){
+                idx += 1;
+                f.setIndex(idx);
+            }
             return;
         }
         
         idx += 1;
         f.setIndex(idx);
         for (Connector c : f.getConnectors()){
-            reindex(c.getEndFigure(), idx);
+            if (c.getStartFigure() == f){
+                reindex(c.getEndFigure(), idx);
+            }
         }
     }
     
