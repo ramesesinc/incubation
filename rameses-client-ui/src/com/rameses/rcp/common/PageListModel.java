@@ -184,6 +184,32 @@ public abstract class PageListModel extends AbstractListDataProvider
         else return false;
     } 
 
+        private StringBuffer recordCountInfo;
+    private StringBuffer pageCountInfo;
+    
+    protected void dataChanged(Object stat) {
+        recordCountInfo = new StringBuffer();
+        pageCountInfo = new StringBuffer(); 
+        if (stat instanceof ListItemStatus) {
+            ListItemStatus lis = (ListItemStatus)stat;
+            recordCountInfo.append( lis.getTotalRows() ); 
+            recordCountInfo.append(" Record(s)    ");
+            
+            pageCountInfo.append("Page  " + lis.getPageIndex() + "  of  ");
+            if (lis.isHasNextPage()) {
+                if (lis.getPageIndex() < lis.getPageCount()) 
+                    pageCountInfo.append(lis.getPageCount()); 
+                else 
+                    pageCountInfo.append("?"); 
+            } else {
+                pageCountInfo.append(lis.getPageCount()); 
+            }
+        }
+    }
+    
+    public Object getRecordCountInfo() { return recordCountInfo; }
+    public Object getPageCountInfo() { return pageCountInfo; }    
+    
     
     // <editor-fold defaultstate="collapsed" desc=" editor options and callback events ">
         

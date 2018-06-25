@@ -464,4 +464,11 @@ public class DBServiceStatement implements PreparedStatement {
     public boolean isWrapperFor(Class<?> iface) throws SQLException {
         throw new SQLException("not supported");
     }
+
+    public void closeOnCompletion() throws SQLException {
+    }
+
+    public boolean isCloseOnCompletion() throws SQLException {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
 }

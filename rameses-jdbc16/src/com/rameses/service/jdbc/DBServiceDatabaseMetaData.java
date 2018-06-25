@@ -863,5 +863,12 @@ public class DBServiceDatabaseMetaData implements DatabaseMetaData {
     public boolean isWrapperFor(Class<?> iface) throws SQLException {
         throw new SQLException("not supported");
     }
-    
+
+    public ResultSet getPseudoColumns(String string, String string1, String string2, String string3) throws SQLException {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public boolean generatedKeyAlwaysReturned() throws SQLException {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }    
 }

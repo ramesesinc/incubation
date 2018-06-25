@@ -67,6 +67,7 @@
   <SubComponents>
     <Container class="com.rameses.rcp.control.XFormPanel" name="xFormPanel2">
       <Properties>
+        <Property name="name" type="java.lang.String" value="constraintControls" noResource="true"/>
         <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
           <PropertyBean type="com.rameses.rcp.control.border.XLineBorder">
             <Property name="lineColor" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
@@ -85,7 +86,6 @@
         <Property name="captionWidth" type="int" value="120"/>
         <Property name="cellspacing" type="int" value="5"/>
         <Property name="dynamic" type="boolean" value="true"/>
-        <Property name="name" type="java.lang.String" value="constraintControls" noResource="true"/>
       </Properties>
     </Container>
     <Component class="javax.swing.JLabel" name="jLabel2">
@@ -98,19 +98,19 @@
     </Component>
     <Component class="com.rameses.rcp.control.XButton" name="cmdAddConstraint">
       <Properties>
+        <Property name="name" type="java.lang.String" value="addConstraint" noResource="true"/>
         <Property name="contentAreaFilled" type="boolean" value="false"/>
         <Property name="immediate" type="boolean" value="true"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[2, 2, 2, 2]"/>
         </Property>
-        <Property name="name" type="java.lang.String" value="addConstraint" noResource="true"/>
         <Property name="text" type="java.lang.String" value="&lt;html&gt;&lt;a href=&quot;x&quot;&gt;[ Add ]&lt;/a&gt;&lt;/html&gt;"/>
       </Properties>
     </Component>
     <Container class="com.rameses.rcp.control.XFormPanel" name="xFormPanel1">
       <Properties>
         <Property name="captionVAlignment" type="java.lang.String" value="CENTER"/>
-        <Property name="captionWidth" type="int" value="120"/>
+        <Property name="captionWidth" type="int" value="140"/>
       </Properties>
       <SubComponents>
         <Component class="com.rameses.rcp.control.XLabel" name="xLabel1">
@@ -224,11 +224,17 @@
           <Connection code="1" type="code"/>
         </Property>
         <Property name="name" type="java.lang.String" value="entity.notexist" noResource="true"/>
-        <Property name="text" type="java.lang.String" value="Not Exist"/>
         <Property name="uncheckValue" type="java.lang.Object" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
           <Connection code="0" type="code"/>
         </Property>
+        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+          <Insets value="[0, 0, 0, 0]"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value=" Not Exist"/>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="xCheckBox1ActionPerformed"/>
+      </Events>
     </Component>
   </SubComponents>
 </Form>

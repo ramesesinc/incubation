@@ -93,7 +93,7 @@ public class DynamicRuleConditionPage extends javax.swing.JPanel {
         );
 
         xFormPanel1.setCaptionVAlignment(com.rameses.rcp.constant.UIConstants.CENTER);
-        xFormPanel1.setCaptionWidth(120);
+        xFormPanel1.setCaptionWidth(140);
         xFormPanel1.setPreferredSize(new java.awt.Dimension(0, 50));
 
         xLookupField1.setCaption("Dynamic Attribute");

@@ -37,6 +37,8 @@ public class WorkflowPromptPage extends javax.swing.JPanel {
 
         setBorder(javax.swing.BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
+        xFormPanel1.setCaptionWidth(100);
+
         xLookupField1.setCaption("Assignee");
         xLookupField1.setExpression("#{item.name}");
         xLookupField1.setHandler("lookupAssignees");

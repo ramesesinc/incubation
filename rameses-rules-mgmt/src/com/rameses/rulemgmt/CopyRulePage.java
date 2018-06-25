@@ -36,17 +36,18 @@ public class CopyRulePage extends javax.swing.JPanel {
         xTitledBorder1.setTitle("  General Information   ");
         jPanel1.setBorder(xTitledBorder1);
 
+        xFormPanel1.setCaptionWidth(100);
         xFormPanel1.setPadding(new java.awt.Insets(5, 0, 0, 0));
 
-        lblruleset.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 204)));
         lblruleset.setCaption("Rule Set");
         lblruleset.setExpression("#{entity.ruleset}");
+        lblruleset.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(180, 180, 180)));
         lblruleset.setPreferredSize(new java.awt.Dimension(0, 20));
         xFormPanel1.add(lblruleset);
 
-        lblrulegroup.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 204)));
         lblrulegroup.setCaption("Rule Group");
         lblrulegroup.setExpression("#{rulegroup.title}");
+        lblrulegroup.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(180, 180, 180)));
         lblrulegroup.setPreferredSize(new java.awt.Dimension(0, 20));
         xFormPanel1.add(lblrulegroup);
 

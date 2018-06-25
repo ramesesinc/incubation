@@ -894,5 +894,12 @@ public class DBServiceResultSet implements ResultSet {
     public boolean isWrapperFor(Class<?> iface) throws SQLException {
         throw new SQLException("not supported");
     }
-    
+
+    public <T> T getObject(int i, Class<T> type) throws SQLException {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public <T> T getObject(String string, Class<T> type) throws SQLException {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
 }

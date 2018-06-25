@@ -141,6 +141,7 @@ public class CrudNodeListPage extends javax.swing.JPanel {
         xActionBar1 = new com.rameses.rcp.control.XActionBar();
         jPanel7 = new javax.swing.JPanel();
         xSubFormPanel1 = new com.rameses.rcp.control.XSubFormPanel();
+        jPanel1 = new javax.swing.JPanel();
         jToolBar2 = new javax.swing.JToolBar();
         xActionTextField1 = new com.rameses.rcp.control.XActionTextField();
         xButton2 = new com.rameses.rcp.control.XButton();
@@ -264,7 +265,7 @@ public class CrudNodeListPage extends javax.swing.JPanel {
         xSubFormPanel1.setLayout(xSubFormPanel1Layout);
         xSubFormPanel1Layout.setHorizontalGroup(
             xSubFormPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 235, Short.MAX_VALUE)
+            .addGap(0, 230, Short.MAX_VALUE)
         );
         xSubFormPanel1Layout.setVerticalGroup(
             xSubFormPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -273,15 +274,18 @@ public class CrudNodeListPage extends javax.swing.JPanel {
 
         jPanel7.add(xSubFormPanel1, java.awt.BorderLayout.CENTER);
 
+        jPanel1.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 5, 0, 0));
+        jPanel1.setLayout(new com.rameses.rcp.control.layout.CenterLayout());
+
         jToolBar2.setFloatable(false);
         jToolBar2.setRollover(true);
 
         xActionTextField1.setActionName("search");
+        xActionTextField1.setName("searchText"); // NOI18N
+        xActionTextField1.setVisibleWhen("#{allowSearch == true}");
         xActionTextField1.setFocusKeyStroke("F3");
         xActionTextField1.setMaxLength(50);
-        xActionTextField1.setName("searchText"); // NOI18N
         xActionTextField1.setPreferredSize(new java.awt.Dimension(180, 20));
-        xActionTextField1.setVisibleWhen("#{allowSearch == true}");
         jToolBar2.add(xActionTextField1);
 
         xButton2.setBackground(new java.awt.Color(255, 255, 255));
@@ -300,7 +304,9 @@ public class CrudNodeListPage extends javax.swing.JPanel {
             xButton1.setName("showHelp"); // NOI18N
             jToolBar2.add(xButton1);
 
-            jPanel7.add(jToolBar2, java.awt.BorderLayout.EAST);
+            jPanel1.add(jToolBar2);
+
+            jPanel7.add(jPanel1, java.awt.BorderLayout.EAST);
 
             jPanel8.add(jPanel7, java.awt.BorderLayout.CENTER);
 
@@ -347,6 +353,7 @@ public class CrudNodeListPage extends javax.swing.JPanel {
     private com.rameses.rcp.control.XButton btnPrint;
     private com.rameses.rcp.control.XButton btnRefresh;
     private com.rameses.rcp.control.XButton btnSelectColumn;
+    private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;

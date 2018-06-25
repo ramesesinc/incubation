@@ -45,6 +45,7 @@ public class DefaultRuleConditionPage extends javax.swing.JPanel {
 
         setPreferredSize(new java.awt.Dimension(636, 400));
 
+        xFormPanel2.setName("constraintControls"); // NOI18N
         com.rameses.rcp.control.border.XLineBorder xLineBorder1 = new com.rameses.rcp.control.border.XLineBorder();
         xLineBorder1.setLineColor(new java.awt.Color(204, 204, 204));
         xLineBorder1.setPadding(new java.awt.Insets(5, 5, 0, 0));
@@ -53,19 +54,18 @@ public class DefaultRuleConditionPage extends javax.swing.JPanel {
         xFormPanel2.setCaptionWidth(120);
         xFormPanel2.setCellspacing(5);
         xFormPanel2.setDynamic(true);
-        xFormPanel2.setName("constraintControls"); // NOI18N
 
         jLabel2.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel2.setText("Constraints");
 
+        cmdAddConstraint.setName("addConstraint"); // NOI18N
         cmdAddConstraint.setContentAreaFilled(false);
         cmdAddConstraint.setImmediate(true);
         cmdAddConstraint.setMargin(new java.awt.Insets(2, 2, 2, 2));
-        cmdAddConstraint.setName("addConstraint"); // NOI18N
         cmdAddConstraint.setText("<html><a href=\"x\">[ Add ]</a></html>");
 
         xFormPanel1.setCaptionVAlignment(com.rameses.rcp.constant.UIConstants.CENTER);
-        xFormPanel1.setCaptionWidth(120);
+        xFormPanel1.setCaptionWidth(140);
 
         xLabel1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(180, 180, 180)));
         xLabel1.setCaption("Fact Name");
@@ -124,8 +124,14 @@ public class DefaultRuleConditionPage extends javax.swing.JPanel {
 
         xCheckBox1.setCheckValue(1);
         xCheckBox1.setName("entity.notexist"); // NOI18N
-        xCheckBox1.setText("Not Exist");
         xCheckBox1.setUncheckValue(0);
+        xCheckBox1.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        xCheckBox1.setText(" Not Exist");
+        xCheckBox1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                xCheckBox1ActionPerformed(evt);
+            }
+        });
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
@@ -165,6 +171,10 @@ public class DefaultRuleConditionPage extends javax.swing.JPanel {
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    private void xCheckBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_xCheckBox1ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_xCheckBox1ActionPerformed
     
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
