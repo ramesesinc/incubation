@@ -5,6 +5,7 @@ import com.rameses.rcp.draw.interfaces.Connector;
 import com.rameses.rcp.draw.interfaces.Figure;
 import com.rameses.rcp.draw.interfaces.LineDecoration;
 import com.rameses.rcp.draw.interfaces.Tool;
+import com.rameses.rcp.draw.support.AttributeKeys;
 import com.rameses.rcp.draw.utils.Geom;
 import com.rameses.rcp.draw.tools.ConnectorTool;
 import com.rameses.rcp.draw.utils.DataUtil;
@@ -80,6 +81,9 @@ public class LineConnector extends PolyLineFigure implements Connector {
                 Point pt = new Point(getCenter());
                 pt.y -= 10;
                 innerText.center(pt);
+                innerText.set(AttributeKeys.CENTER_TEXT, true);
+            } else {
+                innerText.set(AttributeKeys.CENTER_TEXT, false);
             }
             innerText.draw(g);
         }

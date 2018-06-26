@@ -4,6 +4,7 @@
  */
 package com.rameses.rcp.draw.commands;
 
+import com.rameses.rcp.draw.figures.WorkflowEndNode;
 import com.rameses.rcp.draw.figures.WorkflowStartNode;
 import com.rameses.rcp.draw.interfaces.Canvas;
 import com.rameses.rcp.draw.interfaces.Connector;
@@ -39,12 +40,8 @@ public class ReindexCommand extends Command{
     }
     
     private void reindex(Figure f, int idx){
-        if (f.getIndex() != 0){
-            if (f.getIndex() <= idx){
-                idx += 1;
-                f.setIndex(idx);
-            }
-            return;
+        if (f.getIndex() != 0 && f.getIndex() < idx){
+            return ;
         }
         
         idx += 1;
@@ -58,9 +55,7 @@ public class ReindexCommand extends Command{
     
     private Figure findStartFigure(){
         for (Figure f : getDrawing().getFigures()){
-            if (f instanceof WorkflowStartNode){
                 return f;
-            }
         }
         return null;
     }
