@@ -79,6 +79,7 @@ public class DrawingEditor implements Editor, FigureListener{
 
     @Override
     public void addToDrawing(Figure figure) {
+        updateShowIndex(figure);
         figure.addFigureListener(this);
         getDrawing().addFigure(figure);
         
@@ -485,5 +486,14 @@ public class DrawingEditor implements Editor, FigureListener{
     private void logUndoPropertyChanged(FigureEvent e) {
         UndoableProperty edit = new UndoableProperty(e.getFigure(), e.getPropertyName(), e.getType(), e.getOldValue(), e.getNewValue());
         addUndoableEdit(edit);
+    }
+
+    private void updateShowIndex(Figure figure) {
+        if (getDrawing().getFigures().size() > 1){
+            Figure f = getDrawing().getFigures().get(0);
+            if (f.isShowIndex()){
+                figure.toggleShowIndex();
+            }
+        }
     }
 }

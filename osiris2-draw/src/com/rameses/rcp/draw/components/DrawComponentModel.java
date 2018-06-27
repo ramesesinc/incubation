@@ -18,6 +18,8 @@ import com.rameses.rcp.draw.actions.SelectionAction;
 import com.rameses.rcp.draw.figures.FigureCache;
 import com.rameses.rcp.draw.support.AttributeKeys;
 import com.rameses.rcp.draw.actions.AttributePickerAction;
+import com.rameses.rcp.draw.actions.ReIndexAction;
+import com.rameses.rcp.draw.actions.ShowIndexAction;
 import com.rameses.rcp.draw.interfaces.Connector;
 import java.util.ArrayList;
 import java.util.List;
@@ -64,7 +66,7 @@ public class DrawComponentModel extends ComponentBean implements EditorListener 
         List actions = new ArrayList();
         if (category != null) {
             for(Figure f : FigureCache.getInstance().getFigures(category)){
-                actions.add( createAction(f));
+                actions.add( createFigureAction(f));
             }
         }
         return actions;
@@ -77,6 +79,8 @@ public class DrawComponentModel extends ComponentBean implements EditorListener 
         actions.add(new FontSelectionAction(editor));
         actions.add(new AttributePickerAction(editor, AttributeKeys.FILL_COLOR, "Fill Color", "images/draw/shapefill16.png"));
         actions.add(new AttributePickerAction(editor, AttributeKeys.STROKE_COLOR, "Stroke Color", "images/draw/strokecolor16.png"));
+        actions.add(new ShowIndexAction(editor));
+        actions.add(new ReIndexAction(editor));
         return actions;
     }    
     
@@ -120,7 +124,7 @@ public class DrawComponentModel extends ComponentBean implements EditorListener 
         return new StdDrawing();
     }
 
-    private Action createAction(Figure figure) {
+    private Action createFigureAction(Figure figure) {
         FigureAction action = new FigureAction(editor, figure);
         action.setIcon(figure.getIcon());
         if (action.getIcon() != null) {

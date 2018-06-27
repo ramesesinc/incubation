@@ -51,6 +51,7 @@ public interface Figure {
     public boolean hitTest(int x, int y);
     public boolean isEmpty();
     public boolean isAllowResize();
+    public boolean isShowIndex();
     public void setAllowResize(boolean allowResize);
     
     //connector support 

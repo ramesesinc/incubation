@@ -17,7 +17,7 @@ class WorkflowTaskListService  {
         if(!o.processname) throw new Exception("processname is required");
         def nodes = [];
         nodes << [title:'My Tasks', name:'mytask'];
-        wfNode.find( [processname: o.processname] ).where("nodetype = 'state' OR nodetype = 'end' ").orderBy("idx").list().each {
+        wfNode.find( [processname: o.processname] ).where(" (nodetype = 'state' OR nodetype = 'end') ").orderBy("idx").list().each {
             nodes << [title: it.title , name: it.name, domain: it.domain, role:it.role ]
         }
         return nodes;
