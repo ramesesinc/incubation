@@ -55,7 +55,9 @@ public class ReindexCommand extends Command{
     
     private Figure findStartFigure(){
         for (Figure f : getDrawing().getFigures()){
+            if (f instanceof WorkflowStartNode){
                 return f;
+            }
         }
         return null;
     }
