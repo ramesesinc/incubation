@@ -13,6 +13,12 @@ class RuleMigrationService {
 	@ActiveDB("rule")
 	def target;
 
+	@DataContext('sys_ruleset_fact')
+	def rsfactdb;
+
+	@DataContext('sys_ruleset_actiondef')
+	def rsactiondefdb;
+
 	@ProxyMethod
 	public def downloadDefByRuleset( def p ) {
 		if(!p.ruleset) throw new Exception("Please add ruleset in parameter");
@@ -27,7 +33,9 @@ class RuleMigrationService {
 		//load facts
 		pkg.facts = [];
 		rs.facts.each {
-			def f = em.findRuleFactById( [objid: it.rulefact] );
+			def f = em.findRuleFactById( [objid: it.rulefact] ); 
+			if ( !f ) return;
+			
 			f.fields = em.getRuleFactFields(f);
 			pkg.facts << f;
 		};
@@ -35,6 +43,8 @@ class RuleMigrationService {
 		pkg.actiondefs = [];
 		rs.actiondefs.each {
 			def ad = em.findRuleActionDefById( [objid: it.actiondef] );
+			if ( !ad ) return;
+			
 			ad.params = em.getRuleActionDefParams(ad);
 			pkg.actiondefs << ad;
 		};
@@ -76,13 +86,13 @@ class RuleMigrationService {
 			for( f in x.fields )  {
 				target.save( f, "fact_field" );
 			}	
-		};	
+		} 	
 		for( y in pkg.actiondefs) {
 			target.save( y, "actiondef" );
 			for( x in y.params ){
 				target.save( x, "actiondef_param" );
 			}
-		};	
+		} 	
 		for( rs in pkg.rulesets ) {
 			//save rulesets, rulegroups, rulesetfacts, rulesetactiondefs
 			target.save( rs, "ruleset" );
@@ -90,17 +100,13 @@ class RuleMigrationService {
 			for ( x in rs.rulegroups ) {
 				target.save( x, "rulegroup" );
 			}
+			rsfactdb.find([ ruleset: rs.name ]).delete(); 
 			for( x in rs.facts ) {
-				def test = target.read( [ruleset: rs.name, rulefact: x.rulefact ], "ruleset_fact" );
-				if(!test) {
-					target.create( [ruleset: rs.name, rulefact: x.rulefact ], "ruleset_fact" );
-				}
+				rsfactdb.create( [ruleset: rs.name, rulefact: x.rulefact ]);
 			}
+			rsactiondefdb.find([ ruleset: rs.name ]).delete();			
 			for(y in rs.actiondefs ) {
-				def test = target.read( [ruleset: rs.name, actiondef: y.actiondef ], "ruleset_actiondef" );
-				if(!test) {
-					target.create( [ruleset: rs.name, actiondef: y.actiondef ], "ruleset_actiondef" );	
-				}
+				rsactiondefdb.create([ruleset: rs.name, actiondef: y.actiondef ]);	
 			}
 		}
 	}
