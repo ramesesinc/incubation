@@ -76,7 +76,7 @@ class MenuCategoryModel  {
     * specify number of columns for the menu display. default is 2 cols
     ***************************************************************************/
     public int getCols() {
-        String _cols = invoker.properties.cols;
+        String _cols = invoker?.properties?.cols;
         if(_cols==null) {
             _cols = workunit?.info?.workunit_properties?.cols;
         }

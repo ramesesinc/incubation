@@ -21,6 +21,7 @@ import java.awt.Insets;
 import java.awt.LayoutManager;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.ArrayList;
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
@@ -563,25 +564,29 @@ public class TilePanel extends JPanel
         public void addLayoutComponent(String name, Component comp) {}
         public void removeLayoutComponent(Component comp) {}
         
+        private TileItem[] getVisibleComponents(Container parent) {
+            ArrayList<TileItem> list = new ArrayList();
+            Component[] comps = parent.getComponents();
+            for (int i=0; i<comps.length; i++) {
+                if (comps[i] instanceof TileItem) {
+                    list.add((TileItem) comps[i]); 
+                } 
+            }
+            return list.toArray(new TileItem[]{}); 
+        }
+        
         public Dimension getLayoutSize(Container parent) {
             synchronized (parent.getTreeLock()) {
                 Dimension newdim = new Dimension(0, 0);
                 Dimension celldim = getCellSize();
                 Insets margin = parent.getInsets();
-                boolean has_visible_components = false; 
-                Component[] comps = parent.getComponents();
-                for (int i=0; i<comps.length; i++) {
-                    if (!(comps[i] instanceof TileItem)) continue; 
+                TileItem[] items = getVisibleComponents(parent); 
+                for (int i=0; i<items.length; i++) {
+                    if ( i > 0 ) newdim.width += Math.max(getCellSpacing(), 0); 
                     
-                    TileItem c = (TileItem) comps[i];
-                    if (!c.isVisible()) continue;
-                    if (has_visible_components) {
-                        newdim.width += Math.max(getCellSpacing(), 0); 
-                    }
-                    
+                    TileItem c = items[i];
                     newdim.width += celldim.width;
-                    newdim.height = celldim.height; 
-                    has_visible_components = true;
+                    newdim.height = celldim.height;
                 }
 
                 Insets pads = getPadding();
@@ -615,17 +620,13 @@ public class TilePanel extends JPanel
                 int rb = parent.getWidth() - (margin.right + pads.right);
                 
                 boolean firstItemInRow = true; 
-                boolean has_visible_components = false; 
-                Component[] comps = parent.getComponents();
-                for (int i=0; i<comps.length; i++) {
-                    if (!(comps[i] instanceof TileItem)) continue; 
-                    
-                    TileItem c = (TileItem) comps[i];
-                    if (!c.isVisible()) continue;
-                    if (has_visible_components) {
+                TileItem[] items = getVisibleComponents(parent);
+                for (int i=0; i<items.length; i++) {
+                    if (i > 0) {
                         x += Math.max(getCellSpacing(), 0); 
                     }
                     
+                    TileItem c = items[i];                    
                     if (firstItemInRow) {
                         firstItemInRow = false;                         
                         c.setSize(celldim.width, celldim.height); 
@@ -641,7 +642,6 @@ public class TilePanel extends JPanel
                         c.setLocation(x, y); 
                     }
                     x += celldim.width; 
-                    has_visible_components = true;
                 }
             }
         }
