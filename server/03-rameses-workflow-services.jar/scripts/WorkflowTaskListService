@@ -32,10 +32,6 @@ class WorkflowTaskListService  {
                 case 'all':
                     break;
 
-                case 'end':
-                    s = "taskid IS NULL";
-                    break;
-
                 case 'mytask': 
                     s = "task.state NOT IN ('start','end') AND task.enddate IS NULL AND task.assignee.objid=:assignee";
                     p.assignee = env.USERID;
