@@ -126,7 +126,11 @@ public class User
     public void checkPwd( String pwd ) 
     {
         def newPwd = Encoder.md5.encode( pwd, env.USER );
-        if ( newPwd != profile.pwd ) throw new Exception('Password is incorrect');
+        if ( newPwd != profile.pwd ) { 
+            println 'env.USER='+ env.USER +', profile.username='+ profile.username; 
+            println 'encpwd='+ newPwd +', oldpwd='+ profile.pwd; 
+            throw new Exception('Password is incorrect'); 
+        } 
     }
 
     public def createProfile() 
