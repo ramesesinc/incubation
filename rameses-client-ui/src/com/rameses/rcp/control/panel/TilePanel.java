@@ -26,28 +26,23 @@ import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
 /**
  *
  * @author wflores
  */
-public class TilePanel extends JPanel  
+public class TilePanel extends WrapPanel  
 {
-    private Object selectedItem;    
-    private Dimension cellSize;
-    private Insets padding;
-    private int cellSpacing;
-    private String alignment;
-    private String textAlignment;
     private boolean showCaptions;
+    private String textAlignment;
+    private String alignment;
+    private Object selectedItem; 
     
     public TilePanel() {
-        super.setLayout(new ContainerLayout()); 
-        cellSize = new Dimension(80, 80);
-        padding = new Insets(5, 5, 5, 5); 
-        cellSpacing = 5;
+        super();
+        //super.setLayout(new ContainerLayout()); 
+         
         showCaptions = true;
         addMouseListener(new MouseListener() {
             public void mouseClicked(MouseEvent e) {}
@@ -80,21 +75,6 @@ public class TilePanel extends JPanel
     public void setShowCaptions(boolean showCaptions) { 
         this.showCaptions = showCaptions; 
     } 
-    
-    public int getCellSpacing() { return cellSpacing; } 
-    public void setCellSpacing(int cellSpacing) {
-        this.cellSpacing = cellSpacing; 
-    }
-    
-    public Dimension getCellSize() { return cellSize; } 
-    public void setCellSize(Dimension cellSize) {
-        this.cellSize = cellSize; 
-    }
-    
-    public Insets getPadding() { return padding; } 
-    public void setPadding(Insets padding) {
-        this.padding = padding;
-    }
     
     public void addItem(String caption, Object userObject) {
         addItem(caption , userObject); 
