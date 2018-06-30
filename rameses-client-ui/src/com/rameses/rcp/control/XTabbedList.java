@@ -16,7 +16,6 @@ import com.rameses.rcp.control.tabbedpane.TabbedItemPanel;
 import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.support.ImageIconSupport;
 import com.rameses.rcp.support.MouseEventSupport;
-import com.rameses.rcp.support.ThemeUI;
 import com.rameses.rcp.ui.ActiveControl;
 import com.rameses.rcp.ui.ControlProperty;
 import com.rameses.rcp.ui.UIControl;
@@ -72,8 +71,6 @@ public class XTabbedList extends JTabbedPane implements UIControl, ActiveControl
             setPreferredSize(new Dimension(100,30)); 
         }
         new MouseEventSupport(this).install(); 
-        Font f = ThemeUI.getFont("XTabbedPane.font");
-        if ( f != null ) setFont( f );
     }
     
     //</editor-fold>

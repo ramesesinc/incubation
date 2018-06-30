@@ -161,9 +161,9 @@ public class CrudNodeListPage extends javax.swing.JPanel {
         jPanel3.setPreferredSize(new java.awt.Dimension(420, 35));
         jPanel3.setLayout(new java.awt.BorderLayout());
 
-        xLabel1.setBackground(new java.awt.Color(255, 255, 255));
         xLabel1.setExpression("#{title}");
-        xLabel1.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        xLabel1.setBackground(new java.awt.Color(255, 255, 255));
+        xLabel1.setFontStyle("font-size:14; font-weight:bold;");
         xLabel1.setOpaque(true);
         xLabel1.setPreferredSize(new java.awt.Dimension(41, 30));
         jPanel3.add(xLabel1, java.awt.BorderLayout.NORTH);

@@ -85,9 +85,6 @@ public class XTextField extends DefaultTextField
             }
         }); 
         new MouseEventSupport(this).install(); 
-        //set default font
-        Font f = ThemeUI.getFont("XTextField.font");
-        if ( f != null ) setFont(f);
         
         Color c = ThemeUI.getColor("XTextField.disabledTextColor");
         if ( c != null ) setDisabledTextColor(c);

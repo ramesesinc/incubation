@@ -39,7 +39,6 @@ public class HomeGroupPage extends javax.swing.JPanel {
 
         xTileView1.setBackground(new java.awt.Color(255, 255, 255));
         xTileView1.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        xTileView1.setCellSize(new java.awt.Dimension(75, 80));
         xTileView1.setName("model"); // NOI18N
         xTileView1.setPadding(new java.awt.Insets(10, 20, 10, 0));
         jScrollPane1.setViewportView(xTileView1);

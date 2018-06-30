@@ -66,11 +66,7 @@ public class XMaskField extends AbstractMaskField implements UIInput, ActiveCont
             }
         });   
         new MouseEventSupport(this).install(); 
-        
-        //set default font
-        Font font = ThemeUI.getFont("XTextField.font");
-        if (font != null) setFont(font);
-        
+
         Color disableTextColor = ThemeUI.getColor("XTextField.disabledTextColor");
         if (disableTextColor != null) setDisabledTextColor(disableTextColor);         
     }

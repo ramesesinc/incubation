@@ -34,18 +34,18 @@ public class ReportQueryPage extends javax.swing.JPanel {
         xLabel1 = new com.rameses.rcp.control.XLabel();
         xLabel2 = new com.rameses.rcp.control.XLabel();
 
+        xFormPanel1.setName("formControls"); // NOI18N
         xFormPanel1.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
         xFormPanel1.setDynamic(true);
-        xFormPanel1.setName("formControls"); // NOI18N
         xFormPanel1.setShowCategory(true);
 
-        xLabel1.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        xLabel1.setVisibleWhen("#{mode == null}");
+        xLabel1.setFontStyle("font-weight: bold;");
         xLabel1.setForeground(new java.awt.Color(255, 0, 51));
         xLabel1.setText("ERROR. Please specify action query or preview in your workunit");
-        xLabel1.setVisibleWhen("#{mode == null}");
 
-        xLabel2.setText("Enter report parameters and click Preview or Send to Printer to continue");
         xLabel2.setVisibleWhen("#{mode == 'query'}");
+        xLabel2.setText("Enter report parameters and click Preview or Send to Printer to continue");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);

@@ -16,7 +16,6 @@ import com.rameses.rcp.framework.ClientContext;
 import com.rameses.rcp.support.FontSupport;
 import com.rameses.rcp.support.MouseEventSupport;
 import com.rameses.rcp.support.TextDocument;
-import com.rameses.rcp.support.ThemeUI;
 import com.rameses.rcp.ui.ActiveControl;
 import com.rameses.rcp.ui.ControlProperty;
 import com.rameses.rcp.ui.UIInput;
@@ -123,10 +122,6 @@ public class XTextArea extends JTextArea implements UIInput, Validatable,
             removeFocusListener(l); 
         }
         new MouseEventSupport(this).install(); 
-        //default font
-        Font f = ThemeUI.getFont("XTextArea.font");
-        if ( f != null ) setFont( f );
-        
         
         if (Beans.isDesignTime()) return;
          
