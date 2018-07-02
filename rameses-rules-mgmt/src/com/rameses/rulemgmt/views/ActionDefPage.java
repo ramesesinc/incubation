@@ -37,8 +37,8 @@ public class ActionDefPage extends javax.swing.JPanel {
         xTextField2 = new com.rameses.rcp.control.XTextField();
         xTextField3 = new com.rameses.rcp.control.XTextField();
         xTextField4 = new com.rameses.rcp.control.XTextField();
-        xIntegerField1 = new com.rameses.rcp.control.XIntegerField();
         xTextField12 = new com.rameses.rcp.control.XTextField();
+        xIntegerField1 = new com.rameses.rcp.control.XIntegerField();
         jPanel1 = new javax.swing.JPanel();
         xDataTable1 = new com.rameses.rcp.control.XDataTable();
         xButton2 = new com.rameses.rcp.control.XButton();
@@ -51,11 +51,13 @@ public class ActionDefPage extends javax.swing.JPanel {
         xList1 = new com.rameses.rcp.control.XList();
         jLabel1 = new javax.swing.JLabel();
 
+        xFormPanel1.setCaptionVAlignment(com.rameses.rcp.constant.UIConstants.CENTER);
         xFormPanel1.setCaptionWidth(120);
 
         xLabel1.setCaption("Action Class");
         xLabel1.setExpression("#{ entity.actionclass }");
         xLabel1.setVisibleWhen("#{ mode != 'create' }");
+        xLabel1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(180, 180, 180)));
         xLabel1.setPreferredSize(new java.awt.Dimension(0, 20));
         xFormPanel1.add(xLabel1);
 
@@ -83,16 +85,16 @@ public class ActionDefPage extends javax.swing.JPanel {
         xTextField4.setTextCase(com.rameses.rcp.constant.TextCase.NONE);
         xFormPanel1.add(xTextField4);
 
-        xIntegerField1.setCaption("Sort Order");
-        xIntegerField1.setName("entity.sortorder"); // NOI18N
-        xFormPanel1.add(xIntegerField1);
-
         xTextField12.setCaption("Domain");
         xTextField12.setName("entity.domain"); // NOI18N
         xTextField12.setPreferredSize(new java.awt.Dimension(150, 20));
         xTextField12.setRequired(true);
         xTextField12.setSpaceChar('_');
         xFormPanel1.add(xTextField12);
+
+        xIntegerField1.setCaption("Sort Order");
+        xIntegerField1.setName("entity.sortorder"); // NOI18N
+        xFormPanel1.add(xIntegerField1);
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);

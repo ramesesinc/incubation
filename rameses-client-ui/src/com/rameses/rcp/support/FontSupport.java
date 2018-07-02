@@ -11,6 +11,7 @@ package com.rameses.rcp.support;
 
 import java.awt.Font;
 import java.awt.font.TextAttribute;
+import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -56,6 +57,26 @@ public class FontSupport
         return attrs;
     }
     
+    public Font applyStyles(Font source, Map attrs) { 
+        if ( attrs == null || attrs.isEmpty()) return source;
+        
+        Font newfont = source.deriveFont( attrs ); 
+        
+        try {
+            Number num = Math.max( 100, Integer.parseInt(attrs.get("font-scale").toString()));
+            DecimalFormat numformat = new DecimalFormat("0.00"); 
+            double scale = numformat.parse( numformat.format((num.doubleValue()/100.0))).doubleValue(); 
+
+            int fsize = newfont.getSize();
+            numformat = new DecimalFormat("0"); 
+            num = ((Number) fsize).doubleValue() * scale;
+            fsize = numformat.parse( numformat.format( num )).intValue(); 
+            newfont = newfont.deriveFont((float) fsize); 
+        } catch(Throwable t){;} 
+        
+        return newfont; 
+    }
+    
     public void applyStyles(JComponent component, Map styles) {
         if (component == null || styles == null || styles.isEmpty()) return;
         
@@ -82,7 +103,7 @@ public class FontSupport
 
         Font oldFont = component.getFont(); 
         Map attrs = createFontAttributes(styles); 
-        if (!attrs.isEmpty()) component.setFont(oldFont.deriveFont(attrs)); 
+        applyStyles(oldFont, attrs); 
     } 
     
     private void addAttribute(Map attrs, String key, String val) {
@@ -137,7 +158,10 @@ public class FontSupport
                 attrs.put(TextAttribute.SUPERSCRIPT, TextAttribute.SUPERSCRIPT_SUPER);
             else if ("subscript".equalsIgnoreCase(val)) 
                 attrs.put(TextAttribute.SUPERSCRIPT, TextAttribute.SUPERSCRIPT_SUB);
-        }         
+        }       
+        else {
+            attrs.put(key, val); 
+        }
     }
     
     private void addFontStyle(Map attrs, String val) {

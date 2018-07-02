@@ -61,6 +61,7 @@ public class FactPage extends javax.swing.JPanel {
         xList1 = new com.rameses.rcp.control.XList();
         jLabel1 = new javax.swing.JLabel();
 
+        xFormPanel1.setCaptionVAlignment(com.rameses.rcp.constant.UIConstants.CENTER);
         xFormPanel1.setCaptionWidth(120);
 
         xLabel1.setCaption("Fact Class");
@@ -123,6 +124,7 @@ public class FactPage extends javax.swing.JPanel {
         xTextField5.setSpaceChar('_');
         xFormPanel1.add(xTextField5);
 
+        xFormPanel3.setCaptionVAlignment(com.rameses.rcp.constant.UIConstants.CENTER);
         xFormPanel3.setCaptionWidth(120);
 
         xCheckBox1.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -136,10 +138,10 @@ public class FactPage extends javax.swing.JPanel {
         xTextField6.setCaption("Lookup Handler");
         xTextField6.setDepends(new String[] {"entity.dynamic"});
         xTextField6.setName("entity.lookuphandler"); // NOI18N
+        xTextField6.setVisibleWhen("#{ entity.dynamic == 1 }");
         xTextField6.setPreferredSize(new java.awt.Dimension(150, 20));
         xTextField6.setSpaceChar('_');
         xTextField6.setTextCase(com.rameses.rcp.constant.TextCase.NONE);
-        xTextField6.setVisibleWhen("#{ entity.dynamic == 1 }");
         xFormPanel3.add(xTextField6);
 
         xTextField7.setCaption("Lookup Key");
@@ -187,7 +189,7 @@ public class FactPage extends javax.swing.JPanel {
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(xFormPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(xFormPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 634, Short.MAX_VALUE))
-                .addContainerGap(87, Short.MAX_VALUE))
+                .addContainerGap(99, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)

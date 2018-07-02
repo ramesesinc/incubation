@@ -46,7 +46,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.swing.AbstractAction;
-import javax.swing.BorderFactory;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JViewport;
@@ -113,10 +112,8 @@ public class XTextArea extends JTextArea implements UIInput, Validatable,
 
     private void initComponent() {
         TextComponentSupport.getInstance().installUIDefaults(this); 
-        setBorder(BorderFactory.createEmptyBorder(5,5,0,0)); 
-        setDisabledTextColor(Color.BLACK); 
         setColumns(5);
-        setRows(4); 
+        setRows(2); 
         
         for (FocusListener l : getFocusListeners()) {
             removeFocusListener(l); 

@@ -56,7 +56,7 @@ public class RegistrationInitPage extends javax.swing.JPanel {
         xRadio1.setOptionValue(0);
         xRadio1.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 20, 10, 0));
         xRadio1.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        xRadio1.setText("  Register new terminal");
+        xRadio1.setText("  Register new terminal  ");
         xRadio1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 xRadio1ActionPerformed(evt);
@@ -70,7 +70,7 @@ public class RegistrationInitPage extends javax.swing.JPanel {
         xRadio2.setOptionValue(1);
         xRadio2.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 20, 10, 0));
         xRadio2.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        xRadio2.setText("  Recover existing terminal");
+        xRadio2.setText("  Recover existing terminal  ");
         jPanel1.add(xRadio2);
 
         xPanel1.setBorder(javax.swing.BorderFactory.createEmptyBorder(20, 20, 50, 0));

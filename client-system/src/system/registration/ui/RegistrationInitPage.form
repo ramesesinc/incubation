@@ -92,7 +92,7 @@
             <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
               <Insets value="[0, 0, 0, 0]"/>
             </Property>
-            <Property name="text" type="java.lang.String" value="  Register new terminal"/>
+            <Property name="text" type="java.lang.String" value="  Register new terminal  "/>
           </Properties>
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="xRadio1ActionPerformed"/>
@@ -116,7 +116,7 @@
             <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
               <Insets value="[0, 0, 0, 0]"/>
             </Property>
-            <Property name="text" type="java.lang.String" value="  Recover existing terminal"/>
+            <Property name="text" type="java.lang.String" value="  Recover existing terminal  "/>
           </Properties>
         </Component>
         <Container class="com.rameses.rcp.control.XPanel" name="xPanel1">

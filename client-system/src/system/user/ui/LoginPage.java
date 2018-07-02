@@ -63,7 +63,6 @@ public class LoginPage extends javax.swing.JPanel {
         xTextField1.setCaption("Username");
         xTextField1.setName("uid"); // NOI18N
         xTextField1.setCaptionMnemonic('u');
-        xTextField1.setCaptionWidth(100);
         xTextField1.setIndex(-10);
         xTextField1.setPreferredSize(new java.awt.Dimension(210, 24));
         xTextField1.setRequired(true);
@@ -73,7 +72,6 @@ public class LoginPage extends javax.swing.JPanel {
         xPasswordField1.setCaption("Password");
         xPasswordField1.setName("pwd"); // NOI18N
         xPasswordField1.setText("xPasswordField1");
-        xPasswordField1.setCaptionWidth(100);
         xPasswordField1.setForeground(new java.awt.Color(102, 102, 102));
         xPasswordField1.setPreferredSize(new java.awt.Dimension(210, 24));
         xPasswordField1.setRequired(true);
@@ -81,14 +79,12 @@ public class LoginPage extends javax.swing.JPanel {
 
         xTextField2.setCaption("Client Code");
         xTextField2.setName("clientcode"); // NOI18N
-        xTextField2.setCaptionWidth(100);
         xTextField2.setPreferredSize(new java.awt.Dimension(120, 24));
         formPanel1.add(xTextField2);
 
         xCheckBox1.setCaption("");
         xCheckBox1.setName("offline"); // NOI18N
         xCheckBox1.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        xCheckBox1.setCaptionWidth(100);
         xCheckBox1.setCellPadding(new java.awt.Insets(10, 0, 10, 0));
         xCheckBox1.setMargin(new java.awt.Insets(0, 0, 0, 0));
         xCheckBox1.setReadonly(true);
@@ -98,7 +94,6 @@ public class LoginPage extends javax.swing.JPanel {
         xButton1.setCaption(" ");
         xButton1.setMnemonic('l');
         xButton1.setName("login"); // NOI18N
-        xButton1.setCaptionWidth(100);
         xButton1.setCellPadding(new java.awt.Insets(20, 0, 20, 0));
         xButton1.setDefaultCommand(true);
         xButton1.setMargin(new java.awt.Insets(5, 14, 5, 14));

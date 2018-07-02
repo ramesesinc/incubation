@@ -36,6 +36,7 @@ import javax.swing.text.AbstractDocument;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.ComponentView;
 import javax.swing.text.Document;
+import javax.swing.text.EditorKit;
 import javax.swing.text.Element;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.View;
@@ -56,11 +57,18 @@ public class HtmlViewPane extends JEditorPane
     private Point mousePoint; 
     private DocViewModel docModel; 
     
+    private Font templateFont;
+    
     public HtmlViewPane() {
         super(); 
-        super.setContentType("text/html");
-        super.setEditorKit(new CompEditorKit());
         super.setEditable(false); 
+        super.setContentType("text/html");
+        
+        CompEditorKit editorKit = new CompEditorKit(); 
+        Document doc = editorKit.createDefaultDocument(); 
+        super.setEditorKit( editorKit );
+        super.setDocument( doc ); 
+        
         addHyperlinkListener(new HyperlinkListener() {
             public void hyperlinkUpdate(HyperlinkEvent e) {
                 hyperlinkUpdateImpl(e); 
@@ -77,9 +85,13 @@ public class HtmlViewPane extends JEditorPane
         }); 
         
         try { 
-            Font font = UIManager.getLookAndFeelDefaults().getFont("TextField.font"); 
-            super.setFont(font); 
+            templateFont = UIManager.getLookAndFeelDefaults().getFont("TextField.font"); 
+            templateFont = new Font( templateFont.getFontName(), templateFont.getStyle(), templateFont.getSize()+1);  
+            super.setFont( templateFont ); 
+            updateStyleSheet();
         } catch(Throwable t) {;} 
+        
+        setMargin(new Insets(5,5,5,5));
         
         if (Beans.isDesignTime()) {
             setPreferredSize(new Dimension(100,50));
@@ -94,6 +106,7 @@ public class HtmlViewPane extends JEditorPane
     public void setFontStyle(String fontStyle) {
         this.fontStyle = fontStyle;
         new FontSupport().applyStyles(this, fontStyle);
+        updateStyleSheet(); 
     }
 
     public void setDocument(Document doc) {
@@ -165,11 +178,24 @@ public class HtmlViewPane extends JEditorPane
         
     // <editor-fold defaultstate="collapsed" desc=" CompEditorKit "> 
     
+    private void updateStyleSheet() {
+        EditorKit kit = getEditorKit();
+        if ( kit instanceof HTMLEditorKit ) {
+            HTMLEditorKit htmlkit = (HTMLEditorKit) kit;
+            StyleSheet ss = htmlkit.getStyleSheet(); 
+            
+            Font font = getFont(); 
+            if ( font != null ) {
+                ss.addRule("html {font-family:"+ font.getFontName() +"; font-size:"+ font.getSize() +";}"); 
+                ss.addRule("body {font-family:"+ font.getFontName() +"; font-size:"+ font.getSize() +";}"); 
+            }
+        }
+    }
+    
     class CompEditorKit extends HTMLEditorKit {
-        @Override
         public ViewFactory getViewFactory() {
             return new CompFactory();
-        }       
+        } 
     }   
     
     class CompFactory extends HTMLEditorKit.HTMLFactory {
