@@ -40,6 +40,7 @@ public class CrudFormDebugPage extends javax.swing.JPanel {
 
         xList1.setItems("fieldNames");
         xList1.setName("selectedName"); // NOI18N
+        xList1.setFixedCellHeight(18);
         jScrollPane1.setViewportView(xList1);
 
         xDataTable1.setColumns(new com.rameses.rcp.common.Column[]{
@@ -164,7 +165,7 @@ public class CrudFormDebugPage extends javax.swing.JPanel {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jTabbedPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 642, Short.MAX_VALUE)
+                .addComponent(jTabbedPane1)
                 .addContainerGap())
         );
         layout.setVerticalGroup(

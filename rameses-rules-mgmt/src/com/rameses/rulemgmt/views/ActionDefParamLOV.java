@@ -34,6 +34,8 @@ public class ActionDefParamLOV extends javax.swing.JPanel {
         xTitledBorder1.setTitle("Data Info");
         setBorder(xTitledBorder1);
 
+        xFormPanel1.setCaptionVAlignment(com.rameses.rcp.constant.UIConstants.CENTER);
+
         xTextField3.setCaption("LOV Name");
         xTextField3.setName("entity.lovname"); // NOI18N
         xTextField3.setPreferredSize(new java.awt.Dimension(0, 20));

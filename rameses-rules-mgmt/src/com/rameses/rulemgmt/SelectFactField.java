@@ -37,7 +37,7 @@ public class SelectFactField extends javax.swing.JPanel {
         xList1.setExpression("#{item.title}");
         xList1.setItems("fieldList");
         xList1.setName("selectedItem"); // NOI18N
-        xList1.setFixedCellHeight(20);
+        xList1.setFixedCellHeight(18);
         jScrollPane1.setViewportView(xList1);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);

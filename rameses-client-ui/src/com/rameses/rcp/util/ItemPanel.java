@@ -9,7 +9,6 @@ package com.rameses.rcp.util;
 
 import com.rameses.rcp.constant.UIConstants;
 import com.rameses.rcp.control.XLabel;
-import com.rameses.rcp.support.ThemeUI;
 import com.rameses.rcp.ui.ActiveControl;
 import com.rameses.rcp.ui.ControlProperty;
 import com.rameses.util.ValueUtil;
@@ -183,9 +182,11 @@ public class ItemPanel extends JPanel {
     private class ActiveControlPropetyListener implements PropertyChangeListener {
         
         private ItemPanel panel;
+        private JLabel template;
         
         ActiveControlPropetyListener() {
             this.panel = ItemPanel.this;
+            this.template = new JLabel();
         }
         
         public void propertyChange(PropertyChangeEvent evt) {
@@ -208,7 +209,7 @@ public class ItemPanel extends JPanel {
                 if( f != null )
                     panel.getLabelComponent().setFont( f );
                 else
-                    panel.getLabelComponent().setFont( ThemeUI.getFont("XLabel.font") );
+                    panel.getLabelComponent().setFont( template.getFont());
                 
             } else if ( "cellPadding".equals(propName) ) {
                 Insets i = (Insets) value;

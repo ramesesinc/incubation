@@ -41,7 +41,7 @@ public class NodeListPage extends javax.swing.JPanel {
         xList1.setExpression("#{item.title}");
         xList1.setHandler("nodeListHandler");
         xList1.setName("selectedNode"); // NOI18N
-        xList1.setFixedCellHeight(20);
+        xList1.setFixedCellHeight(18);
         jScrollPane1.setViewportView(xList1);
 
         add(jScrollPane1, java.awt.BorderLayout.CENTER);

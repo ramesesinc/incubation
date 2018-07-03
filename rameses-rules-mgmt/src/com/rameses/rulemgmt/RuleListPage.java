@@ -50,8 +50,8 @@ public class RuleListPage extends javax.swing.JPanel {
 
         pnlHeader.setLayout(new java.awt.BorderLayout());
 
-        lblTitle.setBackground(new java.awt.Color(255, 255, 255));
         lblTitle.setExpression("#{title}");
+        lblTitle.setBackground(new java.awt.Color(255, 255, 255));
         lblTitle.setFontStyle("font-weight:bold; font-size:16;");
         lblTitle.setOpaque(true);
         lblTitle.setPadding(new java.awt.Insets(2, 7, 2, 5));

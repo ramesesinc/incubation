@@ -54,7 +54,7 @@ public class SelectActionPage extends javax.swing.JPanel {
         xList1.setItems("actionDefList");
         xList1.setName("selectedActionDef"); // NOI18N
         xList1.setDynamic(true);
-        xList1.setFixedCellHeight(20);
+        xList1.setFixedCellHeight(18);
         jScrollPane1.setViewportView(xList1);
 
         add(jScrollPane1, java.awt.BorderLayout.CENTER);

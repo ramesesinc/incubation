@@ -12,7 +12,6 @@ import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.framework.ClientContext;
 import com.rameses.rcp.support.MouseEventSupport;
 import com.rameses.rcp.support.TextDocument;
-import com.rameses.rcp.support.ThemeUI;
 import com.rameses.rcp.ui.ActiveControl;
 import com.rameses.rcp.ui.ControlProperty;
 import com.rameses.rcp.ui.UIInput;
@@ -84,13 +83,7 @@ public class XTextField extends DefaultTextField
                 try { refresh(); } catch(Throwable t) {;} 
             }
         }); 
-        new MouseEventSupport(this).install(); 
-        //set default font
-        Font f = ThemeUI.getFont("XTextField.font");
-        if ( f != null ) setFont(f);
-        
-        Color c = ThemeUI.getColor("XTextField.disabledTextColor");
-        if ( c != null ) setDisabledTextColor(c);
+        new MouseEventSupport(this).install();
     }
         
     public void paint(Graphics origGraphics) {

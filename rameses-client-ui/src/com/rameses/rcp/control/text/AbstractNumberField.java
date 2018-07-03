@@ -44,7 +44,7 @@ public abstract class AbstractNumberField extends DefaultTextField
         putClientProperty("TextField.font", getFont());         
         setHorizontalAlignment(SwingConstants.RIGHT);
         setPreferredSize(new Dimension(100, getPreferredSize().height));        
-        setFont(Font.decode("Courier New--"));         
+        setFont(Font.decode("Monospaced--"));         
         new ESCKeyAction().register(this);
     }
 

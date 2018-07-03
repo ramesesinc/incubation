@@ -61,6 +61,7 @@ public class XEditorPane extends JEditorPane implements UIInput, ActiveControl
             }
         });
         
+        setMargin(new Insets(5,5,5,5)); 
     }
     
     //<editor-fold defaultstate="collapsed" desc="  processHyperlinkEvent  ">

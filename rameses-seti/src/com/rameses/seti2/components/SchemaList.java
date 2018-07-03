@@ -373,7 +373,7 @@ public class SchemaList extends XComponentPanel {
         xLabel2.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         xLabel2.setName("filterText"); // NOI18N
         xLabel2.setCellPadding(new java.awt.Insets(5, 0, 0, 5));
-        xLabel2.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        xLabel2.setFontStyle("font-weight: bold;");
         xLabel2.setForeground(new java.awt.Color(204, 0, 0));
         xLabel2.setText("xLabel2");
         jPanel7.add(xLabel2, java.awt.BorderLayout.WEST);
@@ -426,8 +426,8 @@ public class SchemaList extends XComponentPanel {
 
             add(jPanel8, java.awt.BorderLayout.NORTH);
 
-            datatable.setName("selectedItem"); // NOI18N
             datatable.setHandler("listModel");
+            datatable.setName("selectedItem"); // NOI18N
             add(datatable, java.awt.BorderLayout.CENTER);
 
             jToolBar2.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));

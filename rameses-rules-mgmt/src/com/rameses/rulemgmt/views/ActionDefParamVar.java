@@ -34,6 +34,8 @@ public class ActionDefParamVar extends javax.swing.JPanel {
         xTitledBorder1.setTitle("Data Info");
         setBorder(xTitledBorder1);
 
+        xFormPanel1.setCaptionVAlignment(com.rameses.rcp.constant.UIConstants.CENTER);
+
         xTextField3.setCaption("Variable Data Type");
         xTextField3.setCaptionWidth(120);
         xTextField3.setName("entity.vardatatype"); // NOI18N

@@ -46,32 +46,30 @@
   <SubComponents>
     <Container class="com.rameses.rcp.control.XFormPanel" name="xFormPanel1">
       <Properties>
+        <Property name="name" type="java.lang.String" value="formControls" noResource="true"/>
         <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
           <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
             <EmptyBorder/>
           </Border>
         </Property>
         <Property name="dynamic" type="boolean" value="true"/>
-        <Property name="name" type="java.lang.String" value="formControls" noResource="true"/>
         <Property name="showCategory" type="boolean" value="true"/>
       </Properties>
     </Container>
     <Component class="com.rameses.rcp.control.XLabel" name="xLabel1">
       <Properties>
-        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-          <Font name="Tahoma" size="11" style="1"/>
-        </Property>
+        <Property name="visibleWhen" type="java.lang.String" value="#{mode == null}"/>
+        <Property name="fontStyle" type="java.lang.String" value="font-weight: bold;"/>
         <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="33" green="0" red="ff" type="rgb"/>
         </Property>
         <Property name="text" type="java.lang.String" value="ERROR. Please specify action query or preview in your workunit"/>
-        <Property name="visibleWhen" type="java.lang.String" value="#{mode == null}"/>
       </Properties>
     </Component>
     <Component class="com.rameses.rcp.control.XLabel" name="xLabel2">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Enter report parameters and click Preview or Send to Printer to continue"/>
         <Property name="visibleWhen" type="java.lang.String" value="#{mode == &apos;query&apos;}"/>
+        <Property name="text" type="java.lang.String" value="Enter report parameters and click Preview or Send to Printer to continue"/>
       </Properties>
     </Component>
   </SubComponents>

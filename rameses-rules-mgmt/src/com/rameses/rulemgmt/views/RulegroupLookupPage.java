@@ -35,6 +35,8 @@ public class RulegroupLookupPage extends javax.swing.JPanel {
         xComboBox2 = new com.rameses.rcp.control.XComboBox();
         xComboBox3 = new com.rameses.rcp.control.XComboBox();
 
+        xFormPanel1.setCaptionVAlignment(com.rameses.rcp.constant.UIConstants.CENTER);
+
         xComboBox2.setCaption("Ruleset");
         xComboBox2.setExpression("#{item.name}");
         xComboBox2.setItemKey("name");

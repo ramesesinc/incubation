@@ -12,7 +12,6 @@ import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.framework.ClientContext;
 import com.rameses.rcp.support.ComboBoxEditorSupport;
-import com.rameses.rcp.support.ThemeUI;
 import com.rameses.rcp.ui.ActiveControl;
 import com.rameses.rcp.ui.ControlProperty;
 import com.rameses.rcp.ui.UIInput;
@@ -91,10 +90,6 @@ public class XComboBox extends JComboBox implements UIInput, Validatable, Active
 
         setVarName("item"); 
         new MouseEventSupport(this).install();         
-        
-        //default font
-        Font f = ThemeUI.getFont("XComboBox.font");
-        if ( f != null ) setFont( f );
 
         UIManager.put("ComboBox.disabledForeground", getForeground());        
         ComboBoxEditorSupport.install(this);

@@ -815,11 +815,7 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
         this.captionFont = captionFont;
         if (captionFont != null) {
             Map attrs = getFontSupport().createFontAttributes(getCaptionFontStyle()); 
-            if (attrs.isEmpty()) {
-                updateLabelsFont(captionFont); 
-            } else {
-                updateLabelsFont(captionFont.deriveFont(attrs));
-            }
+            captionFont = getFontSupport().applyStyles(captionFont, attrs);
         } else {
             updateLabelsFont(captionFont);
         }
@@ -833,7 +829,7 @@ public class XFormPanel extends JPanel implements FormPanelProperty, UIComposite
         if (font == null) font = super.getFont(); 
         
         Map attrs = getFontSupport().createFontAttributes(getCaptionFontStyle()); 
-        if (!attrs.isEmpty()) font = font.deriveFont(attrs); 
+        font = getFontSupport().applyStyles(font, attrs); 
         
         updateLabelsFont(font); 
     } 
