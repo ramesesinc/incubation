@@ -35,6 +35,8 @@ public class WorkflowPromptPage extends javax.swing.JPanel {
         jScrollPane1 = new javax.swing.JScrollPane();
         xTextArea1 = new com.rameses.rcp.control.XTextArea();
 
+        xFormPanel1.setCaptionWidth(100);
+
         xComboBox1.setCaption("Assignee");
         xComboBox1.setExpression("#{item.name}");
         xComboBox1.setItems("assigneeList");

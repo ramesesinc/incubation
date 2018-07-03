@@ -67,8 +67,10 @@ public class FormReportModel extends ReportModel {
     }
     
     public Object getReportData() {
-        if(data?.data) return data.data;
-        throw new Exception("No available report data");
+        if(data?.data) 
+            return data.data;
+        else
+            throw new Exception("No available report data");
     }
     
     public String getReportName() {
