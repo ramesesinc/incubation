@@ -3,11 +3,11 @@ package com.rameses.rulemgmt.models;
 import com.rameses.rcp.common.*;
 import com.rameses.rcp.annotations.*;
 import com.rameses.osiris2.client.*;
-import com.rameses.osiris2.common.*
+import com.rameses.osiris2.common.*;
 import com.rameses.rulemgmt.*;
-import java.rmi.server.*;
+import java.rmi.server.UID;
 
-class RuleConditionController  {
+class RuleConditionController {
 
     @Service("RuleMgmtService")
     def service;
