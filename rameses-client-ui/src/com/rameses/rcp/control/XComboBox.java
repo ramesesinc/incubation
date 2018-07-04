@@ -32,6 +32,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.InputVerifier;
 import javax.swing.JComboBox;
@@ -68,15 +69,18 @@ public class XComboBox extends JComboBox
     private boolean updating;
     private int stretchWidth;
     private int stretchHeight;
+    
+    private boolean autoDefaultValue = true;
 
     public XComboBox() {
         initComponents();
     }
 
     // <editor-fold defaultstate="collapsed" desc="  initComponents method  ">
+    
     private void initComponents() {
+        model = new ComboBoxModelImpl();
         if (Beans.isDesignTime()) {
-            model = new ComboBoxModelImpl();
             model.addItem("Item 1", "Item 1");
             super.setModel(model);
         }
@@ -91,6 +95,11 @@ public class XComboBox extends JComboBox
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc="  Getters/Setters  ">
+    
+    public boolean isAutoDefaultValue() { return autoDefaultValue; } 
+    public void setAutoDefaultValue( boolean autoDefaultValue ) {
+        this.autoDefaultValue = autoDefaultValue; 
+    }
     
     public String getVarName() {
         return varName;
@@ -118,14 +127,16 @@ public class XComboBox extends JComboBox
             return null;
         }
         System.out.println("> get value ");
-        if (super.getSelectedItem() == null) {
-            return null;
-        }
+        Object item = getSelectedItem(); 
+        if ( item == null ) { return null; } 
 
-        Object value = ((ComboItem) super.getSelectedItem()).getValue();
-        if (value != null && !ValueUtil.isEmpty(itemKey)) {
+        Object value = ((ComboItem) item).getValue();
+        if ( value == null ) { return null; } 
+        
+        String fkey = getItemKey(); 
+        if (!ValueUtil.isEmpty(fkey)) {
             PropertyResolver res = PropertyResolver.getInstance();
-            value = res.getProperty(value, itemKey);
+            value = res.getProperty(value, fkey);
         }
         return value;
     }
@@ -452,7 +463,7 @@ public class XComboBox extends JComboBox
 
     // </editor-fold>    
     
-    // <editor-fold defaultstate="collapsed" desc="  buildList  ">
+    // <editor-fold defaultstate="collapsed" desc="  helper methods  ">
     
     private Binding getCurrentBinding() {
         if ("true".equals(getClientProperty(JTable.class) + "")) {
@@ -501,8 +512,7 @@ public class XComboBox extends JComboBox
                     list = Arrays.asList(type.getEnumConstants());
                 }
             }
-        } catch (Throwable e) {;
-        }
+        } catch (Throwable e) {;}
 
         if (itemsObject != null) {
             Collection col = null;
@@ -551,24 +561,21 @@ public class XComboBox extends JComboBox
         return beanSupport.createProxy();
     }
 
+    public void setSelectedItem(Object item) {
+        System.out.println("* set selected item "+ item);
+        super.setSelectedItem(item);
+    }
+
     // </editor-fold> 
-    
-    private ComboBoxModelImpl createModelImpl() { 
-        ComboBoxModelImpl model = new ComboBoxModelImpl(); 
-        if (isAllowNull()) { 
-            model.addItem(null, getEmptyText()); 
-        } 
-        return model; 
-    } 
-    
+        
     public void load() {
         ComboBoxModelImpl newModel = createModelImpl();
-        if (!dynamic) {
+        if (!isDynamic()) {
             buildList( newModel );
             newModel.setSelectedItem( null ); 
-        }
-        model = newModel;
-        super.setModel(model);
+        } 
+        super.setModel( newModel ); 
+        model = newModel; 
         
         if (!immediate) {
             //super.addItemListener(this);
@@ -585,14 +592,23 @@ public class XComboBox extends JComboBox
         }
     }
 
-    public void refresh() {
+    public void refresh() { 
         try {
-            if (dynamic) {
+            if (isDynamic()) {
                 ComboBoxModelImpl newModel = new ComboBoxModelImpl();
                 buildList( newModel );
                 newModel.setSelectedItem( null ); 
+                loadBeanValue( newModel ); 
+                
+                super.setModel( newModel ); 
                 model = newModel; 
-                super.setModel( model ); 
+            } else {
+                model.nopublish = true; 
+                loadBeanValue( model ); 
+            }
+            
+            if ( isAutoDefaultValue()) {
+                updateBeanValue(); 
             }
             
             String whenExpr = getVisibleWhen();
@@ -661,6 +677,8 @@ public class XComboBox extends JComboBox
             if (ClientContext.getCurrentContext().isDebugMode()) {
                 e.printStackTrace();
             }
+        } finally {
+            model.nopublish = false; 
         }
     }
 
@@ -711,20 +729,49 @@ public class XComboBox extends JComboBox
     }
 
     protected final void fireItemStateChanged(ItemEvent e) {
-        if (isReadonly()) {
-            return;
-        }
+        if (isReadonly()) { return; }
+        else if (model != null && model.nopublish) { return; }
 
         System.out.println("> fireItemStateChanged -> "+ e);
         onItemStateChanged(e);
         super.fireItemStateChanged(e);
     }
 
-    // <editor-fold defaultstate="collapsed" desc=" ComboBoxModelImpl ">
+    // <editor-fold defaultstate="collapsed" desc=" ComboBoxModel ">
+    
+    private ComboBoxModelImpl createModelImpl() { 
+        ComboBoxModelImpl model = new ComboBoxModelImpl(); 
+        if (isAllowNull()) { 
+            model.addItem(null, getEmptyText()); 
+        } 
+        return model; 
+    } 
+    private void loadBeanValue(ComboBoxModel model) { 
+        if ( model == null ) { return; }
+        
+        Object value = UIControlUtil.getBeanValue(this); 
+        model.setSelectedItem( value ); 
+    }
+    private void updateBeanValue() {
+        Object newValue = getValue(); 
+        Object oldValue = UIControlUtil.getBeanValue(this); 
+
+        boolean matched = false; 
+        if ( oldValue == null && newValue == null ) {
+            matched = true; 
+        } else if ( oldValue != null && newValue != null && oldValue.equals(newValue)) {
+            matched = true; 
+        }
+
+        if ( !matched ) {
+            UIInputUtil.updateBeanValue(this);
+        }
+    }
     
     private class ComboBoxModelImpl extends DefaultComboBoxModel {
 
         XComboBox root = XComboBox.this;
+        boolean nopublish;
 
         void addItem(Object item) {
             addItem(item, (item == null ? "" : item.toString())); 
@@ -732,11 +779,26 @@ public class XComboBox extends JComboBox
         void addItem(Object item, String caption) { 
             addElement(new ComboItem(item, caption)); 
         }
+
+        public void setSelectedItem(Object item) {
+            if ( item == null ) {
+                super.setSelectedItem( null ); 
+            } else if ( item instanceof ComboItem ) {
+                super.setSelectedItem( item ); 
+            } else {
+                super.setSelectedItem(new ComboItem( item ));
+            } 
+        }
+
+        protected void fireContentsChanged(Object source, int index0, int index1) {
+            System.out.println("* fireContentsChanged ");
+            super.fireContentsChanged(source, index0, index1);
+        }        
     }
 
     // </editor-fold>
     
-    // <editor-fold defaultstate="collapsed" desc=" ComboItem (class) ">
+    // <editor-fold defaultstate="collapsed" desc=" ComboItem ">
     
     public class ComboItem {
 
@@ -770,20 +832,18 @@ public class XComboBox extends JComboBox
 
             ComboItem ci = (ComboItem) o;
             if (value == null && ci.value == null) {
-                return true;
-            } else if (value != null && ci.value == null) {
-                return false;
-            } else if (value == null && ci.value != null) {
-                return false;
-            }
-
-            return value.equals(ci.value);
+                return true; 
+            } else if ( value != null && ci.value != null && value.equals(ci.value)) {
+                return true; 
+            } else {
+                return false; 
+            } 
         }
     }
 
     // </editor-fold>  
     
-    // <editor-fold defaultstate="collapsed" desc=" PropertyInfoWrapper (Class)  "> 
+    // <editor-fold defaultstate="collapsed" desc=" PropertyInfoWrapper "> 
     
     private class PropertyInfoWrapper {
 
