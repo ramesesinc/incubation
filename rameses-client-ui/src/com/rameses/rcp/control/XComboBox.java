@@ -125,7 +125,7 @@ public class XComboBox extends JComboBox
         if (Beans.isDesignTime()) {
             return null;
         }
-        System.out.println("> get value ");
+
         Object item = getSelectedItem(); 
         if ( item == null ) { return null; } 
 
