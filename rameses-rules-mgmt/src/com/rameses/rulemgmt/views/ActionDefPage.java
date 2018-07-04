@@ -41,15 +41,21 @@ public class ActionDefPage extends javax.swing.JPanel {
         xIntegerField1 = new com.rameses.rcp.control.XIntegerField();
         jPanel1 = new javax.swing.JPanel();
         xDataTable1 = new com.rameses.rcp.control.XDataTable();
+        jPanel3 = new javax.swing.JPanel();
+        jPanel4 = new javax.swing.JPanel();
         xButton2 = new com.rameses.rcp.control.XButton();
         xButton3 = new com.rameses.rcp.control.XButton();
+        filler1 = new javax.swing.Box.Filler(new java.awt.Dimension(20, 0), new java.awt.Dimension(20, 0), new java.awt.Dimension(20, 32767));
         xButton4 = new com.rameses.rcp.control.XButton();
+        jPanel5 = new javax.swing.JPanel();
         xButton1 = new com.rameses.rcp.control.XButton();
+        filler2 = new javax.swing.Box.Filler(new java.awt.Dimension(3, 0), new java.awt.Dimension(3, 0), new java.awt.Dimension(3, 32767));
         xButton5 = new com.rameses.rcp.control.XButton();
         xPanel1 = new com.rameses.rcp.control.XPanel();
+        jPanel6 = new javax.swing.JPanel();
+        jLabel1 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         xList1 = new com.rameses.rcp.control.XList();
-        jLabel1 = new javax.swing.JLabel();
 
         xFormPanel1.setCaptionVAlignment(com.rameses.rcp.constant.UIConstants.CENTER);
         xFormPanel1.setCaptionWidth(120);
@@ -113,7 +119,10 @@ public class ActionDefPage extends javax.swing.JPanel {
                 .addContainerGap(170, Short.MAX_VALUE))
         );
 
-        xTabbedPane1.addTab("General Info", jPanel2);
+        xTabbedPane1.addTab("  General Info   ", jPanel2);
+
+        jPanel1.setBorder(javax.swing.BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        jPanel1.setLayout(new java.awt.BorderLayout());
 
         xDataTable1.setHandler("paramModel");
         xDataTable1.setName("selectedParam"); // NOI18N
@@ -240,77 +249,70 @@ public class ActionDefPage extends javax.swing.JPanel {
             })
         });
         xDataTable1.setVarStatus("varStatus");
+        jPanel1.add(xDataTable1, java.awt.BorderLayout.CENTER);
+
+        jPanel3.setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 0, 0, 0));
+        jPanel3.setLayout(new javax.swing.BoxLayout(jPanel3, javax.swing.BoxLayout.LINE_AXIS));
+
+        jPanel4.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 0, 0));
 
         xButton2.setName("addParam"); // NOI18N
         xButton2.setVisibleWhen("#{mode!='read'}");
         xButton2.setImmediate(true);
         xButton2.setText("Add");
+        jPanel4.add(xButton2);
 
         xButton3.setName("editParam"); // NOI18N
         xButton3.setVisibleWhen("#{mode!='read'}");
         xButton3.setImmediate(true);
         xButton3.setText("Edit");
+        jPanel4.add(xButton3);
+        jPanel4.add(filler1);
 
         xButton4.setName("removeParam"); // NOI18N
         xButton4.setVisibleWhen("#{mode!='read'}");
         xButton4.setImmediate(true);
         xButton4.setText("Remove");
+        jPanel4.add(xButton4);
+
+        jPanel3.add(jPanel4);
+
+        jPanel5.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.RIGHT, 0, 0));
 
         xButton1.setName("shiftUp"); // NOI18N
         xButton1.setVisibleWhen("#{mode!='read'}");
-        xButton1.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        xButton1.setMargin(new java.awt.Insets(1, 4, 1, 4));
         xButton1.setText("Up");
+        jPanel5.add(xButton1);
+        jPanel5.add(filler2);
 
         xButton5.setName("shiftDown"); // NOI18N
         xButton5.setVisibleWhen("#{mode!='read'}");
         xButton5.setImmediate(true);
-        xButton5.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        xButton5.setMargin(new java.awt.Insets(1, 4, 1, 4));
         xButton5.setText("Dn");
+        jPanel5.add(xButton5);
 
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(xDataTable1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                        .addComponent(xButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(xButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(xButton4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 228, Short.MAX_VALUE)
-                        .addComponent(xButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(xButton5, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap())
-        );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(xDataTable1, javax.swing.GroupLayout.DEFAULT_SIZE, 286, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(xButton2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(xButton3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(xButton4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(xButton1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(xButton5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap())
-        );
+        jPanel3.add(jPanel5);
 
-        xTabbedPane1.addTab("Parameters", jPanel1);
+        jPanel1.add(jPanel3, java.awt.BorderLayout.SOUTH);
 
-        xList1.setDynamic(true);
+        xTabbedPane1.addTab("  Parameters  ", jPanel1);
+
+        jPanel6.setLayout(new java.awt.BorderLayout());
+
+        jLabel1.setText("Associated rulesets");
+        jLabel1.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 5, 0));
+        jPanel6.add(jLabel1, java.awt.BorderLayout.PAGE_START);
+
         xList1.setExpression("#{item.ruleset}");
         xList1.setItems("entity.rulesets");
         xList1.setName("selectedRuleset"); // NOI18N
+        xList1.setDynamic(true);
+        xList1.setFixedCellHeight(18);
         jScrollPane1.setViewportView(xList1);
 
-        jLabel1.setText("Associated rulesets");
+        jPanel6.add(jScrollPane1, java.awt.BorderLayout.CENTER);
 
         javax.swing.GroupLayout xPanel1Layout = new javax.swing.GroupLayout(xPanel1);
         xPanel1.setLayout(xPanel1Layout);
@@ -318,21 +320,18 @@ public class ActionDefPage extends javax.swing.JPanel {
             xPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(xPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(xPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jScrollPane1)
-                    .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 277, Short.MAX_VALUE))
-                .addContainerGap(237, Short.MAX_VALUE))
+                .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, 215, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(299, Short.MAX_VALUE))
         );
         xPanel1Layout.setVerticalGroup(
             xPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(xPanel1Layout.createSequentialGroup()
-                .addComponent(jLabel1)
-                .addGap(7, 7, 7)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 151, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(165, Short.MAX_VALUE))
+                .addContainerGap()
+                .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, 201, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(125, Short.MAX_VALUE))
         );
 
-        xTabbedPane1.addTab("Rulesets", xPanel1);
+        xTabbedPane1.addTab("  Rulesets  ", xPanel1);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -352,9 +351,15 @@ public class ActionDefPage extends javax.swing.JPanel {
         );
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.Box.Filler filler1;
+    private javax.swing.Box.Filler filler2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel4;
+    private javax.swing.JPanel jPanel5;
+    private javax.swing.JPanel jPanel6;
     private javax.swing.JScrollPane jScrollPane1;
     private com.rameses.rcp.control.XButton xButton1;
     private com.rameses.rcp.control.XButton xButton2;

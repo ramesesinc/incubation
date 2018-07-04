@@ -29,40 +29,22 @@ public class DefaultRuleConditionPage extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        xFormPanel2 = new com.rameses.rcp.control.XFormPanel();
-        jLabel2 = new javax.swing.JLabel();
-        cmdAddConstraint = new com.rameses.rcp.control.XButton();
         xFormPanel1 = new com.rameses.rcp.control.XFormPanel();
         xLabel1 = new com.rameses.rcp.control.XLabel();
         xTextField2 = new com.rameses.rcp.control.XTextField();
         xIntegerField1 = new com.rameses.rcp.control.XIntegerField();
-        jPanel1 = new javax.swing.JPanel();
-        jLabel3 = new javax.swing.JLabel();
-        jLabel4 = new javax.swing.JLabel();
-        jLabel5 = new javax.swing.JLabel();
-        jLabel6 = new javax.swing.JLabel();
         xCheckBox1 = new com.rameses.rcp.control.XCheckBox();
+        jPanel2 = new javax.swing.JPanel();
+        xLabel2 = new com.rameses.rcp.control.XLabel();
+        cmdAddConstraint = new com.rameses.rcp.control.XButton();
+        jPanel1 = new javax.swing.JPanel();
+        jLabel6 = new com.rameses.rcp.control.XLabel();
+        jLabel3 = new com.rameses.rcp.control.XLabel();
+        jLabel4 = new com.rameses.rcp.control.XLabel();
+        jLabel5 = new com.rameses.rcp.control.XLabel();
+        xFormPanel2 = new com.rameses.rcp.control.XFormPanel();
 
         setPreferredSize(new java.awt.Dimension(636, 400));
-
-        xFormPanel2.setName("constraintControls"); // NOI18N
-        com.rameses.rcp.control.border.XLineBorder xLineBorder1 = new com.rameses.rcp.control.border.XLineBorder();
-        xLineBorder1.setLineColor(new java.awt.Color(204, 204, 204));
-        xLineBorder1.setPadding(new java.awt.Insets(5, 5, 0, 0));
-        xFormPanel2.setBorder(xLineBorder1);
-        xFormPanel2.setCaptionBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        xFormPanel2.setCaptionWidth(120);
-        xFormPanel2.setCellspacing(5);
-        xFormPanel2.setDynamic(true);
-
-        jLabel2.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        jLabel2.setText("Constraints");
-
-        cmdAddConstraint.setName("addConstraint"); // NOI18N
-        cmdAddConstraint.setContentAreaFilled(false);
-        cmdAddConstraint.setImmediate(true);
-        cmdAddConstraint.setMargin(new java.awt.Insets(2, 2, 2, 2));
-        cmdAddConstraint.setText("<html><a href=\"x\">[ Add ]</a></html>");
 
         xFormPanel1.setCaptionVAlignment(com.rameses.rcp.constant.UIConstants.CENTER);
         xFormPanel1.setCaptionWidth(140);
@@ -85,43 +67,6 @@ public class DefaultRuleConditionPage extends javax.swing.JPanel {
         xIntegerField1.setPreferredSize(new java.awt.Dimension(60, 20));
         xFormPanel1.add(xIntegerField1);
 
-        jLabel3.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        jLabel3.setText("Var.Name");
-
-        jLabel4.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        jLabel4.setText("Operator");
-
-        jLabel5.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        jLabel5.setText("Value");
-
-        jLabel6.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        jLabel6.setText("Field Name");
-        jLabel6.setPreferredSize(new java.awt.Dimension(0, 14));
-
-        org.jdesktop.layout.GroupLayout jPanel1Layout = new org.jdesktop.layout.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
-                .add(jLabel6, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 108, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jLabel3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 81, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jLabel4, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 168, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .add(14, 14, 14)
-                .add(jLabel5, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 65, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(158, Short.MAX_VALUE))
-        );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                .add(jLabel6, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .add(jLabel3)
-                .add(jLabel4)
-                .add(jLabel5))
-        );
-
         xCheckBox1.setCheckValue(1);
         xCheckBox1.setName("entity.notexist"); // NOI18N
         xCheckBox1.setUncheckValue(0);
@@ -133,6 +78,57 @@ public class DefaultRuleConditionPage extends javax.swing.JPanel {
             }
         });
 
+        jPanel2.setLayout(new com.rameses.rcp.control.layout.XLayout());
+
+        xLabel2.setFontStyle("font-weight: bold; font-scale:111;");
+        xLabel2.setForeground(new java.awt.Color(60, 60, 60));
+        xLabel2.setPadding(new java.awt.Insets(1, 3, 1, 15));
+        xLabel2.setText("Constraints");
+        jPanel2.add(xLabel2);
+
+        cmdAddConstraint.setName("addConstraint"); // NOI18N
+        cmdAddConstraint.setContentAreaFilled(false);
+        cmdAddConstraint.setImmediate(true);
+        cmdAddConstraint.setMargin(new java.awt.Insets(2, 2, 2, 2));
+        cmdAddConstraint.setText("<html><a href=\"x\">[ Add ]</a></html>");
+        jPanel2.add(cmdAddConstraint);
+
+        jPanel1.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 10, 0, 0));
+        jPanel1.setLayout(new com.rameses.rcp.control.layout.XLayout());
+
+        jLabel6.setExpression("Field Name");
+        jLabel6.setFontStyle("font-weight: bold;");
+        jLabel6.setForeground(new java.awt.Color(30, 30, 30));
+        jLabel6.setPreferredSize(new java.awt.Dimension(112, 20));
+        jPanel1.add(jLabel6);
+
+        jLabel3.setExpression("Var.Name");
+        jLabel3.setFontStyle("font-weight: bold;");
+        jLabel3.setForeground(new java.awt.Color(30, 30, 30));
+        jLabel3.setPreferredSize(new java.awt.Dimension(80, 20));
+        jPanel1.add(jLabel3);
+
+        jLabel4.setExpression("Operator");
+        jLabel4.setFontStyle("font-weight: bold;");
+        jLabel4.setForeground(new java.awt.Color(30, 30, 30));
+        jLabel4.setPreferredSize(new java.awt.Dimension(200, 20));
+        jPanel1.add(jLabel4);
+
+        jLabel5.setExpression("Value");
+        jLabel5.setFontStyle("font-weight: bold;");
+        jLabel5.setForeground(new java.awt.Color(30, 30, 30));
+        jPanel1.add(jLabel5);
+
+        xFormPanel2.setName("constraintControls"); // NOI18N
+        com.rameses.rcp.control.border.XLineBorder xLineBorder1 = new com.rameses.rcp.control.border.XLineBorder();
+        xLineBorder1.setLineColor(new java.awt.Color(204, 204, 204));
+        xLineBorder1.setPadding(new java.awt.Insets(5, 5, 0, 0));
+        xFormPanel2.setBorder(xLineBorder1);
+        xFormPanel2.setCaptionBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        xFormPanel2.setCaptionWidth(120);
+        xFormPanel2.setCellspacing(5);
+        xFormPanel2.setDynamic(true);
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -143,14 +139,10 @@ public class DefaultRuleConditionPage extends javax.swing.JPanel {
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, xFormPanel2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 653, Short.MAX_VALUE)
                     .add(jPanel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .add(layout.createSequentialGroup()
-                        .add(jLabel2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 74, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(cmdAddConstraint, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .add(0, 0, Short.MAX_VALUE))
-                    .add(layout.createSequentialGroup()
-                        .add(xFormPanel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .add(xFormPanel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 511, Short.MAX_VALUE)
                         .add(18, 18, 18)
-                        .add(xCheckBox1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 87, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                        .add(xCheckBox1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 87, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(jPanel2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -161,13 +153,11 @@ public class DefaultRuleConditionPage extends javax.swing.JPanel {
                     .add(xFormPanel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(xCheckBox1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(jLabel2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 23, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(cmdAddConstraint, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .add(jPanel2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jPanel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(jPanel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 20, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(xFormPanel2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 254, Short.MAX_VALUE)
+                .add(xFormPanel2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 248, Short.MAX_VALUE)
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -179,17 +169,18 @@ public class DefaultRuleConditionPage extends javax.swing.JPanel {
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private com.rameses.rcp.control.XButton cmdAddConstraint;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel5;
-    private javax.swing.JLabel jLabel6;
+    private com.rameses.rcp.control.XLabel jLabel3;
+    private com.rameses.rcp.control.XLabel jLabel4;
+    private com.rameses.rcp.control.XLabel jLabel5;
+    private com.rameses.rcp.control.XLabel jLabel6;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
     private com.rameses.rcp.control.XCheckBox xCheckBox1;
     private com.rameses.rcp.control.XFormPanel xFormPanel1;
     private com.rameses.rcp.control.XFormPanel xFormPanel2;
     private com.rameses.rcp.control.XIntegerField xIntegerField1;
     private com.rameses.rcp.control.XLabel xLabel1;
+    private com.rameses.rcp.control.XLabel xLabel2;
     private com.rameses.rcp.control.XTextField xTextField2;
     // End of variables declaration//GEN-END:variables
     

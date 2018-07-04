@@ -43,13 +43,17 @@ public class RulesetPage extends javax.swing.JPanel {
         xDataTable1 = new com.rameses.rcp.control.XDataTable();
         xPanel1 = new com.rameses.rcp.control.XPanel();
         xDataTable2 = new com.rameses.rcp.control.XDataTable();
+        jPanel3 = new javax.swing.JPanel();
         xButton1 = new com.rameses.rcp.control.XButton();
         xButton2 = new com.rameses.rcp.control.XButton();
+        filler1 = new javax.swing.Box.Filler(new java.awt.Dimension(20, 0), new java.awt.Dimension(20, 0), new java.awt.Dimension(20, 32767));
         xButton5 = new com.rameses.rcp.control.XButton();
         xPanel2 = new com.rameses.rcp.control.XPanel();
         xDataTable3 = new com.rameses.rcp.control.XDataTable();
+        jPanel4 = new javax.swing.JPanel();
         xButton3 = new com.rameses.rcp.control.XButton();
         xButton4 = new com.rameses.rcp.control.XButton();
+        filler2 = new javax.swing.Box.Filler(new java.awt.Dimension(20, 0), new java.awt.Dimension(20, 0), new java.awt.Dimension(20, 32767));
         xButton6 = new com.rameses.rcp.control.XButton();
 
         xTabbedPane1.setDynamic(true);
@@ -108,8 +112,9 @@ public class RulesetPage extends javax.swing.JPanel {
                 .addContainerGap(318, Short.MAX_VALUE))
         );
 
-        xTabbedPane1.addTab("General", jPanel1);
+        xTabbedPane1.addTab("  General   ", jPanel1);
 
+        xDataTable1.setHandler("itemHandlers.groups");
         xDataTable1.setColumns(new com.rameses.rcp.common.Column[]{
             new com.rameses.rcp.common.Column(new Object[]{
                 new Object[]{"name", "name"}
@@ -160,7 +165,6 @@ public class RulesetPage extends javax.swing.JPanel {
                 , new Object[]{"typeHandler", new com.rameses.rcp.common.IntegerColumnHandler(null, -1, -1)}
             })
         });
-        xDataTable1.setHandler("itemHandlers.groups");
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -179,10 +183,14 @@ public class RulesetPage extends javax.swing.JPanel {
                 .addContainerGap())
         );
 
-        xTabbedPane1.addTab("Rule Groups", jPanel2);
+        xTabbedPane1.addTab("  Rule Groups  ", jPanel2);
 
         xPanel1.setVisibleWhen("#{mode == 'read' }");
+        xPanel1.setBorder(javax.swing.BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        xPanel1.setLayout(new java.awt.BorderLayout());
 
+        xDataTable2.setHandler("factListModel");
+        xDataTable2.setName("selectedFact"); // NOI18N
         xDataTable2.setColumns(new com.rameses.rcp.common.Column[]{
             new com.rameses.rcp.common.Column(new Object[]{
                 new Object[]{"name", "fact.name"}
@@ -230,52 +238,34 @@ public class RulesetPage extends javax.swing.JPanel {
                 , new Object[]{"typeHandler", new com.rameses.rcp.common.TextColumnHandler()}
             })
         });
-        xDataTable2.setHandler("factListModel");
-        xDataTable2.setName("selectedFact"); // NOI18N
+        xPanel1.add(xDataTable2, java.awt.BorderLayout.CENTER);
+
+        jPanel3.setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 0, 0, 0));
+        jPanel3.setLayout(new com.rameses.rcp.control.layout.XLayout());
 
         xButton1.setName("addFact"); // NOI18N
         xButton1.setText("Add");
+        jPanel3.add(xButton1);
 
         xButton2.setName("removeFact"); // NOI18N
         xButton2.setText("Remove");
+        jPanel3.add(xButton2);
+        jPanel3.add(filler1);
 
         xButton5.setName("openFact"); // NOI18N
         xButton5.setText("Open");
+        jPanel3.add(xButton5);
 
-        javax.swing.GroupLayout xPanel1Layout = new javax.swing.GroupLayout(xPanel1);
-        xPanel1.setLayout(xPanel1Layout);
-        xPanel1Layout.setHorizontalGroup(
-            xPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(xPanel1Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(xPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(xDataTable2, javax.swing.GroupLayout.DEFAULT_SIZE, 538, Short.MAX_VALUE)
-                    .addGroup(xPanel1Layout.createSequentialGroup()
-                        .addComponent(xButton1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(xButton2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(35, 35, 35)
-                        .addComponent(xButton5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 0, Short.MAX_VALUE)))
-                .addContainerGap())
-        );
-        xPanel1Layout.setVerticalGroup(
-            xPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(xPanel1Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(xDataTable2, javax.swing.GroupLayout.DEFAULT_SIZE, 411, Short.MAX_VALUE)
-                .addGap(8, 8, 8)
-                .addGroup(xPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(xButton1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(xButton2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(xButton5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap())
-        );
+        xPanel1.add(jPanel3, java.awt.BorderLayout.SOUTH);
 
-        xTabbedPane1.addTab("Facts", xPanel1);
+        xTabbedPane1.addTab("  Facts  ", xPanel1);
 
         xPanel2.setVisibleWhen("#{ mode == 'read' }");
+        xPanel2.setBorder(javax.swing.BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        xPanel2.setLayout(new java.awt.BorderLayout());
 
+        xDataTable3.setHandler("actionListModel");
+        xDataTable3.setName("selectedAction"); // NOI18N
         xDataTable3.setColumns(new com.rameses.rcp.common.Column[]{
             new com.rameses.rcp.common.Column(new Object[]{
                 new Object[]{"name", "action.name"}
@@ -323,49 +313,27 @@ public class RulesetPage extends javax.swing.JPanel {
                 , new Object[]{"typeHandler", new com.rameses.rcp.common.TextColumnHandler()}
             })
         });
-        xDataTable3.setHandler("actionListModel");
-        xDataTable3.setName("selectedAction"); // NOI18N
+        xPanel2.add(xDataTable3, java.awt.BorderLayout.CENTER);
+
+        jPanel4.setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 0, 0, 0));
+        jPanel4.setLayout(new com.rameses.rcp.control.layout.XLayout());
 
         xButton3.setName("addAction"); // NOI18N
         xButton3.setText("Add");
+        jPanel4.add(xButton3);
 
         xButton4.setName("removeAction"); // NOI18N
         xButton4.setText("Remove");
+        jPanel4.add(xButton4);
+        jPanel4.add(filler2);
 
         xButton6.setName("openAction"); // NOI18N
-        xButton6.setText("Open Action");
+        xButton6.setText("Open");
+        jPanel4.add(xButton6);
 
-        javax.swing.GroupLayout xPanel2Layout = new javax.swing.GroupLayout(xPanel2);
-        xPanel2.setLayout(xPanel2Layout);
-        xPanel2Layout.setHorizontalGroup(
-            xPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(xPanel2Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(xPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(xDataTable3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 538, Short.MAX_VALUE)
-                    .addGroup(xPanel2Layout.createSequentialGroup()
-                        .addComponent(xButton3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(xButton4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(51, 51, 51)
-                        .addComponent(xButton6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 0, Short.MAX_VALUE)))
-                .addContainerGap())
-        );
-        xPanel2Layout.setVerticalGroup(
-            xPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(xPanel2Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(xDataTable3, javax.swing.GroupLayout.DEFAULT_SIZE, 413, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(xPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(xButton3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(xButton4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(xButton6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap())
-        );
+        xPanel2.add(jPanel4, java.awt.BorderLayout.SOUTH);
 
-        xTabbedPane1.addTab("Actions", xPanel2);
+        xTabbedPane1.addTab("  Actions  ", xPanel2);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -383,10 +351,16 @@ public class RulesetPage extends javax.swing.JPanel {
                 .addComponent(xTabbedPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 492, Short.MAX_VALUE)
                 .addContainerGap())
         );
+
+        xTabbedPane1.getAccessibleContext().setAccessibleName("  General   ");
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.Box.Filler filler1;
+    private javax.swing.Box.Filler filler2;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel4;
     private com.rameses.rcp.control.XButton xButton1;
     private com.rameses.rcp.control.XButton xButton2;
     private com.rameses.rcp.control.XButton xButton3;

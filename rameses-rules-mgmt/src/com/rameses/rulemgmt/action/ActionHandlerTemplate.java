@@ -32,8 +32,12 @@ public class ActionHandlerTemplate extends javax.swing.JPanel {
 
         setLayout(new java.awt.BorderLayout());
 
+        jPanel1.setBorder(javax.swing.BorderFactory.createEmptyBorder(2, 5, 2, 5));
+        jPanel1.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.CENTER, 0, 0));
+
         xButton1.setName("removeAction"); // NOI18N
         xButton1.setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 2, 5, 2));
+        xButton1.setContentAreaFilled(false);
         xButton1.setIconResource("images/toolbars/trash.png");
         xButton1.setImmediate(true);
         xButton1.setMargin(new java.awt.Insets(2, 4, 2, 4));
