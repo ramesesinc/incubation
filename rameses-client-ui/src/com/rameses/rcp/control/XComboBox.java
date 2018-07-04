@@ -70,7 +70,8 @@ public class XComboBox extends JComboBox
     private int stretchHeight;
     
     private boolean autoDefaultValue = true;
-
+    private PropertyResolver propertyResolver;
+    
     public XComboBox() {
         initComponents();
     }
@@ -78,6 +79,7 @@ public class XComboBox extends JComboBox
     // <editor-fold defaultstate="collapsed" desc="  initComponents method  ">
     
     private void initComponents() {
+        propertyResolver = PropertyResolver.getInstance();
         model = new ComboBoxModelImpl();
         if (Beans.isDesignTime()) {
             model.addItem("Item 1", "Item 1");
@@ -608,7 +610,7 @@ public class XComboBox extends JComboBox
             
             if ( isAutoDefaultValue()) {
                 if ( getSelectedIndex() < 0 ) {
-                    try {
+                    try { 
                         setSelectedIndex(0); 
                     } catch(Throwable t){;} 
                 }
@@ -716,7 +718,7 @@ public class XComboBox extends JComboBox
         if ( model == null ) { return; }
         
         Object value = UIControlUtil.getBeanValue(this); 
-        model.setSelectedItem( value ); 
+        model.setSelectedItem( findItem( value ) ); 
     }
     private void updateBeanValue() {
         Object newValue = getValue(); 
@@ -733,6 +735,34 @@ public class XComboBox extends JComboBox
             UIInputUtil.updateBeanValue(this);
         }
     }
+    private Object findItem(Object value) {
+        String itemkey = getItemKey(); 
+        boolean hasItemKey = (itemkey != null && itemkey.trim().length() > 0); 
+        for (int i=0; i<getItemCount(); i++) {
+            ComboItem item = (ComboItem) getItemAt(i); 
+            Object itemval = item.value; 
+            if ( hasItemKey ) {
+                itemval = propertyResolver.getProperty(itemval, itemkey); 
+            }
+            
+            if ( isEqual(value, itemval)) {
+                return item; 
+            } 
+        }
+        return null; 
+    }
+    private boolean isEqual( Object o1, Object o2 ) {
+        if (o1 == null && o2 == null) {
+            return true; 
+        } else if (o1 != null && o2 == null ) {
+            return false; 
+        } else if (o1 == null && o2 != null ) {
+            return false;
+        } else { 
+            return ( o1 != null && o2 != null && o1.equals(o2)); 
+        } 
+    }
+    
     
     private class ComboBoxModelImpl extends DefaultComboBoxModel {
 
@@ -763,6 +793,7 @@ public class XComboBox extends JComboBox
     
     public class ComboItem {
 
+        XComboBox root = XComboBox.this;
         private String text;
         private Object value;
 
@@ -792,13 +823,7 @@ public class XComboBox extends JComboBox
             }
 
             ComboItem ci = (ComboItem) o;
-            if (value == null && ci.value == null) {
-                return true; 
-            } else if ( value != null && ci.value != null && value.equals(ci.value)) {
-                return true; 
-            } else {
-                return false; 
-            } 
+            return root.isEqual(value, ci.value); 
         }
     }
 
