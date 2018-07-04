@@ -66,7 +66,6 @@ public class XComboBox extends JComboBox
     private Font sourceFont;
     protected ComboBoxModelImpl model;
     private Class fieldType;
-    private boolean updating;
     private int stretchWidth;
     private int stretchHeight;
     
@@ -142,45 +141,53 @@ public class XComboBox extends JComboBox
     }
 
     public void setValue(Object value) {
-        if (Beans.isDesignTime()) {
-            return;
-        }
+        if (Beans.isDesignTime()) { return; }
 
-        System.out.println("> set value " + value);
         if (value instanceof KeyEvent) {
             processKeyEventValue((KeyEvent) value);
             return;
         }
 
         ComboItem selObj = (ComboItem) getSelectedItem();
-        if (isSelected(selObj, value)) {
-            return;
-        }
+        if (isSelected(selObj, value)) { return; }
 
         if (value == null && !isAllowNull()) {
-            ComboItem c = (ComboItem) getItemAt(0);
-            model.setSelectedItem(c);
-            UIInputUtil.updateBeanValue(this);
+            model.nopublish = true; 
+            try { 
+                setSelectedIndex(0); 
+            } catch(Throwable t) {
+                //do nothing 
+            } finally { 
+                model.nopublish = false; 
+            }
+            updateBeanValue();
 
         } else {
-            boolean has_selection = false;
+            Object selitem = null;
             for (int i = 0; i < getItemCount(); i++) {
                 ComboItem ci = (ComboItem) getItemAt(i);
-                if (!isSelected(ci, value)) {
-                    continue;
-                }
+                if (!isSelected(ci, value)) { continue; }
 
-                model.setSelectedItem(ci);
-                has_selection = true;
+                selitem = ci; 
                 break;
             }
 
-            if (!has_selection && getItemCount() > 0) {
-                ComboItem ci = (ComboItem) getItemAt(0);
-                model.setSelectedItem(ci);
+            model.nopublish = true; 
+            try {
+                if ( selitem != null ) {
+                    model.setSelectedItem( selitem ); 
+                } else if (getItemCount() > 0) {
+                    setSelectedIndex(0); 
+                } else { 
+                    setSelectedItem( null ); 
+                } 
+            } catch(Throwable t) {
+                //do nothing 
+            } finally {
+                model.nopublish = false; 
             }
 
-            UIInputUtil.updateBeanValue(this);
+            updateBeanValue();
         }
     }
 
@@ -532,9 +539,6 @@ public class XComboBox extends JComboBox
     }
 
     private void buildList(ComboBoxModelImpl model) {
-        System.out.println("> build list ");
-        updating = true;
-
         Collection list = fetchItems();
         if (list == null) { return; }
 
@@ -552,18 +556,12 @@ public class XComboBox extends JComboBox
 
             model.addItem(o, (caption==null ? "" : caption.toString()));
         }
-        updating = false;
     }
 
     private Object createExpressionBean(Object itemBean) {
         ExprBeanSupport beanSupport = new ExprBeanSupport(binding.getBean());
         beanSupport.setItem(getVarName(), itemBean);
         return beanSupport.createProxy();
-    }
-
-    public void setSelectedItem(Object item) {
-        System.out.println("* set selected item "+ item);
-        super.setSelectedItem(item);
     }
 
     // </editor-fold> 
@@ -595,19 +593,26 @@ public class XComboBox extends JComboBox
     public void refresh() { 
         try {
             if (isDynamic()) {
-                ComboBoxModelImpl newModel = new ComboBoxModelImpl();
+                ComboBoxModelImpl newModel = createModelImpl();
                 buildList( newModel );
-                newModel.setSelectedItem( null ); 
                 loadBeanValue( newModel ); 
                 
                 super.setModel( newModel ); 
                 model = newModel; 
+                model.nopublish = true; 
+                
             } else {
                 model.nopublish = true; 
                 loadBeanValue( model ); 
             }
             
             if ( isAutoDefaultValue()) {
+                if ( getSelectedIndex() < 0 ) {
+                    try {
+                        setSelectedIndex(0); 
+                    } catch(Throwable t){;} 
+                }
+                
                 updateBeanValue(); 
             }
             
@@ -636,40 +641,6 @@ public class XComboBox extends JComboBox
                 }
                 setEnabled(!disabled);
             }
-
-//            if (dynamic) {
-//                String sname = getName();
-//                EventQueue.invokeLater(new Runnable() {
-//                    public void run() {
-//                        try {
-//                            updating = true;
-//                            buildList();
-//                        } catch (Exception e) {
-//                            if (ClientContext.getCurrentContext().isDebugMode()) {
-//                                e.printStackTrace();
-//                            }
-//                        } finally {
-//                            updating = false;
-//                        }
-//                    }
-//                });
-//            }
-
-//            EventQueue.invokeLater(new Runnable() {
-//                public void run() {
-//                    try {
-//                        Object value = UIControlUtil.getBeanValue(XComboBox.this);
-//                        setValue(value);
-//                    } catch (Exception e) {
-//                        if (ClientContext.getCurrentContext().isDebugMode()) {
-//                            e.printStackTrace();
-//                        }
-//                    } finally {
-//                        updating = false;
-//                    }
-//                }
-//            });
-
         } catch (Exception e) {
             setEnabled(false);
             setFocusable(false);
@@ -719,12 +690,8 @@ public class XComboBox extends JComboBox
     }
 
     protected void onItemStateChanged(ItemEvent e) {
-        if (e.getStateChange() == ItemEvent.SELECTED && !updating) {
-            try {
-                //System.out.println("name=" + this.getName() + ", value="+ getValue() + " index="+ getSelectedIndex() + ", bean="+ getBinding().getBean());
-                UIInputUtil.updateBeanValue(this);
-            } catch (Throwable ex) {;
-            }
+        if (e.getStateChange() == ItemEvent.SELECTED) { 
+            updateBeanValue(); 
         }
     }
 
@@ -732,7 +699,6 @@ public class XComboBox extends JComboBox
         if (isReadonly()) { return; }
         else if (model != null && model.nopublish) { return; }
 
-        System.out.println("> fireItemStateChanged -> "+ e);
         onItemStateChanged(e);
         super.fireItemStateChanged(e);
     }
@@ -789,11 +755,6 @@ public class XComboBox extends JComboBox
                 super.setSelectedItem(new ComboItem( item ));
             } 
         }
-
-        protected void fireContentsChanged(Object source, int index0, int index1) {
-            System.out.println("* fireContentsChanged ");
-            super.fireContentsChanged(source, index0, index1);
-        }        
     }
 
     // </editor-fold>
