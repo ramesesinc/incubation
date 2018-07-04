@@ -35,6 +35,9 @@
   </Layout>
   <SubComponents>
     <Container class="com.rameses.rcp.control.XFormPanel" name="xFormPanel1">
+      <Properties>
+        <Property name="captionWidth" type="int" value="100"/>
+      </Properties>
       <SubComponents>
         <Component class="com.rameses.rcp.control.XComboBox" name="xComboBox1">
           <Properties>

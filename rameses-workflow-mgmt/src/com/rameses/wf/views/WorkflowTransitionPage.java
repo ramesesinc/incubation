@@ -37,9 +37,9 @@ public class WorkflowTransitionPage extends javax.swing.JPanel {
         xFormPanel1 = new com.rameses.rcp.control.XFormPanel();
         xTextField1 = new com.rameses.rcp.control.XTextField();
         xTextField2 = new com.rameses.rcp.control.XTextField();
-        xIntegerField1 = new com.rameses.rcp.control.XIntegerField();
         jScrollPane1 = new javax.swing.JScrollPane();
         xTextArea1 = new com.rameses.rcp.control.XTextArea();
+        xIntegerField1 = new com.rameses.rcp.control.XIntegerField();
         xPanel3 = new com.rameses.rcp.control.XPanel();
         xFormPanel2 = new com.rameses.rcp.control.XFormPanel();
         xTextField6 = new com.rameses.rcp.control.XTextField();
@@ -60,17 +60,18 @@ public class WorkflowTransitionPage extends javax.swing.JPanel {
         xTextField2.setTextCase(com.rameses.rcp.constant.TextCase.NONE);
         xFormPanel1.add(xTextField2);
 
-        xIntegerField1.setCaption("Index Order");
-        xIntegerField1.setName("entity.idx"); // NOI18N
-        xIntegerField1.setPreferredSize(new java.awt.Dimension(40, 20));
-        xFormPanel1.add(xIntegerField1);
-
         jScrollPane1.setPreferredSize(new java.awt.Dimension(0, 63));
 
         xTextArea1.setCaption("Eval");
+        xTextArea1.setName("entity.eval"); // NOI18N
         jScrollPane1.setViewportView(xTextArea1);
 
         xFormPanel1.add(jScrollPane1);
+
+        xIntegerField1.setCaption("Index");
+        xIntegerField1.setName("entity.idx"); // NOI18N
+        xIntegerField1.setPreferredSize(new java.awt.Dimension(40, 20));
+        xFormPanel1.add(xIntegerField1);
 
         javax.swing.GroupLayout xPanel1Layout = new javax.swing.GroupLayout(xPanel1);
         xPanel1.setLayout(xPanel1Layout);

@@ -141,18 +141,24 @@ class WorkflowTaskService  {
             def _tran = transitions[0];
             if( _tran.eval ) {
                 if(!r.info) 
-                    throw new Exception("Please pass an info parameter in findNextTransition bec. there is an eval statement in the transition")
-                boolean b = ExpressionResolver.instance.evalBoolean( _tran.eval, [info: r.info] );
-                if(!b) throw new BreakException();
+                    throw new Exception("1. Please pass an info parameter in findNextTransition bec. there is an eval statement in the transition")
+                def mm = [:];
+                mm.putAll( r.info );
+                mm.info = r.info;         
+                boolean b = ExpressionResolver.instance.evalBoolean( _tran.eval, mm );
+                if(!b) throw new Exception("Cannot proceed. Condition failed " + _tran.eval);
             }
             return _tran;
         }    
     	for(t in transitions ) {
             if( t.eval  ) {
                 if(!r.info) {
-                    throw new Exception("Please pass an info parameter in findNextTransition bec. there is an eval statement in the transition")
+                    throw new Exception("2. Please pass an info parameter in findNextTransition bec. there is an eval statement in the transition")
                 }
-                boolean b = ExpressionResolver.instance.evalBoolean( t.eval, [info: r.info] );
+                def mm = [:];
+                mm.putAll( r.info );
+                mm.info = r.info;         
+                boolean b = ExpressionResolver.instance.evalBoolean( t.eval, mm );
                 if(!b) continue;
                 return t;
             }

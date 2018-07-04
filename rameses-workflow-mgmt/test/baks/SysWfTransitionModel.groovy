@@ -14,10 +14,12 @@ public class SysWfTransitionModel extends CrudFormModel {
     def props = [:];
 
     void afterOpen() {
+        MsgBox.alert( entity );
         props.putAll( entity.properties );
     }
     
     void beforeSave( def m ) {
+        MsgBox.alert( m );
         entity.properties = props;
     }
     
