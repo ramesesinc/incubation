@@ -21,6 +21,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.beans.Beans;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -59,11 +60,14 @@ public class HtmlViewPane extends JEditorPane
     
     private Font templateFont;
     
+    private ArrayList<ActionParam> actionParams;
+    
     public HtmlViewPane() {
         super(); 
         super.setEditable(false); 
         super.setContentType("text/html");
         
+        actionParams = new ArrayList(); 
         CompEditorKit editorKit = new CompEditorKit(); 
         Document doc = editorKit.createDefaultDocument(); 
         super.setEditorKit( editorKit );
@@ -75,7 +79,9 @@ public class HtmlViewPane extends JEditorPane
             }
         });
         addMouseListener(new MouseListener() {
-            public void mouseClicked(MouseEvent e) {}
+            public void mouseClicked(MouseEvent e) {
+                mouseClickedImpl(e);
+            }
             public void mouseEntered(MouseEvent e) {}
             public void mouseExited(MouseEvent e) {}
             public void mousePressed(MouseEvent e) {}
@@ -171,7 +177,28 @@ public class HtmlViewPane extends JEditorPane
         String shref = href.toString();
         if (!shref.matches("[a-zA-Z0-9_]{1,}")) return;
         
-        processAction(shref, params);
+        actionParams.add( new ActionParam(shref, params)); 
+    }
+    
+    private void mouseClickedImpl(MouseEvent e) {
+        if ( e != null && e.getClickCount() == 1 && !actionParams.isEmpty()) {
+            ActionParam ap = actionParams.get(0); 
+            actionParams.clear(); 
+            
+            processAction( ap.name, ap.param ); 
+        }
+        actionParams.clear();         
+    }
+    
+    private class ActionParam {
+        
+        private String name;
+        private Map param;
+        
+        ActionParam(String name, Map param) {
+            this.name = name; 
+            this.param = param;
+        }
     }
     
     // </editor-fold>
