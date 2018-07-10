@@ -16,7 +16,7 @@ public class WorkflowStartNode extends WorkflowNode{
 
     @Override
     public String getToolCaption() {
-        return "Node";
+        return "Start";
     }
     
         
