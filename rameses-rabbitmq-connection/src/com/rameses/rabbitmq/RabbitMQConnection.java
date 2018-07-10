@@ -19,6 +19,8 @@ import com.rameses.util.Base64Cipher;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -30,15 +32,16 @@ import java.util.Map;
  */
 public class RabbitMQConnection extends MessageConnection {
     
-    private Connection connection;
+    private String name;
     private AbstractContext context;     
     private Map conf; 
-    private String name;
-    private boolean enabled;
-    private boolean started;
-    private Channel defaultChannel;
+    private ConnectionFactory factory;
     private List<Channel> channels = new LinkedList<Channel>();
     
+    private Connection connection;
+    private Channel defaultChannel;
+    private boolean enabled;
+    private boolean started;
     private boolean allowSend; 
     private boolean allowReceive; 
     
@@ -51,7 +54,7 @@ public class RabbitMQConnection extends MessageConnection {
         allowSend = ("false".equals(getProperty("allowSend")+"") ? false : true);
         allowReceive = ("false".equals(getProperty("allowReceive")+"") ? false : true);
     }
-
+    
     private String getProperty( String name ) {
         Object o = (conf == null? null: conf.get(name)); 
         return ( o == null ? null: o.toString()); 
@@ -64,27 +67,18 @@ public class RabbitMQConnection extends MessageConnection {
     public Map getConf() { 
         return conf; 
     }
+    
+    public void setFactory(ConnectionFactory factory) {
+        this.factory = factory; 
+    }
 
     public void start() { 
         if ( started ) return; 
         
         started = true;
         
-        System.out.println("Starting RabbitMQConnection Version 2.0 " + name );
+        System.out.println( name +" : Starting RabbitMQ Connection");
         try {
-            ConnectionFactory factory = new ConnectionFactory(); 
-            factory.setHost( getProperty("host") ); 
-            factory.setUsername( getProperty("user") ); 
-            factory.setPassword( getProperty("pwd") ); 
-            factory.setAutomaticRecoveryEnabled( true ); 
-            
-            int heartbeat = 30; 
-            try { 
-                heartbeat = Integer.parseInt(getProperty("heartbeat")); 
-            } catch(Throwable t) {;} 
-            
-            factory.setRequestedHeartbeat( heartbeat );
-            //factory.setNetworkRecoveryInterval((heartbeat + 5)*1000); 
             connection = factory.newConnection(); 
             
             //check if there is a channel specified. If there is, then you must listen.
@@ -105,10 +99,9 @@ public class RabbitMQConnection extends MessageConnection {
                     defaultChannel.basicConsume( queueName, true, mc);  
                 } 
             } 
-        } 
-        catch(Throwable ex) {
-            System.out.println("RabbitMQ Connection not started. "+ex.getMessage());
-            ex.printStackTrace();            
+        } catch(Throwable ex) {
+            System.out.println( name +": RabbitMQ Connection not started caused by "+ ex.getMessage());
+            ex.printStackTrace(); 
         }
     } 
     
@@ -122,17 +115,23 @@ public class RabbitMQConnection extends MessageConnection {
         private String exchange;
         private String queueName;
         
+        private SimpleDateFormat YMDHMS = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); 
+        
         public MessageConsumer(Channel channel, MessageHandler handler) {
             super(channel);
             this.handler = handler;
         }
+        
+        String getLogTimeString() {
+            return YMDHMS.format( new Date(System.currentTimeMillis())); 
+        }
 
         public void handleShutdownSignal(String consumerTag, ShutdownSignalException sig) {
-            System.out.println("handleShutdownSignal: consumerTag="+ consumerTag +", message="+ sig.getMessage() +", reason="+ sig.getReason());
+            System.out.println(root.name +": "+ getLogTimeString() +": handleShutdownSignal: consumerTag="+ consumerTag +", message="+ sig.getMessage() +", reason="+ sig.getReason());
         }
 
         public void handleRecoverOk(String consumerTag) {
-            System.out.println("handleRecoverOk: consumerTag="+ consumerTag );
+            System.out.println(root.name +": "+ getLogTimeString() +": handleRecoverOk: consumerTag="+ consumerTag );
         }
         
         public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException { 
@@ -165,7 +164,7 @@ public class RabbitMQConnection extends MessageConnection {
     }
     
     public void stop() {
-        System.out.println("Stopping RabbitMQ Connection" + name );
+        System.out.println( name +" : Stopping RabbitMQ Connection" );
         
         for(Channel channel: channels) {
             try {channel.close();}catch(Throwable ign){;}
@@ -333,6 +332,4 @@ public class RabbitMQConnection extends MessageConnection {
     public void send( Object data, String queueName, boolean encoded ) {
         sendBytes(  convertBytes(data, encoded), queueName ); 
     }
-    
-    
 }
