@@ -11,12 +11,20 @@ import java.rmi.server.*;
 import com.rameses.util.*;
 
 public class MdiChildModel  {
-        
+
     @Caller
     def caller;
 
-    public def getEntity() {
-        return caller.entity;
+    boolean hasCallerMethod( property ) {
+        if ( caller == null ) return false; 
+        return caller.metaClass.respondsTo(caller, property ); 
+    }
+    
+    public def getEntity() { 
+        if( hasCallerMethod('entity')) {
+            return caller.entity;
+        }
+        return null; 
     }
     
 }

@@ -32,11 +32,24 @@
                 task = caller.task;
             }
             
+            boolean hasCallerProperty( property ) { 
+                if ( caller == null ) return false; 
+                    return caller.metaClass.hasProperty(caller, property ); 
+            } 
+            boolean hasCallerMethod( property ) {
+                if ( caller == null ) return false; 
+                return caller.metaClass.respondsTo(caller, property ); 
+            } 
+            
             def listHandler = [
-                fetchList: { o->
-                    return workflowSvc.getTransactionHistory( [refid: task.refid, processname: caller.getProcessName() ] );
-                }
-            ] as BasicListModel;
+                fetchList: { o-> 
+                    def procname = null; 
+                    if ( caller && caller.metaClass.respondsTo(caller, 'getProcessName')) { 
+                        procname = caller.getProcessName(); 
+                    } 
+                    return workflowSvc.getTransactionHistory([ refid: task.refid, processname: procname ]); 
+                } 
+            ] as BasicListModel; 
             
             def doClose() {
                 return "_close";

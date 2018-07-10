@@ -15,8 +15,21 @@ class FilterCriteriaItemModel {
     def entry = [:];
     int fieldCount;
             
+    boolean hasCallerProperty( property ) {
+        if ( caller == null ) return false; 
+        return caller.metaClass.hasProperty(caller, property ); 
+    }
+    boolean hasCallerMethod( property ) {
+        if ( caller == null ) return false; 
+        return caller.metaClass.respondsTo(caller, property ); 
+    }
+    
     void init() {
-        fieldList = caller.fieldList;
+        fieldList = []; 
+        
+        if ( hasCallerProperty('fieldList')) {
+            fieldList = caller.fieldList;
+        } 
     }
      
            
@@ -60,11 +73,15 @@ class FilterCriteriaItemModel {
     }
             
     void addField() { 
-        caller.addField();
+        if ( hasCallerMethod('addField')) {
+            caller.addField();
+        } 
     }     
             
-    void removeField() {
-        caller.removeField( this.entry );
+    void removeField() { 
+        if ( hasCallerMethod('removeField')) { 
+            caller.removeField( this.entry ); 
+        } 
     }
          
     

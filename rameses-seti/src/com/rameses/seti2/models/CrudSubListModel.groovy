@@ -13,7 +13,10 @@ import com.rameses.util.*;
 public class CrudSubListModel extends CrudListModel {
         
     def getMasterEntity() {
-        return caller.entity;
+        if ( hasCallerProperty('entity')) { 
+            return caller.entity;
+        }
+        return null; 
     }
 
     void beforeQuery( def qry ) {

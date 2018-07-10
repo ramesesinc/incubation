@@ -318,10 +318,12 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
         }
         afterSave();
         mode = "read";
+        
         try {
-            caller?.refresh();
-        }
-        catch(ign){;}
+            if ( hasCallerMethod('refresh')) { 
+                caller.refresh();
+            }
+        } catch(Throwable ign){;}
         
         if (isCloseOnSave()) return '_close';
         
@@ -353,15 +355,14 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
      **************************************************************************/
     boolean getShowNavigation() {
         //println "show navigation";
-        try { 
-            if( !caller?.listHandler ) return false; 
-        } catch(Throwable t) {;} 
-        
-        return (mode == 'read');
+        if ( mode != 'read' )  return false;
+        return hasCallerProperty('listHandler'); 
     }
     
     void moveUp() {
-        caller.listHandler?.moveBackRecord();
+        if ( hasCallerProperty('listHandler')) 
+            caller.listHandler.moveBackRecord();
+            
         reloadEntity();
         sections?.each {
             try { it.controller.codeBean.reload(); }catch(e){;}
@@ -369,7 +370,9 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
     }
 
     void moveDown() {
-        caller.listHandler?.moveNextRecord();
+        if ( hasCallerProperty('listHandler')) 
+            caller.listHandler.moveNextRecord();
+        
         reloadEntity();
         sections?.each {
             try { it.controller.codeBean.reload(); }catch(e){;}
@@ -389,8 +392,8 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
         binding?.refresh();
     }
     
-    def reloadEntity() {
-        if( caller?.selectedItem !=null ) {
+    def reloadEntity() { 
+        if ( hasCallerProperty('selectedItem')) {
             entity = caller.selectedItem;
             loadData();
             afterOpen();
