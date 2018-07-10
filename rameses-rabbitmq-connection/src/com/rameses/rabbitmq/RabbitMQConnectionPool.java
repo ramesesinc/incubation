@@ -4,6 +4,7 @@
  */
 package com.rameses.rabbitmq;
 
+import com.rabbitmq.client.ConnectionFactory;
 import com.rameses.osiris3.core.AbstractContext;
 import com.rameses.osiris3.script.messaging.ScriptInvokerHandler;
 import com.rameses.osiris3.xconnection.MessageConnection;
@@ -41,18 +42,22 @@ public class RabbitMQConnectionPool extends MessageConnection
             
     @Override
     public void start() {
-        if (started) return;
+        if ( started ) return;
         started = true;
         
         int poolSize = 1;
         try { 
             poolSize = Integer.parseInt(conf.get("poolSize").toString());
         } catch(Throwable t) {;}  
-        
+
         Object apphost = appConf.get("app.host");
+        
+        System.out.println("Initializing RabbitMQ Connection Factory (v2.0)...");
+        ConnectionFactory factory = createConnectionFactory(); 
+        
         for (int i = 0; i<poolSize; i++ ) { 
-            String sname = (i == 0 ? name : name+i);
-            RabbitMQConnection rabbit = new RabbitMQConnection(sname, context, conf ); 
+            String sname = name +"-"+ i;
+            RabbitMQConnection rabbit = new RabbitMQConnection(sname, context, conf); 
             
             if ( apphost == null ) {
                 rabbit.addHandler( new MessageHandlerProxy());
@@ -61,9 +66,32 @@ public class RabbitMQConnectionPool extends MessageConnection
                 rabbit.addHandler(handler);
             } 
             
+            rabbit.setFactory(factory); 
             rabbit.start();
             pool.add(rabbit);
         }
+    }
+
+    private ConnectionFactory createConnectionFactory() {
+        ConnectionFactory factory = new ConnectionFactory(); 
+        factory.setHost( getProperty("host") ); 
+        factory.setUsername( getProperty("user") ); 
+        factory.setPassword( getProperty("pwd") ); 
+        factory.setAutomaticRecoveryEnabled( true ); 
+
+        int heartbeat = 30; 
+        try { 
+            heartbeat = Integer.parseInt(getProperty("heartbeat")); 
+        } catch(Throwable t) {;} 
+
+        int networkRecoveryInterval = 10000; 
+        try { 
+            networkRecoveryInterval = Integer.parseInt(getProperty("networkRecoveryInterval")); 
+        } catch(Throwable t) {;} 
+
+        factory.setRequestedHeartbeat( heartbeat );
+        factory.setNetworkRecoveryInterval( networkRecoveryInterval ); 
+        return factory; 
     }
 
     @Override
@@ -132,5 +160,10 @@ public class RabbitMQConnectionPool extends MessageConnection
         public void onMessage(Object data) { 
             RabbitMQConnectionPool.this.notifyHandlers( data ); 
         } 
+    } 
+    
+    private String getProperty( String name ) {
+        Object o = (conf == null? null: conf.get(name)); 
+        return ( o == null ? null: o.toString()); 
     } 
 }
