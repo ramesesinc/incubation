@@ -98,9 +98,12 @@ public class WorkflowTaskModel extends CrudFormModel implements WorkflowTaskList
             task = [:];
         }
         //refresh the list
-        if( caller?.listHandler !=null ) {
-            caller.listHandler.reload();
+        try {
+            if( caller?.listHandler !=null ) {
+                caller.listHandler?.reload();
+            }
         }
+        catch(e){;}
         binding.refresh();
         buildMessage();
         afterSignal(transition, newTask);

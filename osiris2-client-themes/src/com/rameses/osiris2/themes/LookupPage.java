@@ -64,18 +64,16 @@ public class LookupPage extends javax.swing.JPanel {
         jPanel3.setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 10, 10, 10));
         jPanel3.setLayout(new com.rameses.rcp.control.layout.XLayout());
 
-        xButton1.setText("OK");
+        xButton1.setText("   OK   ");
         xButton1.setDefaultCommand(true);
         xButton1.setDepends(new String[] {"selectedEntity"});
         xButton1.setDisableWhen("#{selectedEntity == null}");
         xButton1.setName("doSelect"); // NOI18N
-        xButton1.setPreferredSize(new java.awt.Dimension(66, 23));
         jPanel3.add(xButton1);
 
         xButton2.setText("Cancel");
         xButton2.setImmediate(true);
         xButton2.setName("doCancel"); // NOI18N
-        xButton2.setPreferredSize(new java.awt.Dimension(66, 23));
         jPanel3.add(xButton2);
 
         jPanel1.add(jPanel3, java.awt.BorderLayout.EAST);

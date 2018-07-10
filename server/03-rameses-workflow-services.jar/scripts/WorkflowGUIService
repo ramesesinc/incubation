@@ -33,6 +33,7 @@ class WorkflowGUIService {
             def f = [id: it.name];
             f.caption = it.title;
             f.ui = it.remove("ui");
+            f.index = it.idx;
             f.info = it;
             if( f.ui == null ) {
                 def nui = [text: it.title, type: it.nodetype ];

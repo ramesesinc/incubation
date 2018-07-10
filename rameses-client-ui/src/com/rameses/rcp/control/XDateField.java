@@ -17,7 +17,6 @@ import com.rameses.rcp.control.text.AbstractDateField;
 import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.framework.ClientContext;
 import com.rameses.rcp.support.MouseEventSupport;
-import com.rameses.rcp.support.ThemeUI;
 import com.rameses.rcp.ui.ActiveControl;
 import com.rameses.rcp.ui.ControlProperty;
 import com.rameses.rcp.ui.UIInput;
@@ -26,7 +25,6 @@ import com.rameses.rcp.util.ActionMessage;
 import com.rameses.rcp.util.UIControlUtil;
 import com.rameses.rcp.util.UIInputUtil;
 import com.rameses.util.ValueUtil;
-import java.awt.Color;
 import java.awt.Font;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
@@ -71,13 +69,6 @@ public class XDateField extends AbstractDateField implements UIInput, ActiveCont
         });
         
         new MouseEventSupport(this).install(); 
-        
-        //set default font
-//        Font font = ThemeUI.getFont("XTextField.font");
-//        if (font != null) setFont(font);
-        
-        Color disableTextColor = ThemeUI.getColor("XTextField.disabledTextColor");
-        if (disableTextColor != null) setDisabledTextColor(disableTextColor);
     }
     
     // <editor-fold defaultstate="collapsed" desc=" Getters / Setters ">

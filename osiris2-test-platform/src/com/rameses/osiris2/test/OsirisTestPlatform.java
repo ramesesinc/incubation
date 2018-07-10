@@ -13,6 +13,7 @@ import com.rameses.osiris2.client.*;
 import com.rameses.platform.interfaces.Platform;
 import com.rameses.rcp.common.Opener;
 import com.rameses.rcp.framework.ClientContext;
+import com.rameses.rcp.framework.LookAndFeelCustomizer;
 import com.rameses.rcp.framework.UIControllerContext;
 import com.rameses.rcp.framework.UIControllerPanel;
 import com.rameses.rcp.util.ControlSupport;
@@ -78,6 +79,12 @@ public final class OsirisTestPlatform {
     }
     
     public static void runTest(Map conf, Map aroles, Map aprofile) throws Exception {
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName()); 
+        } catch(Exception ex) {;}  
+        
+        LookAndFeelCustomizer.install();
+        
         setConf(conf);
         setRoles(aroles);
         setProfile(aprofile);
@@ -104,6 +111,8 @@ public final class OsirisTestPlatform {
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName()); 
         } catch(Exception ex) {;}  
+        
+        LookAndFeelCustomizer.install();
         buildPlatform().getMainWindow().show();
     }
     
@@ -114,6 +123,8 @@ public final class OsirisTestPlatform {
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName()); 
         } catch(Exception ex) {;}  
+        
+        LookAndFeelCustomizer.install();
         
         OsirisAppLoader loader = new OsirisAppLoader();
         Platform platform = ClientContext.getCurrentContext().getPlatform();

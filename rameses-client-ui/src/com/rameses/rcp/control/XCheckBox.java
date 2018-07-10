@@ -5,7 +5,6 @@ import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.framework.ClientContext;
 import com.rameses.rcp.support.FontSupport;
 import com.rameses.rcp.support.MouseEventSupport;
-import com.rameses.rcp.support.ThemeUI;
 import com.rameses.rcp.ui.ActiveControl;
 import com.rameses.rcp.ui.ControlProperty;
 import com.rameses.rcp.ui.UIInput;
@@ -52,11 +51,7 @@ public class XCheckBox extends JCheckBox implements UIInput, ActiveControl, Mous
     private String visibleWhen;
     
     public XCheckBox() {
-        new MouseEventSupport(this).install(); 
-        //default font
-        Font f = ThemeUI.getFont("XCheckBox.font");
-        if ( f != null ) setFont( f );
-        
+        new MouseEventSupport(this).install();         
         setOpaque( false ); 
     }
     

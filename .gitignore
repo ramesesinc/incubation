@@ -1,3 +1,12 @@
+._.DS_Store
+.DS_Store
+.terminal
+build-impl.xml~
+Thumbs.db
+
+_tmp
+_dev
+
 */.terminal
 */client.conf
 */osiris2
@@ -11,10 +20,6 @@
 */temp
 */tmp
 
-_tmp
-_dev
-
-
 /**/_tmp
 /**/dist
 /**/build
@@ -25,4 +30,3 @@ _dev
 /**/nbproject/groovy-build.xml
 /**/.terminal
 /**/Thumbs.db
-.DS_Store

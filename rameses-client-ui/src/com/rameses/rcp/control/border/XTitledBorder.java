@@ -34,7 +34,7 @@ public class XTitledBorder extends AbstractBorder {
     
     
     public XTitledBorder() {
-        font = new Font("Arial", Font.BOLD, 11);
+        font = Font.decode("Arial-Bold-11");
         background = new Color(232,232,226);
         titleBackground = new Color(167,156,146);
         titleForeground = Color.WHITE;

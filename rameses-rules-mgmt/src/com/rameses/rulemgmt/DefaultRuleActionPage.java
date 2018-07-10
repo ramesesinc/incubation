@@ -35,10 +35,11 @@ public class DefaultRuleActionPage extends javax.swing.JPanel {
         xFormPanel1 = new com.rameses.rcp.control.XFormPanel();
         xLabel1 = new com.rameses.rcp.control.XLabel();
         xLabel2 = new com.rameses.rcp.control.XLabel();
-        xFormPanel2 = new com.rameses.rcp.control.XFormPanel();
-        jLabel2 = new javax.swing.JLabel();
         xButton1 = new com.rameses.rcp.control.XButton();
+        jPanel2 = new javax.swing.JPanel();
+        xLabel3 = new com.rameses.rcp.control.XLabel();
         cmdAddConstraint = new com.rameses.rcp.control.XButton();
+        xFormPanel2 = new com.rameses.rcp.control.XFormPanel();
 
         setPreferredSize(new java.awt.Dimension(654, 400));
 
@@ -59,6 +60,25 @@ public class DefaultRuleActionPage extends javax.swing.JPanel {
         xLabel2.setPreferredSize(new java.awt.Dimension(0, 20));
         xFormPanel1.add(xLabel2);
 
+        xButton1.setName("upgrade"); // NOI18N
+        xButton1.setText("Upgrade Params");
+
+        jPanel2.setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 0, 0, 0));
+        jPanel2.setLayout(new com.rameses.rcp.control.layout.XLayout());
+
+        xLabel3.setExpression("Parameters");
+        xLabel3.setFontStyle("font-weight: bold; font-scale:111;");
+        xLabel3.setForeground(new java.awt.Color(60, 60, 60));
+        xLabel3.setPadding(new java.awt.Insets(1, 3, 1, 15));
+        jPanel2.add(xLabel3);
+
+        cmdAddConstraint.setName("addParameter"); // NOI18N
+        cmdAddConstraint.setContentAreaFilled(false);
+        cmdAddConstraint.setImmediate(true);
+        cmdAddConstraint.setMargin(new java.awt.Insets(2, 2, 2, 2));
+        cmdAddConstraint.setText("<html><a href=\"x\">[ Add ]</a></html>");
+        jPanel2.add(cmdAddConstraint);
+
         xFormPanel2.setName("paramControls"); // NOI18N
         com.rameses.rcp.control.border.XLineBorder xLineBorder1 = new com.rameses.rcp.control.border.XLineBorder();
         xLineBorder1.setLineColor(new java.awt.Color(204, 204, 204));
@@ -70,18 +90,6 @@ public class DefaultRuleActionPage extends javax.swing.JPanel {
         xFormPanel2.setDynamic(true);
         xFormPanel2.setLayout(new java.awt.BorderLayout());
 
-        jLabel2.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        jLabel2.setText("Parameters");
-
-        xButton1.setName("upgrade"); // NOI18N
-        xButton1.setText("Upgrade Params");
-
-        cmdAddConstraint.setName("addParameter"); // NOI18N
-        cmdAddConstraint.setContentAreaFilled(false);
-        cmdAddConstraint.setImmediate(true);
-        cmdAddConstraint.setMargin(new java.awt.Insets(2, 2, 2, 2));
-        cmdAddConstraint.setText("<html><a href=\"x\">[ Add ]</a></html>");
-
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -91,15 +99,15 @@ public class DefaultRuleActionPage extends javax.swing.JPanel {
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(xFormPanel2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .add(layout.createSequentialGroup()
-                        .add(xFormPanel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 491, Short.MAX_VALUE)
+                        .add(xFormPanel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 517, Short.MAX_VALUE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(xButton1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(layout.createSequentialGroup()
-                        .add(jLabel2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 106, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(cmdAddConstraint, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .add(0, 0, Short.MAX_VALUE)))
+                        .add(xButton1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
+            .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                .add(layout.createSequentialGroup()
+                    .addContainerGap()
+                    .add(jPanel2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 634, Short.MAX_VALUE)
+                    .addContainerGap()))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -108,25 +116,27 @@ public class DefaultRuleActionPage extends javax.swing.JPanel {
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(xButton1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(xFormPanel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel2)
-                    .add(cmdAddConstraint, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(xFormPanel2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 300, Short.MAX_VALUE)
+                .add(36, 36, 36)
+                .add(xFormPanel2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 295, Short.MAX_VALUE)
                 .addContainerGap())
+            .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                .add(layout.createSequentialGroup()
+                    .add(60, 60, 60)
+                    .add(jPanel2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 32, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .addContainerGap(308, Short.MAX_VALUE)))
         );
     }// </editor-fold>//GEN-END:initComponents
     
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private com.rameses.rcp.control.XButton cmdAddConstraint;
-    private javax.swing.JLabel jLabel2;
+    private javax.swing.JPanel jPanel2;
     private com.rameses.rcp.control.XButton xButton1;
     private com.rameses.rcp.control.XFormPanel xFormPanel1;
     private com.rameses.rcp.control.XFormPanel xFormPanel2;
     private com.rameses.rcp.control.XLabel xLabel1;
     private com.rameses.rcp.control.XLabel xLabel2;
+    private com.rameses.rcp.control.XLabel xLabel3;
     // End of variables declaration//GEN-END:variables
     
 }

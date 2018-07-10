@@ -23,7 +23,7 @@ public final class OSBootStrap
             String plaf = UIManager.getSystemLookAndFeelClassName();
             UIManager.setLookAndFeel(plaf);
         } catch(Throwable t) {;}
-        
+                
         OSBootStrap bootstrap = new OSBootStrap();
         bootstrap.showStartup();
         bootstrap.startUpdates();
@@ -70,7 +70,9 @@ public final class OSBootStrap
             } else {
                 //plaf = "com.jgoodies.plaf.plastic.PlasticXPLookAndFeel";
             }
-        } catch(Throwable ign) {;}            
+        } catch(Throwable ign) {;} 
+        
+        LookAndFeelCustomizer.install(); 
     }
     
     private void terminate() {

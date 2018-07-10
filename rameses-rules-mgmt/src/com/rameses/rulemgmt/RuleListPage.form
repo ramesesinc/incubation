@@ -27,10 +27,10 @@
       <SubComponents>
         <Component class="com.rameses.rcp.control.XLabel" name="lblTitle">
           <Properties>
+            <Property name="expression" type="java.lang.String" value="#{title}"/>
             <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
               <Color blue="ff" green="ff" red="ff" type="rgb"/>
             </Property>
-            <Property name="expression" type="java.lang.String" value="#{title}"/>
             <Property name="fontStyle" type="java.lang.String" value="font-weight:bold; font-size:16;"/>
             <Property name="opaque" type="boolean" value="true"/>
             <Property name="padding" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">

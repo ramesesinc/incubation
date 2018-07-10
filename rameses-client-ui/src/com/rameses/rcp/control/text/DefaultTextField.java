@@ -323,7 +323,7 @@ public class DefaultTextField extends JTextField
         sourceFont = font; 
         if (sourceFont != null) {
             Map attrs = getFontSupport().createFontAttributes(getFontStyle()); 
-            if (!attrs.isEmpty()) sourceFont = sourceFont.deriveFont(attrs);
+            sourceFont = getFontSupport().applyStyles(sourceFont, attrs);
         }
         
         super.setFont(sourceFont); 
@@ -339,8 +339,7 @@ public class DefaultTextField extends JTextField
         if (font == null) return;
         
         Map attrs = getFontSupport().createFontAttributes(getFontStyle()); 
-        if (!attrs.isEmpty()) font = font.deriveFont(attrs); 
-        
+        font = getFontSupport().applyStyles(font, attrs); 
         super.setFont(font); 
     } 
     

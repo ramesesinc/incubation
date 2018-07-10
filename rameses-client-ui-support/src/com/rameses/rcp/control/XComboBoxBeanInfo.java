@@ -30,6 +30,7 @@ public class XComboBoxBeanInfo extends ComponentBeanInfoSupport
     
     protected void loadProperties(List<PropertyDescriptor> list) { 
         addBoolean( list, "allowNull" );
+        addBoolean( list, "autoDefaultValue" );
         addBoolean( list, "immediate" );
         
         add( list, "emptyText" );

@@ -17,13 +17,11 @@ import com.rameses.rcp.control.text.AbstractMaskField;
 import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.framework.ClientContext;
 import com.rameses.rcp.support.MouseEventSupport;
-import com.rameses.rcp.support.ThemeUI;
 import com.rameses.rcp.ui.ActiveControl;
 import com.rameses.rcp.ui.ControlProperty;
 import com.rameses.rcp.ui.UIInput;
 import com.rameses.rcp.util.UIControlUtil;
 import com.rameses.rcp.util.UIInputUtil;
-import java.awt.Color;
 import java.awt.Font;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
@@ -65,14 +63,7 @@ public class XMaskField extends AbstractMaskField implements UIInput, ActiveCont
                 try { refresh(); } catch(Throwable t) {;} 
             }
         });   
-        new MouseEventSupport(this).install(); 
-        
-        //set default font
-        Font font = ThemeUI.getFont("XTextField.font");
-        if (font != null) setFont(font);
-        
-        Color disableTextColor = ThemeUI.getColor("XTextField.disabledTextColor");
-        if (disableTextColor != null) setDisabledTextColor(disableTextColor);         
+        new MouseEventSupport(this).install();         
     }
     
     // <editor-fold defaultstate="collapsed" desc=" Getters / Setters ">

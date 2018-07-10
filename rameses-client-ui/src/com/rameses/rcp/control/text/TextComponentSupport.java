@@ -9,9 +9,12 @@
 
 package com.rameses.rcp.control.text;
 
+import java.awt.Color;
+import java.awt.Font;
 import java.awt.Insets;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import javax.swing.JTextArea;
 import javax.swing.text.JTextComponent;
 
 /**
@@ -33,12 +36,21 @@ public final class TextComponentSupport
         if (jtxt == null) return;
         
         jtxt.setMargin(new Insets(1,3,1,2));
+        jtxt.setDisabledTextColor(new Color(60,60,60));
         
         FocusListener focusL = (FocusListener) jtxt.getClientProperty(FocusListenerImpl.class); 
         if (focusL == null) {
             focusL = new FocusListenerImpl(jtxt);
             jtxt.addFocusListener(focusL); 
             jtxt.putClientProperty(FocusListenerImpl.class, focusL); 
+        }
+        
+        if ( jtxt instanceof JTextArea ) {
+            DefaultTextField tmp = new DefaultTextField(); 
+            Font font = tmp.getFont(); 
+            if ( font != null ) {
+                jtxt.setFont(new Font( font.getFontName(), font.getStyle(), font.getSize())); 
+            }
         }
     }
     

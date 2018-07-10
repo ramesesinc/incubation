@@ -185,10 +185,16 @@ class MenuCategoryModel  {
     }
     
 
-    def openItem( def h ) {
-        def op = invokers.get( h.id );
-        return Inv.invoke( op  ); 
-    }
+    def openItem( param ) {
+        if ( invokers == null || !param?.id ) return null; 
+        
+        def inv = invokers.get( param.id ); 
+        if ( inv == null ) return null; 
+        
+        def op = Inv.createOpener( inv, [:] ); 
+        if ( !op.target ) op.target = 'window'; 
+        return op; 
+    } 
 
     
     //debugging purposes

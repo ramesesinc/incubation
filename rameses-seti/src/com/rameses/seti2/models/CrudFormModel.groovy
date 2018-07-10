@@ -361,7 +361,7 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
     }
     
     void moveUp() {
-        caller.listHandler.moveBackRecord();
+        caller.listHandler?.moveBackRecord();
         reloadEntity();
         sections?.each {
             try { it.controller.codeBean.reload(); }catch(e){;}
@@ -369,7 +369,7 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
     }
 
     void moveDown() {
-        caller.listHandler.moveNextRecord();
+        caller.listHandler?.moveNextRecord();
         reloadEntity();
         sections?.each {
             try { it.controller.codeBean.reload(); }catch(e){;}

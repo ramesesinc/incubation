@@ -16,7 +16,6 @@ import com.rameses.rcp.framework.ClientContext;
 import com.rameses.rcp.support.FontSupport;
 import com.rameses.rcp.support.MouseEventSupport;
 import com.rameses.rcp.support.TextDocument;
-import com.rameses.rcp.support.ThemeUI;
 import com.rameses.rcp.ui.ActiveControl;
 import com.rameses.rcp.ui.ControlProperty;
 import com.rameses.rcp.ui.UIInput;
@@ -47,7 +46,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.swing.AbstractAction;
-import javax.swing.BorderFactory;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JViewport;
@@ -114,19 +112,13 @@ public class XTextArea extends JTextArea implements UIInput, Validatable,
 
     private void initComponent() {
         TextComponentSupport.getInstance().installUIDefaults(this); 
-        setBorder(BorderFactory.createEmptyBorder(5,5,0,0)); 
-        setDisabledTextColor(Color.BLACK); 
         setColumns(5);
-        setRows(4); 
+        setRows(2); 
         
         for (FocusListener l : getFocusListeners()) {
             removeFocusListener(l); 
         }
         new MouseEventSupport(this).install(); 
-        //default font
-        Font f = ThemeUI.getFont("XTextArea.font");
-        if ( f != null ) setFont( f );
-        
         
         if (Beans.isDesignTime()) return;
          

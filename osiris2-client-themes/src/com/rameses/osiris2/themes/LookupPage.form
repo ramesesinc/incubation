@@ -95,7 +95,7 @@
           <SubComponents>
             <Component class="com.rameses.rcp.control.XButton" name="xButton1">
               <Properties>
-                <Property name="text" type="java.lang.String" value="OK"/>
+                <Property name="text" type="java.lang.String" value="   OK   "/>
                 <Property name="defaultCommand" type="boolean" value="true"/>
                 <Property name="depends" type="[Ljava.lang.String;" editor="org.netbeans.beaninfo.editors.StringArrayEditor">
                   <StringArray count="1">
@@ -104,9 +104,6 @@
                 </Property>
                 <Property name="disableWhen" type="java.lang.String" value="#{selectedEntity == null}"/>
                 <Property name="name" type="java.lang.String" value="doSelect" noResource="true"/>
-                <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                  <Dimension value="[66, 23]"/>
-                </Property>
               </Properties>
             </Component>
             <Component class="com.rameses.rcp.control.XButton" name="xButton2">
@@ -114,9 +111,6 @@
                 <Property name="text" type="java.lang.String" value="Cancel"/>
                 <Property name="immediate" type="boolean" value="true"/>
                 <Property name="name" type="java.lang.String" value="doCancel" noResource="true"/>
-                <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                  <Dimension value="[66, 23]"/>
-                </Property>
               </Properties>
             </Component>
           </SubComponents>

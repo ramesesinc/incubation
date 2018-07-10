@@ -14,7 +14,6 @@ import com.rameses.rcp.control.border.CSSBorder;
 import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.support.ImageIconSupport;
 import com.rameses.rcp.support.MouseEventSupport;
-import com.rameses.rcp.support.ThemeUI;
 import com.rameses.rcp.ui.ActiveControl;
 import com.rameses.rcp.ui.ControlProperty;
 import com.rameses.rcp.ui.UIControl;
@@ -67,10 +66,6 @@ public class XImage extends JLabel implements UIControl, ActiveControl, MouseEve
         setPadding(null); 
         setBorder((Border) null); 
         new MouseEventSupport(this).install(); 
-        
-        //default font
-        Font f = ThemeUI.getFont("XLabel.font");
-        if (f != null) setFont(f); 
     }
 
     // <editor-fold defaultstate="collapsed" desc=" Getters/Setters ">     

@@ -11,6 +11,7 @@ package com.rameses.rcp.control;
 
 import com.rameses.beaninfo.ComponentBeanInfoSupport;
 import com.rameses.beaninfo.editor.SwingConstantsHTextPosition;
+import com.rameses.beaninfo.editor.SwingConstantsVAlignment;
 import com.rameses.beaninfo.editor.SwingConstantsVTextPosition;
 import java.beans.PropertyDescriptor;
 import java.util.List;
@@ -37,8 +38,10 @@ public class XButtonBeanInfo extends ComponentBeanInfoSupport
         add( list, "text" );
         add( list, "icon" );
         add( list, "iconResource" );
+        add( list, "iconTextGap" );
         add( list, "horizontalTextPosition", SwingConstantsHTextPosition.class );
         add( list, "verticalTextPosition", SwingConstantsVTextPosition.class );
+        add( list, "verticalAlignment", SwingConstantsVAlignment.class );
         add( list, "target" );
         add( list, "params" );
         

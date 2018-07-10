@@ -68,7 +68,7 @@ public class CrudListPage extends javax.swing.JPanel {
         xLabel1.setExpression("#{title}");
         xLabel1.setBackground(new java.awt.Color(255, 255, 255));
         xLabel1.setBorder(javax.swing.BorderFactory.createEmptyBorder(7, 2, 10, 5));
-        xLabel1.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        xLabel1.setFontStyle("font-size:14; font-weight:bold;");
         xLabel1.setOpaque(true);
         jPanel1.add(xLabel1, java.awt.BorderLayout.NORTH);
 

@@ -6,7 +6,6 @@ import com.rameses.rcp.control.text.DefaultLabel;
 import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.framework.ClientContext;
 import com.rameses.rcp.support.MouseEventSupport;
-import com.rameses.rcp.support.ThemeUI;
 import com.rameses.rcp.ui.ActiveControl;
 import com.rameses.rcp.ui.ControlProperty;
 import com.rameses.rcp.ui.UIControl;
@@ -67,7 +66,6 @@ public class XLabel extends DefaultLabel
     private JComponent activeComponent;
     private ActiveControlSupport activeControlSupport;
     private Logger logger;
-    private Border sourceBorder;
     private int stretchWidth;
     private int stretchHeight;
 
@@ -81,12 +79,6 @@ public class XLabel extends DefaultLabel
 
         setPadding(new Insets(1, 3, 1, 1));
         new MouseEventSupport(this).install();
-
-        //default font
-        Font f = ThemeUI.getFont("XLabel.font");
-        if (f != null) {
-            setFont(f);
-        }
     }
 
     // <editor-fold defaultstate="collapsed" desc=" Getters/Setters ">
@@ -150,10 +142,16 @@ public class XLabel extends DefaultLabel
         this.visibleWhen = visibleWhen;
     }
 
+    public Border getBorder() {
+        Border border = super.getBorder();
+        if ( border instanceof BorderWrapper ) {
+            border = ((BorderWrapper) border).getBorder(); 
+        }
+        return border; 
+    }    
     public void setBorder(Border border) {
         BorderWrapper wrapper = new BorderWrapper(border, getPadding());
         super.setBorder(wrapper);
-        this.sourceBorder = wrapper.getBorder();
     }
 
     public void setBorder(String uiresource) {
@@ -254,7 +252,12 @@ public class XLabel extends DefaultLabel
     }
     public void setPadding(Insets padding) {
         this.padding = padding;
-        setBorder(this.sourceBorder);
+        
+        Border border = getBorder();
+        if ( border instanceof BorderWrapper ) {
+            border = ((BorderWrapper) border).getBorder(); 
+        }
+        super.setBorder( new BorderWrapper(border, getPadding())); 
     }
 
     public boolean isAddCaptionColon() {

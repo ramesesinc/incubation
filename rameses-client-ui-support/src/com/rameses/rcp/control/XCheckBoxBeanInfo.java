@@ -35,5 +35,6 @@ public class XCheckBoxBeanInfo extends ComponentBeanInfoSupport
         add( list, "mnemonic" );
         add( list, "checkValue", true );
         add( list, "uncheckValue", true );
+        addBoolean( list, "readonly" );
     }
 }

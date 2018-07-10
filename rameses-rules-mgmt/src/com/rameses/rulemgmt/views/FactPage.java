@@ -50,17 +50,24 @@ public class FactPage extends javax.swing.JPanel {
         xTextField9 = new com.rameses.rcp.control.XTextField();
         xTextField10 = new com.rameses.rcp.control.XTextField();
         jPanel1 = new javax.swing.JPanel();
+        xDataTable1 = new com.rameses.rcp.control.XDataTable();
+        jPanel4 = new javax.swing.JPanel();
+        jPanel5 = new javax.swing.JPanel();
         xButton2 = new com.rameses.rcp.control.XButton();
         xButton3 = new com.rameses.rcp.control.XButton();
+        filler1 = new javax.swing.Box.Filler(new java.awt.Dimension(20, 0), new java.awt.Dimension(20, 0), new java.awt.Dimension(20, 32767));
         xButton4 = new com.rameses.rcp.control.XButton();
+        jPanel6 = new javax.swing.JPanel();
         xButton1 = new com.rameses.rcp.control.XButton();
+        filler2 = new javax.swing.Box.Filler(new java.awt.Dimension(2, 0), new java.awt.Dimension(2, 0), new java.awt.Dimension(2, 32767));
         xButton5 = new com.rameses.rcp.control.XButton();
-        xDataTable1 = new com.rameses.rcp.control.XDataTable();
         xPanel1 = new com.rameses.rcp.control.XPanel();
+        jPanel3 = new javax.swing.JPanel();
+        jLabel1 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         xList1 = new com.rameses.rcp.control.XList();
-        jLabel1 = new javax.swing.JLabel();
 
+        xFormPanel1.setCaptionVAlignment(com.rameses.rcp.constant.UIConstants.CENTER);
         xFormPanel1.setCaptionWidth(120);
 
         xLabel1.setCaption("Fact Class");
@@ -123,6 +130,7 @@ public class FactPage extends javax.swing.JPanel {
         xTextField5.setSpaceChar('_');
         xFormPanel1.add(xTextField5);
 
+        xFormPanel3.setCaptionVAlignment(com.rameses.rcp.constant.UIConstants.CENTER);
         xFormPanel3.setCaptionWidth(120);
 
         xCheckBox1.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -136,10 +144,10 @@ public class FactPage extends javax.swing.JPanel {
         xTextField6.setCaption("Lookup Handler");
         xTextField6.setDepends(new String[] {"entity.dynamic"});
         xTextField6.setName("entity.lookuphandler"); // NOI18N
+        xTextField6.setVisibleWhen("#{ entity.dynamic == 1 }");
         xTextField6.setPreferredSize(new java.awt.Dimension(150, 20));
         xTextField6.setSpaceChar('_');
         xTextField6.setTextCase(com.rameses.rcp.constant.TextCase.NONE);
-        xTextField6.setVisibleWhen("#{ entity.dynamic == 1 }");
         xFormPanel3.add(xTextField6);
 
         xTextField7.setCaption("Lookup Key");
@@ -187,7 +195,7 @@ public class FactPage extends javax.swing.JPanel {
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(xFormPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(xFormPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 634, Short.MAX_VALUE))
-                .addContainerGap(87, Short.MAX_VALUE))
+                .addContainerGap(99, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -199,33 +207,10 @@ public class FactPage extends javax.swing.JPanel {
                 .addContainerGap())
         );
 
-        xTabbedPane1.addTab("General Info", jPanel2);
+        xTabbedPane1.addTab("  General Info  ", jPanel2);
 
-        xButton2.setName("addField"); // NOI18N
-        xButton2.setVisibleWhen("#{mode!='read'}");
-        xButton2.setImmediate(true);
-        xButton2.setText("Add");
-
-        xButton3.setName("editField"); // NOI18N
-        xButton3.setVisibleWhen("#{mode!='read'}");
-        xButton3.setImmediate(true);
-        xButton3.setText("Edit");
-
-        xButton4.setName("removeField"); // NOI18N
-        xButton4.setVisibleWhen("#{mode!='read'}");
-        xButton4.setImmediate(true);
-        xButton4.setText("Remove");
-
-        xButton1.setName("shiftUp"); // NOI18N
-        xButton1.setVisibleWhen("#{mode!='read'}");
-        xButton1.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        xButton1.setText("Up");
-
-        xButton5.setName("shiftDown"); // NOI18N
-        xButton5.setVisibleWhen("#{mode!='read'}");
-        xButton5.setImmediate(true);
-        xButton5.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        xButton5.setText("Dn");
+        jPanel1.setBorder(javax.swing.BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        jPanel1.setLayout(new java.awt.BorderLayout());
 
         xDataTable1.setHandler("fieldModel");
         xDataTable1.setName("selectedField"); // NOI18N
@@ -292,56 +277,70 @@ public class FactPage extends javax.swing.JPanel {
             })
         });
         xDataTable1.setVarStatus("varStatus");
+        jPanel1.add(xDataTable1, java.awt.BorderLayout.CENTER);
 
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(xButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(xButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(xButton4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 447, Short.MAX_VALUE)
-                .addComponent(xButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(xButton5, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
-            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(jPanel1Layout.createSequentialGroup()
-                    .addContainerGap()
-                    .addComponent(xDataTable1, javax.swing.GroupLayout.DEFAULT_SIZE, 723, Short.MAX_VALUE)
-                    .addContainerGap()))
-        );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap(374, Short.MAX_VALUE)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(xButton2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(xButton3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(xButton4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(xButton1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(xButton5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap())
-            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(jPanel1Layout.createSequentialGroup()
-                    .addContainerGap()
-                    .addComponent(xDataTable1, javax.swing.GroupLayout.DEFAULT_SIZE, 352, Short.MAX_VALUE)
-                    .addGap(45, 45, 45)))
-        );
+        jPanel4.setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 0, 0, 0));
+        jPanel4.setLayout(new javax.swing.BoxLayout(jPanel4, javax.swing.BoxLayout.LINE_AXIS));
 
-        xTabbedPane1.addTab("Fields", jPanel1);
+        jPanel5.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 0, 0));
 
-        xList1.setDynamic(true);
+        xButton2.setName("addField"); // NOI18N
+        xButton2.setVisibleWhen("#{mode!='read'}");
+        xButton2.setImmediate(true);
+        xButton2.setText("Add");
+        jPanel5.add(xButton2);
+
+        xButton3.setName("editField"); // NOI18N
+        xButton3.setVisibleWhen("#{mode!='read'}");
+        xButton3.setImmediate(true);
+        xButton3.setText("Edit");
+        jPanel5.add(xButton3);
+        jPanel5.add(filler1);
+
+        xButton4.setName("removeField"); // NOI18N
+        xButton4.setVisibleWhen("#{mode!='read'}");
+        xButton4.setImmediate(true);
+        xButton4.setText("Remove");
+        jPanel5.add(xButton4);
+
+        jPanel4.add(jPanel5);
+
+        jPanel6.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.RIGHT, 0, 0));
+
+        xButton1.setName("shiftUp"); // NOI18N
+        xButton1.setVisibleWhen("#{mode!='read'}");
+        xButton1.setMargin(new java.awt.Insets(1, 4, 1, 4));
+        xButton1.setText("Up");
+        jPanel6.add(xButton1);
+        jPanel6.add(filler2);
+
+        xButton5.setName("shiftDown"); // NOI18N
+        xButton5.setVisibleWhen("#{mode!='read'}");
+        xButton5.setImmediate(true);
+        xButton5.setMargin(new java.awt.Insets(1, 4, 1, 4));
+        xButton5.setText("Dn");
+        jPanel6.add(xButton5);
+
+        jPanel4.add(jPanel6);
+
+        jPanel1.add(jPanel4, java.awt.BorderLayout.SOUTH);
+
+        xTabbedPane1.addTab("  Fields  ", jPanel1);
+
+        jPanel3.setLayout(new java.awt.BorderLayout());
+
+        jLabel1.setText("Associated rulesets");
+        jLabel1.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 5, 0));
+        jPanel3.add(jLabel1, java.awt.BorderLayout.NORTH);
+
         xList1.setExpression("#{item.ruleset}");
         xList1.setItems("entity.rulesets");
         xList1.setName("selectedRuleset"); // NOI18N
+        xList1.setDynamic(true);
+        xList1.setFixedCellHeight(18);
         jScrollPane1.setViewportView(xList1);
 
-        jLabel1.setText("Associated rulesets");
+        jPanel3.add(jScrollPane1, java.awt.BorderLayout.CENTER);
 
         javax.swing.GroupLayout xPanel1Layout = new javax.swing.GroupLayout(xPanel1);
         xPanel1.setLayout(xPanel1Layout);
@@ -349,21 +348,18 @@ public class FactPage extends javax.swing.JPanel {
             xPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(xPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(xPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jScrollPane1)
-                    .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 277, Short.MAX_VALUE))
+                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, 277, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(456, Short.MAX_VALUE))
         );
         xPanel1Layout.setVerticalGroup(
             xPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(xPanel1Layout.createSequentialGroup()
-                .addComponent(jLabel1)
-                .addGap(7, 7, 7)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 151, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(236, Short.MAX_VALUE))
+                .addContainerGap()
+                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, 208, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(189, Short.MAX_VALUE))
         );
 
-        xTabbedPane1.addTab("Rulesets", xPanel1);
+        xTabbedPane1.addTab("  Rulesets  ", xPanel1);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -383,9 +379,15 @@ public class FactPage extends javax.swing.JPanel {
         );
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.Box.Filler filler1;
+    private javax.swing.Box.Filler filler2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel4;
+    private javax.swing.JPanel jPanel5;
+    private javax.swing.JPanel jPanel6;
     private javax.swing.JScrollPane jScrollPane1;
     private com.rameses.rcp.control.XButton xButton1;
     private com.rameses.rcp.control.XButton xButton2;

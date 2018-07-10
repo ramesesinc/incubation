@@ -21,6 +21,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.beans.Beans;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -36,6 +37,7 @@ import javax.swing.text.AbstractDocument;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.ComponentView;
 import javax.swing.text.Document;
+import javax.swing.text.EditorKit;
 import javax.swing.text.Element;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.View;
@@ -56,18 +58,30 @@ public class HtmlViewPane extends JEditorPane
     private Point mousePoint; 
     private DocViewModel docModel; 
     
+    private Font templateFont;
+    
+    private ArrayList<ActionParam> actionParams;
+    
     public HtmlViewPane() {
         super(); 
-        super.setContentType("text/html");
-        super.setEditorKit(new CompEditorKit());
         super.setEditable(false); 
+        super.setContentType("text/html");
+        
+        actionParams = new ArrayList(); 
+        CompEditorKit editorKit = new CompEditorKit(); 
+        Document doc = editorKit.createDefaultDocument(); 
+        super.setEditorKit( editorKit );
+        super.setDocument( doc ); 
+        
         addHyperlinkListener(new HyperlinkListener() {
             public void hyperlinkUpdate(HyperlinkEvent e) {
                 hyperlinkUpdateImpl(e); 
             }
         });
         addMouseListener(new MouseListener() {
-            public void mouseClicked(MouseEvent e) {}
+            public void mouseClicked(MouseEvent e) {
+                mouseClickedImpl(e);
+            }
             public void mouseEntered(MouseEvent e) {}
             public void mouseExited(MouseEvent e) {}
             public void mousePressed(MouseEvent e) {}
@@ -77,9 +91,13 @@ public class HtmlViewPane extends JEditorPane
         }); 
         
         try { 
-            Font font = UIManager.getLookAndFeelDefaults().getFont("TextField.font"); 
-            super.setFont(font); 
+            templateFont = UIManager.getLookAndFeelDefaults().getFont("TextField.font"); 
+            templateFont = new Font( templateFont.getFontName(), templateFont.getStyle(), templateFont.getSize()+1);  
+            super.setFont( templateFont ); 
+            updateStyleSheet();
         } catch(Throwable t) {;} 
+        
+        setMargin(new Insets(5,5,5,5));
         
         if (Beans.isDesignTime()) {
             setPreferredSize(new Dimension(100,50));
@@ -94,6 +112,7 @@ public class HtmlViewPane extends JEditorPane
     public void setFontStyle(String fontStyle) {
         this.fontStyle = fontStyle;
         new FontSupport().applyStyles(this, fontStyle);
+        updateStyleSheet(); 
     }
 
     public void setDocument(Document doc) {
@@ -158,18 +177,52 @@ public class HtmlViewPane extends JEditorPane
         String shref = href.toString();
         if (!shref.matches("[a-zA-Z0-9_]{1,}")) return;
         
-        processAction(shref, params);
+        actionParams.add( new ActionParam(shref, params)); 
+    }
+    
+    private void mouseClickedImpl(MouseEvent e) {
+        if ( e != null && e.getClickCount() == 1 && !actionParams.isEmpty()) {
+            ActionParam ap = actionParams.get(0); 
+            actionParams.clear(); 
+            
+            processAction( ap.name, ap.param ); 
+        }
+        actionParams.clear();         
+    }
+    
+    private class ActionParam {
+        
+        private String name;
+        private Map param;
+        
+        ActionParam(String name, Map param) {
+            this.name = name; 
+            this.param = param;
+        }
     }
     
     // </editor-fold>
         
     // <editor-fold defaultstate="collapsed" desc=" CompEditorKit "> 
     
+    private void updateStyleSheet() {
+        EditorKit kit = getEditorKit();
+        if ( kit instanceof HTMLEditorKit ) {
+            HTMLEditorKit htmlkit = (HTMLEditorKit) kit;
+            StyleSheet ss = htmlkit.getStyleSheet(); 
+            
+            Font font = getFont(); 
+            if ( font != null ) {
+                ss.addRule("html {font-family:"+ font.getFontName() +"; font-size:"+ font.getSize() +";}"); 
+                ss.addRule("body {font-family:"+ font.getFontName() +"; font-size:"+ font.getSize() +";}"); 
+            }
+        }
+    }
+    
     class CompEditorKit extends HTMLEditorKit {
-        @Override
         public ViewFactory getViewFactory() {
             return new CompFactory();
-        }       
+        } 
     }   
     
     class CompFactory extends HTMLEditorKit.HTMLFactory {

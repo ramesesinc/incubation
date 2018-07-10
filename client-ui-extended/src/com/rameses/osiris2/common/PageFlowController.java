@@ -49,6 +49,11 @@ public class PageFlowController
     private ListModelHandler listModelHandler;
     private List<Action> navActions;
     
+    //additional overrie so we can define what it does when the complete has reached
+    public Object onComplete() {
+        return null;
+    }
+    
     public PageFlowController() {
     }
     
@@ -120,6 +125,8 @@ public class PageFlowController
                 }
             }
              */
+            Object retVal = onComplete();
+            if( retVal != null ) return retVal;
             return "_close";
         }
         AbstractNode node = workunit.getWorkunit().getCurrentNode();

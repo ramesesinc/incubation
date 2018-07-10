@@ -247,7 +247,13 @@ public class XTileView extends TilePanel implements UIControl, ActiveControl, Mo
                 } 
 
                 if (visible) {
-                    ImageIcon icon = ImageIconSupport.getInstance().getIcon(item.getIcon()); 
+                    ImageIcon icon = null;
+                    Object obj = item.getProperty("icon"); 
+                    if ( obj instanceof byte[]) {
+                        icon = new ImageIcon((byte[]) obj); 
+                    } else {
+                        icon = ImageIconSupport.getInstance().getIcon(item.getIcon()); 
+                    }
                     addItem(item.getCaption(), item, icon); 
                 }
             } 

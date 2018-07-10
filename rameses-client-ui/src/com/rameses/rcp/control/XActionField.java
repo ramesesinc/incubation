@@ -26,7 +26,6 @@ import com.rameses.rcp.util.UIControlUtil;
 import com.rameses.util.BreakException;
 import com.rameses.util.ExceptionManager;
 import com.rameses.util.IgnoreException;
-import com.rameses.util.ValueUtil;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -189,7 +188,7 @@ public class XActionField extends JPanel implements MouseEventSupport.ComponentI
         sourceFont = font; 
         if (sourceFont != null) {
             Map attrs = getFontSupport().createFontAttributes(getFontStyle()); 
-            if (!attrs.isEmpty()) sourceFont = sourceFont.deriveFont(attrs);
+            sourceFont = getFontSupport().applyStyles(sourceFont, attrs); 
         }
         
         super.setFont(sourceFont); 
@@ -206,7 +205,7 @@ public class XActionField extends JPanel implements MouseEventSupport.ComponentI
         if (font == null) return;
         
         Map attrs = getFontSupport().createFontAttributes(getFontStyle()); 
-        if (!attrs.isEmpty()) font = font.deriveFont(attrs); 
+        font = getFontSupport().applyStyles(sourceFont, attrs); 
         
         super.setFont(font); 
         getField().setFont(font); 
@@ -222,7 +221,7 @@ public class XActionField extends JPanel implements MouseEventSupport.ComponentI
         actionFont = font; 
         if (actionFont != null) {
             Map attrs = getFontSupport().createFontAttributes(getActionFontStyle()); 
-            if (!attrs.isEmpty()) actionFont = actionFont.deriveFont(attrs);
+            actionFont = getFontSupport().applyStyles(actionFont, attrs); 
         }
         getButton().setFont(actionFont); 
     } 

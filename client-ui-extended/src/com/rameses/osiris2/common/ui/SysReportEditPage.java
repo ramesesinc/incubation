@@ -44,21 +44,21 @@ public class SysReportEditPage extends javax.swing.JPanel {
         jPanel3.setLayout(new java.awt.BorderLayout());
 
         xTextField1.setCaption("Output Directory");
-        xTextField1.setFocusable(false);
         xTextField1.setName("outputdir.absolutePath"); // NOI18N
+        xTextField1.setFocusable(false);
         xTextField1.setPreferredSize(new java.awt.Dimension(100, 25));
         xTextField1.setTextCase(com.rameses.rcp.constant.TextCase.NONE);
         jPanel3.add(xTextField1, java.awt.BorderLayout.CENTER);
 
         xLabel2.setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 0, 5, 0));
-        xLabel2.setText("Output Directory :");
         xLabel2.setFontStyle("font-weight:bold;");
+        xLabel2.setText("Output Directory :");
         jPanel3.add(xLabel2, java.awt.BorderLayout.NORTH);
 
         xButton3.setMnemonic('b');
-        xButton3.setText("Browse...");
-        xButton3.setImmediate(true);
         xButton3.setName("doBrowse"); // NOI18N
+        xButton3.setImmediate(true);
+        xButton3.setText("Browse...");
         xButton3.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 xButton3ActionPerformed(evt);
@@ -74,9 +74,9 @@ public class SysReportEditPage extends javax.swing.JPanel {
         jPanel1.add(xLabel1, java.awt.BorderLayout.PAGE_START);
 
         xList1.setExpression("#{item.path}");
-        xList1.setFixedCellHeight(20);
         xList1.setHandler("listHandler");
         xList1.setName("selectedItem"); // NOI18N
+        xList1.setFixedCellHeight(18);
         jScrollPane1.setViewportView(xList1);
 
         jPanel1.add(jScrollPane1, java.awt.BorderLayout.CENTER);
