@@ -1,5 +1,6 @@
 package com.rameses.rcp.draw.interfaces;
 
+import com.rameses.rcp.draw.FigureListener;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
@@ -22,6 +23,7 @@ public interface Connector {
     public void moveBy(int dx, int dy, MouseEvent e, Figure sourceFigure);
     public boolean allowChop(int x, int y);
     public Point chop(int x, int y, boolean split);
+    public void addFigureListener(FigureListener listener);
     
     public List<Point> getPoints();
     
