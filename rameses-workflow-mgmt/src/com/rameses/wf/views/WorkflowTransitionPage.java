@@ -130,7 +130,8 @@ public class WorkflowTransitionPage extends javax.swing.JPanel {
                 , new Object[]{"required", false}
                 , new Object[]{"resizable", true}
                 , new Object[]{"nullWhenEmpty", true}
-                , new Object[]{"editable", false}
+                , new Object[]{"editable", true}
+                , new Object[]{"editableWhen", null}
                 , new Object[]{"visible", true}
                 , new Object[]{"visibleWhen", null}
                 , new Object[]{"textCase", com.rameses.rcp.constant.TextCase.NONE}

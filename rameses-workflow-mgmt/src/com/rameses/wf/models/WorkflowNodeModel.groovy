@@ -22,7 +22,7 @@ public class WorkflowNodeModel  {
     
     void init() {
         entity = MapBeanUtils.copy( item.info );
-        entity.nodetype = "state";
+        entity.nodetype = item.type;
         if( !entity.properties ) entity.properties = [:];
         entity.properties.each { k,v->
             propList << [ key:k, value: v ];

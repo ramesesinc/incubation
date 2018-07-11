@@ -40,6 +40,7 @@ public class WorkflowNodePage extends javax.swing.JPanel {
         xLabel1 = new com.rameses.rcp.control.XLabel();
         xLabel2 = new com.rameses.rcp.control.XLabel();
         xIntegerField1 = new com.rameses.rcp.control.XIntegerField();
+        xCheckBox1 = new com.rameses.rcp.control.XCheckBox();
         xPanel3 = new com.rameses.rcp.control.XPanel();
         xFormPanel2 = new com.rameses.rcp.control.XFormPanel();
         xTextField4 = new com.rameses.rcp.control.XTextField();
@@ -74,6 +75,15 @@ public class WorkflowNodePage extends javax.swing.JPanel {
         xIntegerField1.setName("entity.salience"); // NOI18N
         xIntegerField1.setPreferredSize(new java.awt.Dimension(40, 20));
         xFormPanel1.add(xIntegerField1);
+
+        xCheckBox1.setCaption("");
+        xCheckBox1.setCheckValue(1);
+        xCheckBox1.setName("entity.tracktime"); // NOI18N
+        xCheckBox1.setUncheckValue(0);
+        xCheckBox1.setVisibleWhen("#{ entity.nodetype == 'state' }");
+        xCheckBox1.setCellPadding(new java.awt.Insets(20, 0, 0, 0));
+        xCheckBox1.setText("Track Time");
+        xFormPanel1.add(xCheckBox1);
 
         javax.swing.GroupLayout xPanel1Layout = new javax.swing.GroupLayout(xPanel1);
         xPanel1.setLayout(xPanel1Layout);
@@ -197,6 +207,7 @@ public class WorkflowNodePage extends javax.swing.JPanel {
         );
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private com.rameses.rcp.control.XCheckBox xCheckBox1;
     private com.rameses.rcp.control.XDataTable xDataTable1;
     private com.rameses.rcp.control.XFormPanel xFormPanel1;
     private com.rameses.rcp.control.XFormPanel xFormPanel2;

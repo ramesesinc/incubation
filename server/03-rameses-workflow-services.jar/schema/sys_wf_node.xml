@@ -16,6 +16,7 @@
 			<key field="processname" target="processname"/>
 		</complex>	
 		<complex name="properties" serializer="default" />
+		<field name="tracktime" />
 	</element>	
 
 </schema>	
