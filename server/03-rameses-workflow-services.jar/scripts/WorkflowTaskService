@@ -181,6 +181,7 @@ class WorkflowTaskService  {
         if( nextNode.nodetype == 'decision' ) {
             def req = [processname: r.processname, prevstate: nextNode.name, refid: r.refid, info: r.info];
             _xtransition = findNextTransition( req );
+            if( r.info.message ) _xtransition.message = _xtransition;
         }
 
         //check to node first
