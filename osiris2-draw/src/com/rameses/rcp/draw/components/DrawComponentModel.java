@@ -18,6 +18,7 @@ import com.rameses.rcp.draw.actions.SelectionAction;
 import com.rameses.rcp.draw.figures.FigureCache;
 import com.rameses.rcp.draw.support.AttributeKeys;
 import com.rameses.rcp.draw.actions.AttributePickerAction;
+import com.rameses.rcp.draw.actions.CenterCaptionAction;
 import com.rameses.rcp.draw.actions.ReIndexAction;
 import com.rameses.rcp.draw.actions.ShowIndexAction;
 import com.rameses.rcp.draw.interfaces.Connector;
@@ -81,6 +82,7 @@ public class DrawComponentModel extends ComponentBean implements EditorListener 
         actions.add(new AttributePickerAction(editor, AttributeKeys.STROKE_COLOR, "Stroke Color", "images/draw/strokecolor16.png"));
         actions.add(new ShowIndexAction(editor));
         actions.add(new ReIndexAction(editor));
+        actions.add(new CenterCaptionAction(editor));
         return actions;
     }    
     
