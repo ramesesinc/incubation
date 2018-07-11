@@ -21,6 +21,7 @@ import com.rameses.rcp.control.table.DataTableComponent;
 import com.rameses.rcp.control.table.DataTableModel;
 import com.rameses.rcp.control.table.ListScrollBar;
 import com.rameses.rcp.control.table.RowHeaderView;
+import com.rameses.rcp.control.table.SelectionHandler;
 import com.rameses.rcp.control.table.TableBorders;
 import com.rameses.rcp.control.table.TableUtil;
 import com.rameses.rcp.framework.Binding;
@@ -826,42 +827,49 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
             updateBean(rowIndex); 
             notifyDepends(rowIndex); 
         }
-               
-        void updateBean(int rowIndex) 
-        {
-            try
-            {
+        
+        void updateBean(int rowIndex) {
+            try {
+                SelectionHandler selhandler = getSelectionHandler(); 
+                
                 String name = getName();                 
                 ListItem oListItem = dataProvider.getListItem(rowIndex);
-                if ( !ValueUtil.isEmpty(name) ) 
-                {
+                if ( !ValueUtil.isEmpty(name)) {
                     Object value = (oListItem == null? null: oListItem.getItem()); 
                     UIControlUtil.setBeanValue(binding, name, value);
+                    
+                    if ( selhandler != null ) {
+                        selhandler.setBeanValue( name, value );
+                    } 
                 }
                 
                 String statName = getVarStatus();
-                if ( !ValueUtil.isEmpty(statName) ) 
-                {
+                if ( !ValueUtil.isEmpty(statName)) {
                     Object statValue = dataProvider.createListItemStatus(oListItem); 
                     UIControlUtil.setBeanValue(binding, statName, statValue);
+                    
+                    if ( selhandler != null ) {
+                        selhandler.setStatusValue( statName, statValue );
+                    }                     
                 } 
-            } 
-            catch (Exception ex) 
-            {
+            } catch (Throwable ex) {
                 if (ClientContext.getCurrentContext().isDebugMode()) 
                     ex.printStackTrace(); 
             }
         }
         
-        void notifyDepends(final int rowIndex) 
-        {
-            if ( !ValueUtil.isEmpty(getName()) ) 
-            {
-                if (immediate)
+        void notifyDepends(final int rowIndex) {
+            String sname = getName();
+            if ( !ValueUtil.isEmpty( sname)) {
+                if (immediate) {
                     binding.notifyDepends(XDataTable.this); 
-                
-                else 
-                {
+
+                    SelectionHandler selhandler = getSelectionHandler(); 
+                    if ( selhandler != null ) {
+                        selhandler.notifyDepends(sname); 
+                    }
+                    
+                } else {
                     Thread thread = new Thread(new Runnable() {
                         public void run() { 
                             notifyDependsAsync(rowIndex);
@@ -872,12 +880,17 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
             } 
         }
         
-        void notifyDependsCheckedItems(final String name) 
-        {
+        void notifyDependsCheckedItems(final String name) {
             if (!dataProvider.isMultiSelect()) return;
             
             if (immediate) { 
                 binding.notifyDepends(XDataTable.this, name); 
+                
+                SelectionHandler selhandler = getSelectionHandler(); 
+                if ( selhandler != null ) {
+                    selhandler.notifyDepends( name ); 
+                }
+                
             } else { 
                 Thread thread = new Thread(new Runnable() {
                     public void run() { 
@@ -890,22 +903,26 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
         
         private synchronized void notifyDependsAsync(int selectedRow) 
         {
-            try { Thread.sleep(200); } catch(Exception ex) {;}             
-            try 
-            {
+            try { Thread.sleep(200); } catch(Throwable ex) {;}             
+            
+            try {
                 if (selectedRow == table.getSelectedRow()) { 
                     binding.notifyDepends(XDataTable.this); 
                 } 
-            } 
-            catch(Exception ex) {;} 
+            } catch(Throwable ex) {;} 
         }       
         
         private synchronized void notifyDependsCheckedItemsAsync(String name) 
         {
             try {
                 binding.notifyDepends(XDataTable.this, name); 
-            } catch(Exception ex) {;} 
-        }         
+                
+                SelectionHandler selhandler = getSelectionHandler(); 
+                if ( selhandler != null ) {
+                    selhandler.notifyDepends( name ); 
+                }
+            } catch(Throwable ex) {;} 
+        } 
     }
            
     // </editor-fold>     
@@ -955,6 +972,14 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
     // </editor-fold>     
     
     // <editor-fold defaultstate="collapsed" desc="  DataTableComponentImpl (Class)  ">
+    
+    private SelectionHandler getSelectionHandler() {
+        Object o = getClientProperty( SelectionHandler.class ); 
+        if ( o instanceof SelectionHandler ) {
+            return (SelectionHandler) o; 
+        }
+        return null; 
+    }
     
     private class DataTableComponentImpl extends DataTableComponent {
         

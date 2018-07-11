@@ -115,6 +115,8 @@ public class ConnectorTool extends AbstractTool {
                     getCanvas().revalidateRect(selectedConnector.getDisplayBox());
                 }
             }
+        } else if( connecting == true && connector != null) {
+            connector.addPoint(x, y);
         }
         dragging = false;
     }

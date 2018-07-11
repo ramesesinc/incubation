@@ -9,6 +9,7 @@ import com.rameses.common.PropertyResolver;
 import com.rameses.rcp.common.Column;
 import com.rameses.rcp.common.MsgBox;
 import com.rameses.rcp.control.XComponentPanel;
+import com.rameses.rcp.control.table.SelectionHandler;
 
 @com.rameses.rcp.ui.annotations.ComponentBean("com.rameses.seti2.components.SchemaListComponent")
 public class SchemaList extends XComponentPanel {
@@ -37,15 +38,9 @@ public class SchemaList extends XComponentPanel {
     
     public SchemaList() { 
         initComponents(); 
+        datatable.putClientProperty(SelectionHandler.class, null);
     } 
 
-    public void setName(String name) {
-        super.setName(name);
-        if ( datatable != null ) { 
-            datatable.setName( getName() ); 
-        } 
-    }
-    
     public Column[] getColumns() { return columns; }
     public void setColumns(Column[] columns) { 
         this.columns = columns; 
@@ -247,7 +242,22 @@ public class SchemaList extends XComponentPanel {
             MsgBox.err( t ); 
         }
     }
-    
+        
+    private class SelectionHandlerImpl implements SelectionHandler {
+
+        SchemaList root = SchemaList.this; 
+        
+        public void setBeanValue(String name, Object value) {
+            root.setProperty( getName(), value ); 
+        }
+
+        public void setStatusValue(String name, Object value) {
+        }
+
+        public void notifyDepends(String name) {
+            root.notifyDepends( name ); 
+        }
+    }
     
         
     /**

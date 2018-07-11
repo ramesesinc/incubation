@@ -7,7 +7,6 @@ import com.rameses.rcp.draw.interfaces.Tool;
 import com.rameses.rcp.draw.support.AttributeKeys;
 import com.rameses.rcp.draw.utils.Geom;
 import static com.rameses.rcp.draw.support.AttributeKeys.*;
-import com.rameses.rcp.draw.support.XmlElement;
 import com.rameses.rcp.draw.tools.PolyLineTool;
 import com.rameses.rcp.draw.utils.DataUtil;
 import java.awt.Color;

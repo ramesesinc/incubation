@@ -4,6 +4,7 @@
  */
 package com.rameses.rcp.draw.tools;
 
+import com.rameses.rcp.draw.figures.WorkflowDecision;
 import com.rameses.rcp.draw.figures.WorkflowNode;
 import com.rameses.rcp.draw.interfaces.Connector;
 import com.rameses.rcp.draw.interfaces.Editor;
@@ -60,7 +61,7 @@ public class ConnectorHandleTool extends HandleTool{
     private boolean isAllowConnect(Figure f, int x, int y) {
         if (f == null) 
             return false;
-        if (!(f instanceof WorkflowNode))
+        if (!(f instanceof WorkflowNode || f instanceof WorkflowDecision ))
             return false;
         if (!f.isConnectionAllowed())
             return false;

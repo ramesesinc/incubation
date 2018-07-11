@@ -5,7 +5,7 @@ import com.rameses.rcp.draw.interfaces.Connector;
 import com.rameses.rcp.draw.interfaces.Figure;
 import com.rameses.rcp.draw.interfaces.LineDecoration;
 import com.rameses.rcp.draw.interfaces.Tool;
-import com.rameses.rcp.draw.support.AttributeKeys;
+import static com.rameses.rcp.draw.support.AttributeKeys.*;
 import com.rameses.rcp.draw.utils.Geom;
 import com.rameses.rcp.draw.tools.ConnectorTool;
 import com.rameses.rcp.draw.utils.DataUtil;
@@ -77,18 +77,14 @@ public class LineConnector extends PolyLineFigure implements Connector {
     protected void drawCaption(Graphics2D g) {
         Figure innerText = getInnerText();
         if (innerText != null){
-            if (getPoints().size() <= 2){
-                Point pt = new Point(getCenter());
-                pt.y -= 10;
-                innerText.center(pt);
-                innerText.set(AttributeKeys.CENTER_TEXT, true);
-            } else {
-                innerText.set(AttributeKeys.CENTER_TEXT, false);
+            if (innerText.get(CENTER_TEXT) == true){
+                innerText.center(getCenterPoint());
             }
             innerText.draw(g);
         }
     }
     
+ 
     public void addPoint(int idx, Point pt){
         getPoints().add(idx, pt);
         updateDisplayBox();
@@ -175,8 +171,18 @@ public class LineConnector extends PolyLineFigure implements Connector {
             return;
         }
         if (updateConnectorPoint){
-            updateConnectionPoint(figure, getStartFigure(), getEndPoint());
-            updateConnectionPoint(getStartFigure(), figure, getStartPoint());
+            Point refPoint = getStartPoint();
+            if (getPoints().size() > 2){
+                refPoint = getPoints().get(getPoints().size() - 2);
+                
+            }
+            updateConnectionPoint(figure, refPoint, getEndPoint());
+            
+            refPoint = getEndPoint();
+            if (getPoints().size() > 2){
+                refPoint = getPoints().get(1);
+            }
+            updateConnectionPoint(getStartFigure(), refPoint, getStartPoint());
         }
         figure.addConnector(this);
     }
@@ -271,24 +277,22 @@ public class LineConnector extends PolyLineFigure implements Connector {
         throw new RuntimeException("Invalid (x,y).");
     }
 
-    protected void updateConnectionPoint(Figure figure, Figure targetFigure, Point p){
+    protected void updateConnectionPoint(Figure figure, Point refPoint, Point pt){
         if (figure == null){
             return;
         }
-        Point refPoint = targetFigure.getCenter();
         
         Point intersect = figure.intersect(refPoint);
         if (intersect != null){
-            p.x = intersect.x;
-            p.y = intersect.y;
+            pt.x = intersect.x;
+            pt.y = intersect.y;
         }
         else {
-            Point loc = figure.getDisplayBox().getLocation();
-            p.x = figure.getCenter().x;
-            p.y = figure.getCenter().y;
+            pt.x = figure.getCenter().x;
+            pt.y = figure.getCenter().y;
         }
     }    
-    
+
     @Override
     public void readAttributes(Map prop){
         super.readAttributes(prop);
@@ -328,5 +332,33 @@ public class LineConnector extends PolyLineFigure implements Connector {
         if (decorationClass != null){
             setEndDecoration((LineDecoration)DrawUtil.loadClass(decorationClass));
         }
+    }
+
+    private Point getCenterPoint(){
+        int size = getPoints().size();
+        
+        Point center = new Point(getCenter());
+        
+        if (size >= 2 ) {
+            if (size % 2 == 0) {
+                //even, get center point between the two inner most points
+                int index1 = (size / 2) - 1;
+                int index2 = size / 2;
+                Point p1 = getPoints().get(index1);
+                Point p2 = getPoints().get(index2);
+                center = getCenterPoint(p1, p2);
+            } else {
+                //odd, use center point as reference
+                int index = (int)(size / 2);
+                center = getPoints().get(index);
+            }
+        }
+        return center;
+    }
+
+    private Point getCenterPoint(Point p1, Point p2) {
+        int x = Math.min(p1.x, p2.x) + (Math.abs(p1.x - p2.x) / 2);
+        int y = Math.min(p1.y, p2.y) + (Math.abs(p1.y - p2.y) / 2);
+        return new Point(x, y-10);
     }
 }

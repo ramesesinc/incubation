@@ -97,7 +97,7 @@ public class DrawingEditor implements Editor, FigureListener{
     
     @Override
     public void addToConnector(Connector connector){
-        ((LineConnector)connector).addFigureListener(this);
+        connector.addFigureListener(this);
         getDrawing().addConnector(connector);
     }
     
