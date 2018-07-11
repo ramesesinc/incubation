@@ -49,6 +49,14 @@ public abstract class AbstractCrudModel  {
     def schema;
     def mode;
     
+    boolean hasCallerProperty( property ) {
+        if ( caller == null ) return false; 
+        return caller.metaClass.hasProperty(caller, property ); 
+    }
+    boolean hasCallerMethod( property ) {
+        if ( caller == null ) return false; 
+        return caller.metaClass.respondsTo(caller, property ); 
+    }     
     
     public boolean getDebug() {
         def g = workunit.info.workunit_properties.debug;
