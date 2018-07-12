@@ -103,81 +103,88 @@
             <Component class="com.rameses.rcp.control.XButton" name="btnCancel1">
               <Properties>
                 <Property name="caption" type="java.lang.String" value=""/>
+                <Property name="name" type="java.lang.String" value="showMenu" noResource="true"/>
+                <Property name="autoRefresh" type="boolean" value="false"/>
                 <Property name="focusable" type="boolean" value="false"/>
                 <Property name="iconResource" type="java.lang.String" value="images/menu.png"/>
                 <Property name="immediate" type="boolean" value="true"/>
-                <Property name="name" type="java.lang.String" value="showMenu" noResource="true"/>
               </Properties>
             </Component>
             <Component class="com.rameses.rcp.control.XButton" name="btnCreate">
               <Properties>
-                <Property name="accelerator" type="java.lang.String" value="ctrl N"/>
                 <Property name="caption" type="java.lang.String" value=""/>
-                <Property name="focusable" type="boolean" value="false"/>
-                <Property name="iconResource" type="java.lang.String" value="images/toolbars/create.png"/>
                 <Property name="name" type="java.lang.String" value="create" noResource="true"/>
                 <Property name="visibleWhen" type="java.lang.String" value="#{createAllowed==true}"/>
+                <Property name="accelerator" type="java.lang.String" value="ctrl N"/>
+                <Property name="autoRefresh" type="boolean" value="false"/>
+                <Property name="focusable" type="boolean" value="false"/>
+                <Property name="iconResource" type="java.lang.String" value="images/toolbars/create.png"/>
               </Properties>
             </Component>
             <Component class="com.rameses.rcp.control.XButton" name="btnEdit">
               <Properties>
-                <Property name="accelerator" type="java.lang.String" value="ctrl E"/>
                 <Property name="caption" type="java.lang.String" value=""/>
-                <Property name="focusable" type="boolean" value="false"/>
-                <Property name="iconResource" type="java.lang.String" value="images/toolbars/edit.png"/>
                 <Property name="name" type="java.lang.String" value="edit" noResource="true"/>
                 <Property name="visibleWhen" type="java.lang.String" value="#{editAllowed==true}"/>
+                <Property name="accelerator" type="java.lang.String" value="ctrl E"/>
+                <Property name="autoRefresh" type="boolean" value="false"/>
+                <Property name="focusable" type="boolean" value="false"/>
+                <Property name="iconResource" type="java.lang.String" value="images/toolbars/edit.png"/>
               </Properties>
             </Component>
             <Component class="com.rameses.rcp.control.XButton" name="btnSave">
               <Properties>
-                <Property name="accelerator" type="java.lang.String" value="ctrl S"/>
                 <Property name="caption" type="java.lang.String" value=""/>
-                <Property name="focusable" type="boolean" value="false"/>
-                <Property name="iconResource" type="java.lang.String" value="images/toolbars/save.png"/>
                 <Property name="name" type="java.lang.String" value="save" noResource="true"/>
                 <Property name="visibleWhen" type="java.lang.String" value="#{saveAllowed==true}"/>
+                <Property name="accelerator" type="java.lang.String" value="ctrl S"/>
+                <Property name="focusable" type="boolean" value="false"/>
+                <Property name="iconResource" type="java.lang.String" value="images/toolbars/save.png"/>
               </Properties>
             </Component>
             <Component class="com.rameses.rcp.control.XButton" name="btnUndo">
               <Properties>
-                <Property name="accelerator" type="java.lang.String" value="ctrl U"/>
                 <Property name="caption" type="java.lang.String" value=""/>
+                <Property name="name" type="java.lang.String" value="undo" noResource="true"/>
+                <Property name="visibleWhen" type="java.lang.String" value="#{undoAllowed==true}"/>
+                <Property name="accelerator" type="java.lang.String" value="ctrl U"/>
                 <Property name="focusable" type="boolean" value="false"/>
                 <Property name="iconResource" type="java.lang.String" value="images/toolbars/undo.png"/>
                 <Property name="immediate" type="boolean" value="true"/>
-                <Property name="name" type="java.lang.String" value="undo" noResource="true"/>
-                <Property name="visibleWhen" type="java.lang.String" value="#{undoAllowed==true}"/>
               </Properties>
             </Component>
             <Component class="com.rameses.rcp.control.XButton" name="btnCancel">
               <Properties>
                 <Property name="caption" type="java.lang.String" value=""/>
+                <Property name="name" type="java.lang.String" value="unedit" noResource="true"/>
+                <Property name="visibleWhen" type="java.lang.String" value="#{cancelEditAllowed==true}"/>
                 <Property name="focusable" type="boolean" value="false"/>
                 <Property name="iconResource" type="java.lang.String" value="images/toolbars/cancel-edit.png"/>
                 <Property name="immediate" type="boolean" value="true"/>
-                <Property name="name" type="java.lang.String" value="unedit" noResource="true"/>
-                <Property name="visibleWhen" type="java.lang.String" value="#{cancelEditAllowed==true}"/>
               </Properties>
             </Component>
             <Component class="com.rameses.rcp.control.XButton" name="btnPrint">
               <Properties>
-                <Property name="accelerator" type="java.lang.String" value="ctrl P"/>
                 <Property name="caption" type="java.lang.String" value=""/>
+                <Property name="name" type="java.lang.String" value="preview" noResource="true"/>
+                <Property name="visibleWhen" type="java.lang.String" value="#{viewReportAllowed==true}"/>
+                <Property name="accelerator" type="java.lang.String" value="ctrl P"/>
+                <Property name="autoRefresh" type="boolean" value="false"/>
                 <Property name="focusable" type="boolean" value="false"/>
                 <Property name="iconResource" type="java.lang.String" value="images/toolbars/preview.png"/>
                 <Property name="immediate" type="boolean" value="true"/>
                 <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
                   <Insets value="[1, 1, 1, 1]"/>
                 </Property>
-                <Property name="name" type="java.lang.String" value="preview" noResource="true"/>
-                <Property name="visibleWhen" type="java.lang.String" value="#{viewReportAllowed==true}"/>
               </Properties>
             </Component>
             <Component class="com.rameses.rcp.control.XButton" name="btnPrint1">
               <Properties>
-                <Property name="accelerator" type="java.lang.String" value="ctrl P"/>
                 <Property name="caption" type="java.lang.String" value=""/>
+                <Property name="name" type="java.lang.String" value="viewReport" noResource="true"/>
+                <Property name="visibleWhen" type="java.lang.String" value="#{viewReportAllowed==true}"/>
+                <Property name="accelerator" type="java.lang.String" value="ctrl P"/>
+                <Property name="autoRefresh" type="boolean" value="false"/>
                 <Property name="focusable" type="boolean" value="false"/>
                 <Property name="horizontalTextPosition" type="int" value="0"/>
                 <Property name="iconResource" type="java.lang.String" value="images/toolbars/report.png"/>
@@ -185,9 +192,7 @@
                 <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
                   <Insets value="[1, 1, 1, 1]"/>
                 </Property>
-                <Property name="name" type="java.lang.String" value="viewReport" noResource="true"/>
                 <Property name="verticalTextPosition" type="int" value="3"/>
-                <Property name="visibleWhen" type="java.lang.String" value="#{viewReportAllowed==true}"/>
               </Properties>
             </Component>
             <Component class="com.rameses.rcp.control.XButton" name="btnRefresh">
@@ -227,39 +232,42 @@
             </Component>
             <Component class="com.rameses.rcp.control.XButton" name="btnDebug">
               <Properties>
+                <Property name="caption" type="java.lang.String" value="\u005c" containsInvalidXMLChars="true"/>
+                <Property name="name" type="java.lang.String" value="showDebugInfo" noResource="true"/>
+                <Property name="visibleWhen" type="java.lang.String" value="#{ canDebug == true }"/>
+                <Property name="autoRefresh" type="boolean" value="false"/>
                 <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
                   <Color blue="ff" green="ff" red="ff" type="rgb"/>
                 </Property>
-                <Property name="caption" type="java.lang.String" value="\u005c" containsInvalidXMLChars="true"/>
                 <Property name="focusable" type="boolean" value="false"/>
                 <Property name="iconResource" type="java.lang.String" value="images/debug.png"/>
                 <Property name="immediate" type="boolean" value="true"/>
-                <Property name="name" type="java.lang.String" value="showDebugInfo" noResource="true"/>
-                <Property name="visibleWhen" type="java.lang.String" value="#{ canDebug == true }"/>
               </Properties>
             </Component>
             <Component class="com.rameses.rcp.control.XButton" name="btnInfo">
               <Properties>
+                <Property name="caption" type="java.lang.String" value=""/>
+                <Property name="name" type="java.lang.String" value="showInfo" noResource="true"/>
+                <Property name="autoRefresh" type="boolean" value="false"/>
                 <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
                   <Color blue="ff" green="ff" red="ff" type="rgb"/>
                 </Property>
-                <Property name="caption" type="java.lang.String" value=""/>
                 <Property name="focusable" type="boolean" value="false"/>
                 <Property name="iconResource" type="java.lang.String" value="images/info.png"/>
                 <Property name="immediate" type="boolean" value="true"/>
-                <Property name="name" type="java.lang.String" value="showInfo" noResource="true"/>
               </Properties>
             </Component>
             <Component class="com.rameses.rcp.control.XButton" name="btnHelp">
               <Properties>
+                <Property name="caption" type="java.lang.String" value="\u005c" containsInvalidXMLChars="true"/>
+                <Property name="name" type="java.lang.String" value="showHelp" noResource="true"/>
+                <Property name="autoRefresh" type="boolean" value="false"/>
                 <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
                   <Color blue="ff" green="ff" red="ff" type="rgb"/>
                 </Property>
-                <Property name="caption" type="java.lang.String" value="\u005c" containsInvalidXMLChars="true"/>
                 <Property name="focusable" type="boolean" value="false"/>
                 <Property name="iconResource" type="java.lang.String" value="images/help.png"/>
                 <Property name="immediate" type="boolean" value="true"/>
-                <Property name="name" type="java.lang.String" value="showHelp" noResource="true"/>
               </Properties>
             </Component>
             <Component class="com.rameses.rcp.control.XButton" name="btnUp">
@@ -282,12 +290,12 @@
             </Component>
             <Component class="com.rameses.rcp.control.XDropDownList" name="xDropDownList1">
               <Properties>
+                <Property name="handler" type="java.lang.String" value="messagelist"/>
                 <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
                   <Image iconType="3" name="/images/note.png"/>
                 </Property>
                 <Property name="contentAreaFilled" type="boolean" value="false"/>
                 <Property name="focusable" type="boolean" value="false"/>
-                <Property name="handler" type="java.lang.String" value="messagelist"/>
                 <Property name="hideOnEmptyResult" type="boolean" value="true"/>
                 <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
                   <Insets value="[0, 2, 0, 2]"/>

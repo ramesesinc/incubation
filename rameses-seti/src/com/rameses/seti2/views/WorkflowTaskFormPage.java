@@ -111,40 +111,44 @@ public class WorkflowTaskFormPage extends javax.swing.JPanel {
         jToolBar3.setRollover(true);
         jToolBar3.setOpaque(false);
 
-        btnTaskInfo.setBackground(new java.awt.Color(255, 255, 255));
         btnTaskInfo.setCaption("\\");
+            btnTaskInfo.setName("showTaskInfo"); // NOI18N
+            btnTaskInfo.setAutoRefresh(false);
+            btnTaskInfo.setBackground(new java.awt.Color(255, 255, 255));
             btnTaskInfo.setFocusable(false);
             btnTaskInfo.setIconResource("images/taskinfo.png");
             btnTaskInfo.setImmediate(true);
-            btnTaskInfo.setName("showTaskInfo"); // NOI18N
             btnTaskInfo.setOpaque(true);
             jToolBar3.add(btnTaskInfo);
 
-            btnDebug.setBackground(new java.awt.Color(255, 255, 255));
             btnDebug.setCaption("\\");
+                btnDebug.setName("showDebugInfo"); // NOI18N
+                btnDebug.setVisibleWhen("#{ canDebug == true }");
+                btnDebug.setAutoRefresh(false);
+                btnDebug.setBackground(new java.awt.Color(255, 255, 255));
                 btnDebug.setFocusable(false);
                 btnDebug.setIconResource("images/debug.png");
                 btnDebug.setImmediate(true);
-                btnDebug.setName("showDebugInfo"); // NOI18N
                 btnDebug.setOpaque(true);
-                btnDebug.setVisibleWhen("#{ canDebug == true }");
                 jToolBar3.add(btnDebug);
 
-                btnHelp.setBackground(new java.awt.Color(255, 255, 255));
                 btnHelp.setCaption("\\");
+                    btnHelp.setName("showHelp"); // NOI18N
+                    btnHelp.setAutoRefresh(false);
+                    btnHelp.setBackground(new java.awt.Color(255, 255, 255));
                     btnHelp.setFocusable(false);
                     btnHelp.setIconResource("images/help.png");
                     btnHelp.setImmediate(true);
-                    btnHelp.setName("showHelp"); // NOI18N
                     btnHelp.setOpaque(true);
                     jToolBar3.add(btnHelp);
 
-                    btnInfo.setBackground(new java.awt.Color(255, 255, 255));
                     btnInfo.setCaption("");
+                    btnInfo.setName("showInfo"); // NOI18N
+                    btnInfo.setAutoRefresh(false);
+                    btnInfo.setBackground(new java.awt.Color(255, 255, 255));
                     btnInfo.setFocusable(false);
                     btnInfo.setIconResource("images/info.png");
                     btnInfo.setImmediate(true);
-                    btnInfo.setName("showInfo"); // NOI18N
                     btnInfo.setOpaque(true);
                     jToolBar3.add(btnInfo);
 
@@ -182,14 +186,15 @@ public class WorkflowTaskFormPage extends javax.swing.JPanel {
                     xActionBar1.setName("formActions"); // NOI18N
                     jToolBar1.add(xActionBar1);
 
-                    btnPrint.setAccelerator("ctrl P");
                     btnPrint.setCaption("");
+                    btnPrint.setName("viewReport"); // NOI18N
+                    btnPrint.setVisibleWhen("#{viewReportAllowed==true}");
+                    btnPrint.setAccelerator("ctrl P");
+                    btnPrint.setAutoRefresh(false);
                     btnPrint.setFocusable(false);
                     btnPrint.setIconResource("images/toolbars/printer.png");
                     btnPrint.setImmediate(true);
                     btnPrint.setMargin(new java.awt.Insets(1, 1, 1, 1));
-                    btnPrint.setName("viewReport"); // NOI18N
-                    btnPrint.setVisibleWhen("#{viewReportAllowed==true}");
                     jToolBar1.add(btnPrint);
 
                     xSubFormPanel1.setHandler("queryForm");

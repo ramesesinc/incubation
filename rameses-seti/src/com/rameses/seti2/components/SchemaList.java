@@ -306,31 +306,33 @@ public class SchemaList extends XComponentPanel {
         jToolBar1.setFloatable(false);
         jToolBar1.setRollover(true);
 
-        btnCreate.setName("create"); // NOI18N
-        btnCreate.setAccelerator("ctrl N");
         btnCreate.setCaption("");
+        btnCreate.setName("create"); // NOI18N
+        btnCreate.setVisibleWhen("#{allowCreate==true}");
+        btnCreate.setAccelerator("ctrl N");
+        btnCreate.setAutoRefresh(false);
         btnCreate.setFocusable(false);
         btnCreate.setIconResource("images/toolbars/create.png");
         btnCreate.setMargin(new java.awt.Insets(1, 1, 1, 1));
-        btnCreate.setVisibleWhen("#{allowCreate==true}");
         jToolBar1.add(btnCreate);
 
-        btnOpen.setName("open"); // NOI18N
-        btnOpen.setAccelerator("ctrl O");
         btnOpen.setCaption("");
+        btnOpen.setName("open"); // NOI18N
+        btnOpen.setVisibleWhen("#{allowOpen==true}");
+        btnOpen.setAccelerator("ctrl O");
+        btnOpen.setAutoRefresh(false);
         btnOpen.setFocusable(false);
         btnOpen.setIconResource("images/toolbars/open.png");
         btnOpen.setMargin(new java.awt.Insets(1, 1, 1, 1));
-        btnOpen.setVisibleWhen("#{allowOpen==true}");
         jToolBar1.add(btnOpen);
 
-        btnDelete.setName("removeEntity"); // NOI18N
         btnDelete.setCaption("");
         btnDelete.setDepends(new String[] {"selectedItem"});
+        btnDelete.setName("removeEntity"); // NOI18N
+        btnDelete.setVisibleWhen("#{allowDelete==true}");
         btnDelete.setFocusable(false);
         btnDelete.setIconResource("images/toolbars/trash.png");
         btnDelete.setMargin(new java.awt.Insets(1, 1, 1, 1));
-        btnDelete.setVisibleWhen("#{allowDelete==true}");
         jToolBar1.add(btnDelete);
 
         btnPrint.setName("print"); // NOI18N
@@ -344,9 +346,10 @@ public class SchemaList extends XComponentPanel {
         btnPrint.setVisibleWhen("#{printAllowed}");
         jToolBar1.add(btnPrint);
 
+        btnFilter.setCaption("");
         btnFilter.setName("showFilter"); // NOI18N
         btnFilter.setAccelerator("ctrl F");
-        btnFilter.setCaption("");
+        btnFilter.setAutoRefresh(false);
         btnFilter.setFocusable(false);
         btnFilter.setIconResource("images/toolbars/filter.png");
         btnFilter.setImmediate(true);
@@ -363,9 +366,10 @@ public class SchemaList extends XComponentPanel {
         btnSelectColumn.setVisibleWhen("#{showColsAllowed}");
         jToolBar1.add(btnSelectColumn);
 
+        btnRefresh.setCaption("");
         btnRefresh.setName("refresh"); // NOI18N
         btnRefresh.setAccelerator("ctrl R");
-        btnRefresh.setCaption("");
+        btnRefresh.setAutoRefresh(false);
         btnRefresh.setFocusable(false);
         btnRefresh.setIconResource("images/toolbars/refresh.png");
         btnRefresh.setImmediate(true);
@@ -414,17 +418,19 @@ public class SchemaList extends XComponentPanel {
         xActionTextField1.setVisibleWhen("#{allowSearch == true}");
         jToolBar3.add(xActionTextField1);
 
-        xButton2.setName("showInfo"); // NOI18N
-        xButton2.setBackground(new java.awt.Color(255, 255, 255));
         xButton2.setCaption("");
+        xButton2.setName("showInfo"); // NOI18N
+        xButton2.setAutoRefresh(false);
+        xButton2.setBackground(new java.awt.Color(255, 255, 255));
         xButton2.setFocusable(false);
         xButton2.setIconResource("images/info.png");
         xButton2.setImmediate(true);
         jToolBar3.add(xButton2);
 
-        xButton1.setName("showHelp"); // NOI18N
-        xButton1.setBackground(new java.awt.Color(255, 255, 255));
         xButton1.setCaption("\\");
+            xButton1.setName("showHelp"); // NOI18N
+            xButton1.setAutoRefresh(false);
+            xButton1.setBackground(new java.awt.Color(255, 255, 255));
             xButton1.setFocusable(false);
             xButton1.setIconResource("images/help.png");
             xButton1.setImmediate(true);
@@ -443,25 +449,29 @@ public class SchemaList extends XComponentPanel {
             jToolBar2.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
             jToolBar2.setRollover(true);
 
+            btnMoveFirst.setName("listModel.moveFirstPage"); // NOI18N
+            btnMoveFirst.setAutoRefresh(false);
             btnMoveFirst.setFocusable(false);
             btnMoveFirst.setIconResource("images/navbar/first.png");
-            btnMoveFirst.setName("listModel.moveFirstPage"); // NOI18N
             jToolBar2.add(btnMoveFirst);
 
+            btnMovePrev.setName("listModel.moveBackPage"); // NOI18N
+            btnMovePrev.setAutoRefresh(false);
             btnMovePrev.setFocusable(false);
             btnMovePrev.setIconResource("images/navbar/previous.png");
-            btnMovePrev.setName("listModel.moveBackPage"); // NOI18N
             jToolBar2.add(btnMovePrev);
 
+            btnMoveNext.setName("listModel.moveNextPage"); // NOI18N
+            btnMoveNext.setAutoRefresh(false);
             btnMoveNext.setFocusable(false);
             btnMoveNext.setIconResource("images/navbar/next.png");
             btnMoveNext.setImmediate(true);
-            btnMoveNext.setName("listModel.moveNextPage"); // NOI18N
             jToolBar2.add(btnMoveNext);
 
+            btnMoveLast.setName("listModel.moveLastPage"); // NOI18N
+            btnMoveLast.setAutoRefresh(false);
             btnMoveLast.setFocusable(false);
             btnMoveLast.setIconResource("images/navbar/last.png");
-            btnMoveLast.setName("listModel.moveLastPage"); // NOI18N
             jToolBar2.add(btnMoveLast);
 
             jPanel5.setPreferredSize(new java.awt.Dimension(100, 20));

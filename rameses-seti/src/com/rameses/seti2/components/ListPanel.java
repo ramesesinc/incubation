@@ -99,24 +99,28 @@ public class ListPanel extends javax.swing.JPanel {
         jToolBar2.setRollover(true);
 
         btnMoveFirst.setName("listHandler.moveFirstPage"); // NOI18N
+        btnMoveFirst.setAutoRefresh(false);
         btnMoveFirst.setFocusable(false);
         btnMoveFirst.setIconResource("images/navbar/first.png");
         jToolBar2.add(btnMoveFirst);
 
+        btnMovePrev.setName("listHandler.moveBackPage"); // NOI18N
+        btnMovePrev.setAutoRefresh(false);
         btnMovePrev.setFocusable(false);
         btnMovePrev.setIconResource("images/navbar/previous.png");
-        btnMovePrev.setName("listHandler.moveBackPage"); // NOI18N
         jToolBar2.add(btnMovePrev);
 
+        btnMoveNext.setName("listHandler.moveNextPage"); // NOI18N
+        btnMoveNext.setAutoRefresh(false);
         btnMoveNext.setFocusable(false);
         btnMoveNext.setIconResource("images/navbar/next.png");
         btnMoveNext.setImmediate(true);
-        btnMoveNext.setName("listHandler.moveNextPage"); // NOI18N
         jToolBar2.add(btnMoveNext);
 
+        btnMoveLast.setName("listHandler.moveLastPage"); // NOI18N
+        btnMoveLast.setAutoRefresh(false);
         btnMoveLast.setFocusable(false);
         btnMoveLast.setIconResource("images/navbar/last.png");
-        btnMoveLast.setName("listHandler.moveLastPage"); // NOI18N
         jToolBar2.add(btnMoveLast);
         jToolBar2.add(filler1);
 

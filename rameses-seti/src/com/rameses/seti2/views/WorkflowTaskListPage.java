@@ -171,21 +171,23 @@ public class WorkflowTaskListPage extends javax.swing.JPanel {
         jToolBar3.setRollover(true);
         jToolBar3.setOpaque(false);
 
-        xButton1.setBackground(new java.awt.Color(255, 255, 255));
         xButton1.setCaption("\\");
+            xButton1.setName("showHelp"); // NOI18N
+            xButton1.setAutoRefresh(false);
+            xButton1.setBackground(new java.awt.Color(255, 255, 255));
             xButton1.setFocusable(false);
             xButton1.setIconResource("images/help.png");
             xButton1.setImmediate(true);
-            xButton1.setName("showHelp"); // NOI18N
             xButton1.setOpaque(true);
             jToolBar3.add(xButton1);
 
-            xButton2.setBackground(new java.awt.Color(255, 255, 255));
             xButton2.setCaption("");
+            xButton2.setName("showInfo"); // NOI18N
+            xButton2.setAutoRefresh(false);
+            xButton2.setBackground(new java.awt.Color(255, 255, 255));
             xButton2.setFocusable(false);
             xButton2.setIconResource("images/info.png");
             xButton2.setImmediate(true);
-            xButton2.setName("showInfo"); // NOI18N
             xButton2.setOpaque(true);
             jToolBar3.add(xButton2);
 
@@ -213,73 +215,81 @@ public class WorkflowTaskListPage extends javax.swing.JPanel {
             jToolBar1.setRollover(true);
 
             btnCancel1.setCaption("");
+            btnCancel1.setName("showMenu"); // NOI18N
+            btnCancel1.setAutoRefresh(false);
             btnCancel1.setFocusable(false);
             btnCancel1.setIconResource("images/menu.png");
             btnCancel1.setImmediate(true);
             btnCancel1.setMargin(new java.awt.Insets(1, 1, 1, 1));
-            btnCancel1.setName("showMenu"); // NOI18N
             jToolBar1.add(btnCancel1);
 
-            btnCreate.setAccelerator("ctrl N");
             btnCreate.setCaption("");
+            btnCreate.setName("create"); // NOI18N
+            btnCreate.setVisibleWhen("#{createAllowed==true}");
+            btnCreate.setAccelerator("ctrl N");
+            btnCreate.setAutoRefresh(false);
             btnCreate.setFocusable(false);
             btnCreate.setIconResource("images/toolbars/create.png");
             btnCreate.setMargin(new java.awt.Insets(1, 1, 1, 1));
-            btnCreate.setName("create"); // NOI18N
-            btnCreate.setVisibleWhen("#{createAllowed==true}");
             jToolBar1.add(btnCreate);
 
-            btnOpen.setAccelerator("ctrl O");
             btnOpen.setCaption("");
+            btnOpen.setName("open"); // NOI18N
+            btnOpen.setVisibleWhen("#{openAllowed==true}");
+            btnOpen.setAccelerator("ctrl O");
+            btnOpen.setAutoRefresh(false);
             btnOpen.setFocusable(false);
             btnOpen.setIconResource("images/toolbars/open.png");
             btnOpen.setMargin(new java.awt.Insets(1, 1, 1, 1));
-            btnOpen.setName("open"); // NOI18N
-            btnOpen.setVisibleWhen("#{openAllowed==true}");
             jToolBar1.add(btnOpen);
 
             btnDelete.setCaption("");
             btnDelete.setDepends(new String[] {"selectedItem"});
+            btnDelete.setName("removeEntity"); // NOI18N
+            btnDelete.setVisibleWhen("#{deleteAllowed==true}");
+            btnDelete.setAutoRefresh(false);
             btnDelete.setFocusable(false);
             btnDelete.setIconResource("images/toolbars/trash.png");
             btnDelete.setMargin(new java.awt.Insets(1, 1, 1, 1));
-            btnDelete.setName("removeEntity"); // NOI18N
-            btnDelete.setVisibleWhen("#{deleteAllowed==true}");
             jToolBar1.add(btnDelete);
 
-            btnPrint.setAccelerator("ctrl P");
             btnPrint.setCaption("");
+            btnPrint.setName("print"); // NOI18N
+            btnPrint.setAccelerator("ctrl P");
+            btnPrint.setAutoRefresh(false);
             btnPrint.setFocusable(false);
             btnPrint.setIconResource("images/toolbars/printer.png");
             btnPrint.setImmediate(true);
             btnPrint.setMargin(new java.awt.Insets(1, 1, 1, 1));
-            btnPrint.setName("print"); // NOI18N
             jToolBar1.add(btnPrint);
 
-            btnFilter.setAccelerator("ctrl F");
             btnFilter.setCaption("");
+            btnFilter.setName("showFilter"); // NOI18N
+            btnFilter.setAccelerator("ctrl F");
+            btnFilter.setAutoRefresh(false);
             btnFilter.setFocusable(false);
             btnFilter.setIconResource("images/toolbars/filter.png");
             btnFilter.setImmediate(true);
             btnFilter.setMargin(new java.awt.Insets(1, 1, 1, 1));
-            btnFilter.setName("showFilter"); // NOI18N
             jToolBar1.add(btnFilter);
 
-            btnRefresh.setAccelerator("ctrl R");
             btnRefresh.setCaption("");
+            btnRefresh.setName("refresh"); // NOI18N
+            btnRefresh.setAccelerator("ctrl R");
+            btnRefresh.setAutoRefresh(false);
             btnRefresh.setFocusable(false);
             btnRefresh.setIconResource("images/toolbars/refresh.png");
             btnRefresh.setImmediate(true);
             btnRefresh.setMargin(new java.awt.Insets(1, 1, 1, 1));
-            btnRefresh.setName("refresh"); // NOI18N
             jToolBar1.add(btnRefresh);
 
             btnSelectColumn.setCaption("");
+            btnSelectColumn.setName("selectColumns"); // NOI18N
+            btnSelectColumn.setAutoRefresh(false);
             btnSelectColumn.setFocusable(false);
             btnSelectColumn.setIconResource("images/toolbars/table-column.png");
             btnSelectColumn.setImmediate(true);
             btnSelectColumn.setMargin(new java.awt.Insets(1, 1, 1, 1));
-            btnSelectColumn.setName("selectColumns"); // NOI18N
             jToolBar1.add(btnSelectColumn);
 
             xActionBar1.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 10, 0, 0));

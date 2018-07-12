@@ -133,73 +133,78 @@ public class CrudFormPage extends javax.swing.JPanel {
         jToolBar1.setPreferredSize(new java.awt.Dimension(100, 30));
 
         btnCancel1.setCaption("");
+        btnCancel1.setName("showMenu"); // NOI18N
+        btnCancel1.setAutoRefresh(false);
         btnCancel1.setFocusable(false);
         btnCancel1.setIconResource("images/menu.png");
         btnCancel1.setImmediate(true);
-        btnCancel1.setName("showMenu"); // NOI18N
         jToolBar1.add(btnCancel1);
 
-        btnCreate.setAccelerator("ctrl N");
         btnCreate.setCaption("");
-        btnCreate.setFocusable(false);
-        btnCreate.setIconResource("images/toolbars/create.png");
         btnCreate.setName("create"); // NOI18N
         btnCreate.setVisibleWhen("#{createAllowed==true}");
+        btnCreate.setAccelerator("ctrl N");
+        btnCreate.setAutoRefresh(false);
+        btnCreate.setFocusable(false);
+        btnCreate.setIconResource("images/toolbars/create.png");
         jToolBar1.add(btnCreate);
 
-        btnEdit.setAccelerator("ctrl E");
         btnEdit.setCaption("");
-        btnEdit.setFocusable(false);
-        btnEdit.setIconResource("images/toolbars/edit.png");
         btnEdit.setName("edit"); // NOI18N
         btnEdit.setVisibleWhen("#{editAllowed==true}");
+        btnEdit.setAccelerator("ctrl E");
+        btnEdit.setAutoRefresh(false);
+        btnEdit.setFocusable(false);
+        btnEdit.setIconResource("images/toolbars/edit.png");
         jToolBar1.add(btnEdit);
 
-        btnSave.setAccelerator("ctrl S");
         btnSave.setCaption("");
-        btnSave.setFocusable(false);
-        btnSave.setIconResource("images/toolbars/save.png");
         btnSave.setName("save"); // NOI18N
         btnSave.setVisibleWhen("#{saveAllowed==true}");
+        btnSave.setAccelerator("ctrl S");
+        btnSave.setFocusable(false);
+        btnSave.setIconResource("images/toolbars/save.png");
         jToolBar1.add(btnSave);
 
-        btnUndo.setAccelerator("ctrl U");
         btnUndo.setCaption("");
+        btnUndo.setName("undo"); // NOI18N
+        btnUndo.setVisibleWhen("#{undoAllowed==true}");
+        btnUndo.setAccelerator("ctrl U");
         btnUndo.setFocusable(false);
         btnUndo.setIconResource("images/toolbars/undo.png");
         btnUndo.setImmediate(true);
-        btnUndo.setName("undo"); // NOI18N
-        btnUndo.setVisibleWhen("#{undoAllowed==true}");
         jToolBar1.add(btnUndo);
 
         btnCancel.setCaption("");
+        btnCancel.setName("unedit"); // NOI18N
+        btnCancel.setVisibleWhen("#{cancelEditAllowed==true}");
         btnCancel.setFocusable(false);
         btnCancel.setIconResource("images/toolbars/cancel-edit.png");
         btnCancel.setImmediate(true);
-        btnCancel.setName("unedit"); // NOI18N
-        btnCancel.setVisibleWhen("#{cancelEditAllowed==true}");
         jToolBar1.add(btnCancel);
 
-        btnPrint.setAccelerator("ctrl P");
         btnPrint.setCaption("");
+        btnPrint.setName("preview"); // NOI18N
+        btnPrint.setVisibleWhen("#{viewReportAllowed==true}");
+        btnPrint.setAccelerator("ctrl P");
+        btnPrint.setAutoRefresh(false);
         btnPrint.setFocusable(false);
         btnPrint.setIconResource("images/toolbars/preview.png");
         btnPrint.setImmediate(true);
         btnPrint.setMargin(new java.awt.Insets(1, 1, 1, 1));
-        btnPrint.setName("preview"); // NOI18N
-        btnPrint.setVisibleWhen("#{viewReportAllowed==true}");
         jToolBar1.add(btnPrint);
 
-        btnPrint1.setAccelerator("ctrl P");
         btnPrint1.setCaption("");
+        btnPrint1.setName("viewReport"); // NOI18N
+        btnPrint1.setVisibleWhen("#{viewReportAllowed==true}");
+        btnPrint1.setAccelerator("ctrl P");
+        btnPrint1.setAutoRefresh(false);
         btnPrint1.setFocusable(false);
         btnPrint1.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         btnPrint1.setIconResource("images/toolbars/report.png");
         btnPrint1.setImmediate(true);
         btnPrint1.setMargin(new java.awt.Insets(1, 1, 1, 1));
-        btnPrint1.setName("viewReport"); // NOI18N
         btnPrint1.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        btnPrint1.setVisibleWhen("#{viewReportAllowed==true}");
         jToolBar1.add(btnPrint1);
 
         btnRefresh.setCaption("");
@@ -223,29 +228,32 @@ public class CrudFormPage extends javax.swing.JPanel {
         xActionBar2.setTextPosition("CENTER");
         jToolBar1.add(xActionBar2);
 
-        btnDebug.setBackground(new java.awt.Color(255, 255, 255));
         btnDebug.setCaption("\\");
+            btnDebug.setName("showDebugInfo"); // NOI18N
+            btnDebug.setVisibleWhen("#{ canDebug == true }");
+            btnDebug.setAutoRefresh(false);
+            btnDebug.setBackground(new java.awt.Color(255, 255, 255));
             btnDebug.setFocusable(false);
             btnDebug.setIconResource("images/debug.png");
             btnDebug.setImmediate(true);
-            btnDebug.setName("showDebugInfo"); // NOI18N
-            btnDebug.setVisibleWhen("#{ canDebug == true }");
             jToolBar1.add(btnDebug);
 
-            btnInfo.setBackground(new java.awt.Color(255, 255, 255));
             btnInfo.setCaption("");
+            btnInfo.setName("showInfo"); // NOI18N
+            btnInfo.setAutoRefresh(false);
+            btnInfo.setBackground(new java.awt.Color(255, 255, 255));
             btnInfo.setFocusable(false);
             btnInfo.setIconResource("images/info.png");
             btnInfo.setImmediate(true);
-            btnInfo.setName("showInfo"); // NOI18N
             jToolBar1.add(btnInfo);
 
-            btnHelp.setBackground(new java.awt.Color(255, 255, 255));
             btnHelp.setCaption("\\");
+                btnHelp.setName("showHelp"); // NOI18N
+                btnHelp.setAutoRefresh(false);
+                btnHelp.setBackground(new java.awt.Color(255, 255, 255));
                 btnHelp.setFocusable(false);
                 btnHelp.setIconResource("images/help.png");
                 btnHelp.setImmediate(true);
-                btnHelp.setName("showHelp"); // NOI18N
                 jToolBar1.add(btnHelp);
 
                 btnUp.setFocusable(false);
@@ -262,10 +270,10 @@ public class CrudFormPage extends javax.swing.JPanel {
                 btnDown.setVisibleWhen("#{showNavigation==true}");
                 jToolBar1.add(btnDown);
 
+                xDropDownList1.setHandler("messagelist");
                 xDropDownList1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/note.png"))); // NOI18N
                 xDropDownList1.setContentAreaFilled(false);
                 xDropDownList1.setFocusable(false);
-                xDropDownList1.setHandler("messagelist");
                 xDropDownList1.setHideOnEmptyResult(true);
                 xDropDownList1.setMargin(new java.awt.Insets(0, 2, 0, 2));
                 xDropDownList1.addActionListener(new java.awt.event.ActionListener() {

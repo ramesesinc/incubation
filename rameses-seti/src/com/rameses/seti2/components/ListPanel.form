@@ -62,30 +62,34 @@
             <Component class="com.rameses.rcp.control.XButton" name="btnMoveFirst">
               <Properties>
                 <Property name="name" type="java.lang.String" value="listHandler.moveFirstPage" noResource="true"/>
+                <Property name="autoRefresh" type="boolean" value="false"/>
                 <Property name="focusable" type="boolean" value="false"/>
                 <Property name="iconResource" type="java.lang.String" value="images/navbar/first.png"/>
               </Properties>
             </Component>
             <Component class="com.rameses.rcp.control.XButton" name="btnMovePrev">
               <Properties>
+                <Property name="name" type="java.lang.String" value="listHandler.moveBackPage" noResource="true"/>
+                <Property name="autoRefresh" type="boolean" value="false"/>
                 <Property name="focusable" type="boolean" value="false"/>
                 <Property name="iconResource" type="java.lang.String" value="images/navbar/previous.png"/>
-                <Property name="name" type="java.lang.String" value="listHandler.moveBackPage" noResource="true"/>
               </Properties>
             </Component>
             <Component class="com.rameses.rcp.control.XButton" name="btnMoveNext">
               <Properties>
+                <Property name="name" type="java.lang.String" value="listHandler.moveNextPage" noResource="true"/>
+                <Property name="autoRefresh" type="boolean" value="false"/>
                 <Property name="focusable" type="boolean" value="false"/>
                 <Property name="iconResource" type="java.lang.String" value="images/navbar/next.png"/>
                 <Property name="immediate" type="boolean" value="true"/>
-                <Property name="name" type="java.lang.String" value="listHandler.moveNextPage" noResource="true"/>
               </Properties>
             </Component>
             <Component class="com.rameses.rcp.control.XButton" name="btnMoveLast">
               <Properties>
+                <Property name="name" type="java.lang.String" value="listHandler.moveLastPage" noResource="true"/>
+                <Property name="autoRefresh" type="boolean" value="false"/>
                 <Property name="focusable" type="boolean" value="false"/>
                 <Property name="iconResource" type="java.lang.String" value="images/navbar/last.png"/>
-                <Property name="name" type="java.lang.String" value="listHandler.moveLastPage" noResource="true"/>
               </Properties>
             </Component>
             <Component class="javax.swing.Box$Filler" name="filler1">
