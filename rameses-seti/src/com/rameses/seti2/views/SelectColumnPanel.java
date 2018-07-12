@@ -33,21 +33,8 @@ public class SelectColumnPanel extends javax.swing.JPanel {
 
         xDataTable1 = new com.rameses.rcp.control.XDataTable();
 
+        xDataTable1.setHandler("listHandler");
         xDataTable1.setColumns(new com.rameses.rcp.common.Column[]{
-            new com.rameses.rcp.common.Column(new Object[]{
-                new Object[]{"name", "selected"}
-                , new Object[]{"caption", " "}
-                , new Object[]{"width", 20}
-                , new Object[]{"minWidth", 20}
-                , new Object[]{"maxWidth", 20}
-                , new Object[]{"required", false}
-                , new Object[]{"resizable", true}
-                , new Object[]{"nullWhenEmpty", true}
-                , new Object[]{"editable", true}
-                , new Object[]{"editableWhen", null}
-                , new Object[]{"textCase", com.rameses.rcp.constant.TextCase.NONE}
-                , new Object[]{"typeHandler", new com.rameses.rcp.common.CheckBoxColumnHandler(java.lang.Boolean.class, true, false)}
-            }),
             new com.rameses.rcp.common.Column(new Object[]{
                 new Object[]{"name", "caption"}
                 , new Object[]{"caption", "Caption"}
@@ -58,13 +45,12 @@ public class SelectColumnPanel extends javax.swing.JPanel {
                 , new Object[]{"resizable", true}
                 , new Object[]{"nullWhenEmpty", true}
                 , new Object[]{"editable", false}
+                , new Object[]{"visible", true}
+                , new Object[]{"visibleWhen", null}
                 , new Object[]{"textCase", com.rameses.rcp.constant.TextCase.NONE}
                 , new Object[]{"typeHandler", new com.rameses.rcp.common.LabelColumnHandler()}
             })
         });
-        xDataTable1.setDynamic(true);
-        xDataTable1.setEditable(true);
-        xDataTable1.setItems("columnList");
         xDataTable1.setShowRowHeader(false);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);

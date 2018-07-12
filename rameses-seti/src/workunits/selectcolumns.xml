@@ -4,29 +4,40 @@
     </invokers>
     
     <code>
-        <![CDATA[
-        import com.rameses.rcp.common.*;
-        import com.rameses.rcp.annotations.*;
-        import com.rameses.osiris2.client.*;
-        import com.rameses.osiris2.common.*;
-        
-        class SelectColumnController {
-        
-            def columnList;  
-            def onselect;            
-                    
-            def doCancel() {
-                return "_close";
-            }
-            
-            def doOk() {
-                if( onselect)  {
-                    onselect( columnList.findAll{it.selected == true } );
-                }
-                return "_close";
-            }
+    <![CDATA[
+import com.rameses.rcp.common.*;
+import com.rameses.rcp.annotations.*;
+import com.rameses.osiris2.client.*;
+import com.rameses.osiris2.common.*;
+
+class SelectColumnController {
+
+    def columnList;  
+    def onselect;
+
+    def listHandler = [
+        fetchList: { return columnList; }, 
+        isMultiSelect: { return true; }, 
+        isItemSelected: { o-> 
+            return (o.selected ? true : false);
+        }, 
+        afterSelectionChange: { evt-> 
+            evt.data.selected = evt.selected; 
         }
-        ]]>
+    ] as DataListModel;
+    
+    def doCancel() {
+        return "_close";
+    }
+
+    def doOk() {
+        if ( onselect ) { 
+            onselect( listHandler.selectedValue ); 
+        } 
+        return "_close";
+    } 
+} 
+    ]]>
     </code>
     
     <pages>
