@@ -135,6 +135,7 @@ class WorkflowTaskService  {
     }
 
     private def findNextTransition( def r ) {
+        def _xtransition = null;
     	def transitions = wfTransitions.find( [processname: r.processname, parentid: r.prevstate ]).list();
     	if(transitions.size() == 1 ) {
             //check if there's eval
@@ -148,26 +149,45 @@ class WorkflowTaskService  {
                 boolean b = ExpressionResolver.instance.evalBoolean( _tran.eval, mm );
                 if(!b) throw new Exception("Cannot proceed. Condition failed " + _tran.eval);
             }
-            return _tran;
+            _xtransition = _tran;
         }    
-    	for(t in transitions ) {
-            if( t.eval  ) {
-                if(!r.info) {
-                    throw new Exception("2. Please pass an info parameter in findNextTransition bec. there is an eval statement in the transition")
+        else {
+            for(t in transitions ) {
+                if( t.eval  ) {
+                    if(!r.info) {
+                        throw new Exception("2. Please pass an info parameter in findNextTransition bec. there is an eval statement in the transition")
+                    }
+                    def mm = [:];
+                    mm.putAll( r.info );
+                    mm.info = r.info;         
+                    boolean b = ExpressionResolver.instance.evalBoolean( t.eval, mm );
+                    if(!b) continue;
+                    _xtransition = t;
+                    break;
                 }
-                def mm = [:];
-                mm.putAll( r.info );
-                mm.info = r.info;         
-                boolean b = ExpressionResolver.instance.evalBoolean( t.eval, mm );
-                if(!b) continue;
-                return t;
+                else if( r.action &&  (r.action!=t.action) ) {
+                    continue;
+                }    
+                _xtransition = t;
+                break;
             }
-    		else if( r.action &&  (r.action!=t.action) ) {
-                continue;
+        }
+        if( _xtransition == null ) {
+            throw new Exception("Next transition not found! Please check action or current state");
+        }
+
+        //check the next node before proceeding
+        def nextNode = wfNode.select("name,nodetype").find( [name:_xtransition.to, processname: r.processname] ).first();
+        if( nextNode.nodetype == 'decision' ) {
+            def req = [processname: r.processname, prevstate: nextNode.name, refid: r.refid, info: r.info];
+            _xtransition = findNextTransition( req );
+            if( r.info.message ) {
+                _xtransition.message = r.info.message;
             }    
-    		return t;
-    	}
-    	throw new Exception("Next transition not found! Please check action or current state");
+        }
+
+        //check to node first
+    	return _xtransition;
     }
 
     @ProxyMethod
@@ -258,6 +278,9 @@ class WorkflowTaskService  {
 
         m.prevtaskid = t.taskid;
         m.message = t.message;
+        if( trans.message ) {
+            m.message = trans.message; 
+        }    
         if(t.autostart) {
             m.autostart = t.autostart;
         }    
