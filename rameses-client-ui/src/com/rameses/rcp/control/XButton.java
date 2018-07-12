@@ -46,10 +46,11 @@ public class XButton extends JButton implements UICommand, ActionListener,
     private Binding binding;
     private boolean immediate;
     private boolean update;
-    private ControlProperty property = new ControlProperty();
-    private String target;
     private boolean defaultCommand;
+    private boolean autoRefresh = true;
     private String expression;
+    private String target;
+    private ControlProperty property = new ControlProperty();
     private Map params = new HashMap();
     private String permission;
     private String visibleWhen;
@@ -72,6 +73,11 @@ public class XButton extends JButton implements UICommand, ActionListener,
     
         
     // <editor-fold defaultstate="collapsed" desc=" Getters/Setters ">
+    
+    public boolean isAutoRefresh() { return autoRefresh; } 
+    public void setAutoRefresh( boolean autoRefresh ) {
+        this.autoRefresh = autoRefresh; 
+    }
     
     public String getAccelerator() { return accelerator; }
     public void setAccelerator(String accelerator) {

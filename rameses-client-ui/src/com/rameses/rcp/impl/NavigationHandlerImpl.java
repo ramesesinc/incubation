@@ -6,6 +6,7 @@ import com.rameses.rcp.common.*;
 import com.rameses.rcp.util.ControlSupport;
 import com.rameses.rcp.common.Opener;
 import com.rameses.rcp.framework.*;
+import com.rameses.rcp.ui.UICommand;
 import com.rameses.rcp.ui.UIControl;
 import com.rameses.util.ValueUtil;
 import java.awt.Component;
@@ -29,10 +30,14 @@ public class NavigationHandlerImpl implements NavigationHandler {
         
         Stack<UIControllerContext> conStack = panel.getControllers();
         UIControllerContext curController = conStack.peek();
-        
+                
         if ( ValueUtil.isEmpty(outcome) ) {
-            //if outcome is null or empty just refresh the current view
-            curController.getCurrentView().refresh();
+            // if outcome is null or empty just refresh the current view 
+            boolean autorefresh = true; 
+            if ( source instanceof UICommand ) {
+                autorefresh = ((UICommand) source).isAutoRefresh(); 
+            }
+            if ( autorefresh ) curController.getCurrentView().refresh();
             
         }
         else {

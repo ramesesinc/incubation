@@ -45,6 +45,7 @@ public class XButtonBeanInfo extends ComponentBeanInfoSupport
         add( list, "target" );
         add( list, "params" );
         
+        addBoolean( list, "autoRefresh" );
         addBoolean( list, "borderPainted" );
         addBoolean( list, "contentAreaFilled" );
         addBoolean( list, "defaultCommand" );
