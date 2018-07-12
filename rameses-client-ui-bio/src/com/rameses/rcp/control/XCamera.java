@@ -161,7 +161,9 @@ public class XCamera extends JButton implements MouseEventSupport.ComponentInfo,
     // <editor-fold defaultstate="collapsed" desc=" UICommand implementation ">
 
     public String getActionName() { return null; } 
-        
+
+    public boolean isAutoRefresh() { return false; }
+    
     public String getTarget() { return target; } 
     public void setTarget(String target) { 
         this.target = target; 
