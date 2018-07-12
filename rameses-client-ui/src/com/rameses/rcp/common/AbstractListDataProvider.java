@@ -16,7 +16,6 @@ import com.rameses.util.BreakException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -699,10 +698,18 @@ public abstract class AbstractListDataProvider
      *  This is called by the ListSelectionSupport. You need to override this method 
      *  if you want to handle a custom routing check of an item. 
      */
-    public boolean isItemSelected(Object item) 
-    { 
+    public boolean isItemSelected(Object item) { 
+        ListSelectionSupport lss = getSelectionSupport();
         Object callback = getMultiSelectHandler();
-        return getSelectionSupport().isItemCheckedFromHandler(callback, item); 
+        if ( callback != null ) {
+            return lss.isItemCheckedFromHandler(callback, item); 
+        }
+        
+        SelectionEvent se = new SelectionEvent( item, -1 );
+        lss.resolveKey( se ); 
+        int idx = lss.checkedItems.indexOf( se ); 
+        se = (idx < 0 ? null : lss.checkedItems.get(idx)); 
+        return (se == null ? false : se.isSelected()); 
     } 
     
     
@@ -853,22 +860,46 @@ public abstract class AbstractListDataProvider
         public Object getKey() { return key; }
         public Object getData() { return data; } 
         public int getIndex() { return index; } 
-    }    
+
+        public boolean equals(Object o) {
+            if ( super.equals(o)) return true; 
+ 
+            boolean matched = false; 
+            if ( o instanceof SelectionEvent ) {
+                matched = isEquals(key, ((SelectionEvent) o).key); 
+            } else {
+                matched = isEquals(key, o); 
+            }
+            return matched; 
+        }
+        
+        private boolean isEquals(Object o1, Object o2) {
+            if ( o1 == null || o2 == null ) return true; 
+            return (o1 != null && o2 != null && o1.equals(o2)); 
+        }
+    } 
     
     public class ListSelectionSupport {
         AbstractListDataProvider root = AbstractListDataProvider.this; 
         
-        private Map<Object, SelectionEvent> checkedItems; 
+        private ArrayList<SelectionEvent> checkedItems; 
         private CallbackHandlerProxy callbackProxy;
         
         public ListSelectionSupport() {
-            checkedItems = new LinkedHashMap(); 
+            checkedItems = new ArrayList();
             callbackProxy = new CallbackHandlerProxy(null); 
         }
         
         protected void finalize() throws Throwable { 
             checkedItems.clear(); 
         } 
+        
+        void resolveKey( SelectionEvent se ) {
+            if ( se == null || se.key != null ) return;
+            else if ( se.getData() == null ) return; 
+            
+            se.key = root.buildSelectionKey( se.getData() ); 
+        }
         
         public boolean contains( Object data ) { 
             return contains( new SelectionEvent( data, -1 ) ); 
@@ -878,15 +909,10 @@ public abstract class AbstractListDataProvider
                 return false; 
             } 
             
-            Object key = se.key; 
-            if ( key == null ) {
-                key = root.buildSelectionKey( se.getData() ); 
-                se.key = key; 
-            } 
-            
-            return (key == null? false: checkedItems.containsKey(key)); 
+            resolveKey( se );  
+            return checkedItems.contains( se ); 
         } 
-        
+                
         public boolean isItemChecked( Object data ) {
             return isItemChecked( new SelectionEvent( data, -1 )); 
         }
@@ -894,9 +920,8 @@ public abstract class AbstractListDataProvider
             if (se == null || se.getData() == null) { 
                 return false; 
             } 
-            if ( contains( se )) { 
-                return true; 
-            } 
+
+            resolveKey( se ); 
             
             boolean checked = false; 
             try {
@@ -905,10 +930,11 @@ public abstract class AbstractListDataProvider
                 t.printStackTrace(); 
             } 
             
+            checkedItems.remove( se );
             if ( checked ) { 
-                setItemChecked( se, checked ); 
+                checkedItems.add( se ); 
+                se.selected = checked;                 
             } 
-            
             return checked; 
         }
         
@@ -937,43 +963,47 @@ public abstract class AbstractListDataProvider
         
         public synchronized void setItemChecked( Object data, boolean checked ) { 
             setItemChecked( data, checked, -1 ); 
-        }
+        } 
         public synchronized void setItemChecked( Object data, boolean checked, int index ) { 
             setItemChecked( new SelectionEvent( data, index), checked ); 
-        }
+        } 
         public synchronized void setItemChecked( SelectionEvent se, boolean checked ) { 
-            boolean exists = contains( se ); 
-            if ( exists && checked ) return; 
-            
+            setItemChecked( se, checked, true ); 
+        } 
+        public synchronized void setItemChecked( SelectionEvent se, boolean checked, boolean withEvents ) { 
+            if ( se == null || se.getData() == null ) return; 
+
+            resolveKey(se); 
             se.selected = checked; 
-            if ( se.getIndex() >= 0 ) { 
+            
+            if ( withEvents && se.getIndex() >= 0 ) { 
                 try { 
                     beforeSelectionChange( se ); 
-                } catch(BreakException be) {
+                } catch(BreakException be) { 
                     return; 
                 } 
             } 
             
+            checkedItems.remove( se ); 
             if ( checked ) { 
-                checkedItems.put( se.key, se );  
-            } else {
-                checkedItems.remove( se.key );  
+                checkedItems.add( se ); 
             } 
             
-            if ( se.getIndex() >= 0 ) { 
+            if ( withEvents && se.getIndex() >= 0 ) { 
                 try { 
                     afterSelectionChange( se ); 
-                } catch(BreakException be) {
-                    return; 
-                } 
+                } catch(Throwable t) {;} 
             } 
         } 
         
         public List getSelectedValues() {
             List list = new ArrayList(); 
-            for (Map.Entry<Object,SelectionEvent> entry : checkedItems.entrySet()) { 
-                SelectionEvent se = entry.getValue(); 
-                list.add( se.getData() ); 
+            SelectionEvent[] arr = checkedItems.toArray(new SelectionEvent[]{}); 
+            for (int i=0; i<arr.length; i++) { 
+                SelectionEvent se = arr[i]; 
+                if ( se.isSelected() ) { 
+                    list.add( se.getData() ); 
+                }
             } 
             return list; 
         } 
