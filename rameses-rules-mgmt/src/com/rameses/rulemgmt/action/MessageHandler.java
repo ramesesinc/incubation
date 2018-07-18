@@ -15,6 +15,7 @@ import com.rameses.rcp.ui.annotations.StyleSheet;
 @StyleSheet
 public class MessageHandler extends javax.swing.JPanel {
     
+    
     /** Creates new form RuleConstraintDecimalHandler */
     public MessageHandler() {
         initComponents();

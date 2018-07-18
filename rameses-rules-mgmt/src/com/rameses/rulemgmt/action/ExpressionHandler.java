@@ -37,10 +37,10 @@ public class ExpressionHandler extends javax.swing.JPanel {
         xButton2 = new com.rameses.rcp.control.XButton();
 
         setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 10));
-        setPreferredSize(new java.awt.Dimension(316, 192));
         setLayout(new java.awt.BorderLayout());
 
         xEditorPane1.setName("actionParam.expr"); // NOI18N
+        xEditorPane1.setPreferredSize(new java.awt.Dimension(0, 25));
         jScrollPane1.setViewportView(xEditorPane1);
 
         add(jScrollPane1, java.awt.BorderLayout.CENTER);
