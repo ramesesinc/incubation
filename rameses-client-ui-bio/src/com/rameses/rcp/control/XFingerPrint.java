@@ -174,6 +174,8 @@ public class XFingerPrint extends JButton implements MouseEventSupport.Component
 
     public String getActionName() { return null; } 
         
+    public boolean isAutoRefresh() { return false; }
+    
     public String getTarget() { return target; } 
     public void setTarget(String target) { 
         this.target = target; 
