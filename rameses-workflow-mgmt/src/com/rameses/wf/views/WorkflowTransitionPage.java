@@ -40,6 +40,11 @@ public class WorkflowTransitionPage extends javax.swing.JPanel {
         jScrollPane1 = new javax.swing.JScrollPane();
         xTextArea1 = new com.rameses.rcp.control.XTextArea();
         xIntegerField1 = new com.rameses.rcp.control.XIntegerField();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        xTextArea2 = new com.rameses.rcp.control.XTextArea();
+        xCheckBox1 = new com.rameses.rcp.control.XCheckBox();
+        xCheckBox4 = new com.rameses.rcp.control.XCheckBox();
+        xTextField5 = new com.rameses.rcp.control.XTextField();
         xPanel3 = new com.rameses.rcp.control.XPanel();
         xFormPanel2 = new com.rameses.rcp.control.XFormPanel();
         xTextField6 = new com.rameses.rcp.control.XTextField();
@@ -70,8 +75,37 @@ public class WorkflowTransitionPage extends javax.swing.JPanel {
 
         xIntegerField1.setCaption("Index");
         xIntegerField1.setName("entity.idx"); // NOI18N
+        xIntegerField1.setCellPadding(new java.awt.Insets(0, 0, 20, 0));
         xIntegerField1.setPreferredSize(new java.awt.Dimension(40, 20));
         xFormPanel1.add(xIntegerField1);
+
+        jScrollPane2.setPreferredSize(new java.awt.Dimension(0, 40));
+
+        xTextArea2.setCaption("VisibleWhen");
+        xTextArea2.setName("visibleWhen"); // NOI18N
+        jScrollPane2.setViewportView(xTextArea2);
+
+        xFormPanel1.add(jScrollPane2);
+
+        xCheckBox1.setCaption("");
+        xCheckBox1.setName("showPrompt"); // NOI18N
+        xCheckBox1.setText("Show Prompt");
+        xFormPanel1.add(xCheckBox1);
+
+        xCheckBox4.setCaption("");
+        xCheckBox4.setName("showConfirm"); // NOI18N
+        xCheckBox4.setText("Show Confirm");
+        xFormPanel1.add(xCheckBox4);
+
+        xTextField5.setCaption("Confirm Message");
+        xTextField5.setDepends(new String[] {"showConfirm"});
+        xTextField5.setName("confirmMessage"); // NOI18N
+        xTextField5.setVisibleWhen("#{ showConfirm == true }");
+        xTextField5.setCaptionWidth(100);
+        xTextField5.setCellPadding(new java.awt.Insets(0, 80, 0, 0));
+        xTextField5.setPreferredSize(new java.awt.Dimension(0, 20));
+        xTextField5.setTextCase(com.rameses.rcp.constant.TextCase.NONE);
+        xFormPanel1.add(xTextField5);
 
         javax.swing.GroupLayout xPanel1Layout = new javax.swing.GroupLayout(xPanel1);
         xPanel1.setLayout(xPanel1Layout);
@@ -79,14 +113,14 @@ public class WorkflowTransitionPage extends javax.swing.JPanel {
             xPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(xPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(xFormPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 355, Short.MAX_VALUE)
+                .addComponent(xFormPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 518, Short.MAX_VALUE)
                 .addContainerGap())
         );
         xPanel1Layout.setVerticalGroup(
             xPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(xPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(xFormPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 228, Short.MAX_VALUE)
+                .addComponent(xFormPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 309, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -105,14 +139,14 @@ public class WorkflowTransitionPage extends javax.swing.JPanel {
             xPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(xPanel3Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(xFormPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, 355, Short.MAX_VALUE)
+                .addComponent(xFormPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, 518, Short.MAX_VALUE)
                 .addContainerGap())
         );
         xPanel3Layout.setVerticalGroup(
             xPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(xPanel3Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(xFormPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, 228, Short.MAX_VALUE)
+                .addComponent(xFormPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, 309, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -161,14 +195,14 @@ public class WorkflowTransitionPage extends javax.swing.JPanel {
             xPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(xPanel2Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(xDataTable1, javax.swing.GroupLayout.DEFAULT_SIZE, 355, Short.MAX_VALUE)
+                .addComponent(xDataTable1, javax.swing.GroupLayout.DEFAULT_SIZE, 518, Short.MAX_VALUE)
                 .addContainerGap())
         );
         xPanel2Layout.setVerticalGroup(
             xPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(xPanel2Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(xDataTable1, javax.swing.GroupLayout.DEFAULT_SIZE, 228, Short.MAX_VALUE)
+                .addComponent(xDataTable1, javax.swing.GroupLayout.DEFAULT_SIZE, 309, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -180,19 +214,22 @@ public class WorkflowTransitionPage extends javax.swing.JPanel {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(xTabbedPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 380, Short.MAX_VALUE)
+                .addComponent(xTabbedPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 551, Short.MAX_VALUE)
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(xTabbedPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 278, Short.MAX_VALUE)
+                .addComponent(xTabbedPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 367, Short.MAX_VALUE)
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
+    private com.rameses.rcp.control.XCheckBox xCheckBox1;
+    private com.rameses.rcp.control.XCheckBox xCheckBox4;
     private com.rameses.rcp.control.XDataTable xDataTable1;
     private com.rameses.rcp.control.XFormPanel xFormPanel1;
     private com.rameses.rcp.control.XFormPanel xFormPanel2;
@@ -202,8 +239,10 @@ public class WorkflowTransitionPage extends javax.swing.JPanel {
     private com.rameses.rcp.control.XPanel xPanel3;
     private com.rameses.rcp.control.XTabbedPane xTabbedPane2;
     private com.rameses.rcp.control.XTextArea xTextArea1;
+    private com.rameses.rcp.control.XTextArea xTextArea2;
     private com.rameses.rcp.control.XTextField xTextField1;
     private com.rameses.rcp.control.XTextField xTextField2;
+    private com.rameses.rcp.control.XTextField xTextField5;
     private com.rameses.rcp.control.XTextField xTextField6;
     // End of variables declaration//GEN-END:variables
 }

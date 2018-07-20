@@ -20,12 +20,32 @@ public class WorkflowTransitionModel  {
     def entity;
     def propList = [];
     
+    def visibleWhen;
+    boolean showPrompt;
+    boolean showConfirm;
+    String confirmMessage;
+    
     void init() {
         entity = MapBeanUtils.copy( item.info );
         if( !entity.properties ) entity.properties = [:];
         entity.properties.each { k,v->
-            propList << [ key:k, value: v ];
+            if(k == "visibleWhen") {
+                visibleWhen = v;
+            }
+            else if( k == "showPrompt" ) {
+                showPrompt = Boolean.parseBoolean( v.toString());
+            }
+            else if( k == "showConfirm") {
+                showConfirm = Boolean.parseBoolean( v.toString());
+            }
+            else if( k == "confirmMessage") {
+                confirmMessage = v;
+            }
+            else {
+                propList << [ key:k, value: v ];
+            }
         }
+        if( !entity.idx ) entity.idx = 0;
     }
     
     def propListModel = [
@@ -43,6 +63,11 @@ public class WorkflowTransitionModel  {
             if(val?.matches("true|false")) val = Boolean.parseBoolean( val );
             entity.properties[(it.key)] = val;
         }
+        if(visibleWhen) entity.properties.visibleWhen = visibleWhen;
+        if(showPrompt) entity.properties.showPrompt = showPrompt;
+        if( showConfirm)entity.properties.showConfirm = showConfirm;
+        if( confirmMessage) entity.properties.confirmMessage = confirmMessage;
+        
         return "_close";
     }
     

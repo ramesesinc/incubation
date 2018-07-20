@@ -28,15 +28,20 @@ public class WorkflowTransitionAction extends com.rameses.rcp.common.Action {
         if(task.role) role = task.role;
         if(t.permission) permission = t.permission;
         tooltip = caption;
-        
-        //only visible false property will matter
-        if( t.properties?.visible!=null && t.properties?.visible?.booleanValue() == false) {
-            visibleWhen = "#{false}";
-        } 
-        else {
-            visibleWhen = "#{task?.assignee?.objid==null || task.assignee.objid==user.objid }";
+        if( t.properties.visibleWhen ) {
+            String vt = t.properties.visibleWhen;
+            vt = vt.substring(0, vt.lastIndexOf("}")-1) + " && (task?.assignee?.objid==null || task.assignee.objid==user.objid) }";
+            visibleWhen = vt;
         }
-        
+        else {
+            //only visible false property will matter
+            if( t.properties?.visible!=null && t.properties?.visible?.booleanValue() == false) {
+                visibleWhen = "#{false}";
+            } 
+            else {
+                visibleWhen = "#{task?.assignee?.objid==null || task.assignee.objid==user.objid }";
+            }
+        }
         /*
         visibleWhen
         mnemonic
@@ -74,17 +79,16 @@ public class WorkflowTransitionAction extends com.rameses.rcp.common.Action {
         if( !t) return null;
         //by default confirm message is displayed. 
         //Instead the prompt message will be displayed
-        if( props.showPrompt != null && props.showPrompt.toBoolean() == true ) {
+        if( props.showPrompt != null && Boolean.parseBoolean(props.showPrompt.toString() ) == true ) {
             t = showMessagePrompt( param );
             if(!t) return null;
         }
-        else if( props.showConfirm == null || props.showConfirm.toBoolean() == true ) {
+        if( props.showConfirm == null || Boolean.parseBoolean(props.showConfirm.toString()) == true ) {
             String s = props.confirmMessage;
             if( !s ) s = "You are about to submit this action. Proceed?";
             t = MsgBox.confirm( s );
             if(!t) return null;
         }
-        
         //include also current task state.
         return handler( param );
     }
