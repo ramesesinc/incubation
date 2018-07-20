@@ -46,6 +46,7 @@ public class WorkflowTransitionModel  {
             }
         }
         if( !entity.idx ) entity.idx = 0;
+        entity.properties.clear();
     }
     
     def propListModel = [
@@ -65,9 +66,10 @@ public class WorkflowTransitionModel  {
         }
         if(visibleWhen) entity.properties.visibleWhen = visibleWhen;
         if(showPrompt) entity.properties.showPrompt = showPrompt;
-        if( showConfirm)entity.properties.showConfirm = showConfirm;
-        if( confirmMessage) entity.properties.confirmMessage = confirmMessage;
-        
+        if( showConfirm) {
+            entity.properties.showConfirm = showConfirm;
+            if( confirmMessage) entity.properties.confirmMessage = confirmMessage;
+        }
         return "_close";
     }
     
