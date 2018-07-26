@@ -116,7 +116,6 @@
                 <Property name="name" type="java.lang.String" value="create" noResource="true"/>
                 <Property name="visibleWhen" type="java.lang.String" value="#{createAllowed==true}"/>
                 <Property name="accelerator" type="java.lang.String" value="ctrl N"/>
-                <Property name="autoRefresh" type="boolean" value="false"/>
                 <Property name="focusable" type="boolean" value="false"/>
                 <Property name="iconResource" type="java.lang.String" value="images/toolbars/create.png"/>
               </Properties>

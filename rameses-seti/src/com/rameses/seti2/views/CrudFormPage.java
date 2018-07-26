@@ -144,7 +144,6 @@ public class CrudFormPage extends javax.swing.JPanel {
         btnCreate.setName("create"); // NOI18N
         btnCreate.setVisibleWhen("#{createAllowed==true}");
         btnCreate.setAccelerator("ctrl N");
-        btnCreate.setAutoRefresh(false);
         btnCreate.setFocusable(false);
         btnCreate.setIconResource("images/toolbars/create.png");
         jToolBar1.add(btnCreate);

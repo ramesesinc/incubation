@@ -95,7 +95,6 @@ public class CrudListPage extends javax.swing.JPanel {
         btnCreate.setName("create"); // NOI18N
         btnCreate.setVisibleWhen("#{createAllowed==true}");
         btnCreate.setAccelerator("ctrl N");
-        btnCreate.setAutoRefresh(false);
         btnCreate.setFocusable(false);
         btnCreate.setIconResource("images/toolbars/create.png");
         btnCreate.setMargin(new java.awt.Insets(1, 1, 1, 1));
