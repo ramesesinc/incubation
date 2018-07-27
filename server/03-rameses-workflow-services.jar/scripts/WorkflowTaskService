@@ -136,7 +136,7 @@ class WorkflowTaskService  {
 
     private def findNextTransition( def r ) {
         def _xtransition = null;
-    	def transitions = wfTransitions.find( [processname: r.processname, parentid: r.prevstate ]).list();
+    	def transitions = wfTransitions.find( [processname: r.processname, parentid: r.prevstate ]).orderBy("idx").list();
     	if(transitions.size() == 1 ) {
             //check if there's eval
             def _tran = transitions[0];
@@ -183,7 +183,7 @@ class WorkflowTaskService  {
             _xtransition = findNextTransition( req );
             if( r.info.message ) {
                 _xtransition.message = r.info.message;
-            }    
+            }   
         }
 
         //check to node first

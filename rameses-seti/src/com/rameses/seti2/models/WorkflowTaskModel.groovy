@@ -115,7 +115,8 @@ public class WorkflowTaskModel extends CrudFormModel implements WorkflowTaskList
     }
     
     final void buildTransitionActions( def tsk ) {
-         if ( !tsk || tsk.state == 'end' ) return; 
+         if(! tsk) return; 
+         if( tsk.state == 'end' ) return; 
          if( !tsk.assignee?.objid && tsk.role != null ) {
             def h = {
                 def m = [:];
