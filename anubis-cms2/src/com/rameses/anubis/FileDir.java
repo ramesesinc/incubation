@@ -91,14 +91,11 @@ public class FileDir {
                 if( fileName.startsWith("/")) fileName = fileName.substring(1);
                 URL u = new URL(url+fileName);
                 is = u.openStream();
-                if(is==null) return null;
-                return u;    
-            }
-            catch(Exception e){
+                return (is == null ? null : u);
+            } catch(Throwable t){
                 return null;
-            }
-            finally {
-                try { is.close();} catch(Exception ign){;}
+            } finally { 
+                try { is.close();} catch(Throwable ign){;}
             }
         }
 

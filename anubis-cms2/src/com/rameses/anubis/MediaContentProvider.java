@@ -11,7 +11,6 @@ package com.rameses.anubis;
 
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -43,22 +42,44 @@ public class MediaContentProvider extends ContentProvider {
             path = arr2[1];
         }
         
-        List<String> list = new ArrayList();
+        ArrayList<String> baseURLs = new ArrayList();
         if(moduleName!=null) {
             Module mod = ctx.getProject().getModules().get( moduleName );
-            list.add( mod.getUrl()+"content" + path );
-            list.add( mod.getProvider()+"content"+ path );
+            baseURLs.add( ctx.getProject().getUrl() +"/files/"+ moduleName );
+            baseURLs.add( ctx.getProject().getUrl() +"/content/"+ moduleName );
+            baseURLs.add( mod.getUrl() + "/files" ); 
+            baseURLs.add( mod.getUrl() + "/content" ); 
+            if ( mod.getProvider() != null ) {
+                baseURLs.add( mod.getProvider() +"/files" ); 
+                baseURLs.add( mod.getProvider() +"/content" ); 
+            } 
+        } else {
+            baseURLs.add( ctx.getProject().getUrl() +"/files" );
+            baseURLs.add( ctx.getProject().getUrl() +"/content" );
+            baseURLs.add( ctx.getSystemUrl() +"/files" );
+            baseURLs.add( ctx.getSystemUrl() +"/content" );
         }
-        else {
-            list.add( ctx.getProject().getUrl()+"/content" +path );
-            list.add( ctx.getSystemUrl()+"/content" +path );
+
+        ArrayList<String> paths =  new ArrayList(); 
+        String[] names = new String[]{ file.getPath()+"/content", path }; 
+        for ( String fname : names ) { 
+            buildURLPaths(paths, baseURLs, fname ); 
+            try {
+                InputStream inp = ContentUtil.getResources(paths.toArray(new String[]{}), fname );
+                return new MediaInputStream( inp ); 
+            } catch(Throwable e) {
+                //do nothing 
+            } finally {
+                paths.clear(); 
+            }
         }
-        try {
-            return ContentUtil.getResources( (String[]) list.toArray(new String[]{}), path );
-        } catch(Exception e) {
-            return null;
+        return null; 
+    } 
+    
+    private void buildURLPaths(ArrayList<String> paths, ArrayList<String> baseURLs, String name ) {
+        for (String basepath : baseURLs) {
+            paths.add( basepath +"/"+ name +"/info"); 
+            paths.add( basepath +"/"+ name ); 
         }
     }
-    
-    
 }

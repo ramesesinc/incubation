@@ -11,6 +11,7 @@ package com.rameses.anubis;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Map;
 
 /**
@@ -58,20 +59,25 @@ public class PageContentProvider extends ContentProvider {
         }
         public InputStream getResource(String name) throws ResourceNotFoundException{
             AnubisContext ctx = AnubisContext.getCurrentContext();
-            if(ctx.getModule()!=null) {
-                final Module module = ctx.getModule();
+            ArrayList<String> paths = new ArrayList(); 
+            if ( ctx.getModule() != null ) { 
                 String[] arr = ProjectUtils.getModuleNameFromFile( name, ctx.getProject() );
-                name = arr[1];
-                return ContentUtil.getResources( new String[]{
-                    module.getUrl()+"content"+name+"/content",
-                    module.getProvider()+"content"+name+"/content"
-                },name);
+                Module module = ctx.getModule(); 
+                name = arr[1];                
+                paths.add( module.getUrl()+"files"+name+".pg/content"); 
+                paths.add( module.getUrl()+"content"+name+"/content"); 
+                if ( module.getProvider() != null ) {
+                    paths.add( module.getProvider()+"files"+name+".pg/content"); 
+                    paths.add( module.getProvider()+"content"+name+"/content"); 
+                }
             } else {
-                return ContentUtil.getResources(new String[]{
-                    ctx.getProject().getUrl()+"/content/"+name+"/content",
-                    ctx.getSystemUrl()+"/content/"+name+"/content"
-                },name);
+                paths.add( ctx.getProject().getUrl()+"/files/"+name+".pg/content"); 
+                paths.add( ctx.getSystemUrl()+"/files/"+name+".pg/content"); 
+                paths.add( ctx.getProject().getUrl()+"/content/"+name+"/content"); 
+                paths.add( ctx.getSystemUrl()+"/content/"+name+"/content"); 
             }
+            
+            return ContentUtil.getResources( paths.toArray(new String[]{}), name);
         }
     }
     

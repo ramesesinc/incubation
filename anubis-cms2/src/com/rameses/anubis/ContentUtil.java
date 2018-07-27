@@ -25,19 +25,23 @@ import java.util.regex.Pattern;
  */
 public class ContentUtil {
     
-    public static String correctUrlPath(String head, String context, String tail) {
+    public static String correctUrlPath(String head, String context, String tail) {        
         StringBuilder sb = new StringBuilder();
-        sb.append( head );
-        if(!head.endsWith("/")) sb.append("/");
-        if(context!=null) {
-            if(context.startsWith("/")) context = context.substring(1);
-            sb.append(context);
-            if(!context.endsWith("/")) sb.append("/");
-        }
-        if(tail!=null) {
-            if(tail.startsWith("/")) tail = tail.substring(1);
-            sb.append(tail);
-        }
+        String[] arr = new String[]{
+            (head == null ? "" : head), 
+            (context == null ? "" : context), 
+            (tail == null ? "" : tail)
+        };
+        for ( String str : arr ) {
+            if ( str.length() <= 0 ) continue; 
+            if ( sb.length() > 0 ) sb.append("/");
+            
+            StringBuilder buff = new StringBuilder( str );
+            if ( buff.length() > 0 && buff.charAt(0) == '/' ) buff.deleteCharAt(0); 
+            if ( buff.length() > 0 && buff.charAt(buff.length()-1) == '/') buff.deleteCharAt(buff.length()-1); 
+            
+            sb.append( buff ); 
+        } 
         return sb.toString();
     }
     

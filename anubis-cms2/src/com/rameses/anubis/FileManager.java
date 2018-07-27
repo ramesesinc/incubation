@@ -6,7 +6,6 @@
  * To change this template, choose Tools | Template Manager
  * and open the template in the editor.
  */
-
 package com.rameses.anubis;
 
 import com.rameses.io.StreamUtil;
@@ -21,11 +20,10 @@ import java.util.Map;
  * @author Elmo
  */
 public class FileManager {
-    
+
     private Project project;
     private Map<String, File> files = new Hashtable();
-    
-    
+
     /**
      * Creates a new instance of FileManager
      */
@@ -33,105 +31,141 @@ public class FileManager {
         this.project = project;
     }
     
-    private InputStream findSource(String name, String moduleName)  {
+    private String[] buildNames( String name ) {
+        ArrayList<String> names = new ArrayList();
+        if (name.endsWith(".media")) {
+            names.add( name.substring(0, name.lastIndexOf(".media")) +"/info" );
+        } else {
+            names.add( name +"/info" );
+        }
+        names.add( name ); 
+        return names.toArray(new String[]{}); 
+    }
+
+    private InputStream findSource(String name, String moduleName) {
         try {
-            if( moduleName != null) {
+            ArrayList<String> baseURLs = new ArrayList();
+            if (moduleName != null) {
                 Module module = project.getModules().get(moduleName);
-                List<String> urls = new ArrayList();
-                urls.add( ContentUtil.correctUrlPath(module.getUrl(), "files", name) );
-                if(module.getProvider()!=null) {
-                    urls.add( ContentUtil.correctUrlPath(module.getProvider(), "files", name) );
+                baseURLs.add(project.getUrl() + "/" + moduleName);
+                if (module != null && module.getUrl() != null) {
+                    baseURLs.add(module.getUrl());
                 }
-                String[] strs = (String[])urls.toArray(new String[]{});
-                return ContentUtil.getResources( strs, name );
+
             } else {
                 AnubisContext ctx = AnubisContext.getCurrentContext();
-                String[] urls = new String[] {
-                    ContentUtil.correctUrlPath(project.getUrl(), "files", name) ,
-                    ContentUtil.correctUrlPath(ctx.getSystemUrl(), "files", name) 
-                };
-                return ContentUtil.getResources(urls,name);
+                baseURLs.add(project.getUrl());
+                baseURLs.add(ctx.getSystemUrl());
             }
-        } catch(Exception e) {
+
+            String[] names = buildNames( name ); 
+            ArrayList<String> paths = new ArrayList();
+            for ( String basepath : baseURLs ) {
+                for (String fname : names) {
+                    paths.add(ContentUtil.correctUrlPath(basepath, "files", fname));
+                } 
+            }
+            return ContentUtil.getResources(paths.toArray(new String[]{}), name);
+
+        } catch (RuntimeException re) {
+            throw re;
+        } catch (Throwable e) {
             throw new RuntimeException(e.getMessage(), e);
         }
-        //locate all sources until you find the file source
-        
     }
-    
-    public File getFile(String name) 
-    {
-        if( !files.containsKey(name) ) {
+
+    private void buildURLPaths(ArrayList<String> paths, String[] baseURLs, String name) {
+        for (int i = 0; i < baseURLs.length; i++) {
+            paths.add(ContentUtil.correctUrlPath(baseURLs[i], "files", name + "/info"));
+            paths.add(ContentUtil.correctUrlPath(baseURLs[i], "files", name));
+        }
+    }
+
+    public File getFile(String name) {
+        if (!files.containsKey(name)) {
             //check first if file is requested from module or from the project
-            
+
             String moduleName = null;
             String fileName = name;
-            String[] arr = ProjectUtils.getModuleNameFromFile( name, project );
-            if(arr!=null) {
+            String[] arr = ProjectUtils.getModuleNameFromFile(name, project);
+            if (arr != null) {
                 moduleName = arr[0];
                 fileName = arr[1];
             }
-            
-            Map map = JsonUtil.toMap( StreamUtil.toString( findSource(fileName, moduleName) ));
-            
+
+            InputStream inp = findSource(fileName, moduleName);
+            Map map = JsonUtil.toMap(StreamUtil.toString(inp));
+
             map.put("id", name);
-            map.put( "ext", name.substring(name.lastIndexOf(".")+1));
-            
+            map.put("ext", name.substring(name.lastIndexOf(".") + 1));
+
             //check if file has items. This is done by checking if folders exist.
             //calculate the parent path
-            String parentPath = name.substring(0, name.lastIndexOf("/"));
-            if(parentPath==null || parentPath.trim().length()==0) parentPath = "/";
-            map.put( "parentPath", parentPath );
-            if( moduleName !=null ) {
+            String parentPath = null; 
+            if ( name.lastIndexOf('/') > 0 ) {
+                parentPath = name.substring(0, name.lastIndexOf("/"));
+            }
+            if (parentPath == null || parentPath.trim().length() == 0) {
+                parentPath = "/";
+            }
+            map.put("parentPath", parentPath);
+            if (moduleName != null) {
                 map.put("module", moduleName);
             }
-            
+
             //check also if page is secured
             //adjust sort order
-            if(!map.containsKey("sortorder")) {
+            if (!map.containsKey("sortorder")) {
                 map.put("sortorder", 0);
             }
-        
+
             //set path
             String path = name.substring(0, name.lastIndexOf("."));
             map.put("path", path);
 
             //set secured
-            if(!map.containsKey("secured")) {
+            if (!map.containsKey("secured")) {
                 boolean secured = false;
-                if(project.getSecuredPages()!=null && path.matches(project.getSecuredPages())) {
+                if (project.getSecuredPages() != null && path.matches(project.getSecuredPages())) {
                     secured = true;
                 }
                 map.put("secured", secured);
             }
-            
-            if( !map.containsKey("version") ) {
+
+            if (!map.containsKey("version")) {
                 map.put("version", "1.0");
             }
-        
-            if(!map.containsKey("name")) {
-                map.put("name", name.substring(1,name.lastIndexOf(".")).replace("/", "-"));
-            }            
-            
-            if(!map.containsKey("hidden")) {
-                map.put("hidden", false );
+
+            if (!map.containsKey("name")) { 
+                int idx = 0; 
+                if ( name.charAt(0) == '/' ) {
+                    idx = 1; 
+                }
+                map.put("name", name.substring(idx, name.lastIndexOf(".")).replace("/", "-"));
             }
-            
-            if(!map.containsKey("fragment")) {
-                map.put("fragment",false);
+
+            if (!map.containsKey("hidden")) {
+                map.put("hidden", false);
             }
-            
-            map.put("pagename", name.substring( name.lastIndexOf("/")+1, name.lastIndexOf(".")) );
-            
-            if(!map.containsKey("hashid")) {
-                String hname = (String)map.get("name");
+
+            if (!map.containsKey("fragment")) {
+                map.put("fragment", false);
+            }
+
+            int startIdx = name.lastIndexOf('/'); 
+            int endIdx = name.lastIndexOf('.'); 
+            startIdx = (startIdx < 0 ? 0 : startIdx+1); 
+            map.put("pagename", name.substring(startIdx, endIdx));
+
+            if (!map.containsKey("hashid")) {
+                String hname = (String) map.get("name");
                 map.put("hashid", hname);
             }
-            files.put( name, new File(map) );
+            files.put(name, new File(map));
         }
         return files.get(name);
     }
-    
+
     public void clear() {
         files.clear();
     }

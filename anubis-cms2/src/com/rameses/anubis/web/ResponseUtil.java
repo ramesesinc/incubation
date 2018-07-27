@@ -9,6 +9,7 @@
 
 package com.rameses.anubis.web;
 
+import com.rameses.anubis.MediaInputStream;
 import com.rameses.io.StreamUtil;
 import com.rameses.util.ExceptionManager;
 import java.io.BufferedInputStream;
@@ -89,11 +90,12 @@ public class ResponseUtil {
         BufferedOutputStream output = null;
         ByteArrayOutputStream baos = null;
         try {
-            if(mimeType==null) mimeType = "text/html";
             baos = new ByteArrayOutputStream();
             StreamUtil.write(is,baos);
             byte[] bytes = baos.toByteArray();
             
+            if(mimeType==null) mimeType = "text/html";
+            hres.setContentType(mimeType);
             
             //hres.setHeader("cache-control", "public");
             //hres.setHeader("cache-control", "max-age: 86400");
@@ -101,9 +103,9 @@ public class ResponseUtil {
             String token = '"' + getMd5Digest(bytes) + '"';
             hres.setHeader("ETag", token); // always store the ETag in the header
             String previousToken = hreq.getHeader("If-None-Match");
-            
-            hres.setContentType(mimeType);
-                
+            if (is instanceof MediaInputStream) {
+                previousToken = null; 
+            }
             
             if (previousToken != null && previousToken.equals(token)) { // compare previous token with current one
                 hres.sendError(HttpServletResponse.SC_NOT_MODIFIED);

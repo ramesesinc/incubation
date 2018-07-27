@@ -41,16 +41,29 @@ public class FolderManager {
             URL u = new URL(urlName);
             FileDir.scan( u, new FileFilter() {
                 public void handle(FileDir.FileInfo f) {
-                    if(!f.isDir() ) {
-                        if(f.getExt()!=null && f.getExt().equals("conf")) return;
+                    String fname = null; 
+                    if ( f.isDir()) {
+                        if ( !f.getFileName().endsWith(".pg")) return;
+                        if ( f.getSubfile("info") == null ) return; 
+                        
+                        fname = f.getFileName(); 
+                        
+                    } else {
+                        if (f.getExt()!=null && f.getExt().equals("conf")) return;
+                        
+                        fname = f.getFileName(); 
+                    }
+                    
+                    if ( fname != null ) {
                         String pName = prefixName;
                         if(!pName.equals("/")) pName = pName ;
                         if(!pName.endsWith("/")) pName = pName + "/";
-                        items.add( pName +  f.getFileName() );
+                        items.add( pName +  fname );
                     }
                 }
             });
-        } catch(Exception ign) {;}
+        } catch(Throwable ign) {;}
+        
         return items;
     }
     
@@ -88,15 +101,11 @@ public class FolderManager {
             }
             
             Folder folder = new Folder(name, new HashMap());
-            
-            for (String s: urlNames) 
-            {
-                try 
-                {
+            for (String s: urlNames) {
+                try {
                     File f = project.getFileManager().getFile( s );
                     if (!f.isHidden()) folder.getChildren().add( f );
-                } 
-                catch(Exception e) {
+                } catch(Throwable e) {
                     e.printStackTrace();
                 }
             }
