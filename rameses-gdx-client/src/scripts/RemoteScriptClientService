@@ -7,7 +7,7 @@ class RemoteScriptClientService {
     @Context
     def appContext;
 
-    @XConnection( "gdx")
+    @XConnection("gdx")
     def remoteConn;
 
     @Resource("ScriptService")
@@ -19,12 +19,12 @@ class RemoteScriptClientService {
     @ProxyMethod
     public void registerServices() {
         if( remoteConn == null ) {
-            println "Register scripts not executed. remote-script-mq not defined";
+            println "Register scripts not executed. gdx connection not defined";
 	    return;
         }
         String id = remoteConn.conf.queue;
 	if(id==null) {
-            println "Scripts not registered. Please specify a queue in remote-script-service settings";
+            println "Scripts not registered. Please specify a queue in the gdx connection settings";
 	    return;
 	} 
 
@@ -32,7 +32,7 @@ class RemoteScriptClientService {
 
         def list = new HashSet();
         def h = { m->
-        	def fileName = "remote/" + m.filename;
+            def fileName = "remote/" + m.filename;
             def info = scriptSvc.findScriptInfo(fileName);	
             def metaInfo = info.getMetaInfo(  appContext );
             def newInfo = [:]

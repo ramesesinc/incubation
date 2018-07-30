@@ -4,6 +4,8 @@
  */
 package com.rameses.rabbitmq;
 
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import com.rameses.osiris3.core.AbstractContext;
 import com.rameses.osiris3.script.messaging.ScriptInvokerHandler;
@@ -26,18 +28,35 @@ public class RabbitMQConnectionPool extends MessageConnection
     private String name;
     private String queueName;
     private boolean started;
-    
+
+    private API api;
     private List<RabbitMQConnection> pool = new ArrayList<RabbitMQConnection>();
 
     public RabbitMQConnectionPool(Map conf, AbstractContext context, String name){
         this.started = false;
+        this.name = name;
         this.conf = conf;
         this.context = context;
-        this.name = name;
-        this.queueName = (String)conf.get("queue");
+        this.queueName = getProperty("queue");
         
         appConf = new HashMap();
         appConf.putAll(conf);
+        
+        api = new API(); 
+        api.setUsername(getProperty("user"));
+        api.setPassword(getProperty("pwd")); 
+        api.setHost(getProperty("host")); 
+        try {
+            api.setPort(Integer.parseInt(getProperty("port"))); 
+        } catch(Throwable t) {;}
+        
+        Map map = api.getExchange(getProperty("exchange")); 
+        conf.put("exchange.auto_delete", getProperty("auto_delete", map)); 
+        conf.put("exchange.durable", getProperty("durable", map)); 
+        
+        map = api.getQueue( this.queueName ); 
+        conf.put("queue.auto_delete", getProperty("auto_delete", map)); 
+        conf.put("queue.durable", getProperty("durable", map)); 
     }
             
     @Override
@@ -47,7 +66,7 @@ public class RabbitMQConnectionPool extends MessageConnection
         
         int poolSize = 1;
         try { 
-            poolSize = Integer.parseInt(conf.get("poolSize").toString());
+            poolSize = Integer.parseInt(getProperty("poolSize"));
         } catch(Throwable t) {;}  
 
         Object apphost = appConf.get("app.host");
@@ -56,7 +75,7 @@ public class RabbitMQConnectionPool extends MessageConnection
         ConnectionFactory factory = createConnectionFactory(); 
         
         for (int i = 0; i<poolSize; i++ ) { 
-            String sname = name +"-"+ i;
+            String sname = name +"-"+ (i+1);
             RabbitMQConnection rabbit = new RabbitMQConnection(sname, context, conf); 
             
             if ( apphost == null ) {
@@ -163,7 +182,10 @@ public class RabbitMQConnectionPool extends MessageConnection
     } 
     
     private String getProperty( String name ) {
-        Object o = (conf == null? null: conf.get(name)); 
+        return getProperty(name, conf); 
+    } 
+    private String getProperty( String name, Map map ) {
+        Object o = (map == null? null: map.get(name)); 
         return ( o == null ? null: o.toString()); 
     } 
 }
