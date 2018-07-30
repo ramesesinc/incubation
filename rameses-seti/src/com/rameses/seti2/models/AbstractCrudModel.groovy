@@ -392,7 +392,21 @@ public abstract class AbstractCrudModel  {
             //def list1 = InvokerUtil.lookupOpeners( inv.properties.category, [entity:entity] );
             //op.addAll( list1 );
             def list = Inv.lookupOpeners(schemaName+":" + getFormType() + ":reports", [entity:entityContext]);
-            op.addAll( list );
+            list.each {
+                if(it.properties.visibleWhen) {
+                    try {
+                        def vw = it.properties.visibleWhen;
+                        boolean t = ExpressionResolver.getInstance().evalBoolean(vw, [entity:getEntityContext(), mode: mode ] );
+                        if(t == true) op.add( it );
+                    }
+                    catch(ee) {
+                        System.out.println("Error in viewReport " + vw );
+                    }
+                }
+                else {
+                    op.add( it );
+                }
+            }
         } catch(Throwable ign){;}
         if(op.items.size()==0) throw new Exception("No reports defined in category ");
         return op;
