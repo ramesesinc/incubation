@@ -42,5 +42,8 @@ public class XLabelBeanInfo extends ComponentBeanInfoSupport {
         add( list, "iconResource" );
         add( list, "padding" );
         add( list, "varName" );
+        
+        add( list, "dateFormat" );
+        add( list, "numberFormat" );
     }
 }

@@ -26,6 +26,7 @@ import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.Format;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -68,6 +69,9 @@ public class XLabel extends DefaultLabel
     private Logger logger;
     private int stretchWidth;
     private int stretchHeight;
+    
+    private String dateFormat;
+    private String numberFormat;
 
     public XLabel() {
         this(false);
@@ -91,6 +95,16 @@ public class XLabel extends DefaultLabel
         return logger;
     }
 
+    public String getDateFormat() { return dateFormat; } 
+    public void setDateFormat( String dateFormat ) {
+        this.dateFormat = dateFormat;
+    }
+    
+    public String getNumberFormat() { return numberFormat; } 
+    public void setNumberFormat( String numberFormat ) {
+        this.numberFormat = numberFormat; 
+    }
+    
     public boolean isHideOnEmpty() {
         return hideOnEmpty;
     }
@@ -362,6 +376,22 @@ public class XLabel extends DefaultLabel
             }
         }
     }
+    
+    private Format getFormatter() {
+        Format format = getFormat(); 
+        if ( format != null ) return format; 
+        
+        String pattern = getDateFormat(); 
+        if ( pattern != null && pattern.trim().length() > 0 ) {
+            return new SimpleDateFormat( pattern ); 
+        }
+        
+        pattern = getNumberFormat(); 
+        if ( pattern != null && pattern.trim().length() > 0 ) {
+            return new DecimalFormat( pattern ); 
+        }
+        return null; 
+    }
 
     public void refresh() {
         try {
@@ -384,8 +414,10 @@ public class XLabel extends DefaultLabel
                 value = super.getText();
             }  
             
-            Object fv = formatValue( getFormat(), value ); 
-            setTextValue((fv == null ? "" : fv.toString())); 
+            Format format = getFormatter(); 
+            Object fvalue = formatValue(format, value); 
+            
+            setTextValue((fvalue == null ? "" : fvalue.toString())); 
             
             String exprWhen = getVisibleWhen();
             if (exprWhen != null && exprWhen.length() > 0) {
@@ -632,7 +664,19 @@ public class XLabel extends DefaultLabel
                 
                 java.util.Date dt = null; 
                 String str = value.toString(); 
-                if ( str.matches("[0-9]{4,4}-[0-9]{2,2}-[0-9]{2,2} [0-9]{2,2}:[0-9]{2,2}:[0-9]{2,2}[.][0-9]{1,}")) {
+                String[] arr = str.split(" "); 
+                if ( arr.length == 6 ) {
+                    StringBuilder sb = new StringBuilder(); 
+                    sb.append(arr[1]).append("-").append(arr[2]).append("-").append(arr[5]).append(" ").append(arr[3]);
+                    try { 
+                        SimpleDateFormat sdf = new SimpleDateFormat("MMM-dd-yyyy HH:mm:ss"); 
+                        dt = sdf.parse(sb.toString()); 
+                    } catch(Throwable t){;} 
+                }
+                
+                if ( dt != null ) {
+                    //do nothing 
+                } else if ( str.matches("[0-9]{4,4}-[0-9]{2,2}-[0-9]{2,2} [0-9]{2,2}:[0-9]{2,2}:[0-9]{2,2}[.][0-9]{1,}")) {
                     dt = java.sql.Timestamp.valueOf( str ); 
                 } else if ( str.matches("[0-9]{4,4}-[0-9]{2,2}-[0-9]{2,2} [0-9]{2,2}:[0-9]{2,2}:[0-9]{2,2}")) {
                     dt = java.sql.Timestamp.valueOf( str ); 
