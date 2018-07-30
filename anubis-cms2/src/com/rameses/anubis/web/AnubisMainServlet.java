@@ -32,6 +32,7 @@ public class AnubisMainServlet extends AbstractAnubisServlet {
         String ext = CmsWebConstants.PAGE_FILE_EXT;
         if ( mimeType == null ) {
             mimeType = "text/html";
+            
         } else {
             //if mimetype is not null then automatically we consider it as media.
             ext = CmsWebConstants.MEDIA_FILE_EXT;
@@ -53,8 +54,20 @@ public class AnubisMainServlet extends AbstractAnubisServlet {
             if(fullPath.endsWith("/")) fullPath = fullPath.substring(0, fullPath.length()-1);
         }
         
-        String filename = fullPath + ext;
-        File file = null;
+        String filename = null;
+        if ( fullPath.endsWith(".pg") || fullPath.endsWith(".media")) { 
+            filename = fullPath; 
+        } else {
+            filename = fullPath + ext; 
+        }
+        
+        boolean is_media = false;
+        if ( filename.endsWith(".media")) {
+            is_media = true; 
+            String mediaType = app.getMimeType( filename.substring(0, filename.lastIndexOf(".media")) ); 
+            if ( mediaType != null ) mimeType = mediaType; 
+        } 
+
         SessionContext ctx = actx.getSession();
         
         //FIND the associated file in permalink. Bypass if its a fragment request. We assume
@@ -68,7 +81,8 @@ public class AnubisMainServlet extends AbstractAnubisServlet {
             actx.setAttribute( "ajaxRequest", true );
         }
         
-        if(!ajaxRequest) { 
+        File file = null;        
+        if ( !ajaxRequest ) { 
             try {
                 //check if filename matches permalinks. if secured,
                 //use secured permalinks instead
@@ -113,6 +127,13 @@ public class AnubisMainServlet extends AbstractAnubisServlet {
         if(file.isSecured()) {
             secured = true;
         }
+        
+        if ( is_media ) {
+            Object objval = file.get("mimeType"); 
+            String strval = (objval == null ? "" : objval.toString().trim()); 
+            if (strval.length() > 0) mimeType = strval; 
+        }
+        
         
         //set authenicated as true if there is sessionid
         boolean allow_access = true;

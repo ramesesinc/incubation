@@ -68,7 +68,7 @@ public class URLDirectory {
                 if( f.isDirectory() ) {
                     File[] files = f.listFiles();
                     for( int i=0; i<files.length; i++ ) {
-                        URL u = files[i].toURL();
+                        URL u = files[i].toURI().toURL(); 
                         if( filter == null || filter.accept(u, u.getPath()) ) {
                             list.add( u );
                         }

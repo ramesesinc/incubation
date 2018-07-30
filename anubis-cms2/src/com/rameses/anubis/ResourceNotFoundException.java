@@ -13,7 +13,7 @@ package com.rameses.anubis;
  *
  * @author Elmo
  */
-public class ResourceNotFoundException extends Exception {
+public class ResourceNotFoundException extends RuntimeException {
     
     /** Creates a new instance of PageNotFoundException */
     public ResourceNotFoundException(String pageName) {

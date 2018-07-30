@@ -70,6 +70,8 @@ public class XConnectionContextResource extends ContextResource {
                 throw new Exception("Provider must be specified for connection " + key);
             
             XConnectionProvider cp = providers.get( providerType );
+            if ( cp == null ) throw new IllegalStateException("'"+ providerType +"' connection provider not found"); 
+            
             XConnection conn = cp.createConnection( key, conf );
             conn.start(); 
             return conn; 

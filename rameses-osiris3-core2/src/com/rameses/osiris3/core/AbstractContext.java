@@ -107,6 +107,8 @@ public abstract class AbstractContext {
         return server;
     }
 
-    
+    public final <T> T getConnection( String name ) {
+        return (T) getResource( com.rameses.annotations.XConnection.class,  name );
+    }
     
 }

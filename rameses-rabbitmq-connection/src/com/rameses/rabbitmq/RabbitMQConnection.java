@@ -44,7 +44,14 @@ public class RabbitMQConnection extends MessageConnection {
     private boolean started;
     private boolean allowSend; 
     private boolean allowReceive; 
+    private boolean autoAck;
     
+    private boolean ex_auto_delete;
+    private boolean ex_durable;
+    
+    private boolean q_auto_delete;
+    private boolean q_durable;
+        
     public RabbitMQConnection(String name, AbstractContext context, Map conf) {
         this.name = name;
         this.context = context;
@@ -53,6 +60,13 @@ public class RabbitMQConnection extends MessageConnection {
         enabled = ("false".equals(getProperty("enabled")+"") ? false : true);
         allowSend = ("false".equals(getProperty("allowSend")+"") ? false : true);
         allowReceive = ("false".equals(getProperty("allowReceive")+"") ? false : true);
+        autoAck = ("false".equals(getProperty("autoAck")+"") ? false : true);
+        
+        ex_durable = ("false".equals(getProperty("exchange.durable")+"") ? false : true);
+        ex_auto_delete = ("false".equals(getProperty("exchange.autodelete")+"") ? false : true);
+
+        q_durable = ("false".equals(getProperty("queue.durable")+"") ? false : true);
+        q_auto_delete = ("false".equals(getProperty("queue.autodelete")+"") ? false : true);
     }
     
     private String getProperty( String name ) {
@@ -71,6 +85,7 @@ public class RabbitMQConnection extends MessageConnection {
     public void setFactory(ConnectionFactory factory) {
         this.factory = factory; 
     }
+        
 
     public void start() { 
         if ( started ) return; 
@@ -83,7 +98,7 @@ public class RabbitMQConnection extends MessageConnection {
             
             //check if there is a channel specified. If there is, then you must listen.
             String queueName = getProperty("queue");
-            if(queueName!=null) {
+            if (queueName != null) {
                 defaultChannel = connection.createChannel();
                 defaultChannel.queueDeclarePassive( queueName );
                 String type = getProperty("type"); 
@@ -96,7 +111,7 @@ public class RabbitMQConnection extends MessageConnection {
                 
                 if ( allowReceive ) { 
                     MessageConsumer mc = new MessageConsumer(defaultChannel, null);
-                    defaultChannel.basicConsume( queueName, true, mc);  
+                    defaultChannel.basicConsume( queueName, autoAck, mc);  
                 } 
             } 
         } catch(Throwable ex) {
@@ -104,6 +119,8 @@ public class RabbitMQConnection extends MessageConnection {
             ex.printStackTrace(); 
         }
     } 
+
+
     
     private class MessageConsumer extends DefaultConsumer { 
         
@@ -134,22 +151,38 @@ public class RabbitMQConnection extends MessageConnection {
             System.out.println(root.name +": "+ getLogTimeString() +": handleRecoverOk: consumerTag="+ consumerTag );
         }
         
-        public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException { 
+        public void handleDelivery(String consumerTag, Envelope env, AMQP.BasicProperties properties, byte[] body) throws IOException { 
             if ( body == null || body.length==0 ) return; 
             String message = new String(body, "UTF-8");
-            if ( base64.isEncoded( message ) ) {
-                Object o = base64.decode( message ); 
-                if (handler == null)
-                    notifyHandlers(o);
-                else 
-                    handler.onMessage(o);
-                
-            } else { 
-                if (handler == null)
-                    notifyHandlers(message);
-                else 
-                    handler.onMessage(message);
-            } 
+            //System.out.println(root.name+": handleDelivery : "+ env.getDeliveryTag() +": "+ message);
+            
+            boolean has_error = false;
+            try {
+                if ( base64.isEncoded( message ) ) {
+                    Object o = base64.decode( message ); 
+                    if (handler == null)
+                        notifyHandlers(o);
+                    else 
+                        handler.onMessage(o);
+
+                } else { 
+                    if (handler == null)
+                        notifyHandlers(message);
+                    else 
+                        handler.onMessage(message);
+                } 
+            } catch(Throwable t) {
+                has_error = true; 
+                t.printStackTrace();  
+            }
+            
+            if ( root.autoAck ) {
+                //do nothing 
+            } else {
+                if ( has_error ) return; 
+                getChannel().basicAck(env.getDeliveryTag(), false);
+            }
+            
             if (autoDelete){
                 getChannel().queueUnbind(queueName, exchange, queueName);
                 getChannel().queueDelete(queueName);
@@ -227,6 +260,7 @@ public class RabbitMQConnection extends MessageConnection {
         }
     }
     
+    
     public void sendBytes( byte[] bytes, String queueName ) { 
         if ( !allowSend ) return; 
          
@@ -238,11 +272,18 @@ public class RabbitMQConnection extends MessageConnection {
                 if ( exchange == null) { 
                     channel.basicPublish("", queueName, null, bytes); 
                 } else {
-                    channel.queueDeclare( exchange, true, false, true, null);
+                    channel.queueDeclare( exchange, q_durable, false, q_auto_delete, null);
                     channel.basicPublish( exchange, queueName, null, bytes);
                 } 
             } catch (RuntimeException re) { 
                 throw re; 
+            } catch (IOException ioe) { 
+                Throwable cause = ioe; 
+                String errmsg = cause.getMessage(); 
+                if ( errmsg == null ) { 
+                    cause = (cause.getCause() != null ? cause.getCause() : cause); 
+                }
+                throw new RuntimeException(errmsg, cause); 
             } catch (Exception e) { 
                 throw new RuntimeException( e.getMessage(), e ); 
             }             

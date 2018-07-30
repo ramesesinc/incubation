@@ -52,7 +52,8 @@ public final class Base64Cipher
     }
     
     public boolean isEncoded(String value) {
-        return value.matches(REG_EXP); 
+        return org.apache.commons.net.util.Base64.isArrayByteBase64(value.getBytes()); 
+//        return value.matches(REG_EXP); 
     }
     
     public String encode(Object value) {
