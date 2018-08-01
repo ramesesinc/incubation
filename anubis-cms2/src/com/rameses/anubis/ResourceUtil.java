@@ -28,7 +28,8 @@ class ResourceUtil {
                     url = findResource( url, arr[i] );  
                     if ( url == null ) break; 
                 } 
-                return url; 
+                
+                if (url != null) return url; 
             }
         }
         return null; 
@@ -36,11 +37,13 @@ class ResourceUtil {
     
     private URL findResource( URL baseURL, String name ) {
         String[] arr = name.split("\\.");
+        if ( "".equals(arr[0])) return baseURL;
+        
         StringBuilder sb = new StringBuilder();
-        if ( "info".equals(name)) {
+        if ( "info".equals(arr[0])) {
             sb.append(arr[0]); 
         } else {
-            sb.append(arr[0]).append(",").append(arr[0]).append(".pg"); 
+            sb.append(arr[0]).append(".pg").append(",").append(arr[0]); 
         }
         
         String[] fnames = sb.toString().split(","); 
