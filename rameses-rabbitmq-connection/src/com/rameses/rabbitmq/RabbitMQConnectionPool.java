@@ -85,6 +85,7 @@ public class RabbitMQConnectionPool extends MessageConnection
                 rabbit.addHandler(handler);
             } 
             
+            rabbit.setAPI(api);
             rabbit.setFactory(factory); 
             rabbit.start();
             pool.add(rabbit);
