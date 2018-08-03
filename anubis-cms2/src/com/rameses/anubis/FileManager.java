@@ -10,9 +10,9 @@ package com.rameses.anubis;
 
 import com.rameses.io.StreamUtil;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Hashtable;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -29,56 +29,6 @@ public class FileManager {
      */
     public FileManager(Project project) {
         this.project = project;
-    }
-    
-    private String[] buildNames( String name ) {
-        ArrayList<String> names = new ArrayList();
-        if (name.endsWith(".media")) {
-            names.add( name.substring(0, name.lastIndexOf(".media")) +"/info" );
-        } else {
-            names.add( name +"/info" );
-        }
-        names.add( name ); 
-        return names.toArray(new String[]{}); 
-    }
-
-    private InputStream findSource(String name, String moduleName) {
-        try {
-            ArrayList<String> baseURLs = new ArrayList();
-            if (moduleName != null) {
-                Module module = project.getModules().get(moduleName);
-                baseURLs.add(project.getUrl() + "/" + moduleName);
-                if (module != null && module.getUrl() != null) {
-                    baseURLs.add(module.getUrl());
-                }
-
-            } else {
-                AnubisContext ctx = AnubisContext.getCurrentContext();
-                baseURLs.add(project.getUrl());
-                baseURLs.add(ctx.getSystemUrl());
-            }
-
-            String[] names = buildNames( name ); 
-            ArrayList<String> paths = new ArrayList();
-            for ( String basepath : baseURLs ) {
-                for (String fname : names) {
-                    paths.add(ContentUtil.correctUrlPath(basepath, "files", fname));
-                } 
-            }
-            return ContentUtil.getResources(paths.toArray(new String[]{}), name);
-
-        } catch (RuntimeException re) {
-            throw re;
-        } catch (Throwable e) {
-            throw new RuntimeException(e.getMessage(), e);
-        }
-    }
-
-    private void buildURLPaths(ArrayList<String> paths, String[] baseURLs, String name) {
-        for (int i = 0; i < baseURLs.length; i++) {
-            paths.add(ContentUtil.correctUrlPath(baseURLs[i], "files", name + "/info"));
-            paths.add(ContentUtil.correctUrlPath(baseURLs[i], "files", name));
-        }
     }
 
     public File getFile(String name) {
@@ -169,4 +119,53 @@ public class FileManager {
     public void clear() {
         files.clear();
     }
+    
+    // <editor-fold defaultstate="collapsed" desc=" helper methods ">
+    
+    private String[] buildNames( String name ) {
+        ArrayList<String> names = new ArrayList();
+        if (name.endsWith(".media")) {
+            names.add( name.substring(0, name.lastIndexOf(".media")) +"/info" );
+        } else {
+            names.add( name +"/info" );
+        }
+        names.add( name ); 
+        return names.toArray(new String[]{}); 
+    }
+
+    private InputStream findSource(String name, String moduleName) {
+        try {
+            ArrayList<String> baseURLs = new ArrayList();
+            if (moduleName != null) {
+                Module module = project.getModules().get(moduleName);
+                baseURLs.add(project.getUrl() + "/" + moduleName);
+                if (module != null && module.getUrl() != null) {
+                    baseURLs.add(module.getUrl());
+                }
+
+            } else {
+                AnubisContext ctx = AnubisContext.getCurrentContext();
+                baseURLs.add(project.getUrl());
+                baseURLs.add(ctx.getSystemUrl());
+            }
+
+            ArrayList<String> paths = new ArrayList();
+            for ( String basepath : baseURLs ) {
+                paths.add(ContentUtil.correctUrlPath(basepath, "files", null));
+            }
+            
+            String[] names = buildNames( name );  
+            URL u = new ResourceUtil().findResource(paths.toArray(new String[]{}), names); 
+            if ( u == null ) throw new ResourceNotFoundException("'"+ name +"' resource not found"); 
+
+            return u.openStream(); 
+            
+        } catch (RuntimeException re) {
+            throw re;
+        } catch (Throwable e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
+    }
+    
+    // </editor-fold>
 }

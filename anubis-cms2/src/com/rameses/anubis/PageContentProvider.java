@@ -10,9 +10,13 @@
 package com.rameses.anubis;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -59,25 +63,43 @@ public class PageContentProvider extends ContentProvider {
         }
         public InputStream getResource(String name) throws ResourceNotFoundException{
             AnubisContext ctx = AnubisContext.getCurrentContext();
-            ArrayList<String> paths = new ArrayList(); 
+            ArrayList<String> basePaths = new ArrayList(); 
+            String fname = name; 
+            
             if ( ctx.getModule() != null ) { 
                 String[] arr = ProjectUtils.getModuleNameFromFile( name, ctx.getProject() );
                 Module module = ctx.getModule(); 
-                name = arr[1];                
-                paths.add( module.getUrl()+"files"+name+".pg/content"); 
-                paths.add( module.getUrl()+"content"+name+"/content"); 
+                fname = arr[1];        
+                basePaths.add( module.getUrl() );
                 if ( module.getProvider() != null ) {
-                    paths.add( module.getProvider()+"files"+name+".pg/content"); 
-                    paths.add( module.getProvider()+"content"+name+"/content"); 
+                    basePaths.add( module.getProvider() );
                 }
             } else {
-                paths.add( ctx.getProject().getUrl()+"/files/"+name+".pg/content"); 
-                paths.add( ctx.getSystemUrl()+"/files/"+name+".pg/content"); 
-                paths.add( ctx.getProject().getUrl()+"/content/"+name+"/content"); 
-                paths.add( ctx.getSystemUrl()+"/content/"+name+"/content"); 
+                basePaths.add( ctx.getProject().getUrl());
+                basePaths.add( ctx.getSystemUrl());
             }
             
-            return ContentUtil.getResources( paths.toArray(new String[]{}), name);
+            ArrayList<String> paths = new ArrayList();
+            for ( String basepath : basePaths ) {
+                paths.add(ContentUtil.correctUrlPath(basepath, "files", null));
+                paths.add(ContentUtil.correctUrlPath(basepath, "content", null));
+            }
+            
+            String[] names = new String[]{
+                fname +".pg/content",
+                fname +"/content"
+            };
+            
+            URL u = new ResourceUtil().findResource(paths.toArray(new String[]{}), names); 
+            if ( u == null ) throw new ResourceNotFoundException("'"+ name +"' content resource not found"); 
+            
+            try {
+                return u.openStream(); 
+            } catch (RuntimeException re) {
+                throw re;
+            } catch (Throwable e) {
+                throw new RuntimeException(e.getMessage(), e);
+            }
         }
     }
     

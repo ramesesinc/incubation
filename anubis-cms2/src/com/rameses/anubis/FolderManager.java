@@ -37,8 +37,10 @@ public class FolderManager {
         //scan directories here
         final Set<String> items = new LinkedHashSet();
         try {
-            String urlName = ContentUtil.correctUrlPath( rootUrl, "files", fileName );
-            URL u = new URL(urlName);
+            String basePath = ContentUtil.correctUrlPath( rootUrl, "files", null );
+            URL u = new ResourceUtil().createURL(basePath, fileName); 
+            if ( u == null ) return items; 
+            
             FileDir.scan( u, new FileFilter() {
                 public void handle(FileDir.FileInfo f) {
                     String fname = null; 
@@ -50,6 +52,7 @@ public class FolderManager {
                         
                     } else {
                         if (f.getExt()!=null && f.getExt().equals("conf")) return;
+                        if (!f.getFileName().endsWith(".pg")) return;
                         
                         fname = f.getFileName(); 
                     }

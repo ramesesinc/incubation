@@ -46,12 +46,8 @@ public class RabbitMQConnection extends MessageConnection {
     private boolean allowReceive; 
     private boolean autoAck;
     
-    private boolean ex_auto_delete;
-    private boolean ex_durable;
-    
-    private boolean q_auto_delete;
-    private boolean q_durable;
-        
+    private API api;
+
     public RabbitMQConnection(String name, AbstractContext context, Map conf) {
         this.name = name;
         this.context = context;
@@ -61,16 +57,13 @@ public class RabbitMQConnection extends MessageConnection {
         allowSend = ("false".equals(getProperty("allowSend")+"") ? false : true);
         allowReceive = ("false".equals(getProperty("allowReceive")+"") ? false : true);
         autoAck = ("false".equals(getProperty("autoAck")+"") ? false : true);
-        
-        ex_durable = ("false".equals(getProperty("exchange.durable")+"") ? false : true);
-        ex_auto_delete = ("false".equals(getProperty("exchange.autodelete")+"") ? false : true);
-
-        q_durable = ("false".equals(getProperty("queue.durable")+"") ? false : true);
-        q_auto_delete = ("false".equals(getProperty("queue.autodelete")+"") ? false : true);
     }
     
     private String getProperty( String name ) {
-        Object o = (conf == null? null: conf.get(name)); 
+        return getProperty(name, conf); 
+    }
+    private String getProperty( String name, Map map ) {
+        Object o = (map == null? null: map.get(name)); 
         return ( o == null ? null: o.toString()); 
     }
      
@@ -85,7 +78,9 @@ public class RabbitMQConnection extends MessageConnection {
     public void setFactory(ConnectionFactory factory) {
         this.factory = factory; 
     }
-        
+    public void setAPI( API api ) {
+        this.api = api; 
+    }
 
     public void start() { 
         if ( started ) return; 
@@ -101,6 +96,7 @@ public class RabbitMQConnection extends MessageConnection {
             if (queueName != null) {
                 defaultChannel = connection.createChannel();
                 defaultChannel.queueDeclarePassive( queueName );
+                
                 String type = getProperty("type"); 
                 if ( type == null ) type = "direct";  
                 String exchange = getProperty("exchange");                                
@@ -179,7 +175,11 @@ public class RabbitMQConnection extends MessageConnection {
             if ( root.autoAck ) {
                 //do nothing 
             } else {
-                if ( has_error ) return; 
+                if ( has_error ) {
+                    getChannel().basicNack(env.getDeliveryTag(), false, true);
+                    return; 
+                }
+                
                 getChannel().basicAck(env.getDeliveryTag(), false);
             }
             
@@ -269,12 +269,14 @@ public class RabbitMQConnection extends MessageConnection {
             channel = connection.createChannel();
             try {                 
                 String exchange = getProperty("exchange");
-                if ( exchange == null) { 
-                    channel.basicPublish("", queueName, null, bytes); 
-                } else {
-                    channel.queueDeclare( exchange, q_durable, false, q_auto_delete, null);
-                    channel.basicPublish( exchange, queueName, null, bytes);
-                } 
+                if ( exchange == null ) exchange = "";
+                
+                if ( queueName != null && queueName.length() > 0 ) {
+                    channel.queueDeclarePassive( queueName ); 
+                }
+                
+                channel.basicPublish( exchange, queueName, null, bytes);
+                
             } catch (RuntimeException re) { 
                 throw re; 
             } catch (IOException ioe) { 
@@ -282,7 +284,9 @@ public class RabbitMQConnection extends MessageConnection {
                 String errmsg = cause.getMessage(); 
                 if ( errmsg == null ) { 
                     cause = (cause.getCause() != null ? cause.getCause() : cause); 
+                    errmsg = (cause != null ? cause.getMessage() : null );
                 }
+                                
                 throw new RuntimeException(errmsg, cause); 
             } catch (Exception e) { 
                 throw new RuntimeException( e.getMessage(), e ); 
