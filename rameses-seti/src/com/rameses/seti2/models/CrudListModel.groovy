@@ -500,7 +500,8 @@ public class CrudListModel extends AbstractCrudModel {
     
     void removeEntity() {
         if(!selectedItem) return;
-        
+        if( selectedItem.system != null && selectedItem.system == 1 )
+            throw new Exception("Cannot remove system created file");
         try {
             beforeRemoveItem(); 
         } catch(BreakException be) { 
