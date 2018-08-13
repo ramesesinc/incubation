@@ -18,6 +18,40 @@ import javax.servlet.http.HttpServletResponse;
 public class AnubisMainServlet extends AbstractAnubisServlet {
     
     protected final void handle(HttpServletRequest hreq, HttpServletResponse hres) throws Exception {
+//        System.out.println("contextPath: "+ hreq.getContextPath());
+//        System.out.println("pathInfo: "+ hreq.getPathInfo());
+//        System.out.println("requestURI: "+ hreq.getRequestURI());
+//        System.out.println("requestURL: "+ hreq.getRequestURL());
+//        
+//        System.out.println("[Attributes]");
+//        Enumeration en = hreq.getAttributeNames(); 
+//        while (en.hasMoreElements()) {
+//            Object key = en.nextElement(); 
+//            Object val = hreq.getAttribute(key+""); 
+//            System.out.println("> "+ key +" : "+ val);
+//        }
+//        
+//        System.out.println("[Headers]");
+//        en = hreq.getHeaderNames();
+//        while (en.hasMoreElements()) {
+//            Object key = en.nextElement(); 
+//            Object val = hreq.getHeader(key+""); 
+//            System.out.println("> "+ key +" : "+ val);
+//        }
+//        
+//        System.out.println("[Parameters]");
+//        en = hreq.getParameterNames();
+//        while (en.hasMoreElements()) {
+//            Object key = en.nextElement(); 
+//            Object val = hreq.getParameter(key+""); 
+//            System.out.println("> "+ key +" : "+ val);
+//        }
+//        
+//        System.out.println("[Response Headers]");
+//        for (String key : hres.getHeaderNames()) {
+//            System.out.println("> "+ key +" : "+ hres.getHeader(key));
+//        }
+//
         AnubisContext actx = AnubisContext.getCurrentContext();
         
         String fullPath = hreq.getPathInfo();

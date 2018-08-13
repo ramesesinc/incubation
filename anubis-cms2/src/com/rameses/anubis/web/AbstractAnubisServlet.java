@@ -7,7 +7,6 @@ import com.rameses.anubis.PermalinkEntry.MatchResult;
 import com.rameses.anubis.Project;
 import com.rameses.anubis.ProjectResolver;
 import java.io.IOException;
-import java.util.Enumeration;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -40,6 +39,7 @@ public abstract class AbstractAnubisServlet extends HttpServlet {
     
     protected final void process(HttpServletRequest hreq, HttpServletResponse hres) throws ServletException, IOException {
         ServletContext app = config.getServletContext();
+
         boolean isMultipart = ServletFileUpload.isMultipartContent(hreq);
         if( isMultipart ) {
             hreq = new MultipartRequest(hreq,app);
