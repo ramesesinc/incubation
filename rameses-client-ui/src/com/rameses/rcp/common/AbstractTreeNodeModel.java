@@ -61,6 +61,9 @@ public abstract class AbstractTreeNodeModel
     public final void reloadTree() {
         if (provider != null) provider.reloadTree(); 
     }
+    public final void reloadSelectedNode() {
+        if (provider != null) provider.reloadSelectedNode(); 
+    }
     
     public final Node getRoot() {
         return (provider == null? null: provider.getRoot()); 
@@ -78,6 +81,7 @@ public abstract class AbstractTreeNodeModel
         
         void refresh();
         void reloadTree();
+        void reloadSelectedNode();
     }
     
 }
