@@ -351,6 +351,7 @@ public abstract class XComponentPanel extends JPanel
         return UIControlUtil.getBeanValue( binding, name ); 
     }
     
+    
     public final Object getBean() {
         Binding binding = getBinding(); 
         return (binding == null? null: binding.getBean()); 

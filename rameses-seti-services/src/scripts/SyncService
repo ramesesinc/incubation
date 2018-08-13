@@ -1,0 +1,22 @@
+import com.rameses.annotations.*
+
+class SyncService {
+
+	@Service(value="QueryService", connection="syncserver")
+	def qrySvc;
+
+	@DataContext(dynamic=true)
+	def db;
+
+	@ProxyMethod
+	public void syncList( def o ) {
+		def m = [_schemaname: o._schemaname];
+		m.where = ["1=1"];
+		def list = qrySvc.getList( m );
+
+		def em = db.lookup( o._schemaname );
+		list.each {
+			em.create( it );
+		}
+	}
+}
