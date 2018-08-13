@@ -151,10 +151,11 @@ public class UIControlUtil {
             while( parent != null ) {
                 if ( parent instanceof NavigatablePanel ) {
                     panel = (NavigatablePanel) parent;
-                }
-                if ( (panel != null && "parent".equals(target)) || (parent instanceof UIControllerPanel && "root".equals(parent.getName())) ) {
                     break;
                 }
+//                if ( (panel != null && "parent".equals(target)) || (parent instanceof UIControllerPanel && "root".equals(parent.getName())) ) {
+//                    break;
+//                }
                 parent = parent.getParent();
             }
             if ( panel != null && comp != null ) {

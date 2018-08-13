@@ -151,7 +151,9 @@ public class XButton extends JButton implements UICommand, ActionListener,
     }
     
     public String getTarget() { return target; }
-    public void setTarget(String target) { this.target = target; }
+    public void setTarget(String target) { 
+        this.target = target; 
+    }
     
     public boolean isUpdate() { return update; }
     public void setUpdate(boolean update) { this.update = update; }

@@ -407,6 +407,7 @@ public class XActionBar extends JPanel implements UIComposite, ActiveControl, Mo
                 Map.Entry me = (Map.Entry) entry;
                 if ("action".equals(me.getKey())) continue;
                 if ("type".equals(me.getKey())) continue;
+                if ("target".equals(me.getKey())) continue;
                 
                 try {
                     res.setProperty( btn, (String) me.getKey(), me.getValue());
