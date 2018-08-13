@@ -921,11 +921,13 @@ public class XTree extends JTree implements UIControl, ActiveControl, MouseEvent
             root.model.nodeStructureChanged(rootNode); 
         }
         public void reloadSelectedNode() {
-            DefaultNode defNode = root.getSelectedNode(); 
-            if ( defNode == null ) return;
-            
-            defNode.loadChildren( true ); 
-            root.model.nodeChanged(defNode); 
+            DefaultMutableTreeNode mtn = root.getSelectedNode(); 
+            if ( mtn == null ) mtn = root.root; 
+            if ( mtn instanceof DefaultNode ) {
+                DefaultNode defNode = (DefaultNode) mtn; 
+                defNode.loadChildren( true ); 
+                root.model.nodeStructureChanged(defNode); 
+            }
         }        
     }
             
