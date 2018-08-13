@@ -26,6 +26,7 @@ public class SchemaListComponent extends ComponentBean  {
     boolean allowCreate;
     boolean allowOpen;
     boolean allowDelete;
+    boolean allowSearch;
     int rows = 20;
 
     def query; 

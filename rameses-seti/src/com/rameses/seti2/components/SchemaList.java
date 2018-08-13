@@ -17,6 +17,7 @@ public class SchemaList extends XComponentPanel {
     private String schemaName;
     private String customFilter;
     private String queryName;
+    private String handlerName;
     private String orderBy;
     private String groupBy;
     private String hiddenCols;
@@ -25,6 +26,7 @@ public class SchemaList extends XComponentPanel {
     private boolean allowCreate;
     private boolean allowDelete;
     private boolean allowOpen = true;
+    private boolean allowSearch;
     
     private String id; 
     private String handler; 
@@ -193,6 +195,7 @@ public class SchemaList extends XComponentPanel {
         bean.setProperty("allowDelete", isAllowDelete()); 
         bean.setProperty("allowCreate", isAllowCreate()); 
         bean.setProperty("allowOpen", isAllowOpen()); 
+        bean.setProperty("allowSearch", isAllowSearch()); 
         
         bean.setProperty("schemaName", getSchemaName()); 
         bean.setProperty("hiddenCols", getHiddenCols()); 
@@ -209,6 +212,12 @@ public class SchemaList extends XComponentPanel {
         bean.setProperty("stylerule", (sr == null ? getStyleRule() : sr)); 
         
         bean.setProperty("ui", this); 
+        
+        String handlerName = getHandlerName();
+        if ( handlerName != null && handlerName.trim().length() > 0 ) {
+            Object listModel = PropertyResolver.getInstance().getProperty(bean, "listModel");
+            setProperty(getHandlerName(), listModel, getBean());
+        }       
     } 
     
     public void setProperty( String name, Object value ) { 
@@ -241,6 +250,34 @@ public class SchemaList extends XComponentPanel {
         } catch(Throwable t) {
             MsgBox.err( t ); 
         }
+    }
+
+    /**
+     * @return the allowSearch
+     */
+    public boolean isAllowSearch() {
+        return allowSearch;
+    }
+
+    /**
+     * @param allowSearch the allowSearch to set
+     */
+    public void setAllowSearch(boolean allowSearch) {
+        this.allowSearch = allowSearch;
+    }
+
+    /**
+     * @return the handlerName
+     */
+    public String getHandlerName() {
+        return handlerName;
+    }
+
+    /**
+     * @param handlerName the handlerName to set
+     */
+    public void setHandlerName(String handlerName) {
+        this.handlerName = handlerName;
     }
         
     private class SelectionHandlerImpl implements SelectionHandler {
