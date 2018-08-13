@@ -861,8 +861,7 @@ public class XTree extends JTree implements UIControl, ActiveControl, MouseEvent
             return root.getBinding(); 
         } 
         
-        public Node getSelectedNode() 
-        {
+        public Node getSelectedNode() {
             DefaultNode defNode = root.getSelectedNode(); 
             return (defNode == null? null: defNode.getNode()); 
         }
@@ -921,6 +920,13 @@ public class XTree extends JTree implements UIControl, ActiveControl, MouseEvent
             rootNode.loadChildren(true);
             root.model.nodeStructureChanged(rootNode); 
         }
+        public void reloadSelectedNode() {
+            DefaultNode defNode = root.getSelectedNode(); 
+            if ( defNode == null ) return;
+            
+            defNode.loadChildren( true ); 
+            root.model.nodeChanged(defNode); 
+        }        
     }
             
     // </editor-fold>
