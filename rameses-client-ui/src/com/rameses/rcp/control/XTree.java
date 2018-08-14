@@ -21,7 +21,6 @@ import com.rameses.rcp.framework.NavigatablePanel;
 import com.rameses.rcp.framework.NavigationHandler;
 import com.rameses.rcp.support.MouseEventSupport;
 import com.rameses.rcp.ui.ActiveControl;
-import com.rameses.rcp.ui.ActiveControl;
 import com.rameses.rcp.ui.ControlProperty;
 import com.rameses.rcp.ui.UIControl;
 import com.rameses.rcp.util.UIControlUtil;
@@ -499,11 +498,18 @@ public class XTree extends JTree implements UIControl, ActiveControl, MouseEvent
             Node pnode = getNode();
             if (pnode != null && pnode.isLeaf()) return;
             
-            if (nodes == null || reload) 
-                nodes = nodeModel.fetchNodes(pnode); 
-            if (nodes == null) return;
-
-            super.removeAllChildren(); 
+            try { 
+                if (nodes == null || reload) {
+                    nodes = nodeModel.fetchNodes(pnode); 
+                }
+            } catch(Throwable t) { 
+                t.printStackTrace(); 
+            } finally {
+                super.removeAllChildren(); 
+            }
+            
+            if (nodes == null) return; 
+            
             nodeModel.initChildNodes(nodes); 
             for (Node n: nodes) { 
                 if (n == null) continue;
@@ -641,18 +647,11 @@ public class XTree extends JTree implements UIControl, ActiveControl, MouseEvent
             
             parentTreeNode.remove(treeNode); 
             root.model.nodeStructureChanged(parentTreeNode); 
-            if (tn != null) {                
-                XTree.DefaultNode selNode = (XTree.DefaultNode) tn;
-                TreeNode[] treeNodes = selNode.getPath(); 
-                root.setSelectionPath(new TreePath(treeNodes)); 
-                
-                Node userNode = selNode.getNode();
-                if (userNode == null) return;
-                    
-                if (userNode.isLeaf())
-                    root.nodeModel.openLeaf(userNode);
-                else 
-                    root.nodeModel.openFolder(userNode);                 
+            
+            if ( tn instanceof XTree.DefaultNode ) {
+                ((XTree.DefaultNode) tn).getNode().select(); 
+            } else {
+                parentTreeNode.getNode().select(); 
             } 
         }
     }
