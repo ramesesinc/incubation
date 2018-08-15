@@ -57,7 +57,9 @@ class PersistenceService  {
 			//loop thru the schema for primary keys
 			finders = [:];
 			schema.fields.findAll{it.primary  && it.source == o._schemaname}.each {
-				finders.put( it.name, o.get(it.name));
+                                if(!it.name.contains(".")) {
+                                    finders.put( it.name, o.get(it.name));
+                                }
 			}
 		}
 		return finders;
@@ -91,6 +93,7 @@ class PersistenceService  {
 			throw new Exception('removeEntity error. Please indicate at least a findBy map or primary keys')
 
 		def em = db.lookup(o._schemaname);
+                if ( o.debug ) em.debug = o.debug; 
 		em.find(finders);
 		em.delete();
 	}
@@ -100,6 +103,8 @@ class PersistenceService  {
 		if ( !o._schemaname ) throw new Exception('Please provide a _schemaname');
 
 		def em = db.lookup(o._schemaname);
+		if ( o.debug ) em.debug = o.debug; 
+		
 		def finders = buildFinders( o ); 
 		def exists = em.find( finders ).exists(); 
 		if ( exists ) return self.update( o );
