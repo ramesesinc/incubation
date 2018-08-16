@@ -36,6 +36,7 @@ public class SchemaListComponent extends ComponentBean  {
     def _handler; 
     def _schema;    
     def searchText;
+    def orWhereList = [];
 
     def getSchema() {
         if ( _schema == null ) {
@@ -46,8 +47,29 @@ public class SchemaListComponent extends ComponentBean  {
         return _schema; 
     }
     
+    def _searchables;
+    def getSearchables() {
+        if(!_searchables) {
+            _searchables = schema.fields.findAll{ it.searchable == "true" }*.name;
+        }
+        return _searchables;
+    }
+    
+    boolean isSurroundSearch() {
+        return true;
+    }
+    
     void search() {
-        listModel.reload();
+        orWhereList.clear();
+        listModel.searchtext = searchText;
+        if( searchText ) {
+            searchables.each { 
+                def st = searchText+"%";
+                if ( isSurroundSearch() ) st = "%"+st; 
+                orWhereList << [ it + " like :searchtext", [searchtext: st] ]
+            }
+        }
+        listModel.doSearch();        
     }
     
     void setSelectedItem( o ) {
@@ -61,6 +83,8 @@ public class SchemaListComponent extends ComponentBean  {
     boolean isMultiSelectEnabled() {
         return (ui ? ui.isMultiSelect() : false); 
     }
+    
+    
     
     def listModel = [
         getRows: {
@@ -97,7 +121,9 @@ public class SchemaListComponent extends ComponentBean  {
             } else if ( customFilter ) { 
                m.where = [ customFilter, query ]; 
             } 
-            
+            if( orWhereList.size() > 0 ) {
+                m.orWhereList = orWhereList;
+            }
             if( orderBy ) m.orderBy = orderBy;
             if( groupBy ) m.groupBy = groupBy; 
             return queryService.getList( m );
