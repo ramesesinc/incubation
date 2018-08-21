@@ -117,4 +117,29 @@ class PersistenceService  {
 		return schemaService.getSchema(o);
 	}
 
+	//******************************************
+	// this is used for migration purposes
+	//******************************************
+	@ProxyMethod
+	public def batchSave( o ) {
+		if( !o._schemaname ) throw new Exception('Please provide a _schemaname');
+		if( !o.data ) throw new Exception("Please provide a data parameter");
+		if( !(o.data instanceof List ) ) throw new Exception("Data must be an instanceof List");
+
+		def em = db.lookup(o._schemaname);
+		if ( o.debug ) em.debug = o.debug; 
+
+		o.data.each {
+			it._schemaname = o._schemaname;
+			def finders = buildFinders( it ); 
+			def exists = em.find( finders ).exists(); 
+			if ( exists ) {
+				em.update( it );
+			}
+			else {
+				em.create( it ); 
+			}	
+		}		
+	}
+
 }
