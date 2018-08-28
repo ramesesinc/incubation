@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
-<Form version="1.8" maxVersion="1.8" type="org.netbeans.modules.form.forminfo.JPanelFormInfo">
+<Form version="1.8" maxVersion="1.9" type="org.netbeans.modules.form.forminfo.JPanelFormInfo">
   <AuxValues>
     <AuxValue name="FormSettings_autoResourcing" type="java.lang.Integer" value="0"/>
     <AuxValue name="FormSettings_autoSetComponentName" type="java.lang.Boolean" value="false"/>
@@ -198,6 +198,45 @@
                     </Property>
                   </Properties>
                 </Component>
+                <Component class="com.rameses.rcp.control.XButton" name="btnRefresh2">
+                  <Properties>
+                    <Property name="caption" type="java.lang.String" value=""/>
+                    <Property name="name" type="java.lang.String" value="syncPull" noResource="true"/>
+                    <Property name="visibleWhen" type="java.lang.String" value="#{ showSyncDownload == true }"/>
+                    <Property name="accelerator" type="java.lang.String" value="ctrl R"/>
+                    <Property name="autoRefresh" type="boolean" value="false"/>
+                    <Property name="focusable" type="boolean" value="false"/>
+                    <Property name="horizontalTextPosition" type="int" value="0"/>
+                    <Property name="iconResource" type="java.lang.String" value="images/toolbars/syncpull.png"/>
+                    <Property name="immediate" type="boolean" value="true"/>
+                    <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+                      <Insets value="[1, 1, 1, 1]"/>
+                    </Property>
+                    <Property name="toolTipText" type="java.lang.String" value="Sync Download"/>
+                    <Property name="verticalTextPosition" type="int" value="3"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnRefresh2ActionPerformed"/>
+                  </Events>
+                </Component>
+                <Component class="com.rameses.rcp.control.XButton" name="btnRefresh1">
+                  <Properties>
+                    <Property name="caption" type="java.lang.String" value=""/>
+                    <Property name="name" type="java.lang.String" value="syncPush" noResource="true"/>
+                    <Property name="visibleWhen" type="java.lang.String" value="#{ showSyncUpload == true }"/>
+                    <Property name="accelerator" type="java.lang.String" value="ctrl R"/>
+                    <Property name="autoRefresh" type="boolean" value="false"/>
+                    <Property name="focusable" type="boolean" value="false"/>
+                    <Property name="horizontalTextPosition" type="int" value="0"/>
+                    <Property name="iconResource" type="java.lang.String" value="images/toolbars/syncpush.png"/>
+                    <Property name="immediate" type="boolean" value="true"/>
+                    <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+                      <Insets value="[1, 1, 1, 1]"/>
+                    </Property>
+                    <Property name="toolTipText" type="java.lang.String" value="Sync Upload"/>
+                    <Property name="verticalTextPosition" type="int" value="3"/>
+                  </Properties>
+                </Component>
                 <Component class="com.rameses.rcp.control.XActionBar" name="xActionBar1">
                   <Properties>
                     <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
@@ -261,7 +300,7 @@
                   <Layout>
                     <DimensionLayout dim="0">
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <EmptySpace min="0" pref="270" max="32767" attributes="0"/>
+                          <EmptySpace min="0" pref="160" max="32767" attributes="0"/>
                       </Group>
                     </DimensionLayout>
                     <DimensionLayout dim="1">

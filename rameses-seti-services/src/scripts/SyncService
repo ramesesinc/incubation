@@ -17,6 +17,9 @@ class SyncService {
 	@DataContext(dynamic=true)
 	def db;
 
+        @Env
+        def env;
+
 	/****************************************************
 	* This pulls data from the sync server 
 	* and saves it to the local server

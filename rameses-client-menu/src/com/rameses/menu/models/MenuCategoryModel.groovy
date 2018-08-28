@@ -31,6 +31,11 @@ class MenuCategoryModel  {
     int cellwidth = 350;
     int iconwidth = 80;
     
+    //overriddable methods
+    public void loadDynamicItems( String menuContext, def subitems, def invokers ) {
+        //load invokers 
+    }
+    
     String getTitle() {
         if( invoker.properties.formTitle ) {
             return ExpressionResolver.getInstance().evalString(invoker.properties.formTitle,this);
@@ -110,17 +115,26 @@ class MenuCategoryModel  {
             m.id = f.properties.id;
             m.caption = f.properties.caption;
             m.icon = f.properties.icon;
+            if(!m.icon) m.icon = "home/icons/folder.png";
             
-            session.getFolders(headMenu + "/" + m.id ).each { sf->
+            def _id = headMenu + "/" + m.id;
+            session.getFolders( _id ).each { sf->
                 if(sf.invoker) {
                     def mm = [:];
                     mm.id = sf.toString();
                     mm.caption = sf.caption;
+                    mm.index = sf.index;
                     m.subitems << mm;
                     invokers.put( mm.id, sf.invoker ); 
                 }       
             }
+            
+            //override by extending class
+            loadDynamicItems( m.id, m.subitems, invokers );
+            
             if( !m.subitems ) return;
+            m.subitems = m.subitems.sort{ (!it.index) ? 0 : it.index };
+            
             
             entry.list << m;
             if( m.subitems.size() > entry.rowsize ) {
@@ -190,10 +204,14 @@ class MenuCategoryModel  {
         
         def inv = invokers.get( param.id ); 
         if ( inv == null ) return null; 
-        
-        def op = Inv.createOpener( inv, [:] ); 
-        if ( !op.target ) op.target = 'window'; 
-        return op; 
+        if( inv instanceof Opener ) {
+            return inv;
+        }
+        else {
+            def op = Inv.createOpener( inv, [:] ); 
+            if ( !op.target ) op.target = 'window'; 
+            return op; 
+        }
     } 
 
     

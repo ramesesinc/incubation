@@ -327,4 +327,16 @@ class WorkflowTaskService  {
         return list;
     }
 
+    /*********************************************
+    * gets the log data.
+    **********************************************/
+    @ProxyMethod
+    public void changeAssignee(def t) {
+        if(!t.taskid) throw new Exception("taskid is required for changeAssignee");
+        if(!t.processname) throw new Exception("processname is required for changeAssignee");
+        if(!t.assignee?.objid) throw new Exception("assignee is required for changeAssignee");
+        def em = db.lookup( t.processname +"_task" );
+        em.find( [taskid: t.taskid] ).update( [assignee: t.assignee ]);
+    }
+
 }

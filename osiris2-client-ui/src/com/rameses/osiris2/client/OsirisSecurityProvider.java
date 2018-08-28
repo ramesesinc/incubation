@@ -18,6 +18,18 @@ public class OsirisSecurityProvider implements SecurityProvider, ClientSecurityP
     public OsirisSecurityProvider() {
     }
 
+    private Map.Entry getRolePermission( Map roles, String matchPattern ) {
+        Map.Entry retval = null;
+        for(Object o: roles.entrySet()) {
+            Map.Entry me = (Map.Entry)o;
+            String key = me.getKey().toString();
+            if( key.matches(matchPattern)) {
+                retval = me;
+                break;
+            }
+        }
+        return retval;
+    }
 
     public boolean checkPermission(String domain, String role, String name) {
         Map roles = (Map) OsirisContext.getEnv().get("ROLES");
@@ -26,11 +38,14 @@ public class OsirisSecurityProvider implements SecurityProvider, ClientSecurityP
             for (int i=0; i<arrays.length; i++) {
                 String srole = arrays[i].trim();
                 if (domain != null) srole = domain+"."+srole;
-                if (!roles.containsKey(srole)) continue;
+                Map.Entry me = getRolePermission( roles, srole );
+                if( me == null ) continue;
+                //if (!roles.containsKey(srole)) continue;
                 
                 if (name == null || name.trim().length() == 0) return true;
                 
-                String disallowed = (String) roles.get(srole);
+                //String disallowed = (String) roles.get(srole);
+                String disallowed = (String)me.getValue();
                 if (disallowed != null && name.matches(disallowed)) continue;
                 
                 return true;
