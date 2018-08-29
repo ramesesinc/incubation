@@ -11,6 +11,7 @@ package com.rameses.anubis;
 
 import com.rameses.util.ConfigProperties;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -36,19 +37,22 @@ public class BlockManager {
         }
     }
     
-    public String getBlockContent(String name) throws Exception {
+    public String getBlockContent(String name, ContentMap m) throws Exception {
         AnubisContext ctx = AnubisContext.getCurrentContext();
         Project project = ctx.getProject();
         File file = ctx.getCurrentPage().getFile();
         String blockname = file.getPath() + "/" + name;
         ContentTemplate ct = null;
-        ContentMap m = new ContentMap();
+        if ( m == null ) { 
+            m = new ContentMap();
+        } 
+        
         try {
             ct = project.getTemplateCache().getTemplate(blockname, blockSource);
             return ct.render( m );
-        } catch (ResourceNotFoundException ex) {} catch( Exception e) {
-            throw e;
-        }
+        } catch (ResourceNotFoundException ex) {
+            //do nothing 
+        } 
         
         //check the mappings
         for( MappingEntry me: mappings) {
@@ -57,9 +61,9 @@ public class BlockManager {
                     String blockName = me.getTemplates()[0];
                     ct = project.getTemplateCache().getTemplate(blockName, globalBlockSource );
                     return ct.render( m );
-                } catch(ResourceNotFoundException rnfe){;} catch(Exception e) {
-                    throw e;
-                }
+                } catch(ResourceNotFoundException rnfe){
+                    //do nothing 
+                } 
             }
         }
         
@@ -67,9 +71,10 @@ public class BlockManager {
         try {
             ct = project.getTemplateCache().getTemplate(name, globalBlockSource );
             return ct.render( m );
-        } catch(ResourceNotFoundException rnfe){;} catch(Exception e) {
-            throw e;
-        }
+        } catch(ResourceNotFoundException rnfe) {
+            //do nothing 
+        } 
+        
         return "";
     }
     
@@ -77,18 +82,40 @@ public class BlockManager {
         public String getType() {
             return "blocks";
         }
-        public InputStream getResource(String name) throws ResourceNotFoundException{
+        public InputStream getResource(String name) throws ResourceNotFoundException { 
             AnubisContext ctx = AnubisContext.getCurrentContext();
-            List<String> list = new ArrayList();
-            if(ctx.getModule()!=null) {
-                Module module = ctx.getModule();
-                String spath = name = ProjectUtils.correctModuleFilePath(name, module );
-                list.add( module.getUrl()+"content"+spath );
-                list.add( module.getProvider()+"content"+spath );
+            ArrayList<String> basePaths = new ArrayList(); 
+            String fname = name; 
+
+            Module module = ctx.getModule(); 
+            if ( module != null ) { 
+                fname = ProjectUtils.correctModuleFilePath( name, module );
+                basePaths.add( module.getUrl() );
+                if ( module.getProvider() != null ) {
+                    basePaths.add( module.getProvider() );
+                }
+            } else {
+                basePaths.add( ctx.getProject().getUrl());
+                basePaths.add( ctx.getSystemUrl());
             }
-            list.add( ctx.getProject().getUrl()+"/content/"+name );
-            list.add( ctx.getSystemUrl()+"/content/"+name );
-            return ContentUtil.getResources( (String[]) list.toArray(new String[]{}), name );
+            
+            ArrayList<String> paths = new ArrayList();
+            for ( String basepath : basePaths ) {
+                paths.add(ContentUtil.correctUrlPath(basepath, "files", null));
+                paths.add(ContentUtil.correctUrlPath(basepath, "content", null));
+            }
+            
+            String[] names = new String[]{ fname };
+            URL u = new ResourceUtil().findResource(paths.toArray(new String[]{}), names); 
+            if ( u == null ) throw new ResourceNotFoundException("'"+ fname +"' content block not found"); 
+            
+            try {
+                return u.openStream();                
+            } catch (RuntimeException re) {
+                throw re;
+            } catch (Throwable e) {
+                throw new RuntimeException(e.getMessage(), e);
+            } 
         }
     }
     
@@ -98,15 +125,37 @@ public class BlockManager {
         }
         public InputStream getResource(String name) throws ResourceNotFoundException {
             AnubisContext ctx = AnubisContext.getCurrentContext();
-            List<String> list = new ArrayList();
-            if(ctx.getModule()!=null) {
-                Module module = ctx.getModule();
-                list.add( module.getUrl()+"blocks/"+name );
-                list.add( module.getProvider()+"blocks/"+name );
+            ArrayList<String> basePaths = new ArrayList(); 
+            String fname = name; 
+
+            Module module = ctx.getModule(); 
+            if ( module != null ) { 
+                fname = ProjectUtils.correctModuleFilePath( name, module );
+                basePaths.add( module.getUrl() );
+                if ( module.getProvider() != null ) {
+                    basePaths.add( module.getProvider() );
+                }
+            } else {
+                basePaths.add( ctx.getProject().getUrl());
+                basePaths.add( ctx.getSystemUrl());
             }
-            list.add( ctx.getProject().getUrl()+"/blocks/"+name );
-            list.add( ctx.getSystemUrl()+"/blocks/"+name );
-            return ContentUtil.getResources( (String[]) list.toArray(new String[]{}), name );
+            
+            ArrayList<String> paths = new ArrayList();
+            for ( String basepath : basePaths ) {
+                paths.add(ContentUtil.correctUrlPath(basepath, "blocks", null));
+            }
+            
+            String[] names = new String[]{ fname };
+            URL u = new ResourceUtil().findResource(paths.toArray(new String[]{}), names); 
+            if ( u == null ) throw new ResourceNotFoundException("'"+ fname +"' global block not found"); 
+            
+            try {
+                return u.openStream();                
+            } catch (RuntimeException re) {
+                throw re;
+            } catch (Throwable e) {
+                throw new RuntimeException(e.getMessage(), e);
+            }             
         }
     }
 }

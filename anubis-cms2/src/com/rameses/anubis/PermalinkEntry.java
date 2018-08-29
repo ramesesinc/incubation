@@ -80,6 +80,7 @@ public class PermalinkEntry {
      * A successful match will return the tokens, if not it returns null;
      */
     public boolean matches(String path ) {
+        //System.out.println("Permalink match: "+ path +" == "+ pattern +" ? "+ path.matches(pattern));
         return path.matches(pattern);
     }
     
@@ -87,14 +88,15 @@ public class PermalinkEntry {
         Map m = new LinkedHashMap();
         try {
             Object[] objs = formatter.parse( path, new ParsePosition(0));
+            if ( objs == null ) return m; 
+            
             for( int i=0; i<tokens.size(); i++) {
                 m.put( tokens.get(i), objs[i] );
             }
             return m;
         }
         catch(Exception e) {
-            System.out.println("Error in PermalinkEntry.getTokens");
-            e.printStackTrace();
+            System.out.println("Error in PermalinkEntry.getTokens -> "+ path);
             return m;
         }
     }

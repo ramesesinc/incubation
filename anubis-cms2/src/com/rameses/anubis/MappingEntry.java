@@ -33,7 +33,7 @@ public class MappingEntry {
     }
     
     public boolean matches(String path) {
-        //System.out.println("match path->" + path + " with pattern->"+pattern);
+        //System.out.println("matches->" + path + " with pattern-> "+pattern + " ? "+ path.matches( pattern ));
         return path.matches( pattern );
     }
     

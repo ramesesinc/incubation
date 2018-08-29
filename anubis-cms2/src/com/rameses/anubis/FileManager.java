@@ -156,9 +156,14 @@ public class FileManager {
             
             String[] names = buildNames( name );  
             URL u = new ResourceUtil().findResource(paths.toArray(new String[]{}), names); 
-            if ( u == null ) throw new ResourceNotFoundException("'"+ name +"' resource not found"); 
-
-            return u.openStream(); 
+            if ( u != null ) {
+                String str = u.toString(); 
+                if ( str.endsWith(".pg/info") || str.endsWith(".pg")) { 
+                    return u.openStream(); 
+                } 
+            } 
+            
+            throw new ResourceNotFoundException("'"+ name +"' resource not found"); 
             
         } catch (RuntimeException re) {
             throw re;

@@ -95,7 +95,7 @@ public abstract class AbstractAnubisServlet extends HttpServlet {
             throw se;
         } catch(IOException ioe) {
             throw ioe;
-        } catch(Exception e) {
+        } catch(Throwable e) {
             throw new ServletException(e.getMessage(), e);
         } finally {
             AnubisContext.removeContext();

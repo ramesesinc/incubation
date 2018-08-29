@@ -29,7 +29,7 @@ class ResourceUtil {
                     if ( url == null ) break; 
                 } 
                 
-                if (url != null) return url; 
+                if (url != null) return url;
             }
         }
         return null; 
@@ -38,6 +38,7 @@ class ResourceUtil {
     private URL findResource( URL baseURL, String name ) {
         String[] arr = name.split("\\.");
         if ( "".equals(arr[0])) return baseURL;
+        if ( "info".equals(name) && !baseURL.toString().endsWith(".pg")) return null; 
         
         StringBuilder sb = new StringBuilder();
         if ( "info".equals(arr[0])) {

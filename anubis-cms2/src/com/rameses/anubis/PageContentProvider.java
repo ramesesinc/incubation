@@ -10,13 +10,11 @@
 package com.rameses.anubis;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import javax.servlet.http.HttpServletRequest;
 
 /**
  *
@@ -91,6 +89,7 @@ public class PageContentProvider extends ContentProvider {
             };
             
             URL u = new ResourceUtil().findResource(paths.toArray(new String[]{}), names); 
+            if ( u != null && !u.toString().endsWith("/content")) u = null; 
             if ( u == null ) throw new ResourceNotFoundException("'"+ name +"' content resource not found"); 
             
             try {

@@ -102,9 +102,9 @@ public class ContentMap extends HashMap {
     public String getBlockContent(String skey) {
         try {
             Project project = AnubisContext.getCurrentContext().getProject();
-            return project.getBlockManager().getBlockContent( skey );
-        } catch(Exception ex) {
-            return "<span class='element-error' title='" + ex.getMessage() + "'>[block:"+skey+"]</span>";
+            return project.getBlockManager().getBlockContent( skey, this );
+        } catch(Throwable t) {
+            return "<span class='element-error' title='" + t.getMessage() + "'>[block:"+skey+"]</span>";
         }
     }
     

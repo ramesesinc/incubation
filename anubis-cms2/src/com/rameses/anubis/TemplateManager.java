@@ -14,6 +14,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
 
 /**
  *
@@ -67,6 +68,12 @@ public class TemplateManager {
         Project project = ctx.getProject();
         String[] masters = null;
         String path = file.getPath();
+        
+        // the path that needs to be match with template mapping is Request.PathInfo
+        if ( ctx.getRequest() instanceof HttpServletRequest ) {
+            path = ((HttpServletRequest) ctx.getRequest()).getPathInfo(); 
+        }
+
         String result = (String) pmap.get("content");
         
         //if fragment, find the templates for fragments and apply it first

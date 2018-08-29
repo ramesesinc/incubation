@@ -37,9 +37,16 @@ public class ContentTemplateCache {
         catch(ResourceNotFoundException rnfe) {
             throw rnfe;
         }
+        catch(RuntimeException re) {
+            throw re; 
+        }
         catch(Exception ex) {
-            throw new RuntimeException(ex.getMessage());
-        } finally {
+            throw new RuntimeException(ex.getMessage(), ex);
+        }
+        catch(Throwable t) {
+            throw new RuntimeException(t.getMessage(), t);
+        }
+        finally {
             try { is.close(); } catch(Exception ign){;}
         }
     }
