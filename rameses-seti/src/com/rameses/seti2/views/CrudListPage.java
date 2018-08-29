@@ -47,6 +47,8 @@ public class CrudListPage extends javax.swing.JPanel {
         btnFilter = new com.rameses.rcp.control.XButton();
         btnSelectColumn = new com.rameses.rcp.control.XButton();
         btnRefresh = new com.rameses.rcp.control.XButton();
+        btnRefresh1 = new com.rameses.rcp.control.XButton();
+        btnRefresh2 = new com.rameses.rcp.control.XButton();
         xActionBar1 = new com.rameses.rcp.control.XActionBar();
         xLabel2 = new com.rameses.rcp.control.XLabel();
         xSubFormPanel1 = new com.rameses.rcp.control.XSubFormPanel();
@@ -161,6 +163,39 @@ public class CrudListPage extends javax.swing.JPanel {
         btnRefresh.setMargin(new java.awt.Insets(1, 1, 1, 1));
         jToolBar1.add(btnRefresh);
 
+        btnRefresh1.setCaption("");
+        btnRefresh1.setName("syncPush"); // NOI18N
+        btnRefresh1.setVisibleWhen("#{ showSyncUpload == true }");
+        btnRefresh1.setAccelerator("ctrl R");
+        btnRefresh1.setAutoRefresh(false);
+        btnRefresh1.setFocusable(false);
+        btnRefresh1.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        btnRefresh1.setIconResource("images/toolbars/syncpush.png");
+        btnRefresh1.setImmediate(true);
+        btnRefresh1.setMargin(new java.awt.Insets(1, 1, 1, 1));
+        btnRefresh1.setToolTipText("Sync Upload");
+        btnRefresh1.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        jToolBar1.add(btnRefresh1);
+
+        btnRefresh2.setCaption("");
+        btnRefresh2.setName("syncPull"); // NOI18N
+        btnRefresh2.setVisibleWhen("#{ showSyncDownload == true }");
+        btnRefresh2.setAccelerator("ctrl R");
+        btnRefresh2.setAutoRefresh(false);
+        btnRefresh2.setFocusable(false);
+        btnRefresh2.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        btnRefresh2.setIconResource("images/toolbars/syncpull.png");
+        btnRefresh2.setImmediate(true);
+        btnRefresh2.setMargin(new java.awt.Insets(1, 1, 1, 1));
+        btnRefresh2.setToolTipText("Sync Download");
+        btnRefresh2.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        btnRefresh2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnRefresh2ActionPerformed(evt);
+            }
+        });
+        jToolBar1.add(btnRefresh2);
+
         xPanel2.add(jToolBar1);
 
         xActionBar1.setFormName("formName");
@@ -184,7 +219,7 @@ public class CrudListPage extends javax.swing.JPanel {
         xSubFormPanel1.setLayout(xSubFormPanel1Layout);
         xSubFormPanel1Layout.setHorizontalGroup(
             xSubFormPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 308, Short.MAX_VALUE)
+            .addGap(0, 236, Short.MAX_VALUE)
         );
         xSubFormPanel1Layout.setVerticalGroup(
             xSubFormPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -244,6 +279,11 @@ public class CrudListPage extends javax.swing.JPanel {
 
             add(jPanel6, java.awt.BorderLayout.CENTER);
         }// </editor-fold>//GEN-END:initComponents
+
+    private void btnRefresh2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRefresh2ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_btnRefresh2ActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private com.rameses.rcp.control.XButton btnCancel1;
     private com.rameses.rcp.control.XButton btnCreate;
@@ -252,6 +292,8 @@ public class CrudListPage extends javax.swing.JPanel {
     private com.rameses.rcp.control.XButton btnOpen;
     private com.rameses.rcp.control.XButton btnPrint;
     private com.rameses.rcp.control.XButton btnRefresh;
+    private com.rameses.rcp.control.XButton btnRefresh1;
+    private com.rameses.rcp.control.XButton btnRefresh2;
     private com.rameses.rcp.control.XButton btnSelectColumn;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;

@@ -72,6 +72,7 @@ public class WorkflowTaskFormPage extends javax.swing.JPanel {
         btnCancel1 = new com.rameses.rcp.control.XButton();
         xActionBar1 = new com.rameses.rcp.control.XActionBar();
         btnPrint = new com.rameses.rcp.control.XButton();
+        btnPrint1 = new com.rameses.rcp.control.XButton();
         xSubFormPanel1 = new com.rameses.rcp.control.XSubFormPanel();
         xActionBar2 = new com.rameses.rcp.control.XActionBar();
         btnUp = new com.rameses.rcp.control.XButton();
@@ -197,13 +198,26 @@ public class WorkflowTaskFormPage extends javax.swing.JPanel {
                     btnPrint.setMargin(new java.awt.Insets(1, 1, 1, 1));
                     jToolBar1.add(btnPrint);
 
+                    btnPrint1.setCaption("");
+                    btnPrint1.setName("changeAssignee"); // NOI18N
+                    btnPrint1.setVisibleWhen("");
+                    btnPrint1.setAccelerator("ctrl P");
+                    btnPrint1.setAutoRefresh(false);
+                    btnPrint1.setFocusable(false);
+                    btnPrint1.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+                    btnPrint1.setImmediate(true);
+                    btnPrint1.setMargin(new java.awt.Insets(1, 1, 1, 1));
+                    btnPrint1.setText("Change Assignee");
+                    btnPrint1.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+                    jToolBar1.add(btnPrint1);
+
                     xSubFormPanel1.setHandler("queryForm");
 
                     javax.swing.GroupLayout xSubFormPanel1Layout = new javax.swing.GroupLayout(xSubFormPanel1);
                     xSubFormPanel1.setLayout(xSubFormPanel1Layout);
                     xSubFormPanel1Layout.setHorizontalGroup(
                         xSubFormPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addGap(0, 438, Short.MAX_VALUE)
+                        .addGap(0, 294, Short.MAX_VALUE)
                     );
                     xSubFormPanel1Layout.setVerticalGroup(
                         xSubFormPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -238,7 +252,6 @@ public class WorkflowTaskFormPage extends javax.swing.JPanel {
                     xDropDownList1.setFocusable(false);
                     xDropDownList1.setHandler("messagelist");
                     xDropDownList1.setHideOnEmptyResult(true);
-                    xDropDownList1.setMargin(new java.awt.Insets(0, 2, 0, 2));
                     xDropDownList1.addActionListener(new java.awt.event.ActionListener() {
                         public void actionPerformed(java.awt.event.ActionEvent evt) {
                             xDropDownList1ActionPerformed(evt);
@@ -542,6 +555,7 @@ public class WorkflowTaskFormPage extends javax.swing.JPanel {
     private com.rameses.rcp.control.XButton btnHelp;
     private com.rameses.rcp.control.XButton btnInfo;
     private com.rameses.rcp.control.XButton btnPrint;
+    private com.rameses.rcp.control.XButton btnPrint1;
     private com.rameses.rcp.control.XButton btnTaskInfo;
     private com.rameses.rcp.control.XButton btnUp;
     private javax.swing.JPanel jPanel2;

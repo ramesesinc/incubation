@@ -595,4 +595,39 @@ public class CrudListModel extends AbstractCrudModel {
         return _selectedNode;
     }    
     
+    /**************************************************************************
+    //additional code for download and upload
+    ***************************************************************************/
+    @Service("SyncService")
+    def syncService;
+    
+    public boolean isShowSyncDownload() {
+        def showDownload = invoker.properties.showSyncDownload;
+        if(!showDownload) showDownload = workunit.info.workunit_properties.showSyncDownload;        
+        if( showDownload ) {
+            if (showDownload == 'true') return true;
+        }
+        return false;
+    } 
+    
+    public boolean isShowSyncUpload() {
+        def showUpload = invoker.properties.showSyncUpload;
+        if(!showUpload) showUpload = workunit.info.workunit_properties.showSyncUpload;        
+        if( showUpload ) {
+            if (showUpload == 'true') return true;
+        }
+        return false;
+    }
+
+    public void syncPush() {
+        syncService.push( [_schemaname: getSchemaName() ] );
+        MsgBox.alert("Sync Finished");
+    }
+    
+    public void syncPull() {
+        syncService.pull( [_schemaname: getSchemaName() ] );
+        this.reload();
+        MsgBox.alert("Sync Finished");        
+    }
+    
 }
