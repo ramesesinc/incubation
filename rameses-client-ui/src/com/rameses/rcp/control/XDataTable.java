@@ -752,24 +752,27 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
         
     // <editor-fold defaultstate="collapsed" desc="  ReadonlyListModel (class)  ">
     
-    private class ReadonlyListModel extends DataListModel 
-    {
+    private class ReadonlyListModel extends DataListModel {
+        
+        XDataTable root = XDataTable.this;
+        
         private java.util.List userDefinedList;
         private String name;
         
         ReadonlyListModel(String name) { this.name = name; } 
 
-        public java.util.List fetchList(Map params) 
-        {
-            if (Beans.isDesignTime()) return null;
+        public java.util.List fetchList(Map params) {
+            if (Beans.isDesignTime()) { return null; }
             
-            if (userDefinedList == null && name != null)
+            if ((userDefinedList == null && name != null) || root.isDynamic()) {
                 userDefinedList = (java.util.List) UIControlUtil.getBeanValue(binding, name); 
+            }
             
-            if (userDefinedList == null)
-                return new ArrayList();
-            else
-                return userDefinedList;    
+            if (userDefinedList == null) { 
+                return new ArrayList(); 
+            } else { 
+                return userDefinedList; 
+            } 
         }        
     }
     
@@ -777,22 +780,27 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
     
     // <editor-fold defaultstate="collapsed" desc="  EditableListModel (class)  ">
     
-    private class EditableListModel extends EditorListModel 
-    {
+    private class EditableListModel extends EditorListModel { 
+        
+        XDataTable root = XDataTable.this;
+        
         private java.util.List userDefinedList;
         private String name;
         
         EditableListModel(String name) { this.name = name; } 
 
-        public java.util.List fetchList(Map params) 
-        {
-            if (userDefinedList == null && name != null)
-                userDefinedList = (java.util.List) UIControlUtil.getBeanValue(binding, name); 
+        public java.util.List fetchList(Map params) {
+            if (Beans.isDesignTime()) { return null; }
             
-            if (userDefinedList == null)
+            if ((userDefinedList == null && name != null) || root.isDynamic()) { 
+                userDefinedList = (java.util.List) UIControlUtil.getBeanValue(binding, name); 
+            } 
+            
+            if (userDefinedList == null) { 
                 return new ArrayList();
-            else
+            } else { 
                 return userDefinedList; 
+            } 
         } 
     }
     
