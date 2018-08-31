@@ -228,11 +228,12 @@
                 <Property name="autoRefresh" type="boolean" value="false"/>
                 <Property name="focusable" type="boolean" value="false"/>
                 <Property name="horizontalTextPosition" type="int" value="0"/>
+                <Property name="iconResource" type="java.lang.String" value="images/toolbars/switchuser.png"/>
                 <Property name="immediate" type="boolean" value="true"/>
                 <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
                   <Insets value="[1, 1, 1, 1]"/>
                 </Property>
-                <Property name="text" type="java.lang.String" value="Change Assignee"/>
+                <Property name="toolTipText" type="java.lang.String" value="Switch Assignee"/>
                 <Property name="verticalTextPosition" type="int" value="3"/>
               </Properties>
             </Component>
@@ -244,7 +245,7 @@
               <Layout>
                 <DimensionLayout dim="0">
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <EmptySpace min="0" pref="294" max="32767" attributes="0"/>
+                      <EmptySpace min="0" pref="387" max="32767" attributes="0"/>
                   </Group>
                 </DimensionLayout>
                 <DimensionLayout dim="1">

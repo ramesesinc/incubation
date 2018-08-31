@@ -148,7 +148,7 @@ public class CrudListPage extends javax.swing.JPanel {
         btnSelectColumn.setVisibleWhen("#{showColsAllowed}");
         btnSelectColumn.setAutoRefresh(false);
         btnSelectColumn.setFocusable(false);
-        btnSelectColumn.setIconResource("images/toolbars/table-column.png");
+        btnSelectColumn.setIconResource("images/toolbars/table.png");
         btnSelectColumn.setImmediate(true);
         btnSelectColumn.setMargin(new java.awt.Insets(1, 1, 1, 1));
         jToolBar1.add(btnSelectColumn);
@@ -219,7 +219,7 @@ public class CrudListPage extends javax.swing.JPanel {
         xSubFormPanel1.setLayout(xSubFormPanel1Layout);
         xSubFormPanel1Layout.setHorizontalGroup(
             xSubFormPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 236, Short.MAX_VALUE)
+            .addGap(0, 222, Short.MAX_VALUE)
         );
         xSubFormPanel1Layout.setVerticalGroup(
             xSubFormPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)

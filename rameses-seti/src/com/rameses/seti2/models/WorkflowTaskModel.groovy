@@ -195,9 +195,10 @@ public class WorkflowTaskModel extends CrudFormModel implements WorkflowTaskList
         //task.role;
 
         def h = { o->
-            MsgBox.alert("change assignee " + o);
             def m = [processname: processName, taskid: task.taskid, assignee : o ];
             workflowTaskSvc.changeAssignee( m );
+            open();
+            binding.refresh();
         }
         def q = [domain: task.domain, role: task.role];
         Modal.show("sys_user_role:lookup", [query: q,  onselect: h ] );

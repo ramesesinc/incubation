@@ -9,6 +9,7 @@ import com.rameses.common.*;
 import com.rameses.rcp.constant.*;
 import java.rmi.server.*;
 import com.rameses.util.*;
+import com.rameses.util.Warning
         
 public class CrudFormModel extends AbstractCrudModel implements SubItemListener {
         
@@ -24,7 +25,7 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
     
      //used for mdi forms.
     def selectedSection;
-    def sections;
+    def _sections;
     
     String getPrintFormName() {
         def pfn = invoker.properties.printFormName;
@@ -131,12 +132,19 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
         }
     }
     
-    protected void buildSections() {
+    //this is so sections is only activated if needed.
+    public def getSections() {
+        if(_sections) return _sections;
         //for items with sections....
         try {
-            sections = Inv.lookupOpeners(getSchemaName() + ":section",[entity:entity]);
+            _sections = Inv.lookupOpeners(getSchemaName() + ":section",[entity:entity]);
         } 
         catch(Exception ex){;}
+        return _sections;
+    }
+    
+    protected void buildSections() {
+        //do nothing
     }
     
     boolean _inited_ = false;
@@ -302,22 +310,48 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
             if(!MsgBox.confirm(getConfirmMessage())) return null;
         }
         
-        if( mode == 'create' ) {
-            entity._schemaname = schemaName;
-            beforeSave("create");
-            entity = getPersistenceService().create( entity );
+        try {
+            if( mode == 'create' ) {
+                entity._schemaname = schemaName;
+                beforeSave("create");
+                entity = getPersistenceService().create( entity );
+            }
+            else {
+                //extract from the DataMap. Right now we'll use the pure data first
+                //we'll change this later to diff.
+                entity = entity.data(); 
+                entity._schemaname = schemaName;
+                beforeSave("update");
+                getPersistenceService().update( entity );
+                loadData();
+            }
+            afterSave();
+            mode = "read";
         }
-        else {
-            //extract from the DataMap. Right now we'll use the pure data first
-            //we'll change this later to diff.
-            entity = entity.data(); 
-            entity._schemaname = schemaName;
-            beforeSave("update");
-            getPersistenceService().update( entity );
-            loadData();
+        catch(Warning w) {
+            try {
+                def p = [:];
+                p.putAll( w.info );
+                boolean pass = false;
+                def param = [:];
+                p.handler = { o->
+                    if(o) param.putAll( o );
+                }
+                Modal.show( w.message, p );
+                if( param ) {
+                    entity.putAll( param );
+                    save();
+                }
+            }
+            catch(ep) {
+                MsgBox.err(ep);
+                return null;
+            }
         }
-        afterSave();
-        mode = "read";
+        catch( ex ) {
+            MsgBox.err( ex );
+            return null;
+        }
         
         try {
             if ( hasCallerMethod('refresh')) { 
