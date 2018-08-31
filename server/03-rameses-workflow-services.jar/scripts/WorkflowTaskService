@@ -320,11 +320,7 @@ class WorkflowTaskService  {
         if(!t.refid) throw new Exception("refid is required for getTransactionHistory");
         if(!t.processname) throw new Exception("processname is required for signal");
         def em = db.lookup( t.processname +"_task" );
-        def list = em.select("state,dtcreated,startdate,enddate,actor.*,message,assignee.*").find([refid: t.refid]).orderBy('dtcreated').list();
-        def z = list.find{ it.state == 'start' };
-        if( z ) list.remove(z);
-        list = [z]+list;
-        return list;
+        return em.where(" NOT(state = 'start') ").find([refid: t.refid]).orderBy('dtcreated').list();
     }
 
     /*********************************************
