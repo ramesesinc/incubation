@@ -1,6 +1,8 @@
-package com.rameses.osiris2.report;
+package com.rameses.seti2.components;
  
 import com.rameses.rcp.common.*;
+import com.rameses.rcp.common.Action
+import com.rameses.rcp.framework.ClientContext;
 import com.rameses.rcp.annotations.*;
 import com.rameses.osiris2.client.*;
 import com.rameses.osiris2.common.*;
@@ -37,7 +39,26 @@ public class SchemaListComponent extends ComponentBean  {
     def _schema;    
     def searchText;
     def orWhereList = [];
+    def formActionContext;
 
+    public def getFormActions() {
+        if( !formActionContext ) return [];
+        
+        def list = []; 
+        try {
+            def actionProvider = ClientContext.currentContext.actionProvider; 
+            list = actionProvider.getActionsByType( formActionContext, callerBinding.controller );
+            list.each{ 
+                it.properties.put('Action.Bean', callerBinding.bean); 
+            }
+        }
+        catch(Throwable t) {
+            //do nothing 
+        } finally {
+            return list; 
+        }
+    }
+    
     def getSchema() {
         if ( _schema == null ) {
             def map = [ name: schemaName ]; 
@@ -58,6 +79,7 @@ public class SchemaListComponent extends ComponentBean  {
     boolean isSurroundSearch() {
         return true;
     }
+    
     
     void search() {
         orWhereList.clear();
@@ -242,3 +264,4 @@ public class SchemaListComponent extends ComponentBean  {
         return null; 
     }
 }   
+

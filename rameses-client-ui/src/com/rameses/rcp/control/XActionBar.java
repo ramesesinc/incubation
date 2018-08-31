@@ -306,6 +306,7 @@ public class XActionBar extends JPanel implements UIComposite, ActiveControl, Mo
                 Object actionInvoker = action.getProperties().get("Action.Invoker");
                 btn.putClientProperty("Action.Invoker", actionInvoker);
                 btn.putClientProperty(Action.class, action);
+                btn.putClientProperty("Action.Bean", action.getProperties().get("Action.Bean"));
                 buttons.add(btn);
             }
         }

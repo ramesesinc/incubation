@@ -34,6 +34,7 @@ public class SchemaList extends XComponentPanel {
     private String menuContext; 
     private String visibleWhen;
     private String styleRule;
+    private String formActions;
     
     private Column[] columns;     
     private int rows = 20;
@@ -196,6 +197,7 @@ public class SchemaList extends XComponentPanel {
         bean.setProperty("allowCreate", isAllowCreate()); 
         bean.setProperty("allowOpen", isAllowOpen()); 
         bean.setProperty("allowSearch", isAllowSearch()); 
+        bean.setProperty("formActionContext", getFormActions() ); 
         
         bean.setProperty("schemaName", getSchemaName()); 
         bean.setProperty("hiddenCols", getHiddenCols()); 
@@ -278,6 +280,20 @@ public class SchemaList extends XComponentPanel {
      */
     public void setHandlerName(String handlerName) {
         this.handlerName = handlerName;
+    }
+
+    /**
+     * @return the formActions
+     */
+    public String getFormActions() {
+        return formActions;
+    }
+
+    /**
+     * @param formActions the formActions to set
+     */
+    public void setFormActions(String formActions) {
+        this.formActions = formActions;
     }
         
     private class SelectionHandlerImpl implements SelectionHandler {
@@ -413,6 +429,7 @@ public class SchemaList extends XComponentPanel {
         btnRefresh.setMargin(new java.awt.Insets(1, 1, 1, 1));
         jToolBar1.add(btnRefresh);
 
+        actionBar.setName("formActions"); // NOI18N
         actionBar.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 10, 0, 0));
         jToolBar1.add(actionBar);
 
@@ -447,12 +464,12 @@ public class SchemaList extends XComponentPanel {
         jToolBar3.setFloatable(false);
         jToolBar3.setRollover(true);
 
-        xActionTextField1.setName("searchText"); // NOI18N
         xActionTextField1.setActionName("search");
+        xActionTextField1.setName("searchText"); // NOI18N
+        xActionTextField1.setVisibleWhen("#{allowSearch == true}");
         xActionTextField1.setFocusKeyStroke("F3");
         xActionTextField1.setMaxLength(50);
         xActionTextField1.setPreferredSize(new java.awt.Dimension(180, 20));
-        xActionTextField1.setVisibleWhen("#{allowSearch == true}");
         jToolBar3.add(xActionTextField1);
 
         xButton2.setCaption("");

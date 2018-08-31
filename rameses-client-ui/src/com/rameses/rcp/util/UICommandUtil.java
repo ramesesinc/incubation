@@ -71,10 +71,13 @@ public class UICommandUtil {
                     Object actionInvoker = btn.getClientProperty("Action.Invoker");
                     if (actionInvoker != null) actionParams = new Object[]{ actionInvoker };
                     
-                    if (hasMethod(binding.getBean(), action, actionParams))
-                        outcome = resolver.invoke(binding.getBean(), action, actionParams);
+                    Object bb = command.getClientProperty("Action.Bean");
+                    if (bb == null) bb = binding.getBean(); 
+                    
+                    if (hasMethod(bb, action, actionParams))
+                        outcome = resolver.invoke(bb, action, actionParams);
                     else 
-                        outcome = resolver.invoke(binding.getBean(), action, null, null); 
+                        outcome = resolver.invoke(bb, action, null, null); 
                 } 
                 else { 
                     outcome = action;
