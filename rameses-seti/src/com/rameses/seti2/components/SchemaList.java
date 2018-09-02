@@ -28,6 +28,7 @@ public class SchemaList extends XComponentPanel {
     private boolean allowOpen = true;
     private boolean allowSearch;
     
+    
     private String id; 
     private String handler; 
     private String actionContext;
@@ -294,6 +295,34 @@ public class SchemaList extends XComponentPanel {
      */
     public void setFormActions(String formActions) {
         this.formActions = formActions;
+    }
+
+    /**
+     * @return the showFilter
+     */
+    public boolean isShowFilter() {
+        return btnFilter.isVisible();
+    }
+
+    /**
+     * @param showFilter the showFilter to set
+     */
+    public void setShowFilter(boolean showFilter) {
+        btnFilter.setVisible( showFilter );
+    }
+
+    /**
+     * @return the showRefresh
+     */
+    public boolean isShowRefresh() {
+        return btnRefresh.isVisible();
+    }
+
+    /**
+     * @param showRefresh the showRefresh to set
+     */
+    public void setShowRefresh(boolean showRefresh) {
+        btnRefresh.setVisible(showRefresh);
     }
         
     private class SelectionHandlerImpl implements SelectionHandler {

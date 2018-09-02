@@ -25,6 +25,9 @@ public class SchemaListBeanInfo extends ComponentBeanInfoSupport {
         addBoolean( list, "allowDelete" ); 
         addBoolean( list, "allowOpen" ); 
         addBoolean( list, "allowSearch" ); 
+        addBoolean( list, "showFilter" ); 
+        addBoolean( list, "showRefresh" ); 
+        
         add( list, "formActions", true ); 
         
         add( list, "columns", true, ColumnPropertyEditor.class ); 
