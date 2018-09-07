@@ -395,9 +395,9 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
     def reloadEntity() { 
         if ( hasCallerProperty('selectedItem')) {
             entity = caller.selectedItem;
-            loadData();
-            afterOpen();
         }
+        loadData();
+        afterOpen();
         updateWindowProperties(); 
     }
     
