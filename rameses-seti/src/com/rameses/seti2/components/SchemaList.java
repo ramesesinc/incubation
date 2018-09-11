@@ -36,6 +36,7 @@ public class SchemaList extends XComponentPanel {
     private String visibleWhen;
     private String styleRule;
     private String formActions;
+    private String entityName;
     
     private Column[] columns;     
     private int rows = 20;
@@ -210,6 +211,8 @@ public class SchemaList extends XComponentPanel {
         bean.setProperty("actionContext", getActionContext()); 
         bean.setProperty("menuContext", getMenuContext()); 
         bean.setProperty("rows", getRows()); 
+        bean.setProperty("entityName", getEntityName()); 
+        
 
         Object sr = getProperty(getStyleRule()); 
         bean.setProperty("stylerule", (sr == null ? getStyleRule() : sr)); 
@@ -323,6 +326,20 @@ public class SchemaList extends XComponentPanel {
      */
     public void setShowRefresh(boolean showRefresh) {
         btnRefresh.setVisible(showRefresh);
+    }
+
+    /**
+     * @return the entityName
+     */
+    public String getEntityName() {
+        return entityName;
+    }
+
+    /**
+     * @param entityName the entityName to set
+     */
+    public void setEntityName(String entityName) {
+        this.entityName = entityName;
     }
         
     private class SelectionHandlerImpl implements SelectionHandler {

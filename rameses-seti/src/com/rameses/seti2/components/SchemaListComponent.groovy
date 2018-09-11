@@ -18,6 +18,7 @@ public class SchemaListComponent extends ComponentBean  {
     def persistenceService;
     
     String schemaName;
+    String entityName;
     String customFilter;
     String hiddenCols;
     String orderBy;
@@ -219,8 +220,9 @@ public class SchemaListComponent extends ComponentBean  {
     }
     def openImpl( o ) {
         if (allowOpen && o) {
-            if ( _handler?.beforeOpen ) _handler.beforeOpen( o );  
-            return Inv.lookupOpener(schemaName+":open", [ entity: o ]);         
+            if ( _handler?.beforeOpen ) _handler.beforeOpen( o );
+            String sname = (entityName) ? entityName : schemaName;
+            return Inv.lookupOpener(sname+":open", [ entity: o ]);         
         }
         return null; 
     }
@@ -228,8 +230,8 @@ public class SchemaListComponent extends ComponentBean  {
     void removeEntity() {
         if(!allowDelete) return null;
         if(!selectedItem) throw new Exception("Please select an item to remove");
-        if( !MsgBox.confirm("Are you srue you want to remove this item?")) return null;
-        selectedItem._schemaname = schemaName;
+        if( !MsgBox.confirm("Are you sure you want to remove this item?")) return null;
+        selectedItem._schemaname = (entityName) ? entityName : schemaName ;
         persistenceService.removeEntity( selectedItem );
         listModel.reload();
     } 
@@ -242,7 +244,8 @@ public class SchemaListComponent extends ComponentBean  {
             m = _handler.createItem(); 
         }
         if ( m == null ) m = [:]; 
-        return Inv.lookupOpener(schemaName+":create", [defaultData: m] );
+        String sname = (entityName) ? entityName : schemaName;
+        return Inv.lookupOpener(sname+":create", [defaultData: m] );
     } 
     
     void refresh() { 
