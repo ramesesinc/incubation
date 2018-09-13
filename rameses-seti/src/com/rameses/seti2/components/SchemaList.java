@@ -10,6 +10,7 @@ import com.rameses.rcp.common.Column;
 import com.rameses.rcp.common.MsgBox;
 import com.rameses.rcp.control.XComponentPanel;
 import com.rameses.rcp.control.table.SelectionHandler;
+import com.rameses.rcp.framework.Binding;
 
 @com.rameses.rcp.ui.annotations.ComponentBean("com.rameses.seti2.components.SchemaListComponent")
 public class SchemaList extends XComponentPanel {
@@ -234,9 +235,13 @@ public class SchemaList extends XComponentPanel {
         }
     }
     public void setProperty( String name, Object value, Object bean ) { 
-        if ( name != null && name.trim().length() > 0 ) {
-            PropertyResolver.getInstance().setProperty(bean, name, value);
-        }
+        if ( name != null && name.trim().length() > 0 ) { 
+            PropertyResolver.getInstance().setProperty(bean, name, value); 
+            Binding b = getBinding(); 
+            if ( b != null ) { 
+                b.getValueChangeSupport().notify(name, value); 
+            } 
+        } 
     }
     
     public void notifyDepends( String name ) {
