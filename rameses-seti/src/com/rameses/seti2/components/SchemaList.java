@@ -357,6 +357,14 @@ public class SchemaList extends XComponentPanel {
         datatable.setShowRowHeader( b );
     }
     
+    public boolean isShowColumnHeader() {
+        return datatable.isShowColumnHeader();
+    }
+    
+    public void setShowColumnHeader(boolean b) {
+        datatable.setShowColumnHeader( b );
+    }    
+    
     /**
      * @return the entityName
      */
@@ -526,7 +534,7 @@ public class SchemaList extends XComponentPanel {
         xSubFormPanel1.setLayout(xSubFormPanel1Layout);
         xSubFormPanel1Layout.setHorizontalGroup(
             xSubFormPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 227, Short.MAX_VALUE)
+            .addGap(0, 281, Short.MAX_VALUE)
         );
         xSubFormPanel1Layout.setVerticalGroup(
             xSubFormPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -563,6 +571,7 @@ public class SchemaList extends XComponentPanel {
 
         datatable.setHandler("listModel");
         datatable.setName("selectedItem"); // NOI18N
+        datatable.setShowRowHeader(false);
         add(datatable, java.awt.BorderLayout.CENTER);
 
         navToolbar.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));

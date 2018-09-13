@@ -30,6 +30,7 @@ public class SchemaListBeanInfo extends ComponentBeanInfoSupport {
         addBoolean( list, "showInfo" ); 
         addBoolean( list, "showNavbar" ); 
         addBoolean( list, "showRowHeader" ); 
+        addBoolean( list, "showColumnHeader" ); 
         
         add( list, "formActions", true ); 
         

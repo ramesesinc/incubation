@@ -140,8 +140,7 @@ public class DataTableComponent extends JTable implements TableControl
         tableModelHandler = new TableModelHandlerImpl();
         tableModel = new DataTableModel();
 
-        setTableHeader(new DataTableHeader(this));
-        getTableHeader().setReorderingAllowed(false);
+        attachTableHeader(); 
         addKeyListener(new TableKeyAdapter());       
         
         int cond = WHEN_ANCESTOR_OF_FOCUSED_COMPONENT;
@@ -196,6 +195,11 @@ public class DataTableComponent extends JTable implements TableControl
         
         addMouseListener(new PopupMenuAdapter());
     }
+    
+    public void attachTableHeader() { 
+        setTableHeader(new DataTableHeader(this));
+        getTableHeader().setReorderingAllowed(false);
+    } 
     
     // </editor-fold>
     

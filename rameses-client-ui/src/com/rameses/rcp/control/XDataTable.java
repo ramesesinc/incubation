@@ -62,6 +62,7 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
     private int index;    
     private boolean dynamic;
     private boolean showRowHeader;
+    private boolean showColumnHeader; 
     private boolean immediate;
     private boolean editable; 
             
@@ -78,6 +79,8 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
     
     private ControlProperty property = new ControlProperty(); 
 
+    private boolean _user_set_showrowheader;
+    
     public XDataTable() { 
         init();        
         
@@ -113,6 +116,7 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
         property = new ControlProperty(); 
         propertyHandler = new PropertyChangeHandlerImpl();     
         tableModelHandler = new TableModelHandlerImpl();
+        showColumnHeader = true;
         
         table = new DataTableComponentImpl();
         scrollBar = new ListScrollBar();
@@ -170,7 +174,7 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
         //setGridColor( Color.decode("#afafaf") ); 
         setOddBackground(new Color(235, 240, 244)); 
         setEvenBackground(new Color(251, 251, 251)); 
-        setShowRowHeader(true); 
+        setShowRowHeaderImpl(true); 
         setShowHorizontalLines(true); 
         setShowVerticalLines(true);        
         setAutoResize(true);
@@ -349,13 +353,17 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
         
         if (newProvider != null) {
             if (getColumns() != null) {
-                newProvider.setColumns(getColumns());
-            }            
-            if (newProvider instanceof EditorListModel) { 
+                newProvider.setColumns(getColumns()); 
+            } 
+            
+            if ( _user_set_showrowheader ) {
+                //do nothing 
+            } else if (newProvider instanceof EditorListModel) { 
                 setShowRowHeader(true); 
             } else { 
-                setShowRowHeader(false); 
+                setShowRowHeader(false);  
             } 
+            
             dataProvider = newProvider;
             table.setBinding(binding);
             table.setDataProvider(dataProvider);
@@ -602,21 +610,36 @@ public class XDataTable extends JPanel implements UIInput, UIComplex, Validatabl
     public boolean isImmediate() { return immediate; }
     public void setImmediate(boolean immediate) { this.immediate = immediate; }
     
-    public boolean isShowRowHeader() { return showRowHeader; }
-    public void setShowRowHeader(boolean showRowHeader) 
-    {
-        this.showRowHeader = showRowHeader;
+    public boolean isShowColumnHeader() { return showColumnHeader; }
+    public void setShowColumnHeader( boolean showColumnHeader ) {
+        if ( table == null ) return; 
         
-        if ( showRowHeader ) {
+        this.showColumnHeader = showColumnHeader; 
+        if ( this.showColumnHeader ) { 
+            table.attachTableHeader(); 
+        } else {
+            table.setTableHeader(null); 
+        } 
+    }
+    
+    public boolean isShowRowHeader() { return showRowHeader; }
+    public void setShowRowHeader(boolean showRowHeader) {
+        setShowRowHeaderImpl( showRowHeader ); 
+        _user_set_showrowheader = true; 
+    }
+    
+    private void setShowRowHeaderImpl(boolean show) {
+        this.showRowHeader = show; 
+        if ( show ) {
             JLabel corner = new CellRenderers.HeaderRenderer(true);
             corner.putClientProperty("Component.proxy", table); 
             scrollPane.setCorner(JScrollPane.UPPER_LEFT_CORNER, corner); 
             scrollPane.setRowHeaderView( (rowHeaderView = new RowHeaderView(table)) );
             rowHeaderView.setRowCount( table.getRowCount() );
         } else {
-            scrollPane.setCorner(JScrollPane.UPPER_LEFT_CORNER, null);
+            scrollPane.setCorner(JScrollPane.UPPER_LEFT_CORNER, null );
             scrollPane.setRowHeaderView( (rowHeaderView = null) );
-        }
+        }        
     }
     
     public int getColumnMargin() { return table.getColumnModel().getColumnMargin(); }

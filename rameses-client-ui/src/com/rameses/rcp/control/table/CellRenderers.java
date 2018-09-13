@@ -226,7 +226,9 @@ public class CellRenderers {
             getComponentSupport().alignText(this, alignment); 
         } 
         
-        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int rowIndex, int colIndex) {
+        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int rowIndex, int colIndex) { 
+            if ( table == null ) return this;
+            
             setFont(table.getFont()); 
             setText(value+""); 
             
