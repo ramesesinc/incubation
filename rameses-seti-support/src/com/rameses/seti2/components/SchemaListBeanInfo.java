@@ -27,6 +27,9 @@ public class SchemaListBeanInfo extends ComponentBeanInfoSupport {
         addBoolean( list, "allowSearch" ); 
         addBoolean( list, "showFilter" ); 
         addBoolean( list, "showRefresh" ); 
+        addBoolean( list, "showInfo" ); 
+        addBoolean( list, "showNavbar" ); 
+        addBoolean( list, "showRowHeader" ); 
         
         add( list, "formActions", true ); 
         

@@ -333,6 +333,30 @@ public class SchemaList extends XComponentPanel {
         btnRefresh.setVisible(showRefresh);
     }
 
+    public boolean isShowInfo() {
+        return infoButton.isVisible();
+    }
+    
+    public void setShowInfo(boolean b) {
+        infoButton.setVisible(b);
+    }
+    
+    public boolean isShowNavbar() {
+        return navToolbar.isVisible();
+    }
+    
+    public void setShowNavbar(boolean b) {
+        navToolbar.setVisible(b);
+    }
+    
+    public boolean isShowRowHeader() {
+        return datatable.isShowRowHeader();
+    }
+    
+    public void setShowRowHeader(boolean b) {
+        datatable.setShowRowHeader( b );
+    }
+    
     /**
      * @return the entityName
      */
@@ -388,10 +412,9 @@ public class SchemaList extends XComponentPanel {
         xSubFormPanel1 = new com.rameses.rcp.control.XSubFormPanel();
         jToolBar3 = new javax.swing.JToolBar();
         xActionTextField1 = new com.rameses.rcp.control.XActionTextField();
-        xButton2 = new com.rameses.rcp.control.XButton();
-        xButton1 = new com.rameses.rcp.control.XButton();
+        infoButton = new com.rameses.rcp.control.XButton();
         datatable = new com.rameses.rcp.control.XDataTable();
-        jToolBar2 = new javax.swing.JToolBar();
+        navToolbar = new javax.swing.JToolBar();
         btnMoveFirst = new com.rameses.rcp.control.XButton();
         btnMovePrev = new com.rameses.rcp.control.XButton();
         btnMoveNext = new com.rameses.rcp.control.XButton();
@@ -503,7 +526,7 @@ public class SchemaList extends XComponentPanel {
         xSubFormPanel1.setLayout(xSubFormPanel1Layout);
         xSubFormPanel1Layout.setHorizontalGroup(
             xSubFormPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 258, Short.MAX_VALUE)
+            .addGap(0, 227, Short.MAX_VALUE)
         );
         xSubFormPanel1Layout.setVerticalGroup(
             xSubFormPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -523,94 +546,85 @@ public class SchemaList extends XComponentPanel {
         xActionTextField1.setPreferredSize(new java.awt.Dimension(180, 20));
         jToolBar3.add(xActionTextField1);
 
-        xButton2.setCaption("");
-        xButton2.setName("showInfo"); // NOI18N
-        xButton2.setAutoRefresh(false);
-        xButton2.setBackground(new java.awt.Color(255, 255, 255));
-        xButton2.setFocusable(false);
-        xButton2.setIconResource("images/info.png");
-        xButton2.setImmediate(true);
-        jToolBar3.add(xButton2);
+        infoButton.setCaption("");
+        infoButton.setName("showInfo"); // NOI18N
+        infoButton.setAutoRefresh(false);
+        infoButton.setBackground(new java.awt.Color(255, 255, 255));
+        infoButton.setFocusable(false);
+        infoButton.setIconResource("images/info.png");
+        infoButton.setImmediate(true);
+        jToolBar3.add(infoButton);
 
-        xButton1.setCaption("\\");
-            xButton1.setName("showHelp"); // NOI18N
-            xButton1.setAutoRefresh(false);
-            xButton1.setBackground(new java.awt.Color(255, 255, 255));
-            xButton1.setFocusable(false);
-            xButton1.setIconResource("images/help.png");
-            xButton1.setImmediate(true);
-            jToolBar3.add(xButton1);
+        jPanel7.add(jToolBar3, java.awt.BorderLayout.EAST);
 
-            jPanel7.add(jToolBar3, java.awt.BorderLayout.EAST);
+        jPanel8.add(jPanel7, java.awt.BorderLayout.CENTER);
 
-            jPanel8.add(jPanel7, java.awt.BorderLayout.CENTER);
+        add(jPanel8, java.awt.BorderLayout.NORTH);
 
-            add(jPanel8, java.awt.BorderLayout.NORTH);
+        datatable.setHandler("listModel");
+        datatable.setName("selectedItem"); // NOI18N
+        add(datatable, java.awt.BorderLayout.CENTER);
 
-            datatable.setHandler("listModel");
-            datatable.setName("selectedItem"); // NOI18N
-            add(datatable, java.awt.BorderLayout.CENTER);
+        navToolbar.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
+        navToolbar.setRollover(true);
 
-            jToolBar2.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
-            jToolBar2.setRollover(true);
+        btnMoveFirst.setName("listModel.moveFirstPage"); // NOI18N
+        btnMoveFirst.setAutoRefresh(false);
+        btnMoveFirst.setFocusable(false);
+        btnMoveFirst.setIconResource("images/navbar/first.png");
+        navToolbar.add(btnMoveFirst);
 
-            btnMoveFirst.setName("listModel.moveFirstPage"); // NOI18N
-            btnMoveFirst.setAutoRefresh(false);
-            btnMoveFirst.setFocusable(false);
-            btnMoveFirst.setIconResource("images/navbar/first.png");
-            jToolBar2.add(btnMoveFirst);
+        btnMovePrev.setName("listModel.moveBackPage"); // NOI18N
+        btnMovePrev.setAutoRefresh(false);
+        btnMovePrev.setFocusable(false);
+        btnMovePrev.setIconResource("images/navbar/previous.png");
+        navToolbar.add(btnMovePrev);
 
-            btnMovePrev.setName("listModel.moveBackPage"); // NOI18N
-            btnMovePrev.setAutoRefresh(false);
-            btnMovePrev.setFocusable(false);
-            btnMovePrev.setIconResource("images/navbar/previous.png");
-            jToolBar2.add(btnMovePrev);
+        btnMoveNext.setName("listModel.moveNextPage"); // NOI18N
+        btnMoveNext.setAutoRefresh(false);
+        btnMoveNext.setFocusable(false);
+        btnMoveNext.setIconResource("images/navbar/next.png");
+        btnMoveNext.setImmediate(true);
+        navToolbar.add(btnMoveNext);
 
-            btnMoveNext.setName("listModel.moveNextPage"); // NOI18N
-            btnMoveNext.setAutoRefresh(false);
-            btnMoveNext.setFocusable(false);
-            btnMoveNext.setIconResource("images/navbar/next.png");
-            btnMoveNext.setImmediate(true);
-            jToolBar2.add(btnMoveNext);
+        btnMoveLast.setName("listModel.moveLastPage"); // NOI18N
+        btnMoveLast.setAutoRefresh(false);
+        btnMoveLast.setFocusable(false);
+        btnMoveLast.setIconResource("images/navbar/last.png");
+        navToolbar.add(btnMoveLast);
 
-            btnMoveLast.setName("listModel.moveLastPage"); // NOI18N
-            btnMoveLast.setAutoRefresh(false);
-            btnMoveLast.setFocusable(false);
-            btnMoveLast.setIconResource("images/navbar/last.png");
-            jToolBar2.add(btnMoveLast);
+        jPanel5.setPreferredSize(new java.awt.Dimension(100, 20));
+        jPanel5.setLayout(new com.rameses.rcp.control.layout.XLayout());
 
-            jPanel5.setPreferredSize(new java.awt.Dimension(100, 20));
-            jPanel5.setLayout(new com.rameses.rcp.control.layout.XLayout());
+        lblRecordCount.setDepends(new String[] {"selectedItem"});
+        lblRecordCount.setExpression("Page #{listModel.pageIndex}");
+        lblRecordCount.setUseHtml(true);
+        jPanel5.add(lblRecordCount);
 
-            lblRecordCount.setDepends(new String[] {"selectedItem"});
-            lblRecordCount.setExpression("Page #{listModel.pageIndex}");
-            lblRecordCount.setUseHtml(true);
-            jPanel5.add(lblRecordCount);
+        lblPageCount.setDepends(new String[] {"selectedItem"});
+        lblPageCount.setExpression("of #{listModel.pageCount}");
+        lblPageCount.setUseHtml(true);
+        jPanel5.add(lblPageCount);
 
-            lblPageCount.setDepends(new String[] {"selectedItem"});
-            lblPageCount.setExpression("of #{listModel.pageCount}");
-            lblPageCount.setUseHtml(true);
-            jPanel5.add(lblPageCount);
+        xStyleRule1.setName("stylerule"); // NOI18N
 
-            xStyleRule1.setName("stylerule"); // NOI18N
+        javax.swing.GroupLayout xStyleRule1Layout = new javax.swing.GroupLayout(xStyleRule1);
+        xStyleRule1.setLayout(xStyleRule1Layout);
+        xStyleRule1Layout.setHorizontalGroup(
+            xStyleRule1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 20, Short.MAX_VALUE)
+        );
+        xStyleRule1Layout.setVerticalGroup(
+            xStyleRule1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 20, Short.MAX_VALUE)
+        );
 
-            javax.swing.GroupLayout xStyleRule1Layout = new javax.swing.GroupLayout(xStyleRule1);
-            xStyleRule1.setLayout(xStyleRule1Layout);
-            xStyleRule1Layout.setHorizontalGroup(
-                xStyleRule1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGap(0, 20, Short.MAX_VALUE)
-            );
-            xStyleRule1Layout.setVerticalGroup(
-                xStyleRule1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGap(0, 20, Short.MAX_VALUE)
-            );
+        jPanel5.add(xStyleRule1);
 
-            jPanel5.add(xStyleRule1);
+        navToolbar.add(jPanel5);
 
-            jToolBar2.add(jPanel5);
-
-            add(jToolBar2, java.awt.BorderLayout.SOUTH);
-        }// </editor-fold>//GEN-END:initComponents
+        add(navToolbar, java.awt.BorderLayout.SOUTH);
+    }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private com.rameses.rcp.control.XActionBar actionBar;
     private com.rameses.rcp.control.XButton btnCreate;
@@ -625,17 +639,16 @@ public class SchemaList extends XComponentPanel {
     private com.rameses.rcp.control.XButton btnRefresh;
     private com.rameses.rcp.control.XButton btnSelectColumn;
     private com.rameses.rcp.control.XDataTable datatable;
+    private com.rameses.rcp.control.XButton infoButton;
     private javax.swing.JPanel jPanel5;
     private javax.swing.JPanel jPanel7;
     private javax.swing.JPanel jPanel8;
     private javax.swing.JToolBar jToolBar1;
-    private javax.swing.JToolBar jToolBar2;
     private javax.swing.JToolBar jToolBar3;
     private com.rameses.rcp.control.XLabel lblPageCount;
     private com.rameses.rcp.control.XLabel lblRecordCount;
+    private javax.swing.JToolBar navToolbar;
     private com.rameses.rcp.control.XActionTextField xActionTextField1;
-    private com.rameses.rcp.control.XButton xButton1;
-    private com.rameses.rcp.control.XButton xButton2;
     private com.rameses.rcp.control.XLabel xLabel2;
     private com.rameses.rcp.control.XStyleRule xStyleRule1;
     private com.rameses.rcp.control.XSubFormPanel xSubFormPanel1;
