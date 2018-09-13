@@ -48,6 +48,10 @@ public class BasicResourceServlet extends AbstractAnubisServlet
                 if (!file_res.getFile().exists()) throw new FileNotFoundException();
                 
                 long lastModified = file_res.lastModified();
+                if ( !ctx.getProject().isCached()) { 
+                    lastModified = System.currentTimeMillis();
+                }
+                
                 hres.setHeader("ETag", lastModified+""); // always store the ETag in the header
                 
                 if (mimetype != null) hres.setContentType(mimetype);

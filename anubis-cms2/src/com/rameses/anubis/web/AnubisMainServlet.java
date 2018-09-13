@@ -81,43 +81,40 @@ public class AnubisMainServlet extends AbstractAnubisServlet {
             actx.setAttribute( "ajaxRequest", true );
         }
         
-        File file = null;        
-        if ( !ajaxRequest ) { 
-            try {
-                //check if filename matches permalinks. if secured,
-                //use secured permalinks instead
-                PermalinkManager permalink = project.getPermalinkManager();
-                String resolvedName = permalink.resolveName( fullPath, params  );
-                if(resolvedName!=null) filename = resolvedName;
-                file = project.getFileManager().getFile( filename );
-            } catch(com.rameses.anubis.FileNotFoundException fe) { 
-                hres.setStatus( HttpServletResponse.SC_NOT_FOUND ); 
-                File f = getErrorFile( HttpServletResponse.SC_NOT_FOUND ); 
-                if ( f != null ) { 
-                    handleError(hreq, hres, mimeType, f, fe); 
-                    return; 
-                }       
-                throw new ServletException( fe.getMessage(), fe ); 
-                
-            } catch(Throwable e) {  
-                hres.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR); 
-                File f = getErrorFile( HttpServletResponse.SC_INTERNAL_SERVER_ERROR ); 
-                if ( f != null ) {
-                    handleError(hreq, hres, mimeType, f, e); 
-                    return; 
-                }
-                
-                if ( e instanceof RuntimeException ) {
-                    throw (RuntimeException) e; 
-                } else {
-                    throw new ServletException(e.getMessage(), e); 
-                }
-            }
+        File file = null; 
+        try {
+            //check if filename matches permalinks. if secured,
+            //use secured permalinks instead
+            PermalinkManager permalink = project.getPermalinkManager();
+            String resolvedName = permalink.resolveName( fullPath, params  );
+            if ( resolvedName != null ) filename = resolvedName;
             
-        } else {
             file = project.getFileManager().getFile( filename );
+        } 
+        catch(com.rameses.anubis.FileNotFoundException fe) { 
+            hres.setStatus( HttpServletResponse.SC_NOT_FOUND ); 
+            File f = getErrorFile( HttpServletResponse.SC_NOT_FOUND ); 
+            if ( f != null ) { 
+                handleError(hreq, hres, mimeType, f, fe); 
+                return; 
+            }       
+            throw new ServletException( fe.getMessage(), fe ); 
+        } 
+        catch(Throwable e) {  
+            hres.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR); 
+            File f = getErrorFile( HttpServletResponse.SC_INTERNAL_SERVER_ERROR ); 
+            if ( f != null ) {
+                handleError(hreq, hres, mimeType, f, e); 
+                return; 
+            }
+
+            if ( e instanceof RuntimeException ) {
+                throw (RuntimeException) e; 
+            } else {
+                throw new ServletException(e.getMessage(), e); 
+            }
         }
-        
+            
         if (file.getHref() != null) {
             redirect( hres, file.getHref(), hreq.getContextPath() );
             return;
