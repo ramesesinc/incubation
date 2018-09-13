@@ -1,6 +1,8 @@
-package com.rameses.osiris2.report;
+package com.rameses.seti2.components;
  
 import com.rameses.rcp.common.*;
+import com.rameses.rcp.common.Action
+import com.rameses.rcp.framework.ClientContext;
 import com.rameses.rcp.annotations.*;
 import com.rameses.osiris2.client.*;
 import com.rameses.osiris2.common.*;
@@ -16,6 +18,7 @@ public class SchemaListComponent extends ComponentBean  {
     def persistenceService;
     
     String schemaName;
+    String entityName;
     String customFilter;
     String hiddenCols;
     String orderBy;
@@ -37,7 +40,26 @@ public class SchemaListComponent extends ComponentBean  {
     def _schema;    
     def searchText;
     def orWhereList = [];
+    def formActionContext;
 
+    public def getFormActions() {
+        if( !formActionContext ) return [];
+        
+        def list = []; 
+        try {
+            def actionProvider = ClientContext.currentContext.actionProvider; 
+            list = actionProvider.getActionsByType( formActionContext, callerBinding.controller );
+            list.each{ 
+                it.properties.put('Action.Bean', callerBinding.bean); 
+            }
+        }
+        catch(Throwable t) {
+            //do nothing 
+        } finally {
+            return list; 
+        }
+    }
+    
     def getSchema() {
         if ( _schema == null ) {
             def map = [ name: schemaName ]; 
@@ -58,6 +80,7 @@ public class SchemaListComponent extends ComponentBean  {
     boolean isSurroundSearch() {
         return true;
     }
+    
     
     void search() {
         orWhereList.clear();
@@ -197,8 +220,9 @@ public class SchemaListComponent extends ComponentBean  {
     }
     def openImpl( o ) {
         if (allowOpen && o) {
-            if ( _handler?.beforeOpen ) _handler.beforeOpen( o );  
-            return Inv.lookupOpener(schemaName+":open", [ entity: o ]);         
+            if ( _handler?.beforeOpen ) _handler.beforeOpen( o );
+            String sname = (entityName) ? entityName : schemaName;
+            return Inv.lookupOpener(sname+":open", [ entity: o ]);         
         }
         return null; 
     }
@@ -206,8 +230,8 @@ public class SchemaListComponent extends ComponentBean  {
     void removeEntity() {
         if(!allowDelete) return null;
         if(!selectedItem) throw new Exception("Please select an item to remove");
-        if( !MsgBox.confirm("Are you srue you want to remove this item?")) return null;
-        selectedItem._schemaname = schemaName;
+        if( !MsgBox.confirm("Are you sure you want to remove this item?")) return null;
+        selectedItem._schemaname = (entityName) ? entityName : schemaName ;
         persistenceService.removeEntity( selectedItem );
         listModel.reload();
     } 
@@ -220,7 +244,8 @@ public class SchemaListComponent extends ComponentBean  {
             m = _handler.createItem(); 
         }
         if ( m == null ) m = [:]; 
-        return Inv.lookupOpener(schemaName+":create", [defaultData: m] );
+        String sname = (entityName) ? entityName : schemaName;
+        return Inv.lookupOpener(sname+":create", [defaultData: m] );
     } 
     
     void refresh() { 
@@ -242,3 +267,4 @@ public class SchemaListComponent extends ComponentBean  {
         return null; 
     }
 }   
+

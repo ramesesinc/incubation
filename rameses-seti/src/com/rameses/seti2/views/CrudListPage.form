@@ -190,7 +190,7 @@
                         <Property name="visibleWhen" type="java.lang.String" value="#{showColsAllowed}"/>
                         <Property name="autoRefresh" type="boolean" value="false"/>
                         <Property name="focusable" type="boolean" value="false"/>
-                        <Property name="iconResource" type="java.lang.String" value="images/toolbars/table-column.png"/>
+                        <Property name="iconResource" type="java.lang.String" value="images/toolbars/table.png"/>
                         <Property name="immediate" type="boolean" value="true"/>
                         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
                           <Insets value="[1, 1, 1, 1]"/>
@@ -366,7 +366,7 @@
               <Layout>
                 <DimensionLayout dim="0">
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <EmptySpace min="0" pref="236" max="32767" attributes="0"/>
+                      <EmptySpace min="0" pref="222" max="32767" attributes="0"/>
                   </Group>
                 </DimensionLayout>
                 <DimensionLayout dim="1">

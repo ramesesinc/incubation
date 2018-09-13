@@ -205,9 +205,10 @@ public class WorkflowTaskFormPage extends javax.swing.JPanel {
                     btnPrint1.setAutoRefresh(false);
                     btnPrint1.setFocusable(false);
                     btnPrint1.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+                    btnPrint1.setIconResource("images/toolbars/switchuser.png");
                     btnPrint1.setImmediate(true);
                     btnPrint1.setMargin(new java.awt.Insets(1, 1, 1, 1));
-                    btnPrint1.setText("Change Assignee");
+                    btnPrint1.setToolTipText("Switch Assignee");
                     btnPrint1.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
                     jToolBar1.add(btnPrint1);
 
@@ -217,7 +218,7 @@ public class WorkflowTaskFormPage extends javax.swing.JPanel {
                     xSubFormPanel1.setLayout(xSubFormPanel1Layout);
                     xSubFormPanel1Layout.setHorizontalGroup(
                         xSubFormPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addGap(0, 294, Short.MAX_VALUE)
+                        .addGap(0, 387, Short.MAX_VALUE)
                     );
                     xSubFormPanel1Layout.setVerticalGroup(
                         xSubFormPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
