@@ -1,0 +1,6 @@
+<workunit>
+    <code class="com.rameses.seti2.models.DataEditorModel"/>
+    <pages>
+        <page template="com.rameses.seti2.views.DataEditorPage" />
+    </pages>
+</workunit> 
