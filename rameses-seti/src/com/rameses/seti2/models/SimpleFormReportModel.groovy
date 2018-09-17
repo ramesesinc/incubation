@@ -7,6 +7,7 @@ import com.rameses.rcp.common.*;
 import com.rameses.rcp.annotations.*;
 import com.rameses.osiris2.client.*;
 import com.rameses.osiris2.common.*;
+import com.rameses.osiris2.reports.*;
 
 public class SimpleFormReportModel extends ReportModel {
     
@@ -16,13 +17,17 @@ public class SimpleFormReportModel extends ReportModel {
     
     public Object getReportData() {
         if( !_reportData ) {
-            _reportData = reportHandler.getData();
+            _reportData = reportHandler?.getData();
         }
         return _reportData;
     }
     
     public String getReportName() {
-        return reportHandler.getReportName();    
+        return reportHandler?.getReportName();    
+    }
+    
+    public SubReport[] getSubReports() { 
+        return reportHandler?.getSubReports(); 
     }
     
     final def getModel() { 
