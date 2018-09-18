@@ -522,10 +522,12 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
     def preview(def handlerName) { 
         def mainreport = null; 
         def subreports = null; 
+        def parameters = null;
         def forminfo = getReportForm(); 
         if ( forminfo instanceof Map ) { 
             mainreport = forminfo.mainreport; 
             subreports = forminfo.subreports; 
+            parameters = forminfo.parameters; 
         } 
         
         if ( !mainreport ) { 
@@ -553,6 +555,7 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
         def rh = [ 
            getData : { return getPrintFormData(); }, 
            getReportName : { return mainreport; },
+           getParameters : { return parameters; }, 
            getSubReports : { return subforms; } 
         ]; 
         return Inv.lookupOpener(handlerName, [reportHandler:rh, title: getTitle()]);  

@@ -30,6 +30,10 @@ public class SimpleFormReportModel extends ReportModel {
         return reportHandler?.getSubReports(); 
     }
     
+    public Map getParameters() {
+        return reportHandler?.getParameters(); 
+    }
+    
     final def getModel() { 
         return this; 
     }
