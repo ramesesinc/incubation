@@ -84,7 +84,15 @@ public class CrudListModel extends AbstractCrudModel {
         //do nothing
     }
     
+    //this is dynamic filter added by a caller
+    def _customFilter;
+    
+    public void setCustomFilter( def cf ) {
+        _customFilter = cf;
+    }
+    
     public def getCustomFilter() {
+        if( _customFilter ) return _customFilter;
         String s = invoker.properties.customFilter;
         if( s!=null ) {
             return [s, query];

@@ -338,7 +338,7 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
                 p.handler = { o->
                     if(o) param.putAll( o );
                 }
-                Modal.show( w.message, p );
+                //Modal.show( w.message, p );
                 if( param ) {
                     entity.putAll( param );
                     save();

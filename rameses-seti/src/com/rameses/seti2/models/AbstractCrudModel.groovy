@@ -371,6 +371,10 @@ public abstract class AbstractCrudModel  {
         return [objid: app.USERID, name: app.NAME, fullname: app.FULLNAME, username: app.USER ];
     }
     
+    public String getUserid() {
+        return userInfo.env.USERID;
+    }
+    
     def showInfo() {
         throw new Exception("No info handler found");
     }
