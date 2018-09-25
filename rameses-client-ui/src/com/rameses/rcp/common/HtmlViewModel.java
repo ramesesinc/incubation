@@ -18,6 +18,10 @@ public class HtmlViewModel extends DocViewModel {
     public HtmlViewModel() {
     }
     
+    public String getStyles() {
+        return null; 
+    }
+    
     // <editor-fold defaultstate="collapsed" desc=" ViewProvider interface "> 
     
     public static interface ViewProvider extends DocViewModel.Provider 
