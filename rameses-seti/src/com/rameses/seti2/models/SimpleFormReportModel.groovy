@@ -22,16 +22,22 @@ public class SimpleFormReportModel extends ReportModel {
         return _reportData;
     }
     
-    public String getReportName() {
+    public String getReportName() { 
         return reportHandler?.getReportName();    
     }
     
     public SubReport[] getSubReports() { 
-        return reportHandler?.getSubReports(); 
+        if ( reportHandler?.getSubReports ) {
+            return reportHandler?.getSubReports(); 
+        }
+        return null; 
     }
     
     public Map getParameters() {
-        return reportHandler?.getParameters(); 
+        if ( reportHandler?.getParameters ) {
+            return reportHandler?.getParameters(); 
+        }
+        return null; 
     }
     
     final def getModel() { 
