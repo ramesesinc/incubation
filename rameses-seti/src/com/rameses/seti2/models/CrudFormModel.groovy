@@ -26,7 +26,9 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
     
      //used for mdi forms.
     def selectedSection;
+    def primaryKeys;
     def _sections;
+    
     
     String getPrintFormName() {
         def pfn = invoker.properties.printFormName;
@@ -155,6 +157,7 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
             throw new Exception("Please provide a schema name. Put it in workunit schemaName or override the getSchemaName()");
         if( _inited_ ) return;
         schema = getPersistenceService().getSchema( [name: schemaName, adapter: adapter]  );
+        primaryKeys = schema.fields.findAll{ it.primary && it.source == schemaName }*.name;
         listTypes.init( schema );
 
         buildStyleRules();
@@ -568,11 +571,31 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
            getSubReports : { return subforms; } 
         ]; 
         return Inv.lookupOpener(handlerName, [reportHandler:rh, title: getTitle()]);  
-   } 
+   }      
    
    public def getReportForm() {
        return null; 
    }
+   
+   public void changeState(def invoker) {
+       String s = invoker.properties.state;
+       if( !s) throw new Exception("Please specify state in invoker changeState action");
+       changeState(s);
+   } 
+    
+   public void changeState(String s) {
+       def _findBy = [:];
+       primaryKeys.each {
+           _findBy.put(it, EntityUtil.getNestedValue( entity, it) );
+       }
+       def u = [_schemaname: getSchemaName()];
+       u.findBy = _findBy;
+       u.state = s;
+       u._action = "changeState";
+       persistenceService.update(u);
+       entity.state  = s;
+   }  
+
 }
 
 
