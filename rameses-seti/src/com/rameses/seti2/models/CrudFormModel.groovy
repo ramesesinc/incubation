@@ -305,16 +305,21 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
     }
     
     def save() {
+        return saveImpl(true, true); 
+    }
+    
+    private def saveImpl( boolean allowConfirm, boolean allowBeforeEvent ) {
         if(!_inited_) throw new Exception("This workunit is not inited. Please call open or create action");
        
-        if( isShowConfirm() ) {
+        if( allowConfirm && isShowConfirm() ) {
             if(!MsgBox.confirm(getConfirmMessage())) return null;
         }
         
         try {
             if( mode == 'create' ) {
                 entity._schemaname = schemaName;
-                beforeSave("create");
+                if ( allowBeforeEvent ) beforeSave("create");
+                
                 entity = getPersistenceService().create( entity );
             }
             else {
@@ -322,7 +327,8 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
                 //we'll change this later to diff.
                 entity = entity.data(); 
                 entity._schemaname = schemaName;
-                beforeSave("update");
+                if ( allowBeforeEvent ) beforeSave("update");
+                
                 getPersistenceService().update( entity );
                 loadData();
             }
@@ -334,22 +340,25 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
                 def p = [:];
                 p.putAll( w.info );
                 boolean pass = false;
-                def param = [:];
-                p.handler = { o->
-                    if(o) param.putAll( o );
+                def param = [:]; 
+                p.handler = { o-> 
+                    if ( o ) { 
+                        param = o; 
+                        pass = true; 
+                    }
                 }
-                //Modal.show( w.message, p );
-                if( param ) {
+                Modal.show( w.message, p );
+                if ( pass ) {
                     entity.putAll( param );
-                    save();
+                    saveImpl( false, false );
                 }
             }
-            catch(ep) {
-                MsgBox.err(ep);
+            catch(Throwable t) {
+                MsgBox.err(t);
                 return null;
             }
         }
-        catch( ex ) {
+        catch( Throwable ex ) {
             MsgBox.err( ex );
             return null;
         }

@@ -483,7 +483,7 @@ public class CrudListModel extends AbstractCrudModel {
         if( !d.target ) d.target = 'window';
         return d;
     }
-    
+        
     def open() {
         if ( !isOpenAllowed() )
             throw new Exception("Open not allowed");

@@ -103,6 +103,7 @@ public class CrudListPage extends javax.swing.JPanel {
         jToolBar1.add(btnCreate);
 
         btnOpen.setCaption("");
+        btnOpen.setDepends(new String[] {"selectedItem"});
         btnOpen.setName("open"); // NOI18N
         btnOpen.setVisibleWhen("#{openAllowed==true}");
         btnOpen.setAccelerator("ctrl O");
@@ -114,11 +115,11 @@ public class CrudListPage extends javax.swing.JPanel {
 
         btnDelete.setCaption("");
         btnDelete.setDepends(new String[] {"selectedItem"});
+        btnDelete.setName("removeEntity"); // NOI18N
+        btnDelete.setVisibleWhen("#{deleteAllowed==true}");
         btnDelete.setFocusable(false);
         btnDelete.setIconResource("images/toolbars/trash.png");
         btnDelete.setMargin(new java.awt.Insets(1, 1, 1, 1));
-        btnDelete.setName("removeEntity"); // NOI18N
-        btnDelete.setVisibleWhen("#{deleteAllowed==true}");
         jToolBar1.add(btnDelete);
 
         btnPrint.setCaption("");
@@ -219,7 +220,7 @@ public class CrudListPage extends javax.swing.JPanel {
         xSubFormPanel1.setLayout(xSubFormPanel1Layout);
         xSubFormPanel1Layout.setHorizontalGroup(
             xSubFormPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 222, Short.MAX_VALUE)
+            .addGap(0, 264, Short.MAX_VALUE)
         );
         xSubFormPanel1Layout.setVerticalGroup(
             xSubFormPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
