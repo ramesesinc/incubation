@@ -507,6 +507,8 @@ public class CrudListModel extends AbstractCrudModel {
     void beforeRemoveItem() {}
     
     void removeEntity() {
+        if(!this.isDeleteAllowed()) 
+            throw new Exception("Delete is not allowed for this transaction");
         if(!selectedItem) return;
         if( selectedItem.system != null && selectedItem.system == 1 )
             throw new Exception("Cannot remove system created file");
