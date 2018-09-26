@@ -20,7 +20,6 @@ import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.common.Task;
 import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.framework.ClientContext;
-import com.rameses.rcp.support.FontSupport;
 import com.rameses.rcp.support.ImageIconSupport;
 import com.rameses.rcp.support.MouseEventSupport;
 import com.rameses.rcp.swing.HtmlViewPane;
@@ -29,7 +28,6 @@ import com.rameses.rcp.ui.ControlProperty;
 import com.rameses.rcp.ui.UIControl;
 import com.rameses.rcp.util.UICommandUtil;
 import com.rameses.rcp.util.UIControlUtil;
-import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Font;
@@ -38,24 +36,12 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.beans.Beans;
 import java.net.URL;
-import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.swing.JEditorPane;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
-import javax.swing.JScrollPane;
-import javax.swing.JViewport;
-import javax.swing.UIManager;
-import javax.swing.event.HyperlinkEvent;
-import javax.swing.event.HyperlinkListener;
-import javax.swing.text.AttributeSet;
-import javax.swing.text.Document;
 import javax.swing.text.html.HTMLDocument;
 
 /**
@@ -121,6 +107,13 @@ public class XHtmlView extends HtmlViewPane implements UIControl, ActiveControl,
                 newModel = (DocViewModel) value; 
                 value = newModel.getValue();
             } 
+            
+            if ( newModel instanceof HtmlViewModel ) {
+                String csstext = ((HtmlViewModel) newModel).getStyles(); 
+                if ( csstext != null && csstext.trim().length() > 0 ) {
+                    ((HTMLDocument) getDocument()).getStyleSheet().addRule(csstext);
+                }
+            }
             
             URL url = null;
             if (value == null) {

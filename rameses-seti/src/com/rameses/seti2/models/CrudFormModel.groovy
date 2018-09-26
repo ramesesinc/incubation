@@ -4,6 +4,7 @@ import com.rameses.rcp.common.*;
 import com.rameses.rcp.annotations.*;
 import com.rameses.osiris2.client.*;
 import com.rameses.osiris2.common.*;
+import com.rameses.osiris2.reports.*;
 import com.rameses.rcp.framework.ClientContext;
 import com.rameses.common.*;
 import com.rameses.rcp.constant.*;
@@ -522,25 +523,50 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
     }
     
     def preview(def handlerName) { 
-        def sname = getClass().getName();
-        int idx = sname.lastIndexOf('.'); 
-        if ( idx > 0 ) sname = sname.substring(0, idx); 
-        if ( sname.endsWith(".models")) sname = sname.substring(0, sname.lastIndexOf(".models"));
+        def mainreport = null; 
+        def subreports = null; 
+        def parameters = null;
+        def forminfo = getReportForm(); 
+        if ( forminfo instanceof Map ) { 
+            mainreport = forminfo.mainreport; 
+            subreports = forminfo.subreports; 
+            parameters = forminfo.parameters; 
+        } 
         
-        def reportName = sname.replace('.', '/') + "/printforms/" + getPrintFormName() +".jasper";
-        if ( !com.rameses.osiris2.reports.ReportUtil.hasReport( reportName )) 
-            throw new Exception( reportName + ' does not exist '); 
+        if ( !mainreport ) { 
+            subreports = null; 
             
+            def sname = getClass().getName();
+            int idx = sname.lastIndexOf('.'); 
+            if ( idx > 0 ) sname = sname.substring(0, idx); 
+            if ( sname.endsWith(".models")) sname = sname.substring(0, sname.lastIndexOf(".models"));
+
+            mainreport = sname.replace('.', '/') + "/printforms/" + getPrintFormName() +".jasper";
+        }
+
+        if ( !com.rameses.osiris2.reports.ReportUtil.hasReport( mainreport )) 
+            throw new Exception( mainreport + ' does not exist '); 
+                        
+        def subforms = new SubReport[0]; 
+        if ( subreports ) {
+            subforms = new SubReport[ subreports.size() ]; 
+            subreports.eachWithIndex { o,idx-> 
+                subforms[idx] = new SubReport(o.name, o.template) 
+            }
+        }
+        
         def rh = [ 
-           getReportName : { 
-               return reportName; 
-           },
-           getData : { 
-               return getPrintFormData(); 
-           } 
+           getData : { return getPrintFormData(); }, 
+           getReportName : { return mainreport; },
+           getParameters : { return parameters; }, 
+           getSubReports : { return subforms; } 
         ]; 
         return Inv.lookupOpener(handlerName, [reportHandler:rh, title: getTitle()]);  
    }      
+   
+   public def getReportForm() {
+       return null; 
+   }
    
    public void changeState(def invoker) {
        String s = invoker.properties.state;
@@ -560,6 +586,7 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
        persistenceService.update(u);
        entity.state  = s;
    }  
+
 }
 
 

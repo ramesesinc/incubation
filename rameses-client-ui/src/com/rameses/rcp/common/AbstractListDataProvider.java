@@ -272,8 +272,15 @@ public abstract class AbstractListDataProvider
     }
        
     public boolean isAllowOpen() { return true; } 
+    protected Object openItem( Object item, String columnName ) {
+        return null; 
+    }
     
-    protected Object onOpenItem(Object item, String columnName) { return null; }
+    @Deprecated 
+    protected Object onOpenItem(Object item, String columnName) { 
+        return openItem( item, columnName ); 
+    } 
+    
     protected Map getOpenerParams(Object item) { return null; } 
     protected Object lookupOpener(String actionType, Object item) { 
         if (actionType == null || actionType.length() == 0) return null;

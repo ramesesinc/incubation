@@ -144,10 +144,8 @@ public class SqlDialectModel {
             }        
             sb.append(";");
         }
-        if( start >0 || limit > 0 ) {
-            sb.append("start:true;");
-            sb.append("limit:true;");
-        }
+        if( start > 0 ) sb.append("start:true;");
+        if( limit > 0 ) sb.append("limit:true;");
         return sb.toString();
     }
     

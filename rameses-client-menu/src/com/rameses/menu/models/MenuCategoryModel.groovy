@@ -176,10 +176,14 @@ class MenuCategoryModel  {
                                 sb.append( "<image src=\"classpath://${m.icon}\" />");
                             sb.append("</td>");
                             sb.append("<td valign=top  style=\"padding-left:10px;;\" height=${height}>");
-                                sb.append( "<b><font size=${fontSize} face=\"${fontFace}\" color=\"${fontColor}\">${m.caption}</font></b><br>");
+                                sb.append("<b><font size=${fontSize} face=\"${fontFace}\" color=\"${fontColor}\">${m.caption}</font></b><br>");
+                                sb.append("<table cellpadding=0 cellspacing=2  border=0>"); 
                                 m.subitems.each { sf->
-                                    sb.append( "<a href=\"openItem\" id=\"${sf.id}\"><font size=${fontSize-1} face=\"${fontFace}\">${sf.caption}</font></a><br>" );
+                                    sb.append("<tr><td>")
+                                    sb.append("<a href=\"openItem\" id=\"${sf.id}\"><font size=${fontSize-1} face=\"${fontFace}\">${sf.caption}</font></a><br>" );
+                                    sb.append("</td></tr>")
                                 } 
+                                sb.append("</table>"); 
                             sb.append("</td>");
                         sb.append("</tr>");
                     sb.append("</table>");
