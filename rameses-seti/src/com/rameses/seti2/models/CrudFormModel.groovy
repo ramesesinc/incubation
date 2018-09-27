@@ -24,7 +24,7 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
     def findBy;                 //this is also included for opening via barcode.
     def refid;                  //this is also used for opening. If there is no entity passed
     
-     //used for mdi forms.
+    //used for mdi forms.
     def selectedSection;
     def primaryKeys;
     def _sections;
@@ -155,7 +155,7 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
     
     void init() {
         if( !schemaName )
-            throw new Exception("Please provide a schema name. Put it in workunit schemaName or override the getSchemaName()");
+        throw new Exception("Please provide a schema name. Put it in workunit schemaName or override the getSchemaName()");
         if( _inited_ ) return;
         schema = getPersistenceService().getSchema( [name: schemaName, adapter: adapter]  );
         primaryKeys = schema.fields.findAll{ it.primary && it.source == schemaName }*.name;
@@ -228,7 +228,7 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
     
     public def openBarcode() {
         if( !barcodeid ) 
-            throw new Exception("Open barcode error! barcodeid is not specified" );
+        throw new Exception("Open barcode error! barcodeid is not specified" );
         def key = getBarcodeFieldname();
         if( !key ) throw new Exception("Open barcode error! Please override (def)getBarcodeFieldname method" );
         findBy = [:];
@@ -248,7 +248,7 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
     }
     
     public def fetchEntityData() {
-         return getPersistenceService().read( entity );
+        return getPersistenceService().read( entity );
     }
     
     def open() {
@@ -385,7 +385,7 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
     
     void undo() {
         if (!entity instanceof java.util.LinkedHashMap)
-            def v = entity.undo();
+        def v = entity.undo();
         //formPanel.reload();
     }
     
@@ -457,8 +457,11 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
     }
     
     def reloadEntity() { 
-        if ( hasCallerProperty('selectedItem')) {
-            entity = caller.selectedItem;
+        if ( hasCallerProperty('selectedItem')) { 
+            def selitem = caller.selectedItem; 
+            if ( !selitem ) return null; 
+            
+            entity = selitem; 
         }
         loadData();
         afterOpen();
@@ -571,7 +574,7 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
         }
 
         if ( !com.rameses.osiris2.reports.ReportUtil.hasReport( mainreport )) 
-            throw new Exception( mainreport + ' does not exist '); 
+        throw new Exception( mainreport + ' does not exist '); 
                         
         def subforms = new SubReport[0]; 
         if ( subreports ) {
@@ -582,36 +585,47 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
         }
         
         def rh = [ 
-           getData : { return getPrintFormData(); }, 
-           getReportName : { return mainreport; },
-           getParameters : { return parameters; }, 
-           getSubReports : { return subforms; } 
+            getData : { return getPrintFormData(); }, 
+            getReportName : { return mainreport; },
+            getParameters : { return parameters; }, 
+            getSubReports : { return subforms; } 
         ]; 
         return Inv.lookupOpener(handlerName, [reportHandler:rh, title: getTitle()]);  
-   }      
+    }      
    
-   public def getReportForm() {
-       return null; 
-   }
+    public def getReportForm() {
+        return null; 
+    }
    
-   public void changeState(def invoker) {
-       String s = invoker.properties.state;
-       if( !s) throw new Exception("Please specify state in invoker changeState action");
-       changeState(s);
-   } 
+    public void changeState(def invoker) {
+        String s = invoker.properties.state;
+        if( !s) throw new Exception("Please specify state in invoker changeState action");
+        changeState(s);
+    } 
     
-   public void changeState(String s) {
-       def _findBy = [:];
-       primaryKeys.each {
-           _findBy.put(it, EntityUtil.getNestedValue( entity, it) );
-       }
-       def u = [_schemaname: getSchemaName()];
-       u.findBy = _findBy;
-       u.state = s;
-       u._action = "changeState";
-       persistenceService.update(u);
-       entity.state  = s;
-   }  
+    public void changeState(String s) {
+        def _findBy = [:];
+        primaryKeys.each {
+            _findBy.put(it, EntityUtil.getNestedValue( entity, it) );
+        }
+        def u = [_schemaname: getSchemaName()];
+        u.findBy = _findBy;
+        u.state = s;
+        u._action = "changeState";
+        persistenceService.update(u);
+        entity.state  = s;
+       
+        try {
+            if ( hasCallerMethod('refresh', callbackListHandler)) { 
+                callbackListHandler.refresh(); 
+            } else if ( hasCallerMethod('refresh')) { 
+                caller.refresh();
+            }
+        } catch(Throwable t) {
+            t.printStackTrace(); 
+        }
+        
+    }  
 
 }
 
