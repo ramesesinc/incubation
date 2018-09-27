@@ -29,6 +29,7 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
     def primaryKeys;
     def _sections;
     
+    def callbackListHandler;
     
     String getPrintFormName() {
         def pfn = invoker.properties.printFormName;
@@ -367,10 +368,14 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
         }
         
         try {
-            if ( hasCallerMethod('refresh')) { 
+            if ( hasCallerMethod('refresh', callbackListHandler)) { 
+                callbackListHandler.refresh(); 
+            } else if ( hasCallerMethod('refresh')) { 
                 caller.refresh();
             }
-        } catch(Throwable ign){;}
+        } catch(Throwable t) {
+            t.printStackTrace(); 
+        }
         
         if (isCloseOnSave()) return '_close';
         
@@ -401,28 +406,40 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
      * Navigation Controls
      **************************************************************************/
     boolean getShowNavigation() {
-        //println "show navigation";
-        if ( mode != 'read' )  return false;
+        if ( mode != 'read' ) return false;
+        else if ( callbackListHandler != null ) return true; 
         return hasCallerProperty('listHandler'); 
     }
     
     void moveUp() {
-        if ( hasCallerProperty('listHandler')) 
-            caller.listHandler.moveBackRecord();
+        def handler = callbackListHandler; 
+        if ( handler == null && hasCallerProperty('listHandler')) {
+            handler = caller.listHandler; 
+        }
+        
+        if ( hasCallerMethod('moveBackRecord', handler)) {
+            handler.moveBackRecord(); 
             
-        reloadEntity();
-        sections?.each {
-            try { it.controller.codeBean.reload(); }catch(e){;}
-        }        
+            reloadEntity();
+            sections?.each {
+                try { it.controller.codeBean.reload(); }catch(e){;}
+            }        
+        }         
     }
 
     void moveDown() {
-        if ( hasCallerProperty('listHandler')) 
-            caller.listHandler.moveNextRecord();
+        def handler = callbackListHandler; 
+        if ( handler == null && hasCallerProperty('listHandler')) {
+            handler = caller.listHandler; 
+        }
         
-        reloadEntity();
-        sections?.each {
-            try { it.controller.codeBean.reload(); }catch(e){;}
+        if ( hasCallerMethod('moveNextRecord', handler)) {
+            handler.moveNextRecord(); 
+
+            reloadEntity();
+            sections?.each {
+                try { it.controller.codeBean.reload(); }catch(e){;}
+            }
         }
     }
     

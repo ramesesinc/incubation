@@ -50,12 +50,18 @@ public abstract class AbstractCrudModel  {
     def mode;
     
     boolean hasCallerProperty( property ) {
-        if ( caller == null ) return false; 
-        return caller.metaClass.hasProperty(caller, property ); 
+        return hasCallerProperty( property, caller ); 
     }
+    boolean hasCallerProperty( property, bean ) {
+        if ( bean == null ) return false; 
+        return bean.metaClass.hasProperty(bean, property ); 
+    }    
     boolean hasCallerMethod( property ) {
-        if ( caller == null ) return false; 
-        return caller.metaClass.respondsTo(caller, property ); 
+        return hasCallerMethod( property, caller ); 
+    }     
+    boolean hasCallerMethod( property, bean ) {
+        if ( bean == null ) return false; 
+        return bean.metaClass.respondsTo(bean, property ); 
     }     
     
     public boolean getDebug() {

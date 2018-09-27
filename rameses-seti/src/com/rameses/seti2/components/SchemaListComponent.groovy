@@ -222,7 +222,7 @@ public class SchemaListComponent extends ComponentBean  {
         if (allowOpen && o) {
             if ( _handler?.beforeOpen ) _handler.beforeOpen( o );
             String sname = (entityName) ? entityName : schemaName;
-            return Inv.lookupOpener(sname+":open", [ entity: o ]);         
+            return Inv.lookupOpener(sname+":open", [ entity: o, callbackListHandler: this ]);         
         }
         return null; 
     }
@@ -245,7 +245,7 @@ public class SchemaListComponent extends ComponentBean  {
         }
         if ( m == null ) m = [:]; 
         String sname = (entityName) ? entityName : schemaName;
-        return Inv.lookupOpener(sname+":create", [defaultData: m] );
+        return Inv.lookupOpener(sname+":create", [ defaultData: m, callbackListHandler: this ]);
     } 
     
     void refresh() { 
