@@ -598,7 +598,7 @@ public class CrudListModel extends AbstractCrudModel {
     void setSelectedNode(def n) {
         _selectedNode = n;
         query.put("node", n);
-        listHandler.reload();
+        search();
     }
     
     def getSelectedNode() {
