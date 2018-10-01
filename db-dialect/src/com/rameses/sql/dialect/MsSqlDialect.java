@@ -279,7 +279,7 @@ public class MsSqlDialect extends AbstractSqlDialect  {
         } 
         tmpb.append(" * FROM ( ").append( tmpa ).append(" )tmpb "); 
         if ( so.start >= 0 ) { 
-            tmpb.append(" WHERE _rownum_ > ${_start} " ); 
+            tmpb.append(" WHERE _rownum_ > $P{_start} " ); 
             //sb.append(" ORDER BY _rownum_ "); 
         } 
         return tmpb.toString();  
