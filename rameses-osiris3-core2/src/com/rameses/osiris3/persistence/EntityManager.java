@@ -617,6 +617,7 @@ public class EntityManager {
         else {
             throw new Exception("Unrecognized parameter for invokeSqlMethod. Must be map or Object[]");
         }
+        
         if( methodName.startsWith("find") || methodName.startsWith("get") ) {
             SqlQuery sq = sqlContext.createNamedQuery( finalMethodName );   
             sq.setFetchHandler(new DataMapFetchHandler(getModel().getSchemaView())); 

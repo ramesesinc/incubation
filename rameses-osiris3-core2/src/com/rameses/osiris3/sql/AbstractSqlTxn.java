@@ -119,6 +119,10 @@ public abstract class AbstractSqlTxn {
             Object key = parameterNames.get(i);
             Object value = parameterValues.get(key);
             String name = (key instanceof Integer) ? null : key.toString();
+            if ( name != null ) {
+                if ( name.equals("_start") && value == null) value = 0; 
+                if ( name.equals("_limit") && value == null) value = 50; 
+            }
             parameterHandler.setParameter(ps,colIndex,value,name);
         }
     }
