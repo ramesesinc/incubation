@@ -5,6 +5,7 @@ AS SELECT
    u.objid AS `objid`,
    u.lastname AS `lastname`,
    u.firstname AS `firstname`,
+   u.middlename,
    u.username AS `username`,concat(`u`.`lastname`,', ',`u`.`firstname`) AS `name`,
    ug.role AS `role`,
    ug.domain AS `domain`,
