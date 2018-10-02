@@ -159,6 +159,8 @@ class MenuCategoryModel  {
         
         int width = cellwidth*cols;
         def sb = new StringBuilder();
+        sb.append("<html>");
+        sb.append("<body>");
         sb.append( "<table width=${width}>" );
         model.each { row ->
             sb.append("<tr>");
@@ -194,7 +196,16 @@ class MenuCategoryModel  {
             sb.append("</tr>");
         }
         sb.append("</table>");
-        menuHtml = sb.toString();
+        sb.append("</body>");
+        sb.append("</html>");
+        menuHtml = [
+            getStyles: {
+                return "a { font-weight: bold; }";
+            },
+            getValue : {
+                return sb.toString();
+            }
+        ] as HtmlViewModel;
     }
     
     void init() {
