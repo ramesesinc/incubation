@@ -200,7 +200,10 @@ class MenuCategoryModel  {
         sb.append("</html>");
         menuHtml = [
             getStyles: {
-                return "a { font-weight: bold; }";
+                def arr = [];
+                arr << "a { color: #3B5998; text-decoration: none }";
+                arr << "a:hover { color: blue; text-decoration: underline }";
+                return  arr.join(" ");
             },
             getValue : {
                 return sb.toString();

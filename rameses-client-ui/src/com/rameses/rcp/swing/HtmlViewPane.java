@@ -32,6 +32,7 @@ import javax.swing.JViewport;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.swing.event.HyperlinkEvent;
+import javax.swing.event.HyperlinkEvent.EventType;
 import javax.swing.event.HyperlinkListener;
 import javax.swing.text.AbstractDocument;
 import javax.swing.text.AttributeSet;
@@ -75,6 +76,18 @@ public class HtmlViewPane extends JEditorPane
         
         addHyperlinkListener(new HyperlinkListener() {
             public void hyperlinkUpdate(HyperlinkEvent e) {
+                //if( e.getEventType() == EventType.ENTERED ) {
+                    //SimpleAttributeSet red = new SimpleAttributeSet( );
+                //    try {
+                //        System.out.println("elementy is " + e.getSourceElement().getElement(0).getName());
+                        //int startPos = e.getSourceElement().getStartOffset();
+                        //int endPos = e.getSourceElement().getEndOffset();
+                        //System.out.println("text is " + e.getSourceElement().getDocument().getText( startPos, endPos));    
+                //    }catch(Exception ex){;}
+                //}
+                //else if( e.getEventType() == EventType.EXITED ) {
+                //    System.out.println("exiting..."+e.getSourceElement().getName());
+                //}
                 hyperlinkUpdateImpl(e); 
             }
         });
