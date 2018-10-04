@@ -318,7 +318,6 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
         if( allowConfirm && isShowConfirm() ) {
             if(!MsgBox.confirm(getConfirmMessage())) return null;
         }
-        
         try {
             if( mode == 'create' ) {
                 entity._schemaname = schemaName;
@@ -329,15 +328,22 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
             else {
                 //extract from the DataMap. Right now we'll use the pure data first
                 //we'll change this later to diff.
-                entity = entity.data(); 
-                entity._schemaname = schemaName;
-                if ( allowBeforeEvent ) beforeSave("update");
-                
-                getPersistenceService().update( entity );
-                loadData();
+                def oldEntity = entity;
+                try {
+                    entity = entity.data(); 
+                    entity._schemaname = schemaName;
+                    if ( allowBeforeEvent ) beforeSave("update");
+                    getPersistenceService().update( entity );
+                    loadData();
+                    afterSave();
+                    mode = "read";
+                }
+                catch(uex) {
+                    entity = oldEntity;
+                    //entity = new DataMap(entity);
+                    throw uex;
+                }
             }
-            afterSave();
-            mode = "read";
         }
         catch(Warning w) {
             try {
