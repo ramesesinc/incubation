@@ -9,6 +9,7 @@ import com.rameses.osiris2.reports.*;
 public class ReportViewModel {
     
     def report; 
+    def title = "Report"; 
     
     void view() {
         report.viewReport(); 

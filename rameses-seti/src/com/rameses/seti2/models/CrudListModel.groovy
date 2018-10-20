@@ -225,7 +225,7 @@ public class CrudListModel extends AbstractCrudModel {
         if(o) m.putAll(o);
         if(query) {
             m.putAll(query);
-        };
+        } 
         
         //place the orgid and userid immediately in the query.
         if( query !=null && !query.orgid) {
@@ -233,11 +233,11 @@ public class CrudListModel extends AbstractCrudModel {
         }
         if( query !=null && !query.userid) {
             query.userid =  OsirisContext.env.USERID;
-        };
+        }
         
         if(getFindBy()) {
             m.findBy = getFindBy();
-        };
+        }
         m._schemaname = schema.name;
         m.adapter = schema.adapter;
         
@@ -399,13 +399,14 @@ public class CrudListModel extends AbstractCrudModel {
         orWhereList.clear();
         listHandler.searchtext = searchText;
         if( searchText ) {
-            searchables.each { 
-                def st = searchText+"%";
-                if ( isSurroundSearch() ) st = "%"+st; 
-                
-                orWhereList << [ it + " like :searchtext", [searchtext: st] ]
+            def st = searchText+"%";
+            if ( isSurroundSearch() ) { 
+                st = "%"+st; 
             }
-        }
+            searchables.each { 
+                orWhereList << [ it + " like :searchtext", [ searchtext: st ]]; 
+            } 
+        } 
         listHandler.doSearch();
     }
     
