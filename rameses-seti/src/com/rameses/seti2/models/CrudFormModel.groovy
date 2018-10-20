@@ -322,7 +322,6 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
             if( mode == 'create' ) {
                 entity._schemaname = schemaName;
                 if ( allowBeforeEvent ) beforeSave("create");
-                
                 entity = getPersistenceService().create( entity );
             }
             else {
@@ -335,8 +334,6 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
                     if ( allowBeforeEvent ) beforeSave("update");
                     getPersistenceService().update( entity );
                     loadData();
-                    afterSave();
-                    mode = "read";
                 }
                 catch(uex) {
                     entity = oldEntity;
@@ -344,6 +341,8 @@ public class CrudFormModel extends AbstractCrudModel implements SubItemListener 
                     throw uex;
                 }
             }
+            afterSave();
+            mode = "read";
         }
         catch(Warning w) {
             try {
