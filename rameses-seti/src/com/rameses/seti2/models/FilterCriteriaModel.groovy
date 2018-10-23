@@ -49,7 +49,9 @@ class FilterCriteriaModel {
             
     def clearFilter() {
         controlList.clear();
-        if(handler) handler(controlList);
+        if(handler) handler.clear();
+        addField();
+        binding?.refresh();
         return "_close";
     }
             
@@ -67,7 +69,7 @@ class FilterCriteriaModel {
     }
             
     void removeField(def entry) {
-        def z = controlList.find{ it.entry == entry };
+        def z = controlList.last();
         controlList.remove(z);
         //recalc the index
         int fldIndex = 0;

@@ -87,11 +87,11 @@ public class FilterCriteriaItemPanel extends javax.swing.JPanel {
         datePanel.setName("date"); // NOI18N
         datePanel.setLayout(new com.rameses.rcp.control.layout.XLayout());
 
-        xComboBox3.setAllowNull(false);
         xComboBox3.setExpression("#{item.caption}");
-        xComboBox3.setImmediate(true);
         xComboBox3.setItems("dateOperatorList");
         xComboBox3.setName("entry.dateoperator"); // NOI18N
+        xComboBox3.setAllowNull(false);
+        xComboBox3.setImmediate(true);
         xComboBox3.setPreferredSize(new java.awt.Dimension(150, 20));
         datePanel.add(xComboBox3);
 
@@ -113,11 +113,11 @@ public class FilterCriteriaItemPanel extends javax.swing.JPanel {
         booleanPanel.setName("boolean"); // NOI18N
         booleanPanel.setLayout(new com.rameses.rcp.control.layout.XLayout());
 
-        xComboBox4.setAllowNull(false);
         xComboBox4.setExpression("#{item.caption}");
-        xComboBox4.setImmediate(true);
         xComboBox4.setItems("booleanOperatorList");
         xComboBox4.setName("entry.booleanoperator"); // NOI18N
+        xComboBox4.setAllowNull(false);
+        xComboBox4.setImmediate(true);
         xComboBox4.setPreferredSize(new java.awt.Dimension(150, 20));
         booleanPanel.add(xComboBox4);
 
@@ -257,26 +257,26 @@ public class FilterCriteriaItemPanel extends javax.swing.JPanel {
         jPanel1.setPreferredSize(new java.awt.Dimension(50, 20));
         jPanel1.setLayout(new java.awt.BorderLayout());
 
+        xButton1.setName("removeField"); // NOI18N
+        xButton1.setVisibleWhen("#{entry.index!=1 && entry.index == caller.fieldIndex}");
         xButton1.setBorderPainted(false);
         xButton1.setContentAreaFilled(false);
         xButton1.setIconResource("images/toolbars/trash.png");
         xButton1.setMargin(new java.awt.Insets(2, 4, 2, 4));
-        xButton1.setName("removeField"); // NOI18N
         xButton1.setPreferredSize(new java.awt.Dimension(25, 22));
         xButton1.setToolTipText("Remove criteria");
-        xButton1.setVisibleWhen("#{entry.index != 1 }");
         jPanel1.add(xButton1, java.awt.BorderLayout.WEST);
 
         xButton2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/toolbars/plus.png"))); // NOI18N
+        xButton2.setName("addField"); // NOI18N
+        xButton2.setVisibleWhen("#{entry.index == caller.fieldIndex}");
         xButton2.setBorderPainted(false);
         xButton2.setContentAreaFilled(false);
         xButton2.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         xButton2.setForeground(new java.awt.Color(0, 102, 255));
         xButton2.setMargin(new java.awt.Insets(2, 4, 2, 4));
-        xButton2.setName("addField"); // NOI18N
         xButton2.setPreferredSize(new java.awt.Dimension(25, 22));
         xButton2.setToolTipText("Add another criteria");
-        xButton2.setVisibleWhen("#{entry.index == caller.fieldIndex}");
         jPanel1.add(xButton2, java.awt.BorderLayout.EAST);
 
         add(jPanel1, java.awt.BorderLayout.EAST);

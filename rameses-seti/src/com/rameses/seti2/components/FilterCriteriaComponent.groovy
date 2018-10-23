@@ -59,7 +59,7 @@ public class FilterCriteriaComponent extends ComponentBean  {
     }
             
     void removeField(def entry) {
-        def z = controlList.find{ it.entry == entry };
+        def z = controlList.last();
         controlList.remove(z);
         //recalc the index
         int fldIndex = 0;
@@ -67,7 +67,7 @@ public class FilterCriteriaComponent extends ComponentBean  {
             fldIndex++;
             o.entry.index = fldIndex;
         }
-        handler.remove(z);
+        handler.removeItem();
         if(binding!=null) binding.refresh();    
     }
     
