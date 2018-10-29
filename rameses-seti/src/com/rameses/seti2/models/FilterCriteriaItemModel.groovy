@@ -133,4 +133,5 @@ class FilterCriteriaItemModel {
     void showInfo() {
         showKeyValueList( entry.value, false, {o->;} );
     }
+    
 }

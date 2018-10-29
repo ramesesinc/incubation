@@ -59,8 +59,9 @@ public class FilterCriteria extends XComponentPanel {
 
         jPanel1.setPreferredSize(new java.awt.Dimension(572, 30));
 
+        xButton2.setName("clearFilter"); // NOI18N
+        xButton2.setVisibleWhen("#{ false }");
         xButton2.setImmediate(true);
-        xButton2.setName("clear"); // NOI18N
         xButton2.setText("Clear");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
