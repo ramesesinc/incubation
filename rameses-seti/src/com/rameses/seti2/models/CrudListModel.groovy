@@ -429,7 +429,7 @@ public class CrudListModel extends AbstractCrudModel {
         };
         return [buff.toString(), params];
     }
-    
+        
     def showFilter() {
         def h = { o->
             criteriaList.clear();
