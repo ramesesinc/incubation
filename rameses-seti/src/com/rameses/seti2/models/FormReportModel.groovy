@@ -43,7 +43,7 @@ public class FormReportModel extends ReportModel {
     def txnid;
     
     def printmode = "preview";  //preview or printer
-    def mode;
+    def mode = "query";
     boolean aborted = false;
     
     //this determins what was first clicked for the back button to decide
@@ -129,15 +129,7 @@ public class FormReportModel extends ReportModel {
         return mode;
     }
     
-    def back() { 
-        if(queryView) {
-            mode = "query";
-            return mode;
-        }
-        else {
-            return "_close"; 
-        }
-    } 
+    
 
     void mergeData(def newData) {
         if(newData.data==null) return;
@@ -199,6 +191,7 @@ public class FormReportModel extends ReportModel {
                     ReportUtil.print( report, true ); 
                     mode = "query";
                 }
+                
             }
         }
         if(binding==null) {
@@ -206,7 +199,7 @@ public class FormReportModel extends ReportModel {
         }
         else {
             binding.fireNavigation(mode);
-            return null; 
+            return mode; 
         }
     } as Runnable;
        
@@ -215,6 +208,8 @@ public class FormReportModel extends ReportModel {
     }
     
     def preview() { 
+        mode = "preview";
+        queryView = false;
         printmode = "preview";
         txnid = "QRPT"+new UID();
         data = [:];
@@ -226,6 +221,11 @@ public class FormReportModel extends ReportModel {
         txnid = "QRPT"+new UID();
         data = [:];
         return processor();
+    } 
+    
+    def back() { 
+        mode = "query";
+        return mode;
     } 
 }
 

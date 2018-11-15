@@ -127,6 +127,10 @@ class RuleActionController  {
 
     void removeParam(def param) {
         entity.params.remove(param);
+        if( !entity._deleted_params) {
+            entity._deleted_params = [];
+            entity._deleted_params << param;
+        }
         paramControls.clear();
         entity.params.each {
             addParamControl(it);
