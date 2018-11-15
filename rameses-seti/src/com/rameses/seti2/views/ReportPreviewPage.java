@@ -1,9 +1,3 @@
-/*
- * tPreviewPage.java
- *
- * Created on January 13, 2011, 3:09 PM
- */
-
 package com.rameses.seti2.views;
 
 import com.rameses.osiris2.themes.FormPage;
@@ -12,7 +6,6 @@ import com.rameses.rcp.ui.annotations.Template;
 @Template(FormPage.class)
 public class ReportPreviewPage extends javax.swing.JPanel {
     
-    /** Creates new form tPreviewPage */
     public ReportPreviewPage() {
         initComponents();
     }

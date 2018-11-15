@@ -48,8 +48,9 @@ class FilterCriteriaModel {
     }                      
             
     def clearFilter() {
-        controlList.clear();
-        if(handler) handler.clear();
+        controlList.clear(); 
+        if ( handler ) handler( controlList ); 
+
         addField();
         binding?.refresh();
         return "_close";
