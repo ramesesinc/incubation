@@ -1,0 +1,37 @@
+<workunit>
+    <invokers>
+        <invoker type="text:prompt" caption="Enter Text" target="popup"/>
+    </invokers>
+    <code>
+        import com.rameses.rcp.common.*;
+        import com.rameses.rcp.common.*;
+        import com.rameses.rcp.annotations.*;
+        import com.rameses.osiris2.client.*;
+        import com.rameses.osiris2.common.*;
+        import com.rameses.seti2.models.*;
+        
+        class TextPrompt {
+
+            def text; 
+            def handler;
+            String title;
+
+            def doCancel() {
+                return "_close";
+            }
+        
+            def doOk() {
+                if(!handler) throw new Exception("Please specify handler in text:prompt");
+                def r= handler(text);
+                if(r==false) return null;
+                else if(r==true) return "_close";
+                else return r;
+            }
+        }
+    </code>    
+    
+    <pages>
+        <page template="com.rameses.seti2.views.TextPromptPage"/>
+    </pages>    
+    
+</workunit>  

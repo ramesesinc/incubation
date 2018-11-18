@@ -101,31 +101,43 @@ class ActionDefModel extends CrudFormModel {
     }
     
     public def copyAction() {
-        def p = MsgBox.prompt( "Enter action class name for copy" );
-        if(!p) return;
-        devService.copy( [oldid:entity.objid, newid: p ] ); 
-        MsgBox.alert("Copy successful" );
+        def h = { txt->
+            devService.copy( [oldid:entity.objid, newid: txt ] ); 
+            entity.objid = txt;
+            reloadEntity();
+            MsgBox.alert("Copy successful" );
+            return "_close";
+        }
+        Modal.show( "text:prompt", [title: "Enter new action class for copy", text: entity.actionclass, handler:h] );
     }
     
     def refactor() {
-        def p = MsgBox.prompt( "Enter new action class" );
-        if(!p) return;
-        if(!MsgBox.confirm("You are about to refactor/rename the class and will affect all rules associated with this. Proceed?")) return false;
-        devService.refactor( [oldid:entity.objid, newid: p ] ); 
-        return "_close";
+        def h = { txt->
+            if(!MsgBox.confirm("You are about to refactor/rename the class and will affect all rules associated with this. Proceed?")) return null; 
+            devService.refactor( [oldid:entity.objid, newid: txt ] );
+            entity.objid = txt;
+            open();
+            return "_close";
+        }
+        Modal.show( "text:prompt", [title: "Enter new action class", text: entity.actionclass, handler:h] );
     }
 
     def updateId() {
         devService.refactor( [oldid:entity.objid, newid: entity.actionclass ] ); 
-        return "_close";
+        entity.objid = entity.actionclass;
+        open();
+        return null;
     }
 
     def merge() {
-        def p = MsgBox.prompt( "Enter new action class" );
-        if(!p) return;
-        if(!MsgBox.confirm("This will transfer all links to the new target class. Check first if has similar parameters before executing. Proceed?")) return false;
-        devService.merge( [oldid:entity.objid, newid: p ] ); 
-        return "_close";
+        def h = { txt->
+            if(!MsgBox.confirm("This will transfer all links to the new target class. Check first if has similar parameters before executing. Proceed?")) return null;
+            devService.merge( [oldid:entity.objid, newid: txt ] ); 
+            entity.objid = txt;
+            open();
+            return "_close";
+        }
+        Modal.show( "text:prompt", [title: "Enter target action class for merge", text: entity.actionclass, handler:h] );
     }
 
 
