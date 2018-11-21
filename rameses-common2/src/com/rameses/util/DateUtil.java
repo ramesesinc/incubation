@@ -206,9 +206,10 @@ public final class DateUtil {
         return df.format( d1 );
     }
 
+    private static String[] _monthStr =  { "JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC" };
+    
     public static String getMonthStr( int mon ) {
-        String[] r = { "JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC" };
-        return r[mon+1];
+        return _monthStr[mon-1];
     }
     
     
