@@ -29,17 +29,26 @@ public class ChangeInfoModel extends DynamicForm {
     def handler;
     def _schema;
     boolean _inited_ = false;
-    
+
     def message = "Fill in data to edit, specify remarks and click OK to commit changes";
     
+    def beforeSave;
+    def _schemaname;
+    def _log_schemaname;   
+    boolean _bypass_check_diff = false;
+    
     public String getSchemaName() {
-        def _schemaname = invoker.properties.schemaName;
+        if(_schemaname ) return _schemaname;
+        _schemaname = invoker.properties.schemaName;
         if(_schemaname) return _schemaname;
-        return workunit?.info?.workunit_properties?.schemaName;
+        _schemaname = workunit?.info?.workunit_properties?.schemaName;
+        return _schemaname;
     } 
     
     public String getLogSchemaName() {
-        return workunit?.info?.workunit_properties?.logSchemaName;
+        if(_log_schemaname ) return _log_schemaname;
+        _log_schemaname = workunit?.info?.workunit_properties?.logSchemaName;
+        return _log_schemaname;
     } 
     
     public String getTag() {
@@ -63,7 +72,7 @@ public class ChangeInfoModel extends DynamicForm {
     }
     
     public def getEntity() {
-        return caller.entity;
+        return caller?.entity;
     }
     
     void buildFormFields() {
@@ -77,7 +86,7 @@ public class ChangeInfoModel extends DynamicForm {
     
     void init() {
         beforeInit();
-        data = [:];
+        if(!data) data = [:];
         _schema = schemaSvc.getSchema( [name: schemaName] );
         primKey = _schema.fields.find{it.primary==true && it.source==schemaName}.name;
         fields = getFormFields();
@@ -95,11 +104,13 @@ public class ChangeInfoModel extends DynamicForm {
     }
     
     def doOk() {
-        if(!_inited_) throw new Exception("Please invoke init action on thos workunit");
-        if( oldValues == data )
-            throw new Exception("No change has been made");
+        if(!_inited_) throw new Exception("Please invoke init action on this workunit");
+        if(!_bypass_check_diff ) {
+            if( oldValues == data )
+                throw new Exception("No change has been made");
+            validateEntry();
+        }
         
-        validateEntry();
         def u = [:];
         u.putAll( data );
         
@@ -107,18 +118,22 @@ public class ChangeInfoModel extends DynamicForm {
         e._tag = tag;
         e._schemaname = schemaName;
         e.putAll( u );
-        e.put( primKey, entity.get( primKey ) );
+        if( entity != null ) {
+            e.put( primKey, entity.get( primKey ) );
+        }
+        
         
         //build the log data
         def log = [_schemaname: getLogSchemaName() ];
         log.reftype = schemaName;
-        log.refid = entity.get( primKey );
+        log.refid = e.get( primKey );
         log.remarks = remarks;
         log.oldvalue = oldValues;
         log.newvalue = u;
         log.action = "update";
         e._loginfo = log; 
         changeInfoSvc.save( e );
+        if(beforeSave) beforeSave(e);
         if(handler) handler();
         return "_close";
     }
