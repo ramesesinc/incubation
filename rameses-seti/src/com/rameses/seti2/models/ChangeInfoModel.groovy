@@ -13,7 +13,7 @@ import com.rameses.util.*;
 /*******************************************************************************
  * Limitation: There should only be 1 primary key
  *******************************************************************************/
-public class DataEditorModel extends DynamicForm {
+public class ChangeInfoModel extends DynamicForm {
     
     @Service("ChangeInfoService")
     def changeInfoSvc;

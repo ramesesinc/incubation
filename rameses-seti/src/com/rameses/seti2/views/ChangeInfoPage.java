@@ -12,12 +12,12 @@ import com.rameses.rcp.ui.annotations.Template;
  * @author dell
  */
 @Template(OKCancelPage.class)
-public class DataEditorPage extends javax.swing.JPanel {
+public class ChangeInfoPage extends javax.swing.JPanel {
 
     /**
      * Creates new form ChangeInfoPage
      */
-    public DataEditorPage() {
+    public ChangeInfoPage() {
         initComponents();
     }
     
