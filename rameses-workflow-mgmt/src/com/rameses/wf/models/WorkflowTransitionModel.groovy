@@ -61,7 +61,7 @@ public class WorkflowTransitionModel  {
         item.info.putAll( entity );
         propList.each {
             def val = it.value; 
-            if(val?.matches("true|false")) val = Boolean.parseBoolean( val );
+            if((""+val).matches("true|false")) val = Boolean.parseBoolean( ""+val );
             entity.properties[(it.key)] = val;
         }
         if(visibleWhen) entity.properties.visibleWhen = visibleWhen;
