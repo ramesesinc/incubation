@@ -173,6 +173,11 @@ public class SchemaListComponent extends ComponentBean  {
             } 
             return true; 
         },
+        onColumnUpdate: { o, name-> 
+            if ( _handler?.onColumnUpdate ) { 
+                return _handler.onColumnUpdate( o, name );  
+            } 
+        },
         afterColumnUpdate: { o, name-> 
             if ( _handler?.afterColumnUpdate ) { 
                 return _handler.afterColumnUpdate( o, name );  
