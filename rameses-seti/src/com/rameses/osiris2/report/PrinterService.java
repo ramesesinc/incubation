@@ -4,7 +4,6 @@
  */
 package com.rameses.osiris2.report;
 
-import com.rameses.rcp.common.MsgBox;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -80,9 +79,10 @@ public class PrinterService implements Printable {
 
 
             job.print(doc, null);
+        } catch (RuntimeException re) {
+            throw re; 
         } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            throw new RuntimeException(e); 
         }
     }
 
@@ -99,8 +99,10 @@ public class PrinterService implements Printable {
             Doc doc = new SimpleDoc(bytes, flavor, null);
             job.print(doc, null);
 
+        } catch (RuntimeException re) {
+            throw re; 
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException(e); 
         }
     }
 
