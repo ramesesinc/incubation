@@ -95,7 +95,7 @@ public class DynamicForm  {
             if(!i.sortorder) i.sortorder = 0;
             
             x.each { kk,vv->
-                if( !kk.matches("name|datatype|caption|title|category|required|enabled|depends|arrayvalues|sortorder") ) {
+                if( !kk.matches("name|datatype|caption|title|category|required|enabled|depends|arrayvalues|sortorder,showCaption,preferredSize") ) {
                     i.put(kk,vv);
                 }
             }
