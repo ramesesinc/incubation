@@ -117,10 +117,12 @@ public class MsSqlDialect extends AbstractSqlDialect  {
     }    
     
     private String getPagingStatementDefault( SqlDialectModel model ) { 
+        int _start = model.getStart();
+        int _limit = model.getLimit();
         StringBuilder buff = new StringBuilder();
         buff.append(" SELECT ");      
         if ( model.getLimit() > 0) { 
-            buff.append("TOP ($P{_limit}+$P{_start}+1) "); 
+            buff.append("TOP "+ (_limit + _start + 1)); 
         } else { 
             buff.append("TOP 1000 "); 
         } 
@@ -156,14 +158,17 @@ public class MsSqlDialect extends AbstractSqlDialect  {
         StringBuilder sb = new StringBuilder();
         sb.append(" SELECT "); 
         if ( model.getLimit() > 0 ) {
-            sb.append(" TOP " + model.getLimit() );
+            sb.append(" TOP " + model.getLimit() ).append(" ");
         }
         sb.append(" * FROM ( ").append( buff2 ).append(" )t2  "); 
-        sb.append(" WHERE _rownum_ > $P{_start} "); 
+        sb.append(" WHERE _rownum_ > "+ _start); 
         return sb.toString(); 
     } 
     
     private String getPagingStatementVer2000( SqlDialectModel model ) { 
+        int _start = model.getStart(); 
+        int _limit = model.getLimit(); 
+        
         String pagingKey = getPagingKey( model ); 
         StringBuilder buff = new StringBuilder();
         if ( model.getOrWhereList() == null || model.getOrWhereList().isEmpty()) {
@@ -193,7 +198,7 @@ public class MsSqlDialect extends AbstractSqlDialect  {
         StringBuilder topbuff = new StringBuilder(); 
         topbuff.append(" SELECT ");      
         if ( model.getLimit() > 0) { 
-            topbuff.append("TOP ($P{_limit}+$P{_start}+1) "); 
+            topbuff.append("TOP "+ (_limit + _start + 1)).append(" "); 
         } else { 
             topbuff.append("TOP 1000 "); 
         } 
@@ -203,7 +208,7 @@ public class MsSqlDialect extends AbstractSqlDialect  {
         } 
         
         StringBuilder childbuff = new StringBuilder(); 
-        childbuff.append(" SELECT TOP ($P{_start}) "); 
+        childbuff.append(" SELECT TOP "+ _start).append(" "); 
         childbuff.append( buff ); 
 
         buff = new StringBuilder(); 
@@ -217,7 +222,7 @@ public class MsSqlDialect extends AbstractSqlDialect  {
         StringBuilder sb = new StringBuilder();
         sb.append(" SELECT "); 
         if ( model.getLimit() > 0 ) {
-            sb.append(" TOP " + model.getLimit() );
+            sb.append(" TOP " + model.getLimit() ).append(" ");
         }
         sb.append(" * FROM ( ").append( buff ).append(" )xxx  "); 
         return sb.toString(); 
@@ -247,7 +252,7 @@ public class MsSqlDialect extends AbstractSqlDialect  {
         if ( so.hasSelectTop ) { 
             buff.append( so.sqlSelectTop ); 
         } else if ( so.limit > 0 ) { 
-            buff.append(" TOP "+ (so.limit + so.start));
+            buff.append(" TOP "+ (so.limit + so.start)).append(" ");
         } else { 
             buff.append(" TOP 1000 "); 
         } 
@@ -275,7 +280,7 @@ public class MsSqlDialect extends AbstractSqlDialect  {
         StringBuilder tmpb = new StringBuilder();
         tmpb.append(" SELECT ");
         if ( so.limit > 0 ) {
-            tmpb.append(" TOP " + so.limit); 
+            tmpb.append(" TOP " + so.limit).append(" "); 
         } 
         tmpb.append(" * FROM ( ").append( tmpa ).append(" )tmpb "); 
         if ( so.start >= 0 ) { 
@@ -301,7 +306,7 @@ public class MsSqlDialect extends AbstractSqlDialect  {
         if ( so.hasSelectTop ) { 
             buff.append( so.sqlSelectTop ); 
         } else if ( so.limit > 0 ) { 
-            buff.append(" TOP "+ (so.limit + so.start)); 
+            buff.append(" TOP "+ (so.limit + so.start)).append(" "); 
         } else { 
             buff.append(" TOP 1000 "); 
         } 
@@ -340,7 +345,7 @@ public class MsSqlDialect extends AbstractSqlDialect  {
         buff = new StringBuilder(); 
         buff.append(" SELECT ");
         if ( so.limit > 0 ) {
-            buff.append(" TOP " + so.limit); 
+            buff.append(" TOP " + so.limit).append(" "); 
         } 
         buff.append(" * FROM ( ").append( at1 ).append(" )xxx ");  
         return buff.toString(); 
