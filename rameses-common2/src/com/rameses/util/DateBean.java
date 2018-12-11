@@ -126,4 +126,17 @@ public class DateBean {
         cal2.set( Calendar.DAY_OF_MONTH, ds );
         return cal2.getTime();
     }
+    
+    public Date add( String interval ) {
+        Date newDate = DateUtil.add( getDate(), interval ); 
+        Calendar newCal = Calendar.getInstance();
+        newCal.setTime( newDate );
+        this.cal = newCal;
+        this.date = newDate; 
+        return getDate(); 
+    }
+    
+    public String format( String pattern ) {
+        return new SimpleDateFormat( pattern ).format( getDate() ); 
+    }
 }

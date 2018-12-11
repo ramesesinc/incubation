@@ -44,7 +44,7 @@ public class AsyncTask implements Runnable
                 AsyncPoller poller = new AsyncPoller(proxy.getConf(), token); 
                 handle( poller ); 
                 return;
-            }             
+            } 
             notify( result );
             
         } catch ( Exception e ) { 
