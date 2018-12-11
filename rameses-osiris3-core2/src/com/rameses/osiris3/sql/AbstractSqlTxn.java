@@ -113,7 +113,6 @@ public abstract class AbstractSqlTxn {
     
     protected final void fillParameters( PreparedStatement ps ) throws Exception {
         int sz = parameterNames.size();
-        
         for( int i=0; i<sz;i++) {
             int colIndex = i+1;
             Object key = parameterNames.get(i);
