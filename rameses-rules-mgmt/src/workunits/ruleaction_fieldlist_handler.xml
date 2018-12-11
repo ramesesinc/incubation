@@ -21,12 +21,16 @@
             void init() {
                 if(varList) return;
                 String lookupkey = actionParamDef.lookupkey;
-                def fact = action.params.find{ it.actiondefparam.handler == "var" && it.actiondefparam.name == lookupkey  }?.var;
+                if(!lookupkey)
+                    throw new Exception("Var lookup key not exit " + lookupkey );
+                //def fact = action.params.find{ it.actiondefparam.handler == "var" && it.actiondefparam.name == lookupkey  }?.var;
                 
-                if( fact == null )
-                    throw new Exception("Fact reference does nto exist");
+                //if( fact == null )
+                //    throw new Exception("Fact reference does not exist");
                 //lookup fields in the fact. 
-                varList =  service.getFactFields( [objid: fact.datatype] );
+                varList =  service.getFactFields( [objid: lookupkey] );
+                if(!varList)
+                    throw new Exception("No fields found for " + lookupkey );
             }
         }
         ]]>

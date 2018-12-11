@@ -151,6 +151,7 @@ public class FormReportModel extends ReportModel {
         m.parameters = query;
         if(status) m.status = status;
         def newData = reportService.getData(m);
+        //println newData;
         if(newData.status!=null) status = newData.status;
         if( status !=0 ) {
             mergeData( newData );
