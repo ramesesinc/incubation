@@ -156,7 +156,7 @@ public class MsSqlDialect extends AbstractSqlDialect  {
         StringBuilder sb = new StringBuilder();
         sb.append(" SELECT "); 
         if ( model.getLimit() > 0 ) {
-            sb.append(" TOP ($P{_limit}) ");
+            sb.append(" TOP " + model.getLimit() );
         }
         sb.append(" * FROM ( ").append( buff2 ).append(" )t2  "); 
         sb.append(" WHERE _rownum_ > $P{_start} "); 
@@ -217,7 +217,7 @@ public class MsSqlDialect extends AbstractSqlDialect  {
         StringBuilder sb = new StringBuilder();
         sb.append(" SELECT "); 
         if ( model.getLimit() > 0 ) {
-            sb.append(" TOP ($P{_limit}) ");
+            sb.append(" TOP " + model.getLimit() );
         }
         sb.append(" * FROM ( ").append( buff ).append(" )xxx  "); 
         return sb.toString(); 
@@ -247,7 +247,7 @@ public class MsSqlDialect extends AbstractSqlDialect  {
         if ( so.hasSelectTop ) { 
             buff.append( so.sqlSelectTop ); 
         } else if ( so.limit > 0 ) { 
-            buff.append(" TOP ($P{_limit} + $P{_start}) "); 
+            buff.append(" TOP "+ (so.limit + so.start));
         } else { 
             buff.append(" TOP 1000 "); 
         } 
@@ -275,11 +275,11 @@ public class MsSqlDialect extends AbstractSqlDialect  {
         StringBuilder tmpb = new StringBuilder();
         tmpb.append(" SELECT ");
         if ( so.limit > 0 ) {
-            tmpb.append(" TOP ($P{_limit}) "); 
+            tmpb.append(" TOP " + so.limit); 
         } 
         tmpb.append(" * FROM ( ").append( tmpa ).append(" )tmpb "); 
         if ( so.start >= 0 ) { 
-            tmpb.append(" WHERE _rownum_ > $P{_start} " ); 
+            tmpb.append(" WHERE _rownum_ > "+ so.start ); 
             //sb.append(" ORDER BY _rownum_ "); 
         } 
         return tmpb.toString();  
@@ -301,7 +301,7 @@ public class MsSqlDialect extends AbstractSqlDialect  {
         if ( so.hasSelectTop ) { 
             buff.append( so.sqlSelectTop ); 
         } else if ( so.limit > 0 ) { 
-            buff.append(" TOP ($P{_limit} + $P{_start}) "); 
+            buff.append(" TOP "+ (so.limit + so.start)); 
         } else { 
             buff.append(" TOP 1000 "); 
         } 
@@ -324,7 +324,7 @@ public class MsSqlDialect extends AbstractSqlDialect  {
         at1.append(" WHERE ").append( pagingKey ).append(" NOT IN ( "); 
         
         buff = new StringBuilder(); 
-        buff.append( so.selectBuilder ).append(" TOP ($P{_start}) ").append(" "); 
+        buff.append( so.selectBuilder ).append(" TOP "+ so.start ).append(" "); 
         buff.append( so.hasSelectTop ? so.sqlSelectCols : so.columnBuilder ).append(" ");
         buff.append( so.fromBuilder ); 
         buff.append( so.whereBuilder ); 
@@ -340,7 +340,7 @@ public class MsSqlDialect extends AbstractSqlDialect  {
         buff = new StringBuilder(); 
         buff.append(" SELECT ");
         if ( so.limit > 0 ) {
-            buff.append(" TOP ($P{_limit}) "); 
+            buff.append(" TOP " + so.limit); 
         } 
         buff.append(" * FROM ( ").append( at1 ).append(" )xxx ");  
         return buff.toString(); 

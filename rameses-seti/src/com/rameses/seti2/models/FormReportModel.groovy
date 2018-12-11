@@ -113,19 +113,19 @@ public class FormReportModel extends ReportModel {
         //build control parameters
         def m = getConfInfo();
         formControls.clear();
-        def p = reportService.getParameters(m);
-        if( !p.parameters ) {
-            throw new Exception("No parameters specified! Please specify at least one parameter");
-        }
+        def p = reportService.getParameters(m); 
+        if ( p == null ) p = [:]; 
+        if ( p.parameters == null ) p.parameters = []; 
+        
         for( x in p.parameters ) {
             def i = FormControlUtil.createControl( x, query, "query" );
-            if(i==null) continue;
-            if(_captionWidth!=null) {
+            if ( i == null) continue;
+            if ( _captionWidth != null ) {
                 i.captionWidth = _captionWidth;
-            }
+            } 
             initControl(i);
             formControls << i;
-        }
+        } 
         return mode;
     }
     
