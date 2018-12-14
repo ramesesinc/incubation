@@ -32,6 +32,12 @@ public class WorkflowNodeModel  {
     def propListModel = [
         fetchList: { o->
             return propList;
+        },
+        addItem: { o->
+            propList.add(o);
+        },
+        removeItem: { o->
+            propList.remove(o);
         }
     ] as EditorListModel;
     

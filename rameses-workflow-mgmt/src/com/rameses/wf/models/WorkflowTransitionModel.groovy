@@ -52,6 +52,12 @@ public class WorkflowTransitionModel  {
     def propListModel = [
         fetchList: { o->
             return propList;
+        },
+        addItem: { o->
+            propList << o;
+        },
+        removeItem: { o->
+            propList.remove(o);
         }
     ] as EditorListModel;
     
