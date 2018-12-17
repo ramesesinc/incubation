@@ -38,7 +38,7 @@ public class WorkflowNodePage extends javax.swing.JPanel {
         xTextField1 = new com.rameses.rcp.control.XTextField();
         xTextField2 = new com.rameses.rcp.control.XTextField();
         xLabel1 = new com.rameses.rcp.control.XLabel();
-        xLabel2 = new com.rameses.rcp.control.XLabel();
+        xIntegerField2 = new com.rameses.rcp.control.XIntegerField();
         xIntegerField1 = new com.rameses.rcp.control.XIntegerField();
         xCheckBox1 = new com.rameses.rcp.control.XCheckBox();
         xPanel3 = new com.rameses.rcp.control.XPanel();
@@ -67,13 +67,15 @@ public class WorkflowNodePage extends javax.swing.JPanel {
         xLabel1.setExpression("#{ entity.nodetype }");
         xFormPanel1.add(xLabel1);
 
-        xLabel2.setCaption("Index");
-        xLabel2.setExpression("#{ entity.idx }");
-        xFormPanel1.add(xLabel2);
+        xIntegerField2.setCaption("Index");
+        xIntegerField2.setName("entity.idx"); // NOI18N
+        xIntegerField2.setPreferredSize(new java.awt.Dimension(60, 20));
+        xIntegerField2.setRequired(true);
+        xFormPanel1.add(xIntegerField2);
 
         xIntegerField1.setCaption("Salience");
         xIntegerField1.setName("entity.salience"); // NOI18N
-        xIntegerField1.setPreferredSize(new java.awt.Dimension(40, 20));
+        xIntegerField1.setPreferredSize(new java.awt.Dimension(60, 20));
         xFormPanel1.add(xIntegerField1);
 
         xCheckBox1.setCaption("");
@@ -212,8 +214,8 @@ public class WorkflowNodePage extends javax.swing.JPanel {
     private com.rameses.rcp.control.XFormPanel xFormPanel1;
     private com.rameses.rcp.control.XFormPanel xFormPanel2;
     private com.rameses.rcp.control.XIntegerField xIntegerField1;
+    private com.rameses.rcp.control.XIntegerField xIntegerField2;
     private com.rameses.rcp.control.XLabel xLabel1;
-    private com.rameses.rcp.control.XLabel xLabel2;
     private com.rameses.rcp.control.XPanel xPanel1;
     private com.rameses.rcp.control.XPanel xPanel2;
     private com.rameses.rcp.control.XPanel xPanel3;

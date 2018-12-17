@@ -20,6 +20,14 @@ public class WorkflowNodeModel  {
     def entity;
     def propList = [];
     
+    @PropertyChangeListener
+    def listener = [
+        "entity.idx" : { o->
+            item.index = o;
+        }
+    ]
+    
+    
     void init() {
         entity = MapBeanUtils.copy( item.info );
         entity.nodetype = item.type;
