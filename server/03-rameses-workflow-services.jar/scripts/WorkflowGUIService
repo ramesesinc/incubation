@@ -94,7 +94,7 @@ class WorkflowGUIService {
             u.ui = it.ui;
             u.idx = it.index;
 
-            println "idx is " + u.idx;
+            //println "idx is " + u.idx;
 
             if(!u.properties) u.properties = [:];
             if( !u.title ) u.title = u.name;
