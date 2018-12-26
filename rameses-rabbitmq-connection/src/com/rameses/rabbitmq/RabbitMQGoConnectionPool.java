@@ -5,21 +5,24 @@
 package com.rameses.rabbitmq;
 
 import com.rabbitmq.client.ConnectionFactory;
+import com.rabbitmq.tools.json.JSONUtil;
+import com.rameses.http.HttpClient;
+import com.rameses.http.HttpClient;
 import com.rameses.osiris3.core.AbstractContext;
 import com.rameses.osiris3.script.messaging.ScriptInvokerHandler;
 import com.rameses.osiris3.script.messaging.ScriptResponseHandler;
 import com.rameses.osiris3.xconnection.MessageConnection;
 import com.rameses.osiris3.xconnection.MessageHandler;
-import java.util.ArrayList;
+import com.rameses.util.Base64Cipher;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import net.sf.json.JSONSerializer;
 
 /**
  *
  * @author Toshiba
  */
-public class RabbitMQConnectionPool extends MessageConnection
+public class RabbitMQGoConnectionPool extends MessageConnection
 {
     private Map conf;
     private Map appConf;
@@ -29,9 +32,9 @@ public class RabbitMQConnectionPool extends MessageConnection
     private boolean started;
 
     private API api;
-    private List<RabbitMQConnection> pool = new ArrayList<RabbitMQConnection>();
+    private RabbitMQConnection rabbit;
 
-    public RabbitMQConnectionPool(Map conf, AbstractContext context, String name){
+    public RabbitMQGoConnectionPool(Map conf, AbstractContext context, String name){
         this.started = false;
         this.name = name;
         this.conf = conf;
@@ -63,33 +66,23 @@ public class RabbitMQConnectionPool extends MessageConnection
         if ( started ) return;
         started = true;
         
-        int poolSize = 1;
-        try { 
-            poolSize = Integer.parseInt(getProperty("poolSize"));
-        } catch(Throwable t) {;}  
-
         Object apphost = appConf.get("app.host");
         
         System.out.println("Initializing RabbitMQ Connection Factory (v2.0)...");
         ConnectionFactory factory = createConnectionFactory(); 
         
-        for (int i = 0; i<poolSize; i++ ) { 
-            String sname = name +"-"+ (i+1);
-            RabbitMQConnection rabbit = new RabbitMQConnection(sname, context, conf); 
-            
-            if ( apphost == null ) {
-                rabbit.addHandler( new MessageHandlerProxy());
-            } else { 
-                RabbitResponseHandler rrh = new RabbitResponseHandler( rabbit );
-                ScriptInvokerHandler handler = new ScriptInvokerHandler(appConf, rrh);
-                rabbit.addHandler(handler);
-            } 
-            
-            rabbit.setAPI(api);
-            rabbit.setFactory(factory); 
-            rabbit.start();
-            pool.add(rabbit);
-        }
+        rabbit = new RabbitMQConnection(name, context, conf); 
+        if ( apphost == null ) {
+            rabbit.addHandler( new MessageHandlerProxy());
+        } else { 
+            GoResponseHandler rrh = new GoResponseHandler( );
+            ScriptInvokerHandler handler = new ScriptInvokerHandler(appConf, rrh);
+            rabbit.addHandler(handler);
+        } 
+
+        rabbit.setAPI(api);
+        rabbit.setFactory(factory); 
+        rabbit.start();
     }
 
     private ConnectionFactory createConnectionFactory() {
@@ -116,11 +109,9 @@ public class RabbitMQConnectionPool extends MessageConnection
 
     @Override
     public void stop() {
-        for(RabbitMQConnection c : pool){
-            try {
-                c.stop();
-            } catch(Throwable e){;}
-        }
+        try {
+            rabbit.stop();
+        } catch(Throwable e){;}
     }
 
     @Override
@@ -140,35 +131,26 @@ public class RabbitMQConnectionPool extends MessageConnection
 
     @Override
     public void send(Object data, String queueName) {
-        if (pool.size() > 0){
-            RabbitMQConnection conn = pool.get(0);
-            conn.send(data, queueName);
-        }
+        rabbit.send(data, queueName);
     }
 
     @Override
     public void addResponseHandler(String tokenid, MessageHandler handler) throws Exception {
-        for(RabbitMQConnection mc : pool){
-            mc.addResponseHandler(tokenid, handler);
-        }
+        rabbit.addResponseHandler(tokenid, handler);
     }
     
     public void addQueue(String queueName, String exchange) throws Exception {
         if(exchange==null) {
             exchange = (String)conf.get("exchange");
         }
-        for(RabbitMQConnection mc : pool){
-            mc.addQueue(queueName, exchange);
-        }
+        rabbit.addQueue(queueName, exchange);
     }    
     
     public void removeQueue(String queueName, String exchange)  {
         if(exchange==null) {
             exchange = (String)conf.get("exchange");
         }
-        for(RabbitMQConnection mc : pool){
-            mc.removeQueue(queueName, exchange);
-        }
+        rabbit.removeQueue(queueName, exchange);
     }    
     
     private class MessageHandlerProxy implements MessageHandler {
@@ -178,7 +160,7 @@ public class RabbitMQConnectionPool extends MessageConnection
         } 
 
         public void onMessage(Object data) { 
-            RabbitMQConnectionPool.this.notifyHandlers( data ); 
+            RabbitMQGoConnectionPool.this.notifyHandlers( data ); 
         } 
     } 
     
@@ -190,16 +172,24 @@ public class RabbitMQConnectionPool extends MessageConnection
         return ( o == null ? null: o.toString()); 
     } 
     
-    private class RabbitResponseHandler implements ScriptResponseHandler {
-
-        private RabbitMQConnection mq ;
-        
-        RabbitResponseHandler( RabbitMQConnection mq ) { 
-            this.mq = mq;
+    private class GoResponseHandler implements ScriptResponseHandler {
+        GoResponseHandler(  ) { 
         }
         
         public void send(Map map) {
-            mq.send(map.get("result"), map.get("tokenid").toString());
+            try {
+                Base64Cipher base64 = new Base64Cipher();
+                Object result = map.get("result"); 
+                result = base64.decode(result.toString()); 
+                result = JSONSerializer.toJSON(result); 
+                
+                HttpClient c = new HttpClient("192.168.254.105:8082");
+                System.out.println("posting to "+ map.get("tokenid"));
+                c.post("gdx-notifier/publish/"+map.get("tokenid"), result.toString()); 
+                System.out.println("after post -> " + result);
+            } catch(Throwable t) {
+                t.printStackTrace();
+            }
         }
     }
 }

@@ -4,7 +4,6 @@
  */
 package com.rameses.osiris3.script.messaging;
 
-import com.rameses.osiris3.xconnection.MessageConnection;
 import com.rameses.osiris3.xconnection.MessageHandler;
 import com.rameses.service.ScriptServiceContext;
 import com.rameses.service.ServiceProxy;
@@ -18,11 +17,11 @@ import java.util.Map;
  */
 public class ScriptInvokerHandler implements MessageHandler{
     private Map conf;
-    private MessageConnection parentConn;
+    private ScriptResponseHandler handler;
     
-    public ScriptInvokerHandler(Map conf, MessageConnection parentConn){
+    public ScriptInvokerHandler(Map conf, ScriptResponseHandler handler){
         this.conf = conf;
-        this.parentConn = parentConn;
+        this.handler = handler;
     }
     
     @Override
@@ -76,7 +75,11 @@ public class ScriptInvokerHandler implements MessageHandler{
             }
             
             String encdata = new Base64Cipher().encode( res ); 
-            parentConn.send( encdata, (String)req.get("tokenid") ); 
+            
+            Map hparam = new HashMap(); 
+            hparam.put("result", encdata); 
+            hparam.put("tokenid", req.get("tokenid"));
+            handler.send( hparam); 
         }
     }
     
