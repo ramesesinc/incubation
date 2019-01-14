@@ -47,6 +47,7 @@ public abstract class AbstractListDataProvider
     private int fetchedRows;
     private int totalRows; 
     private boolean processing;
+    private boolean forceUpdate;
     
     private boolean autoResize = true; 
     private boolean multiSelect;
@@ -99,6 +100,11 @@ public abstract class AbstractListDataProvider
     public boolean isAutoResize() { return autoResize; } 
     public void setAutoResize( boolean autoResize ) {
         this.autoResize = autoResize; 
+    }
+    
+    public boolean isForceUpdate() { return forceUpdate; } 
+    public void setForceUpdate( boolean forceUpdate ) {
+        this.forceUpdate = forceUpdate; 
     }
     
     public MultiSelectionSupport getMultiSelectionSupport() {

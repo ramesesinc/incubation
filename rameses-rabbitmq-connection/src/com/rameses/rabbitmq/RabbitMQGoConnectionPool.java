@@ -5,18 +5,20 @@
 package com.rameses.rabbitmq;
 
 import com.rabbitmq.client.ConnectionFactory;
-import com.rabbitmq.tools.json.JSONUtil;
-import com.rameses.http.HttpClient;
 import com.rameses.http.HttpClient;
 import com.rameses.osiris3.core.AbstractContext;
 import com.rameses.osiris3.script.messaging.ScriptInvokerHandler;
 import com.rameses.osiris3.script.messaging.ScriptResponseHandler;
 import com.rameses.osiris3.xconnection.MessageConnection;
 import com.rameses.osiris3.xconnection.MessageHandler;
+import com.rameses.service.ScriptServiceContext;
 import com.rameses.util.Base64Cipher;
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
 import net.sf.json.JSONSerializer;
+import net.sf.json.JsonConfig;
+import net.sf.json.processors.JsonValueProcessor;
 
 /**
  *
@@ -173,23 +175,110 @@ public class RabbitMQGoConnectionPool extends MessageConnection
     } 
     
     private class GoResponseHandler implements ScriptResponseHandler {
-        GoResponseHandler(  ) { 
+
+        GoResponseHandler() { 
         }
         
         public void send(Map map) {
             try {
-                Base64Cipher base64 = new Base64Cipher();
-                Object result = map.get("result"); 
-                result = base64.decode(result.toString()); 
-                result = JSONSerializer.toJSON(result); 
+                Object token = map.get("tokenid"); 
+                if ( token == null ) {
+                    System.out.println("Could not push result to cache server caused by tokenid not set."); 
+                    return; 
+                } 
                 
-                HttpClient c = new HttpClient("192.168.254.105:8082");
-                System.out.println("posting to "+ map.get("tokenid"));
-                c.post("gdx-notifier/publish/"+map.get("tokenid"), result.toString()); 
-                System.out.println("after post -> " + result);
-            } catch(Throwable t) {
-                t.printStackTrace();
+                String tokenid = token.toString(); 
+                Object result = map.get("result"); 
+                Base64Cipher base64 = new Base64Cipher();       
+                result = base64.decode(result.toString()); 
+
+                Map reply = new HashMap(); 
+                reply.put("status", "success"); 
+                reply.put("message", "success"); 
+                if ( result instanceof Throwable ) { 
+                    Throwable t = ((Throwable) result); 
+                    t.printStackTrace(); 
+                    t = getCause(t); 
+                    
+                    reply.put("status", "error"); 
+                    reply.put("message", t.getMessage()); 
+                    result = reply; 
+                } 
+                
+                JsonConfig jc = new JsonConfig();
+                jc.registerJsonValueProcessor(java.util.Date.class, new JsonDateValueProcessor());
+                jc.registerJsonValueProcessor(java.sql.Date.class, new JsonDateValueProcessor());
+                jc.registerJsonValueProcessor(java.sql.Timestamp.class, new JsonDateValueProcessor());
+                result = JSONSerializer.toJSON(result, jc); 
+                
+                reply.put("tokenid", tokenid);
+                Object wsreply = JSONSerializer.toJSON(reply, jc); 
+                
+                pushToCache( tokenid, result.toString() ); 
+                
+                Object golangHost = appConf.get("golang.host");                 
+                HttpClient httpc = new HttpClient( golangHost.toString());
+                System.out.println("[golang] post result to "+ tokenid);
+                httpc.post("gdx-notifier/publish/"+ tokenid, wsreply.toString()); 
+            } catch(Throwable t) { 
+                t.printStackTrace(); 
+            } 
+        }
+        
+        private Throwable getCause( Throwable t ) {
+            Throwable p = t; 
+            while (p != null) {
+                if ( p.getMessage() != null ) return p; 
+                
+                p = p.getCause(); 
             }
+            return t; 
+        }
+        
+        private void pushToCache( String tokenid, Object result ) {
+            Object cacheHost = appConf.get("cache.host");
+            if ( cacheHost == null ) cacheHost = "localhost"; 
+            
+            Object cacheCluster = appConf.get("cache.cluster");
+            Object cacheContext = appConf.get("cache.context");
+            Object cacheTimeout = appConf.get("cache.timeout");
+            if ( cacheTimeout == null ) cacheTimeout = 60000; 
+            
+            Map appenv = new HashMap();
+            appenv.put("app.host", cacheHost);
+            appenv.put("app.cluster", cacheCluster);
+            appenv.put("app.context", cacheContext);     
+            ScriptServiceContext ctx = new ScriptServiceContext(appenv);
+            ICacheService svc = ctx.create("CacheService", ICacheService.class);
+            
+            Map param = new HashMap(); 
+            param.put("key", tokenid);
+            param.put("value", result); 
+            param.put("timeout", cacheTimeout); 
+            svc.put( param ); 
+        }
+    }
+    
+    public interface ICacheService {
+        Object put( Object param ); 
+    }
+    
+    private class JsonDateValueProcessor implements JsonValueProcessor {
+
+        private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd mm:hh:ss"); 
+        
+        public Object processArrayValue(Object value, JsonConfig jc) { 
+            if ( value instanceof java.util.Date ) {
+                return sdf.format((java.util.Date) value); 
+            }
+            return "";
+        }
+
+        public Object processObjectValue(String name, Object value, JsonConfig jc) { 
+            if ( value instanceof java.util.Date ) {
+                return sdf.format((java.util.Date) value); 
+            }
+            return "";
         }
     }
 }
