@@ -23,7 +23,6 @@ class CacheService {
 			timeout = new Integer( params.timeout.toString() ); 
 		} catch(Throwable t) {;} 
 
-                println '> '+ params;
 		if ( timeout == null ) {
 			xconn.put( params.key.toString(), params.value ); 
 		} else { 
