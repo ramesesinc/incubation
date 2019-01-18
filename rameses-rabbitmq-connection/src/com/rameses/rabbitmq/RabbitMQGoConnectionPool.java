@@ -205,10 +205,10 @@ public class RabbitMQGoConnectionPool extends MessageConnection
                     result = reply; 
                 } 
                 
-                JsonConfig jc = new JsonConfig();
-                jc.registerJsonValueProcessor(java.util.Date.class, new JsonDateValueProcessor());
-                jc.registerJsonValueProcessor(java.sql.Date.class, new JsonDateValueProcessor());
-                jc.registerJsonValueProcessor(java.sql.Timestamp.class, new JsonDateValueProcessor());
+                JsonConfig jc = new JsonConfig(); 
+                jc.registerJsonValueProcessor(java.util.Date.class, new JsonDateValueProcessor()); 
+                jc.registerJsonValueProcessor(java.sql.Date.class, new JsonDateValueProcessor()); 
+                jc.registerJsonValueProcessor(java.sql.Timestamp.class, new JsonDateValueProcessor()); 
                 result = JSONSerializer.toJSON(result, jc); 
                 
                 reply.put("tokenid", tokenid);
