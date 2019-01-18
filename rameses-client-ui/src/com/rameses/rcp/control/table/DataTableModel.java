@@ -225,7 +225,9 @@ public class DataTableModel extends AbstractTableModel implements TableControlMo
     }  
 
     public void setValueAt(Object value, int rowIndex, int columnIndex) {
-        setValueAt( value, rowIndex, columnIndex, false );
+        AbstractListDataProvider dp = getDataProvider(); 
+        boolean forceUpdate = ( dp == null ? false : dp.isForceUpdate());
+        setValueAt( value, rowIndex, columnIndex, forceUpdate );
     }
     
     public void setValueAt(Object value, int rowIndex, int columnIndex, boolean forceUpdate) {
@@ -274,9 +276,10 @@ public class DataTableModel extends AbstractTableModel implements TableControlMo
                 oldValue = resolver.getProperty(item, column.getName()); 
             } catch(Throwable t) {;} 
 
+            boolean has_value_changed = hasValueChanged(oldValue, value); 
             if ( forceUpdate ) {
                 //do nothing 
-            } else if (!hasValueChanged(oldValue, value)) {
+            } else if ( !has_value_changed ) {
                 // exit if no changes made 
                 return; 
             } 
@@ -293,9 +296,11 @@ public class DataTableModel extends AbstractTableModel implements TableControlMo
             } 
             fireTableRowsUpdated(rowIndex, rowIndex); 
 
-            try { 
-                binding.getChangeLog().addEntry(item, column.getName(), oldValue, value);
-            } catch(Throwable t) {;} 
+            if ( has_value_changed ) {
+                try { 
+                    binding.getChangeLog().addEntry(item, column.getName(), oldValue, value);
+                } catch(Throwable t) {;} 
+            }
             
             //fire notification after the column has been updated
             if (editorSupport != null) editorSupport.fireColumnUpdate(li); 

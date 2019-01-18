@@ -61,7 +61,7 @@ public class RemoteScriptRunnable extends ScriptRunnable implements MessageHandl
     public void run() {
         try {
             //assign the token before hand
-            tokenid = "TOKEN"+new UID();
+            String tokenid = getTokenid();
 
             if( getMethodName().matches("stringInterface|metaInfo")) {
                 CacheConnection cache = (CacheConnection)context.getResource(XConnection.class, "remote-script-cache");
@@ -76,7 +76,6 @@ public class RemoteScriptRunnable extends ScriptRunnable implements MessageHandl
                 if( result == null ) {
                     throw new Exception("service name " + getHostName() + ":" + getServiceName() + " not found!");
                 }
-                listener.onClose();
                 return;
             }
             else {
@@ -88,8 +87,8 @@ public class RemoteScriptRunnable extends ScriptRunnable implements MessageHandl
                     throw new Exception(_connName + " not found or peorperly defined in connections" );
                 }
                 //attach immediate response handler
-                xconn.addResponseHandler( tokenid, this ); 
-                xconn.start();
+                //xconn.addResponseHandler( tokenid, this ); 
+                //xconn.start();
                 
                 //send the header to the destination
                 Map map = new HashMap();
@@ -107,6 +106,7 @@ public class RemoteScriptRunnable extends ScriptRunnable implements MessageHandl
         }
         catch(Exception ex) {
             err = ex;
+        } finally {
             listener.onClose();
         }
     }
@@ -128,7 +128,7 @@ public class RemoteScriptRunnable extends ScriptRunnable implements MessageHandl
             if(xconn==null) {
                 throw new Exception("remote-script-mq not properly defined in connections" );
             } 
-            xconn.removeQueue(tokenid);
+            xconn.removeQueue(getTokenid());
         }
         catch(Exception ex) {
             err = ex;
@@ -146,12 +146,29 @@ public class RemoteScriptRunnable extends ScriptRunnable implements MessageHandl
             if(xconn==null) {
                 throw new Exception("remote-script-mq not properly defined in connections" );
             } 
-            xconn.removeQueue(tokenid);
+            xconn.removeQueue(getTokenid());
         }
         catch(Exception ign) {
             System.out.println("Error in RemoteScriptRunnable.cancel." + ign.getMessage());
         }
         super.cancel();
+    }
+
+    /**
+     * @return the tokenid
+     */
+    public String getTokenid() {
+        if (tokenid == null) {
+            tokenid = "TOKEN"+new UID();
+        }
+        return tokenid;
+    }
+
+    /**
+     * @param tokenid the tokenid to set
+     */
+    public void setTokenid(String tokenid) {
+        this.tokenid = tokenid;
     }
     
     

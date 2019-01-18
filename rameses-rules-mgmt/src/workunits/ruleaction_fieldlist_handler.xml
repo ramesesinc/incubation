@@ -15,6 +15,9 @@
         
             @Service("RuleMgmtService")
             def service;
+            
+            @Service("QueryService")
+            def querySvc;
 
             def varList;
 
@@ -23,11 +26,17 @@
                 String lookupkey = actionParamDef.lookupkey;
                 if(!lookupkey)
                     throw new Exception("Var lookup key not exit " + lookupkey );
-                def fact = action.params.find{ it.actiondefparam.handler == "var" && it.actiondefparam.name == lookupkey  }?.var;
-                if( fact == null )
-                    throw new Exception("Fact reference does not exist");
+                    
+                def var = action.params.find{ it.actiondefparam.handler == "var" && it.actiondefparam.name == lookupkey  }?.var;
+                if( var == null )
+                    throw new Exception("Var reference does not exist");
+                
+                def qp = [_schemaname:'sys_rule_condition_var'];
+                qp.findBy = [ruleid: action.parentid, varname: var.name]; 
+                def cvar = querySvc.findFirst( qp ); 
+                
                 //lookup fields in the fact. 
-                varList =  service.getFactFields( [objid: fact.datatype] );
+                varList =  service.getFactFields([ objid: cvar.datatype] );
                 if(!varList)
                     throw new Exception("No fields found for " + lookupkey );
             }
