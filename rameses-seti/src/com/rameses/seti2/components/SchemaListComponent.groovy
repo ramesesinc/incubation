@@ -197,7 +197,7 @@ public class SchemaListComponent extends ComponentBean  {
             } 
             return outcome; 
 	},
-        isForceUpdate: {
+        isForceUpdate: { 
             if ( _handler?.isForceUpdate ) {
                 return _handler.isForceUpdate(); 
             } 
