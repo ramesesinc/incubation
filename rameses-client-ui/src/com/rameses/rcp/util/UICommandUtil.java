@@ -138,6 +138,10 @@ public class UICommandUtil {
                     if ("true".equals(closeBehindOnStart+"")) {
                         binding.fireNavigation("_close"); 
                     } 
+                    
+                    if ( "topwindow".equalsIgnoreCase( opener.getTarget()+"")) {
+                        binding.fireNavigation("_close"); 
+                    }
                 }
             }
 

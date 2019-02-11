@@ -56,7 +56,7 @@ public class NavigationHandlerImpl implements NavigationHandler {
                 if (opTarget.startsWith("_")) 
                     opTarget = opTarget.substring(1);
 
-                boolean self = !opTarget.matches("window|popup|floating|popuppanel|popupmenu");
+                boolean self = !opTarget.matches("topwindow|window|popup|floating|popuppanel|popupmenu");
                 String windowId = opener.getController().getId();
 
                 if ( !self && platform.isWindowExists( windowId ) ) {
