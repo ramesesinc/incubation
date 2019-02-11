@@ -147,7 +147,7 @@ public class UICommandUtil {
         {
             Exception e = ExceptionManager.getOriginal(ex); 
             if (e instanceof IgnoreException || e instanceof BreakException) return null; 
-            
+         
             if (!ExceptionManager.getInstance().handleError(e)) { 
                 ctx.getPlatform().showError((JComponent) command, ex); 
             } 

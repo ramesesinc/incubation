@@ -4,11 +4,10 @@
  */
 package com.rameses.rabbitmq;
 
-import com.rabbitmq.client.Channel;
-import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import com.rameses.osiris3.core.AbstractContext;
 import com.rameses.osiris3.script.messaging.ScriptInvokerHandler;
+import com.rameses.osiris3.script.messaging.ScriptResponseHandler;
 import com.rameses.osiris3.xconnection.MessageConnection;
 import com.rameses.osiris3.xconnection.MessageHandler;
 import java.util.ArrayList;
@@ -81,7 +80,8 @@ public class RabbitMQConnectionPool extends MessageConnection
             if ( apphost == null ) {
                 rabbit.addHandler( new MessageHandlerProxy());
             } else { 
-                ScriptInvokerHandler handler = new ScriptInvokerHandler(appConf, rabbit);
+                RabbitResponseHandler rrh = new RabbitResponseHandler( rabbit );
+                ScriptInvokerHandler handler = new ScriptInvokerHandler(appConf, rrh);
                 rabbit.addHandler(handler);
             } 
             
@@ -189,4 +189,17 @@ public class RabbitMQConnectionPool extends MessageConnection
         Object o = (map == null? null: map.get(name)); 
         return ( o == null ? null: o.toString()); 
     } 
+    
+    private class RabbitResponseHandler implements ScriptResponseHandler {
+
+        private RabbitMQConnection mq ;
+        
+        RabbitResponseHandler( RabbitMQConnection mq ) { 
+            this.mq = mq;
+        }
+        
+        public void send(Map map) {
+            mq.send(map.get("result"), map.get("tokenid").toString());
+        }
+    }
 }

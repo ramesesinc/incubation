@@ -33,6 +33,7 @@ class RemoteScriptClientService {
         def list = new HashSet();
         def h = { m->
             def fileName = "remote/" + m.filename;
+            println 'registering service ... '+ fileName;
             def info = scriptSvc.findScriptInfo(fileName);	
             def metaInfo = info.getMetaInfo(  appContext );
             def newInfo = [:]

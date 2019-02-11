@@ -119,10 +119,11 @@ public class MsSqlDialect extends AbstractSqlDialect  {
     private String getPagingStatementDefault( SqlDialectModel model ) { 
         int _start = model.getStart();
         int _limit = model.getLimit();
+        String genkey = new java.rmi.server.UID().toString(); 
         StringBuilder buff = new StringBuilder();
         buff.append(" SELECT ");      
         if ( model.getLimit() > 0) { 
-            buff.append("TOP "+ (_limit + _start + 1)); 
+            buff.append("TOP "+ (_limit + _start + 1) +" "); 
         } else { 
             buff.append("TOP 1000 "); 
         } 
@@ -152,7 +153,7 @@ public class MsSqlDialect extends AbstractSqlDialect  {
         } 
 
         StringBuilder buff2 = new StringBuilder(); 
-        buff2.append(" SELECT ROW_NUMBER() OVER (ORDER BY (SELECT 1)) AS _rownum_, * ");
+        buff2.append(" SELECT ROW_NUMBER() OVER (ORDER BY (SELECT 1)) AS _rownum_, t1.* ");
         buff2.append(" FROM ( ").append( buff ).append(" )t1 "); 
 
         StringBuilder sb = new StringBuilder();
@@ -160,7 +161,8 @@ public class MsSqlDialect extends AbstractSqlDialect  {
         if ( model.getLimit() > 0 ) {
             sb.append(" TOP " + model.getLimit() ).append(" ");
         }
-        sb.append(" * FROM ( ").append( buff2 ).append(" )t2  "); 
+        sb.append(" t2.*, '").append( genkey ).append("' as _sqlkey_ "); 
+        sb.append(" FROM ( ").append( buff2 ).append(" )t2  "); 
         sb.append(" WHERE _rownum_ > "+ _start); 
         return sb.toString(); 
     } 

@@ -144,14 +144,26 @@ public class SqlDialectModel {
             }        
             sb.append(";");
         }
-        if( start > 0 ) sb.append("start:true;");
-        if( limit > 0 ) sb.append("limit:true;");
-        return sb.toString();
-    }
+        if ( start > 0 ) sb.append("start:true;");
+        if ( limit > 0 ) sb.append("limit:true;");
+        
+        if ( action != null && action.equalsIgnoreCase("select")) { 
+            sb.append("_sqlkey_:").append( getGenkey()).append(";"); 
+        } 
+        return sb.toString(); 
+    } 
     
-    public int getId() {
-        return toString().hashCode();
+    private String _genkey_; 
+    private String getGenkey() { 
+        if ( _genkey_ == null ) { 
+            _genkey_ = new java.rmi.server.UID().toString(); 
+        } 
+        return _genkey_; 
     }
+     
+    public int getId() { 
+        return toString().hashCode(); 
+    } 
      
     public String getTablename() {
         return tablename;

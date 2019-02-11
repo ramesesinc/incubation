@@ -45,7 +45,13 @@ class CacheService {
 		def xconn = currentContext.getResource( XConnection.class, connectionName ); 
 		if ( xconn==null ) throw new Exception(''+ connectionName + " connection file not found"); 
 
-		return xconn.get( params.key.toString()); 
+                try { 
+                    return xconn.get( params.key.toString()); 
+                } finally {
+                    if ( params.autoremove.toString() == 'true') {
+                        xconn.remove( params.key.toString()); 
+                    } 
+                } 
 	} 
 
 	@ProxyMethod 

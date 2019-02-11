@@ -196,7 +196,13 @@ public class SchemaListComponent extends ComponentBean  {
                  outcome = _handler.callContextMenu( item, menuitem );  
             } 
             return outcome; 
-	}
+	},
+        isForceUpdate: { 
+            if ( _handler?.isForceUpdate ) {
+                return _handler.isForceUpdate(); 
+            } 
+            return false; 
+        } 
     ] as EditorListModel; 
     
     void setHandler( o ) { 

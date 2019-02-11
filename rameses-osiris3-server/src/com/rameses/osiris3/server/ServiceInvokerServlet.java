@@ -126,9 +126,20 @@ public class ServiceInvokerServlet extends AbstractServlet {
             }
             else {
                 //handle remote scripts separately
+                String tokenid = null;
+                if ( params.length > 0 && params[0] instanceof Map ) {
+                    tokenid = (String) ((Map) params[0]).get("tokenid");
+                } 
+                else if (params[0] instanceof Object[]) {
+                    Object[] arr = (Object[]) params[0]; 
+                    if ( arr.length > 0 && arr[0] instanceof Map) {
+                        tokenid = (String) ((Map) arr[0]).get("tokenid");
+                    }
+                }
                 RemoteScriptRunnable rem  =new RemoteScriptRunnable( (MainContext)ct);
                 rem.setHostName( serviceName.substring(0, idx)); 
                 rem.setServiceName( serviceName.substring(idx+1)); 
+                rem.setTokenid( tokenid );
                 tr = rem;
             }
             
