@@ -3,6 +3,7 @@ package com.rameses.osiris2.client;
 import com.rameses.classutils.AnnotationFieldHandler;
 import com.rameses.classutils.ClassDefUtil;
 import com.rameses.osiris2.CodeProvider;
+import com.rameses.rcp.framework.ClientContext;
 import groovy.lang.GroovyClassLoader;
 import java.net.URL;
 import java.net.URLClassLoader;

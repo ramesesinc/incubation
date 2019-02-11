@@ -9,6 +9,8 @@ package com.rameses.osiris2.client;
 
 import com.rameses.classutils.AnnotationFieldHandler;
 import com.rameses.classutils.ClassDef;
+import com.rameses.osiris2.Module;
+import com.rameses.osiris2.ModuleContext;
 import com.rameses.rcp.annotations.Caller;
 import com.rameses.rcp.annotations.Script;
 import com.rameses.rcp.annotations.Service;
@@ -29,10 +31,20 @@ public class FieldInjectionHandler implements AnnotationFieldHandler
             Service s = (Service) f.getAnnotation(Service.class);
             String serviceName = s.value();
             String hostKey = s.host();
+            String connectionName = s.connection(); 
+            
+            //get the current module context if any to get the connection set
+            if( connectionName == null || connectionName.trim().length() == 0 ) {
+                Module mod = (Module)ModuleContext.get();
+                if( mod !=null ) {
+                    connectionName = (String) mod.getProperties().get("connection");
+                } 
+            }
+            
             if (serviceName == null || serviceName.trim().length() == 0) { 
                 return InvokerProxy.getInstance();
             } else {
-                String connectionName = s.connection();                
+                               
                 Class intfClass = s.interfaceClass();
                 if( intfClass != Object.class) {
                     return InvokerProxy.getInstance().create(serviceName, intfClass, connectionName);

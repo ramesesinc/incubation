@@ -62,6 +62,9 @@ public class InvokerProxy  {
     
     public synchronized Object create(String name, Class localInterface, String connectionName) {
         try {
+            if( connectionName !=null ) {
+                System.out.println("create service " + connectionName + " for " + name );
+            }
             if (classLoader == null) 
                 classLoader = new GroovyClassLoader(ClientContext.getCurrentContext().getClassLoader());
             
@@ -98,7 +101,7 @@ public class InvokerProxy  {
                 if (appenv.get("app.cluster") == null) 
                     appenv.put("app.cluster", map.get("app.cluster"));
             }
-            
+            if( connectionName !=null ) System.out.println("map " + appenv);
             ScriptServiceContext ect = new ScriptServiceContext(appenv);
             Map _env = OsirisContext.getSessionEnv();
             

@@ -175,11 +175,10 @@ public class WorkUnit implements Serializable {
     
     public Object getCodeInstance() 
     {
-        CodeProvider provider = module.getAppContext().getCodeProvider();
-        if ( codeSource != null && codeSource.trim().length() > 0 ) 
-        {
-            try 
-            {
+        try {
+            ModuleContext.set( module );
+            CodeProvider provider = module.getAppContext().getCodeProvider();
+            if ( codeSource != null && codeSource.trim().length() > 0 ){
                 if(sourceClass==null) {
                     sourceClass = provider.createClass(codeSource);
                 }
@@ -187,33 +186,25 @@ public class WorkUnit implements Serializable {
                     return provider.createObject(sourceClass);
                 }
             }
-            catch(RuntimeException re) {
-                throw re;
-            }
-            catch(Exception ex) {
-                throw new RuntimeException(ex.getMessage(), ex);
-            }
-        }
-        
-        if ( className != null ) 
-        {
-            try 
-            {
+            else if( className != null ) {
                 if ( sourceClass == null ) {
                     sourceClass = provider.loadClass(className);
                 }
                 if(sourceClass != null) {
                     return provider.createObject(sourceClass);
                 }
-            } 
-            catch(RuntimeException re) {
-                throw re;
-            }            
-            catch(Exception e) {
-                throw new RuntimeException(e.getMessage(), e);
             }
+            throw new Exception("Code Source or Class Name must be provided in workunit.code");
         }
-        throw new RuntimeException("Code Source or Class Name must be provided in workunit.code");
+        catch(RuntimeException re) {
+            throw re;
+        }
+        catch(Exception ex) {
+            throw new RuntimeException(ex.getMessage(), ex);
+        }
+        finally {
+            ModuleContext.remove();
+        }
     }
     
     public String getClassName() {
