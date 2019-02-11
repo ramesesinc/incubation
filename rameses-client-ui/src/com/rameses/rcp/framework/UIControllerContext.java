@@ -100,12 +100,13 @@ public class UIControllerContext {
             
             viewPanel = new UIViewPanel();
             Binding binding = viewPanel.getBinding();
+            binding.setController(controller);
             
             JComponent pagePanel = initPagePanel(panel, binding);
             if ( pagePanel != null ) viewPanel.add(pagePanel);
             
-            binding.init();
-            binding.setController(controller);
+            binding.init(); 
+            binding.setBean( controller.getCodeBean());
             viewPanel.putClientProperty("View.name", view.getName()); 
             viewPanel.putClientProperty("View.template", view.getTemplate()); 
         }

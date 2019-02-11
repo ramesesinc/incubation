@@ -943,9 +943,9 @@ public class Binding
     
     public void setController(UIController controller) {
         this.controller = controller;
-        if ( bean == null ) {
-            setBean( controller.getCodeBean() );
-        }
+//        if ( bean == null ) {
+//            setBean( controller.getCodeBean() );
+//        }
     }
     
     public Object getBean() {

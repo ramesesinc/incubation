@@ -158,6 +158,7 @@ public class UIControllerPanel extends JPanel
             view = current.getCurrentView();
             Binding binding = view.getBinding();
             binding.setViewContext( this ); 
+            binding.setController( current.getController()); 
             
             Object viewname = view.getClientProperty("View.name"); 
             boolean activated = "true".equals(view.getClientProperty("UIViewPanel.activated")+"");
