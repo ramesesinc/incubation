@@ -80,7 +80,7 @@ public class ActionDefPage extends javax.swing.JPanel {
         xTextField3.setName("entity.actionname"); // NOI18N
         xTextField3.setPreferredSize(new java.awt.Dimension(150, 20));
         xTextField3.setRequired(true);
-        xTextField3.setSpaceChar('_');
+        xTextField3.setSpaceChar('-');
         xTextField3.setTextCase(com.rameses.rcp.constant.TextCase.LOWER);
         xFormPanel1.add(xTextField3);
 

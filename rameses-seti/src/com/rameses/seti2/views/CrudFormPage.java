@@ -200,7 +200,7 @@ public class CrudFormPage extends javax.swing.JPanel {
         btnPrint1.setAutoRefresh(false);
         btnPrint1.setFocusable(false);
         btnPrint1.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        btnPrint1.setIconResource("images/toolbars/report.png");
+        btnPrint1.setIconResource("images/toolbars/printer.png");
         btnPrint1.setImmediate(true);
         btnPrint1.setMargin(new java.awt.Insets(1, 1, 1, 1));
         btnPrint1.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
@@ -274,7 +274,6 @@ public class CrudFormPage extends javax.swing.JPanel {
                 xDropDownList1.setContentAreaFilled(false);
                 xDropDownList1.setFocusable(false);
                 xDropDownList1.setHideOnEmptyResult(true);
-                xDropDownList1.setMargin(new java.awt.Insets(0, 2, 0, 2));
                 xDropDownList1.addActionListener(new java.awt.event.ActionListener() {
                     public void actionPerformed(java.awt.event.ActionEvent evt) {
                         xDropDownList1ActionPerformed(evt);

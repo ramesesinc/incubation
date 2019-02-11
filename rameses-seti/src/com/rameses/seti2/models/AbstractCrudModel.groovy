@@ -401,7 +401,9 @@ public abstract class AbstractCrudModel  {
         try {
             //def list1 = InvokerUtil.lookupOpeners( inv.properties.category, [entity:entity] );
             //op.addAll( list1 );
-            def list = Inv.lookupOpeners(schemaName+":" + getFormType() + ":reports", [entity:entityContext]);
+            String _rptType = schemaName+":reports";
+            if( getFormType() ) _rptType = schemaName+":" + getFormType() + ":reports";
+            def list = Inv.lookupOpeners(_rptType, [entity:entityContext]);
             list.each {
                 if(it.properties.visibleWhen) {
                     try {
