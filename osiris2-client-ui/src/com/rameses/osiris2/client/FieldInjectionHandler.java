@@ -29,6 +29,10 @@ public class FieldInjectionHandler implements AnnotationFieldHandler
     public Object getResource(Object o, Field f, Annotation a) throws Exception {
         if ( a.annotationType() == Service.class ) {
             Service s = (Service) f.getAnnotation(Service.class);
+            if ( s.dynamic()) {
+                return InvokerProxy.getDynamicServiceProxy(); 
+            }
+            
             String serviceName = s.value();
             String hostKey = s.host();
             String connectionName = s.connection(); 
@@ -43,38 +47,43 @@ public class FieldInjectionHandler implements AnnotationFieldHandler
             
             if (serviceName == null || serviceName.trim().length() == 0) { 
                 return InvokerProxy.getInstance();
-            } else {
-                               
+            } 
+            else {
                 Class intfClass = s.interfaceClass();
                 if( intfClass != Object.class) {
                     return InvokerProxy.getInstance().create(serviceName, intfClass, connectionName);
-                } else {
+                } 
+                else {
                     return InvokerProxy.getInstance().create(serviceName, null, connectionName);
                 }
             }
-        } else if ( a.annotationType() == Script.class ) {
+        } 
+        else if ( a.annotationType() == Script.class ) {
             Script s = (Script) f.getAnnotation(Script.class);
             String scriptName = s.value();
             Object obj = null;
             if ( scriptName == null || scriptName.trim().length() == 0 ) { 
                 obj = ScriptProvider.getInstance(); 
-            } else { 
+            } 
+            else { 
                 obj = ScriptProvider.getInstance().create(scriptName); 
             } 
+            
             ClassDef cd = new ClassDef(obj.getClass());
             Field fld1 = cd.findAnnotatedField( Caller.class );
-            if(fld1!=null) {
+            if (fld1 != null) {
                 fld1.setAccessible(true);
                 fld1.set( obj, o );
                 fld1.setAccessible(false);
-            }
+            } 
             return obj;
-            
-        } else {
+        } 
+        else {
             try {
                 Object resource = getInjector().getResource(a, null);
                 if (resource != null) return resource;
-            } catch(Throwable t) {
+            } 
+            catch(Throwable t) {
                 System.out.println("ERROR injecting caused by " + t.getClass().getName() + ": " + t.getMessage() );
             } 
             return null; 

@@ -62,13 +62,15 @@ public class InvokerProxy  {
     
     public synchronized Object create(String name, Class localInterface, String connectionName) {
         try {
-            if (classLoader == null) 
+            if (classLoader == null) {
                 classLoader = new GroovyClassLoader(ClientContext.getCurrentContext().getClassLoader());
+            }
             
             Map appenv = new HashMap(); 
             if (connectionName == null || connectionName.length() == 0) {
                 appenv.putAll(getAppEnv()); 
-            } else {
+            } 
+            else {
                 Map map = getAppEnv();
                 boolean connection_found = false;
                 Iterator keys = map.keySet().iterator(); 
@@ -117,26 +119,15 @@ public class InvokerProxy  {
                     builder.append(" } ");
                     Class metaClass = classLoader.parseClass( builder.toString() );                    
                     services.put( name, metaClass  );
-                    /*
-                    ScriptInfoInf si = ect.create( name,  ScriptInfoInf.class  );
-                    Class clz = classLoader.parseClass( si.getStringInterface() );
-                    services.put( name, clz  );
-                     */
                 }
                 
                 
                 ServiceProxy sp = ect.create( name, _env );
                 ServiceProxyInvocationHandler si = new ServiceProxyInvocationHandler(sp);
                 
-                Object obj = services.get(name).newInstance();
-                ((GroovyObject)obj).setProperty( "invoker", si );
-                return obj;                
-                
-                /*
-                ServiceProxy sp = ect.create( name, _env );
-                Class clz = services.get(name);
-                return Proxy.newProxyInstance( classLoader, new Class[]{clz}, new ServiceProxyInvocationHandler(sp)  );
-                 */
+                Object obj = services.get(name).newInstance(); 
+                ((GroovyObject) obj).setProperty( "invoker", si );
+                return obj;           
             }
         } 
         catch(RuntimeException re) {
@@ -144,6 +135,38 @@ public class InvokerProxy  {
         }
         catch(Exception e) {
             throw new RuntimeException(e.getMessage(), e);
+        }
+    }
+    
+    public synchronized static Object getDynamicServiceProxy() { 
+        return new DynamicServiceProxy(new InvokerProxy()); 
+    } 
+    
+    public static class DynamicServiceProxy implements ServiceProxy {
+
+        private InvokerProxy proxy; 
+        
+        DynamicServiceProxy(InvokerProxy proxy) {
+            this.proxy = proxy; 
+        }
+        
+        public Object invoke(String action, Object[] params) throws Exception {
+            throw new IllegalStateException("Method not supported in DynamicServiceProxy"); 
+        }
+
+        public Object invoke(String action) throws Exception {
+            throw new IllegalStateException("Method not supported in DynamicServiceProxy"); 
+        }
+
+        public Map getConf() {
+            throw new IllegalStateException("Method not supported in DynamicServiceProxy"); 
+        }
+        
+        public Object lookup( String name ) {
+            return lookup( name, null ); 
+        }
+        public Object lookup( String name, String connection ) {
+            return proxy.create(name, null, connection); 
         }
     }
 }
