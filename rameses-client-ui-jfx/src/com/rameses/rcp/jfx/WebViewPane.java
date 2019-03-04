@@ -21,6 +21,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Worker;
 import javafx.embed.swing.JFXPanel;
 import javafx.scene.Scene;
+import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
@@ -46,6 +47,8 @@ public class WebViewPane extends JPanel {
     private WebView wv; 
     private JLabel stat;
     
+    private boolean contextMenuEnabled;
+    
     public WebViewPane() {
         initComponents();
     }
@@ -55,10 +58,17 @@ public class WebViewPane extends JPanel {
         setPreferredSize(new Dimension(300, 250)); 
         setBorder( BorderFactory.createLineBorder(new Color(180,180,180), 1)); 
         setBackground(Color.WHITE); 
-
+        contextMenuEnabled = false; 
         stat = new JLabel("");
         fxp = new JFXPanelImpl(); 
         add(fxp, BorderLayout.CENTER); 
+    }
+    
+    public boolean isContextMenuEnabled() {
+        return contextMenuEnabled; 
+    }
+    public void setContextMenuEnabled( boolean contextMenuEnabled ) {
+        this.contextMenuEnabled = contextMenuEnabled; 
     }
     
     protected void loadView( Object value ) {
@@ -141,7 +151,7 @@ public class WebViewPane extends JPanel {
                 Worker worker = wv.getEngine().getLoadWorker(); 
                 worker.stateProperty().addListener(new ChangeListener() {
                     public void changed(ObservableValue ov, Object oldValue, Object newValue) {
-                        System.out.println("working... "+ newValue.toString());
+                        //System.out.println("working... "+ newValue.toString());
                         if ( newValue == Worker.State.READY ) {
                             updateStat("Connecting..."); 
                         }
@@ -171,17 +181,21 @@ public class WebViewPane extends JPanel {
                 fxp.setScene(new Scene(wv)); 
             }
 
-            if (value == null) {
-                // do noting 
-            } 
-            else if (value instanceof URL) {
-                wv.getEngine().load( value.toString()); 
+            if (value == null) value = "";
+
+            StringBuilder styles = new StringBuilder(); 
+            styles.append(" -fx-context-menu-enabled: "+ isContextMenuEnabled() +"; "); 
+            wv.setStyle( styles.toString() );  
+
+            WebEngine we = wv.getEngine();            
+            if (value instanceof URL) {
+                we.load( value.toString()); 
             } 
             else if (value.toString().matches("[a-zA-Z]{1,}://.*")) {
-                wv.getEngine().load( value.toString()); 
+                we.load( value.toString()); 
             } 
             else { 
-                wv.getEngine().loadContent( value.toString()); 
+                we.loadContent( value.toString()); 
             } 
         }
         

@@ -5,7 +5,6 @@
 package com.rameses.rcp.control;
 
 import com.rameses.common.MethodResolver;
-import com.rameses.rcp.common.Action;
 import com.rameses.rcp.common.DocViewModel;
 import com.rameses.rcp.common.HtmlViewModel;
 import com.rameses.rcp.common.MsgBox;
@@ -15,24 +14,12 @@ import com.rameses.rcp.common.PropertySupport;
 import com.rameses.rcp.framework.Binding;
 import com.rameses.rcp.framework.ClientContext;
 import com.rameses.rcp.jfx.WebViewPane;
-import com.rameses.rcp.support.ImageIconSupport;
 import com.rameses.rcp.ui.ControlProperty;
 import com.rameses.rcp.ui.UIControl;
-import com.rameses.rcp.util.UICommandUtil;
 import com.rameses.rcp.util.UIControlUtil;
-import java.awt.Dimension;
-import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.Insets;
-import java.awt.Point;
-import java.awt.Rectangle;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.net.URL;
-import java.util.List;
 import java.util.Map;
-import javax.swing.JMenuItem;
-import javax.swing.JPopupMenu;
 
 /**
  *
@@ -101,6 +88,9 @@ public class XWebView extends WebViewPane implements UIControl {
             } 
             
             docModel = newModel; 
+            if ( docModel != null ) { 
+                setContextMenuEnabled( docModel.isContextMenuEnabled()); 
+            }
             loadView( value ); 
         } 
         catch(Throwable t) {
@@ -229,19 +219,17 @@ public class XWebView extends WebViewPane implements UIControl {
         public void appendText(String text) {} 
 
         public String getText() { return null; } 
-        public void setText(String text) {}
+        public void setText(String text) { 
+            root.loadView( text == null ? "" : text ); 
+        } 
 
         public void load() {}
 
         public void refresh() {
-            //root.refresh(); 
+            root.refresh(); 
         } 
         
         public void requestFocus() { 
-            //if (!root.isEnabled()) { return; } 
-            
-            //root.grabFocus(); 
-            //root.requestFocusInWindow(); 
         } 
     }
     
@@ -255,17 +243,24 @@ public class XWebView extends WebViewPane implements UIControl {
             MethodResolver mresolver = MethodResolver.getInstance();
             outcome = mresolver.invoke(getBinding().getBean(), name, new Object[]{param}); 
         } 
-        catch(Throwable t) {
+        catch(Throwable t) { 
             System.out.println("[WARN] error invoking method '"+name+"' caused by " + t.getMessage()); 
+            MsgBox.err( t );
+            return; 
         } 
 
         if (outcome instanceof Opener) {
             if (outcome instanceof PopupMenuOpener) {
-                throw new RuntimeException("PopupMenuOpener is not supported using XWebView");
+                MsgBox.alert("PopupMenuOpener is not supported using XWebView");
+                return; 
             } 
-            else { 
-                getBinding().fireNavigation((Opener) outcome); 
+
+            Opener op = (Opener) outcome;
+            String target = op.getTarget(); 
+            if ( target == null || target.trim().length()==0 || target.equals("self")) {
+                op.setTarget("window"); 
             } 
+            getBinding().fireNavigation( op ); 
         } 
-    }
+    }    
 }
