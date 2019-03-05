@@ -211,13 +211,13 @@ public class WebViewPane extends JPanel {
                 String actionName = null;
                 String stype = elem.getAttribute("type")+""; 
                 if ( "A".equalsIgnoreCase( node.getNodeName()) ) {
-                    actionName = elem.getAttribute("name");
+                    actionName = elem.getAttribute("action");
                 }
                 else if ( "BUTTON".equalsIgnoreCase( node.getNodeName())) {
-                    actionName = elem.getAttribute("name");
+                    actionName = elem.getAttribute("action");
                 }
                 else if ( "INPUT".equalsIgnoreCase( node.getNodeName()) && "button".equalsIgnoreCase(stype)) {
-                    actionName = elem.getAttribute("name"); 
+                    actionName = elem.getAttribute("action"); 
                 }
                 
                 if ( actionName != null && actionName.trim().length() > 0) {
@@ -252,9 +252,9 @@ public class WebViewPane extends JPanel {
         
         private void fireProcessAction( Map param ) {
             try {
-                Object o = param.get("name"); 
-                String name = (o == null ? null : o.toString()); 
-                processAction( name, param ); 
+                Object o = param.get("action"); 
+                String aname = (o == null ? null : o.toString()); 
+                processAction( aname, param ); 
             } 
             catch(Throwable t) { 
                 t.printStackTrace();  
