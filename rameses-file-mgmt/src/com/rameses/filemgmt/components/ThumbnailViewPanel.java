@@ -193,11 +193,28 @@ public class ThumbnailViewPanel extends XPanel {
         jlist.setCellRenderer( new ListRendererImpl() ); 
         jlist.setSelectionMode( ListSelectionModel.SINGLE_SELECTION );
         jlist.addListSelectionListener(new ListSelectionListener() {
-            public void valueChanged(ListSelectionEvent e) {
-                Object value = jlist.getSelectedValue();
-                if ( value instanceof ItemInfo ) {
-                    value = ((ItemInfo) value).userObject; 
+            public void valueChanged(ListSelectionEvent e) { 
+                boolean multi = (jlist.getSelectionMode() == ListSelectionModel.MULTIPLE_INTERVAL_SELECTION); 
+                ArrayList list = new ArrayList();
+                Object[] values = jlist.getSelectedValues(); 
+                for ( Object v : values ) {
+                    if ( v instanceof ItemInfo ) { 
+                        v = ((ItemInfo) v).userObject; 
+                    } 
+                    list.add( v ); 
                 }
+                
+                Object value = null; 
+                if ( list.isEmpty()) {
+                    //do nothing 
+                } 
+                else if ( multi ) {
+                    value = list; 
+                }
+                else {
+                    value = list.remove(0); 
+                }
+
                 setSelectedItem( value ); 
                 selectedItemChanged( value ); 
             }
