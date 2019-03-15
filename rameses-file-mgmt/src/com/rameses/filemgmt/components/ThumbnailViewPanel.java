@@ -20,6 +20,7 @@ import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.Insets;
 import java.awt.LayoutManager;
 import java.awt.Point;
@@ -39,6 +40,7 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JScrollPane;
 import javax.swing.ListCellRenderer;
+import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
@@ -55,6 +57,7 @@ public class ThumbnailViewPanel extends XPanel {
     
     private Object selectedItem;
     private String handler;
+    private boolean multiSelect;
     
     private ListModelImpl listModel;
     private ThumbnailViewModel model;
@@ -71,10 +74,14 @@ public class ThumbnailViewPanel extends XPanel {
         this.handler = handler; 
     }
     
+    public final Dimension getDefaultCellSize() {
+        return new Dimension(75, 75); 
+    }
+    
     public Dimension getCellSize() { return cellSize; }
     public void setCellSize( Dimension cellSize ) { 
         if ( cellSize == null ) { 
-            cellSize = new Dimension(75, 75); 
+            cellSize = getDefaultCellSize(); 
         } 
         this.cellSize = cellSize; 
         updateFixedCellSize();
@@ -86,13 +93,21 @@ public class ThumbnailViewPanel extends XPanel {
         updateFixedCellSize(); 
     }
     
+    public boolean isMultiSelect() { return multiSelect; } 
+    public void setMultiSelect( boolean multiSelect ) {
+        this.multiSelect = multiSelect; 
+        if ( jlist != null ) {
+            jlist.setSelectionMode( isMultiSelect() ? ListSelectionModel.MULTIPLE_INTERVAL_SELECTION : ListSelectionModel.SINGLE_SELECTION);
+        }
+    }
+    
     private void updateFixedCellSize() {
         if ( jlist != null ) {
             Dimension size = getCellSize(); 
             int spacing = getCellSpacing();
             jlist.setFixedCellWidth( size.width + spacing ); 
             jlist.setFixedCellHeight( size.height + spacing ); 
-        }        
+        } 
     }
     
     public Object getSelectedItem() { return selectedItem; }
@@ -145,7 +160,7 @@ public class ThumbnailViewPanel extends XPanel {
         }
     }
 
-    private  void selectedItemChanged( final Object value ) {
+    private void selectedItemChanged( final Object value ) {
         Runnable proc = new Runnable() {
             public void run() {
                 String sname = getName(); 
@@ -176,6 +191,7 @@ public class ThumbnailViewPanel extends XPanel {
         jlist.setLayoutOrientation( JList.HORIZONTAL_WRAP ); 
         jlist.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10)); 
         jlist.setCellRenderer( new ListRendererImpl() ); 
+        jlist.setSelectionMode( ListSelectionModel.SINGLE_SELECTION );
         jlist.addListSelectionListener(new ListSelectionListener() {
             public void valueChanged(ListSelectionEvent e) {
                 Object value = jlist.getSelectedValue();
@@ -213,9 +229,13 @@ public class ThumbnailViewPanel extends XPanel {
                 int index = root.jlist.locationToIndex( p ); 
                 if ( index < 0 ) return; 
 
+                if ( e.isControlDown() ) return; 
+                
                 Rectangle rect = root.jlist.getCellBounds(index, index); 
                 if ( !rect.contains( p )) return; 
-
+                
+                int[] indexes = root.jlist.getSelectedIndices(); 
+                if ( indexes.length > 1 ) return; 
                 openItem( index ); 
             }
         }
@@ -314,13 +334,19 @@ public class ThumbnailViewPanel extends XPanel {
                 }
             } else if ( thumbnailObj instanceof byte[] ) {
                 //do nothing 
+            } else if ( thumbnailObj instanceof Image ) { 
+                //do nothing 
             } else {
                 thumbnailObj = null; 
             }
 
             if ( thumbnailObj instanceof byte[] ) {
                 info.image = new ImageIcon((byte[]) thumbnailObj); 
-            } else {
+            } 
+            else if ( thumbnailObj instanceof Image ) {
+                info.image = new ImageIcon((Image) thumbnailObj);
+            }
+            else {
                 info.image = FileManager.getInstance().getFileTypeIcon( info.filetype ); 
             }
 

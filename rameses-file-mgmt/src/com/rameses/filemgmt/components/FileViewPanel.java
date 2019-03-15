@@ -226,6 +226,21 @@ public class FileViewPanel extends XComponentPanel {
         if ( newhandler == null ) {
             newhandler = new FileViewModelImpl( null ); 
         } 
+        
+        Number num = newhandler.getCellSpacing(); 
+        if ( num != null ) viewPanel.setCellSpacing( num.intValue() ); 
+        
+        Dimension dim = viewPanel.getCellSize(); 
+        if ( dim == null ) dim = viewPanel.getDefaultCellSize(); 
+
+        Number nw = newhandler.getCellWidth(); 
+        Number nh = newhandler.getCellHeight();         
+        Dimension newdim = new Dimension(dim.width, dim.height);
+        if ( nw != null ) newdim.width = nw.intValue(); 
+        if ( nh != null ) newdim.height = nh.intValue(); 
+        viewPanel.setCellSize( newdim ); 
+        viewPanel.setMultiSelect( newhandler.isMultiSelect() ); 
+        
         newhandler.setProvider(new FileViewModelProvider()); 
         modelHandler = newhandler; 
         pr.setProperty(bean, "handlerProxy", modelHandler);        
@@ -305,6 +320,25 @@ public class FileViewPanel extends XComponentPanel {
             MethodResolver.getInstance().invoke(bean, "addItem", new Object[]{ item }); 
             root.modelHandler.afterAddItem( item ); 
         } 
+
+        public Object getSelectedItem() { 
+            return root.viewPanel.getSelectedItem(); 
+        } 
+        
+        public void updateBeanValue() {
+            String sname = root.getName(); 
+            if ( sname == null || sname.trim().length() == 0 ) {
+                return; 
+            } 
+            
+            Binding binding = getBinding(); 
+            Object bean = (binding == null ? null : binding.getBean()); 
+            if ( bean == null ) return; 
+            
+            Object value = getSelectedItem(); 
+            UIControlUtil.setBeanValue(bean, sname, value); 
+            binding.notifyDepends( sname ); 
+        }
     }
     // </editor-fold>
     

@@ -7,6 +7,7 @@ package com.rameses.rcp.common;
 import com.rameses.filemgmt.FileManager;
 import com.rameses.filemgmt.FileManager.DbProvider;
 import com.rameses.rcp.framework.Binding;
+import java.awt.Dimension;
 import java.util.List;
 import java.util.Map;
 
@@ -19,6 +20,11 @@ public class FileViewModel {
     private boolean editable = true; 
     private boolean allowAdd = true; 
     private boolean allowRemove = true; 
+    private boolean multiSelect;
+    
+    private Number cellWidth;
+    private Number cellHeight;
+    private Number cellSpacing;
     
     public boolean isEditable() { return editable; } 
     public void setEditable( boolean editable ) {
@@ -35,6 +41,26 @@ public class FileViewModel {
         this.allowRemove = allowRemove; 
     }
     
+    public boolean isMultiSelect() { return multiSelect; } 
+    public void setMultiSelect( boolean multiSelect ) {
+        this.multiSelect = multiSelect; 
+    } 
+    
+    public Number getCellSpacing() { return cellSpacing; } 
+    public void setCellSpacing( Number cellSpacing ) {
+        this.cellSpacing = cellSpacing; 
+    }
+    
+    public Number getCellWidth() { return cellWidth; } 
+    public void setCellWidth( Number cellWidth ) {
+        this.cellWidth = cellWidth; 
+    }
+
+    public Number getCellHeight() { return cellHeight; } 
+    public void setCellHeight( Number cellHeight ) {
+        this.cellHeight = cellHeight; 
+    }
+    
     public List fetchList( Map params ) { 
         return null; 
     } 
@@ -46,12 +72,14 @@ public class FileViewModel {
     public void afterAddItem( Object item ) {
     }
     
-    
-    Object getItem( Map params ) { 
+    public Object getItem( Map params ) { 
         DbProvider dbp = FileManager.getInstance().getDbProvider(); 
         return ( dbp == null ? null : dbp.read(params)); 
     } 
     
+    public Object openItem( Object item ) {
+        return null; 
+    }
     
     public Binding getBinding() {
         return (provider == null ? null : provider.getBinding()); 
@@ -64,6 +92,10 @@ public class FileViewModel {
         provider.addItem( item ); 
     }
     
+    public Object getSelectedItem() { 
+        return (provider == null ? null : provider.getSelectedItem()); 
+    }
+    
     private Provider provider; 
     public void setProvider( Provider provider ) { 
         this.provider = provider; 
@@ -72,5 +104,23 @@ public class FileViewModel {
         Binding getBinding(); 
         Binding getInnerBinding(); 
         void addItem( Object item ) throws Exception;
-    }    
+        
+        Object getSelectedItem();
+        void updateBeanValue();
+    }  
+    
+    
+    
+    private final Workspace workspace = new Workspace(); 
+    public Workspace getWorkspace() { return workspace; } 
+    
+    public class Workspace { 
+        
+        private Object selectedThumbnail; 
+        
+        public void setSelectedThumbnail( Object selectedThumbnail ) {
+            this.selectedThumbnail = selectedThumbnail; 
+            if ( provider != null ) provider.updateBeanValue();
+        } 
+    }
 }

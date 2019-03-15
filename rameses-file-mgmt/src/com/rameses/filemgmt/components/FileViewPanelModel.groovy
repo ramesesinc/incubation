@@ -22,7 +22,7 @@ class FileViewPanelModel extends ComponentBean {
         if ( item.objid ) {
             def o = cache.get( item.objid ); 
             if ( o ) return; 
-            
+
             o = handlerProxy.getItem( item ); 
             if ( o ) { 
                 o.items?.each{ c-> 
@@ -107,7 +107,10 @@ class FileViewPanelModel extends ComponentBean {
     
     void setSelectedThumbnail( value ) {
         this.selectedThumbnail = value; 
-    }
+        if ( handlerProxy instanceof FileViewModel ) { 
+            handlerProxy.workspace.setSelectedThumbnail( value ); 
+        } 
+    } 
     
     def thumbnailListHandler = [
         fetchList: {
@@ -119,6 +122,15 @@ class FileViewPanelModel extends ComponentBean {
         
         openItem: { o-> 
             if ( !o ) return null; 
+            
+            o.parent = selectedItem; 
+            try {
+                def op = handlerProxy.openItem( o ); 
+                if ( op ) return op; 
+            } catch(com.rameses.util.BreakException be) {
+                return null; 
+            } 
+            
             return Inv.lookupOpener('sys_fileitem:open', [ fileitem: o ]); 
         }
     ] as ThumbnailViewModel;     
