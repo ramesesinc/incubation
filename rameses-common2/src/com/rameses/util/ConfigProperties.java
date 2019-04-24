@@ -254,6 +254,9 @@ public class ConfigProperties {
             if (objval == null) {
                 objval = System.getProperty(skey);
             } 
+            if (objval == null) {
+                objval = System.getenv(skey); 
+            }
             
             if (objval == null) { 
                 builder.append(str.substring(idx0, idx1+1)); 
