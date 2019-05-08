@@ -1,0 +1,6 @@
+"message" [ mode == 'create' ]{
+    enabled: true; 
+}
+"message" [ mode != 'create' ]{
+    enabled: false; 
+}

@@ -1,0 +1,14 @@
+<workunit>
+    
+    <invokers>
+        <invoker type="remark_message:create" caption="Message" action="create"/>
+        <invoker type="remark_message:open" caption="Message" action="open"/>
+    </invokers>
+    
+    <code class="com.rameses.osiris2.models.RemarkMessageModel" />
+
+    <pages>
+        <page template="com.rameses.osiris2.views.RemarkPage"/>
+    </pages>
+    
+</workunit>
