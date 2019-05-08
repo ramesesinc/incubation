@@ -28,6 +28,8 @@ public abstract class AsyncReportController {
     abstract String getReportName();
     abstract void buildReportData(entity, asyncHandler);
     
+    boolean isDynamic() { return false; } 
+    
     def getFormControl(){
         return null;
     }
@@ -167,7 +169,9 @@ public abstract class AsyncReportController {
         return this; 
     }
     
+    def root = this;
     def report = [
+        isDynamic: { return root.isDynamic(); }, 
         getReportName : { return getReportName(); }, 
         getSubReports : { return getSubReports(); },
         getReportData : { return reportdata; },
