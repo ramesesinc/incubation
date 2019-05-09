@@ -1,0 +1,7 @@
+<workunit>
+    <code class="com.rameses.rcp.jfx.models.WebViewModel" />    
+    
+    <pages>
+        <page template="com.rameses.rcp.jfx.views.WebViewPage"/>
+    </pages>     
+</workunit>

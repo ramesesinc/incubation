@@ -578,11 +578,18 @@ public class CrudListModel extends AbstractCrudModel {
     private def _selectedNode;
 
 
+    boolean beforeSelectNode( node ) {
+        return true; 
+    }
+    
     final def nodeListHandler = [
         fetchList : { 
             _nodeList = null;
             return getNodeList();
-        }
+        }, 
+        beforeSelect: { item-> 
+            return beforeSelectNode( item ); 
+        }  
     ] as ListPaneModel 
 
     
