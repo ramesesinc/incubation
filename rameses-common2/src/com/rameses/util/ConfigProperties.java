@@ -76,6 +76,14 @@ public class ConfigProperties {
         }
     }
     
+    public void clear() {
+        for (Map m: groups.values()) {
+            m.clear();
+        }
+        groups.clear(); 
+        map.clear();        
+    }
+    
     private void parse(InputStream inp, Map ref) {
         try {
             updatable = false;
