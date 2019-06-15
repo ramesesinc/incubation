@@ -48,30 +48,35 @@ public final class LookAndFeelCustomizer {
         numformat = new DecimalFormat("0"); 
         UIDefaults uidefs = UIManager.getLookAndFeelDefaults();
         Iterator itr = uidefs.keySet().iterator();
-        while (itr.hasNext()) {
-            Object key = itr.next(); 
-            Object val = uidefs.get( key ); 
-            if ( val instanceof FontUIResource ) {
-                FontUIResource old = (FontUIResource) val; 
-                int fsize = old.getSize(); 
-                if ( fontsize > 0 ) { 
-                    fsize = fontsize; 
-                    String kname = key.toString().split("\\.")[0];
-                    if ( kname.matches(SPECIAL_KEYS)) {
-                        fsize += 1;
+        try {
+            while (itr.hasNext()) {
+                Object key = itr.next(); 
+                Object val = uidefs.get( key ); 
+                if ( val instanceof FontUIResource ) {
+                    FontUIResource old = (FontUIResource) val; 
+                    int fsize = old.getSize(); 
+                    if ( fontsize > 0 ) { 
+                        fsize = fontsize; 
+                        String kname = key.toString().split("\\.")[0];
+                        if ( kname.matches(SPECIAL_KEYS)) {
+                            fsize += 1;
+                        }
                     }
-                }
 
-                try { 
-                    Number num = ((Number) fsize).doubleValue() * fontscale;
-                    fsize = numformat.parse( numformat.format( num )).intValue(); 
-                } catch(Throwable t) {;} 
-                    
-                String fname = ( fontname == null ? old.getFontName() : fontname );
-                uidefs.put(key, new FontUIResource(fname, old.getStyle(), fsize)); 
-                if ( debug ) System.out.println(key + " = "+ uidefs.get(key));
-            } 
-        }  
+                    try { 
+                        Number num = ((Number) fsize).doubleValue() * fontscale;
+                        fsize = numformat.parse( numformat.format( num )).intValue(); 
+                    } catch(Throwable t) {;} 
+                        
+                    String fname = ( fontname == null ? old.getFontName() : fontname );
+                    uidefs.put(key, new FontUIResource(fname, old.getStyle(), fsize)); 
+                    if ( debug ) System.out.println(key + " = "+ uidefs.get(key));
+                } 
+            }  
+        }
+        catch(Exception ex) {
+            ex.printStackTrace();
+        }
     }
     
     private final String SPECIAL_KEYS = "ColorChooser|InternalFrame|Menu|MenuBar|MenuItem|OptionPane|RadioButtonMenuItem|TextArea|ToolTip";
