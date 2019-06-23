@@ -14,6 +14,7 @@ import com.rameses.util.ConfigProperties;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.LinkedHashMap;
@@ -70,37 +71,6 @@ public class Project extends HashMap  {
         init();
     }
     
-//    public void reload() {
-//        ConfigProperties newconf = ContentUtil.getConf( _url + "/project.conf" );
-//        super.clear();
-//        conf.clear(); 
-//        conf = newconf; 
-//        super.putAll( newconf.getProperties()); 
-//        super.put("name", _id); 
-//        super.put("url", _url);
-//
-//        templateCache.clear();
-//        serviceManager.clear();
-//        fileManager.clear();
-//        folderManager.clear(); 
-//        
-//        templateManager.clear();
-//        templateManager = new TemplateManager();
-//        templateManager.init( conf ); 
-//        
-//        blockManager.clear();
-//        blockManager = new BlockManager();
-//        blockManager.init( conf ); 
-//        
-//        actionManager.clear();
-//        actionManager = new ActionManager();
-//        actionManager.init( conf );
-//        
-//        permalinkManager.clear(); 
-//        permalinkManager = new PermalinkManager( this );
-//        permalinkManager.init( conf );
-//    }
-    
     public void init() {
         this.templateCache = new ContentTemplateCache();
         this.templateManager = new TemplateManager();
@@ -130,18 +100,9 @@ public class Project extends HashMap  {
         String themeName = (String)super.get("theme");
         if(themeName==null) themeName = "default";
         defaultTheme = themes.get(themeName);
-        
-        //if there is a secured page, fix it
-        /*
-        String securedPages = (String)super.get("securedPages");
-        if(securedPages!=null) {
-        }
-         */
     }
     
-    
     private void loadThemes() {
-        themes.clear();
         try {
             String path = ContentUtil.correctUrlPath( getUrl(), null, "themes" );
             FileDir.scan(path, new FileFilter(){
@@ -157,20 +118,19 @@ public class Project extends HashMap  {
     }
     
     private void loadModules() {
-        modules.clear();
         try {
             String path = ContentUtil.correctUrlPath(getUrl(), null, "modules");
             FileDir.scan(path, new FileFilter(){
                 public void handle(FileDir.FileInfo f) {
                     URL conf = f.getSubfile("module.conf");
-                    if(conf!=null) {
+                    if ( conf != null ) {
                         Module module = new Module(f.getName(), f.getUrl().toString());
                         module.setProject(Project.this);
                         modules.put(module.getName(), module);
                     }
                 }
             });
-        } catch(Exception warn) {
+        } catch(Throwable t) {
             //System.out.println("WARNING. Module loading error-> " + warn.getMessage() );
         }
         

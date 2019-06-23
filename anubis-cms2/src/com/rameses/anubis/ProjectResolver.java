@@ -9,9 +9,6 @@
 
 package com.rameses.anubis;
 
-import com.rameses.util.ConfigProperties;
-import java.util.Map;
-
 /**
  *
  * @author Elmo
@@ -21,12 +18,7 @@ public class ProjectResolver {
     private final static Object LOCKED = new Object();
     
     private Project project; 
-    private Boolean cached;
-    
-    /** Creates a new instance of ProjectResolver */
-    public ProjectResolver() {
-    }
-    
+        
     public Project removeProject() {
         synchronized( LOCKED ) {
             Project old = this.project; 
@@ -34,25 +26,6 @@ public class ProjectResolver {
             return old; 
         }
     }  
-    
-    public boolean isCached() { 
-        if ( cached == null ) { 
-            try { 
-                String webcached = (System.getProperty("web.cached")+"").toLowerCase();
-                if ( webcached.matches("true|false")) {
-                    cached = new Boolean( webcached );
-                } 
-                else {
-                    String path = System.getProperty("osiris.base.dir") +"/webroot/project.conf"; 
-                    Map conf = new ConfigProperties(new java.io.File(path).toURI().toURL()).getProperties();
-                    cached = new Boolean( "true".equals( conf.get("cached")+"" ));
-                }
-            } catch(Throwable t) {
-                return true; 
-            }
-        }
-        return cached.booleanValue(); 
-    }
     
     public Project getProject() {
         synchronized( LOCKED ) {

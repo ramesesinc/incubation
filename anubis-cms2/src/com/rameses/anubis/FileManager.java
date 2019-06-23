@@ -38,11 +38,11 @@ public class FileManager {
             
             AnubisContext actx = AnubisContext.getCurrentContext();
             Module mod = actx.getModule(); 
-            if ( mod != null ) {
+            if ( mod != null ) { 
                 moduleName = mod.getName(); 
                 String skey = "/"+ moduleName; 
                 fileName = name.substring(skey.length()); 
-            }            
+            } 
             
             InputStream inp = findSource(fileName, moduleName);
             Map map = JsonUtil.toMap(StreamUtil.toString(inp));
