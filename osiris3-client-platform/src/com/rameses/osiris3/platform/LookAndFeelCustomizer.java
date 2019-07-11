@@ -54,7 +54,16 @@ public final class LookAndFeelCustomizer {
         UIDefaults uidefs = UIManager.getLookAndFeelDefaults();
         Iterator itr = uidefs.keySet().iterator();
         while (itr.hasNext()) {
-            Object key = itr.next(); 
+            Object key = null; 
+            try {
+                key = itr.next();
+                if ( key == null ) {
+                    continue; 
+                }
+            } catch(Throwable t) {
+                continue;
+            }
+            
             Object val = uidefs.get( key ); 
             if ( val instanceof FontUIResource ) {
                 FontUIResource old = (FontUIResource) val; 
