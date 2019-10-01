@@ -32,6 +32,9 @@ public class ObjectDeserializer
     }
     
     public Object read(String text) {
+        if ( text == null || text.trim().length() == 0 ) {
+            return null; 
+        }
         return doRead(new StringReader(text));
     }
     

@@ -7,6 +7,8 @@
 
 package config;
 
+import com.rameses.io.StreamUtil;
+import java.io.File;
 import junit.framework.*;
 
 /**
@@ -26,23 +28,39 @@ public class NewEmptyJUnitTest extends TestCase {
     }
     
     // TODO add test methods here. The name must begin with 'test'. For example:
-    public void testHello() {
-        ConfigProperties conf = new ConfigProperties("c:/osiris3/sample.conf");
-        System.out.println(conf.getProperty( "app.conf" ));
+    public void test1() throws Exception {
+        File file = new File("c:/temp/test-conf.txt"); 
+        String str = StreamUtil.toString( file.toURI().toURL().openStream() ); 
         
-        System.out.println(conf.getProperty( "mysql:host" ));
-        System.out.println(conf.getProperty( "potsgresql:host" ));
-        conf.put( "potsgresql:host", "newhost_postgresql" );
-        conf.put( "potsgresql:password", "atari" );
+        System.getProperties().put("gdx.host", "192.168.254.10:9070"); 
         
-        conf.put( "mysql:port", "3306" );
-        
-        conf.update();
-        System.out.println("****************************");
-        for( Object o: conf.getProperties( "potsgresql" ).values() ) {
-            System.out.println(o);
+        int startidx = 0;
+        StringBuilder buff = new StringBuilder();
+        while ( true ) {
+            int idx0 = str.indexOf("${", startidx); 
+            if ( idx0 < 0 ) break; 
+            
+            int idx1 = str.indexOf("}", idx0); 
+            if ( idx1 < 0 ) break; 
+            
+            buff.append(str.substring(startidx, idx0)); 
+            
+            String skey = str.substring(idx0+2, idx1); 
+            Object objval = System.getProperty( skey ); 
+            if (objval == null) objval = System.getenv( skey ); 
+            
+            if (objval == null) { 
+                buff.append(str.substring(idx0, idx1+1)); 
+            } else { 
+                buff.append( objval );  
+            } 
+            
+            startidx = idx1 + 1; 
         }
         
+        if ( startidx < str.length()) {
+            buff.append(str.substring(startidx)); 
+        }
+        System.out.println( buff );
     }
-
 }

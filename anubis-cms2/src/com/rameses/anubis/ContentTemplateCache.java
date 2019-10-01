@@ -22,14 +22,23 @@ public class ContentTemplateCache {
     
     private Map<String, ContentTemplate> cache = new HashMap();
     
+    public void clear() {
+        cache.clear(); 
+    }
+    
     public ContentTemplate getTemplate(String name, ContentTemplateSource src ) throws ResourceNotFoundException {
         String n = src.getType()+":"+name;
         InputStream is = null;
         try {
-            if(!cache.containsKey(n)) {
+            if ( !cache.containsKey(n)) {
+                AnubisContext actx = AnubisContext.getCurrentContext();
+                boolean cached = actx.getProject().isCached();
+                
                 is = src.getResource( name );
                 Template temp = TemplateParser.getInstance().parse(is);
                 ContentTemplate ct = new ContentTemplate(temp);
+                if ( !cached ) return ct; 
+
                 cache.put( n, ct );
             }
             return cache.get(n);
@@ -40,14 +49,11 @@ public class ContentTemplateCache {
         catch(RuntimeException re) {
             throw re; 
         }
-        catch(Exception ex) {
-            throw new RuntimeException(ex.getMessage(), ex);
-        }
         catch(Throwable t) {
-            throw new RuntimeException(t.getMessage(), t);
+            throw new RuntimeException(t);
         }
         finally {
-            try { is.close(); } catch(Exception ign){;}
+            try { is.close(); } catch(Throwable ign){;}
         }
     }
     

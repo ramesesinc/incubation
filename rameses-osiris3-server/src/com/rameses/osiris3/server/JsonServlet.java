@@ -17,13 +17,18 @@ import java.io.InputStream;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import net.sf.json.JSONSerializer;
+import net.sf.json.JsonConfig;
+import net.sf.json.processors.JsonValueProcessor;
 
 /**
  *
@@ -142,11 +147,21 @@ public class JsonServlet extends ServiceInvokerServlet {
 //                try {os.close();} catch(Exception ign){;}
 //            }
         } else {
-            hres.setContentType("application/json");
+            hres.setContentType("application/json");            
             try {
-                hres.getWriter().println( JsonUtil.toString(response) );
-            } catch(Exception e) {
-                e.printStackTrace();
+                if ( response instanceof Map || response instanceof List ) {
+                    JsonConfig jc = new JsonConfig(); 
+                    jc.registerJsonValueProcessor(java.util.Date.class, new JsonDateValueProcessor()); 
+                    jc.registerJsonValueProcessor(java.sql.Date.class, new JsonDateValueProcessor()); 
+                    jc.registerJsonValueProcessor(java.sql.Timestamp.class, new JsonDateValueProcessor()); 
+                    Object json = JSONSerializer.toJSON(response, jc);  
+                    hres.getWriter().println( json.toString() );
+                }
+                else {
+                    hres.getWriter().println( JsonUtil.toString(response));
+                }
+            } catch(Throwable t) {
+                t.printStackTrace();
             }
         }
     }
@@ -190,5 +205,24 @@ public class JsonServlet extends ServiceInvokerServlet {
         
         byte[] raw = md.digest(bytes);
         return new BigInteger(1, raw).toString(16);
+    }
+    
+    private class JsonDateValueProcessor implements JsonValueProcessor {
+
+        private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd mm:hh:ss"); 
+        
+        public Object processArrayValue(Object value, JsonConfig jc) { 
+            if ( value instanceof java.util.Date ) {
+                return sdf.format((java.util.Date) value); 
+            }
+            return "";
+        }
+
+        public Object processObjectValue(String name, Object value, JsonConfig jc) { 
+            if ( value instanceof java.util.Date ) {
+                return sdf.format((java.util.Date) value); 
+            }
+            return "";
+        }
     }
 }

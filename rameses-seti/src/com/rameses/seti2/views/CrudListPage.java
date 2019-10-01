@@ -117,6 +117,7 @@ public class CrudListPage extends javax.swing.JPanel {
         btnDelete.setDepends(new String[] {"selectedItem"});
         btnDelete.setName("removeEntity"); // NOI18N
         btnDelete.setVisibleWhen("#{deleteAllowed==true}");
+        btnDelete.setAccelerator("ctrl D");
         btnDelete.setFocusable(false);
         btnDelete.setIconResource("images/toolbars/trash.png");
         btnDelete.setMargin(new java.awt.Insets(1, 1, 1, 1));
@@ -147,6 +148,7 @@ public class CrudListPage extends javax.swing.JPanel {
         btnSelectColumn.setCaption("");
         btnSelectColumn.setName("selectColumns"); // NOI18N
         btnSelectColumn.setVisibleWhen("#{showColsAllowed}");
+        btnSelectColumn.setAccelerator("ctrl shift F");
         btnSelectColumn.setAutoRefresh(false);
         btnSelectColumn.setFocusable(false);
         btnSelectColumn.setIconResource("images/toolbars/table.png");
@@ -156,7 +158,7 @@ public class CrudListPage extends javax.swing.JPanel {
 
         btnRefresh.setCaption("");
         btnRefresh.setName("refresh"); // NOI18N
-        btnRefresh.setAccelerator("ctrl R");
+        btnRefresh.setAccelerator("F5");
         btnRefresh.setAutoRefresh(false);
         btnRefresh.setFocusable(false);
         btnRefresh.setIconResource("images/toolbars/refresh.png");

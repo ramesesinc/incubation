@@ -45,5 +45,7 @@ public class XLabelBeanInfo extends ComponentBeanInfoSupport {
         
         add( list, "dateFormat" );
         add( list, "numberFormat" );
+        add( list, "displayedMnemonic" );
+        add( list, "labelFor" );
     }
 }

@@ -177,6 +177,7 @@ public class CrudFormPage extends javax.swing.JPanel {
         btnCancel.setCaption("");
         btnCancel.setName("unedit"); // NOI18N
         btnCancel.setVisibleWhen("#{cancelEditAllowed==true}");
+        btnCancel.setAccelerator("ctrl shift E");
         btnCancel.setFocusable(false);
         btnCancel.setIconResource("images/toolbars/cancel-edit.png");
         btnCancel.setImmediate(true);
@@ -185,7 +186,7 @@ public class CrudFormPage extends javax.swing.JPanel {
         btnPrint.setCaption("");
         btnPrint.setName("preview"); // NOI18N
         btnPrint.setVisibleWhen("#{viewReportAllowed==true}");
-        btnPrint.setAccelerator("ctrl P");
+        btnPrint.setAccelerator("ctrl shift P");
         btnPrint.setAutoRefresh(false);
         btnPrint.setFocusable(false);
         btnPrint.setIconResource("images/toolbars/preview.png");
@@ -207,11 +208,12 @@ public class CrudFormPage extends javax.swing.JPanel {
         jToolBar1.add(btnPrint1);
 
         btnRefresh.setCaption("");
+        btnRefresh.setName("reloadEntity"); // NOI18N
+        btnRefresh.setVisibleWhen("#{mode == 'read' }");
+        btnRefresh.setAccelerator("F5");
         btnRefresh.setFocusable(false);
         btnRefresh.setIconResource("images/toolbars/refresh.png");
         btnRefresh.setImmediate(true);
-        btnRefresh.setName("reloadEntity"); // NOI18N
-        btnRefresh.setVisibleWhen("#{mode == 'read' }");
         jToolBar1.add(btnRefresh);
 
         xActionBar1.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 10, 0, 0));

@@ -5,7 +5,10 @@
 package com.rameses.osiris3.platform;
 
 import java.text.DecimalFormat;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 import javax.swing.UIDefaults;
 import javax.swing.UIManager;
 import javax.swing.plaf.FontUIResource;
@@ -46,36 +49,48 @@ public final class LookAndFeelCustomizer {
         boolean debug = ("true".equals(System.getProperty("laf.debug",""))); 
         
         numformat = new DecimalFormat("0"); 
+        
+        HashMap<Object,FontUIResource> umap = new HashMap();
         UIDefaults uidefs = UIManager.getLookAndFeelDefaults();
         Iterator itr = uidefs.keySet().iterator();
-        try {
-            while (itr.hasNext()) {
-                Object key = itr.next(); 
-                Object val = uidefs.get( key ); 
-                if ( val instanceof FontUIResource ) {
-                    FontUIResource old = (FontUIResource) val; 
-                    int fsize = old.getSize(); 
-                    if ( fontsize > 0 ) { 
-                        fsize = fontsize; 
-                        String kname = key.toString().split("\\.")[0];
-                        if ( kname.matches(SPECIAL_KEYS)) {
-                            fsize += 1;
-                        }
-                    }
 
-                    try { 
-                        Number num = ((Number) fsize).doubleValue() * fontscale;
-                        fsize = numformat.parse( numformat.format( num )).intValue(); 
-                    } catch(Throwable t) {;} 
-                        
-                    String fname = ( fontname == null ? old.getFontName() : fontname );
-                    uidefs.put(key, new FontUIResource(fname, old.getStyle(), fsize)); 
-                    if ( debug ) System.out.println(key + " = "+ uidefs.get(key));
-                } 
-            }  
-        }
-        catch(Exception ex) {
-            ex.printStackTrace();
+        while (itr.hasNext()) {
+            Object key = null; 
+            try {
+                key = itr.next();
+                if ( key == null ) {
+                    continue; 
+                }
+            } catch(Throwable t) {
+                continue;
+            }
+            
+            Object val = uidefs.get( key ); 
+            if ( val instanceof FontUIResource ) {
+                FontUIResource old = (FontUIResource) val; 
+                int fsize = old.getSize(); 
+                if ( fontsize > 0 ) { 
+                    fsize = fontsize; 
+                    String kname = key.toString().split("\\.")[0];
+                    if ( kname.matches(SPECIAL_KEYS)) {
+                        fsize += 1;
+                    }
+                }
+
+                try { 
+                    Number num = ((Number) fsize).doubleValue() * fontscale;
+                    fsize = numformat.parse( numformat.format( num )).intValue(); 
+                } catch(Throwable t) {;} 
+                    
+                String fname = ( fontname == null ? old.getFontName() : fontname );
+                umap.put(key, new FontUIResource(fname, old.getStyle(), fsize)); 
+            } 
+        }  
+        
+        Set<Map.Entry<Object,FontUIResource>> entries = umap.entrySet();
+        for (Map.Entry e : entries) { 
+            uidefs.put(e.getKey(), e.getValue()); 
+            if ( debug ) System.out.println(e.getKey() + " = "+ uidefs.get(e.getKey()));
         }
     }
     

@@ -208,6 +208,7 @@ public class CrudNodeListPage extends javax.swing.JPanel {
         btnDelete.setDepends(new String[] {"selectedItem"});
         btnDelete.setName("removeEntity"); // NOI18N
         btnDelete.setVisibleWhen("#{deleteAllowed==true}");
+        btnDelete.setAccelerator("ctrl D");
         btnDelete.setAutoRefresh(false);
         btnDelete.setFocusable(false);
         btnDelete.setIconResource("images/toolbars/trash.png");
@@ -239,6 +240,7 @@ public class CrudNodeListPage extends javax.swing.JPanel {
         btnSelectColumn.setCaption("");
         btnSelectColumn.setName("selectColumns"); // NOI18N
         btnSelectColumn.setVisibleWhen("#{showColsAllowed}");
+        btnSelectColumn.setAccelerator("ctrl shift F");
         btnSelectColumn.setAutoRefresh(false);
         btnSelectColumn.setFocusable(false);
         btnSelectColumn.setIconResource("images/toolbars/table-column.png");
@@ -248,7 +250,7 @@ public class CrudNodeListPage extends javax.swing.JPanel {
 
         btnRefresh.setCaption("");
         btnRefresh.setName("refresh"); // NOI18N
-        btnRefresh.setAccelerator("ctrl R");
+        btnRefresh.setAccelerator("F5");
         btnRefresh.setAutoRefresh(false);
         btnRefresh.setFocusable(false);
         btnRefresh.setIconResource("images/toolbars/refresh.png");
@@ -272,7 +274,7 @@ public class CrudNodeListPage extends javax.swing.JPanel {
         xSubFormPanel1.setLayout(xSubFormPanel1Layout);
         xSubFormPanel1Layout.setHorizontalGroup(
             xSubFormPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 230, Short.MAX_VALUE)
+            .addGap(0, 232, Short.MAX_VALUE)
         );
         xSubFormPanel1Layout.setVerticalGroup(
             xSubFormPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)

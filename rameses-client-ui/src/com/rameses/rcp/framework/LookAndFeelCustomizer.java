@@ -5,7 +5,10 @@
 package com.rameses.rcp.framework;
 
 import java.text.DecimalFormat;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 import javax.swing.UIDefaults;
 import javax.swing.UIManager;
 import javax.swing.plaf.FontUIResource;
@@ -46,6 +49,8 @@ public final class LookAndFeelCustomizer {
         boolean debug = ("true".equals(System.getProperty("laf.debug",""))); 
         
         numformat = new DecimalFormat("0"); 
+        
+        HashMap<Object,FontUIResource> umap = new HashMap();
         UIDefaults uidefs = UIManager.getLookAndFeelDefaults();
         Iterator itr = uidefs.keySet().iterator();
         while (itr.hasNext()) {
@@ -68,10 +73,15 @@ public final class LookAndFeelCustomizer {
                 } catch(Throwable t) {;} 
                     
                 String fname = ( fontname == null ? old.getFontName() : fontname );
-                uidefs.put(key, new FontUIResource(fname, old.getStyle(), fsize)); 
-                if ( debug ) System.out.println(key + " = "+ uidefs.get(key));
+                umap.put(key, new FontUIResource(fname, old.getStyle(), fsize)); 
             } 
         }  
+        
+        Set<Map.Entry<Object,FontUIResource>> entries = umap.entrySet();
+        for (Map.Entry e : entries) { 
+            uidefs.put(e.getKey(), e.getValue()); 
+            if ( debug ) System.out.println(e.getKey() + " = "+ uidefs.get(e.getKey()));
+        }
     }
     
     private final String SPECIAL_KEYS = "ColorChooser|InternalFrame|Menu|MenuBar|MenuItem|OptionPane|RadioButtonMenuItem|TextArea|ToolTip";

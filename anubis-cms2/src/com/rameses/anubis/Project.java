@@ -11,7 +11,10 @@ package com.rameses.anubis;
 
 import com.rameses.anubis.FileDir.FileFilter;
 import com.rameses.util.ConfigProperties;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.LinkedHashMap;
@@ -52,6 +55,21 @@ public class Project extends HashMap  {
      * LOCALE MANAGER
      **************************************************************************/
     private Map<String, LocaleSupport> locales = new Hashtable();
+
+    private String _id;
+    private String _url; 
+    
+    /** Creates a new instance of Project */
+    public Project(String id, String url) {
+        this._id = id; 
+        this._url = url;
+        
+        conf = ContentUtil.getConf( url + "/project.conf"  );
+        super.putAll(conf.getProperties());
+        super.put("name", id);
+        super.put("url", url);
+        init();
+    }
     
     public void init() {
         this.templateCache = new ContentTemplateCache();
@@ -64,43 +82,27 @@ public class Project extends HashMap  {
         this.fileManager = new FileManager(this);
         this.folderManager = new FolderManager(this);
         //project specific files. This exists in a project only
-        this.permalinkManager = new PermalinkManager();
+        this.permalinkManager = new PermalinkManager( this );
         this.mimetypeManager = new MimeTypeManager();
         this.themes = new LinkedHashMap();
         this.modules = new LinkedHashMap();        
         
         mimetypeManager.init( conf ); 
-        permalinkManager.init( conf ); 
         templateManager.init( conf ); 
         blockManager.init( conf ); 
         actionManager.init( conf ); 
         
         loadThemes();
         loadModules();
+
+        permalinkManager.init( conf ); 
         
         String themeName = (String)super.get("theme");
         if(themeName==null) themeName = "default";
         defaultTheme = themes.get(themeName);
-        
-        //if there is a secured page, fix it
-        /*
-        String securedPages = (String)super.get("securedPages");
-        if(securedPages!=null) {
-        }
-         */
-    }
-    
-    /** Creates a new instance of Project */
-    public Project(String id, String url) {
-        conf = ContentUtil.getConf( url + "/project.conf"  );
-        super.putAll(conf.getProperties());
-        super.put("name", id);
-        super.put("url", url);        
-        init();
     }
     
     private void loadThemes() {
-        themes.clear();
         try {
             String path = ContentUtil.correctUrlPath( getUrl(), null, "themes" );
             FileDir.scan(path, new FileFilter(){
@@ -116,21 +118,45 @@ public class Project extends HashMap  {
     }
     
     private void loadModules() {
-        modules.clear();
         try {
             String path = ContentUtil.correctUrlPath(getUrl(), null, "modules");
             FileDir.scan(path, new FileFilter(){
                 public void handle(FileDir.FileInfo f) {
                     URL conf = f.getSubfile("module.conf");
-                    if(conf!=null) {
+                    if ( conf != null ) {
                         Module module = new Module(f.getName(), f.getUrl().toString());
                         module.setProject(Project.this);
                         modules.put(module.getName(), module);
                     }
                 }
             });
-        } catch(Exception warn) {
+        } catch(Throwable t) {
             //System.out.println("WARNING. Module loading error-> " + warn.getMessage() );
+        }
+        
+        BufferedReader br = null;
+        try {
+            String text = null; 
+            URL url = new URL(getUrl() +"modules.conf");
+            br = new BufferedReader(new InputStreamReader( url.openStream()));
+            while ((text=br.readLine()) != null) {
+                if ( text.trim().length() == 0 ) continue; 
+                
+                String[] arr = text.split("=");
+                String key = arr[0].trim();
+                String val = arr[1].trim();
+                try {
+                    Module mod = new Module(key, new URL(val+"/").toString()); 
+                    mod.setProject( this ); 
+                    modules.put( mod.getName(), mod ); 
+                } catch(Throwable t) {
+                    System.out.println("failed to load URL -> "+ val);
+                }
+            }
+        } catch(Throwable t) {
+            t.printStackTrace();
+        } finally {
+            try { br.close(); }catch(Throwable t){;}
         }
     }
     
@@ -275,7 +301,22 @@ public class Project extends HashMap  {
     public String getWelcomePage() {
         return (String)super.get("welcomePage");
     }
+
     
-    
-    
+    @Override
+    protected void finalize() throws Throwable {
+        super.finalize();
+        super.clear();
+        conf.clear(); 
+
+        templateCache.clear();
+        serviceManager.clear();
+        fileManager.clear();
+        folderManager.clear(); 
+        
+        templateManager.clear();
+        blockManager.clear();
+        actionManager.clear();
+        permalinkManager.clear(); 
+    }
 }

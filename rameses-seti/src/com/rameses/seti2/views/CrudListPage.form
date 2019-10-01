@@ -151,6 +151,7 @@
                         </Property>
                         <Property name="name" type="java.lang.String" value="removeEntity" noResource="true"/>
                         <Property name="visibleWhen" type="java.lang.String" value="#{deleteAllowed==true}"/>
+                        <Property name="accelerator" type="java.lang.String" value="ctrl D"/>
                         <Property name="focusable" type="boolean" value="false"/>
                         <Property name="iconResource" type="java.lang.String" value="images/toolbars/trash.png"/>
                         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
@@ -193,6 +194,7 @@
                         <Property name="caption" type="java.lang.String" value=""/>
                         <Property name="name" type="java.lang.String" value="selectColumns" noResource="true"/>
                         <Property name="visibleWhen" type="java.lang.String" value="#{showColsAllowed}"/>
+                        <Property name="accelerator" type="java.lang.String" value="ctrl shift F"/>
                         <Property name="autoRefresh" type="boolean" value="false"/>
                         <Property name="focusable" type="boolean" value="false"/>
                         <Property name="iconResource" type="java.lang.String" value="images/toolbars/table.png"/>
@@ -206,7 +208,7 @@
                       <Properties>
                         <Property name="caption" type="java.lang.String" value=""/>
                         <Property name="name" type="java.lang.String" value="refresh" noResource="true"/>
-                        <Property name="accelerator" type="java.lang.String" value="ctrl R"/>
+                        <Property name="accelerator" type="java.lang.String" value="F5"/>
                         <Property name="autoRefresh" type="boolean" value="false"/>
                         <Property name="focusable" type="boolean" value="false"/>
                         <Property name="iconResource" type="java.lang.String" value="images/toolbars/refresh.png"/>

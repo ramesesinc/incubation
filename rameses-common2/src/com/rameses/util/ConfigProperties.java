@@ -76,6 +76,14 @@ public class ConfigProperties {
         }
     }
     
+    public void clear() {
+        for (Map m: groups.values()) {
+            m.clear();
+        }
+        groups.clear(); 
+        map.clear();        
+    }
+    
     private void parse(InputStream inp, Map ref) {
         try {
             updatable = false;
@@ -254,6 +262,9 @@ public class ConfigProperties {
             if (objval == null) {
                 objval = System.getProperty(skey);
             } 
+            if (objval == null) {
+                objval = System.getenv(skey); 
+            }
             
             if (objval == null) { 
                 builder.append(str.substring(idx0, idx1+1)); 

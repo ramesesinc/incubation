@@ -80,8 +80,15 @@ public class CrudListModel extends AbstractCrudModel {
         ;//do nothing
     }
     
+    // this is the columns definition for UI 
+    // override this if you want to set column properties 
+    // like width, minWidth, maxWidth, visible, etc....
+    public def getColumnDefs() { 
+        return null; 
+    }
+    
     public void initColumn( def c ) {
-        //do nothing
+       
     }
     
     //this is dynamic filter added by a caller
@@ -312,18 +319,19 @@ public class CrudListModel extends AbstractCrudModel {
             return null; 
         } 
     }
-
-    //These are overridable methods
+    
+    // These are overridable methods
     public def getColumnList() {
         if( schema == null )
-            throw new Exception("schema is null. Please call init method")
+            throw new Exception("schema is null. Please call init method"); 
+            
         def zcols = [];
         //always add the primary keys
         String matcher = ".*";
-        if(strCols) matcher = strCols.replace(",","|");
+        if ( strCols ) matcher = strCols.replace(",","|");
         def selCols = cols.findAll{it.selected == true &&  it.name.matches(matcher)};
         int maxSz = selCols.size();
-        for( c in selCols ) {
+        for ( c in selCols ) {
             def cc = [:];
             cc.putAll( c );
             if(c.datatype) {
@@ -570,11 +578,18 @@ public class CrudListModel extends AbstractCrudModel {
     private def _selectedNode;
 
 
+    boolean beforeSelectNode( node ) {
+        return true; 
+    }
+    
     final def nodeListHandler = [
         fetchList : { 
             _nodeList = null;
             return getNodeList();
-        }
+        }, 
+        beforeSelect: { item-> 
+            return beforeSelectNode( item ); 
+        }  
     ] as ListPaneModel 
 
     

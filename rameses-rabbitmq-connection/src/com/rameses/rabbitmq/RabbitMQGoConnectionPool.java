@@ -13,6 +13,7 @@ import com.rameses.osiris3.xconnection.MessageConnection;
 import com.rameses.osiris3.xconnection.MessageHandler;
 import com.rameses.service.ScriptServiceContext;
 import com.rameses.util.Base64Cipher;
+import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
@@ -204,7 +205,7 @@ public class RabbitMQGoConnectionPool extends MessageConnection
                     reply.put("message", t.getMessage()); 
                     result = reply; 
                 } 
-                
+
                 JsonConfig jc = new JsonConfig(); 
                 jc.registerJsonValueProcessor(java.util.Date.class, new JsonDateValueProcessor()); 
                 jc.registerJsonValueProcessor(java.sql.Date.class, new JsonDateValueProcessor()); 
@@ -216,8 +217,9 @@ public class RabbitMQGoConnectionPool extends MessageConnection
                 
                 pushToCache( tokenid, result.toString() ); 
                 
-                Object golangHost = appConf.get("golang.host");                 
+                Object golangHost = appConf.get("golang.host");   
                 HttpClient httpc = new HttpClient( golangHost.toString());
+                httpc.setDebug( "true".equals(appConf.get("debug")+""));
                 System.out.println("[golang] post result to "+ tokenid);
                 httpc.post("gdx-notifier/publish/"+ tokenid, wsreply.toString()); 
             } catch(Throwable t) { 
@@ -235,7 +237,7 @@ public class RabbitMQGoConnectionPool extends MessageConnection
             return t; 
         }
         
-        private void pushToCache( String tokenid, Object result ) {
+        private void pushToCache( String tokenid, Object result ) throws Exception {
             Object cacheHost = appConf.get("cache.host");
             if ( cacheHost == null ) cacheHost = "localhost"; 
             
@@ -253,7 +255,7 @@ public class RabbitMQGoConnectionPool extends MessageConnection
             
             Map param = new HashMap(); 
             param.put("key", tokenid);
-            param.put("value", result); 
+            param.put("value", result.toString()); 
             param.put("timeout", cacheTimeout); 
             svc.put( param ); 
         }

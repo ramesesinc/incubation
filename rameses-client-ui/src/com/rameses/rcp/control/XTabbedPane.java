@@ -284,11 +284,12 @@ public class XTabbedPane extends JTabbedPane implements UIControl, ActiveControl
         if (noSelectionAllowed) return; 
         
         try { 
+            TabbedPaneModel tpm = (this.model == null? null: this.model.getSource());             
             Component c = getComponentAt(index);
             if (c instanceof TabbedItemPanel) {
                 TabbedItemPanel itemPanel = (TabbedItemPanel)c; 
                 Opener opener = itemPanel.getOpener(); 
-                TabbedPaneModel tpm = (this.model == null? null: this.model.getSource()); 
+
                 if ( tpm != null ) { 
                     boolean b = tpm.beforeSelect(opener, index);  
                     if (!b) return; 
@@ -299,6 +300,10 @@ public class XTabbedPane extends JTabbedPane implements UIControl, ActiveControl
                 } else {
                     itemPanel.loadContent();                     
                 }
+            }
+            else if ( tpm != null ) { 
+                boolean b = tpm.beforeSelect(null, index);  
+                if (!b) return; 
             }
         } catch(Throwable t) {
             if (t instanceof Warning) {
@@ -629,6 +634,12 @@ public class XTabbedPane extends JTabbedPane implements UIControl, ActiveControl
 
         public int getSelectedIndex() {
             return root.getSelectedIndex(); 
+        }
+
+        public void setSelectedIndex(int index) {
+            if ( index >= 0 && index < root.getTabCount()) {
+                root.setSelectedIndex(index); 
+            }
         }
     } 
     

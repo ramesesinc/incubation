@@ -177,6 +177,7 @@
                     <Property name="caption" type="java.lang.String" value=""/>
                     <Property name="name" type="java.lang.String" value="removeEntity" noResource="true"/>
                     <Property name="visibleWhen" type="java.lang.String" value="#{deleteAllowed==true}"/>
+                    <Property name="accelerator" type="java.lang.String" value="ctrl D"/>
                     <Property name="autoRefresh" type="boolean" value="false"/>
                     <Property name="focusable" type="boolean" value="false"/>
                     <Property name="iconResource" type="java.lang.String" value="images/toolbars/trash.png"/>
@@ -220,6 +221,7 @@
                     <Property name="caption" type="java.lang.String" value=""/>
                     <Property name="name" type="java.lang.String" value="selectColumns" noResource="true"/>
                     <Property name="visibleWhen" type="java.lang.String" value="#{showColsAllowed}"/>
+                    <Property name="accelerator" type="java.lang.String" value="ctrl shift F"/>
                     <Property name="autoRefresh" type="boolean" value="false"/>
                     <Property name="focusable" type="boolean" value="false"/>
                     <Property name="iconResource" type="java.lang.String" value="images/toolbars/table-column.png"/>
@@ -233,7 +235,7 @@
                   <Properties>
                     <Property name="caption" type="java.lang.String" value=""/>
                     <Property name="name" type="java.lang.String" value="refresh" noResource="true"/>
-                    <Property name="accelerator" type="java.lang.String" value="ctrl R"/>
+                    <Property name="accelerator" type="java.lang.String" value="F5"/>
                     <Property name="autoRefresh" type="boolean" value="false"/>
                     <Property name="focusable" type="boolean" value="false"/>
                     <Property name="iconResource" type="java.lang.String" value="images/toolbars/refresh.png"/>
@@ -285,7 +287,7 @@
                   <Layout>
                     <DimensionLayout dim="0">
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <EmptySpace min="0" pref="278" max="32767" attributes="0"/>
+                          <EmptySpace min="0" pref="280" max="32767" attributes="0"/>
                       </Group>
                     </DimensionLayout>
                     <DimensionLayout dim="1">
