@@ -141,6 +141,7 @@ public class ServiceInvokerServlet extends AbstractServlet {
                 rem.setServiceName( serviceName.substring(idx+1)); 
                 rem.setTokenid( tokenid );
                 tr = rem;
+                System.out.println("******  ServiceName: " + rem.getServiceName());
             }
             
             tr.setBypassAsync(false);
