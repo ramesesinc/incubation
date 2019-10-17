@@ -22,14 +22,14 @@ SELECT f.*
 FROM sys_rule_fact f
 INNER JOIN sys_ruleset_fact rf ON rf.rulefact=f.objid
 WHERE rf.ruleset=$P{ruleset}
-ORDER BY f.sortorder
+ORDER BY f.title
 
 [getActionDefs]
 SELECT ad.* 
 FROM sys_rule_actiondef ad
 INNER JOIN sys_ruleset_actiondef ra ON ra.actiondef=ad.objid 
 WHERE ra.ruleset=$P{ruleset}
-ORDER BY sortorder
+ORDER BY ad.title
 
 [getFactRulesets]
 SELECT * FROM sys_ruleset_fact WHERE rulefact=$P{objid} 
