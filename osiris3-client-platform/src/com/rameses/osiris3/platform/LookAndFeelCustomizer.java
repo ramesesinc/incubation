@@ -53,6 +53,7 @@ public final class LookAndFeelCustomizer {
         HashMap<Object,FontUIResource> umap = new HashMap();
         UIDefaults uidefs = UIManager.getLookAndFeelDefaults();
         Iterator itr = uidefs.keySet().iterator();
+
         while (itr.hasNext()) {
             Object key = null; 
             try {

@@ -68,6 +68,7 @@ public final class OSBootStrap
             } else if (System.getProperty("os.name","").toLowerCase().indexOf("windows") >= 0) {
                 UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
             } else {
+                UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
                 //plaf = "com.jgoodies.plaf.plastic.PlasticXPLookAndFeel";
             }
         } catch(Throwable ign) {;} 

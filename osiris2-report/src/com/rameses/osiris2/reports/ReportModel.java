@@ -266,6 +266,7 @@ public abstract class ReportModel {
     public void print( boolean withPrintDialog ) { 
         try { 
             ReportUtil.print( createReport(), withPrintDialog ); 
+            afterPrint();
         } catch(RuntimeException re) {
             throw re; 
         } catch(Exception e) { 
