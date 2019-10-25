@@ -18,7 +18,10 @@
   <SubComponents>
     <Component class="com.rameses.rcp.control.XWebView" name="xWebView1">
       <Properties>
-        <Property name="name" type="java.lang.String" value="value" noResource="true"/>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="null"/>
+        </Property>
+        <Property name="name" type="java.lang.String" value="menuHtml" noResource="true"/>
       </Properties>
       <Constraints>
         <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">

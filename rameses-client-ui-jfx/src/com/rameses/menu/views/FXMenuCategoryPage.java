@@ -2,18 +2,22 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.rameses.rcp.jfx.views;
+package com.rameses.menu.views;
+
+import com.rameses.osiris2.themes.FormPage;
+import com.rameses.rcp.ui.annotations.Template;
 
 /**
  *
- * @author ramesesinc
+ * @author wflores
  */
-public class WebViewPage extends javax.swing.JPanel {
+@Template(FormPage.class)
+public class FXMenuCategoryPage extends javax.swing.JPanel {
 
     /**
-     * Creates new form WebViewPage
+     * Creates new form FXMenuCategoryPage
      */
-    public WebViewPage() {
+    public FXMenuCategoryPage() {
         initComponents();
     }
 
@@ -30,7 +34,8 @@ public class WebViewPage extends javax.swing.JPanel {
 
         setLayout(new java.awt.BorderLayout());
 
-        xWebView1.setName("value"); // NOI18N
+        xWebView1.setBorder(null);
+        xWebView1.setName("menuHtml"); // NOI18N
         add(xWebView1, java.awt.BorderLayout.CENTER);
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
