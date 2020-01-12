@@ -10,6 +10,7 @@
 package com.rameses.anubis;
 
 import com.rameses.io.StreamUtil;
+import com.rameses.server.ServerConf;
 import com.rameses.util.ConfigProperties;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
@@ -235,7 +236,9 @@ public class ContentUtil {
      
     public static ConfigProperties getConf(String urlPath) {
         try {
-            return new ConfigProperties(new URL(urlPath));
+            URL url = new URL(urlPath);
+            ResolverImpl res = new ResolverImpl();
+            return new ConfigProperties(url, res);
         }
         catch(RuntimeException re) {
             throw re; 
@@ -255,6 +258,8 @@ public class ContentUtil {
             } 
             catch(Throwable t) {;} 
             
+            ResolverImpl resolver = new ResolverImpl();
+            
             int startidx = 0;
             StringBuilder buff = new StringBuilder();
             while ( true ) {
@@ -267,9 +272,16 @@ public class ContentUtil {
                 buff.append(str.substring(startidx, idx0)); 
 
                 String skey = str.substring(idx0+2, idx1); 
-                Object objval = (proj == null ? null : proj.get(skey)); 
-                if (objval == null) objval = System.getProperty( skey ); 
-                if (objval == null) objval = System.getenv( skey ); 
+                Object objval = resolver.resolve(skey); 
+                if (objval == null) { 
+                    objval = (proj == null ? null : proj.get(skey)); 
+                }
+                if (objval == null) {
+                    objval = System.getProperty( skey );
+                } 
+                if (objval == null) {
+                    objval = System.getenv( skey );
+                } 
 
                 if (objval == null) { 
                     buff.append(str.substring(idx0, idx1+1)); 
@@ -286,4 +298,17 @@ public class ContentUtil {
             return buff.toString(); 
         }
     }
+    
+    private static class ResolverImpl extends ConfigProperties.Resolver {
+        public Object resolve(String name) {
+            if ( name != null && name.startsWith("@@")) {
+                String[] arr = name.split(":");
+                String skey = (arr.length == 2 ? arr[1] : ""); 
+                Map group = ServerConf.getGroup( name );
+                return group.get( skey ); 
+            }
+            
+            return super.resolve( name ); 
+        }
+    }    
 }
