@@ -2,15 +2,11 @@
 	<element  tablename="sys_file">
 		<field name="objid" primary="true" prefix="FILE"/>
 		<field name="title" required="true" caption="Title"/>
-		<field name="description" caption="Description"/>
 		<field name="filetype" required="true" caption="Type"/>
 		<field name="dtcreated" required="true" caption="Date Filed"/>
 		<field name="createdby_objid" required="true"/>
 		<field name="createdby_name" required="true" caption="Filed By"/>
 		<field name="keywords"/>
-
-		<complex name="items" ref="sys_fileitem" jointype="one-to-many" required="false">
-			<key field="objid" target="parentid" />
-		</complex>
+		<field name="description"/>
 	</element>
 </schema>

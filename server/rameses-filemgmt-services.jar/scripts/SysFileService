@@ -1,0 +1,52 @@
+import com.rameses.annotations.*;
+
+class SysFileService {
+	
+	@DataContext('sys_file')
+	def file_db; 
+
+	@DataContext('sys_fileitem')
+	def fileitem_db; 
+
+	@DataContext('sys_fileloc')
+	def fileloc_db; 
+
+	@Service('DateService')
+	def dateSvc; 
+
+	@Env
+	def env; 
+
+	@ProxyMethod 
+	public def create( param ) { 
+		param.dtcreated = dateSvc.getServerDate(); 
+		param.createdby = [ objid: env.USERID, name:  env.FULLNAME ]; 
+		
+		def fhead = file_db.create( param ); 
+		def items = param.items; 
+		items.each{ o-> 
+			o.parentid = fhead.objid; 
+			o.dtcreated = fhead.dtcreated;
+			o.createdby = fhead.createdby;
+			def fi = fileitem_db.create( o ); 
+			if ( fi ) o.putAll( fi );   
+		} 
+
+		param.putAll( fhead ); 
+		param.items = items; 
+		return param;  
+	}
+
+	@ProxyMethod 
+	public def read( param ) {
+		def data = file_db.find([ objid: param.objid.toString() ]).first(); 
+		if ( data ) {
+			data.items = fileitem_db.find([ parentid: data.objid ]).list(); 
+			data.items.each{ 
+				it.fileloc = fileloc_db.find([ objid: it.filelocid ]).first(); 
+			} 
+		} 
+		return data; 
+	}
+
+}

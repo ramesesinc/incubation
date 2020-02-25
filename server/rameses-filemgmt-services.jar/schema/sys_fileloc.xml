@@ -4,9 +4,8 @@
 		<field name="url" required="true" />
 		<field name="rootdir" />
 		<field name="defaultloc" required="true" />
-		<field name="loctype" required="true" />
-		<field name="user_name" /> 
-		<field name="user_pwd" /> 
-		<complex name="info" serializer="default" required="false"/> 
+		<field name="loctype" />
+		<field name="user_name" />
+		<field name="user_pwd" />
 	</element>
 </schema>
